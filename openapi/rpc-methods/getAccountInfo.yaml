@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+
+components:
+  schemas:
+    AccountInfo:
+      type: object
+      required:
+        - jsonrpc
+        - id
+        - result
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: The JSON-RPC protocol version.
+          example: "2.0"
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
+        result:
+          type: object
+          description: Account information.
+          properties:
+            context:
+              $ref: '#/components/schemas/Context'
+            value:
+              $ref: '#/components/schemas/AccountValue'
+
+    Context:
+      type: object
+      description: Context of the request.
+      properties:
+        apiVersion:
+          type: string
+          description: API version of the request.
+          example: "2.0.15"
+        slot:
+          type: integer
+          description: Slot number of the response.
+          example: 341197053
+
+    AccountData:
+      type: object
+      description: Account data if the account exists.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: ["account"]
+        lamports:
+          type: integer
+          description: Number of lamports assigned to this account.
+          example: 88849814690250
+        owner:
+          type: string
+          description: Base-58 encoded Pubkey of the program this account is assigned to.
+          example: "11111111111111111111111111111111"
+        data:
+          type: array
+          items:
+            type: string
+          description: Data associated with the account, either as encoded binary data or JSON format.
+          example: ["", "base58"]
+        executable:
+          type: boolean
+          description: Indicates if the account contains a program.
+          example: false
+        rentEpoch:
+          type: integer
+          description: The epoch at which this account will next owe rent.
+          example: 18446744073709551615
+        space:
+          type: integer
+          description: The data size of the account.
+          example: 0
+
+    NullValue:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: ["null"]
+
+    AccountValue:
+      description: Account value which can be null if the account doesn't exist
+      discriminator:
+        propertyName: type
+      oneOf:
+        - $ref: '#/components/schemas/AccountData'
+        - $ref: '#/components/schemas/NullValue'
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message describing the issue.
+
+    RequestParams:
+      type: array
+      description: Parameters for querying account information.
+      items:
+        oneOf:
+          - type: string
+            description: Pubkey of account to query, as a base-58 encoded string.
+            example: "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
+          - $ref: '#/components/schemas/ConfigurationObject'
+
+    ConfigurationObject:
+      type: object
+      description: Configuration object.
+      properties:
+        commitment:
+          type: string
+          description: Commitment level for the query.
+          enum: [processed, confirmed, finalized]
+          example: "confirmed"
+        encoding:
+          type: string
+          description: Encoding format for account data.
+          enum:
+            - "base58"
+            - "base64"
+            - "base64+zstd"
+            - "jsonParsed"
+          example: "base58"
+        dataSlice:
+          type: object
+          description: Request a slice of the account's data.
+          properties:
+            offset:
+              type: integer
+              description: Byte offset from which to start reading.
+              example: 0
+            length:
+              type: integer
+              description: Number of bytes to return.
+              example: 64
+        minContextSlot:
+          type: integer
+          description: The minimum slot that the request can be evaluated at.
+          example: 100000000
+
+  responses:
+    200-Success:
+      description: Successfully retrieved account information.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccountInfo'
+          example:
+            jsonrpc: "2.0"
+            id: "1"
+            result:
+              context:
+                apiVersion: "2.0.15"
+                slot: 341197053
+              value:
+                type: "account"
+                lamports: 88849814690250
+                owner: "11111111111111111111111111111111"
+                data: ["", "base58"]
+                executable: false
+                rentEpoch: 18446744073709551615
+                space: 0
+
+    400-BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid params"
+
+    401-Unauthorized:
+      description: Unauthorized, invalid API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Unauthorized"
+
+    500-InternalServerError:
+      description: Server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal Server Error"
+
+paths:
+  /:
+    post:
+      tags:
+        - HTTP
+      summary: getAccountInfo
+      operationId: getAccountInfo
+      parameters:
+        - name: api-key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "123"
+                  default: "123"
+                method:
+                  type: string
+                  enum: ["getAccountInfo"]
+                  description: The name of the RPC method to invoke.
+                  example: "getAccountInfo"
+                  default: "getAccountInfo"
+                params:
+                  $ref: '#/components/schemas/RequestParams'
+                  default: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getAccountInfo"
+              params:
+                - "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
+                - encoding: "base58"
+      responses:
+        200:
+          $ref: '#/components/responses/200-Success'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'

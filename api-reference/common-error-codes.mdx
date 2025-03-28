@@ -1,0 +1,14 @@
+---
+title: 'Common Error Codes'
+description: 'Learn about common RPC error messages and potential solutions'
+---
+
+When interacting with Helius RPC endpoints, you may encounter the following standard HTTP error codes that indicate the status of your requests:
+
+| Error Code | Error Message | Description | Potential Solution |
+| --- | --- | --- | --- |
+| 401 | Unauthorized | Invalid API key or restricted access due to Access Control Rules. | Ensure your API key is correct and has the necessary permissions. |
+| 429 | Too Many Requests | Exceeded Rate Limits. Check "Rate Limited Requests" graph in your RPC metrics dashboard in Usage section. | Implement rate limiting from your side or upgrade the plan for increased rate limits. Check our [Pricing & Rate limits](/welcome/pricing-and-rate-limits) page for details. |
+| 500 | Internal Server Error | Generic server-side issue. | Contact Helius support for assistance. |
+| 503 | Service Unavailable | Server is temporarily overloaded or under maintenance. | Retry the request after some time, if the issue persists contact Helius support. |
+| 504 | Gateway Timeout | Client did not receive a timely response from the server. This could indicate network issues. | Check your network connection and retry, if the issue persists contact Helius support. | 

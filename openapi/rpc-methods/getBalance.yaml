@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+    
+paths:
+  /:
+    post:
+      tags:
+        - HTTP
+      summary: getBalance
+      operationId: getBalance 
+      parameters:
+        - name: api-key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  default: "2.0"
+                  description: The JSON-RPC protocol version.
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "123"
+                  default: "123"
+                method:
+                  type: string
+                  enum: ["getBalance"]
+                  description: The name of the RPC method to invoke.
+                  default: "getBalance"
+                params:
+                  type: array
+                  description: Parameters for the request.
+                  default: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]
+                  items:
+                    oneOf:
+                      - type: string
+                        description: The Pubkey of the account to query (base-58 encoded string).
+                        example: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
+                      - type: object
+                        description: Additional configuration options for the request.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum: [processed, confirmed, finalized]
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot at which the request can be evaluated.
+                            example: 1
+      responses:
+        200:
+          description: Successfully retrieved account balance.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum: ["2.0"]
+                  id:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      context:
+                        type: object
+                        properties:
+                          slot:
+                            type: integer
+                            description: The slot of the returned information.
+                            example: 1
+                      value:
+                        type: integer
+                        description: The account balance in lamports.
+                        example: 0
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
