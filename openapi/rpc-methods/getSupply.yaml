@@ -16,6 +16,31 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getSupplyRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getSupply"
+        params:
+          - commitment: "finalized"
+            excludeNonCirculatingAccountsList: true
+    getSupplyResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          context:
+            slot: 1114
+          value:
+            total: 1016000
+            circulating: 16000
+            nonCirculating: 1000000
+            nonCirculatingAccounts:
+              - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
+              - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
+              - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
+              - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"
 paths:
   /:
     post:
@@ -66,13 +91,9 @@ paths:
                         type: boolean
                         description: Exclude non-circulating accounts list from the response.
                         example: true
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getSupply"
-              params:
-                - commitment: "finalized"
-                  excludeNonCirculatingAccountsList: true
+            examples:
+              default:
+                $ref: '#/components/examples/getSupplyRequest'
       responses:
         200:
           description: Successfully retrieved the supply information.
@@ -129,21 +150,9 @@ paths:
                               - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
                               - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
                               - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 1114
-                value:
-                  total: 1016000
-                  circulating: 16000
-                  nonCirculating: 1000000
-                  nonCirculatingAccounts:
-                    - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
-                    - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
-                    - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
-                    - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"
+              examples:
+                default:
+                  $ref: '#/components/examples/getSupplyResponse'
         400:
           description: Invalid request.
           content:
@@ -177,28 +186,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getSupply"
-      params:
-        - commitment: "finalized"
-          excludeNonCirculatingAccountsList: true
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          total: 1016000
-          circulating: 16000
-          nonCirculating: 1000000
-          nonCirculatingAccounts:
-            - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
-            - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
-            - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
-            - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"

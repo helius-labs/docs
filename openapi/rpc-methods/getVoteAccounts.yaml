@@ -76,7 +76,7 @@ paths:
                         example: 128
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getVoteAccounts"
               params:
                 - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
@@ -188,22 +188,24 @@ paths:
                               type: integer
                               description: Current root slot for this vote account.
                               example: 42
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                current:
-                  - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
-                    nodePubkey: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
-                    activatedStake: 42
-                    epochVoteAccount: true
-                    commission: 0
-                    lastVote: 147
-                    epochCredits:
-                      - [1, 64, 0]
-                      - [2, 192, 64]
-                    rootSlot: 42
-                delinquent: []
+              examples:
+                default:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      current:
+                        - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+                          nodePubkey: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
+                          activatedStake: 42
+                          epochVoteAccount: true
+                          commission: 0
+                          lastVote: 147
+                          epochCredits:
+                            - [1, 64, 0]
+                            - [2, 192, 64]
+                          rootSlot: 42
+                      delinquent: []
         400:
           description: Invalid request.
         401:

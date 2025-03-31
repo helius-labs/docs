@@ -16,6 +16,32 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    tokenLargestAccountsRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getTokenLargestAccounts"
+        params:
+          - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+    tokenLargestAccountsResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          context:
+            slot: 1114
+          value:
+            - address: "FYjHNoFtSQ5uijKrZFyYAxvEr87hsKXkXcxkcmkBAf4r"
+              amount: "771"
+              decimals: 2
+              uiAmount: 7.71
+              uiAmountString: "7.71"
+            - address: "BnsywxTcaYeNUtzrPxQUvzAWxfzZe3ZLUJ4wMMuLESnu"
+              amount: "229"
+              decimals: 2
+              uiAmount: 2.29
+              uiAmountString: "2.29"
 paths:
   /:
     post:
@@ -67,12 +93,9 @@ paths:
                               - finalized
                               - processed
                             example: finalized
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getTokenLargestAccounts"
-              params:
-                - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+            examples:
+              tokenRequest:
+                $ref: '#/components/examples/tokenLargestAccountsRequest'
       responses:
         200:
           description: Successfully retrieved the largest token accounts.
@@ -123,30 +146,16 @@ paths:
                               example: 2
                             uiAmount:
                               type: number
-                              nullable: true
                               description: The token account balance using mint-prescribed decimals (deprecated).
                               example: 7.71
+                              deprecated: true
                             uiAmountString:
                               type: string
                               description: The token account balance as a string using mint-prescribed decimals.
                               example: "7.71"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 1114
-                value:
-                  - address: "FYjHNoFtSQ5uijKrZFyYAxvEr87hsKXkXcxkcmkBAf4r"
-                    amount: "771"
-                    decimals: 2
-                    uiAmount: 7.71
-                    uiAmountString: "7.71"
-                  - address: "BnsywxTcaYeNUtzrPxQUvzAWxfzZe3ZLUJ4wMMuLESnu"
-                    amount: "229"
-                    decimals: 2
-                    uiAmount: 2.29
-                    uiAmountString: "2.29"
+              examples:
+                tokenResponse:
+                  $ref: '#/components/examples/tokenLargestAccountsResponse'
         400:
           description: Invalid request.
           content:
@@ -180,29 +189,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getTokenLargestAccounts"
-      params:
-        - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          - address: "FYjHNoFtSQ5uijKrZFyYAxvEr87hsKXkXcxkcmkBAf4r"
-            amount: "771"
-            decimals: 2
-            uiAmount: 7.71
-            uiAmountString: "7.71"
-          - address: "BnsywxTcaYeNUtzrPxQUvzAWxfzZe3ZLUJ4wMMuLESnu"
-            amount: "229"
-            decimals: 2
-            uiAmount: 2.29
-            uiAmountString: "2.29"

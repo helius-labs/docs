@@ -16,6 +16,19 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    requestExample:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getTransactionCount"
+        params:
+          - commitment: "finalized"
+    responseExample:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: 268
 paths:
   /:
     post:
@@ -67,12 +80,9 @@ paths:
                         type: integer
                         description: The minimum slot that the request can be evaluated at.
                         example: 1000
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getTransactionCount"
-              params:
-                - commitment: "finalized"
+            examples:
+              sampleRequest:
+                $ref: '#/components/examples/requestExample'
       responses:
         200:
           description: Successfully retrieved the transaction count.
@@ -95,10 +105,9 @@ paths:
                     type: integer
                     description: The current transaction count from the ledger.
                     example: 268
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result: 268
+              examples:
+                sampleResponse:
+                  $ref: '#/components/examples/responseExample'
         400:
           description: Invalid request.
           content:
@@ -132,16 +141,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getTransactionCount"
-      params:
-        - commitment: "finalized"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result: 268

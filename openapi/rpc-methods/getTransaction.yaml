@@ -63,7 +63,7 @@ paths:
                           - jsonParsed
                           - base64
                           - base58
-                        example: json
+                        example: "json"
                       - type: object
                         description: Configuration object for advanced options.
                         properties:
@@ -80,11 +80,11 @@ paths:
                             example: 0
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getTransaction"
               params:
                 - "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
-                - json
+                - {"commitment": "finalized"}
       responses:
         200:
           description: Successfully retrieved the transaction details.
@@ -176,8 +176,9 @@ paths:
                         description: Transaction status metadata.
                         properties:
                           err:
-                            type: object
-                            nullable: true
+                            oneOf:
+                              - type: object
+                              - type: "null"
                             description: Error if transaction failed; null if successful.
                             example: null
                           fee:
@@ -202,56 +203,57 @@ paths:
                               type: integer
                               example: 499998937500
                           rewards:
-                            type: array
-                            nullable: true
+                            oneOf:
+                              - type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    pubkey:
+                                      type: string
+                                      description: Public key of the rewarded account.
+                                      example: "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
+                                    lamports:
+                                      type: integer
+                                      description: Number of lamports credited or debited.
+                                      example: 500
+                                    postBalance:
+                                      type: integer
+                                      description: Account balance after reward application.
+                                      example: 1000
+                                    rewardType:
+                                      type: string
+                                      description: Type of reward.
+                                      example: "rent"
+                              - type: "null"
                             description: Transaction-level rewards.
-                            items:
-                              type: object
-                              properties:
-                                pubkey:
-                                  type: string
-                                  description: Public key of the rewarded account.
-                                  example: "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
-                                lamports:
-                                  type: integer
-                                  description: Number of lamports credited or debited.
-                                  example: 500
-                                postBalance:
-                                  type: integer
-                                  description: Account balance after reward application.
-                                  example: 1000
-                                rewardType:
-                                  type: string
-                                  description: Type of reward.
-                                  example: "rent"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                slot: 430
-                transaction:
-                  message:
-                    accountKeys:
-                      - "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
-                      - "AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc"
-                    header:
-                      numReadonlySignedAccounts: 0
-                      numReadonlyUnsignedAccounts: 3
-                      numRequiredSignatures: 1
-                    instructions:
-                      - accounts: [1, 2, 3, 0]
-                        data: "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1"
-                        programIdIndex: 4
-                    recentBlockhash: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
-                  signatures:
-                    - "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
-                meta:
-                  err: null
-                  fee: 5000
-                  innerInstructions: []
-                  postBalances: [499998932500, 26858640, 1, 1, 1]
-                  preBalances: [499998937500, 26858640, 1, 1, 1]
-                  rewards: []
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  slot: 430
+                  transaction:
+                    message:
+                      accountKeys:
+                        - "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
+                        - "AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc"
+                      header:
+                        numReadonlySignedAccounts: 0
+                        numReadonlyUnsignedAccounts: 3
+                        numRequiredSignatures: 1
+                      instructions:
+                        - accounts: [1, 2, 3, 0]
+                          data: "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1"
+                          programIdIndex: 4
+                      recentBlockhash: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
+                    signatures:
+                      - "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
+                  meta:
+                    err: null
+                    fee: 5000
+                    innerInstructions: []
+                    postBalances: [499998932500, 26858640, 1, 1, 1]
+                    preBalances: [499998937500, 26858640, 1, 1, 1]
+                    rewards: []
         400:
           description: Invalid request.
         401:

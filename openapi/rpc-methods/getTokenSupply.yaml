@@ -67,12 +67,14 @@ paths:
                               - finalized
                               - processed
                             example: finalized
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getTokenSupply"
-              params:
-                - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+            examples:
+              requestExample:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getTokenSupply"
+                  params:
+                    - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
       responses:
         200:
           description: Successfully retrieved the token supply.
@@ -117,24 +119,25 @@ paths:
                             example: 2
                           uiAmount:
                             type: number
-                            nullable: true
                             description: The total token supply, using mint-prescribed decimals (deprecated).
                             example: 1000
                           uiAmountString:
                             type: string
                             description: The total token supply as a string, using mint-prescribed decimals.
                             example: "1000"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 1114
-                value:
-                  amount: "100000"
-                  decimals: 2
-                  uiAmount: 1000
-                  uiAmountString: "1000"
+              examples:
+                responseExample:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      context:
+                        slot: 1114
+                      value:
+                        amount: "100000"
+                        decimals: 2
+                        uiAmount: 1000
+                        uiAmountString: "1000"
         400:
           description: Invalid request.
           content:
@@ -168,23 +171,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getTokenSupply"
-      params:
-        - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          amount: "100000"
-          decimals: 2
-          uiAmount: 1000
-          uiAmountString: "1000"

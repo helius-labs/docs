@@ -105,7 +105,7 @@ paths:
                             example: jsonParsed
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getTokenAccountsByOwner"
               params:
                 - "A1TMhSGzQxMr1TboBKtgixKz1sS6REASMxPo1qsyTSJd"
@@ -235,36 +235,35 @@ paths:
                                   type: integer
                                   description: Data size of the account.
                                   example: 165
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  apiVersion: "2.0.15"
-                  slot: 341197933
-                value:
-                  - pubkey: "BGocb4GEpbTFm8UFV2VsDSaBXHELPfAXrvd4vtt8QWrA"
-                    account:
-                      lamports: 2039280
-                      owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                      data:
-                        program: "spl-token"
-                        parsed:
-                          info:
-                            isNative: false
-                            mint: "2cHr7QS3xfuSV8wdxo3ztuF4xbiarF6Nrgx3qpx3HzXR"
-                            owner: "A1TMhSGzQxMr1TboBKtgixKz1sS6REASMxPo1qsyTSJd"
-                            state: "initialized"
-                            tokenAmount:
-                              amount: "420000000000000"
-                              decimals: 6
-                              uiAmount: 420000000.0
-                              uiAmountString: "420000000"
-                          type: "account"
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  context:
+                    apiVersion: "2.0.15"
+                    slot: 341197933
+                  value:
+                    - pubkey: "BGocb4GEpbTFm8UFV2VsDSaBXHELPfAXrvd4vtt8QWrA"
+                      account:
+                        lamports: 2039280
+                        owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                        data:
+                          program: "spl-token"
+                          parsed:
+                            info:
+                              isNative: false
+                              mint: "2cHr7QS3xfuSV8wdxo3ztuF4xbiarF6Nrgx3qpx3HzXR"
+                              owner: "A1TMhSGzQxMr1TboBKtgixKz1sS6REASMxPo1qsyTSJd"
+                              state: "initialized"
+                              tokenAmount:
+                                amount: "420000000000000"
+                                decimals: 6
+                                uiAmount: 420000000.0
+                                uiAmountString: "420000000"
+                          space: 165
+                        executable: false
+                        rentEpoch: 18446744073709551615
                         space: 165
-                      executable: false
-                      rentEpoch: 18446744073709551615
-                      space: 165
         400:
           description: Invalid request.
           content:

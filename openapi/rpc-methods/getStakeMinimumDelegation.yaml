@@ -64,7 +64,7 @@ paths:
                         example: finalized
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getStakeMinimumDelegation"
               params:
                 - commitment: "finalized"
@@ -102,13 +102,15 @@ paths:
                         type: integer
                         description: The stake minimum delegation in lamports.
                         example: 1000000000
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 501
-                value: 1000000000
+              examples:
+                success:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      context:
+                        slot: 501
+                      value: 1000000000
         400:
           description: Invalid request.
           content:
@@ -142,19 +144,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getStakeMinimumDelegation"
-      params:
-        - commitment: "finalized"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 501
-        value: 1000000000

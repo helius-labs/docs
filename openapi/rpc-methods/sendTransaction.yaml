@@ -16,6 +16,19 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    request:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "sendTransaction"
+        params:
+          - "4hXTCkRzt9WyecNzV1XPgCDfGAZzQKNxLXgynz5QDuWWPSAZBZSHptvWRL3BjCvzUXRdKvHL2b7yGrRQcWyaqsaBCncVG7BFggS8w9snUts67BSh3EqKpXLUm5UMHfD7ZBe9GhARjbNQMLJ1QD3Spr6oMTBU6EhdB4RD8CP2xUxr2u3d6fos36PD98XS6oX8TQjLpsMwncs5DAMiD4nNnR8NBfyghGCWvCVifVwvA8B8TJxE1aiyiv2L429BCWfyzAme5sZW8rDb14NeCQHhZbtNqfXhcp2tAnaAT"
+    response:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"
 paths:
   /:
     post:
@@ -88,11 +101,12 @@ paths:
                             example: 1000
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "sendTransaction"
               params:
                 - "4hXTCkRzt9WyecNzV1XPgCDfGAZzQKNxLXgynz5QDuWWPSAZBZSHptvWRL3BjCvzUXRdKvHL2b7yGrRQcWyaqsaBCncVG7BFggS8w9snUts67BSh3EqKpXLUm5UMHfD7ZBe9GhARjbNQMLJ1QD3Spr6oMTBU6EhdB4RD8CP2xUxr2u3d6fos36PD98XS6oX8TQjLpsMwncs5DAMiD4nNnR8NBfyghGCWvCVifVwvA8B8TJxE1aiyiv2L429BCWfyzAme5sZW8rDb14NeCQHhZbtNqfXhcp2tAnaAT"
-        200:
+      responses:
+        '200':
           description: Successfully sent the transaction.
           content:
             application/json:
@@ -113,11 +127,11 @@ paths:
                     type: string
                     description: The first transaction signature embedded in the transaction, as a base-58 encoded string.
                     example: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"
-        400:
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"
+        '400':
           description: Invalid request.
           content:
             application/json:
@@ -128,7 +142,7 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Invalid request"
-        401:
+        '401':
           description: Unauthorized, invalid API key.
           content:
             application/json:
@@ -139,7 +153,7 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Unauthorized"
-        500:
+        '500':
           description: Server error.
           content:
             application/json:
@@ -150,16 +164,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "sendTransaction"
-      params:
-        - "4hXTCkRzt9WyecNzV1XPgCDfGAZzQKNxLXgynz5QDuWWPSAZBZSHptvWRL3BjCvzUXRdKvHL2b7yGrRQcWyaqsaBCncVG7BFggS8w9snUts67BSh3EqKpXLUm5UMHfD7ZBe9GhARjbNQMLJ1QD3Spr6oMTBU6EhdB4RD8CP2xUxr2u3d6fos36PD98XS6oX8TQjLpsMwncs5DAMiD4nNnR8NBfyghGCWvCVifVwvA8B8TJxE1aiyiv2L429BCWfyzAme5sZW8rDb14NeCQHhZbtNqfXhcp2tAnaAT"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"

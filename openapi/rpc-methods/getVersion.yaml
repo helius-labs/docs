@@ -16,6 +16,19 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getVersionRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getVersion"
+    getVersionResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          solana-core: "1.16.7"
+          feature-set: 2891131721
 paths:
   /:
     post:
@@ -52,10 +65,9 @@ paths:
                   type: array
                   description: No parameters required.
                   maxItems: 0
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getVersion"
+            examples:
+              default:
+                $ref: '#/components/examples/getVersionRequest'
       responses:
         200:
           description: Successfully retrieved the Solana version details.
@@ -86,12 +98,9 @@ paths:
                         type: integer
                         description: Unique identifier of the current software's feature set.
                         example: 2891131721
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                solana-core: "1.16.7"
-                feature-set: 2891131721
+              examples:
+                default:
+                  $ref: '#/components/examples/getVersionResponse'
         400:
           description: Invalid request.
           content:
@@ -125,16 +134,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getVersion"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        solana-core: "1.16.7"
-        feature-set: 2891131721

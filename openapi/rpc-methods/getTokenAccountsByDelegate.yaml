@@ -105,7 +105,7 @@ paths:
                             example: jsonParsed
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getTokenAccountsByDelegate"
               params:
                 - "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
@@ -255,77 +255,43 @@ paths:
                                   type: integer
                                   description: Data size of the account.
                                   example: 165
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 1114
-                value:
-                  - pubkey: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
-                    account:
-                      lamports: 1726080
-                      owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                      data:
-                        program: "spl-token"
-                        parsed:
-                          info:
-                            tokenAmount:
-                              amount: "1"
-                              decimals: 1
-                              uiAmount: 0.1
-                              uiAmountString: "0.1"
-                            delegate: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
-                            delegatedAmount:
-                              amount: "1"
-                              decimals: 1
-                              uiAmount: 0.1
-                              uiAmountString: "0.1"
-                            state: "initialized"
-                            isNative: false
-                            mint: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
-                            owner: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
-                          type: "account"
-                        space: 165
-                      executable: false
-                      rentEpoch: 4
-                      space: 165
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          - pubkey: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
-            account:
-              lamports: 1726080
-              owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-              data:
-                program: "spl-token"
-                parsed:
-                  info:
-                    tokenAmount:
-                      amount: "1"
-                      decimals: 1
-                      uiAmount: 0.1
-                      uiAmountString: "0.1"
-                    delegate: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
-                    delegatedAmount:
-                      amount: "1"
-                      decimals: 1
-                      uiAmount: 0.1
-                      uiAmountString: "0.1"
-                    state: "initialized"
-                    isNative: false
-                    mint: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
-                    owner: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
-                  type: "account"
-                space: 165
-              executable: false
-              rentEpoch: 4
-              space: 165
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      context:
+                        slot: 1114
+                      value:
+                        - pubkey: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
+                          account:
+                            lamports: 1726080
+                            owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                            data:
+                              program: "spl-token"
+                              parsed:
+                                info:
+                                  tokenAmount:
+                                    amount: "1"
+                                    decimals: 1
+                                    uiAmount: 0.1
+                                    uiAmountString: "0.1"
+                                  delegate: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                                  delegatedAmount:
+                                    amount: "1"
+                                    decimals: 1
+                                    uiAmount: 0.1
+                                    uiAmountString: "0.1"
+                                  state: "initialized"
+                                  isNative: false
+                                  mint: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                                  owner: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
+                                type: "account"
+                              space: 165
+                            executable: false
+                            rentEpoch: 4
+                            space: 165
         400:
           description: Invalid request.
           content:
@@ -359,49 +325,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getTokenAccountsByDelegate"
-      params:
-        - "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
-        - programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        - encoding: "jsonParsed"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          - pubkey: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
-            account:
-              lamports: 1726080
-              owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-              data:
-                program: "spl-token"
-                parsed:
-                  info:
-                    tokenAmount:
-                      amount: "1"
-                      decimals: 1
-                      uiAmount: 0.1
-                      uiAmountString: "0.1"
-                    delegate: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
-                    delegatedAmount:
-                      amount: "1"
-                      decimals: 1
-                      uiAmount: 0.1
-                      uiAmountString: "0.1"
-                    state: "initialized"
-                    isNative: false
-                    mint: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
-                    owner: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
-                  type: "account"
-                space: 165
-              executable: false
-              rentEpoch: 4
-              space: 165

@@ -114,7 +114,7 @@ paths:
                                 example: base64
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "simulateTransaction"
               params:
                 - "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
@@ -154,19 +154,16 @@ paths:
                         description: Details of the simulated transaction result.
                         properties:
                           err:
-                            type: object
-                            nullable: true
+                            type: ["object", "null"]
                             description: Error if the transaction failed, null if successful.
                             example: null
                           logs:
-                            type: array
-                            nullable: true
+                            type: ["array", "null"]
                             items:
                               type: string
                               example: "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
                           accounts:
-                            type: array
-                            nullable: true
+                            type: ["array", "null"]
                             items:
                               type: object
                               description: Account details associated with the transaction.
@@ -174,8 +171,7 @@ paths:
                                 lamports: 5000
                                 owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                           returnData:
-                            type: object
-                            nullable: true
+                            type: ["object", "null"]
                             properties:
                               programId:
                                 type: string
@@ -188,22 +184,22 @@ paths:
                               computeUnitsConsumed:
                                 type: integer
                                 example: 2366
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 218
-                value:
-                  err: null
-                  logs:
-                    - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
-                    - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri consumed 2366 of 1400000 compute units"
-                  accounts: null
-                  returnData:
-                    programId: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-                    data: ["Kg==", "base64"]
-                    computeUnitsConsumed: 2366
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  context:
+                    slot: 218
+                  value:
+                    err: null
+                    logs:
+                      - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
+                      - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri consumed 2366 of 1400000 compute units"
+                    accounts: null
+                    returnData:
+                      programId: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
+                      data: ["Kg==", "base64"]
+                      computeUnitsConsumed: 2366
         400:
           description: Invalid request.
           content:
@@ -237,29 +233,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "simulateTransaction"
-      params:
-        - "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
-        - encoding: base64
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 218
-        value:
-          err: null
-          logs:
-            - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
-            - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri consumed 2366 of 1400000 compute units"
-          accounts: null
-          returnData:
-            programId: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-            data: ["Kg==", "base64"]
-            computeUnitsConsumed: 2366

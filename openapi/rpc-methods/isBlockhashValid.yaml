@@ -16,6 +16,23 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    isBlockhashValidRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "45"
+        method: "isBlockhashValid"
+        params:
+          - "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
+          - commitment: "processed"
+    isBlockhashValidResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "45"
+        result:
+          context:
+            slot: 2483
+          value: false
 paths:
   /:
     post:
@@ -71,13 +88,9 @@ paths:
                             type: integer
                             description: The minimum slot that the request can be evaluated at.
                             example: 1000
-            example:
-              jsonrpc: "2.0"
-              id: 45
-              method: "isBlockhashValid"
-              params:
-                - "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
-                - commitment: "processed"
+            examples:
+              default:
+                $ref: '#/components/examples/isBlockhashValidRequest'
       responses:
         200:
           description: Successfully evaluated blockhash validity.
@@ -112,13 +125,9 @@ paths:
                         type: boolean
                         description: True if the blockhash is still valid.
                         example: false
-            example:
-              jsonrpc: "2.0"
-              id: 45
-              result:
-                context:
-                  slot: 2483
-                value: false
+              examples:
+                default:
+                  $ref: '#/components/examples/isBlockhashValidResponse'
         400:
           description: Invalid request.
           content:
@@ -152,20 +161,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 45
-      method: "isBlockhashValid"
-      params:
-        - "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
-        - commitment: "processed"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 45
-      result:
-        context:
-          slot: 2483
-        value: false

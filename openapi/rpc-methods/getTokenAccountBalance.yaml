@@ -16,6 +16,26 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getTokenAccountBalanceRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getTokenAccountBalance"
+        params:
+          - "7fUAJdStEuGbc3sM84cKRL6yYaaSstyLSU4ve5oovLS7"
+    getTokenAccountBalanceResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          context:
+            slot: 1114
+          value:
+            amount: "9864"
+            decimals: 2
+            uiAmount: 98.64
+            uiAmountString: "98.64"
 paths:
   /:
     post:
@@ -67,12 +87,9 @@ paths:
                               - finalized
                               - processed
                             example: finalized
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getTokenAccountBalance"
-              params:
-                - "7fUAJdStEuGbc3sM84cKRL6yYaaSstyLSU4ve5oovLS7"
+            examples:
+              default:
+                $ref: '#/components/examples/getTokenAccountBalanceRequest'
       responses:
         200:
           description: Successfully retrieved the token account balance.
@@ -117,24 +134,15 @@ paths:
                             example: 2
                           uiAmount:
                             type: number
-                            nullable: true
-                            description: The balance, using mint-prescribed decimals (deprecated).
+                            description: The balance, using mint-prescribed decimals (deprecated). Can be null.
                             example: 98.64
                           uiAmountString:
                             type: string
                             description: The balance as a string, using mint-prescribed decimals.
                             example: "98.64"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                context:
-                  slot: 1114
-                value:
-                  amount: "9864"
-                  decimals: 2
-                  uiAmount: 98.64
-                  uiAmountString: "98.64"
+              examples:
+                default:
+                  $ref: '#/components/examples/getTokenAccountBalanceResponse'
         400:
           description: Invalid request.
           content:
@@ -168,23 +176,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getTokenAccountBalance"
-      params:
-        - "7fUAJdStEuGbc3sM84cKRL6yYaaSstyLSU4ve5oovLS7"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        context:
-          slot: 1114
-        value:
-          amount: "9864"
-          decimals: 2
-          uiAmount: 98.64
-          uiAmountString: "98.64"

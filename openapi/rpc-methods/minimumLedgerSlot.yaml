@@ -52,10 +52,12 @@ paths:
                   type: array
                   description: No parameters are required for this method.
                   maxItems: 0
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "minimumLedgerSlot"
+            examples:
+              default:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "minimumLedgerSlot"
       responses:
         200:
           description: Successfully retrieved the minimum ledger slot number.
@@ -78,10 +80,12 @@ paths:
                     type: integer
                     description: Minimum ledger slot number.
                     example: 1234
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result: 1234
+              examples:
+                default:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result: 1234
         400:
           description: Invalid request.
           content:
@@ -115,14 +119,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "minimumLedgerSlot"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result: 1234
