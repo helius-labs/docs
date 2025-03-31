@@ -118,6 +118,18 @@ paths:
                         nullable: true
                         description: Total number of transactions processed without error since genesis.
                         example: 22661093
+              examples:
+                default:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      absoluteSlot: 166598
+                      blockHeight: 166500
+                      epoch: 27
+                      slotIndex: 2790
+                      slotsInEpoch: 8192
+                      transactionCount: 22661093
         400:
           description: Invalid request.
           content:
@@ -151,23 +163,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      method: "getEpochInfo"
-      params:
-        - commitment: "finalized"
-          minContextSlot: 1000
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      result:
-        absoluteSlot: 166598
-        blockHeight: 166500
-        epoch: 27
-        slotIndex: 2790
-        slotsInEpoch: 8192
-        transactionCount: 22661093

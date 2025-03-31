@@ -48,10 +48,12 @@ paths:
                   enum:
                     - "getHealth"
                   example: "getHealth"
-            example:
-              jsonrpc: "2.0"
-              id: "1"
-              method: "getHealth"
+            examples:
+              request:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getHealth"
       responses:
         200:
           description: The node is healthy.
@@ -74,6 +76,41 @@ paths:
                     type: string
                     description: Health status, "ok" if the node is healthy.
                     example: "ok"
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result: "ok"
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  error:
+                    type: object
+                    description: Error details.
+                    properties:
+                      code:
+                        type: integer
+                        description: Error code.
+                        example: -32600
+                      message:
+                        type: string
+                        description: Error message.
+                        example: "Invalid request"
         500:
           description: The node is unhealthy.
           content:
@@ -111,14 +148,3 @@ paths:
                             type: integer
                             description: Number of slots the node is behind.
                             example: 42
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      method: "getHealth"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      result: "ok"
