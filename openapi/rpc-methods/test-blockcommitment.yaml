@@ -12,7 +12,7 @@ paths:
   /:
     post:
       tags:
-        - HTTP
+        - RPC
       summary: getBlockCommitment
       operationId: getBlockCommitment 
       description: Returns commitment information for a specific block
@@ -23,6 +23,8 @@ paths:
           schema:
             type: string
           description: Your API key
+      security:
+        - ApiKeyQuery: []
       requestBody:
         required: true
         content:

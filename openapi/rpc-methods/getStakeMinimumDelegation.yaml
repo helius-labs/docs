@@ -2,15 +2,29 @@ openapi: 3.0.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
 paths:
-  /?api-key=<api-key>:
+  /:
     post:
       tags:
         - RPC
       summary: getStakeMinimumDelegation
       operationId: getStakeMinimumDelegation
+      security:
+        - ApiKeyQuery: []
       requestBody:
         required: true
         content:
