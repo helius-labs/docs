@@ -2,27 +2,24 @@ openapi: 3.0.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
   - url: https://mainnet.helius-rpc.com
     description: Mainnet RPC endpoint
   - url: https://devnet.helius-rpc.com
     description: Devnet RPC endpoint
-    
+
 paths:
   /:
     post:
       tags:
         - HTTP
       summary: getBalance
-      operationId: getBalance 
-      description: Returns the balance of the account of provided Pubkey
-      parameters:
-        - name: api-key
-          in: query
-          required: true
-          schema:
-            type: string
-          description: Your API key
+      operationId: getBalance
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -38,30 +35,24 @@ paths:
                 jsonrpc:
                   type: string
                   enum: ["2.0"]
-                  default: "2.0"
                   description: The JSON-RPC protocol version.
                 id:
                   type: string
                   description: A unique identifier for the request.
-                  example: "123"
-                  default: "123"
+                  example: "1"
                 method:
                   type: string
                   enum: ["getBalance"]
                   description: The name of the RPC method to invoke.
-                  default: "getBalance"
                 params:
                   type: array
                   description: Parameters for the request.
-                  default: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]
                   items:
                     oneOf:
-                      - title: Address
-                        type: string
+                      - type: string
                         description: The Pubkey of the account to query (base-58 encoded string).
                         example: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-                      - title: Configuration Options
-                        type: object
+                      - type: object
                         description: Additional configuration options for the request.
                         properties:
                           commitment:
@@ -110,3 +101,11 @@ paths:
                   error:
                     type: string
                     description: Error message describing the issue.
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key provided by Helius for authentication

@@ -2,15 +2,23 @@ openapi: 3.0.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
   - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
 paths:
-  /?api-key=<api-key>:
+  /:
     post:
       tags:
-        - RPC
+        - HTTP
       summary: getBlockCommitment
       operationId: getBlockCommitment
+      security:
+        - apiKey: []
       requestBody:
         required: true
         content:
@@ -60,7 +68,11 @@ paths:
                     properties:
                       commitment:
                         oneOf:
-                          - type: null
+                          - type: object
+                            properties:
+                              isNull:
+                                type: boolean
+                                enum: [true]
                             description: Returns `null` if the block is unknown.
                           - type: array
                             description: Array of `u64` integers logging the amount of cluster stake in lamports that has voted on the block at each depth.
@@ -81,3 +93,9 @@ paths:
                   error:
                     type: string
                     description: Error message describing the issue.
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: Authorization

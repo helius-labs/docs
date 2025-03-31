@@ -2,31 +2,27 @@ openapi: 3.0.0
 info:
   title: Solana RPC API
   version: 1.0.0
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
 servers:
   - url: https://mainnet.helius-rpc.com
     description: Mainnet RPC endpoint
   - url: https://devnet.helius-rpc.com
     description: Devnet RPC endpoint
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
-security:
-  - ApiKeyAuth: []
+    
 paths:
   /:
     post:
       tags:
         - HTTP
-      summary: getBlockHeight
-      operationId: getBlockHeight
-      security:
-        - ApiKeyAuth: []
+      summary: getBlockCommitment
+      operationId: getBlockCommitment 
+      description: Returns commitment information for a specific block
+      parameters:
+        - name: api-key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your API key
       requestBody:
         required: true
         content:
@@ -42,34 +38,29 @@ paths:
                 jsonrpc:
                   type: string
                   enum: ["2.0"]
+                  default: "2.0"
                   description: The JSON-RPC protocol version.
                 id:
                   type: string
                   description: A unique identifier for the request.
-                  example: "1"
+                  example: "123"
+                  default: "123"
                 method:
                   type: string
-                  enum: ["getBlockHeight"]
+                  enum: ["getBlockCommitment"]
                   description: The name of the RPC method to invoke.
+                  default: "getBlockCommitment"
                 params:
                   type: array
                   description: Parameters for the request.
+                  default: [5]
                   items:
-                    type: object
-                    description: Configuration options for the request.
-                    properties:
-                      commitment:
-                        type: string
-                        description: The commitment level for the request.
-                        enum: [processed, confirmed, finalized]
-                        example: finalized
-                      minContextSlot:
-                        type: integer
-                        description: The minimum slot at which the request can be evaluated.
-                        example: 1
+                    type: integer
+                    description: Block number identified by Slot (as `u64` integer).
+                    example: 5
       responses:
         200:
-          description: Successfully retrieved current block height.
+          description: Successfully retrieved block commitment.
           content:
             application/json:
               schema:
@@ -81,9 +72,21 @@ paths:
                   id:
                     type: string
                   result:
-                    type: integer
-                    description: Current block height as `u64`.
-                    example: 1233
+                    type: object
+                    properties:
+                      commitment:
+                        oneOf:
+                          - type: "null"
+                            description: Returns `null` if the block is unknown.
+                          - type: array
+                            description: Array of `u64` integers logging the amount of cluster stake in lamports that has voted on the block at each depth.
+                            items:
+                              type: integer
+                            example: [0, 0, 0, 0, 0, 10, 32]
+                      totalStake:
+                        type: integer
+                        description: Total active stake, in lamports, of the current epoch.
+                        example: 42
         400:
           description: Invalid request.
           content:
