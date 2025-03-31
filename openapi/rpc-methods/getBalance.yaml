@@ -10,7 +10,12 @@ servers:
     description: Mainnet RPC endpoint
   - url: https://devnet.helius-rpc.com
     description: Devnet RPC endpoint
-
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
 paths:
   /:
     post:
@@ -19,7 +24,7 @@ paths:
       summary: getBalance
       operationId: getBalance
       security:
-        - ApiKeyAuth: []
+        - ApiKeyQuery: []
       requestBody:
         required: true
         content:
@@ -28,7 +33,6 @@ paths:
               type: object
               required:
                 - jsonrpc
-                - id
                 - method
                 - params
               properties:
@@ -101,11 +105,3 @@ paths:
                   error:
                     type: string
                     description: Error message describing the issue.
-
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
-      description: API key provided by Helius for authentication
