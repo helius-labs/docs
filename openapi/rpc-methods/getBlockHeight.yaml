@@ -3,8 +3,8 @@ info:
   title: Solana RPC API
   version: 1.0.0
   license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: https://mainnet.helius-rpc.com
     description: Mainnet RPC endpoint
@@ -12,12 +12,10 @@ servers:
     description: Devnet RPC endpoint
 components:
   securitySchemes:
-    ApiKeyAuth:
+    ApiKeyQuery:
       type: apiKey
-      in: header
-      name: x-api-key
-security:
-  - ApiKeyAuth: []
+      in: query
+      name: api-key
 paths:
   /:
     post:
@@ -26,7 +24,7 @@ paths:
       summary: getBlockHeight
       operationId: getBlockHeight
       security:
-        - ApiKeyAuth: []
+        - ApiKeyQuery: []
       requestBody:
         required: true
         content:
