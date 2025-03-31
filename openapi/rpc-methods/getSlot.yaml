@@ -16,6 +16,19 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getSlotRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getSlot"
+        params:
+          - commitment: "finalized"
+    getSlotResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: 1234
 paths:
   /:
     post:
@@ -66,12 +79,9 @@ paths:
                         type: integer
                         description: The minimum slot that the request can be evaluated at.
                         example: 1000
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getSlot"
-              params:
-                - commitment: "finalized"
+            examples:
+              getSlotExample:
+                $ref: '#/components/examples/getSlotRequest'
       responses:
         200:
           description: Successfully retrieved the current slot.
@@ -94,10 +104,9 @@ paths:
                     type: integer
                     description: Current slot number.
                     example: 1234
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result: 1234
+              examples:
+                getSlotExample:
+                  $ref: '#/components/examples/getSlotResponse'
         400:
           description: Invalid request.
           content:
@@ -131,16 +140,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getSlot"
-      params:
-        - commitment: "finalized"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result: 1234

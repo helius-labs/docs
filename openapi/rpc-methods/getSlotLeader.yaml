@@ -68,7 +68,7 @@ paths:
                         example: 1000
             example:
               jsonrpc: "2.0"
-              id: 1
+              id: "1"
               method: "getSlotLeader"
               params:
                 - commitment: "finalized"
@@ -94,10 +94,10 @@ paths:
                     type: string
                     description: Node identity Pubkey as a base-58 encoded string.
                     example: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
         400:
           description: Invalid request.
           content:
@@ -131,16 +131,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getSlotLeader"
-      params:
-        - commitment: "finalized"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"

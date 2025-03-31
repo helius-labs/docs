@@ -16,6 +16,21 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getInflationRateRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getInflationRate"
+    getInflationRateResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          total: 0.149
+          validator: 0.148
+          foundation: 0.001
+          epoch: 100
 paths:
   /:
     post:
@@ -126,18 +141,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      method: "getInflationRate"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      result:
-        total: 0.149
-        validator: 0.148
-        foundation: 0.001
-        epoch: 100

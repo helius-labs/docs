@@ -16,6 +16,30 @@ components:
       type: apiKey
       in: query
       name: api-key
+  examples:
+    getSlotLeadersRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getSlotLeaders"
+        params:
+          - 100
+          - 10
+    getSlotLeadersResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result:
+          - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+          - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+          - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+          - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+          - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+          - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+          - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+          - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+          - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
+          - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
 paths:
   /:
     post:
@@ -59,13 +83,9 @@ paths:
                       - type: integer
                         description: Limit of slots (between 1 and 5,000).
                         example: 10
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              method: "getSlotLeaders"
-              params:
-                - 100
-                - 10
+            examples:
+              example1:
+                $ref: '#/components/examples/getSlotLeadersRequest'
       responses:
         200:
           description: Successfully retrieved slot leaders.
@@ -91,20 +111,9 @@ paths:
                       type: string
                       description: Node identity Pubkey.
                       example: "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-            example:
-              jsonrpc: "2.0"
-              id: 1
-              result:
-                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-                - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
-                - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
+              examples:
+                example1:
+                  $ref: '#/components/examples/getSlotLeadersResponse'
         400:
           description: Invalid request.
           content:
@@ -138,27 +147,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getSlotLeaders"
-      params:
-        - 100
-        - 10
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
-        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
-        - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
-        - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"

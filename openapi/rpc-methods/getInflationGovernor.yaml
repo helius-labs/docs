@@ -99,6 +99,15 @@ paths:
                         format: float
                         description: The duration of foundation pool inflation in years.
                         example: 7
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  initial: 0.15
+                  terminal: 0.015
+                  taper: 0.15
+                  foundation: 0.05
+                  foundationTerm: 7
         400:
           description: Invalid request.
           content:
@@ -132,19 +141,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      method: "getInflationGovernor"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      result:
-        initial: 0.15
-        terminal: 0.015
-        taper: 0.15
-        foundation: 0.05
-        foundationTerm: 7

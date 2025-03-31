@@ -78,6 +78,18 @@ paths:
                         type: string
                         description: The identity pubkey of the current node (as a base-58 encoded string).
                         example: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
+              examples:
+                request:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    method: "getIdentity"
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      identity: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
         400:
           description: Invalid request.
           content:
@@ -111,15 +123,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      method: "getIdentity"
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: "1"
-      result:
-        identity: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"

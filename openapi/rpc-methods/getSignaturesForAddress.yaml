@@ -122,29 +122,57 @@ paths:
                           description: The slot that contains the block with the transaction.
                           example: 114
                         err:
-                          type: object
-                          nullable: true
+                          oneOf:
+                            - type: object
+                              description: Error if the transaction failed
+                            - type: "null"
                           description: Error if the transaction failed, or null if successful.
                           example: null
                         memo:
-                          type: string
-                          nullable: true
+                          oneOf:
+                            - type: string
+                              description: Memo associated with the transaction
+                            - type: "null"
                           description: Memo associated with the transaction, or null if none.
                           example: null
                         blockTime:
-                          type: integer
-                          nullable: true
+                          oneOf:
+                            - type: integer
+                              description: Estimated production time as Unix timestamp
+                            - type: "null"
                           description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
                           example: null
                         confirmationStatus:
-                          type: string
-                          nullable: true
-                          enum:
-                            - processed
-                            - confirmed
-                            - finalized
+                          oneOf:
+                            - type: string
+                              enum:
+                                - processed
+                                - confirmed
+                                - finalized
+                              description: Transaction's cluster confirmation status
+                            - type: "null"
                           description: Transaction's cluster confirmation status.
                           example: finalized
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: 1
+                    result:
+                      - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                        slot: 114
+                        err: null
+                        memo: null
+                        blockTime: null
+                        confirmationStatus: "finalized"
+            application/json; schema=examples/request:
+              example:
+                jsonrpc: "2.0"
+                id: 1
+                method: "getSignaturesForAddress"
+                params:
+                  - "Vote111111111111111111111111111111111111111"
+                  - limit: 1
         400:
           description: Invalid request.
           content:
@@ -178,23 +206,3 @@ paths:
                     type: string
                     description: Error message describing the issue.
                     example: "Internal Server Error"
-examples:
-  request:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      method: "getSignaturesForAddress"
-      params:
-        - "Vote111111111111111111111111111111111111111"
-        - limit: 1
-  response:
-    value:
-      jsonrpc: "2.0"
-      id: 1
-      result:
-        - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-          slot: 114
-          err: null
-          memo: null
-          blockTime: null
-          confirmationStatus: "finalized"
