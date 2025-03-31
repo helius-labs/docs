@@ -1,0 +1,116 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getRecentPrioritizationFees
+      operationId: getRecentPrioritizationFees
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getRecentPrioritizationFees"
+                  example: "getRecentPrioritizationFees"
+                params:
+                  type: array
+                  description: Optional array of account addresses.
+                  items:
+                    type: array
+                    description: An array of account addresses (maximum 128), as base-58 encoded strings.
+                    items:
+                      type: string
+                      description: A base-58 encoded account address.
+                      example: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
+      responses:
+        200:
+          description: Successfully retrieved recent prioritization fees.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: List of recent prioritization fees.
+                    items:
+                      type: object
+                      description: Details of prioritization fees in a specific slot.
+                      properties:
+                        slot:
+                          type: integer
+                          description: Slot in which the fee was observed.
+                          example: 348125
+                        prioritizationFee:
+                          type: integer
+                          description: The per-compute-unit fee paid in micro-lamports.
+                          example: 1234
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

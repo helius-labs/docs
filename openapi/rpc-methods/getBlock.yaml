@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+
+paths:
+  /:
+    post:
+      tags:
+        - HTTP
+      summary: getBlock
+      operationId: getBlock
+      parameters:
+        - name: api-key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Your API key
+          example: "your-api-key-here"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetBlockRequest'
+      responses:
+        '200':
+          description: Successfully retrieved block details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBlockResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    GetBlockRequest:
+      type: object
+      required:
+        - jsonrpc
+        - id
+        - method
+        - params
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          description: The JSON-RPC protocol version.
+          default: "2.0"
+        id:
+          type: string
+          description: A unique identifier for the request.
+          example: "1"
+          default: "1"
+        method:
+          type: string
+          enum: ["getBlock"]
+          description: The name of the RPC method to invoke.
+          default: "getBlock"
+        params:
+          type: array
+          description: Parameters for the request.
+          default: [430]
+          items:
+            oneOf:
+              - type: integer
+                description: Slot number as a `u64` integer.
+                example: 430
+              - type: object
+                description: Additional configuration options for the request.
+                properties:
+                  commitment:
+                    type: string
+                    description: The commitment level for the request.
+                    enum: [finalized]
+                    default: finalized
+                    example: finalized
+                  encoding:
+                    type: string
+                    description: The encoding format for each returned transaction.
+                    enum: [json, jsonParsed, base58, base64]
+                    default: json
+                    example: json
+                  transactionDetails:
+                    type: string
+                    description: |
+                      Level of transaction detail to return.
+                      - If accounts are requested, transaction details only include signatures and an annotated list of accounts in each transaction.
+                      - Transaction metadata includes only: fee, err, pre_balances, post_balances, pre_token_balances, and post_token_balances.
+                    enum: [full, accounts, signatures, none]
+                    default: full
+                  maxSupportedTransactionVersion:
+                    type: integer
+                    description: |
+                      Maximum transaction version to return in responses.
+                      - If the requested block contains a transaction with a higher version, an error will be returned.
+                      - If omitted, only legacy transactions will be returned.
+                    example: 0
+                  rewards:
+                    type: boolean
+                    description: Whether to populate the rewards array.
+                    default: true
+    
+    GetBlockResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          default: "2.0"
+        id:
+          type: string
+        result:
+          type: object
+          properties:
+            blockhash:
+              type: string
+              description: The blockhash of this block (base-58 encoded string).
+              example: "3Eq21vXNB5s86c62bVuUfTeaMif1N2kUqRPBmGRJhyTA"
+            previousBlockhash:
+              type: string
+              description: The blockhash of the block's parent.
+              example: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
+            parentSlot:
+              type: integer
+              description: The slot index of this block's parent.
+              example: 429
+            transactions:
+              type: array
+              description: Array of transaction details if `full` transaction details are requested.
+              items:
+                type: object
+                properties:
+                  transaction:
+                    type: object
+                    description: Transaction details in the requested encoding format.
+                  meta:
+                    type: object
+                    description: Metadata associated with the transaction.
+                    properties:
+                      fee:
+                        type: integer
+                        description: Fee charged for the transaction.
+                        example: 5000
+                      preBalances:
+                        type: array
+                        description: Array of account balances before the transaction.
+                        items:
+                          type: integer
+                        example: [499999995000, 100000000]
+                      postBalances:
+                        type: array
+                        description: Array of account balances after the transaction.
+                        items:
+                          type: integer
+                        example: [499999990000, 100005000]
+                      rewards:
+                        type: array
+                        nullable: true
+                        description: Rewards for the transaction, if requested.
+                        items:
+                          type: object
+                          properties:
+                            pubkey:
+                              type: string
+                              description: The public key of the account that received the reward.
+                            lamports:
+                              type: integer
+                              description: Number of reward lamports credited or debited.
+                            rewardType:
+                              type: string
+                              nullable: true
+                              description: Type of reward (e.g., "fee", "rent").
+            blockTime:
+              type: integer
+              nullable: true
+              description: Estimated production time as Unix timestamp.
+              example: null
+            blockHeight:
+              type: integer
+              nullable: true
+              description: Number of blocks beneath this block.
+              example: 428
+    
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message describing the issue.
+          example: "Invalid parameter: Slot out of range"

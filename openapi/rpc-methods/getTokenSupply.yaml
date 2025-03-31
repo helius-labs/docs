@@ -1,0 +1,176 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getTokenSupply
+      operationId: getTokenSupply
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getTokenSupply"
+                  description: The name of the RPC method to invoke.
+                  example: "getTokenSupply"
+                params:
+                  type: array
+                  description: Parameters for querying the token supply.
+                  items:
+                    oneOf:
+                      - type: string
+                        description: Pubkey of the token Mint to query, as a base-58 encoded string.
+                        example: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                      - type: object
+                        description: Configuration object.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "getTokenSupply"
+              params:
+                - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+      responses:
+        200:
+          description: Successfully retrieved the token supply.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Context and token supply details.
+                    properties:
+                      context:
+                        type: object
+                        description: Context of the response.
+                        properties:
+                          slot:
+                            type: integer
+                            description: Slot in which the data was fetched.
+                            example: 1114
+                      value:
+                        type: object
+                        description: Token supply details.
+                        properties:
+                          amount:
+                            type: string
+                            description: The raw total token supply without decimals, as a string representation of u64.
+                            example: "100000"
+                          decimals:
+                            type: integer
+                            description: Number of base 10 digits to the right of the decimal place.
+                            example: 2
+                          uiAmount:
+                            type: number
+                            nullable: true
+                            description: The total token supply, using mint-prescribed decimals (deprecated).
+                            example: 1000
+                          uiAmountString:
+                            type: string
+                            description: The total token supply as a string, using mint-prescribed decimals.
+                            example: "1000"
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              result:
+                context:
+                  slot: 1114
+                value:
+                  amount: "100000"
+                  decimals: 2
+                  uiAmount: 1000
+                  uiAmountString: "1000"
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      method: "getTokenSupply"
+      params:
+        - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      result:
+        context:
+          slot: 1114
+        value:
+          amount: "100000"
+          decimals: 2
+          uiAmount: 1000
+          uiAmountString: "1000"

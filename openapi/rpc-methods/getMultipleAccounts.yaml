@@ -1,0 +1,194 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getMultipleAccounts
+      operationId: getMultipleAccounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getMultipleAccounts"
+                  example: "getMultipleAccounts"
+                params:
+                  type: array
+                  description: Parameters for the method.
+                  items:
+                    oneOf:
+                      - type: array
+                        description: An array of Pubkeys to query, as base-58 encoded strings (required, max 100).
+                        items:
+                          type: string
+                        example:
+                          - "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
+                          - "4fYNw3dojWmQ4dXtSGE9epjRGy9pFSx62YypT7avPYvA"
+                      - type: object
+                        description: Configuration object with additional options.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot that the request can be evaluated at.
+                            example: 1000
+                          dataSlice:
+                            type: object
+                            description: Request a slice of the account's data.
+                            properties:
+                              length:
+                                type: integer
+                                description: Number of bytes to return.
+                                example: 50
+                              offset:
+                                type: integer
+                                description: Byte offset from which to start reading.
+                                example: 0
+                          encoding:
+                            type: string
+                            description: Encoding format for the returned account data.
+                            enum:
+                              - jsonParsed
+                              - base58
+                              - base64
+                              - base64+zstd
+                            example: base58
+      responses:
+        200:
+          description: Successfully retrieved the account details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Accounts information with context.
+                    properties:
+                      context:
+                        type: object
+                        description: Context of the response.
+                        properties:
+                          apiVersion:
+                            type: string
+                            description: API version of the response.
+                            example: "2.0.15"
+                          slot:
+                            type: integer
+                            description: The slot at which the data was fetched.
+                            example: 341197247
+                      value:
+                        type: array
+                        description: Array of account details.
+                        items:
+                          oneOf:
+                            - type: "null"
+                              description: Null if the account doesn't exist.
+                            - type: object
+                              description: Account details.
+                              properties:
+                                lamports:
+                                  type: integer
+                                  description: Number of lamports assigned to the account.
+                                  example: 88849814690250
+                                owner:
+                                  type: string
+                                  description: Base-58 encoded Pubkey of the program the account is assigned to.
+                                  example: "11111111111111111111111111111111"
+                                data:
+                                  type: array
+                                  description: Account data as encoded binary or JSON format.
+                                  items:
+                                    type: string
+                                  example:
+                                    - ""
+                                    - base58
+                                executable:
+                                  type: boolean
+                                  description: Indicates if the account contains a program.
+                                  example: false
+                                rentEpoch:
+                                  type: integer
+                                  description: Epoch at which this account will next owe rent.
+                                  example: 18446744073709551615
+                                space:
+                                  type: integer
+                                  description: Data size of the account.
+                                  example: 0
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

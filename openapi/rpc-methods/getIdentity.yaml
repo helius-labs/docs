@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getIdentity
+      operationId: getIdentity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getIdentity"
+                  example: "getIdentity"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getIdentity"
+      responses:
+        200:
+          description: Successfully retrieved the identity of the node.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Identity of the node.
+                    properties:
+                      identity:
+                        type: string
+                        description: The identity pubkey of the current node (as a base-58 encoded string).
+                        example: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      method: "getIdentity"
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      result:
+        identity: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"

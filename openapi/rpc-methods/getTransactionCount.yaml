@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getTransactionCount
+      operationId: getTransactionCount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getTransactionCount"
+                  description: The name of the RPC method to invoke.
+                  example: "getTransactionCount"
+                params:
+                  type: array
+                  description: Optional configuration object.
+                  items:
+                    type: object
+                    description: Configuration options for the request.
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum:
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
+                      minContextSlot:
+                        type: integer
+                        description: The minimum slot that the request can be evaluated at.
+                        example: 1000
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "getTransactionCount"
+              params:
+                - commitment: "finalized"
+      responses:
+        200:
+          description: Successfully retrieved the transaction count.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: integer
+                    description: The current transaction count from the ledger.
+                    example: 268
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              result: 268
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      method: "getTransactionCount"
+      params:
+        - commitment: "finalized"
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      result: 268

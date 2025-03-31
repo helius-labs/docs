@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getSignatureStatuses
+      operationId: getSignatureStatuses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getSignatureStatuses"
+                  description: The name of the RPC method to invoke.
+                  example: "getSignatureStatuses"
+                params:
+                  type: array
+                  description: Array containing transaction signatures and optional configuration object.
+                  items:
+                    oneOf:
+                      - type: array
+                        description: Array of transaction signatures (up to 256), as base-58 encoded strings.
+                        items:
+                          type: string
+                          example: "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+                      - type: object
+                        description: Configuration options.
+                        properties:
+                          searchTransactionHistory:
+                            type: boolean
+                            description: Search ledger cache for signatures not found in recent status cache.
+                            example: true
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "getSignatureStatuses"
+              params:
+                - ["5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"]
+                - searchTransactionHistory: true
+      responses:
+        200:
+          description: Successfully retrieved signature statuses.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Contains the context and signature status values.
+                    properties:
+                      context:
+                        type: object
+                        properties:
+                          slot:
+                            type: integer
+                            description: Slot in which the data was fetched.
+                            example: 82
+                      value:
+                        type: array
+                        description: List of transaction signature statuses.
+                        items:
+                          oneOf:
+                            - type: "null"
+                              description: Null if the transaction is unknown.
+                            - type: object
+                              properties:
+                                slot:
+                                  type: integer
+                                  description: Slot where the transaction was processed.
+                                  example: 48
+                                confirmations:
+                                  type: integer
+                                  nullable: true
+                                  description: Number of blocks since signature confirmation. Null if rooted.
+                                  example: null
+                                err:
+                                  type: object
+                                  nullable: true
+                                  description: Error if the transaction failed. Null if successful.
+                                  example: null
+                                confirmationStatus:
+                                  type: string
+                                  enum:
+                                    - processed
+                                    - confirmed
+                                    - finalized
+                                  description: Transaction's cluster confirmation status.
+                                  example: "finalized"
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              result:
+                context:
+                  slot: 82
+                value:
+                  - slot: 48
+                    confirmations: null
+                    err: null
+                    confirmationStatus: "finalized"
+                  - null
+        400:
+          description: Invalid request.
+        401:
+          description: Unauthorized, invalid API key.
+        500:
+          description: Server error.

@@ -1,0 +1,110 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getHealth
+      operationId: getHealth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getHealth"
+                  example: "getHealth"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getHealth"
+      responses:
+        200:
+          description: The node is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: string
+                    description: Health status, "ok" if the node is healthy.
+                    example: "ok"
+        500:
+          description: The node is unhealthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  error:
+                    type: object
+                    description: Details of the error indicating node health status.
+                    properties:
+                      code:
+                        type: integer
+                        description: Error code indicating the issue.
+                        example: -32005
+                      message:
+                        type: string
+                        description: Error message describing the issue.
+                        example: "Node is behind by 42 slots"
+                      data:
+                        type: object
+                        description: Additional error details.
+                        properties:
+                          numSlotsBehind:
+                            type: integer
+                            description: Number of slots the node is behind.
+                            example: 42
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      method: "getHealth"
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      result: "ok"

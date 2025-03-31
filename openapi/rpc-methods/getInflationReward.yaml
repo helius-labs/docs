@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getInflationReward
+      operationId: getInflationReward
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getInflationReward"
+                  example: "getInflationReward"
+                params:
+                  type: array
+                  description: Parameters for the method.
+                  items:
+                    oneOf:
+                      - type: array
+                        description: An array of addresses to query, as base-58 encoded strings.
+                        items:
+                          type: string
+                        example:
+                          - "6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu"
+                          - "BGsqMegLpV6n6Ve146sSX2dTjUMj3M92HnU8BbNRMhF2"
+                      - type: object
+                        description: Configuration object containing optional parameters.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                            example: finalized
+                          epoch:
+                            type: integer
+                            description: An epoch for which the reward occurs. If omitted, the previous epoch will be used.
+                            example: 2
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot that the request can be evaluated at.
+                            example: 1000
+      responses:
+        200:
+          description: Successfully retrieved inflation reward information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: Array of reward information for each queried address.
+                    items:
+                      oneOf:
+                        - type: object
+                          description: Reward details.
+                          properties:
+                            epoch:
+                              type: integer
+                              description: Epoch for which the reward occurred.
+                              example: 2
+                            effectiveSlot:
+                              type: integer
+                              description: The slot in which the rewards are effective.
+                              example: 224
+                            amount:
+                              type: integer
+                              description: Reward amount in lamports.
+                              example: 2500
+                            postBalance:
+                              type: integer
+                              description: Post balance of the account in lamports.
+                              example: 499999442500
+                            commission:
+                              type: integer
+                              description: Vote account commission when the reward was credited.
+                              nullable: true
+                              example: 5
+                        - type: "null"
+                          description: If no reward information is available.
+                          example: null
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

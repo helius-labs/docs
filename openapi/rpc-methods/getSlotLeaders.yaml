@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getSlotLeaders
+      operationId: getSlotLeaders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getSlotLeaders"
+                  description: The name of the RPC method to invoke.
+                  example: "getSlotLeaders"
+                params:
+                  type: array
+                  description: Parameters for specifying the start slot and limit.
+                  items:
+                    oneOf:
+                      - type: integer
+                        description: Start slot as a `u64` integer.
+                        example: 100
+                      - type: integer
+                        description: Limit of slots (between 1 and 5,000).
+                        example: 10
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "getSlotLeaders"
+              params:
+                - 100
+                - 10
+      responses:
+        200:
+          description: Successfully retrieved slot leaders.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: Array of Node identity public keys as base-58 encoded strings.
+                    items:
+                      type: string
+                      description: Node identity Pubkey.
+                      example: "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              result:
+                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+                - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+                - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+                - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
+                - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      method: "getSlotLeaders"
+      params:
+        - 100
+        - 10
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      result:
+        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+        - "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
+        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+        - "Awes4Tr6TX8JDzEhCZY2QVNimT6iD1zWHzf1vNyGvpLM"
+        - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"
+        - "DWvDTSh3qfn88UoQTEKRV2JnLt5jtJAVoiCo3ivtMwXP"

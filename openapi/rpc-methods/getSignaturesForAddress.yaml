@@ -1,0 +1,186 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getSignaturesForAddress
+      operationId: getSignaturesForAddress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  description: The JSON-RPC protocol version.
+                id:
+                  type: string
+                  example: "1"
+                  description: A unique identifier for the request.
+                method:
+                  type: string
+                  enum:
+                    - "getSignaturesForAddress"
+                  example: "getSignaturesForAddress"
+                  description: The name of the RPC method to invoke.
+                params:
+                  type: array
+                  description: Array containing the required account address and optional configuration object.
+                  items:
+                    oneOf:
+                      - type: string
+                        description: Account address as a base-58 encoded string.
+                        example: "Vote111111111111111111111111111111111111111"
+                      - type: object
+                        description: Configuration object with additional options.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot that the request can be evaluated at.
+                            example: 1000
+                          limit:
+                            type: integer
+                            description: Maximum transaction signatures to return (1 to 1,000).
+                            example: 1000
+                          before:
+                            type: string
+                            description: Start searching backwards from this transaction signature.
+                            example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                          until:
+                            type: string
+                            description: Search until this transaction signature is found, if before the limit is reached.
+                            example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+      responses:
+        200:
+          description: Successfully retrieved signatures for the specified address.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                    description: The JSON-RPC protocol version.
+                  id:
+                    type: string
+                    example: "1"
+                    description: Identifier matching the request.
+                  result:
+                    type: array
+                    description: List of transaction signature information.
+                    items:
+                      type: object
+                      description: Details for each transaction signature.
+                      properties:
+                        signature:
+                          type: string
+                          description: Transaction signature as a base-58 encoded string.
+                          example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                        slot:
+                          type: integer
+                          description: The slot that contains the block with the transaction.
+                          example: 114
+                        err:
+                          type: object
+                          nullable: true
+                          description: Error if the transaction failed, or null if successful.
+                          example: null
+                        memo:
+                          type: string
+                          nullable: true
+                          description: Memo associated with the transaction, or null if none.
+                          example: null
+                        blockTime:
+                          type: integer
+                          nullable: true
+                          description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
+                          example: null
+                        confirmationStatus:
+                          type: string
+                          nullable: true
+                          enum:
+                            - processed
+                            - confirmed
+                            - finalized
+                          description: Transaction's cluster confirmation status.
+                          example: finalized
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      method: "getSignaturesForAddress"
+      params:
+        - "Vote111111111111111111111111111111111111111"
+        - limit: 1
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      result:
+        - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+          slot: 114
+          err: null
+          memo: null
+          blockTime: null
+          confirmationStatus: "finalized"

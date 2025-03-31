@@ -1,0 +1,190 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getSupply
+      operationId: getSupply
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getSupply"
+                  description: The name of the RPC method to invoke.
+                  example: "getSupply"
+                params:
+                  type: array
+                  description: Optional configuration object.
+                  items:
+                    type: object
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum:
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
+                      excludeNonCirculatingAccountsList:
+                        type: boolean
+                        description: Exclude non-circulating accounts list from the response.
+                        example: true
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "getSupply"
+              params:
+                - commitment: "finalized"
+                  excludeNonCirculatingAccountsList: true
+      responses:
+        200:
+          description: Successfully retrieved the supply information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Context and supply details.
+                    properties:
+                      context:
+                        type: object
+                        description: Context of the response.
+                        properties:
+                          slot:
+                            type: integer
+                            description: Slot in which the data was fetched.
+                            example: 1114
+                      value:
+                        type: object
+                        description: Supply details.
+                        properties:
+                          total:
+                            type: integer
+                            description: Total supply in lamports.
+                            example: 1016000
+                          circulating:
+                            type: integer
+                            description: Circulating supply in lamports.
+                            example: 16000
+                          nonCirculating:
+                            type: integer
+                            description: Non-circulating supply in lamports.
+                            example: 1000000
+                          nonCirculatingAccounts:
+                            type: array
+                            description: List of non-circulating account addresses as strings. Empty if `excludeNonCirculatingAccountsList` is enabled.
+                            items:
+                              type: string
+                            example:
+                              - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
+                              - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
+                              - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
+                              - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              result:
+                context:
+                  slot: 1114
+                value:
+                  total: 1016000
+                  circulating: 16000
+                  nonCirculating: 1000000
+                  nonCirculatingAccounts:
+                    - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
+                    - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
+                    - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
+                    - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      method: "getSupply"
+      params:
+        - commitment: "finalized"
+          excludeNonCirculatingAccountsList: true
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: 1
+      result:
+        context:
+          slot: 1114
+        value:
+          total: 1016000
+          circulating: 16000
+          nonCirculating: 1000000
+          nonCirculatingAccounts:
+            - "FEy8pTbP5fEoqMV1GdTz83byuA8EKByqYat1PKDgVAq5"
+            - "9huDUZfxoJ7wGMTffUE7vh1xePqef7gyrLJu9NApncqA"
+            - "3mi1GmwEE3zo2jmfDuzvjSX9ovRXsDUKHvsntpkhuLJ9"
+            - "BYxEJTDerkaRWBem3XgnVcdhppktBXa2HbkHPKj2Ui4Z"

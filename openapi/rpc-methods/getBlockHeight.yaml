@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getBlockHeight
+      operationId: getBlockHeight
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The JSON-RPC protocol version.
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum: ["getBlockHeight"]
+                  description: The name of the RPC method to invoke.
+                params:
+                  type: array
+                  description: Parameters for the request.
+                  items:
+                    type: object
+                    description: Configuration options for the request.
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum: [processed, confirmed, finalized]
+                        example: finalized
+                      minContextSlot:
+                        type: integer
+                        description: The minimum slot at which the request can be evaluated.
+                        example: 1
+      responses:
+        200:
+          description: Successfully retrieved current block height.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum: ["2.0"]
+                  id:
+                    type: string
+                  result:
+                    type: integer
+                    description: Current block height as `u64`.
+                    example: 1233
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.

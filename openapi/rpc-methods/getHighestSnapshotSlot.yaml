@@ -1,0 +1,113 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getHighestSnapshotSlot
+      operationId: getHighestSnapshotSlot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getHighestSnapshotSlot"
+                  example: "getHighestSnapshotSlot"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getHighestSnapshotSlot"
+      responses:
+        200:
+          description: The node has a snapshot.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Snapshot slot information.
+                    properties:
+                      full:
+                        type: integer
+                        description: Highest full snapshot slot.
+                        example: 100
+                      incremental:
+                        type: integer
+                        nullable: true
+                        description: Highest incremental snapshot slot based on full snapshot.
+                        example: 110
+        500:
+          description: The node has no snapshot.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  error:
+                    type: object
+                    description: Details of the error when no snapshot is available.
+                    properties:
+                      code:
+                        type: integer
+                        description: Error code indicating the issue.
+                        example: -32008
+                      message:
+                        type: string
+                        description: Error message describing the issue.
+                        example: "No snapshot"
+examples:
+  request:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      method: "getHighestSnapshotSlot"
+  response:
+    value:
+      jsonrpc: "2.0"
+      id: "1"
+      result:
+        full: 100
+        incremental: 110

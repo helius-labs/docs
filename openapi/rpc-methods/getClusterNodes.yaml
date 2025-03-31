@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - RPC
+      summary: getClusterNodes
+      operationId: getClusterNodes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getClusterNodes"
+                  example: "getClusterNodes"
+      responses:
+        200:
+          description: Successfully retrieved cluster node information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: List of nodes in the cluster with their details.
+                    items:
+                      type: object
+                      properties:
+                        pubkey:
+                          type: string
+                          description: Node public key as a base-58 encoded string.
+                          example: "9QzsJf7LPLj8GkXbYT3LFDKqsj2hHG7TA3xinJHu8epQ"
+                        gossip:
+                          type: string
+                          nullable: true
+                          description: Gossip network address for the node.
+                          example: "10.239.6.48:8001"
+                        tpu:
+                          type: string
+                          nullable: true
+                          description: TPU network address for the node.
+                          example: "10.239.6.48:8856"
+                        rpc:
+                          type: string
+                          nullable: true
+                          description: JSON RPC network address for the node, or null if not enabled.
+                          example: "10.239.6.48:8899"
+                        version:
+                          type: string
+                          nullable: true
+                          description: Software version of the node.
+                          example: "1.0.0 c375ce1f"
+                        featureSet:
+                          type: integer
+                          nullable: true
+                          description: Unique identifier of the node's feature set.
+                        shredVersion:
+                          type: integer
+                          nullable: true
+                          description: Shred version the node has been configured to use.
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

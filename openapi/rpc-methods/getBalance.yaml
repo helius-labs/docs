@@ -15,6 +15,7 @@ paths:
         - HTTP
       summary: getBalance
       operationId: getBalance 
+      description: Returns the balance of the account of provided Pubkey
       parameters:
         - name: api-key
           in: query
@@ -55,10 +56,12 @@ paths:
                   default: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]
                   items:
                     oneOf:
-                      - type: string
+                      - title: Address
+                        type: string
                         description: The Pubkey of the account to query (base-58 encoded string).
                         example: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-                      - type: object
+                      - title: Configuration Options
+                        type: object
                         description: Additional configuration options for the request.
                         properties:
                           commitment:
