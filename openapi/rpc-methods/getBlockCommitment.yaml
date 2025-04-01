@@ -41,17 +41,21 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The JSON-RPC protocol version.
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getBlockCommitment"]
                   description: The name of the RPC method to invoke.
+                  default: "getBlockCommitment"
                 params:
                   type: array
                   description: Parameters for the request.
+                  default: [430]
                   items:
                     type: integer
                     description: Block number identified by Slot (as `u64` integer).
@@ -74,12 +78,8 @@ paths:
                     properties:
                       commitment:
                         oneOf:
-                          - type: object
-                            properties:
-                              isNull:
-                                type: boolean
-                                enum: [true]
-                            description: Returns `null` if the block is unknown.
+                          - type: 'null'
+                            description: 'Returns null if the block is unknown or has not been confirmed by any validator.'
                           - type: array
                             description: Array of `u64` integers logging the amount of cluster stake in lamports that has voted on the block at each depth.
                             items:
@@ -88,7 +88,7 @@ paths:
                       totalStake:
                         type: integer
                         description: Total active stake, in lamports, of the current epoch.
-                        example: 42
+                        example: 384962848972206900
         400:
           description: Invalid request.
           content:
@@ -99,3 +99,22 @@ paths:
                   error:
                     type: string
                     description: Error message describing the issue.
+        401:
+          description: Unauthorized - Invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum: ["2.0"]
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: -32401
+                      message:
+                        type: string
+                        example: "invalid api key provided"

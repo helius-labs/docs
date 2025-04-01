@@ -41,17 +41,21 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The JSON-RPC protocol version.
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getBlock"]
                   description: The name of the RPC method to invoke.
+                  default: "getBlock"
                 params:
                   type: array
                   description: Parameters for the request.
+                  default: [430]
                   items:
                     oneOf:
                       - type: integer
@@ -108,59 +112,78 @@ paths:
                       blockhash:
                         type: string
                         description: The blockhash of this block (base-58 encoded string).
-                        example: "3Eq21vXNB5s86c62bVuUfTeaMif1N2kUqRPBmGRJhyTA"
+                        example: "DUCT8VSgk2BXkMhQfxKVYfikEZCQf4dZ4ioPdGdaVxMN"
                       previousBlockhash:
                         type: string
                         description: The blockhash of the block's parent.
-                        example: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
+                        example: "HA2fJgGqmQezCXJRVNZAWPbRMXCPjUyo7VjRF47JGdYs"
                       parentSlot:
                         type: integer
                         description: The slot index of this block's parent.
                         example: 429
                       transactions:
                         type: array
-                        description: Array of transaction details if `full` transaction details are requested.
+                        description: Array of transaction details.
                         items:
                           type: object
                           properties:
-                            transaction:
-                              type: object
-                              description: Transaction details in the requested encoding format.
                             meta:
                               type: object
+                              nullable: true
                               description: Metadata associated with the transaction.
+                            transaction:
+                              type: object
+                              description: Transaction details.
                               properties:
-                                fee:
-                                  type: integer
-                                  description: Fee charged for the transaction.
-                                  example: 5000
-                                preBalances:
-                                  type: array
-                                  description: Array of account balances before the transaction.
-                                  items:
-                                    type: integer
-                                postBalances:
-                                  type: array
-                                  description: Array of account balances after the transaction.
-                                  items:
-                                    type: integer
-                                rewards:
-                                  type: array
-                                  nullable: true
-                                  description: Rewards for the transaction, if requested.
-                                  items:
-                                    type: object
-                                    properties:
-                                      pubkey:
+                                message:
+                                  type: object
+                                  properties:
+                                    accountKeys:
+                                      type: array
+                                      description: Array of account public keys used in this transaction.
+                                      items:
                                         type: string
-                                        description: The public key of the account that received the reward.
-                                      lamports:
-                                        type: integer
-                                        description: Number of reward lamports credited or debited.
-                                      rewardType:
-                                        type: string
-                                        nullable: true
-                                        description: Type of reward (e.g., "fee", "rent").
+                                    header:
+                                      type: object
+                                      properties:
+                                        numReadonlySignedAccounts:
+                                          type: integer
+                                          description: Number of readonly signed accounts.
+                                        numReadonlyUnsignedAccounts:
+                                          type: integer
+                                          description: Number of readonly unsigned accounts.
+                                        numRequiredSignatures:
+                                          type: integer
+                                          description: Number of required signatures.
+                                    instructions:
+                                      type: array
+                                      description: Array of program instructions.
+                                      items:
+                                        type: object
+                                        properties:
+                                          accounts:
+                                            type: array
+                                            description: Array of account indexes.
+                                            items:
+                                              type: integer
+                                          data:
+                                            type: string
+                                            description: Program input data encoded in base58.
+                                          programIdIndex:
+                                            type: integer
+                                            description: Index of the program ID in the accountKeys array.
+                                          stackHeight:
+                                            type: integer
+                                            nullable: true
+                                            description: Stack height.
+                                    recentBlockhash:
+                                      type: string
+                                      description: Recent blockhash used in this transaction.
+                                signatures:
+                                  type: array
+                                  description: Array of signatures for this transaction (base-58 encoded).
+                                  items:
+                                    type: string
                       blockTime:
                         type: integer
                         nullable: true
@@ -170,7 +193,23 @@ paths:
                         type: integer
                         nullable: true
                         description: Number of blocks beneath this block.
-                        example: 428
+                        example: null
+                      rewards:
+                        type: array
+                        description: Rewards for the block.
+                        items:
+                          type: object
+                          properties:
+                            pubkey:
+                              type: string
+                              description: The public key of the account that received the reward.
+                            lamports:
+                              type: integer
+                              description: Number of reward lamports credited or debited.
+                            rewardType:
+                              type: string
+                              nullable: true
+                              description: Type of reward (e.g., "fee", "rent").
         400:
           description: Invalid request.
           content:
