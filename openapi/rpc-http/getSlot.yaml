@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  examples:
+    getSlotRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "getSlot"
+        params:
+          - commitment: "finalized"
+    getSlotResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: 1234
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getSlot
+      operationId: getSlot
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getSlot"
+                  description: The name of the RPC method to invoke.
+                  example: "getSlot"
+                params:
+                  type: array
+                  description: Optional configuration object.
+                  items:
+                    type: object
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum:
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
+                      minContextSlot:
+                        type: integer
+                        description: The minimum slot that the request can be evaluated at.
+                        example: 1000
+            examples:
+              getSlotExample:
+                $ref: '#/components/examples/getSlotRequest'
+      responses:
+        200:
+          description: Successfully retrieved the current slot.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: integer
+                    description: Current slot number.
+                    example: 1234
+              examples:
+                getSlotExample:
+                  $ref: '#/components/examples/getSlotResponse'
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getBlocks
+      operationId: getBlocks
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  enum: ["getBlocks"]
+                  description: The name of the RPC method to invoke.
+                  example: "getBlocks"
+                  default: "getBlocks"
+                params:
+                  type: array
+                  description: Request parameters for the method.
+                  default: [5, 10, {"commitment": "finalized"}]
+                  items:
+                    oneOf:
+                      - type: integer
+                        description: Start slot (required).
+                        example: 5
+                      - type: integer
+                        description: End slot (optional, must be ≤ 500,000 blocks from start slot).
+                        example: 10
+                      - type: object
+                        description: The commitment describes how finalized a block is at that point in time. "processed" is not supported.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum: [confirmed, finalized]
+                            default: "finalized"
+      responses:
+        200:
+          description: Successfully retrieved confirmed blocks.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum: ["2.0"]
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: List of confirmed blocks between start_slot and end_slot.
+                    items:
+                      type: integer
+                    example: [5, 6, 7, 8, 9, 10]
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+        500:
+          description: Server error.

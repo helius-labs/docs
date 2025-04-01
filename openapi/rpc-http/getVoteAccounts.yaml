@@ -1,0 +1,215 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getVoteAccounts
+      operationId: getVoteAccounts
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getVoteAccounts"
+                  description: The name of the RPC method to invoke.
+                  example: "getVoteAccounts"
+                params:
+                  type: array
+                  description: Optional configuration object for filtering vote accounts.
+                  items:
+                    type: object
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum:
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
+                      votePubkey:
+                        type: string
+                        description: Validator vote address (base-58 encoded).
+                        example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+                      keepUnstakedDelinquents:
+                        type: boolean
+                        description: Whether to include delinquent validators with no stake.
+                        example: true
+                      delinquentSlotDistance:
+                        type: integer
+                        description: Slots behind the tip to consider a validator delinquent. Not recommended for ecosystem consistency.
+                        example: 128
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getVoteAccounts"
+              params:
+                - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+      responses:
+        200:
+          description: Successfully retrieved vote accounts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: List of current and delinquent vote accounts.
+                    properties:
+                      current:
+                        type: array
+                        description: List of current vote accounts.
+                        items:
+                          type: object
+                          properties:
+                            votePubkey:
+                              type: string
+                              description: Vote account address.
+                              example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+                            nodePubkey:
+                              type: string
+                              description: Validator identity.
+                              example: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
+                            activatedStake:
+                              type: integer
+                              description: Stake delegated to this vote account (lamports).
+                              example: 42
+                            epochVoteAccount:
+                              type: boolean
+                              description: Whether the vote account is staked for this epoch.
+                              example: true
+                            commission:
+                              type: integer
+                              description: Percentage (0-100) of rewards payout owed to the vote account.
+                              example: 0
+                            lastVote:
+                              type: integer
+                              description: Most recent slot voted on by this vote account.
+                              example: 147
+                            epochCredits:
+                              type: array
+                              description: Latest history of earned credits for up to five epochs.
+                              items:
+                                type: array
+                                description: Credits history [epoch, credits, previousCredits].
+                                items:
+                                  type: integer
+                                example: [1, 64, 0]
+                            rootSlot:
+                              type: integer
+                              description: Current root slot for this vote account.
+                              example: 42
+                      delinquent:
+                        type: array
+                        description: List of delinquent vote accounts.
+                        items:
+                          type: object
+                          properties:
+                            votePubkey:
+                              type: string
+                              description: Vote account address.
+                              example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+                            nodePubkey:
+                              type: string
+                              description: Validator identity.
+                              example: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
+                            activatedStake:
+                              type: integer
+                              description: Stake delegated to this vote account (lamports).
+                              example: 0
+                            epochVoteAccount:
+                              type: boolean
+                              description: Whether the vote account is staked for this epoch.
+                              example: false
+                            commission:
+                              type: integer
+                              description: Percentage (0-100) of rewards payout owed to the vote account.
+                              example: 0
+                            lastVote:
+                              type: integer
+                              description: Most recent slot voted on by this vote account.
+                              example: 147
+                            epochCredits:
+                              type: array
+                              description: Latest history of earned credits for up to five epochs.
+                              items:
+                                type: array
+                                description: Credits history [epoch, credits, previousCredits].
+                                items:
+                                  type: integer
+                                example: [1, 64, 0]
+                            rootSlot:
+                              type: integer
+                              description: Current root slot for this vote account.
+                              example: 42
+              examples:
+                default:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      current:
+                        - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
+                          nodePubkey: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
+                          activatedStake: 42
+                          epochVoteAccount: true
+                          commission: 0
+                          lastVote: 147
+                          epochCredits:
+                            - [1, 64, 0]
+                            - [2, 192, 64]
+                          rootSlot: 42
+                      delinquent: []
+        400:
+          description: Invalid request.
+        401:
+          description: Unauthorized, invalid API key.
+        500:
+          description: Server error.

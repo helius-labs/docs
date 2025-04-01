@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  examples:
+    isBlockhashValidRequest:
+      value:
+        jsonrpc: "2.0"
+        id: "45"
+        method: "isBlockhashValid"
+        params:
+          - "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
+          - commitment: "processed"
+    isBlockhashValidResponse:
+      value:
+        jsonrpc: "2.0"
+        id: "45"
+        result:
+          context:
+            slot: 2483
+          value: false
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: isBlockhashValid
+      operationId: isBlockhashValid
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "45"
+                method:
+                  type: string
+                  enum:
+                    - "isBlockhashValid"
+                  description: The name of the RPC method to invoke.
+                  example: "isBlockhashValid"
+                params:
+                  type: array
+                  description: Parameters for evaluating blockhash validity.
+                  items:
+                    oneOf:
+                      - type: string
+                        description: The blockhash to evaluate, as a base-58 encoded string.
+                        example: "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
+                      - type: object
+                        description: Configuration options for the request.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: processed
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot that the request can be evaluated at.
+                            example: 1000
+            examples:
+              default:
+                $ref: '#/components/examples/isBlockhashValidRequest'
+      responses:
+        200:
+          description: Successfully evaluated blockhash validity.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "45"
+                  result:
+                    type: object
+                    description: Blockhash validity result.
+                    properties:
+                      context:
+                        type: object
+                        description: Context of the response.
+                        properties:
+                          slot:
+                            type: integer
+                            description: Slot in which the data was fetched.
+                            example: 2483
+                      value:
+                        type: boolean
+                        description: True if the blockhash is still valid.
+                        example: false
+              examples:
+                default:
+                  $ref: '#/components/examples/isBlockhashValidResponse'
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid request"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getRecentPerformanceSamples
+      operationId: getRecentPerformanceSamples
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getRecentPerformanceSamples"
+                  example: "getRecentPerformanceSamples"
+                params:
+                  type: array
+                  description: Optional parameter to limit the number of samples to return.
+                  items:
+                    type: integer
+                    description: Number of samples to return (maximum 720).
+                    example: 4
+      responses:
+        200:
+          description: Successfully retrieved performance samples.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: array
+                    description: List of performance samples.
+                    items:
+                      type: object
+                      description: Performance sample data.
+                      properties:
+                        slot:
+                          type: integer
+                          description: Slot in which the sample was taken.
+                          example: 348125
+                        numTransactions:
+                          type: integer
+                          description: Number of transactions processed during the sample period.
+                          example: 126
+                        numNonVoteTransactions:
+                          type: integer
+                          description: Number of non-vote transactions processed during the sample period.
+                          example: 1
+                        samplePeriodSecs:
+                          type: integer
+                          format: int16
+                          description: Number of seconds in a sample window.
+                          example: 60
+                        numSlots:
+                          type: integer
+                          description: Number of slots completed during the sample period.
+                          example: 126
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

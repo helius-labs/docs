@@ -1,0 +1,317 @@
+openapi: 3.1.0
+info:
+  title: Solana WebSocket RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: wss://mainnet.helius-rpc.com
+    description: Mainnet WebSocket RPC endpoint
+  - url: wss://devnet.helius-rpc.com
+    description: Devnet WebSocket RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - WebSocket RPC
+      summary: accountSubscribe
+      description: Subscribe to an account to receive notifications when the lamports or data for a given account public key changes
+      operationId: accountSubscribe
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  default: "2.0"
+                id:
+                  type: integer
+                  description: A unique identifier for the request.
+                  example: 1
+                  default: 1
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "accountSubscribe"
+                  default: "accountSubscribe"
+                params:
+                  type: array
+                  description: Parameters for the accountSubscribe method
+                  minItems: 1
+                  maxItems: 2
+                  items:
+                    oneOf:
+                      - title: Pubkey
+                        type: string
+                        description: Account Pubkey, as base-58 encoded string
+                        example: "CM78CPUeXjn8o3yroDHxUtKsZZgoy4GPkPPXfouKNH12"
+                      - title: ConfigurationObject
+                        type: object
+                        description: Configuration object
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the subscription
+                            enum:
+                              - "finalized"
+                              - "confirmed"
+                              - "processed"
+                            example: "finalized"
+                          encoding:
+                            type: string
+                            description: Encoding format for account data
+                            enum:
+                              - "base58"
+                              - "base64"
+                              - "base64+zstd"
+                              - "jsonParsed"
+                            example: "jsonParsed"
+            example:
+              jsonrpc: "2.0"
+              id: 1
+              method: "accountSubscribe"
+              params: [
+                "CM78CPUeXjn8o3yroDHxUtKsZZgoy4GPkPPXfouKNH12",
+                {
+                  "encoding": "jsonParsed",
+                  "commitment": "finalized"
+                }
+              ]
+      responses:
+        200:
+          description: Successfully subscribed to account updates.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  result:
+                    type: integer
+                    description: Subscription id (needed to unsubscribe)
+                    example: 23784
+                  id:
+                    type: integer
+                    description: A unique identifier matching the request ID.
+                    example: 1
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    result: 23784
+                    id: 1
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
+  /notification:
+    post:
+      tags:
+        - WebSocket RPC
+      summary: accountNotification
+      description: Notification format for account updates
+      operationId: accountNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                method:
+                  type: string
+                  description: The notification method.
+                  example: "accountNotification"
+                params:
+                  type: object
+                  properties:
+                    result:
+                      type: object
+                      properties:
+                        context:
+                          type: object
+                          properties:
+                            slot:
+                              type: integer
+                              description: The current slot
+                              example: 5199307
+                        value:
+                          type: object
+                          description: Account information
+                          properties:
+                            data:
+                              oneOf:
+                                - type: array
+                                  description: Base58 encoded data
+                                  items:
+                                    type: string
+                                  example: [
+                                    "11116bv5nS2h3y12kD1yUKeMZvGcKLSjQgX6BeV7u1FrjeJcKfsHPXHRDEHrBesJhZyqnnq9qJeUuF7WHxiuLuL5twc38w2TXNLxnDbjmuR",
+                                    "base58"
+                                  ]
+                                - type: object
+                                  description: Parsed JSON data (when using jsonParsed encoding)
+                                  properties:
+                                    program:
+                                      type: string
+                                      description: The program that owns this data
+                                      example: "nonce"
+                                    parsed:
+                                      type: object
+                                      description: The parsed data structure
+                                      properties:
+                                        type:
+                                          type: string
+                                          example: "initialized"
+                                        info:
+                                          type: object
+                                          properties:
+                                            authority:
+                                              type: string
+                                              example: "Bbqg1M4YVVfbhEzwA9SpC9FhsaG83YMTYoR4a8oTDLX"
+                                            blockhash:
+                                              type: string
+                                              example: "LUaQTmM7WbMRiATdMMHaRGakPtCkc2GHtH57STKXs6k"
+                                            feeCalculator:
+                                              type: object
+                                              properties:
+                                                lamportsPerSignature:
+                                                  type: integer
+                                                  example: 5000
+                            executable:
+                              type: boolean
+                              description: Whether this account contains a program
+                              example: false
+                            lamports:
+                              type: integer
+                              description: Number of lamports assigned to this account
+                              example: 33594
+                            owner:
+                              type: string
+                              description: Base-58 encoded Pubkey of the program this account is assigned to
+                              example: "11111111111111111111111111111111"
+                            rentEpoch:
+                              type: integer
+                              description: The epoch at which this account will next owe rent
+                              example: 635
+                            space:
+                              type: integer
+                              description: The data size of the account
+                              example: 80
+                    subscription:
+                      type: integer
+                      description: Subscription ID that matches the initial request
+                      example: 23784
+            examples:
+              base58Notification:
+                value:
+                  jsonrpc: "2.0"
+                  method: "accountNotification"
+                  params:
+                    result:
+                      context:
+                        slot: 5199307
+                      value:
+                        data: [
+                          "11116bv5nS2h3y12kD1yUKeMZvGcKLSjQgX6BeV7u1FrjeJcKfsHPXHRDEHrBesJhZyqnnq9qJeUuF7WHxiuLuL5twc38w2TXNLxnDbjmuR",
+                          "base58"
+                        ]
+                        executable: false
+                        lamports: 33594
+                        owner: "11111111111111111111111111111111"
+                        rentEpoch: 635
+                        space: 80
+                    subscription: 23784
+              jsonParsedNotification:
+                value:
+                  jsonrpc: "2.0"
+                  method: "accountNotification"
+                  params:
+                    result:
+                      context:
+                        slot: 5199307
+                      value:
+                        data:
+                          program: "nonce"
+                          parsed:
+                            type: "initialized"
+                            info:
+                              authority: "Bbqg1M4YVVfbhEzwA9SpC9FhsaG83YMTYoR4a8oTDLX"
+                              blockhash: "LUaQTmM7WbMRiATdMMHaRGakPtCkc2GHtH57STKXs6k"
+                              feeCalculator:
+                                lamportsPerSignature: 5000
+                        executable: false
+                        lamports: 33594
+                        owner: "11111111111111111111111111111111"
+                        rentEpoch: 635
+                        space: 80
+                    subscription: 23784
+      responses:
+        200:
+          description: Notification received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok" 

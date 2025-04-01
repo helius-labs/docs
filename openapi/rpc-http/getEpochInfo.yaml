@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getEpochInfo
+      operationId: getEpochInfo
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getEpochInfo"
+                  example: "getEpochInfo"
+                params:
+                  type: array
+                  description: Optional parameters for the request.
+                  items:
+                    type: object
+                    properties:
+                      commitment:
+                        type: string
+                        description: The commitment level for the request.
+                        enum:
+                          - confirmed
+                          - finalized
+                        example: finalized
+                      minContextSlot:
+                        type: integer
+                        description: The minimum slot that the request can be evaluated at.
+                        example: 1000
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getEpochInfo"
+              params:
+                - commitment: "finalized"
+                  minContextSlot: 1000
+      responses:
+        200:
+          description: Successfully retrieved epoch information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    properties:
+                      absoluteSlot:
+                        type: integer
+                        description: The current slot.
+                        example: 166598
+                      blockHeight:
+                        type: integer
+                        description: The current block height.
+                        example: 166500
+                      epoch:
+                        type: integer
+                        description: The current epoch.
+                        example: 27
+                      slotIndex:
+                        type: integer
+                        description: The current slot relative to the start of the current epoch.
+                        example: 2790
+                      slotsInEpoch:
+                        type: integer
+                        description: The number of slots in this epoch.
+                        example: 8192
+                      transactionCount:
+                        type: integer
+                        nullable: true
+                        description: Total number of transactions processed without error since genesis.
+                        example: 22661093
+              examples:
+                default:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      absoluteSlot: 166598
+                      blockHeight: 166500
+                      epoch: 27
+                      slotIndex: 2790
+                      slotsInEpoch: 8192
+                      transactionCount: 22661093
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"

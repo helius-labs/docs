@@ -1,0 +1,144 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getInflationGovernor
+      operationId: getInflationGovernor
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getInflationGovernor"
+                  example: "getInflationGovernor"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getInflationGovernor"
+      responses:
+        200:
+          description: Successfully retrieved inflation governor information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Inflation governor information.
+                    properties:
+                      initial:
+                        type: number
+                        format: float
+                        description: The initial inflation percentage from time 0.
+                        example: 0.15
+                      terminal:
+                        type: number
+                        format: float
+                        description: The terminal inflation percentage.
+                        example: 0.015
+                      taper:
+                        type: number
+                        format: float
+                        description: The rate per year at which inflation is lowered.
+                        example: 0.15
+                      foundation:
+                        type: number
+                        format: float
+                        description: The percentage of total inflation allocated to the foundation.
+                        example: 0.05
+                      foundationTerm:
+                        type: number
+                        format: float
+                        description: The duration of foundation pool inflation in years.
+                        example: 7
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  initial: 0.15
+                  terminal: 0.015
+                  taper: 0.15
+                  foundation: 0.05
+                  foundationTerm: 7
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Invalid params"
+        401:
+          description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Unauthorized"
+        500:
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the issue.
+                    example: "Internal Server Error"
