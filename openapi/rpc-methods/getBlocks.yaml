@@ -42,18 +42,22 @@ paths:
                   enum: ["2.0"]
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getBlocks"]
                   description: The name of the RPC method to invoke.
                   example: "getBlocks"
+                  default: "getBlocks"
                 params:
                   type: array
                   description: Request parameters for the method.
+                  default: [5, 10, {"commitment": "finalized"}]
                   items:
                     oneOf:
                       - type: integer
@@ -62,6 +66,14 @@ paths:
                       - type: integer
                         description: End slot (optional, must be ≤ 500,000 blocks from start slot).
                         example: 10
+                      - type: object
+                        description: The commitment describes how finalized a block is at that point in time. "processed" is not supported.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum: [confirmed, finalized]
+                            default: "finalized"
       responses:
         200:
           description: Successfully retrieved confirmed blocks.
