@@ -5,10 +5,78 @@ description: 'Learn about common RPC error messages and potential solutions'
 
 When interacting with Helius RPC endpoints, you may encounter the following standard HTTP error codes that indicate the status of your requests:
 
-| Error Code | Error Message | Description | Potential Solution |
-| --- | --- | --- | --- |
-| 401 | Unauthorized | Invalid API key or restricted access due to Access Control Rules. | Ensure your API key is correct and has the necessary permissions. |
-| 429 | Too Many Requests | Exceeded Rate Limits. Check "Rate Limited Requests" graph in your RPC metrics dashboard in Usage section. | Implement rate limiting from your side or upgrade the plan for increased rate limits. Check our [Pricing & Rate limits](/welcome/pricing-and-rate-limits) page for details. |
-| 500 | Internal Server Error | Generic server-side issue. | Contact Helius support for assistance. |
-| 503 | Service Unavailable | Server is temporarily overloaded or under maintenance. | Retry the request after some time, if the issue persists contact Helius support. |
-| 504 | Gateway Timeout | Client did not receive a timely response from the server. This could indicate network issues. | Check your network connection and retry, if the issue persists contact Helius support. | 
+<AccordionGroup>
+<Accordion title="401 - Unauthorized">
+  <Warning>Invalid API key or restricted access due to Access Control Rules.</Warning>
+  
+  #### How to fix it
+  
+  1. Verify your API key is correctly formatted
+  2. Check if your API key has the necessary permissions
+  3. Ensure you're including the API key in the query params
+  
+  <Info>For more information on API authentication, see our [Authentication](/api-reference/authentication) page.</Info>
+</Accordion>
+
+<Accordion title="429 - Too Many Requests">
+ 
+  <Warning>
+    Exceeded Rate Limits.
+  </Warning>
+  
+  #### How to fix it
+  
+  1. Check the `Rate Limited Requests` graph in your [RPC metrics dashboard](https://dashboard.helius.dev/usage)
+  2. Optimize your code to reduce unnecessary API calls
+  3. Implement rate limiting in your application
+  4. Consider upgrading your plan for increased rate limits
+  
+  #### More information
+  
+  <Info>Review our [Pricing & Rate limits](/welcome/pricing-and-rate-limits) page for details on the limits for each plan.</Info>
+</Accordion>
+
+<Accordion title="500 - Internal Server Error">
+  <Warning>
+    A server-side error occurred while processing your request.
+  </Warning>
+  
+  ### How to fix it
+  
+  1. Check if your request payload is properly formatted
+  2. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
+  3. If the error persists, contact Helius support with details of your request
+  
+  <Note>Server errors are typically temporary and not related to your implementation.</Note>
+</Accordion>
+
+<Accordion title="503 - Service Unavailable">
+  <Warning>
+    The server is temporarily overloaded or undergoing maintenance.
+  </Warning>
+  
+  ### How to fix it
+  
+  1. Implement exponential backoff for retries in your application
+  2. Wait for a few minutes before trying again
+  3. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
+  4. If the error persists, contact Helius support with details of your request
+  
+  <Tip>This error is usually temporary and resolves on its own as server load balances.</Tip>
+</Accordion>
+
+<Accordion title="504 - Gateway Timeout">
+  <Warning>
+    The server did not receive a timely response while acting as a gateway or proxy.
+  </Warning>
+  
+  ### How to fix it
+  
+  1. Check your network connection
+  2. Implement request timeouts in your client code
+  3. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
+  4. If the error persists, contact Helius support with details of your request
+  
+  <Note>This error often indicates network issues or that the server is processing a complex operation that exceeds the timeout limit.</Note>
+</Accordion>
+</AccordionGroup> 

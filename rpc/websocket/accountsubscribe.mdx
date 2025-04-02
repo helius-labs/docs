@@ -4,18 +4,32 @@ title: "accountSubscribe"
 
 Subscribe to an account to receive notifications when the lamports or data for a given account public key changes.
 
-## Parameters
+## Authorizations
 
-<ParamField body="pubkey" type="string" required>
-  Account Pubkey, as base-58 encoded string
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
 </ParamField>
 
-<ParamField body="encoding" type="string">
-  Encoding format for account data. Can be "base58", "base64", "base64+zstd", or "jsonParsed".
-</ParamField>
+## Body
 
-<ParamField body="commitment" type="string">
-  The commitment level for the subscription. Can be "finalized", "confirmed", or "processed".
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="pubkey" type="string" required>
+            Account Pubkey, as base-58 encoded string.
+        </ParamField>
+
+        <ParamField body="encoding" type="string">
+            Encoding format for account data. Can be `base58`, `base64`, `base64+zstd`, or `jsonParsed`.
+
+            - `base58` is slow
+            - `jsonParsed` encoding attempts to use program-specific state parsers to return more human-readable and explicit account state data
+            - If `jsonParsed` is requested but a parser cannot be found, the field falls back to binary encoding, detectable when the data field is type string.
+        </ParamField>
+
+        <ParamField body="commitment" type="string">
+            The commitment level for the subscription. Can be `finalized`, `confirmed`, or `processed`.
+        </ParamField>
+    </Expandable>
 </ParamField>
 
 ## Response
@@ -24,42 +38,6 @@ Subscribe to an account to receive notifications when the lamports or data for a
   Subscription id (needed to unsubscribe)
 </ResponseField>
 
-<Expandable title="Notification Format">
-  <ResponseField name="context" type="object">
-    <Expandable title="Properties">
-      <ResponseField name="slot" type="integer">
-        The current slot
-      </ResponseField>
-    </Expandable>
-  </ResponseField>
-  
-  <ResponseField name="value" type="object">
-    <Expandable title="Properties">
-      <ResponseField name="data" type="array | object">
-        Account data, encoded according to the requested encoding
-      </ResponseField>
-      <ResponseField name="executable" type="boolean">
-        Whether this account contains a program
-      </ResponseField>
-      <ResponseField name="lamports" type="integer">
-        Number of lamports assigned to this account
-      </ResponseField>
-      <ResponseField name="owner" type="string">
-        Base-58 encoded Pubkey of the program this account is assigned to
-      </ResponseField>
-      <ResponseField name="rentEpoch" type="integer">
-        The epoch at which this account will next owe rent
-      </ResponseField>
-      <ResponseField name="space" type="integer">
-        The data size of the account
-      </ResponseField>
-    </Expandable>
-  </ResponseField>
-  
-  <ResponseField name="subscription" type="integer">
-    Subscription ID that matches the initial request
-  </ResponseField>
-</Expandable>
 
 <RequestExample>
 ```json Request
