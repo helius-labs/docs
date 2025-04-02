@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+    title: Helius API
+    version: 1.0.0
+servers:
+    - url: https://mainnet.helius-rpc.com
+paths:
+    /?api-key=<api-key>:
+        post:
+            tags:
+                - 'RPC'
+            summary: getTokenAccounts
+            operationId: rpc
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - jsonrpc
+                                - id
+                                - method
+                                - params
+                            properties:
+                                jsonrpc:
+                                    type: string
+                                    enum: ['2.0']
+                                    description: The version of the JSON-RPC protocol.
+                                id:
+                                    type: string
+                                    description: An ID to identify the request.
+                                method:
+                                    type: string
+                                    enum: ['getTokenAccounts']
+                                    description: The name of the method to invoke.
+                                params:
+                                    type: object
+                                    properties:
+                                        mint:
+                                            type: string
+                                            description: The mint address key.
+                                            example: 'string'
+                                        owner:
+                                            type: string
+                                            description: The owner address key.
+                                            example: 'string'
+                                        page:
+                                            type: integer
+                                            description: The page of results to return.
+                                            example: 1
+                                        limit:
+                                            type: integer
+                                            description: The maximum number of assets to return.
+                                            example: 100
+                                        cursor:
+                                            type: string
+                                            description: The cursor used for pagination.
+                                        before:
+                                            type: string
+                                            description: Returns results before the specified cursor.
+                                        after:
+                                            type: string
+                                            description: Returns results after the specified cursor.
+                                        options:
+                                            type: object
+                                            properties:
+                                                showZeroBalance:
+                                                    type: boolean
+                                                    description: If true, show accounts with empty token balances.
+            responses:
+                '200':
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    total:
+                                        type: integer
+                                        description: The number of results found for the request.
+                                        example: 2
+                                    limit:
+                                        type: integer
+                                        description: The maximum number of results requested.
+                                        example: 100
+                                    cursor:
+                                        type: string
+                                        description: The cursor used for pagination.
+                                    token_accounts:
+                                        type: array
+                                        description: An array of token accounts.
+                                        items:
+                                            type: object
+                                            properties:
+                                                address:
+                                                    type: string
+                                                    description: The address of the token account.
+                                                mint:
+                                                    type: string
+                                                    description: The address of the mint account.
+                                                owner:
+                                                    type: string
+                                                    description: The address of the token account owner.
+                                                amount:
+                                                    type: integer
+                                                    description: Number of tokens in the account.
+                                                delegated_amount:
+                                                    type: integer
+                                                    description: Number of delegated tokens in the account.
+                                                frozen:
+                                                    type: boolean
+                                                    description: If the account is frozen.
+
+                400:
+                    description: Invalid request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                401:
+                    description: Unauthorized request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                403:
+                    description: Request was forbidden.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                404:
+                    description: The specified resource was not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                429:
+                    description: Exceeded rate limit..
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                500:
+                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string

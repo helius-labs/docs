@@ -1,0 +1,260 @@
+openapi: 3.0.0
+info:
+    title: Helius API
+    version: 1.0.0
+servers:
+    - url: https://mainnet.helius-rpc.com
+paths:
+    /?api-key=<api-key>:
+        post:
+            tags:
+                - RPC
+            summary: getAssetsByGroup
+            operationId: rpc
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - jsonrpc
+                                - id
+                                - method
+                                - params
+                            properties:
+                                jsonrpc:
+                                    type: string
+                                    enum: ['2.0']
+                                    description: The version of the JSON-RPC protocol.
+                                id:
+                                    type: string
+                                    description: An ID to identify the request.
+                                method:
+                                    type: string
+                                    enum: ['getAssetsByGroup']
+                                    description: The name of the DAS method to invoke.
+                                params:
+                                    type: object
+                                    properties:
+                                        groupKey:
+                                            type: string
+                                            description: The group key for the asset search.
+                                            example: 'collection'
+                                        groupValue:
+                                            type: string
+                                            description: The address value of the group.
+                                            example: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
+                                        page:
+                                            type: integer
+                                            description: The page of results to return.
+                                            example: 1
+                                        limit:
+                                            type: integer
+                                            description: The maximum number of assets to return.
+                                            example: 100
+                                        sortBy:
+                                            type: object
+                                            description: The sorting options for the response.
+                                            properties:
+                                                sortBy:
+                                                    type: string
+                                                    description: The criteria by which the retrieved assets will be sorted.
+                                                    enum: ['created', 'recent_action', 'updated', 'none']
+                                                sortDirection:
+                                                    type: string
+                                                    description: The direction by which the retrieved assets will be sorted.
+                                                    enum: ['asc', 'desc']
+                                        before:
+                                            type: string
+                                            description: The cursor for paginating backwards through the assets.
+                                            example: 'string'
+                                        after:
+                                            type: string
+                                            description: The cursor for paginating forwards through the assets.
+                                            example: 'string'
+                                        options:
+                                            type: object
+                                            description: The display options for the response.
+                                            properties:
+                                                showUnverifiedCollections:
+                                                    type: boolean
+                                                    description: Displays grouping information for unverified collections instead of skipping them.
+                                                    default: false
+                                                showCollectionMetadata:
+                                                    type: boolean
+                                                    description: Displays metadata for the collection.
+                                                    default: false
+                                                showGrandTotal:
+                                                    type: boolean
+                                                    description: Shows the total number of assets that matched the query. This will make the request slower.
+                                                    default: false
+                                                showInscription:
+                                                    type: boolean
+                                                    description: Displays inscription details of assets inscribed on-chain.
+                                                    default: false
+                                    required:
+                                        - groupKey
+                                        - groupValue
+            responses:
+                '200':
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    jsonrpc:
+                                        type: string
+                                        example: "2.0"
+                                    result:
+                                        type: object
+                                        properties:
+                                            total:
+                                                type: integer
+                                                description: The total number of assets found.
+                                                example: 1
+                                            limit:
+                                                type: integer
+                                                description: The maximum number of assets requested.
+                                                example: 1
+                                            page:
+                                                type: integer
+                                                description: The current page of results.
+                                                example: 1
+                                            items:
+                                                type: array
+                                                description: An array of assets.
+                                                items:
+                                                    type: object
+                                                    properties:
+                                                        interface:
+                                                            type: string
+                                                            description: The interface of the asset.
+                                                            example: "ProgrammableNFT"
+                                                        id:
+                                                            type: string
+                                                            example: "JEGruwYE13mhX2wi2MGrPmeLiVyZtbBptmVy9vG3pXRC"
+                                                        authorities:
+                                                            type: array
+                                                            example: [
+                                                                {
+                                                                    "address": "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW",
+                                                                    "scopes": ["full"]
+                                                                }
+                                                            ]
+                                                        compression:
+                                                            type: object
+                                                            example: {
+                                                                "eligible": false,
+                                                                "compressed": false,
+                                                                "data_hash": "",
+                                                                "creator_hash": "",
+                                                                "asset_hash": "",
+                                                                "tree": "",
+                                                                "seq": 0,
+                                                                "leaf_id": 0
+                                                            }
+                                                        grouping:
+                                                            type: array
+                                                            example: [
+                                                                {
+                                                                    "group_key": "collection",
+                                                                    "group_value": "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                                                                }
+                                                            ]
+                                                        royalty:
+                                                            type: object
+                                                            example: {
+                                                                "royalty_model": "creators",
+                                                                "target": null,
+                                                                "percent": 0.042,
+                                                                "basis_points": 420,
+                                                                "primary_sale_happened": true,
+                                                                "locked": false
+                                                            }
+                                                        creators:
+                                                            type: array
+                                                            example: [
+                                                                {
+                                                                    "address": "5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv",
+                                                                    "share": 0,
+                                                                    "verified": true
+                                                                }
+                                                            ]
+                                                        ownership:
+                                                            type: object
+                                                            example: {
+                                                                "frozen": true,
+                                                                "delegated": false,
+                                                                "delegate": null,
+                                                                "ownership_model": "single",
+                                                                "owner": "3F21SJs4FMpsakrxmd8GjgfQZG6BN6MVsvXcm5Yc6Jcf"
+                                                            }
+                                                        supply:
+                                                            type: object
+                                                            example: {
+                                                                "print_max_supply": 0,
+                                                                "print_current_supply": 0,
+                                                                "edition_nonce": 254
+                                                            }
+                                                        mutable:
+                                                            type: boolean
+                                                            example: true
+                                                        burnt:
+                                                            type: boolean
+                                                            example: false
+                '400':
+                    description: Invalid request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+
+                '401':
+                    description: Unauthorized request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                '403':
+                    description: Request was forbidden.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                '404':
+                    description: The specified resource was not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                '429':
+                    description: Exceeded rate limit..
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                '500':
+                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string

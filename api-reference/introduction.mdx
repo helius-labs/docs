@@ -1,33 +1,23 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Helius provides powerful API endpoints for interacting with the Solana blockchain. Our API is built on REST principles, offering predictable resource-oriented URLs, JSON-encoded responses, and standard HTTP response codes and verbs.
+'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Core Features
 
-## Welcome
+Helius offers access to Solana blockchain data through:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+- **Standard RPC Methods**: Access all standard Solana RPC functionality with improved reliability and performance
+- **Real-time Websockets**: Establish persistent connections for immediate updates without polling
+- **DAS Compliance**: Fully compliant with Solana's Digital Asset Standard for NFT metadata
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Endpoints
+
+Helius provides multiple endpoint types to suit different application needs. For a comprehensive list of all available endpoints and their connection details, see our [Endpoints](/api-reference/endpoints) documentation.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All Helius API endpoints require authentication using an API key. Include your API key as a query parameter (`api-key=YOUR_API_KEY`) with every request.
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+More information on authentication can be found in the [Authentication](/api-reference/authentication) section.

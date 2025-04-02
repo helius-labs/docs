@@ -1,0 +1,162 @@
+openapi: 3.0.0
+info:
+  title: Helius API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api_key>:
+    post:
+      tags: 
+        -RPC
+      summary: getSignaturesForAsset
+      operationId: rpc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The version of the JSON-RPC protocol.
+                  required: true
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                  required: true
+                method:
+                  type: string
+                  enum: ["getSignaturesForAsset"]
+                  description: The name of the DAS method to invoke.
+                  required: true
+                params:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the asset to retrieve the signatures for.
+                      example: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
+                      required: true
+                    page:
+                      type: integer
+                      description: The page of results to return.
+                      example: 1
+                      required: true
+                    limit:
+                      type: integer
+                      description: The maximum number of signatures to return.
+                      example: 100
+                      required: false
+                    before:
+                      type: string
+                      description: The cursor for paginating backwards through the signatures.
+                      example: "string"
+                      required: false
+                    after:
+                      type: string
+                      description: The cursor for paginating forwards through the signatures.
+                      example: "string"
+                      required: false
+                  required:
+                    - id
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    example: "2.0"
+                  result:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: The total number of signatures found.
+                        example: 3
+                      limit:
+                        type: integer
+                        description: The maximum number of signatures requested.
+                        example: 1000
+                      items:
+                        type: array
+                        description: An array of signatures and their types.
+                        items:
+                          type: array
+                          items:
+                            type: string
+                        example: [
+                          ["5nLi8m72bU6PBcz4Xrk23P6KTGy9ufF92kZiQXjTv9ELgkUxrNaiCGhMF4vh6RAcisw9DEQWJt9ogM3G2uCuwwV7", "MintToCollectionV1"],
+                          ["323Ag4J69gagBt3neUvajNauMydiXZTmXYSfdK5swWcK1iwCUypcXv45UFcy5PTt136G9gtQ45oyPJRs1f2zFZ3v", "Transfer"],
+                          ["3TbybyYRtNjVMhhahTNbd4bbpiEacZn2qkwtH7ByL7tCHmwi2g4YapPidSRGs1gjaseKbs7RjNmUKWmU6xbf3wUT", "Transfer"]
+                        ]
+                  id:
+                    type: string
+                    example: "text"
+        200 No Content:
+          description: 'No content.'
+        400:
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+          
+        401:
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        403:
+          description: Request was forbidden.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        404:
+          description: The specified resource was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        429:
+          description: Exceeded rate limit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        500:
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

@@ -1,0 +1,155 @@
+openapi: 3.0.0
+info:
+    title: Helius API
+    version: 1.0.0
+servers:
+    - url: https://mainnet.helius-rpc.com
+paths:
+    /?api-key=<api-key>:
+        post:
+            tags:
+                - RPC
+            summary: getNftEditions
+            operationId: rpc
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - jsonrpc
+                                - id
+                                - method
+                                - params
+                            properties:
+                                jsonrpc:
+                                    type: string
+                                    enum: ['2.0']
+                                    description: The version of the JSON-RPC protocol.
+                                id:
+                                    type: string
+                                    description: An ID to identify the request.
+                                method:
+                                    type: string
+                                    enum: ['getNftEditions']
+                                    description: The name of the DAS method to invoke.
+                                params:
+                                    type: object
+                                    properties:
+                                        mint:
+                                            type: string
+                                            description: The Mint of the master edition NFT to retrieve.
+                                            example: 'Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL'
+                                        page:
+                                            type: integer
+                                            description: The page of results to return.
+                                            example: 1
+                                        limit:
+                                            type: integer
+                                            description: The maximum number of editions to return.
+                                            example: 100
+                                    required:
+                                        - mint
+            responses:
+                200:
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    total:
+                                        type: integer
+                                        description: The total number of NFT editions found.
+                                        example: 1
+                                    limit:
+                                        type: integer
+                                        description: The maximum number of NFT editions requested.
+                                        example: 1
+                                    page:
+                                        type: integer
+                                        description: The current page of results.
+                                        example: 1
+                                    master_edition_address:
+                                        type: string
+                                        description: The address of the master edition.
+                                        example: "8SHfqzJYABeGfiG1apwiEYt6TvfGQiL1pdwEjvTKsyiZ"
+                                    supply:
+                                        type: integer
+                                        description: Current supply of editions.
+                                        example: 61
+                                    max_supply:
+                                        type: integer
+                                        description: Maximum possible supply of editions.
+                                        example: 69
+                                    editions:
+                                        type: array
+                                        description: An array of editions.
+                                        items:
+                                            type: object
+                                            properties:
+                                                mint:
+                                                    type: string
+                                                    description: The mint of the NFT edition.
+                                                    example: "GJvFDcBWf6aDncd1TBzx2ou1rgLFYaMBdbYLBa9oTAEw"
+                                                edition_address:
+                                                    type: string
+                                                    description: The address of the NFT edition.
+                                                edition:
+                                                    type: integer
+                                                    description: The edition number of the NFT.
+                400:
+                    description: Invalid request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+
+                401:
+                    description: Unauthorized request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                403:
+                    description: Request was forbidden.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                404:
+                    description: The specified resource was not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                429:
+                    description: Exceeded rate limit..
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                500:
+                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string

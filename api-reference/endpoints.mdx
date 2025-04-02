@@ -1,0 +1,56 @@
+---
+title: 'Endpoints'
+description: 'Helius provides multiple endpoint types to suit different application needs. This guide outlines all available connection options for interacting with the Helius API.'
+---
+
+## Solana RPC endpoints
+
+Standard, high-performance RPC endpoints providing full Solana API compatibility with enhanced reliability and throughput. These endpoints support all Solana JSON-RPC methods and are suitable for most applications:
+
+- **Mainnet**: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+## Secure RPC endpoints
+
+These URLs are specifically masked and IP rate-limited at 5 TPS, making them safe to use directly from frontend applications without exposing your API credits:
+
+- **Mainnet**: `https://YOUR_-fast-mainnet.helius-rpc.com`
+- **Devnet**: `https://YOUR-PROJECT-NAME-fast-devnet.helius-rpc.com`
+
+## Staked Connection endpoints
+
+Staked Connections help land transactions faster with increased delivery rates. Available with any standard paid plan (not available on Dedicated Nodes):
+
+- **Mainnet**: `https://staked.helius-rpc.com?api-key=YOUR_API_KEY`
+  - Cost: 50 credits per request
+  - Recommended for top traders or teams who need guaranteed access to staked connections during market congestion
+  - Transactions sent over optimized network (Asia, Europe, and North America)
+- **Devnet**: Only available for mainnet
+
+## Solana Websocket Endpoints
+
+Standard WebSocket endpoints that provide real-time data streaming according to the Solana WebSocket protocol. These endpoints support all standard Solana WebSocket subscription methods including account, program, signature, slot, and log subscriptions:
+
+- **Mainnet**: `wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `wss://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+### Key Features
+
+- **Supported subscriptions**: `accountSubscribe`, `programSubscribe`, `signatureSubscribe`, `slotSubscribe`, `logsSubscribe`, and more
+- **Protocol compatibility**: Fully compatible with Solana's standard WebSocket API
+- **Best for**: Applications that need to monitor account changes, track transaction confirmations, or receive real-time updates on blockchain activity
+- **Connection management**: Implement periodic pings every 30-60 seconds to maintain active connections
+
+## Geyser Enhanced Websocket Endpoints
+
+Enhanced WebSockets offer faster response times than traditional RPC WebSockets and provide real-time transaction and account updates directly to your applications:
+
+- **Mainnet**: `wss://atlas-mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `wss://atlas-devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+### Key Features
+
+- **Available for**: Business and professional plans only (not the same as Yellowstone Geyser, which requires a Dedicated Node)
+- **Subscription methods**: Supports `transactionSubscribe` and `accountSubscribe`
+- **Connection management**: Websockets have a 10-minute inactivity timer; implement health checks and send pings every minute to keep connections alive
+- **Current status**: In beta, occasionally may experience delayed data

@@ -1,0 +1,339 @@
+openapi: 3.0.0
+info:
+  title: Helius API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - "RPC"
+      summary: searchAssets
+      operationId: rpc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The version of the JSON-RPC protocol.
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                method:
+                  type: string
+                  enum: ["searchAssets"]
+                  description: The name of the JSON-RPC method to invoke.
+                params:
+                  type: object
+                  description: Parameters for the `searchAssets` method.
+                  required:
+                    - ownerAddress
+                    - tokenType
+                  properties:
+                    ownerAddress:
+                      type: string
+                      description: The address of the owner whose assets to retrieve.
+                      example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                    tokenType:
+                      type: string
+                      enum:
+                        - fungible
+                        - nonFungible
+                        - regularNFT
+                        - compressedNFT
+                        - all
+                      description: The type of token being searched for.
+                      example: "all"
+                    page:
+                      type: integer
+                      description: The page of results to return.
+                      example: 1
+                    authorityAddress:
+                      type: string
+                      description: The authority address criteria for the asset search.
+                      example: "string"
+                    limit:
+                      type: integer
+                      description: The maximum number of assets to return.
+                      example: 100
+                    sortBy:
+                      type: object
+                      description: The sorting options for the response.
+                      properties:
+                        sortBy:
+                          type: string
+                          description: The criteria by which the assets will be sorted.
+                          enum: ["created", "recent_action", "updated", "none"]
+                        sortDirection:
+                          type: string
+                          description: The sorting direction.
+                          enum: ["asc", "desc"]
+                    compressed:
+                      type: boolean
+                      description: Whether an asset is compressed.
+                      example: true
+                    compressible:
+                      type: boolean
+                      description: Whether an asset is compressible.
+                      example: false
+                    delegate:
+                      type: integer
+                      description: Delegate criteria for the asset search.
+                    creatorAddress:
+                      type: string
+                      description: Creator address criteria for the asset search.
+                      example: "string"
+                    creatorVerified:
+                      type: boolean
+                      description: Whether a creator is verified.
+                      example: true
+                    grouping:
+                      type: array
+                      items:
+                        type: string
+                      description: A grouping array (e.g. ["collection", "<collectionKey>"]).
+                      example: ["collection", "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"]
+                    supply:
+                      type: integer
+                      description: Supply criteria for the asset search.
+                      example: 0
+                    supplyMint:
+                      type: string
+                      description: Supply mint criteria for the asset search.
+                    frozen:
+                      type: boolean
+                      description: Whether an asset is frozen.
+                      example: false
+                    burnt:
+                      type: boolean
+                      description: Whether an asset is burnt.
+                      example: false
+                    interface:
+                      type: string
+                      description: The interface of the asset.
+                      enum:
+                        - "V1_NFT"
+                        - "V1_PRINT"
+                        - "LEGACY_NFT"
+                        - "V2_NFT"
+                        - "FungibleAsset"
+                        - "FungibleToken"
+                        - "Custom"
+                        - "Identity"
+                        - "Executable"
+                        - "ProgrammableNFT"
+                      example: "Custom"
+                    royaltyTargetType:
+                      type: string
+                      description: Royalty target type criteria.
+                      example: "creators"
+                    royaltyTarget:
+                      type: integer
+                      description: Royalty target criteria.
+                      example: 0
+                    royaltyAmount:
+                      type: integer
+                      description: Royalty amount criteria.
+                      example: 0
+                    ownerType:
+                      type: integer
+                      description: Ownership model criteria.
+                      example: 1
+                    before:
+                      type: string
+                      description: A cursor for paginating backward.
+                      example: "string"
+                    after:
+                      type: string
+                      description: A cursor for paginating forward.
+                      example: "string"
+                    options:
+                      type: object
+                      description: Display options for the response.
+                      properties:
+                        showUnverifiedCollections:
+                          type: boolean
+                          default: false
+                          description: Show unverified collections instead of skipping them.
+                        showCollectionMetadata:
+                          type: boolean
+                          default: false
+                          description: Show metadata for the collection.
+                        showGrandTotal:
+                          type: boolean
+                          default: false
+                          description: Show total number of matching assets (slower request).
+                        showNativeBalance:
+                          type: boolean
+                          default: false
+                          description: Show the native (SOL) balance of the owner.
+                        showInscription:
+                          type: boolean
+                          default: false
+                          description: Display inscription details.
+                        showZeroBalance:
+                          type: boolean
+                          default: false
+                          description: Display assets with zero balance.
+
+              # Minimal working example
+              example:
+                jsonrpc: "2.0"
+                id: "my-id"
+                method: "searchAssets"
+                params:
+                  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                  tokenType: "all"
+                  limit: 50
+
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assets:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: The total number of assets found.
+                        example: 80
+                      limit:
+                        type: integer
+                        description: The maximum number of assets requested.
+                        example: 50
+                      page:
+                        type: integer
+                        description: The current page of results.
+                        example: 1
+                      items:
+                        type: array
+                        description: An array of assets.
+                        items:
+                          type: object
+                          properties:
+                            interface:
+                              type: string
+                              description: The interface of the asset.
+                              enum:
+                                - "V1_NFT"
+                                - "V1_PRINT"
+                                - "LEGACY_NFT"
+                                - "V2_NFT"
+                                - "FungibleAsset"
+                                - "FungibleToken"
+                                - "Custom"
+                                - "Identity"
+                                - "Executable"
+                                - "ProgrammableNFT"
+                            id:
+                              type: string
+                              description: The unique ID of the asset.
+                            ownership:
+                              type: object
+                              description: Ownership details.
+                              properties:
+                                owner:
+                                  type: string
+                                  description: Current owner address.
+                                ownership_model:
+                                  type: string
+                                  description: Ownership model (e.g. "single", "split").
+                            content:
+                              type: object
+                              description: The content of the asset (metadata, etc.).
+                            # Additional properties omitted for brevity
+                    example:
+                      total: 80
+                      limit: 50
+                      page: 1
+                      items:
+                        - interface: "V1_NFT"
+                          id: "SomeNftMintKey12345"
+                          ownership:
+                            owner: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                            ownership_model: "single"
+                          content:
+                            json_uri: "https://example.com/metadata/12345.json"
+
+                  # Example top-level
+                  nativeBalance:
+                    type: object
+                    description: The native SOL balance of the account.
+                    properties:
+                      lamports:
+                        type: integer
+                        description: The number of lamports in the account.
+                      price_per_sol:
+                        type: number
+                        description: The current price of SOL.
+                      total_price:
+                        type: number
+                        description: The total SOL value in this account.
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "401":
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "403":
+          description: Request was forbidden.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: The specified resource was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "429":
+          description: Exceeded rate limit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

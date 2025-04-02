@@ -1,0 +1,297 @@
+openapi: 3.0.0
+info:
+  title: Helius API
+  version: 1.0.0
+servers:
+  - url: https://mainnet.helius-rpc.com
+paths:
+  /?api-key=<api-key>:
+    post:
+      tags:
+        - "RPC"
+      summary: getAssetsByOwner
+      operationId: rpc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ["2.0"]
+                  description: The version of the JSON-RPC protocol.
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                method:
+                  type: string
+                  enum: ["getAssetsByOwner"]
+                  description: The name of the DAS method to invoke.
+                params:
+                  description: Parameters for the getAssetsByOwner method.
+                  oneOf:
+                    #
+                    # 1) Page-based pagination variant
+                    #
+                    - type: object
+                      properties:
+                        ownerAddress:
+                          type: string
+                          description: The owner address key.
+                          example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                        page:
+                          type: integer
+                          description: The page of results to return.
+                          example: 1
+                        limit:
+                          type: integer
+                          description: The maximum number of assets to return.
+                          example: 50
+                        sortBy:
+                          type: object
+                          description: The sorting options for the response.
+                          properties:
+                            sortBy:
+                              type: string
+                              description: The criteria by which the retrieved assets will be sorted.
+                              enum: ["created", "recent_action", "updated", "none"]
+                            sortDirection:
+                              type: string
+                              description: The direction by which the retrieved assets will be sorted.
+                              enum: ["asc", "desc"]
+                        options:
+                          type: object
+                          description: The display options for the response.
+                          properties:
+                            showUnverifiedCollections:
+                              type: boolean
+                              description: Displays grouping information for unverified collections.
+                              default: false
+                            showCollectionMetadata:
+                              type: boolean
+                              description: Displays metadata for the collection.
+                              default: false
+                            showGrandTotal:
+                              type: boolean
+                              description: Shows the total number of assets. Slower request.
+                              default: false
+                            showFungible:
+                              type: boolean
+                              description: Shows fungible tokens.
+                              default: false
+                            showNativeBalance:
+                              type: boolean
+                              description: Shows the SOL balance held by the owner.
+                              default: false
+                            showInscription:
+                              type: boolean
+                              description: Displays inscription details.
+                              default: false
+                            showZeroBalance:
+                              type: boolean
+                              description: Displays assets with zero balance.
+                              default: false
+                      required:
+                        - ownerAddress
+
+                    #
+                    # 2) Cursor-based pagination variant
+                    #
+                    - type: object
+                      properties:
+                        ownerAddress:
+                          type: string
+                          description: The owner address key.
+                          example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                        before:
+                          type: string
+                          description: The cursor for paginating backwards through the assets.
+                          example: "string"
+                        after:
+                          type: string
+                          description: The cursor for paginating forwards through the assets.
+                          example: "string"
+                        sortBy:
+                          type: object
+                          description: The sorting options for the response.
+                          properties:
+                            sortBy:
+                              type: string
+                              description: The criteria by which the retrieved assets will be sorted.
+                              enum: ["created", "recent_action", "updated", "none"]
+                            sortDirection:
+                              type: string
+                              description: The direction by which the retrieved assets will be sorted.
+                              enum: ["asc", "desc"]
+                        options:
+                          type: object
+                          description: The display options for the response.
+                          properties:
+                            showUnverifiedCollections:
+                              type: boolean
+                              description: Displays grouping information for unverified collections.
+                              default: false
+                            showCollectionMetadata:
+                              type: boolean
+                              description: Displays metadata for the collection.
+                              default: false
+                            showGrandTotal:
+                              type: boolean
+                              description: Shows the total number of assets. Slower request.
+                              default: false
+                            showFungible:
+                              type: boolean
+                              description: Shows fungible tokens.
+                              default: false
+                            showNativeBalance:
+                              type: boolean
+                              description: Shows the SOL balance held by the owner.
+                              default: false
+                            showInscription:
+                              type: boolean
+                              description: Displays inscription details.
+                              default: false
+                            showZeroBalance:
+                              type: boolean
+                              description: Displays assets with zero balance.
+                              default: false
+                      required:
+                        - ownerAddress
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    example: "2.0"
+                  result:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 1
+                      page:
+                        type: integer
+                        example: 1
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          example:
+                            interface: "V1_NFT"
+                            id: "JCfTS6dmJZY4NXhjMwHqayGGHUwxp59pzcYhZrYqMBce"
+                            content:
+                              $schema: "https://schema.metaplex.com/nft1.0.json"
+                              json_uri: "https://www.hi-hi.vip/json/5000wif.json"
+                              files:
+                                - uri: "https://img.hi-hi.vip/json/img/5000wif.png"
+                                  cdn_uri: "https://cdn.helius-rpc.com/cdn-cgi/image//https://img.hi-hi.vip/json/img/5000wif.png"
+                                  mime: "image/png"
+                            authorities:
+                              - address: "2iVwwSHr7hGR6wxNuQM8ArQYnX6Mzy2yeFnhBGgQetRw"
+                                scopes: ["full"]
+                            compression:
+                              eligible: false
+                              compressed: true
+                              data_hash: "7zquDVS1VKu9HDh4WS4ray5ozLThiK6xrnFNhJtusj65"
+                              creator_hash: "6v7GeYRiVML5mG1kJqi6eujN9sPB3ziCZJF4Vartj1qd"
+                              asset_hash: "8gQZkgZ1L91qkNPtsiRGkRzpNcEfhBABEQr1D3wquB8H"
+                              tree: "BZNn9zX1MysbSvqyGZ33Seb8bvimaiE9fxmLKwX2Euae"
+                              seq: 251133
+                              leaf_id: 250758
+                            grouping:
+                              - group_key: "collection"
+                                group_value: "723Vxwr6aYZHNqc8dVQVwchDHUR3cEwZA8zkejdYWKaS"
+                            royalty:
+                              royalty_model: "creators"
+                              target: null
+                              percent: 0.0
+                              basis_points: 0
+                              primary_sale_happened: false
+                              locked: false
+                            creators:
+                              - address: "GVKwqsEC5YQZX4hG7Fdy6m7cJUi4DA3ezYx1CC9wkj34"
+                                share: 100
+                                verified: true
+                            ownership:
+                              frozen: false
+                              delegated: true
+                              delegate: "GVKwqsEC5YQZX4hG7Fdy6m7cJUi4DA3ezYx1CC9wkj34"
+                              ownership_model: "single"
+                              owner: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                            supply:
+                              print_max_supply: 0
+                              print_current_supply: 0
+                              edition_nonce: 0
+                            mutable: true
+                            burnt: false
+                  id:
+                    type: string
+                    example: "text"
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "401":
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "403":
+          description: Request was forbidden.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: The specified resource was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "429":
+          description: Exceeded rate limit..
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "500":
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
