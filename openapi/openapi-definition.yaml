@@ -1,0 +1,2833 @@
+openapi: 3.0.3
+info:
+  description: Documentation for the Helius API. To learn more about Helius, go to <a href=https://helius.xyz>helius.xyz</a>.
+  version: 1.0.1
+  title: Helius API
+  contact:
+    email: mert@helius.xyz
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+externalDocs:
+  url: https://docs.helius.xyz/
+
+servers:
+  - url: https://api.helius.xyz
+
+security:
+  - ApiKeyQuery: []
+
+tags:
+  - name: NFTs
+    description: NFT-related events, collection-level aggregations, stats, and historical activity.
+  - name: Tokens
+    description: Token account data, metadata, and off-chain data for both fungible and non-fungible tokens
+  - name: Transactions
+    description: Enriched and human-readable transaction histories.
+  - name: Addresses
+    description: An enriched on-chain identity.
+ 
+##### PATHS #####
+
+paths:
+  /v0/webhooks:
+    get:
+      tags:
+        - Webhooks
+      summary: Returns all webhooks.
+      operationId: getWebhooks
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      responses:
+        200:
+          description: Webhooks for the given API key.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webhook'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+   
+    post:
+      tags:
+        - Webhooks
+      summary: Creates a webhook.
+      operationId: createWebhook
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        200:
+          description: The created webhook.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+          
+  
+  /v0/webhooks/{webhookID}:
+    get:
+      tags:
+        - Webhooks
+      summary: Returns given Webhook.
+      operationId: getWebhook
+      description: Query a webhook by its ID.
+      parameters:
+       - $ref: '#/components/parameters/webhookIDParam'
+       - $ref: '#/components/parameters/apiKeyParam'
+      responses:
+        200:
+          description: Returns details about the given webhook ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.webhookID: method.request.path.webhookID
+                
+    put:
+      tags:
+        - Webhooks
+      summary: Edits a webhook.
+      operationId: editWebhook
+      parameters:
+        - $ref: '#/components/parameters/webhookIDParam' 
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        200:
+          description: The edited webhook.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: PUT
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.webhookID: method.request.path.webhookID
+
+    delete:
+      tags:
+        - Webhooks
+      summary: Deletes a webhook.
+      operationId: deleteWebhook
+      parameters:
+        - $ref: '#/components/parameters/webhookIDParam' 
+        - $ref: '#/components/parameters/apiKeyParam'
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: DELETE
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.webhookID: method.request.path.webhookID
+
+  /v0/addresses/{address}/nft-events:
+    get:
+      tags:
+        - NFTs
+      summary: Returns all NFT related events associated with the given address.
+      operationId: getNftEvents
+      description: |
+        By passing in the appropriate query parameters, you can search for
+        event types and sources.
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/beforeParam'
+        - $ref: '#/components/parameters/untilParam'
+        - $ref: '#/components/parameters/commitmentParam'
+        - $ref: '#/components/parameters/addressParam'
+        - $ref: '#/components/parameters/transactionSourceParam'
+        - $ref: '#/components/parameters/transactionTypeParam'
+      responses:
+        200:
+          description: Returns an array of NFTEvents.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NFTEvent'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nft-events
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+
+  /v0/addresses/{address}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Returns an enriched transaction history for a given address
+      operationId: getEnrichedTransactions
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/beforeParam'
+        - $ref: '#/components/parameters/untilParam'
+        - $ref: '#/components/parameters/commitmentParam'
+        - $ref: '#/components/parameters/addressParam'
+        - $ref: '#/components/parameters/transactionSourceParam'
+        - $ref: '#/components/parameters/transactionTypeParam'
+        - $ref: '#/components/parameters/limitNewParam'
+
+      responses:
+        200:
+          description: Returns an array of enriched transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnrichedTransaction'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+
+  /v0/addresses/{address}/raw-transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Returns raw transaction history for a given address
+      operationId: getRawTransactionHistory
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/beforeParam'
+        - $ref: '#/components/parameters/untilParam'
+        - $ref: '#/components/parameters/commitmentParam'
+        - $ref: '#/components/parameters/addressParam'
+      responses:
+        200:
+          description: Returns an array of raw transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawTransaction'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/raw-transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+
+  /v0/transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Returns an array of enriched, human-readable versions of the given transactions.
+      operationId: getEnrichedTransaction
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/commitmentParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseTransactionsRequest'
+                
+      responses:
+        200:
+          description: Returns an array of enriched transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnrichedTransaction'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        
+  /v0/raw-transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Returns an array of raw (directly from RPC) transactions.
+      operationId: getRawTransactions
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/commitmentParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseTransactionsRequest'
+                
+      responses:
+        200:
+          description: Returns an array of raw transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RawTransaction'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+  /v0/tokens/metadata:
+    post:
+      tags:
+        - Tokens
+        - NFTs
+      summary: Returns token metadata (whether NFT or Fungible) for a given token address.
+      operationId: getTokenMetadata
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensMetadataRequest'
+                
+      responses:
+        200:
+          description: Returns the token metadata.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TokenMetadataResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+          
+  /v0/addresses/{address}/names:
+    get:
+      tags:
+        - Addresses
+      summary: Returns the Solana Naming Service name for a given address.
+      operationId: getAddressName
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/addressParam'
+      responses:
+        200:
+          description: Returns the Solana Naming Service name if exists. Otherwise returns null.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamesResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/names
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+  
+  /v0/addresses/{address}/balances:
+    get:
+      tags:
+        - Addresses
+      summary: Returns the native balance and token balances for a given address.
+      operationId: getBalances
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/addressParam'
+      responses:
+        200:
+          description: Returns the native balance and
+           the token balances for a given account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalancesResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/balances
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+          
+  /v0/addresses/{address}/nfts:
+    get:
+      tags:
+        - NFTs
+      summary: Returns the NFTs held for a given address.
+      operationId: getNFTs
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+        - $ref: '#/components/parameters/addressParam'
+        - $ref: '#/components/parameters/pageNumberParam'
+      responses:
+        200:
+          description: Returns the current NFTs that this address owns.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NFTsResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nfts
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.address: method.request.path.address
+
+  /v1/nft-events:
+    post:
+      tags:
+        - NFTs
+      summary: Queries for NFT events.
+      operationId: queryNftEvents
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryNftEventsRequest'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryNftEventsResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+  /v1/nfts:
+    post:
+      tags:
+        - NFTs
+      summary: Describes the provided NFTs.
+      operationId: describeNfts
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeNftsRequest'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeNftsResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+  /v1/mintlist:
+    post:
+      tags:
+        - NFTs
+      summary: Returns a list of mint accounts for a given NFT collection.
+      operationId: mintlist
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MintlistRequest'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MintlistResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+  /v1/active-listings:
+    post:
+      tags:
+        - NFTs
+      summary: Query for active NFT listings.
+      operationId: queryActiveListings
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveListingsRequest'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveListingsResponse'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+  /v1/raw-transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Returns an array of raw transactions for the given accounts.
+      operationId: queryRawTxns
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawTransactionsV1Request'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RawTransactionsV1Response'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+        
+  /v0/token-metadata:
+    post:
+      tags:
+        - Tokens
+        - NFTs
+      summary: Returns all metadata associated with an account, including data from the old token list.
+      operationId: queryMetadataV1
+      parameters:
+        - $ref: '#/components/parameters/apiKeyParam'
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensMetadataRequestV1'
+                
+      responses:
+        200:
+          description: Query result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensMetadataResponseV1'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+      x-amazon-apigateway-integration:
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+    options:
+      responses:
+        200:
+          $ref: '#/components/responses/200-NoContent'
+      x-amazon-apigateway-integration:
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
+
+##### COMPONENTS #####
+
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+
+  #-------------------------------
+  # Reusable operation parameters
+  #-------------------------------
+  parameters:
+    # General parameters
+    limitParam:
+      name: limit
+      in: query
+      description: Maximum number of items to return.
+      required: false
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 1000
+        default: 100
+    beforeParam:
+      name: before
+      in: query
+      description: Start searching backwards from this transaction signature.
+      required: false
+      schema:
+        type: string
+    untilParam:
+      name: until
+      in: query
+      description: Search until this transaction signature.
+      required: false
+      schema:
+        type: string
+    commitmentParam:
+      name: commitment
+      in: query
+      description: How finalized a block must be to be included in the search. If not provided, will default to "finalized" commitment. Note that "processed" level commitment is not supported.
+      required: false
+      schema:
+        $ref: '#/components/schemas/Commitment'
+
+    # API-specific parameters
+    addressParam:
+      name: address
+      in: path
+      description: The address to query for.
+      required: true
+      schema:
+        type: string
+        
+    webhookIDParam:
+      name: webhookID
+      in: path
+      description: The webhook ID.
+      required: true
+      schema:
+        type: string
+    pageNumberParam:
+      name: pageNumber
+      in: query
+      description: The page number used for pagination.
+      required: false
+      schema:
+        type: number
+    transactionIdParam:
+      name: transaction-id
+      in: path
+      description: The signature of the transaction you wish to query for.
+      required: true
+      schema:
+        type: string
+    transactionSourceParam:
+      name: source
+      in: query
+      description: The TransactionSource to filter by. For a list of possible options, see the Transaction Types section.
+      required: false
+      schema:
+        $ref: '#/components/schemas/TransactionSource'
+    transactionTypeParam:
+      name: type
+      in: query
+      description: The TransactionType to filter by. For a list of possible options, see the Transaction Types section.
+      required: false
+      schema:
+        $ref: '#/components/schemas/TransactionType'
+    limitNewParam:
+      name: limit
+      in: query
+      description: The number of transactions to retrieve. The value should be between 1 and 100.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+
+
+  #-------------------------------
+  # Reusable responses
+  #-------------------------------
+  responses:
+
+    200-NoContent:
+      description: 'No content.'
+    400-BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    401-Unauthorized:
+      description: Unauthorized request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    403-Forbidden:
+          description: Request was forbidden.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    404-NotFound:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    429-TooManyRequests:
+      description: Exceeded rate limit.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+    500-InternalServerError:
+      description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
+  schemas:
+  
+    Webhook:
+      type: object
+      properties:
+        webhookID:
+          type: string
+        wallet:
+          type: string
+        webhookURL:
+          type: string
+        transactionTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionType'
+        accountAddresses:
+          type: array
+          items:
+            type: string
+        webhookType:
+          type: string
+        authHeader:
+          type: string
+        
+  
+    TransactionType:
+      type: string
+      enum:
+      - UNKNOWN
+      - NFT_BID
+      - NFT_GLOBAL_BID
+      - NFT_GLOBAL_BID_CANCELLED
+      - NFT_BID_CANCELLED
+      - NFT_LISTING
+      - NFT_CANCEL_LISTING
+      - NFT_SALE
+      - NFT_MINT
+      - NFT_AUCTION_CREATED
+      - NFT_AUCTION_UPDATED
+      - NFT_AUCTION_CANCELLED
+      - NFT_PARTICIPATION_REWARD
+      - NFT_MINT_REJECTED
+      - CREATE_STORE
+      - WHITELIST_CREATOR
+      - ADD_TO_WHITELIST
+      - REMOVE_FROM_WHITELIST
+      - AUCTION_MANAGER_CLAIM_BID
+      - EMPTY_PAYMENT_ACCOUNT
+      - UPDATE_PRIMARY_SALE_METADATA
+      - ADD_TOKEN_TO_VAULT
+      - ACTIVATE_VAULT
+      - INIT_VAULT
+      - INIT_BANK
+      - INIT_STAKE
+      - MERGE_STAKE
+      - SPLIT_STAKE
+      - SET_BANK_FLAGS
+      - SET_VAULT_LOCK
+      - UPDATE_VAULT_OWNER
+      - UPDATE_BANK_MANAGER
+      - RECORD_RARITY_POINTS
+      - ADD_RARITIES_TO_BANK
+      - INIT_FARM
+      - INIT_FARMER
+      - REFRESH_FARMER
+      - UPDATE_FARM
+      - AUTHORIZE_FUNDER
+      - DEAUTHORIZE_FUNDER
+      - FUND_REWARD
+      - CANCEL_REWARD
+      - LOCK_REWARD
+      - PAYOUT
+      - VALIDATE_SAFETY_DEPOSIT_BOX_V2
+      - SET_AUTHORITY
+      - INIT_AUCTION_MANAGER_V2
+      - UPDATE_EXTERNAL_PRICE_ACCOUNT
+      - AUCTION_HOUSE_CREATE
+      - CLOSE_ESCROW_ACCOUNT
+      - WITHDRAW
+      - DEPOSIT
+      - TRANSFER
+      - BURN
+      - BURN_NFT
+      - PLATFORM_FEE
+      - LOAN
+      - RESCIND_LOAN
+      - OFFER_LOAN
+      - CANCEL_OFFER
+      - LEND_FOR_NFT
+      - REQUEST_LOAN
+      - CANCEL_LOAN_REQUEST
+      - BORROW_SOL_FOR_NFT
+      - CLAIM_NFT
+      - REBORROW_SOL_FOR_NFT
+      - REPAY_LOAN
+      - TAKE_LOAN
+      - FORECLOSE_LOAN
+      - UPDATE_OFFER
+      - ADD_TO_POOL
+      - REMOVE_FROM_POOL
+      - CLOSE_POSITION
+      - UNLABELED
+      - CLOSE_ACCOUNT
+      - WITHDRAW_GEM
+      - DEPOSIT_GEM
+      - STAKE_TOKEN
+      - UNSTAKE_TOKEN
+      - STAKE_SOL
+      - UNSTAKE_SOL
+      - CLAIM_REWARDS
+      - BUY_SUBSCRIPTION
+      - SWAP
+      - INIT_SWAP
+      - CANCEL_SWAP
+      - REJECT_SWAP
+      - INITIALIZE_ACCOUNT
+      - TOKEN_MINT
+      - CREATE_APPRAISAL
+      - CANDY_MACHINE_WRAP
+      - CANDY_MACHINE_UNWRAP
+      - CANDY_MACHINE_UPDATE
+      - CANDY_MACHINE_ROUTE
+      - FRACTIONALIZE
+      - DEPOSIT_FRACTIONAL_POOL
+      - FUSE
+      - CREATE_RAFFLE
+      - BUY_TICKETS
+      - UPDATE_ITEM
+      - LIST_ITEM
+      - DELIST_ITEM
+      - ADD_ITEM
+      - CLOSE_ITEM
+      - BUY_ITEM
+      - FILL_ORDER
+      - UPDATE_ORDER
+      - CREATE_ORDER
+      - CLOSE_ORDER
+      - CANCEL_ORDER
+      - KICK_ITEM
+      - UPGRADE_FOX
+      - UPGRADE_FOX_REQUEST
+      - LOAN_FOX
+      - BORROW_FOX
+      - SWITCH_FOX_REQUEST
+      - SWITCH_FOX
+      - CREATE_ESCROW
+      - ACCEPT_REQUEST_ARTIST
+      - CANCEL_ESCROW
+      - ACCEPT_ESCROW_ARTIST
+      - ACCEPT_ESCROW_USER
+      - PLACE_BET
+      - PLACE_SOL_BET
+      - CREATE_BET
+      - INIT_RENT
+      - NFT_RENT_LISTING
+      - NFT_RENT_CANCEL_LISTING
+      - NFT_RENT_UPDATE_LISTING
+      - NFT_RENT_ACTIVATE
+      - NFT_RENT_END
+      - UPGRADE_PROGRAM_INSTRUCTION
+      - FINALIZE_PROGRAM_INSTRUCTION
+      - EXECUTE_TRANSACTION
+      - APPROVE_TRANSACTION
+      - ACTIVATE_TRANSACTION
+      - CREATE_TRANSACTION
+      - CANCEL_TRANSACTION
+      - REJECT_TRANSACTION
+      - ADD_INSTRUCTION
+      - CREATE_MASTER_EDITION
+      - ATTACH_METADATA
+      - REQUEST_PNFT_MIGRATION
+      - START_PNFT_MIGRATION
+      - MIGRATE_TO_PNFT
+      - UPDATE_RAFFLE
+      - CREATE_MERKLE_TREE
+      - DELEGATE_MERKLE_TREE
+      - COMPRESSED_NFT_MINT
+      - COMPRESSED_NFT_TRANSFER
+      - COMPRESSED_NFT_REDEEM
+      - COMPRESSED_NFT_CANCEL_REDEEM
+      - COMPRESSED_NFT_BURN
+      - COMPRESSED_NFT_VERIFY_CREATOR
+      - COMPRESSED_NFT_UNVERIFY_CREATOR
+      - COMPRESSED_NFT_VERIFY_COLLECTION
+      - COMPRESSED_NFT_UNVERIFY_COLLECTION
+      - COMPRESSED_NFT_SET_VERIFY_COLLECTION
+      - COMPRESSED_NFT_UPDATE_METADATA
+      - DECOMPRESS_NFT
+      - COMPRESS_NFT
+      - COMPRESSED_NFT_DELEGATE
+      - CREATE_POOL
+      - DISTRIBUTE_COMPRESSION_REWARDS
+      - CHANGE_COMIC_STATE
+      - UPDATE_RECORD_AUTHORITY_DATA
+      - CREATE_AVATAR_CLASS
+      - CREATE_AVATAR
+      - CREATE_TRAIT
+      - CREATE_PAYMENT_METHOD
+      - EQUIP_TRAIT
+      - EQUIP_TRAIT_AUTHORITY
+      - REMOVE_TRAIT
+      - REMOVE_TRAIT_AUTHORITY
+      - UPDATE_TRAIT_VARIANT
+      - UPDATE_TRAIT_VARIANT_AUTHORITY
+      - UPDATE_CLASS_VARIANT_AUTHORITY
+      - UPDATE_TRAIT_VARIANT_METADATA
+      - UPDATE_CLASS_VARIANT_METADATA
+      - BEGIN_VARIANT_UPDATE
+      - BEGIN_TRAIT_UPDATE
+      - CANCEL_UPDATE
+      - UPDATE_VARIANT
+      - TRANSFER_PAYMENT
+      - BURN_PAYMENT
+      - BURN_PAYMENT_TREE
+      - TRANSFER_PAYMENT_TREE
+      - ADD_PAYMENT_MINT_PAYMENT_METHOD
+      - ADD_TRAIT_CONFLICTS
+      - VERIFY_PAYMENT_MINT
+      - VERIFY_PAYMENT_MINT_TEST
+      - BOUND_HADO_MARKET_TO_FRAKT_MARKET
+      - DEPOSIT_TO_BOND_OFFER_STANDARD
+      - WITHDRAW_FROM_BOND_OFFER_STANDARD
+      - INITIALIZE_HADO_MARKET
+      - FINISH_HADO_MARKET
+      - UPDATE_HADO_MARKET_FEE
+      - REMOVE_BOND_OFFER_V2
+      - REPAY_FBOND_TO_TRADE_TRANSACTIONS
+      - EXIT_VALIDATE_AND_SELL_TO_BOND_OFFERS_V2
+      - REFINANCE_TO_BOND_OFFERS_V2
+      - CREATE_BOND_AND_SELL_TO_OFFERS
+      - LIQUIDATE_BOND_ON_AUCTION_PNFT
+      - CLAIM_NFT_BY_LENDER_PNFT
+      - CREATE_BOND_AND_SELL_TO_OFFERS_FOR_TEST
+      - INITIALIZE_FLASH_LOAN_POOL
+      - DEPOSIT_SOL_TO_FLASH_LOAN_POOL
+      - WITHDRAW_SOL_FROM_FLASH_LOAN_POOL
+      - TAKE_FLASH_LOAN
+      - REPAY_FLASH_LOAN
+      - CREATE_BOND_OFFER_STANDARD
+      - UPDATE_BOND_OFFER_STANDARD
+      - STAKE_BANX
+      - UNSTAKE_BANX
+      - UNSUB_OR_HARVEST_WEEKS
+      - UNSUB_OR_HARVEST_WEEKS_ENHANCED
+      - UPDATE_STAKING_SETTINGS
+      - MAP_BANX_TO_POINTS
+      - PATCH_BROKEN_USER_STAKES
+      - DEPOSIT_TO_REWARDS_VAULT
+      - WITHDRAW_REWARDS_FROM_VAULT
+      - REFINANCE_FBOND_BY_LENDER
+      - SELL_STAKED_BANX_TO_OFFERS
+      - REPAY_STAKED_BANX
+      - CREATE_PERPETUAL_BOND_OFFER
+      - REMOVE_PERPETUAL_OFFER
+      - REPAY_PERPETUAL_LOAN
+      - REFINANCE_PERPETUAL_LOAN
+      - CREATE_BOND_AND_SELL_TO_OFFERS_CNFT
+      - REPAY_FBOND_TO_TRADE_TRANSACTIONS_CNFT
+      - REFINANCE_TO_BOND_OFFERS_V2_CNFT
+      - CLAIM_NFT_BY_LENDER_CNFT
+      - LIQUIDATE_BOND_ON_AUCTION_CNFT
+      - MAKE_PERPETUAL_MARKET
+      - UPDATE_PERPETUAL_MARKET
+      - UPDATE_PERPETUAL_OFFER
+      - UPDATE_INTEREST_PERPETUAL_MARKET
+      - BORROW_PERPETUAL
+      - CLAIM_PERPETUAL_LOAN
+      - TERMINATE_PERPETUAL_LOAN
+      - INSTANT_REFINANCE_PERPETUAL_LOAN
+      - BORROW_STAKED_BANX_PERPETUAL
+      - REPAY_STAKED_BANX_PERPETUAL_LOAN
+      - BORROW_CNFT_PERPETUAL
+      - REPAY_CNFT_PERPETUAL_LOAN
+      - CLAIM_CNFT_PERPETUAL_LOAN
+      - REPAY_PARTIAL_PERPETUAL_LOAN
+      - CREATE_COLLECTION
+      - UPDATE_COLLECTION
+      - UPDATE_COLLECTION_OR_CREATOR
+      - UPDATE_FLOOR
+      - DELETE_COLLECTION
+      - CREATE_STATS
+      - UPDATE_STATS
+      - CLEAN
+      - EXPIRE
+      - FIX_POOL
+      - ADMIN_SYNC_LIQUIDITY
+      - CLOSE_POOL
+      - UPDATE_POOL
+      - UPDATE_POOL_COLLECTIONS
+      - UPDATE_POOL_STATUS
+      - UPDATE_POOL_MORTGAGE
+      - UPDATE_USABLE_AMOUNT
+      - UPDATE_POOL_WHITELIST
+      - ADD_LIQUIDITY
+      - SYNC_LIQUIDITY
+      - WITHDRAW_LIQUIDITY
+      - TAKE_COMPRESSED_LOAN
+      - REPAY
+      - REPAY_COMPRESSED
+      - LIQUIDATE
+      - TAKE_MORTGAGE
+      - FREEZE
+      - UNFREEZE
+      - SELL_LOAN
+      - BUY_LOAN
+      - EXTEND_LOAN
+      - SELL_NFT
+      - PROPOSE_LOAN
+      - CANCEL_PROPOSAL
+      - POOL_CANCEL_PROPOSAL
+      - ACCEPT_PROPOSAL
+      - EXECUTE_LOAN
+      - EXECUTE_MORTGAGE
+      - LIST_NFT
+      - DELIST_NFT
+      - CLAIM_SALE
+      - BOT_LIQUIDATE
+      - BOT_UNFREEZE
+      - BOT_LIQUIDATE_SELL
+      - BOT_DELIST
+      - BOT_CLAIM_SALE
+
+    NFTEventType:
+      type: string
+      enum:
+      - NFT_BID
+      - NFT_BID_CANCELLED
+      - NFT_GLOBAL_BID
+      - NFT_GLOBAL_BID_CANCELLED
+      - NFT_LISTING
+      - NFT_CANCEL_LISTING
+      - NFT_SALE
+      - NFT_MINT
+      - NFT_MINT_REJECTED
+      - NFT_AUCTION_CREATED
+      - NFT_AUCTION_UPDATED
+      - NFT_AUCTION_CANCELLED
+      - NFT_PARTICIPATION_REWARD
+      - BURN_NFT
+      - NFT_RENT_LISTING
+      - NFT_RENT_CANCEL_LISTING
+      - NFT_RENT_UPDATE_LISTING
+      - NFT_RENT_ACTIVATE
+      - NFT_RENT_END
+      - ATTACH_METADATA
+      - MIGRATE_TO_PNFT
+      - CREATE_POOL
+
+    CompressedNFTEventType:
+      type: string
+      enum:
+      - COMPRESSED_NFT_MINT
+      - COMPRESSED_NFT_TRANSFER
+      - CREATE_MERKLE_TREE
+      - COMPRESSED_NFT_REDEEM
+      - COMPRESSED_NFT_CANCEL_REDEEM
+      - COMPRESSED_NFT_BURN
+      - COMPRESSED_NFT_DELEGATE
+      - DELEGATE_MERKLE_TREE
+      - COMPRESSED_NFT_VERIFY_CREATOR
+      - COMPRESSED_NFT_UNVERIFY_CREATOR
+      - COMPRESSED_NFT_VERIFY_COLLECTION
+      - COMPRESSED_NFT_UNVERIFY_COLLECTION
+      - COMPRESSED_NFT_SET_VERIFY_COLLECTION
+      - DECOMPRESS_NFT
+      - COMPRESS_NFT
+      - COMPRESSED_NFT_UPDATE_METADATA
+
+    TransactionSource:
+      type: string
+      enum:
+      - FORM_FUNCTION
+      - EXCHANGE_ART
+      - CANDY_MACHINE_V3
+      - CANDY_MACHINE_V2
+      - CANDY_MACHINE_V1
+      - UNKNOWN
+      - SOLANART
+      - SOLSEA
+      - MAGIC_EDEN
+      - HOLAPLEX
+      - METAPLEX
+      - OPENSEA
+      - SOLANA_PROGRAM_LIBRARY
+      - ANCHOR
+      - PHANTOM
+      - SYSTEM_PROGRAM
+      - STAKE_PROGRAM
+      - COINBASE
+      - CORAL_CUBE
+      - HEDGE
+      - LAUNCH_MY_NFT
+      - GEM_BANK
+      - GEM_FARM
+      - DEGODS
+      - BSL
+      - YAWWW
+      - ATADIA
+      - DIGITAL_EYES
+      - HYPERSPACE
+      - TENSOR
+      - BIFROST
+      - JUPITER
+      - MERCURIAL
+      - SABER
+      - SERUM
+      - STEP_FINANCE
+      - CROPPER
+      - RAYDIUM
+      - ALDRIN
+      - CREMA
+      - LIFINITY
+      - CYKURA
+      - ORCA
+      - MARINADE
+      - STEPN
+      - SENCHA
+      - SAROS
+      - ENGLISH_AUCTION
+      - FOXY
+      - HADESWAP
+      - FOXY_STAKING
+      - FOXY_RAFFLE
+      - FOXY_TOKEN_MARKET
+      - FOXY_MISSIONS
+      - FOXY_MARMALADE
+      - FOXY_COINFLIP
+      - FOXY_AUCTION
+      - CITRUS
+      - ZETA
+      - ELIXIR
+      - ELIXIR_LAUNCHPAD
+      - CARDINAL_RENT
+      - CARDINAL_STAKING
+      - BPF_LOADER
+      - BPF_UPGRADEABLE_LOADER
+      - SQUADS
+      - SHARKY_FI
+      - OPEN_CREATOR_PROTOCOL
+      - BUBBLEGUM
+      - NOVA
+      - D_READER
+      - RAINDROPS
+      - W_SOL
+      - DUST
+      - SOLI
+      - USDC
+      - FLWR
+      - HDG
+      - MEAN
+      - UXD
+      - SHDW
+      - POLIS
+      - ATLAS
+      - USH
+      - TRTLS
+      - RUNNER
+      - INVICTUS
+
+    SaleType:
+      type: string
+      enum:
+      - AUCTION
+      - INSTANT_SALE
+      - OFFER
+      - GLOBAL_OFFER
+      - MINT
+      - UNKNOWN
+    
+    Token:
+      type: object
+      properties:
+        mint:
+          type: string
+          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
+          description: 'The mint account of the token.'
+        tokenStandard:
+          $ref: '#/components/schemas/TokenStandard'
+    
+    TokenStandard:
+      type: string
+      enum:
+        - NonFungible
+        - FungibleAsset
+        - Fungible
+        - NonFungibleEdition
+    
+    TokenTransfer:
+      type: object
+      properties:
+        fromUserAccount:
+          type: string
+          description: 'The user account the tokens are sent from.'
+        toUserAccount:
+          type: string
+          description: 'The user account the tokens are sent to.'
+        fromTokenAccount:
+          type: string
+          description: 'The token account the tokens are sent from.'
+        toTokenAccount:
+          type: string
+          description: 'The token account the tokens are sent to.'
+        tokenAmount:
+          type: number
+          description: 'The number of tokens sent.'
+        mint:
+          type: string
+          description: 'The mint account of the token.'
+          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
+    
+    NativeTransfer:
+      type: object
+      properties:
+        fromUserAccount:
+          type: string
+          description: 'The user account the sol is sent from.'
+        toUserAccount:
+          type: string
+          description: 'The user account the sol is sent to.'
+        amount:
+          type: integer
+          description: 'The amount of sol sent (in lamports).'
+    
+    TokenMetadataResponse:
+      type: object
+      description: 'Metaplex metadata stored both on-chain and off-chain.'
+      properties:
+        mint:
+          type: string
+        onChainData:
+          $ref: '#/components/schemas/OnChainMetadata'
+        offChainData:
+          $ref: '#/components/schemas/OffChainMetadata'
+
+    OnChainMetadata:
+      type: object
+      description: 'Metaplex metadata that is stored on-chain.'
+      properties:
+        key:
+          type: string
+        mint:
+          type: string
+        updateAuthority:
+          type: string
+        data:
+          type: object
+          properties:
+            name:
+              type: string
+            symbol:
+              type: string
+            uri:
+              type: string
+            sellerFeeBasisPoints:
+              type: integer
+            creators:
+              type: array
+              items: 
+                type: object
+                properties:
+                  address:
+                    type: string
+                  share:
+                    type: string
+                  verified: 
+                    type: boolean
+        tokenStandard:
+          type: string
+        primarySaleHappened:
+          type: boolean
+        isMutable:
+          type: boolean
+        editionNonce:
+          type: integer
+        collection:
+          type: object
+          properties:
+            key:
+              type: string
+            verified:
+              type: boolean
+        collectionDetails:
+          type: object
+          properties:
+            size: 
+              type: integer
+        uses:
+          type: object
+          properties:
+            useMethod:
+              type: string
+            remaining:
+              type: integer
+            total:
+              type: integer
+
+    OffChainMetadata:
+      type: object
+      description: 'Metaplex metadata that is stored off-chain.'
+      properties:
+        name:
+          type: string
+        symbol:
+          type: string
+        attributes:
+          type: array
+          items:
+            properties:
+              traitType:
+                type: string
+              value:
+                type: string
+        sellerFeeBasisPoints:
+          type: integer
+        image:
+          type: string
+        properties:
+          type: object
+          properties:
+            category:
+              type: string
+            files:
+              type: array
+              items:
+                properties:
+                  uri:
+                    type: string
+                  type:
+                    type: string
+            creators:
+              type: array
+              items:
+                properties:
+                  address:
+                    type: string
+                  share:
+                    type: string
+                    
+    RawTransaction:
+      type: object
+      properties:
+        slot:
+          type: integer
+        blocktime:
+          type: integer
+        transaction:
+         $ref: '#/components/schemas/InnerTransaction'
+        meta:
+         $ref: '#/components/schemas/Meta'
+         
+    InnerTransaction:
+      type: object
+      properties:
+        signatures:
+          type: array
+          items:
+            type: string
+        message:
+          type: object
+          properties:
+            accountKeys:
+              type: array
+              items:
+                type: string
+            header:
+              type: object
+            recentBlockhash:
+              type: string
+            instructions:
+              type: array
+              items:
+                type: object
+                properties:
+                  programIdIndex:
+                    type: integer
+                  accounts:
+                    type: array
+                    items:
+                      type: integer
+                  data:
+                    type: string
+    
+    Meta:
+      type: object
+      properties:
+        err: 
+          type: object
+        fee:
+          type: integer
+        preBalances:
+          type: array
+          items:
+            type: integer
+        postBalances:
+          type: array
+          items:
+            type: integer
+        preTokenBalances:
+          type: array
+          items:
+            type: integer
+        postTokenBalances:
+          type: array
+          items:
+            type: integer
+        logMessages:
+          type: array
+          items:
+            type: string
+        rewards:
+          type: array
+          items:
+            type: object
+        loadedAddresses:
+          type: object
+        
+        
+        
+          
+    
+    EnrichedTransaction:
+      type: object
+      properties:
+        description:
+          type: string
+          example: 'Human readable interpretation of the transaction'
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        source:
+          $ref: '#/components/schemas/TransactionSource'
+        fee:
+          type: integer
+          example: 5000
+        feePayer:
+          type: string
+          example: '8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y'
+        signature:
+          type: string
+          example: 'yy5BT9benHhx8fGCvhcAfTtLEHAtRJ3hRTzVL16bdrTCWm63t2vapfrZQZLJC3RcuagekaXjSs2zUGQvbcto8DK'
+        slot:
+          type: integer
+          example: 148277128
+        timestamp:
+          type: integer
+          example: 1656442333
+        nativeTransfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/NativeTransfer'
+        tokenTransfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenTransfer'
+        accountData:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountData'
+        transactionError:
+          type: object
+          properties:
+            error:
+              type: string
+        instructions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instruction'
+        events:
+          type: object
+          properties:
+            nft:
+              $ref: '#/components/schemas/NFTEvent'
+            swap:
+              $ref: '#/components/schemas/SwapEvent'
+            compressed:
+              $ref: '#/components/schemas/CompressedNFTEvent'
+            distributeCompressionRewards:
+              $ref: '#/components/schemas/DistributeCompressionRewardsEvent'
+            setAuthority:
+              $ref: '#/components/schemas/SetAuthorityEvent'
+          description: 'Events associated with this transaction. These provide fine-grained information about the transaction. They match the types returned from the event APIs.'
+          
+    Instruction:
+      type: object
+      description: 'Individual instruction data in a transaction.'
+      properties:
+        accounts:
+          type: array
+          description: 'The accounts used in instruction.'
+          items: 
+            type: string
+            example: "8uX6yiUuH4UjUb1gMGJAdkXorSuKshqsFGDCFShcK88B"
+        data: 
+          type: string
+          description: 'Data passed into the instruction'
+          example: 'kdL8HQJrbbvQRGXmoadaja1Qvs'
+        programId: 
+          type: string
+          description: 'Program used in instruction'
+          example: 'MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8'
+        innerInstructions:
+          type: array
+          description: 'Inner instructions used in instruction'
+          items:
+            $ref: '#/components/schemas/InnerInstruction'
+            
+    InnerInstruction:
+      type: object
+      description: "Inner instructions for each instruction"
+      properties:
+        accounts:
+          type: array
+          items:
+            type: string
+        data: 
+          type: string
+        programId: 
+          type: string
+    
+    AccountData:
+      type: object
+      description: 'Sol and token transfers involving the account are referenced in this object.'
+      properties:
+        account:
+          type: string
+          description: 'The account that this data is provided for.'
+        nativeBalanceChange:
+          type: number
+          description: 'Native (SOL) balance change of the account.'
+        tokenBalanceChanges:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenBalanceChange'
+          description: 'Token balance changes of the account.'
+    
+    NFTEvent:
+      type: object
+      properties:
+        description:
+          type: string
+          description: 'Human readable interpretation of the transaction'
+        type:
+          $ref: '#/components/schemas/NFTEventType'
+        source:
+          $ref: '#/components/schemas/TransactionSource'
+        amount:
+          type: integer
+          example: 1000000
+          description: 'The amount of the NFT transaction (in lamports).'
+        fee:
+          type: integer
+          example: 5000
+        feePayer:
+          type: string
+          example: '8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y'
+        signature:
+          type: string
+          example: '4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf'
+        slot:
+          type: integer
+          example: 148277128
+        timestamp:
+          type: integer
+          example: 1656442333
+        saleType:
+          $ref: '#/components/schemas/SaleType'
+        buyer:
+          type: string
+          description: 'The buyer of the NFT.'
+        seller:
+          type: string
+          description: 'The seller of the NFT.'
+        staker:
+          type: string
+          description: 'The staker of the NFT.'
+        nfts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+          description: 'NFTs that are a part of this NFT event.'
+
+    CompressedNFTEvent:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/CompressedNFTEventType'
+        treeId:
+          type: string
+          description: 'The address of the related merkle tree.'
+        assetId:
+          type: string
+          description: 'The id of the compressed nft.'
+        leafIndex:
+          type: integer
+          description: 'The index of the leaf being appended or modified.'
+        instructionIndex:
+          type: integer
+          description: 'The index of the parsed instruction in the transaction.'
+        innerInstructionIndex:
+          type: integer
+          description: 'The index of the parsed inner instruction in the transaction.'
+        newLeafOwner:
+          type: string
+          description: 'The new owner of the leaf.'
+        oldLeafOwner:
+          type: string
+          description: 'The previous owner of the leaf.'
+      
+    DistributeCompressionRewardsEvent:
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: 'Amount transfered in the DistributeCompressionRewardsV0 instruction.'
+
+    SetAuthorityEvent:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 'Tthe account whose authority is changing.'
+        from:
+          type: string
+          description: 'Current authority.'
+        to:
+          type: string
+          description: 'New authority.'
+        instructionIndex:
+          type: integer
+          description: 'The index of the parsed instruction in the transaction.'
+        innerInstructionIndex:
+          type: integer
+          description: 'The index of the parsed inner instruction in the transaction.'
+
+    SwapEvent:
+      type: object
+      properties:
+        nativeInput:
+          $ref: '#/components/schemas/NativeBalanceChange'
+          description: 'The native input to the swap in Lamports.'
+        nativeOutput:
+          $ref: '#/components/schemas/NativeBalanceChange'
+          description: 'The native output of the swap in Lamports.'
+        tokenInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenBalanceChange'
+          description: 'The token inputs to the swap.'
+        tokenOutputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenBalanceChange'
+          description: 'The token outputs of the swap.'
+        tokenFees:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenBalanceChange'
+          description: 'The token fees paid by an account.'
+        nativeFees:
+          type: array
+          items:
+            $ref: '#/components/schemas/NativeBalanceChange'
+          description: 'The native fees paid by an account.'
+        innerSwaps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenSwap'
+          description: 'The inner swaps occuring to make this swap happen. Eg. a swap of wSOL <-> USDC may be make of multiple swaps from wSOL <-> DUST, DUST <-> USDC'
+
+    TokenSwap:
+      type: object
+      properties:
+        tokenInputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenTransfer'
+          description: 'The token inputs of this swap.'
+        tokenOutputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenTransfer'
+          description: 'The token outputs of this swap.'
+        tokenFees:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenTransfer'
+          description: 'Fees charged with tokens for this swap.'
+        nativeFees:
+          type: array
+          items:
+            $ref: '#/components/schemas/NativeTransfer'
+          description: 'Fees charged in SOL for this swap.'
+        programInfo:
+          $ref: '#/components/schemas/ProgramInfo'
+          description: 'Information about the program creating this swap.'
+
+    ProgramInfo:
+      type: object
+      properties:
+        source:
+          type: string
+          example: 'ORCA'
+        account:
+          type: string
+          description: 'The account of the program'
+          example: 'whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc'
+        programName:
+          type: string
+          description: 'The name of the program'
+          example: 'ORCA_WHIRLPOOLS'
+        instructionName:
+          type: string
+          description: 'The name of the instruction creating this swap. It is the value of instruction name from the Anchor IDL, if it is available.'
+          example: 'whirlpoolSwap'
+
+    NativeBalanceChange:
+      type: object
+      properties:
+        account:
+          type: string
+          description: 'The account the native balance change is for'
+          example: '2uySTNgvGT2kwqpfgLiSgeBLR3wQyye1i1A2iQWoPiFr'
+        amount:
+          type: string
+          description: 'The amount of the balance change as a string'
+          example: '100000000'
+
+    TokenBalanceChange:
+      type: object
+      properties:
+        userAccount:
+          type: string
+          example: 'F54ZGuxyb2gA7vRjzWKLWEMQqCfJxDY1whtqtjdq4CJ'
+        tokenAccount:
+          type: string
+          example: '2kvmbRybhrcptDnwyNv6oiFGFEnRVv7MvVyqsxkirgdn'
+        mint:
+          type: string
+          example: 'DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ'
+        rawTokenAmount:
+          $ref: '#/components/schemas/RawTokenAmount'
+
+    RawTokenAmount:
+      type: object
+      properties:
+        tokenAmount:
+          type: string
+        decimals:
+          type: integer
+
+    NamesResponse:
+      type: object
+      properties:
+        domainNames:
+          type: array
+          items:
+            type: string
+            
+    BalancesResponse:
+      type: object
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance'
+        nativeBalance:
+          type: number
+          description: In Lamports
+    
+    Balance:
+      type: object
+      properties:
+        mint:
+          type: string
+        amount:
+          type: number
+        decimals:
+          type: number
+        tokenAccount:
+          type: string
+
+    NFTsResponse:
+      type: object
+      properties:
+        numberOfPages:
+          type: number
+        nfts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+
+    Asset:
+      type: object
+      properties:
+        name:
+          type: string
+        tokenAddress:
+          type: string
+        collectionAddress:
+          type: string
+        collectionName:
+          type: string
+        imageURL:
+          type: string
+        traits:
+          type: array
+          items:
+            type: object
+            properties:
+              trait_type: 
+                type: string
+              value:
+                type: string
+
+    # Solana schemas
+    # https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment
+    Commitment:
+      type: string
+      enum:
+      - finalized
+      - confirmed
+
+    TokensMetadataRequest:
+      type: object
+      properties:
+        mintAccounts:
+          type: array
+          items:
+            type: string
+            description: 'The mint account of the token to retrieve metadata for.'
+          maxItems: 100
+    ParseTransactionsRequest:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            type: string
+            description: 'The transaction IDs/signatures to parse for.'
+          maxItems: 100
+    CreateWebhookRequest:
+      type: object
+      properties:
+        webhookURL:
+          type: string
+        transactionTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionType'
+        accountAddresses:
+          type: array
+          items:
+            type: string
+          maxItems: 100_000
+        accountAddressOwners:
+          type: array
+          items:
+            type: string
+          maxItems: 100_000
+        webhookType:
+          type: string
+        authHeader:
+          type: string
+        encoding:
+          type: string
+        txnStatus:
+          type: string
+
+    RpcProxyRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          description: Name of the method to be invoked
+          example: getBlock
+        params:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: number
+              - type: integer
+              - type: boolean
+              - type: array
+                items: {}
+              - type: object
+          description: Params to be passed. Please see Solana JSON-RPC docs.
+
+    QueryNftEventsRequest:
+      type: object
+      properties:
+        query:
+          type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                type: string
+                example: 79FjnnXFpSajugwpx3FfQbV7hJJTe7QXAusF7R4CMf6c
+                maxItems: 100
+            types:
+              type: array
+              items:
+                $ref: '#/components/schemas/NFTEventType'
+            sources:
+              type: array
+              items:
+                $ref: '#/components/schemas/TransactionSource'
+            startSlot:
+              type: integer
+              example: 162368570
+              description: 'Earliest slot to include in the query (inclusive). Cannot be combined with "startTime".'
+            endSlot:
+              type: integer
+              example: 162368580
+              description: 'Latest slot to include in the query (inclusive). Cannot be combined with "endTime".'
+            startTime:
+              type: integer
+              example: 1669055189
+              description: 'Earliest event time (unix seconds). Cannot be combined with "startSlot".'
+            endTime:
+              type: integer
+              example: 1669070189
+              description: 'Latest event time (unix seconds). Cannot be combined with "endSlot".'
+            nftCollectionFilters:
+              type: object
+              properties:
+                firstVerifiedCreator:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FirstVerifiedCreator'
+                verifiedCollectionAddress:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/VerifiedCollectionAddress'
+                    
+        options:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: "Maximum number of items to return. Must be between 1 and 1000. Default is 100."
+              minimum: 1
+              maximum: 1000
+              default: 100
+            sortOrder:
+              $ref: '#/components/schemas/SortOrder'
+            paginationToken:
+              $ref: '#/components/schemas/PaginationToken'
+
+    QueryNftEventsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/NftEventV2'
+        paginationToken:
+          $ref: '#/components/schemas/PaginationToken'
+
+    DescribeNftsRequest:
+      type: object
+      properties:
+        mints:
+          type: array
+          items:
+            $ref: '#/components/schemas/NftMintAccount'
+
+    DescribeNftsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          mint:
+            $ref: '#/components/schemas/NftMintAccount'
+          name:
+            $ref: '#/components/schemas/NftName'
+          burned:
+            $ref: '#/components/schemas/NftBurned'
+          firstVerifiedCreator:
+            $ref: '#/components/schemas/FirstVerifiedCreator'
+          verifiedCollectionAddress:
+            $ref: '#/components/schemas/VerifiedCollectionAddress'
+          activeListings:
+            type: array
+            items:
+              $ref: '#/components/schemas/ActiveListing'
+
+    MintlistRequest:
+      type: object
+      properties:
+        query:
+          type: object
+          properties:
+            firstVerifiedCreators:
+              type: array
+              items:
+                $ref: '#/components/schemas/FirstVerifiedCreator'
+            verifiedCollectionAddresses:
+              type: array
+              items:
+                $ref: '#/components/schemas/VerifiedCollectionAddress'
+        options:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: "Maximum number of items to return. Must be between 1 and 10,000. Default is 1000."
+              minimum: 1
+              maximum: 10_000
+              default: 1000
+            paginationToken:
+              $ref: '#/components/schemas/PaginationToken'
+
+    MintlistResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              mint:
+                $ref: '#/components/schemas/NftMintAccount'
+              name:
+                $ref: '#/components/schemas/NftName'
+        paginationToken:
+          $ref: '#/components/schemas/PaginationToken'
+      
+    ActiveListingsRequest:
+      type: object
+      properties:
+        query:
+          type: object
+          properties:
+            marketplaces:
+              items:
+                $ref: '#/components/schemas/Marketplace'
+            firstVerifiedCreators:
+              type: array
+              items:
+                $ref: '#/components/schemas/FirstVerifiedCreator'
+            verifiedCollectionAddresses:
+              type: array
+              items:
+                $ref: '#/components/schemas/VerifiedCollectionAddress'
+        options:
+          type: object
+          properties:
+            limit:
+              type: integer
+              description: "Maximum number of items to return. Must be between 1 and 1000. Default is 100."
+              minimum: 1
+              maximum: 1000
+              default: 100
+            paginationToken:
+              $ref: '#/components/schemas/PaginationToken'
+
+    ActiveListingsResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              mint:
+                $ref: '#/components/schemas/NftMintAccount'
+              name:
+                $ref: '#/components/schemas/NftName'
+              firstVerifiedCreator:
+                $ref: '#/components/schemas/FirstVerifiedCreator'
+              verifiedCollectionAddress:
+                $ref: '#/components/schemas/VerifiedCollectionAddress'
+              activeListings:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveListing'
+        paginationToken:
+          $ref: '#/components/schemas/PaginationToken'
+
+    SortOrder:
+      type: string
+      description: "Order of the returned results. Must be 'ASC' or 'DESC'. Results are descending by default."
+      enum:
+        - ASC
+        - DESC
+      default: DESC
+
+    NftEventV2:
+      type: object
+      properties:
+        description:
+          type: string
+          description: 'Human readable interpretation of the transaction'
+        type:
+          $ref: '#/components/schemas/NFTEventType'
+        source:
+          $ref: '#/components/schemas/TransactionSource'
+        amount:
+          type: integer
+          example: 1000000
+          description: 'The amount of the NFT transaction (in lamports).'
+        fee:
+          type: integer
+          example: 5000
+        feePayer:
+          type: string
+          example: '8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y'
+        signature:
+          type: string
+          example: '4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf'
+        slot:
+          type: integer
+          example: 148277128
+        timestamp:
+          type: integer
+          example: 1656442333
+        saleType:
+          $ref: '#/components/schemas/SaleType'
+        buyer:
+          type: string
+          description: 'The buyer of the NFT.'
+        seller:
+          type: string
+          description: 'The seller of the NFT.'
+        staker:
+          type: string
+          description: 'The staker of the NFT.'
+        nfts:
+          type: array
+          items:
+            $ref: '#/components/schemas/NftV2'
+          description: 'Associated NFTs'
+        nativeTransfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/NativeTransfer'
+        tokenTransfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenTransfer'
+
+    NftV2:
+      type: object
+      properties:
+        mint:
+          $ref: '#/components/schemas/NftMintAccount'
+        name:
+          $ref: '#/components/schemas/NftName'
+        burned:
+          $ref: '#/components/schemas/NftBurned'
+        firstVerifiedCreator:
+          $ref: '#/components/schemas/FirstVerifiedCreator'
+        verifiedCollectionAddress:
+          $ref: '#/components/schemas/VerifiedCollectionAddress'
+    
+    NftMintAccount:
+      type: string
+      description: NFT mint account address.
+      example: KG6f4Fa6YxAW8cG2Dhb18DiMn3rQ3rSLa1Eo2FYM4gi
+
+    NftName:
+      type: string
+      description: The name of the NFT.
+      example: 'y00t #2940'
+
+    NftBurned:
+      type: boolean
+      description: If the NFT was was burned. Burned NFTs have no name, firstVerifiedCreator, or verifiedCollectionAddress.
+      example: false
+
+    FirstVerifiedCreator:
+      type: string
+      description: 'First verified creator of the NFT. Used to reference NFT collections.'
+      example: A4FM6h8T5Fmh9z2g3fKUrKfZn6BNFEgByR8QGpdbQhk1
+
+    VerifiedCollectionAddress:
+      type: string
+      description: 'Verified Metaplex collection address. Does not exist for all NFT collections.'
+      example: 4mKSoDDqApmF1DqXvVTSL6tu2zixrSSNjqMxUnwvVzy2
+
+    ActiveListing:
+      type: object
+      properties:
+        transactionSignature:
+          type: string
+          description: Signature of the listing transaction.
+          example: 27W41DrnxGFJGX7yEGuKBtRb7oMwFdGdPwffBTTeakV8nTQTgWR2hzFKmrt8QnxaMEbw4pS2NoiLmiuB2VfqxVn7
+        marketplace:
+          $ref: '#/components/schemas/Marketplace'
+        amount:
+          type: integer
+          example: 1000000
+          description: 'Listed price of the NFT (in lamports).'
+        seller:
+          type: string
+          description: Address of the NFT seller.
+          example: 3ngLS7Y64DoMAHJ6k6XYh8vo5nSiG66AP1yLvbckfKrc
+
+    Marketplace:
+      type: string
+      description: Marketplace where the NFT is being listed.
+      example: MAGIC_EDEN
+      enum:
+      - MAGIC_EDEN
+      - OPENSEA
+      - FORM_FUNCTION
+      - EXCHANGE_ART
+      - SOLANART
+      - SOLSEA
+      - HOLAPLEX
+      - CORAL_CUBE
+      - YAWWW
+      - SOLPORT
+      - HYPERSPACE
+      - DIGITAL_EYES
+      - CORAL_CUBE
+      - UNKNOWN
+
+    PaginationToken:
+      type: string
+      description: 'Token used for pagination. Provide the token to the API to retrieve the results from the next page. If no token exists, the query has no results remaining.'
+      example: V1_162262948_99
+
+    # Raw Transactions Parameters
+    RawTransactionsV1Request:
+      type: object
+      properties:
+        query:
+          type: object
+          properties:
+            accounts:
+              type: array
+              items:
+                type: string
+                example: CyFyz1xR4YTG9CrY9jg5jG6GZfm2e8k97qscs2GFpjX1
+                description: 'Array of accounts to find transactions for. Limit of 1000 accounts".'
+            startSlot:
+              type: integer
+              example: 162368570
+              description: 'Earliest slot to include in the query (inclusive). Cannot be combined with "startTime".'
+            endSlot:
+              type: integer
+              example: 162368580
+              description: 'Latest slot to include in the query (inclusive). Cannot be combined with "endTime".'
+            startTime:
+              type: integer
+              example: 1669055189
+              description: 'Earliest event time (unix seconds). Cannot be combined with "startSlot".'
+            endTime:
+              type: integer
+              example: 1669070189
+              description: 'Latest event time (unix seconds). Cannot be combined with "endSlot".'
+            
+                    
+        options:
+          type: object
+          properties:
+            limit:
+              description: "Maximum number of items to return. Must be between 1 and 500. Default is 100."
+              type: integer
+              minimum: 1
+              maximum: 500
+              default: 100
+            sortOrder:
+              $ref: '#/components/schemas/SortOrder'
+            paginationToken:
+              $ref: '#/components/schemas/PaginationToken'
+
+    RawTransactionsV1Response:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/RawTransaction'
+        paginationToken:
+          $ref: '#/components/schemas/PaginationToken'
+        
+    # Metadata V1 Parameters
+    TokensMetadataRequestV1:
+      type: object
+      properties:
+        mintAccounts:
+          type: array
+          items:
+            type: string
+            description: 'The mint account of the token to retrieve metadata for.'
+          maxItems: 100
+        includeOffChain:
+          type: boolean
+          default: false
+          description: 'Include offchain data referenced in the uri of the metadata account. Omitting defaults to false.'
+        disableCache:
+          type: boolean
+          default: false
+          description: 'Disable usage of cache, useful for monitoring metadata changes.'
+          
+          
+    TokensMetadataResponseV1:
+      type: array
+      items:
+        type: object
+        description: 'Token metadata stored both on-chain and in the old token list.'
+        properties:
+          account:
+            type: string
+          onChainAccountInfo:
+            $ref: '#/components/schemas/OnChainAccountInfoResult'
+          onChainMetadata:
+            $ref: '#/components/schemas/OnChainMetadataResult'
+          offChainMetadata:
+            $ref: '#/components/schemas/OffChainMetadataResult'
+          legacyMetadata:
+            $ref: '#/components/schemas/LegacyMetadata'
+      
+
+    OnChainAccountInfoResult:
+      type: object
+      properties:
+        accountInfo:
+          $ref: '#/components/schemas/OnChainAccountInfo'
+        error:
+          $ref: '#/components/schemas/AccountErrorType'
+
+    OnChainMetadataResult:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/OnChainMetadata'
+        error:
+          $ref: '#/components/schemas/AccountErrorType'
+    
+    OffChainMetadataResult:
+      type: object
+      properties:
+        metadata:
+          $ref: '#/components/schemas/OffChainMetadata'
+        uri:
+          type: string
+        error:
+          $ref: '#/components/schemas/AccountErrorType'
+          
+    OnChainAccountInfo:
+      type: object
+      description: 'Account data that is stored on-chain.'
+      properties:
+        key:
+          type: string
+        isSigner:
+          type: boolean
+        isWritable:
+          type: boolean
+        lamports:
+          type: integer
+        data:
+          type: object
+          properties:
+            parsed:
+              type: object
+              properties:
+                info:
+                  type: object
+                  properties:
+                    decimals:
+                      type: integer
+                    freezeAuthority:
+                      type: string
+                    isInitialized:
+                      type: boolean
+                    mintAuthority:
+                      type: string
+                    supply:
+                      type: string
+                type:
+                  type: string
+            program:
+              type: string
+            space:
+              type: integer
+        owner:
+          type: string
+        executable:
+          type: boolean
+        rentEpoch:
+          type: integer
+              
+    LegacyMetadata:
+      type: object
+      description: 'Data from the old SPL token list.'
+      properties:
+        chainId:
+          type: integer
+        address:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        decimals:
+          type: integer
+        logoURI:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        extensions:
+          type: object
+          
+    AccountErrorType:
+      type: string
+      example: ""
+      enum:
+      - UNKNOWN
+      - EMPTY_ACCOUNT
+      - TIMEOUT
+      - INVALID_ACCOUNT
+      - INVALID_PUBKEY
+
+   
+
+## API gateway response customization
+x-amazon-apigateway-gateway-responses:
+
+  # This error only occurs when the path is invalid 
+  # becauase we do not use API gateway authentication
+  MISSING_AUTHENTICATION_TOKEN:
+    statusCode: 400
+    responseTemplates:
+      application/json: '{"error":"invalid path"}'
+
+  # Map unexpected API gateway errors to our defined error response schema
+  DEFAULT_4XX:
+    responseTemplates:
+      application/json: '{"error": $context.error.messageString}'
+  DEFAULT_5XX:
+    responseTemplates:
+      application/json: '{"error": $context.error.messageString}'
