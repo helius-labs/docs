@@ -1,0 +1,51 @@
+---
+title: "programUnsubscribe"
+---
+
+Unsubscribe from program-owned account change notifications.
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="subscriptionId" type="integer" required>
+            Id of account Subscription to cancel.
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="boolean">
+  Unsubscribe success message.
+</ResponseField>
+
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "programUnsubscribe",
+  "params": [
+    24040
+  ]
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": true,
+  "id": 1
+}
+```
+</ResponseExample> 

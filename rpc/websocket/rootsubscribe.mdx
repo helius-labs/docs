@@ -1,0 +1,62 @@
+---
+title: "rootSubscribe"
+---
+
+Subscribe to receive notification anytime a new root is set by the validator.
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array">
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="none" type="null">
+            No parameters required.
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="integer">
+  Subscription id (needed to unsubscribe)
+</ResponseField>
+
+## Notification Format
+
+The result is the latest root slot number.
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "rootSubscribe"
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 0,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "rootNotification",
+  "params": {
+    "result": 42,
+    "subscription": 0
+  }
+}
+```
+</ResponseExample> 

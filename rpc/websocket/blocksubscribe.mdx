@@ -1,0 +1,195 @@
+---
+title: "blockSubscribe"
+---
+
+Subscribe to receive notification anytime a new block is `confirmed` or `finalized`.
+
+<Note>
+This subscription is considered **unstable** and is only available if the validator was started with the `--rpc-pubsub-enable-block-subscription` flag. The format of this subscription may change in the future.
+</Note>
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="filter" type="string | object" required>
+            Filter criteria for the logs to receive results by account type; currently supported:
+            - `all` - include all transactions in block
+            - A JSON object with the following field:
+              - `mentionsAccountOrProgram: <string>` - return only transactions that mention the provided public key (as base-58 encoded string). If no mentions in a given block, then no notification will be sent.
+        </ParamField>
+
+        <ParamField body="config" type="object">
+            Configuration object containing the following fields:
+            
+            <ParamField body="commitment" type="string">
+                The commitment level for the subscription. Can be `finalized`, `confirmed`, or `processed`.
+            </ParamField>
+            
+            <ParamField body="encoding" type="string">
+                Encoding format for the transaction data.
+            </ParamField>
+            
+            <ParamField body="transactionDetails" type="string">
+                Level of transaction detail to return.
+            </ParamField>
+            
+            <ParamField body="maxSupportedTransactionVersion" type="number">
+                The max transaction version to return in responses.
+            </ParamField>
+            
+            <ParamField body="showRewards" type="boolean">
+                Whether to show rewards in the response.
+            </ParamField>
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="integer">
+  Subscription id (needed to unsubscribe)
+</ResponseField>
+
+## Notification Format
+
+The notification will be an object with the following fields:
+- `slot: <u64>` - The corresponding slot.
+- `err: <object|null>` - Error if something went wrong publishing the notification otherwise null.
+- `block: <object|null>` - A block object as seen in the `getBlock` RPC HTTP method.
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "blockSubscribe",
+  "params": [
+    {
+      "mentionsAccountOrProgram": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op"
+    },
+    {
+      "commitment": "confirmed",
+      "encoding": "base64",
+      "showRewards": true,
+      "transactionDetails": "full"
+    }
+  ]
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 0,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "blockNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 112301554
+      },
+      "value": {
+        "slot": 112301554,
+        "block": {
+          "previousBlockhash": "GJp125YAN4ufCSUvZJVdCyWQJ7RPWMmwxoyUQySydZA",
+          "blockhash": "6ojMHjctdqfB55JDpEpqfHnP96fiaHEcvzEQ2NNcxzHP",
+          "parentSlot": 112301553,
+          "transactions": [
+            {
+              "transaction": [
+                "OpltwoUvWxYi1P2U8vbIdE/aPntjYo5Aa0VQ2JJyeJE2g9Vvxk8dDGgFMruYfDu8/IfUWb0REppTe7IpAuuLRgIBAAkWnj4KHRpEWWW7gvO1c0BHy06wZi2g7/DLqpEtkRsThAXIdBbhXCLvltw50ZnjDx2hzw74NVn49kmpYj2VZHQJoeJoYJqaKcvuxCi/2i4yywedcVNDWkM84Iuw+cEn9/ROCrXY4qBFI9dveEERQ1c4kdU46xjxj9Vi+QXkb2Kx45QFVkG4Y7HHsoS6WNUiw2m4ffnMNnOVdF9tJht7oeuEfDMuUEaO7l9JeUxppCvrGk3CP45saO51gkwVYEgKzhpKjCx3rgsYxNR81fY4hnUQXSbbc2Y55FkwgRBpVvQK7/+clR4Gjhd3L4y+OtPl7QF93Akg1LaU9wRMs5nvfDFlggqI9PqJl+IvVWrNRdBbPS8LIIhcwbRTkSbqlJQWxYg3Bo2CTVbw7rt1ZubuHWWp0mD/UJpLXGm2JprWTePNULzHu67sfqaWF99LwmwjTyYEkqkRt1T0Je5VzHgJs0N5jY4iIU9K3lMqvrKOIn/2zEMZ+ol2gdgjshx+sphIyhw65F3J/Dbzk04LLkK+CULmN571Y+hFlXF2ke0BIuUG6AUF+4214Cu7FXnqo3rkxEHDZAk0lRrAJ8X/Z+iwuwI5cgbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpDLAp8axcEkaQkLDKRoWxqp8XLNZSKial7Rk+ELAVVKWoWLRXRZ+OIggu0OzMExvVLE5VHqy71FNHq4gGitkiKYNFWSLIE4qGfdFLZXy/6hwS+wq9ewjikCpd//C9BcCL7Wl0iQdUslxNVCBZHnCoPYih9JXvGefOb9WWnjGy14sG9j70+RSVx6BlkFELWwFvIlWR/tHn3EhHAuL0inS2pwX7ZQTAU6gDVaoqbR2EiJ47cKoPycBNvHLoKxoY9AZaBjPl6q8SKQJSFyFd9n44opAgI6zMTjYF/8Ok4VpXEESp3QaoUyTI9sOJ6oFP6f4dwnvQelgXS+AEfAsHsKXxGAIUDQENAgMEBQAGBwgIDg8IBJCER3QXl1AVDBADCQoOAAQLERITDAjb7ugh3gOuTy==",
+                "base64"
+              ],
+              "meta": {
+                "err": null,
+                "status": {
+                  "Ok": null
+                },
+                "fee": 5000,
+                "preBalances": [
+                  1758510880, 2067120, 1566000, 1461600, 2039280, 2039280,
+                  1900080, 1865280, 0, 3680844220, 2039280
+                ],
+                "postBalances": [
+                  1758505880, 2067120, 1566000, 1461600, 2039280, 2039280,
+                  1900080, 1865280, 0, 3680844220, 2039280
+                ],
+                "innerInstructions": [
+                  {
+                    "index": 0,
+                    "instructions": [
+                      {
+                        "programIdIndex": 13,
+                        "accounts": [1, 15, 3, 4, 2, 14],
+                        "data": "21TeLgZXNbtHXVBzCaiRmH"
+                      },
+                      {
+                        "programIdIndex": 14,
+                        "accounts": [3, 4, 1],
+                        "data": "6qfC8ic7Aq99"
+                      }
+                    ]
+                  }
+                ],
+                "logMessages": [
+                  "Program QMNeHCGYnLVDn1icRAfQZpjPLBNkfGbSKRB83G5d8KB invoke [1]",
+                  "Program QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV invoke [2]"
+                ],
+                "preTokenBalances": [
+                  {
+                    "accountIndex": 4,
+                    "mint": "iouQcQBAiEXe6cKLS85zmZxUqaCqBdeHFpqKoSz615u",
+                    "uiTokenAmount": {
+                      "uiAmount": null,
+                      "decimals": 6,
+                      "amount": "0",
+                      "uiAmountString": "0"
+                    },
+                    "owner": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                  }
+                ],
+                "postTokenBalances": [
+                  {
+                    "accountIndex": 4,
+                    "mint": "iouQcQBAiEXe6cKLS85zmZxUqaCqBdeHFpqKoSz615u",
+                    "uiTokenAmount": {
+                      "uiAmount": null,
+                      "decimals": 6,
+                      "amount": "0",
+                      "uiAmountString": "0"
+                    },
+                    "owner": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op",
+                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                  }
+                ],
+                "rewards": []
+              }
+            }
+          ],
+          "blockTime": 1639926816,
+          "blockHeight": 101210751
+        },
+        "err": null
+      }
+    },
+    "subscription": 14
+  }
+}
+```
+</ResponseExample> 

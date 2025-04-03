@@ -1,0 +1,98 @@
+---
+title: "logsSubscribe"
+---
+
+Subscribe to transaction logging.
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="filter" type="string | object" required>
+            Filter criteria for the logs to receive results by account type. The following filters types are currently supported:
+            - `all` - subscribe to all transactions except for simple vote transactions
+            - `allWithVotes` - subscribe to all transactions, including simple vote transactions
+            - A JSON object with the following field:
+              - `mentions: [ <string> ]` - array containing a single Pubkey (as base-58 encoded string); if present, subscribe to only transactions mentioning this address
+            
+            Note: The `mentions` field currently only supports one Pubkey string per method call. Listing additional addresses will result in an error.
+        </ParamField>
+
+        <ParamField body="config" type="object">
+            Configuration object containing the following fields:
+            
+            <ParamField body="commitment" type="string">
+                The commitment level for the subscription. Can be `finalized`, `confirmed`, or `processed`.
+            </ParamField>
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="integer">
+  Subscription id (needed to unsubscribe)
+</ResponseField>
+
+## Notification Format
+
+The notification will be an RpcResponse JSON object with value equal to:
+- `signature: <string>` - The transaction signature base58 encoded.
+- `err: <object|null>` - Error if transaction failed, null if transaction succeeded. See TransactionError definitions.
+- `logs: <array[string]>` - Array of log messages the transaction instructions output during execution.
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "logsSubscribe",
+  "params": [
+    {
+      "mentions": ["11111111111111111111111111111111"]
+    },
+    {
+      "commitment": "finalized"
+    }
+  ]
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 24040,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "logsNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 5208469
+      },
+      "value": {
+        "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
+        "err": null,
+        "logs": [
+          "SBF program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri success"
+        ]
+      }
+    },
+    "subscription": 24040
+  }
+}
+```
+</ResponseExample> 
