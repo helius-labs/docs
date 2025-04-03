@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+    title: Helius API
+    version: 1.0.0
+    license:
+        name: MIT
+        url: https://opensource.org/licenses/MIT
+servers:
+    - url: https://rpc.helius.xyz
+security:
+    - apiKey: []
+paths:
+    /:
+        post:
+            operationId: mintCompressedNft
+            summary: mintCompressedNft
+            security:
+                - apiKey: []
+            parameters:
+                - name: api-key
+                  in: query
+                  description: The API key.
+                  required: true
+                  schema:
+                      type: string
+                      example: 'string'
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                jsonrpc:
+                                    type: string
+                                    enum: ['2.0']
+                                    description: The version of the JSON-RPC protocol.
+                                id:
+                                    type: string
+                                    description: An ID to identify the request.
+                                method:
+                                    type: string
+                                    enum: ['mintCompressedNft']
+                                    description: The name of the RPC method to invoke.
+                                params:
+                                    type: object
+                                    properties:
+                                        name:
+                                            type: string
+                                            description: The name of the NFT.
+                                            example: 'Exodia the Forbidden One'
+                                        symbol:
+                                            type: string
+                                            description: The symbol of the NFT.
+                                            example: 'ETFO'
+                                        description:
+                                            type: string
+                                            description: The description of the NFT.
+                                            example: 'Exodia the Forbidden One is a powerful, legendary creature.'
+                                        owner:
+                                            type: string
+                                            description: The owner of the NFT.
+                                            example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
+                                        delegate:
+                                            type: string
+                                            description: The delegate of the NFT.
+                                            example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
+                                        collection:
+                                            type: string
+                                            description: The NFT will be added to this collection.
+                                        uri:
+                                            type: string
+                                            description: The uri for the off-chain JSON.
+                                        attributes:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    trait_type:
+                                                        type: string
+                                                        description: The trait type.
+                                                        example: 'Rarity'
+                                                    value:
+                                                        type: string
+                                                        description: The value of the trait.
+                                                        example: 'Mythical'
+                                                required:
+                                                    - trait_type
+                                                    - value
+                                        imageUrl:
+                                            type: string
+                                            description: The image url for the NFT.
+                                            example: 'https://cdna.artstation.com/p/assets/images/images/052/118/830/large/julie-almoneda-03.jpg?1658992401'
+                                        externalUrl:
+                                            type: string
+                                            description: The external url for the NFT.
+                                            example: 'https://www.yugioh-card.com/en/'
+                                        sellerFeeBasisPoints:
+                                            type: integer
+                                            description: The seller fee basis points.
+                                            example: 5000
+                                        creators:
+                                            type: array
+                                            description: The NFT creators.
+                                            items:
+                                                type: object
+                                                properties:
+                                                    address:
+                                                        type: string
+                                                        description: The address of the creator.
+                                                        example: DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF
+                                                    share:
+                                                        type: integer
+                                                        description: The royalty share of the creator.
+                                                        example: 100
+                                                        minimum: 0
+                                                        maximum: 100
+                                                required:
+                                                    - address
+                                                    - share
+                                        confirmTransaction:
+                                            type: boolean
+                                            description: If the API should wait for the transcation to confirm.
+                                    required:
+                                        - name
+                                        - symbol
+                                        - description
+                                        - owner
+                            required:
+                                - jsonrpc
+                                - id
+                                - method
+                                - params
+            responses:
+                200:
+                    description: Successful response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    jsonrpc:
+                                        type: string
+                                        enum: ['2.0']
+                                        description: The version of the JSON-RPC protocol.
+                                    id:
+                                        type: string
+                                        description: The ID used to identify the request.
+                                    result:
+                                        type: object
+                                        properties:
+                                            signature:
+                                                type: string
+                                                description: The signature of the mint transaction.
+                                                example: 4FRxjAvHLGCEUXJqkucG7SdKrrmAeqjfTQKmhMZWvqGvkPGvWeZXY8Vfj8oxXtGnf7q3n4n8XHVDsExkpCtAEdKj
+                                            minted:
+                                                type: boolean
+                                                description: If the NFT was successfully minted.
+                                                example: true
+                                            assetId:
+                                                type: string
+                                                description: The ID of the asset.
+                                                example: 6sx2ChPvudKVt4Gc6qr3X4FFwtM4vVa6uZMmQHn5udQE
+                                required:
+                                    - jsonrpc
+                                    - id
+                                    - result
+                400:
+                    description: Invalid request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                401:
+                    description: Unauthorized request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                403:
+                    description: Request was forbidden.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                404:
+                    description: The specified resource was not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                429:
+                    description: Exceeded rate limit..
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+                500:
+                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: string
+components:
+    securitySchemes:
+        apiKey:
+            type: apiKey
+            in: query
+            name: api-key
