@@ -1,528 +1,327 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
-    title: Helius API
-    version: 1.0.0
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-    - url: https://mainnet.helius-rpc.com
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
 paths:
-    /?api-key=<api-key>:
-        post:
-            tags:
-                - RPC
-            summary: getAssetBatch
-            operationId: rpc
-            requestBody:
-                content:
-                    application/json:
-                        schema:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getAssetBatch
+      operationId: rpc
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum: ['2.0']
+                  description: The version of the JSON-RPC protocol.
+                id:
+                  type: string
+                  example: 'test'
+                  description: An ID to identify the request.
+                method:
+                  type: string
+                  enum: ['getAssetBatch']
+                  description: The name of the DAS method to invoke.
+                params:
+                  type: object
+                  properties:
+                    ids:
+                      type: array
+                      items:
+                        type: string
+                        description: The ID of the asset to retrieve.
+                        example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
+                    options:
+                      type: object
+                      description: The display options for the response.
+                      properties:
+                        showUnverifiedCollections:
+                          type: boolean
+                          default: false
+                          description: Displays grouping information for unverified collections instead of skipping them.
+                        showCollectionMetadata:
+                          type: boolean
+                          default: false
+                          description: Displays metadata for the collection.
+                        showFungible:
+                          type: boolean
+                          description: Displays fungible tokens held by the owner.
+                          default: false
+                        showInscription:
+                          type: boolean
+                          description: Displays inscription details of assets inscribed on-chain.
+                          default: false
+                  required:
+                    - ids
+                  example:
+                    ids:
+                      - 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                description: An array of assets.
+                items:
+                  type: object
+                  properties:
+                    interface:
+                      type: string
+                      description: The interface of the asset.
+                      enum:
+                        [
+                          'V1_NFT',
+                          'V1_PRINT',
+                          'LEGACY_NFT',
+                          'V2_NFT',
+                          'FungibleAsset',
+                          'FungibleToken',
+                          'Custom',
+                          'Identity',
+                          'Executable',
+                          'ProgrammableNFT',
+                        ]
+                      example: 'ProgrammableNFT'
+                    id:
+                      type: string
+                      description: The ID of the asset.
+                      example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
+                    content:
+                      type: object
+                      description: The content of the asset.
+                      properties:
+                        $schema:
+                          type: string
+                          example: 'https://schema.metaplex.com/nft1.0.json'
+                        json_uri:
+                          type: string
+                          example: 'https://madlads.s3.us-west-2.amazonaws.com/json/8420.json'
+                        files:
+                          type: array
+                          items:
                             type: object
-                            required:
-                                - jsonrpc
-                                - id
-                                - method
-                                - params
-                            properties:
-                                jsonrpc:
-                                    type: string
-                                    enum: ['2.0']
-                                    description: The version of the JSON-RPC protocol.
-                                id:
-                                    type: string
-                                    example: 'test'
-                                    description: An ID to identify the request.
-                                method:
-                                    type: string
-                                    enum: ['getAssetBatch']
-                                    description: The name of the DAS method to invoke.
-                                params:
-                                    type: object
-                                    properties:
-                                        ids:
-                                            type: array
-                                            items:
-                                                type: string
-                                                description: The ID of the asset to retrieve.
-                                                example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
-                                        options:
-                                            type: object
-                                            description: The display options for the response.
-                                            properties:
-                                                showUnverifiedCollections:
-                                                    type: boolean
-                                                    default: false
-                                                    description: Displays grouping information for unverified collections instead of skipping them.
-                                                showCollectionMetadata:
-                                                    type: boolean
-                                                    default: false
-                                                    description: Displays metadata for the collection.
-                                                showFungible:
-                                                    type: boolean
-                                                    description: Displays fungible tokens held by the owner.
-                                                    default: false
-                                                showInscription:
-                                                    type: boolean
-                                                    description: Displays inscription details of assets inscribed on-chain.
-                                                    default: false
-                                    required:
-                                        - ids
-                                    example:
-                                        ids:
-                                            - 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
-            responses:
-                '200':
-                    description: Successful response
-                    content:
-                        application/json:
-                            schema:
-                                type: array
-                                description: An array of assets.
-                                items:
-                                    type: object
-                                    properties:
-                                        interface:
-                                            type: string
-                                            description: The interface of the asset.
-                                            enum:
-                                                [
-                                                    'V1_NFT',
-                                                    'V1_PRINT',
-                                                    'LEGACY_NFT',
-                                                    'V2_NFT',
-                                                    'FungibleAsset',
-                                                    'FungibleToken',
-                                                    'Custom',
-                                                    'Identity',
-                                                    'Executable',
-                                                    'ProgrammableNFT',
-                                                ]
-                                            example: 'ProgrammableNFT'
-                                        id:
-                                            type: string
-                                            description: The ID of the asset.
-                                            example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
-                                        content:
-                                            type: object
-                                            description: The content of the asset.
-                                            properties:
-                                                $schema:
-                                                    type: string
-                                                    example: 'https://schema.metaplex.com/nft1.0.json'
-                                                json_uri:
-                                                    type: string
-                                                    example: 'https://madlads.s3.us-west-2.amazonaws.com/json/8420.json'
-                                                files:
-                                                    type: array
-                                                    items:
-                                                        type: object
-                                                    example:
-                                                        - uri: 'https://madlads.s3.us-west-2.amazonaws.com/images/8420.png'
-                                                          cdn_uri: 'https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/8420.png'
-                                                          mime: 'image/png'
-                                                metadata:
-                                                    type: object
-                                                    properties:
-                                                        attributes:
-                                                            type: array
-                                                            items:
-                                                                type: object
-                                                            example:
-                                                                - value: 'Male'
-                                                                  trait_type: 'Gender'
-                                                                - value: 'King'
-                                                                  trait_type: 'Type'
-                                                        description:
-                                                            type: string
-                                                            example: 'Fock it.'
-                                                        name:
-                                                            type: string
-                                                            example: 'Mad Lads #8420'
-                                                        symbol:
-                                                            type: string
-                                                            example: 'MAD'
-                                        authorities:
-                                            type: array
-                                            items:
-                                                type: object
-                                            example:
-                                                - address: '2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW'
-                                                  scopes: ['full']
-                                        compression:
-                                            type: object
-                                            example:
-                                                eligible: false
-                                                compressed: false
-                                                data_hash: ''
-                                                creator_hash: ''
-                                                asset_hash: ''
-                                                tree: ''
-                                                seq: 0
-                                                leaf_id: 0
-                                        grouping:
-                                            type: array
-                                            items:
-                                                type: object
-                                            example:
-                                                - group_key: 'collection'
-                                                  group_value: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
-                                        royalty:
-                                            type: object
-                                            example:
-                                                royalty_model: 'creators'
-                                                target: null
-                                                percent: 0.042
-                                                basis_points: 420
-                                                primary_sale_happened: true
-                                                locked: false
-                                        creators:
-                                            type: array
-                                            items:
-                                                type: object
-                                            example:
-                                                - address: '5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv'
-                                                  share: 0
-                                                  verified: true
-                                                - address: '2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW'
-                                                  share: 100
-                                                  verified: true
-                                        ownership:
-                                            type: object
-                                            example:
-                                                frozen: true
-                                                delegated: false
-                                                delegate: null
-                                                ownership_model: 'single'
-                                                owner: '4zdNGgAtFsW1cQgHqkiWyRsxaAgxrSRRynnuunxzjxue'
-                                        supply:
-                                            type: object
-                                            example:
-                                                print_max_supply: 0
-                                                print_current_supply: 0
-                                                edition_nonce: 254
-                                        token_info:
-                                            type: object
-                                            example:
-                                                supply: 1
-                                                decimals: 0
-                                                token_program: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-                                                mint_authority: 'TdMA45ZnakQCBt5XUvm7ib2htKuTWdcgGKu1eUGrDyJ'
-                                                freeze_authority: 'TdMA45ZnakQCBt5XUvm7ib2htKuTWdcgGKu1eUGrDyJ'
-                                        mint_extensions:
-                                            type: object
-                                            description: The mint extensions details for Token2022.
-                                            properties:
-                                            confidential_transfer_mint:
-                                                type: object
-                                                description: Confidential transfer mint details.
-                                                properties:
-                                                authority:
-                                                    type: string
-                                                    description: Authority responsible for the confidential transfer.
-                                                auto_approve_new_accounts:
-                                                    type: boolean
-                                                    description: Auto-approval status of new accounts.
-                                                auditor_elgamal_pubkey:
-                                                    type: string
-                                                    description: ElGamal public key of the auditor.
-                                            confidential_transfer_fee_config:
-                                                type: object
-                                                description: Configuration details for confidential transfer fees.
-                                                properties:
-                                                authority:
-                                                    type: string
-                                                    description: Authority responsible for the fee configuration.
-                                                withdraw_withheld_authority_elgamal_pubkey:
-                                                    type: string
-                                                    description: ElGamal public key for authority to withdraw withheld amounts.
-                                                harvest_to_mint_enabled:
-                                                    type: boolean
-                                                    description: Status indicating if harvesting to mint is enabled.
-                                                withheld_amount:
-                                                    type: string
-                                                    description: Amount withheld during confidential transfers.
-                                            transfer_fee_config:
-                                                type: object
-                                                description: Transfer fee configuration details.
-                                                properties:
-                                                transfer_fee_config_authority:
-                                                    type: string
-                                                    description: Authority responsible for transfer fee configuration.
-                                                withdraw_withheld_authority:
-                                                    type: string
-                                                    description: Authority to withdraw withheld amounts.
-                                                withheld_amount:
-                                                    type: integer
-                                                    description: Amount withheld in transfers.
-                                                older_transfer_fee:
-                                                    type: object
-                                                    description: Details of the older transfer fee structure.
-                                                    properties:
-                                                    epoch:
-                                                        type: string
-                                                        description: Authority responsible for transfer fee configuration.
-                                                    maximum_fee:
-                                                        type: string
-                                                        description: The old maximum fee for the transfer.
-                                                    transfer_fee_basis_points:
-                                                        type: string
-                                                        description: The old transfer fee basis points.
-                                                newer_transfer_fee:
-                                                    type: object
-                                                    description: Details of the newer transfer fee structure.
-                                                    properties:
-                                                    epoch:
-                                                        type: string
-                                                        description: Authority responsible for transfer fee
-                                            metadata_pointer:
-                                                type: object
-                                                description: Metadata pointer details.
-                                                properties:
-                                                authority:
-                                                    type: string
-                                                    description: Authority responsible for transfer fee configuration.
-                                                metadata_address:
-                                                    type: string
-                                                    description: Authority to withdraw withheld amounts.
-                                            mint_close_authority:
-                                                type: object
-                                                description: Mint close authority details.
-                                                properties:
-                                                close_authority:
-                                                    type: string
-                                                    description: Authority responsible for closing mint.
-                                            permanent_delegate:
-                                                type: object
-                                                description: Permanent delegate details.
-                                                properties:
-                                                delegate:
-                                                    type: string
-                                                    description: Delegate public key.
-                                            transfer_hook:
-                                                type: object
-                                                description: Transfer hook details.
-                                                properties:
-                                                authority:
-                                                    type: string
-                                                    description: Authority responsible for the transfer hook.
-                                                program_id:
-                                                    type: string
-                                                    description: Program ID related to the transfer hook.
-                                            interest_bearing_config:
-                                                type: object
-                                                description: Interest bearing configuration details.
-                                                properties:
-                                                rate_authority:
-                                                    type: string
-                                                    description: Authority responsible for setting the interest rate.
-                                                initialization_timestamp:
-                                                    type: integer
-                                                    description: Timestamp of interest rate initialization.
-                                                pre_update_average_rate:
-                                                    type: integer
-                                                    description: Average rate before the latest update.
-                                                last_update_timestamp:
-                                                    type: integer
-                                                    description: Timestamp of the last interest rate update.
-                                                current_rate:
-                                                    type: integer
-                                                    description: Current interest rate.
-                                            default_account_state:
-                                                type: string
-                                                description: The default state of the account.
-                                                properties:
-                                                state:
-                                                    type: string
-                                                    description: The state of the account.
-                                            confidential_transfer_account:
-                                                type: object
-                                                description: Details of the confidential transfer account.
-                                                properties:
-                                                approved:
-                                                    type: boolean
-                                                    description: Indicates whether the account is approved.
-                                                elgamal_pubkey:
-                                                    type: string
-                                                    description: ElGamal public key associated with the account.
-                                                pending_balance_lo:
-                                                    type: string
-                                                    description: Lower part of the encrypted pending balance.
-                                                pending_balance_hi:
-                                                    type: string
-                                                    description: Higher part of the encrypted pending balance.
-                                                available_balance:
-                                                    type: string
-                                                    description: Encrypted available balance of the account.
-                                                decryptable_available_balance:
-                                                    type: string
-                                                    description: Decryptable available balance for the account.
-                                                allow_confidential_credits:
-                                                    type: boolean
-                                                    description: Indicates if the account allows confidential credits.
-                                                allow_non_confidential_credits:
-                                                    type: boolean
-                                                    description: Indicates if the account allows non-confidential credits.
-                                                pending_balance_credit_counter:
-                                                    type: integer
-                                                    description: Counter for the number of pending balance credits.
-                                                maximum_pending_balance_credit_counter:
-                                                    type: integer
-                                                    description: Maximum allowed counter for pending balance credits.
-                                                expected_pending_balance_credit_counter:
-                                                    type: integer
-                                                    description: Expected counter value for pending balance credits.
-                                                actual_pending_balance_credit_counter:
-                                                    type: integer
-                                                    description: Actual counter value for pending balance credits.
-                                            metadata:
-                                                type: object
-                                                description: Metadata details.
-                                                properties:
-                                                update_authority:
-                                                    type: string
-                                                    description: Optional non-zero public key of the update authority.
-                                                mint:
-                                                    type: string
-                                                    description: Public key of the mint.
-                                                name:
-                                                    type: string
-                                                    description: Name associated with the metadata.
-                                                symbol:
-                                                    type: string
-                                                    description: Symbol associated with the metadata.
-                                                uri:
-                                                    type: string
-                                                    description: URI pointing to the metadata resources.
-                                                additional_metadata:
-                                                    type: array
-                                                    description: A list of additional metadata pairs.
-
-                                    supply:
-                                        type: object
-                                        description: Supply details of master or edition NFT.
-                                        nullable: true
-                                        properties:
-                                            print_max_supply:
-                                                type: integer
-                                                description: The maximum printable NFTs.
-                                            print_current_supply:
-                                                type: integer
-                                                description: The current printed NFTs.
-                                            edition_nonce:
-                                                type: integer
-                                                description: The nonce of the edition.
-                                            edition_number:
-                                                type: integer
-                                                description: The number of the edition.
-                                                nullable: true
-                                    token_info:
-                                        token_info:
-                                            type: object
-                                            description: Details about the specific token.
-                                            properties:
-                                            symbol:
-                                                type: string
-                                                description: The symbol of the token.
-                                            supply:
-                                                type: integer
-                                                description: The total supply of the token.
-                                            decimals:
-                                                type: integer
-                                                description: The number of decimals the token uses.
-                                            token_program:
-                                                type: string
-                                                description: The tokens program ID.
-                                            price_info:
-                                                type: object
-                                                description: Information about the token's price.
-                                                properties:
-                                                price_per_token:
-                                                    type: number
-                                                    description: The price per individual token.
-                                                currency:
-                                                    type: string
-                                                    description: The currency in which the token's price is denoted.
-                                            mint_authority:
-                                                type: string
-                                                description: The mint authority address of the token.
-                                            freeze_authority:
-                                                type: string
-                                                description: The freeze authority address of the token.
-                                        inscription:
-                                            type: object
-                                            properties:
-                                                order:
-                                                    type: integer
-                                                    description: The order of the inscription.
-                                                size:
-                                                    type: integer
-                                                    description: The size of the inscription.
-                                                contentType:
-                                                    type: string
-                                                    description: The content type of the inscription.
-                                                encoding:
-                                                    type: string
-                                                    description: The encoding of the inscription.
-                                                validationHash:
-                                                    type: string
-                                                    description: The validation hash of the inscription.
-                                                inscriptionDataAccount:
-                                                    type: string
-                                                    description: The inscription data account.
-                                                authority:
-                                                    type: string
-                                                    description: The authority of the inscription.
-                                        spl20:
-                                            type: object
-                '400':
-                    description: Invalid request.
-                    content:
-                        application/json:
-                            schema:
+                          example:
+                            - uri: 'https://madlads.s3.us-west-2.amazonaws.com/images/8420.png'
+                              cdn_uri: 'https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/8420.png'
+                              mime: 'image/png'
+                        metadata:
+                          type: object
+                          properties:
+                            attributes:
+                              type: array
+                              items:
                                 type: object
-                                properties:
-                                    error:
-                                        type: string
-                '401':
-                    description: Unauthorized request.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
-                '403':
-                    description: Request was forbidden.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
-                '404':
-                    description: The specified resource was not found.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
-                '429':
-                    description: Exceeded rate limit.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
-                '500':
-                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
-                    content:
-                        application/json:
-                            schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                              example:
+                                - value: 'Male'
+                                  trait_type: 'Gender'
+                                - value: 'King'
+                                  trait_type: 'Type'
+                            description:
+                              type: string
+                              example: 'Fock it.'
+                            name:
+                              type: string
+                              example: 'Mad Lads #8420'
+                            symbol:
+                              type: string
+                              example: 'MAD'
+                    authorities:
+                      type: array
+                      items:
+                        type: object
+                      example:
+                        - address: '2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW'
+                          scopes: ['full']
+                    compression:
+                      type: object
+                      example:
+                        eligible: false
+                        compressed: false
+                        data_hash: ''
+                        creator_hash: ''
+                        asset_hash: ''
+                        tree: ''
+                        seq: 0
+                        leaf_id: 0
+                    grouping:
+                      type: array
+                      items:
+                        type: object
+                      example:
+                        - group_key: 'collection'
+                          group_value: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
+                    royalty:
+                      type: object
+                      example:
+                        royalty_model: 'creators'
+                        target: null
+                        percent: 0.042
+                        basis_points: 420
+                        primary_sale_happened: true
+                        locked: false
+                    creators:
+                      type: array
+                      items:
+                        type: object
+                      example:
+                        - address: '5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv'
+                          share: 0
+                          verified: true
+                        - address: '2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW'
+                          share: 100
+                          verified: true
+                    ownership:
+                      type: object
+                      example:
+                        frozen: true
+                        delegated: false
+                        delegate: null
+                        ownership_model: 'single'
+                        owner: '4zdNGgAtFsW1cQgHqkiWyRsxaAgxrSRRynnuunxzjxue'
+                    supply:
+                      type: object
+                      example:
+                        print_max_supply: 0
+                        print_current_supply: 0
+                        edition_nonce: 254
+                    token_info:
+                      type: object
+                      description: Details about the specific token.
+                      properties:
+                        symbol:
+                          type: string
+                          description: The symbol of the token.
+                        supply:
+                          type: integer
+                          description: The total supply of the token.
+                        decimals:
+                          type: integer
+                          description: The number of decimals the token uses.
+                        token_program:
+                          type: string
+                          description: The tokens program ID.
+                        price_info:
+                          type: object
+                          description: Information about the token's price.
+                          properties:
+                            price_per_token:
+                              type: number
+                              description: The price per individual token.
+                            currency:
+                              type: string
+                              description: The currency in which the token's price is denoted.
+                        mint_authority:
+                          type: string
+                          description: The mint authority address of the token.
+                        freeze_authority:
+                          type: string
+                          description: The freeze authority address of the token.
+                    inscription:
+                      type: object
+                      properties:
+                        order:
+                          type: integer
+                          description: The order of the inscription.
+                        size:
+                          type: integer
+                          description: The size of the inscription.
+                        contentType:
+                          type: string
+                          description: The content type of the inscription.
+                        encoding:
+                          type: string
+                          description: The encoding of the inscription.
+                        validationHash:
+                          type: string
+                          description: The validation hash of the inscription.
+                        inscriptionDataAccount:
+                          type: string
+                          description: The inscription data account.
+                        authority:
+                          type: string
+                          description: The authority of the inscription.
+                    spl20:
+                      type: object
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '403':
+          description: Request was forbidden.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: The specified resource was not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '429':
+          description: Exceeded rate limit.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

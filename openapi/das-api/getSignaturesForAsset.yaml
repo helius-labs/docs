@@ -1,16 +1,31 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
-  title: Helius API
+  title: Solana RPC API
   version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
 paths:
-  /?api-key=<api_key>:
+  /:
     post:
       tags: 
-        -RPC
+        - RPC
       summary: getSignaturesForAsset
       operationId: rpc
+      security:
+        - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
@@ -26,46 +41,39 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The version of the JSON-RPC protocol.
-                  required: true
                 id:
                   type: string
                   description: An ID to identify the request.
-                  required: true
                 method:
                   type: string
                   enum: ["getSignaturesForAsset"]
                   description: The name of the DAS method to invoke.
-                  required: true
                 params:
                   type: object
+                  required:
+                    - id
+                    - page
                   properties:
                     id:
                       type: string
                       description: The ID of the asset to retrieve the signatures for.
                       example: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
-                      required: true
                     page:
                       type: integer
                       description: The page of results to return.
                       example: 1
-                      required: true
                     limit:
                       type: integer
                       description: The maximum number of signatures to return.
                       example: 100
-                      required: false
                     before:
                       type: string
                       description: The cursor for paginating backwards through the signatures.
                       example: "string"
-                      required: false
                     after:
                       type: string
                       description: The cursor for paginating forwards through the signatures.
                       example: "string"
-                      required: false
-                  required:
-                    - id
       responses:
         200:
           description: Successful response
@@ -103,7 +111,7 @@ paths:
                   id:
                     type: string
                     example: "text"
-        200 No Content:
+        204:
           description: 'No content.'
         400:
           description: Invalid request.
