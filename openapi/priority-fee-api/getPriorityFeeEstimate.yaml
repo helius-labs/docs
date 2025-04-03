@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    PriorityFeeEstimateRequest:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+          default: "2.0"
+        id:
+          type: string
+          default: "1"
+        method:
+          type: string
+          enum: ["getPriorityFeeEstimate"]
+          default: "getPriorityFeeEstimate"
+        params:
+          type: array
+          default:
+            [
+              {
+                transaction: "LxzhDW7TapzziJVHEGPh1QjmZB6kjNqmvuJ9gmihBGEkzw2N8ospDq32UZdVmKWzRZqKuyvhp7xmLvsmmHa3MfxVKpYoLV9cPkw5isHnHgDUwLSMsDaZ4dLEULexXAvuV9k6fLD2LMhFKM6gqH6j69GQLAm1g4e3z5ZVZN6pmJdSmZ4PqKcwNn4sS7E3Abp1hV59uBJB9i4jEdEAh28rZ8WCeNizzEmrJZFhatFFFGSDsk23jDPEjbkMcoRWXKf1WthFScC2S6Wz284Dtjqp7kW8eybV3DpmN9DtBbcfFNQPtUwmiBZCKszdYym5AjJvRHiUKUdMwFpC3toPnMvTmKZ9iHQtzZRkg5xBufRtUN5eVYJfdw2DxzH6RfqhC2rAjfSbfJA4wmaq9f5eUe2iEjmqvne6r85PPcHBJzyqkVtAyUFtTc9DfU8UiM9rFhQ2UB71M6m5UCsC6EwowMw5k8iF8rL7iPCLdubVdy8S58DPLNG4E4rdosev1T63YdRWSgEwBZh7iX4zGBA9AKAm3B9itCSxLSL46Y6uZgVku9UXsMcWWz3URoa6hRbo55CYPLhrVeqjqX5DsXpaG6QkngbEaESQUnkakE1AFkYXmNXEd2m3sLRTYB2o5UTkwkJS2u5sJHyYqAvXr3vFZr7qAYFLD3LwS5tsdb45ZQVQwsbnNddMHgkpmSqLHS6Fv1epxqHbzpRCU1tgMsriApVWC3pj2LLD41HxkV8aKvkVyHgJFACUtbvRBZAasHf1F71Gz3qZNTdh3efWsZJRXnfxKPbATU7NTMaMUL8JjknfoVwp3",
+              },
+            ]
+          items:
+            type: object
+            properties:
+              transaction:
+                type: string
+              accountKeys:
+                type: array
+                items:
+                  type: string
+              options:
+                $ref: "#/components/schemas/PriorityFeeOptions"
+    PriorityFeeOptions:
+      type: object
+      properties:
+        transactionEncoding:
+          type: string
+          enum: ["Base58", "Base64"]
+        priorityLevel:
+          type: string
+          enum: ["Min", "Low", "Medium", "High", "VeryHigh", "UnsafeMax"]
+        includeAllPriorityFeeLevels:
+          type: boolean
+        lookbackSlots:
+          type: integer
+          minimum: 1
+          maximum: 150
+        includeVote:
+          type: boolean
+        recommended:
+          type: boolean
+        evaluateEmptySlotAsZero:
+          type: boolean
+    PriorityFeeEstimateResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+        id:
+          type: string
+        result:
+          type: object
+          properties:
+            priorityFeeEstimate:
+              type: number
+              format: float
+            priorityFeeLevels:
+              type: object
+              properties:
+                min:
+                  type: number
+                  format: float
+                low:
+                  type: number
+                  format: float
+                medium:
+                  type: number
+                  format: float
+                high:
+                  type: number
+                  format: float
+                veryHigh:
+                  type: number
+                  format: float
+                unsafeMax:
+                  type: number
+                  format: float
+paths:
+  /:
+    post:
+      summary: Get priority fee estimates
+      description: Provides fee recommendations based on historical data, considering both global and local fee markets
+      operationId: getPriorityFeeEstimate
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriorityFeeEstimateRequest"
+            examples:
+              transactionExample:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getPriorityFeeEstimate"
+                  params:
+                    [
+                      {
+                        transaction: "LxzhDW7TapzziJVHEGPh1QjmZB6kjNqmvuJ9gmihBGEkzw2N8ospDq32UZdVmKWzRZqKuyvhp7xmLvsmmHa3MfxVKpYoLV9cPkw5isHnHgDUwLSMsDaZ4dLEULexXAvuV9k6fLD2LMhFKM6gqH6j69GQLAm1g4e3z5ZVZN6pmJdSmZ4PqKcwNn4sS7E3Abp1hV59uBJB9i4jEdEAh28rZ8WCeNizzEmrJZFhatFFFGSDsk23jDPEjbkMcoRWXKf1WthFScC2S6Wz284Dtjqp7kW8eybV3DpmN9DtBbcfFNQPtUwmiBZCKszdYym5AjJvRHiUKUdMwFpC3toPnMvTmKZ9iHQtzZRkg5xBufRtUN5eVYJfdw2DxzH6RfqhC2rAjfSbfJA4wmaq9f5eUe2iEjmqvne6r85PPcHBJzyqkVtAyUFtTc9DfU8UiM9rFhQ2UB71M6m5UCsC6EwowMw5k8iF8rL7iPCLdubVdy8S58DPLNG4E4rdosev1T63YdRWSgEwBZh7iX4zGBA9AKAm3B9itCSxLSL46Y6uZgVku9UXsMcWWz3URoa6hRbo55CYPLhrVeqjqX5DsXpaG6QkngbEaESQUnkakE1AFkYXmNXEd2m3sLRTYB2o5UTkwkJS2u5sJHyYqAvXr3vFZr7qAYFLD3LwS5tsdb45ZQVQwsbnNddMHgkpmSqLHS6Fv1epxqHbzpRCU1tgMsriApVWC3pj2LLD41HxkV8aKvkVyHgJFACUtbvRBZAasHf1F71Gz3qZNTdh3efWsZJRXnfxKPbATU7NTMaMUL8JjknfoVwp3/SsAUIMHFzjQMQmoiQMSL1q+S+r9dLR55BgaWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQECAwABDAIAAAAEAAAAAAAA",
+                      },
+                    ]
+              accountKeysExample:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getPriorityFeeEstimate"
+                  params:
+                    [
+                      {
+                        accountKeys:
+                          ["2CiBfRKcERi2GgYn83UaGo1wFaYHHrXGGfnDaa2hxdEA"],
+                        options: { includeAllPriorityFeeLevels: true },
+                      },
+                    ]
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriorityFeeEstimateResponse"
+              examples:
+                singleEstimateResponse:
+                  value:
+                    jsonrpc: "2.0"
+                    result: { priorityFeeEstimate: 120000.0 }
+                    id: "1"
+                allLevelsResponse:
+                  value:
+                    jsonrpc: "2.0"
+                    result:
+                      {
+                        priorityFeeLevels:
+                          {
+                            min: 0.0,
+                            low: 2.0,
+                            medium: 10082.0,
+                            high: 100000.0,
+                            veryHigh: 1000000.0,
+                            unsafeMax: 50000000.0,
+                          },
+                      }
+                    id: "1"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum: ["2.0"]
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: -32602
+                      message:
+                        type: string
+                        example: "Invalid params"
+                  id:
+                    type: string
