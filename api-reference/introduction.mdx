@@ -1,23 +1,46 @@
 ---
 title: 'Introduction'
-description: 'Helius provides powerful API endpoints for interacting with the Solana blockchain. Our API is built on REST principles, offering predictable resource-oriented URLs, JSON-encoded responses, and standard HTTP response codes and verbs.
-'
+description: 'Helius offers access to Solana blockchain data through a comprehensive suite of APIs.'
 ---
 
-## Core Features
+### Solana RPC APIs
 
-Helius offers access to Solana blockchain data through:
+<CardGroup cols={2}>
+  <Card title="HTTP Methods" icon="server">
+    Standard Solana RPC functionality with improved reliability, performance, and guaranteed uptime
+  </Card>
+  <Card title="WebSocket Methods" icon="signal-stream">
+    Real-time data feed for live updates about accounts, logs, signatures, and slots without polling
+  </Card>
+</CardGroup>
 
-- **Standard RPC Methods**: Access all standard Solana RPC functionality with improved reliability and performance
-- **Real-time Websockets**: Establish persistent connections for immediate updates without polling
-- **DAS Compliance**: Fully compliant with Solana's Digital Asset Standard for NFT metadata
+### Token & Transaction APIs
 
-## Endpoints
+<CardGroup cols={2}>
+  <Card title="Digital Asset Standard (DAS)" icon="hexagon-image">
+    The most comprehensive and performant API for tokens, NFTs, and compressed NFTs on Solana
+  </Card>
+  <Card title="Priority Fee API" icon="star">
+    Fee recommendations based on historical data, considering both global and local fee markets
+  </Card>
+  <Card title="Enhanced Transactions" icon="receipt">
+    Parsed transaction data in human-readable format for individual, multiple, or complete address history
+  </Card>
+  <Card title="ZK Compression" icon="arrows-to-circle">
+    Data compression with zero-knowledge proofs to reduce storage costs
+  </Card>
+</CardGroup>
 
-Helius provides multiple endpoint types to suit different application needs. For a comprehensive list of all available endpoints and their connection details, see our [Endpoints](/api-reference/endpoints) documentation.
+### Data Streaming APIs
 
-## Authentication
-
-All Helius API endpoints require authentication using an API key. Include your API key as a query parameter (`api-key=YOUR_API_KEY`) with every request.
-
-More information on authentication can be found in the [Authentication](/api-reference/authentication) section.
+<CardGroup cols={3}>
+  <Card title="gRPC (Geyser)" icon="bolt">
+    Fastest way to stream Solana data with highly configurable filters for blocks, slots, transactions, and account updates
+  </Card>
+  <Card title="Webhooks" icon="webhook">
+    Real-time notifications for blockchain activity sent directly to your endpoints
+  </Card>
+  <Card title="Enhanced WebSockets" icon="signal-stream">
+    Geyser-enhanced WebSockets with faster response times than traditional RPC WebSockets
+  </Card>
+</CardGroup>

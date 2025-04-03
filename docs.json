@@ -57,10 +57,11 @@
             ]
           },
           {
-            "group": "Solana RPC",
+            "group": "Solana RPC APIs",
             "pages": [
               {
                 "group": "HTTP Methods",
+                "icon": "server",
                 "pages": [
                   "rpc/http/getaccountinfo",
                   "rpc/http/getbalance",
@@ -118,16 +119,82 @@
               },
               {
                 "group": "WebSocket Methods",
+                "icon": "signal-stream",
+                "pages": ["rpc/websocket/accountSubscribe"]
+              }              
+            ]
+          },
+          {
+            "group": "Token & Transaction APIs",
+            "pages": [
+              {
+                "group": "Digital Asset Standard (DAS)",
+                "icon": "hexagon-image",
                 "pages": [
-                  "rpc/websocket/accountSubscribe"
+                  "das-api/getasset",
+                  "das-api/getassetbatch",
+                  "das-api/getassetproof",
+                  "das-api/getassetproofbatch",
+                  "das-api/getassetsbyauthority",
+                  "das-api/getassetsbycreator",
+                  "das-api/getassetsbygroup",
+                  "das-api/getassetsbyowner",
+                  "das-api/getnfteditions",
+                  "das-api/getsignaturesforasset",
+                  "das-api/gettokenaccounts",
+                  "das-api/searchassets"
                 ]
+              },
+              {
+                "group": "Priority Fee",
+                "icon": "star",
+                "pages": ["priority-fee-api/introduction"]
+              },
+              {
+                "group": "Enhanced Transactions",
+                "icon": "receipt",
+                "pages": ["priority-fee-api/introduction"]
+              },
+              {
+                "group": "ZK Compression",
+                "icon": "arrows-to-circle",
+                "pages": ["zk-compression/introduction"]
               }
             ]
           },
           {
-            "group": "DAS API",
+            "group": "Data Streaming APIs",
             "pages": [
-              "das-api/getasset"
+              {
+                "group": "gRPC (Geyser)",
+                "icon": "bolt",
+                "pages": ["geyser/introduction"]
+              },
+              {
+                "group": "Webhooks",
+                "icon": "webhook",
+                "pages": ["webhooks/introduction"]
+              },
+              {
+                "group": "Enhanced WebSockets (beta)",
+                "icon": "signal-stream",
+                "pages": ["enhanced-websockets/introduction"]
+              }
+            ]
+          },
+          {
+            "group": "Deprecated APIs",
+            "pages": [
+              {
+                "group": "Token Metadata API",
+                "icon": "ban",
+                "pages": ["deprecated-apis/token-metadata-api"]
+              },
+              {
+                "group": "Mint API",
+                "icon": "ban",
+                "pages": ["deprecated-apis/mint-api"]
+              }
             ]
           }
         ]
