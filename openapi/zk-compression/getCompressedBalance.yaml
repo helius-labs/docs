@@ -4,6 +4,7 @@ info:
   description: Solana indexer for general compression
   license:
     name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.50.0
 servers:
   - url: https://mainnet.helius-rpc.com
@@ -12,10 +13,9 @@ servers:
     description: Devnet RPC endpoint
 paths:
   /:
-    summary: getCompressionSignaturesForAccount
     post:
-      description: Retrieves getCompressionSignaturesForAccount information
-      operationId: getCompressionSignaturesForAccount
+      operationId: getCompressedBalance
+      description: Retrieves a compressed account balance
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -29,28 +29,44 @@ paths:
               - method
               - params
               properties:
-                id:
-                  type: string
-                  description: An ID to identify the request.
-                  enum:
-                  - test-account
                 jsonrpc:
                   type: string
                   description: The version of the JSON-RPC protocol.
                   enum:
                   - '2.0'
+                  default: '2.0'
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                  example: "1"
+                  default: "1"
                 method:
                   type: string
                   description: The name of the method to invoke.
                   enum:
-                  - getCompressionSignaturesForAccount
+                  - getCompressedBalance
+                  default: getCompressedBalance
                 params:
                   type: object
-                  required:
-                  - hash
+                  description: Request for compressed account data
+                  default:
+                    address: null
+                    hash: '11111111111111111111111111111111'
                   properties:
+                    address:
+                      type: string
+                      allOf:
+                      - $ref: '#/components/schemas/SerializablePubkey'
+                      nullable: true
                     hash:
-                      $ref: '#/components/schemas/Hash'
+                      type: string
+                      allOf:
+                      - $ref: '#/components/schemas/Hash'
+                      nullable: true
+                  additionalProperties: false
+                  example:
+                    address: null
+                    hash: '11111111111111111111111111111111'
         required: true
       responses:
         '200':
@@ -66,7 +82,7 @@ paths:
                   context:
                     $ref: '#/components/schemas/Context'
                   value:
-                    $ref: '#/components/schemas/SignatureInfoList'
+                    $ref: '#/components/schemas/UnsignedInteger'
                 additionalProperties: false
         '429':
           description: Exceeded rate limit.
@@ -107,38 +123,11 @@ components:
       type: string
       description: A 32-byte hash represented as a base58 string.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
-    SerializableSignature:
+    SerializablePubkey:
       type: string
-      description: A Solana transaction signature.
-      default: 5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c
-      example: 5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c
-    SignatureInfo:
-      type: object
-      required:
-      - signature
-      - slot
-      - blockTime
-      properties:
-        blockTime:
-          $ref: '#/components/schemas/UnixTimestamp'
-        signature:
-          $ref: '#/components/schemas/SerializableSignature'
-        slot:
-          $ref: '#/components/schemas/UnsignedInteger'
-    SignatureInfoList:
-      type: object
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/SignatureInfo'
-    UnixTimestamp:
-      type: integer
-      description: An Unix timestamp (seconds)
-      default: 1714081554
-      example: 1714081554
+      description: A Solana public key represented as a base58 string.
+      default: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
+      example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     UnsignedInteger:
       type: integer
       default: 100

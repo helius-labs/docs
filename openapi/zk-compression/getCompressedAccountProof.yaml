@@ -15,72 +15,76 @@ paths:
   /:
     summary: getCompressedAccountProof
     post:
-      summary: Retrieves getCompressedAccountProof information
+      description: Retrieves getCompressedAccountProof information
       operationId: getCompressedAccountProof
       security:
         - ApiKeyQuery: []
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - jsonrpc
+              - id
+              - method
+              - params
+              properties:
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                  example: "1"
+                  default: "1"
+                jsonrpc:
+                  type: string
+                  description: The version of the JSON-RPC protocol.
+                  default: '2.0'
+                method:
+                  type: string
+                  description: The name of the method to invoke.
+                  default: getCompressedAccountProof
+                params:
+                  type: object
+                  required:
+                  - hash
+                  properties:
+                    hash:
+                      $ref: '#/components/schemas/Hash'
+        required: true
       responses:
-
         '200':
-
           description: Successful response
-
           content:
-
             application/json:
-
               schema:
-
                 type: object
-
+                required:
+                - context
+                - value
                 properties:
-
-                  result:
-
-                    type: object
-
-                    description: The result of the getCompressedAccountProof request
-
-        '400':
-
-          description: Bad request
-
-          content:
-
-            application/json:
-
-              schema:
-
-                type: object
-
-                properties:
-
-                  error:
-
-                    type: string
-
-                    description: Error message
-
+                  context:
+                    $ref: '#/components/schemas/Context'
+                  value:
+                    $ref: '#/components/schemas/MerkleProofWithContext'
+                additionalProperties: false
         '429':
-
-          description: Too many requests
-
+          description: Exceeded rate limit.
           content:
-
             application/json:
-
               schema:
-
                 type: object
-
                 properties:
-
                   error:
-
                     type: string
-
-                    description: Rate limit exceeded message
+        '500':
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 components:
   securitySchemes:
     ApiKeyQuery:

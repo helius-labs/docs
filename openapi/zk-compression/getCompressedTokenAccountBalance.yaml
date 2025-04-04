@@ -14,72 +14,90 @@ paths:
   /:
     summary: getCompressedTokenAccountBalance
     post:
-      summary: Retrieves getCompressedTokenAccountBalance information
+      description: Retrieves getCompressedTokenAccountBalance information
       operationId: getCompressedTokenAccountBalance
       security:
         - ApiKeyQuery: []
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - jsonrpc
+              - id
+              - method
+              - params
+              properties:
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                  enum:
+                  - test-account
+                jsonrpc:
+                  type: string
+                  description: The version of the JSON-RPC protocol.
+                  enum:
+                  - '2.0'
+                method:
+                  type: string
+                  description: The name of the method to invoke.
+                  enum:
+                  - getCompressedTokenAccountBalance
+                params:
+                  type: object
+                  description: Request for compressed account data
+                  default:
+                    address: null
+                    hash: '11111111111111111111111111111111'
+                  properties:
+                    address:
+                      allOf:
+                      - $ref: '#/components/schemas/SerializablePubkey'
+                      nullable: true
+                    hash:
+                      allOf:
+                      - $ref: '#/components/schemas/Hash'
+                      nullable: true
+                  additionalProperties: false
+                  example:
+                    address: null
+                    hash: '11111111111111111111111111111111'
+        required: true
       responses:
-
         '200':
-
-          description: Successful response
-
+          description: ''
           content:
-
             application/json:
-
               schema:
-
                 type: object
-
+                required:
+                - context
+                - value
                 properties:
-
-                  result:
-
-                    type: object
-
-                    description: The result of the getCompressedTokenAccountBalance request
-
-        '400':
-
-          description: Bad request
-
-          content:
-
-            application/json:
-
-              schema:
-
-                type: object
-
-                properties:
-
-                  error:
-
-                    type: string
-
-                    description: Error message
-
+                  context:
+                    $ref: '#/components/schemas/Context'
+                  value:
+                    $ref: '#/components/schemas/TokenAccountBalance'
+                additionalProperties: false
         '429':
-
-          description: Too many requests
-
+          description: Exceeded rate limit.
           content:
-
             application/json:
-
               schema:
-
                 type: object
-
                 properties:
-
                   error:
-
                     type: string
-
-                    description: Rate limit exceeded message
+        '500':
+          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
 components:
   securitySchemes:
     ApiKeyQuery:
