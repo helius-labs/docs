@@ -21,6 +21,10 @@ paths:
   /:
     summary: getIndexerSlot
     post:
+      summary: Retrieves getIndexerSlot information
+      operationId: getIndexerSlot
+      security:
+        - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
@@ -74,4 +78,4 @@ paths:
                 properties:
                   error:
                     type: string
-components: {}
+
