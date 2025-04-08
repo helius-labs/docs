@@ -29,21 +29,22 @@ paths:
               - method
               - params
               properties:
-                id:
-                  type: string
-                  description: An ID to identify the request.
-                  enum:
-                  - test-account
                 jsonrpc:
                   type: string
                   description: The version of the JSON-RPC protocol.
                   enum:
                   - '2.0'
+                  default: '2.0'
+                id:
+                  type: string
+                  description: An ID to identify the request.
+                  default: "1"
                 method:
                   type: string
                   description: The name of the method to invoke.
                   enum:
                   - getCompressionSignaturesForOwner
+                  default: getCompressionSignaturesForOwner
                 params:
                   type: object
                   required:
