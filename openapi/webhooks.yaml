@@ -11,10 +11,7 @@ info:
 
 servers:
   - url: https://api.helius.xyz
-    description: Mainnet RPC endpoint
-  - url: https://api-devnet.helius.xyz
-    description: Devnet RPC endpoint
-
+  
 security:
   - ApiKeyQuery: []
 
@@ -31,32 +28,23 @@ tags:
 ##### PATHS #####
 
 paths:
-  /v0/addresses/{address}/nft-events:
+  /v0/webhooks:
     get:
       tags:
-        - NFTs
-      summary: Returns all NFT related events associated with the given address.
-      operationId: getNftEvents
-      description: |
-        By passing in the appropriate query parameters, you can search for
-        event types and sources.
+        - Webhooks
+      summary: Returns all webhooks.
+      operationId: getWebhooks
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/beforeParam'
-        - $ref: '#/components/parameters/untilParam'
-        - $ref: '#/components/parameters/commitmentParam'
-        - $ref: '#/components/parameters/addressParam'
-        - $ref: '#/components/parameters/transactionSourceParam'
-        - $ref: '#/components/parameters/transactionTypeParam'
       responses:
         200:
-          description: Returns an array of NFTEvents.
+          description: Webhooks for the given API key.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/NFTEvent'
+                  $ref: '#/components/schemas/Webhook'
         400:
           $ref: '#/components/responses/400-BadRequest'
         401:
@@ -72,215 +60,15 @@ paths:
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nft-events
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
-        requestParameters:
-          integration.request.path.address: method.request.path.address
-
-  /v0/addresses/{address}/transactions:
-    get:
-      tags:
-        - Transactions
-      summary: Returns an enriched transaction history for a given address
-      operationId: getEnrichedTransactions
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/beforeParam'
-        - $ref: '#/components/parameters/untilParam'
-        - $ref: '#/components/parameters/commitmentParam'
-        - $ref: '#/components/parameters/addressParam'
-        - $ref: '#/components/parameters/transactionSourceParam'
-        - $ref: '#/components/parameters/transactionTypeParam'
-        - $ref: '#/components/parameters/limitNewParam'
-
-      responses:
-        200:
-          description: Returns an array of enriched transactions.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EnrichedTransaction'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-        requestParameters:
-          integration.request.path.address: method.request.path.address
-
-  /v0/addresses/{address}/raw-transactions:
-    get:
-      tags:
-        - Transactions
-      summary: Returns raw transaction history for a given address
-      operationId: getRawTransactionHistory
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/beforeParam'
-        - $ref: '#/components/parameters/untilParam'
-        - $ref: '#/components/parameters/commitmentParam'
-        - $ref: '#/components/parameters/addressParam'
-      responses:
-        200:
-          description: Returns an array of raw transactions.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RawTransaction'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/raw-transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-        requestParameters:
-          integration.request.path.address: method.request.path.address
-
-  /v0/transactions:
+   
     post:
       tags:
-        - Transactions
-      summary: Returns an array of enriched, human-readable versions of the given transactions.
-      operationId: getEnrichedTransaction
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/commitmentParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParseTransactionsRequest'
-                
-      responses:
-        200:
-          description: Returns an array of enriched transactions.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EnrichedTransaction'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-        
-  /v0/raw-transactions:
-    post:
-      tags:
-        - Transactions
-      summary: Returns an array of raw (directly from RPC) transactions.
-      operationId: getRawTransactions
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/commitmentParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ParseTransactionsRequest'
-                
-      responses:
-        200:
-          description: Returns an array of raw transactions.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RawTransaction'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-
-  /v0/tokens/metadata:
-    post:
-      tags:
-        - Tokens
-        - NFTs
-      summary: Returns token metadata (whether NFT or Fungible) for a given token address.
-      operationId: getTokenMetadata
+        - Webhooks
+      summary: Creates a webhook.
+      operationId: createWebhook
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
       requestBody:
@@ -288,35 +76,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokensMetadataRequest'
-                
+                $ref: '#/components/schemas/CreateWebhookRequest'
       responses:
         200:
-          description: Returns the token metadata.
+          description: The created webhook.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TokenMetadataResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
+                $ref: '#/components/schemas/Webhook'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
+    
     options:
       responses:
         200:
@@ -324,102 +98,58 @@ paths:
       x-amazon-apigateway-integration:
         httpMethod: OPTIONS
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
           
-  /v0/addresses/{address}/names:
-    get:
-      tags:
-        - Addresses
-      summary: Returns the Solana Naming Service name for a given address.
-      operationId: getAddressName
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/addressParam'
-      responses:
-        200:
-          description: Returns the Solana Naming Service name if exists. Otherwise returns null.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NamesResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: GET
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/names
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-        requestParameters:
-          integration.request.path.address: method.request.path.address
   
-  /v0/addresses/{address}/balances:
+  /v0/webhooks/{webhookID}:
     get:
       tags:
-        - Addresses
-      summary: Returns the native balance and token balances for a given address.
-      operationId: getBalances
+        - Webhooks
+      summary: Returns given Webhook.
+      operationId: getWebhook
+      description: Query a webhook by its ID.
       parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/addressParam'
+       - $ref: '#/components/parameters/webhookIDParam'
+       - $ref: '#/components/parameters/apiKeyParam'
       responses:
         200:
-          description: Returns the native balance and
-           the token balances for a given account.
+          description: Returns details about the given webhook ID.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BalancesResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
+                $ref: '#/components/schemas/Webhook'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/balances
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
         requestParameters:
-          integration.request.path.address: method.request.path.address
-          
-  /v0/addresses/{address}/nfts:
-    get:
+          integration.request.path.webhookID: method.request.path.webhookID
+                
+    put:
       tags:
-        - NFTs
-      summary: Returns the NFTs held for a given address.
-      operationId: getNFTs
+        - Webhooks
+      summary: Edits a webhook.
+      operationId: editWebhook
       parameters:
+        - $ref: '#/components/parameters/webhookIDParam' 
         - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/addressParam'
-        - $ref: '#/components/parameters/pageNumberParam'
-      responses:
-        200:
-          description: Returns the current NFTs that this address owns.
+      requestBody:
+          required: true
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NFTsResponse'
+                $ref: '#/components/schemas/CreateWebhookRequest'
+      responses:
+        200:
+          description: The edited webhook.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
         400:
           $ref: '#/components/responses/400-BadRequest'
         401:
@@ -433,36 +163,25 @@ paths:
         500:
           $ref: '#/components/responses/500-InternalServerError'
       x-amazon-apigateway-integration:
-        httpMethod: GET
+        httpMethod: PUT
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nfts
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
         requestParameters:
-          integration.request.path.address: method.request.path.address
+          integration.request.path.webhookID: method.request.path.webhookID
 
-  /v1/nft-events:
-    post:
+    delete:
       tags:
-        - NFTs
-      summary: Queries for NFT events.
-      operationId: queryNftEvents
+        - Webhooks
+      summary: Deletes a webhook.
+      operationId: deleteWebhook
       parameters:
+        - $ref: '#/components/parameters/webhookIDParam' 
         - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueryNftEventsRequest'
-                
       responses:
         200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QueryNftEventsResponse'
+          $ref: '#/components/responses/200-NoContent'
         400:
           $ref: '#/components/responses/400-BadRequest'
         401:
@@ -476,277 +195,13 @@ paths:
         500:
           $ref: '#/components/responses/500-InternalServerError'
       x-amazon-apigateway-integration:
-        httpMethod: POST
+        httpMethod: DELETE
         type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
         connectionType: VPC_LINK
         connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-
-  /v1/nfts:
-    post:
-      tags:
-        - NFTs
-      summary: Describes the provided NFTs.
-      operationId: describeNfts
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DescribeNftsRequest'
-                
-      responses:
-        200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DescribeNftsResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-
-  /v1/mintlist:
-    post:
-      tags:
-        - NFTs
-      summary: Returns a list of mint accounts for a given NFT collection.
-      operationId: mintlist
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MintlistRequest'
-                
-      responses:
-        200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MintlistResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-
-  /v1/active-listings:
-    post:
-      tags:
-        - NFTs
-      summary: Query for active NFT listings.
-      operationId: queryActiveListings
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActiveListingsRequest'
-                
-      responses:
-        200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActiveListingsResponse'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-
-  /v1/raw-transactions:
-    post:
-      tags:
-        - Transactions
-      summary: Returns an array of raw transactions for the given accounts.
-      operationId: queryRawTxns
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RawTransactionsV1Request'
-                
-      responses:
-        200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RawTransactionsV1Response'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-        
-  /v0/token-metadata:
-    post:
-      tags:
-        - Tokens
-        - NFTs
-      summary: Returns all metadata associated with an account, including data from the old token list.
-      operationId: queryMetadataV1
-      parameters:
-        - $ref: '#/components/parameters/apiKeyParam'
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokensMetadataRequestV1'
-                
-      responses:
-        200:
-          description: Query result.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TokensMetadataResponseV1'
-        400:
-          $ref: '#/components/responses/400-BadRequest'
-        401:
-          $ref: '#/components/responses/401-Unauthorized'
-        403:
-          $ref: '#/components/responses/403-Forbidden'
-        404:
-          $ref: '#/components/responses/404-NotFound'
-        429:
-          $ref: '#/components/responses/429-TooManyRequests'
-        500:
-          $ref: '#/components/responses/500-InternalServerError'
-      x-amazon-apigateway-integration:
-        httpMethod: POST
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
-    options:
-      responses:
-        200:
-          $ref: '#/components/responses/200-NoContent'
-      x-amazon-apigateway-integration:
-        httpMethod: OPTIONS
-        type: http_proxy
-        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1
-        connectionType: VPC_LINK
-        connectionId: PLACEHOLDER_VPC_LINK_ID
+        requestParameters:
+          integration.request.path.webhookID: method.request.path.webhookID
 
 ##### COMPONENTS #####
 
