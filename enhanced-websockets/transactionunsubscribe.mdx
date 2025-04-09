@@ -1,0 +1,59 @@
+---
+title: "transactionUnsubscribe"
+description: "Unsubscribe from transaction notifications."
+---
+
+## Endpoints
+
+Enhanced websockets are currently available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="subscriptionId" type="integer" required>
+            Subscription id to cancel.
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="boolean">
+  Unsubscribe success message.
+</ResponseField>
+
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "transactionUnsubscribe",
+  "params": [
+    4743323479349712
+  ]
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": true,
+  "id": 1
+}
+```
+</ResponseExample> 

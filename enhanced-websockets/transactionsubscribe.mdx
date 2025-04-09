@@ -1,0 +1,165 @@
+---
+title: "transactionSubscribe"
+description: "Subscribe to receive real-time transaction events based on specified filters."
+---
+
+## Endpoints
+
+Enhanced websockets are currently available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Body
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="TransactionSubscribeFilter" type="object" required>
+            <Expandable title="filter properties">
+                <ParamField body="vote" type="boolean">
+                    A boolean flag to include/exclude vote-related transactions.
+                </ParamField>
+                
+                <ParamField body="failed" type="boolean">
+                    A boolean flag to include/exclude transactions that failed.
+                </ParamField>
+                
+                <ParamField body="signature" type="string">
+                    Filters updates to a specific transaction based on its signature.
+                </ParamField>
+                
+                <ParamField body="accountInclude" type="array">
+                    A list of accounts for which you want to receive transaction updates. This means that only one of the accounts must be included in the transaction updates (e.g., Account 1 OR Account 2).
+                </ParamField>
+                
+                <ParamField body="accountExclude" type="array">
+                    A list of accounts you want to exclude from transaction updates.
+                </ParamField>
+                
+                <ParamField body="accountRequired" type="array">
+                    Transactions must involve these specified accounts to be included in updates. This means that all of the accounts must be included in the transaction updates (e.g., Account 1 AND Account 2).
+                </ParamField>
+            </Expandable>
+        </ParamField>
+
+        <ParamField body="TransactionSubscribeOptions" type="object">
+            <Expandable title="options properties">
+                <ParamField body="commitment" type="string">
+                    Defines the commitment level for the transaction. Supported values: **finalized**, **confirmed**, **processed** (default is **finalized**).
+                </ParamField>
+                
+                <ParamField body="encoding" type="string">
+                    Specifies the format for transaction data. Supported values: **base58**, **base64**, **base64+zstd**, **jsonParsed** (default is **jsonParsed**).
+                </ParamField>
+                
+                <ParamField body="transactionDetails" type="string">
+                    Level of detail to include in transaction data. Options: **full**, **accounts**, **signatures**, **none** (default is **full**).
+                </ParamField>
+                
+                <ParamField body="showRewards" type="boolean">
+                    Whether to include rewards in transaction data. Default is **true**.
+                </ParamField>
+                
+                <ParamField body="maxSupportedTransactionVersion" type="integer">
+                    Maximum transaction version to support. Default is **0**.
+                </ParamField>
+            </Expandable>
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="result" type="integer">
+  Subscription id (needed to unsubscribe)
+</ResponseField>
+
+<RequestExample>
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "transactionSubscribe",
+  "params": [
+    {
+      "accountInclude": ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"]
+    },
+    {
+      "commitment": "processed",
+      "encoding": "jsonParsed",
+      "transactionDetails": "full",
+      "showRewards": true,
+      "maxSupportedTransactionVersion": 0
+    }
+  ]
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 4743323479349712,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "transactionNotification",
+  "params": {
+    "subscription": 4743323479349712,
+    "result": {
+      "transaction": {
+        "transaction": [
+          "Ae6zfSExLsJ/E1+q0jI+3ueAtSoW+6HnuDohmuFwagUo2BU4OpkSdUKYNI1dJfMOonWvjaumf4Vv1ghn9f3Avg0BAAEDGycH0OcYRpfnPNuu0DBQxTYPWpmwHdXPjb8y2P200JgK3hGiC2JyC9qjTd2lrug7O4cvSRUVWgwohbbefNgKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HcpwKokfYDDAJTaF/TWRFWm0Gz5/me17PRnnywHurMBAgIAAQwCAAAAoIYBAAAAAAA=",
+          "base64"
+        ],
+        "meta": {
+          "err": null,
+          "status": {
+            "Ok": null
+          },
+          "fee": 5000,
+          "preBalances": [
+            28279852264,
+            158122684,
+            1
+          ],
+          "postBalances": [
+            28279747264,
+            158222684,
+            1
+          ],
+          "innerInstructions": [],
+          "logMessages": [
+            "Program 11111111111111111111111111111111 invoke [1]",
+            "Program 11111111111111111111111111111111 success"
+          ],
+          "preTokenBalances": [],
+          "postTokenBalances": [],
+          "rewards": null,
+          "loadedAddresses": {
+            "writable": [],
+            "readonly": []
+          },
+          "computeUnitsConsumed": 0
+        }
+      },
+      "signature": "5moMXe6VW7L7aQZskcAkKGQ1y19qqUT1teQKBNAAmipzdxdqVLAdG47WrsByFYNJSAGa9TByv15oygnqYvP6Hn2p",
+      "slot": 224341380
+    }
+  }
+}
+```
+</ResponseExample>
