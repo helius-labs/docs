@@ -16,7 +16,7 @@ gRPC services are available on mainnet and devnet with the following URLs:
   Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
 </ParamField>
 
-## Subscription Types
+## Body
 
 The gRPC API supports multiple subscription types that can be combined in a single request:
 
@@ -25,7 +25,17 @@ The gRPC API supports multiple subscription types that can be combined in a sing
   
   - `account`: Array of account pubkeys to monitor
   - `owner`: Array of owner pubkeys to monitor (all accounts owned by these programs)
-  - `filters`: Optional filters to apply (memcmp, datasize, token_account_state, lamports)
+  - `filters`: Optional filters to apply:
+    - `memcmp`: Filter by specific bytes at an offset in account data:
+      - `offset`: Position in bytes to start comparing data
+      - One of: `bytes`, `base58`, or `base64`: The data to compare against
+    - `datasize`: Filter by exact account data size in bytes
+    - `token_account_state`: Filter to only token accounts
+    - `lamports`: Filter by SOL balance with one of these comparisons:
+      - `eq`: Equal to specified amount
+      - `ne`: Not equal to specified amount
+      - `lt`: Less than specified amount
+      - `gt`: Greater than specified amount
   - `nonempty_txn_signature`: Include transaction signatures when available
 </ParamField>
 
@@ -33,7 +43,7 @@ The gRPC API supports multiple subscription types that can be combined in a sing
   Subscribe to slot updates.
   
   - `filter_by_commitment`: Filter slots by commitment level
-  - `interslot_updates`: Include intermediate slot status updates
+  - `interslot_updates`: Include intermediate slot status updates (PROCESSED, CONFIRMED, FINALIZED, FIRST_SHRED_RECEIVED, COMPLETED, CREATED_BANK, DEAD)
 </ParamField>
 
 <ParamField body="transactions" type="object">
@@ -48,7 +58,14 @@ The gRPC API supports multiple subscription types that can be combined in a sing
 </ParamField>
 
 <ParamField body="transactions_status" type="object">
-  Subscribe to transaction status updates with the same filtering options as `transactions`.
+  Subscribe to transaction status updates.
+  
+  - `vote`: Include vote transactions
+  - `failed`: Include failed transactions
+  - `signature`: Monitor specific transaction signature
+  - `account_include`: Only include transactions affecting these accounts
+  - `account_exclude`: Exclude transactions affecting these accounts
+  - `account_required`: Transactions must affect all of these accounts
 </ParamField>
 
 <ParamField body="blocks" type="object">
@@ -62,11 +79,76 @@ The gRPC API supports multiple subscription types that can be combined in a sing
 
 <ParamField body="blocks_meta" type="object">
   Subscribe to block metadata updates (lighter than full block updates).
+  
+  Returns block metadata including:
+  - Slot number
+  - Blockhash
+  - Rewards
+  - Block time
+  - Block height
+  - Parent slot and blockhash
+  - Transaction count
+  - Entry count
 </ParamField>
 
 <ParamField body="entry" type="object">
   Subscribe to entry updates.
+  
+  Returns entry data including:
+  - Slot number
+  - Entry index
+  - Number of hashes
+  - Hash
+  - Transaction count
+  - Starting transaction index
 </ParamField>
+
+<ParamField body="commitment" type="enum">
+  The commitment level for the subscription:
+  - `PROCESSED` (0): Processed by the current node
+  - `CONFIRMED` (1): Confirmed by supermajority of the cluster
+  - `FINALIZED` (2): Finalized by the cluster
+</ParamField>
+
+<ParamField body="accounts_data_slice" type="array">
+  Specifies partial account data to receive:
+  - `offset`: Position in bytes to start reading data
+  - `length`: Number of bytes to read
+</ParamField>
+
+<ParamField body="ping" type="object">
+  Enable ping-pong messages for connection health monitoring.
+  - `id`: Numeric identifier for the ping
+</ParamField>
+
+<ParamField body="from_slot" type="integer">
+  Starting slot to receive updates from. Updates for slots before this value will be excluded.
+</ParamField>
+
+<RequestExample>
+```json Request
+{
+   "accounts":{},
+   "slots":{},
+   "transactions":{},
+   "transactions_status":{},
+   "blocks":{},
+   "blocks_meta":{},
+   "entry":{},
+   "commitment":1,
+   "accounts_data_slice":[
+     {
+       "offset": 0,
+       "length": 64
+     }
+   ],
+   "from_slot":1,
+   "ping": {
+     "id": 1
+   }
+}
+```
+</RequestExample>
 
 ## Commitment Levels
 
@@ -75,4 +157,151 @@ All subscriptions support the following commitment levels:
 - `PROCESSED`: Processed by the current node (0)
 - `CONFIRMED`: Confirmed by supermajority of the cluster (1)
 - `FINALIZED`: Finalized by the cluster (2)
+
+## Response Structure
+
+Subscription responses include:
+
+- `filters`: The filter names that matched this update
+- One of the following update types:
+  - `account`: Account data, owner, lamports, executable status, etc.
+  - `slot`: Slot information and status updates
+  - `transaction`: Full transaction details, signature, and metadata
+  - `transaction_status`: Transaction execution status (success/error)
+  - `block`: Complete block data with transactions, accounts, rewards, etc.
+  - `block_meta`: Lightweight block metadata without full transaction details
+  - `entry`: Entry details within a block
+  - `ping`/`pong`: Connection health check messages
+- `created_at`: Timestamp when the update was created
+
+<ResponseExample>
+```json Account Update
+{
+  "filters": ["accounts"],
+  "account": {
+    "account": {
+      "pubkey": "BASE58_ENCODED_PUBKEY",
+      "lamports": 12345678,
+      "owner": "BASE58_ENCODED_OWNER",
+      "executable": false,
+      "rent_epoch": 361,
+      "data": "BASE64_ENCODED_DATA",
+      "write_version": 123,
+      "txn_signature": "BASE58_ENCODED_SIGNATURE"
+    },
+    "slot": 189554321,
+    "is_startup": false
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Slot Update
+{
+  "filters": ["slots"],
+  "slot": {
+    "slot": 189554321,
+    "parent": 189554320,
+    "status": 2,
+    "dead_error": null
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Transaction Update
+{
+  "filters": ["transactions"],
+  "transaction": {
+    "transaction": {
+      "signature": "BASE58_ENCODED_SIGNATURE",
+      "is_vote": false,
+      "transaction": {
+        "signatures": ["BASE58_ENCODED_SIGNATURE"],
+        "message": {
+          "header": {
+            "num_required_signatures": 1,
+            "num_readonly_signed_accounts": 0,
+            "num_readonly_unsigned_accounts": 1
+          },
+          "account_keys": ["BASE58_ENCODED_PUBKEY1", "BASE58_ENCODED_PUBKEY2"],
+          "recent_blockhash": "BASE58_ENCODED_BLOCKHASH",
+          "instructions": [
+            {
+              "program_id_index": 1,
+              "accounts": [0],
+              "data": "BASE64_ENCODED_INSTRUCTION_DATA"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "err": null,
+        "fee": 5000,
+        "pre_balances": [10000000, 1],
+        "post_balances": [9995000, 1],
+        "pre_token_balances": [],
+        "post_token_balances": [],
+        "log_messages": ["Program log: Instruction executed"],
+        "rewards": []
+      },
+      "index": 2
+    },
+    "slot": 189554321
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Block Metadata Update
+{
+  "filters": ["blocks_meta"],
+  "block_meta": {
+    "slot": 189554321,
+    "blockhash": "BASE58_ENCODED_BLOCKHASH",
+    "rewards": [
+      {
+        "pubkey": "BASE58_ENCODED_PUBKEY",
+        "lamports": 1785000,
+        "post_balance": 48589432109,
+        "reward_type": 0,
+        "commission": 10
+      }
+    ],
+    "block_time": 1682684096,
+    "block_height": 185432109,
+    "parent_slot": 189554320,
+    "parent_blockhash": "BASE58_ENCODED_PARENT_BLOCKHASH",
+    "executed_transaction_count": 2576,
+    "entries_count": 16
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Entry Update
+{
+  "filters": ["entry"],
+  "entry": {
+    "slot": 189554321,
+    "index": 5,
+    "num_hashes": 8765432,
+    "hash": "BASE58_ENCODED_HASH",
+    "executed_transaction_count": 128,
+    "starting_transaction_index": 1024
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Pong Response
+{
+  "filters": [],
+  "pong": {
+    "id": 1
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+</ResponseExample>
 
