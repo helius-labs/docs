@@ -1,0 +1,78 @@
+---
+title: "Subscribe"
+description: "Subscribe to accounts, transactions, blocks, and slot updates to receive real-time notifications using the high-performance gRPC API."
+---
+
+## Endpoints
+
+gRPC services are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+
+## Authorizations
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Subscription Types
+
+The gRPC API supports multiple subscription types that can be combined in a single request:
+
+<ParamField body="accounts" type="object">
+  Subscribe to account updates. Returns data when specified accounts are modified.
+  
+  - `account`: Array of account pubkeys to monitor
+  - `owner`: Array of owner pubkeys to monitor (all accounts owned by these programs)
+  - `filters`: Optional filters to apply (memcmp, datasize, token_account_state, lamports)
+  - `nonempty_txn_signature`: Include transaction signatures when available
+</ParamField>
+
+<ParamField body="slots" type="object">
+  Subscribe to slot updates.
+  
+  - `filter_by_commitment`: Filter slots by commitment level
+  - `interslot_updates`: Include intermediate slot status updates
+</ParamField>
+
+<ParamField body="transactions" type="object">
+  Subscribe to transaction updates.
+  
+  - `vote`: Include vote transactions
+  - `failed`: Include failed transactions
+  - `signature`: Monitor specific transaction signature
+  - `account_include`: Only include transactions affecting these accounts
+  - `account_exclude`: Exclude transactions affecting these accounts
+  - `account_required`: Transactions must affect all of these accounts
+</ParamField>
+
+<ParamField body="transactions_status" type="object">
+  Subscribe to transaction status updates with the same filtering options as `transactions`.
+</ParamField>
+
+<ParamField body="blocks" type="object">
+  Subscribe to block updates.
+  
+  - `account_include`: Only include blocks with transactions affecting these accounts
+  - `include_transactions`: Include full transaction details
+  - `include_accounts`: Include account updates
+  - `include_entries`: Include block entries
+</ParamField>
+
+<ParamField body="blocks_meta" type="object">
+  Subscribe to block metadata updates (lighter than full block updates).
+</ParamField>
+
+<ParamField body="entry" type="object">
+  Subscribe to entry updates.
+</ParamField>
+
+## Commitment Levels
+
+All subscriptions support the following commitment levels:
+
+- `PROCESSED`: Processed by the current node (0)
+- `CONFIRMED`: Confirmed by supermajority of the cluster (1)
+- `FINALIZED`: Finalized by the cluster (2)
+
