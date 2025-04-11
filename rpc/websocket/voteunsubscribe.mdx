@@ -3,6 +3,15 @@ title: "voteUnsubscribe"
 description: "Unsubscribe from vote notifications."
 ---
 
+## Endpoints
+
+Websockets are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
+
 ## Authorizations
 
 <ParamField query="api-key" type="string" required>

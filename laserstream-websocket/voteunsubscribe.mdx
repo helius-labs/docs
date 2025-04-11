@@ -1,14 +1,14 @@
 ---
-title: "accountUnsubscribe"
-description: "Unsubscribe from account change notifications."
+title: "voteUnsubscribe"
+description: "Unsubscribe from vote notifications."
 ---
 
 ## Endpoints
 
-Enhanced websockets are currently available on mainnet and devnet with the following URLs:
+Websockets are available on mainnet and devnet with the following URLs:
 
-- **Mainnet** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **Devnet** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
 
@@ -40,9 +40,9 @@ Enhanced websockets are currently available on mainnet and devnet with the follo
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "accountUnsubscribe",
+  "method": "voteUnsubscribe",
   "params": [
-    23784
+    0
   ]
 }
 ```

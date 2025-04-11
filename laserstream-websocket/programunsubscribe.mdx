@@ -1,14 +1,14 @@
 ---
-title: "signatureUnsubscribe"
-description: "Unsubscribe from signature confirmation notification."
+title: "programUnsubscribe"
+description: "Unsubscribe from program-owned account change notifications."
 ---
 
 ## Endpoints
 
 Websockets are available on mainnet and devnet with the following URLs:
 
-- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
 
@@ -23,7 +23,7 @@ Websockets are available on mainnet and devnet with the following URLs:
 <ParamField body="params" type="array" required>
     <Expandable title="properties" defaultOpen>
         <ParamField body="subscriptionId" type="integer" required>
-            Subscription id to cancel.
+            Id of account Subscription to cancel.
         </ParamField>
     </Expandable>
 </ParamField>
@@ -40,9 +40,9 @@ Websockets are available on mainnet and devnet with the following URLs:
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "signatureUnsubscribe",
+  "method": "programUnsubscribe",
   "params": [
-    0
+    24040
   ]
 }
 ```

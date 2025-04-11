@@ -1,14 +1,14 @@
 ---
-title: "slotSubscribe"
-description: "Subscribe to receive notification anytime a slot is processed by the validator."
+title: "rootSubscribe"
+description: "Subscribe to receive notification anytime a new root is set by the validator."
 ---
 
 ## Endpoints
 
 Websockets are available on mainnet and devnet with the following URLs:
 
-- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
 
@@ -36,18 +36,14 @@ Websockets are available on mainnet and devnet with the following URLs:
 
 ## Notification Format
 
-The notification will be an object with the following fields:
-
-- `parent: <u64>` - The parent slot
-- `root: <u64>` - The current root slot
-- `slot: <u64>` - The newly set slot value
+The result is the latest root slot number.
 
 <RequestExample>
 ```json Request
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "slotSubscribe"
+  "method": "rootSubscribe"
 }
 ```
 </RequestExample>
@@ -64,13 +60,9 @@ The notification will be an object with the following fields:
 ```json Notification
 {
   "jsonrpc": "2.0",
-  "method": "slotNotification",
+  "method": "rootNotification",
   "params": {
-    "result": {
-      "parent": 75,
-      "root": 44,
-      "slot": 76
-    },
+    "result": 42,
     "subscription": 0
   }
 }

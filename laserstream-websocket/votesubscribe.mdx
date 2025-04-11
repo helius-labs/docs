@@ -1,14 +1,18 @@
 ---
-title: "slotSubscribe"
-description: "Subscribe to receive notification anytime a slot is processed by the validator."
+title: "voteSubscribe"
+description: "Subscribe to receive notification anytime a new vote is observed in gossip. These votes are pre-consensus therefore there is no guarantee these votes will enter the ledger."
 ---
+
+<Note>
+This subscription is unstable and only available if the validator was started with the `--rpc-pubsub-enable-vote-subscription` flag. The format of this subscription may change in the future.
+</Note>
 
 ## Endpoints
 
 Websockets are available on mainnet and devnet with the following URLs:
 
-- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets have a 10-minute inactivity timer; implementing health checks and sending pings every minute is heavily recommended to keep the websocket connection alive.</Note>
 
@@ -38,16 +42,18 @@ Websockets are available on mainnet and devnet with the following URLs:
 
 The notification will be an object with the following fields:
 
-- `parent: <u64>` - The parent slot
-- `root: <u64>` - The current root slot
-- `slot: <u64>` - The newly set slot value
+- `hash: <string>` - The vote hash
+- `slots: <array>` - The slots covered by the vote, as an array of u64 integers
+- `timestamp: <i64|null>` - The timestamp of the vote
+- `signature: <string>` - The signature of the transaction that contained this vote
+- `votePubkey: <string>` - The public key of the vote account, as base-58 encoded string
 
 <RequestExample>
 ```json Request
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "slotSubscribe"
+  "method": "voteSubscribe"
 }
 ```
 </RequestExample>
@@ -64,12 +70,12 @@ The notification will be an object with the following fields:
 ```json Notification
 {
   "jsonrpc": "2.0",
-  "method": "slotNotification",
+  "method": "voteNotification",
   "params": {
     "result": {
-      "parent": 75,
-      "root": 44,
-      "slot": 76
+      "hash": "8Rshv2oMkPu5E4opXTRyuyBeZBqQ4S477VG26wUTFxUM",
+      "slots": [1, 2],
+      "timestamp": null
     },
     "subscription": 0
   }
