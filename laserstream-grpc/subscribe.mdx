@@ -12,7 +12,7 @@ gRPC services are available on mainnet and devnet with the following URLs:
 
 ## Authorizations
 
-<ParamField query="api-key" type="string" required>
+<ParamField query="x-token" type="string" required>
   Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
 </ParamField>
 
@@ -23,102 +23,287 @@ The gRPC API supports multiple subscription types that can be combined in a sing
 <ParamField body="accounts" type="object">
   Subscribe to account updates. Returns data when specified accounts are modified.
   
-  - `account`: Array of account pubkeys to monitor
-  - `owner`: Array of owner pubkeys to monitor (all accounts owned by these programs)
-  - `filters`: Optional filters to apply:
-    - `memcmp`: Filter by specific bytes at an offset in account data:
-      - `offset`: Position in bytes to start comparing data
-      - One of: `bytes`, `base58`, or `base64`: The data to compare against
-    - `datasize`: Filter by exact account data size in bytes
-    - `token_account_state`: Filter to only token accounts
-    - `lamports`: Filter by SOL balance with one of these comparisons:
-      - `eq`: Equal to specified amount
-      - `ne`: Not equal to specified amount
-      - `lt`: Less than specified amount
-      - `gt`: Greater than specified amount
-  - `nonempty_txn_signature`: Include transaction signatures when available
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="account" type="array">
+      Array of account pubkeys to monitor.
+    </ParamField>
+    
+    <ParamField body="owner" type="array">
+      Array of owner pubkeys to monitor (all accounts owned by these programs).
+    </ParamField>
+    
+    <ParamField body="filters" type="object">
+      Optional filters to apply.
+      
+      <Expandable title="filter options">
+        <ParamField body="memcmp" type="object">
+          Filter by specific bytes at an offset in account data.
+          
+          <Expandable title="properties">
+            <ParamField body="offset" type="integer">
+              Position in bytes to start comparing data.
+            </ParamField>
+            
+            <ParamField body="bytes" type="string">
+              The data to compare against (bytes format).
+            </ParamField>
+            
+            <ParamField body="base58" type="string">
+              The data to compare against (base58 format).
+            </ParamField>
+            
+            <ParamField body="base64" type="string">
+              The data to compare against (base64 format).
+            </ParamField>
+          </Expandable>
+        </ParamField>
+        
+        <ParamField body="datasize" type="integer">
+          Filter by exact account data size in bytes.
+        </ParamField>
+        
+        <ParamField body="token_account_state" type="boolean">
+          Filter to only token accounts.
+        </ParamField>
+        
+        <ParamField body="lamports" type="object">
+          Filter by SOL balance with comparisons.
+          
+          <Expandable title="comparison operators">
+            <ParamField body="eq" type="integer">
+              Equal to specified amount.
+            </ParamField>
+            
+            <ParamField body="ne" type="integer">
+              Not equal to specified amount.
+            </ParamField>
+            
+            <ParamField body="lt" type="integer">
+              Less than specified amount.
+            </ParamField>
+            
+            <ParamField body="gt" type="integer">
+              Greater than specified amount.
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+    
+    <ParamField body="nonempty_txn_signature" type="boolean">
+      Include transaction signatures when available.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="slots" type="object">
   Subscribe to slot updates.
   
-  - `filter_by_commitment`: Filter slots by commitment level
-  - `interslot_updates`: Include intermediate slot status updates (PROCESSED, CONFIRMED, FINALIZED, FIRST_SHRED_RECEIVED, COMPLETED, CREATED_BANK, DEAD)
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="filter_by_commitment" type="boolean">
+      Filter slots by commitment level.
+    </ParamField>
+    
+    <ParamField body="interslot_updates" type="boolean">
+      Include intermediate slot status updates (PROCESSED, CONFIRMED, FINALIZED, FIRST_SHRED_RECEIVED, COMPLETED, CREATED_BANK, DEAD).
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="transactions" type="object">
   Subscribe to transaction updates.
   
-  - `vote`: Include vote transactions
-  - `failed`: Include failed transactions
-  - `signature`: Monitor specific transaction signature
-  - `account_include`: Only include transactions affecting these accounts
-  - `account_exclude`: Exclude transactions affecting these accounts
-  - `account_required`: Transactions must affect all of these accounts
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="vote" type="boolean">
+      Include vote transactions.
+    </ParamField>
+    
+    <ParamField body="failed" type="boolean">
+      Include failed transactions.
+    </ParamField>
+    
+    <ParamField body="signature" type="string">
+      Monitor specific transaction signature.
+    </ParamField>
+    
+    <ParamField body="account_include" type="array">
+      Only include transactions affecting these accounts.
+    </ParamField>
+    
+    <ParamField body="account_exclude" type="array">
+      Exclude transactions affecting these accounts.
+    </ParamField>
+    
+    <ParamField body="account_required" type="array">
+      Transactions must affect all of these accounts.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="transactions_status" type="object">
   Subscribe to transaction status updates.
   
-  - `vote`: Include vote transactions
-  - `failed`: Include failed transactions
-  - `signature`: Monitor specific transaction signature
-  - `account_include`: Only include transactions affecting these accounts
-  - `account_exclude`: Exclude transactions affecting these accounts
-  - `account_required`: Transactions must affect all of these accounts
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="vote" type="boolean">
+      Include vote transactions.
+    </ParamField>
+    
+    <ParamField body="failed" type="boolean">
+      Include failed transactions.
+    </ParamField>
+    
+    <ParamField body="signature" type="string">
+      Monitor specific transaction signature.
+    </ParamField>
+    
+    <ParamField body="account_include" type="array">
+      Only include transactions affecting these accounts.
+    </ParamField>
+    
+    <ParamField body="account_exclude" type="array">
+      Exclude transactions affecting these accounts.
+    </ParamField>
+    
+    <ParamField body="account_required" type="array">
+      Transactions must affect all of these accounts.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="blocks" type="object">
   Subscribe to block updates.
   
-  - `account_include`: Only include blocks with transactions affecting these accounts
-  - `include_transactions`: Include full transaction details
-  - `include_accounts`: Include account updates
-  - `include_entries`: Include block entries
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="account_include" type="array">
+      Only include blocks with transactions affecting these accounts.
+    </ParamField>
+    
+    <ParamField body="include_transactions" type="boolean">
+      Include full transaction details.
+    </ParamField>
+    
+    <ParamField body="include_accounts" type="boolean">
+      Include account updates.
+    </ParamField>
+    
+    <ParamField body="include_entries" type="boolean">
+      Include block entries.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="blocks_meta" type="object">
   Subscribe to block metadata updates (lighter than full block updates).
   
-  Returns block metadata including:
-  - Slot number
-  - Blockhash
-  - Rewards
-  - Block time
-  - Block height
-  - Parent slot and blockhash
-  - Transaction count
-  - Entry count
+  <Expandable title="returns" defaultOpen>
+    <ParamField body="slot" type="integer">
+      Slot number.
+    </ParamField>
+    
+    <ParamField body="blockhash" type="string">
+      Blockhash.
+    </ParamField>
+    
+    <ParamField body="rewards" type="array">
+      Rewards information.
+    </ParamField>
+    
+    <ParamField body="block_time" type="integer">
+      Block time.
+    </ParamField>
+    
+    <ParamField body="block_height" type="integer">
+      Block height.
+    </ParamField>
+    
+    <ParamField body="parent_slot" type="integer">
+      Parent slot.
+    </ParamField>
+    
+    <ParamField body="parent_blockhash" type="string">
+      Parent blockhash.
+    </ParamField>
+    
+    <ParamField body="executed_transaction_count" type="integer">
+      Transaction count.
+    </ParamField>
+    
+    <ParamField body="entries_count" type="integer">
+      Entry count.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="entry" type="object">
   Subscribe to entry updates.
   
-  Returns entry data including:
-  - Slot number
-  - Entry index
-  - Number of hashes
-  - Hash
-  - Transaction count
-  - Starting transaction index
+  <Expandable title="returns" defaultOpen>
+    <ParamField body="slot" type="integer">
+      Slot number.
+    </ParamField>
+    
+    <ParamField body="index" type="integer">
+      Entry index.
+    </ParamField>
+    
+    <ParamField body="num_hashes" type="integer">
+      Number of hashes.
+    </ParamField>
+    
+    <ParamField body="hash" type="string">
+      Hash.
+    </ParamField>
+    
+    <ParamField body="executed_transaction_count" type="integer">
+      Transaction count.
+    </ParamField>
+    
+    <ParamField body="starting_transaction_index" type="integer">
+      Starting transaction index.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="commitment" type="enum">
   The commitment level for the subscription:
-  - `PROCESSED` (0): Processed by the current node
-  - `CONFIRMED` (1): Confirmed by supermajority of the cluster
-  - `FINALIZED` (2): Finalized by the cluster
+  
+  <Expandable title="levels" defaultOpen>
+    <ParamField body="PROCESSED" type="integer">
+      (0): Processed by the current node.
+    </ParamField>
+    
+    <ParamField body="CONFIRMED" type="integer">
+      (1): Confirmed by supermajority of the cluster.
+    </ParamField>
+    
+    <ParamField body="FINALIZED" type="integer">
+      (2): Finalized by the cluster.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="accounts_data_slice" type="array">
   Specifies partial account data to receive:
-  - `offset`: Position in bytes to start reading data
-  - `length`: Number of bytes to read
+  
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="offset" type="integer">
+      Position in bytes to start reading data.
+    </ParamField>
+    
+    <ParamField body="length" type="integer">
+      Number of bytes to read.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="ping" type="object">
   Enable ping-pong messages for connection health monitoring.
-  - `id`: Numeric identifier for the ping
+  
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="id" type="integer">
+      Numeric identifier for the ping.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="from_slot" type="integer">
