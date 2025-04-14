@@ -21,12 +21,32 @@ gRPC services are available on mainnet and devnet with the following URLs:
 
 This method takes an empty request and returns the latest blockhash and its corresponding last valid block height.
 
+<RequestExample>
+```json Empty Request
+{}
+```
+</RequestExample>
+
 ## Response
+
+<ResponseField name="slot" type="string">
+  The current slot number.
+</ResponseField>
 
 <ResponseField name="blockhash" type="string">
   The latest blockhash as a base-58 encoded string.
 </ResponseField>
 
-<ResponseField name="lastValidBlockHeight" type="integer">
+<ResponseField name="last_valid_block_height" type="string">
   The last block height at which the returned blockhash will be valid.
 </ResponseField>
+
+<ResponseExample>
+```json Latest Blockhash Response
+{
+  "slot": "333390974",
+  "blockhash": "CiqX6nU67eVCFqxh6TJ3LF8bDqjtnD2wULRMME917QSY",
+  "last_valid_block_height": "311630163"
+}
+```
+</ResponseExample>
