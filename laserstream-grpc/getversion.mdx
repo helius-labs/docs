@@ -23,10 +23,56 @@ This method takes an empty request and returns version information.
 
 ## Response
 
-<ResponseField name="solanaCore" type="string">
-  The version of the Solana core software running on the node.
+<ResponseField name="version" type="string">
+  A JSON string containing detailed version information with the following fields:
 </ResponseField>
 
-<ResponseField name="featureSet" type="integer">
-  The feature set number of the Solana software.
+<ResponseField name="version.package" type="string">
+  The package name.
 </ResponseField>
+
+<ResponseField name="version.version" type="string">
+  The package version.
+</ResponseField>
+
+<ResponseField name="version.proto" type="string">
+  The protocol version.
+</ResponseField>
+
+<ResponseField name="version.proto_richat" type="string">
+  The Richat protocol version.
+</ResponseField>
+
+<ResponseField name="version.solana" type="string">
+  The Solana version the service is using.
+</ResponseField>
+
+<ResponseField name="version.git" type="string">
+  The Git commit hash of the build.
+</ResponseField>
+
+<ResponseField name="version.rustc" type="string">
+  The Rust compiler version used to build the service.
+</ResponseField>
+
+<ResponseField name="version.buildts" type="string">
+  The timestamp when the service was built.
+</ResponseField>
+
+<ResponseField name="extra.hostname" type="string">
+  The hostname of the server handling the request.
+</ResponseField>
+
+<RequestExample>
+```json Empty Request
+{}
+```
+</RequestExample>
+
+<ResponseExample>
+```json
+{
+  "version": "{\"version\":{\"package\":\"richat\",\"version\":\"2.1.0\",\"proto\":\"4.2.1\",\"proto_richat\":\"2.0.0\",\"solana\":\"2.1.14\",\"git\":\"cf5f498fe\",\"rustc\":\"1.85.0\",\"buildts\":\"2025-04-11T17:12:50.779748607Z\"},\"extra\":{\"hostname\":\"laserstream-prod-mainnet-fra-worker-1\"}}"
+}
+```
+</ResponseExample>
