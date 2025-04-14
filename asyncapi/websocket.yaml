@@ -23,14 +23,10 @@ servers:
     host: mainnet.helius-rpc.com
     protocol: wss
     description: Production Solana mainnet environment
-    security:
-      - $ref: "#/components/securitySchemes/ApiKeyQuery"
   devnet:
     host: devnet.helius-rpc.com
     protocol: wss
     description: Solana devnet environment for testing
-    security:
-      - $ref: "#/components/securitySchemes/ApiKeyQuery"
 
 operations:
   accountSubscribeMessage:
@@ -53,12 +49,6 @@ operations:
       - $ref: '#/channels/accountSubscribe/messages/accountNotification'
 
 components:
-  securitySchemes:
-    ApiKeyQuery:
-      type: httpApiKey
-      name: api-key
-      in: query
-      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
   schemas:
     AccountSubscribeParams:
       type: array
@@ -124,8 +114,8 @@ components:
             const: "2.0"
             default: "2.0"
           id:
-            type: integer
-            default: 1
+            type: string  
+            default: "1"
           method:
             type: string
             const: "accountSubscribe"
