@@ -1,0 +1,32 @@
+---
+title: "GetVersion"
+description: "Get the version information of the LaserStream gRPC API and the Solana node it's connected to."
+---
+
+## Endpoints
+
+gRPC services are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+
+## Authorizations
+
+<ParamField query="x-token" type="string" required>
+  Your Helius API key. You can get one for free in the
+  [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Message
+
+This method takes an empty request and returns version information.
+
+## Response
+
+<ResponseField name="solanaCore" type="string">
+  The version of the Solana core software running on the node.
+</ResponseField>
+
+<ResponseField name="featureSet" type="integer">
+  The feature set number of the Solana software.
+</ResponseField>

@@ -1,0 +1,28 @@
+---
+title: "Ping"
+description: "Check connectivity to the LaserStream gRPC API with a simple ping-pong mechanism."
+---
+
+## Endpoints
+
+gRPC services are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+
+## Authorizations
+
+<ParamField query="x-token" type="string" required>
+  Your Helius API key. You can get one for free in the
+  [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Message
+
+This method takes an empty request and returns a simple pong response to confirm connectivity.
+
+## Response
+
+<ResponseField name="pong" type="boolean">
+  Always returns true if the connection is successful.
+</ResponseField>

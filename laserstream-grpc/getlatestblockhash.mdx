@@ -1,0 +1,32 @@
+---
+title: "GetLatestBlockhash"
+description: "Get the latest blockhash from the Solana blockchain using the LaserStream gRPC API."
+---
+
+## Endpoints
+
+gRPC services are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+
+## Authorizations
+
+<ParamField query="x-token" type="string" required>
+  Your Helius API key. You can get one for free in the
+  [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Message
+
+This method takes an empty request and returns the latest blockhash and its corresponding last valid block height.
+
+## Response
+
+<ResponseField name="blockhash" type="string">
+  The latest blockhash as a base-58 encoded string.
+</ResponseField>
+
+<ResponseField name="lastValidBlockHeight" type="integer">
+  The last block height at which the returned blockhash will be valid.
+</ResponseField>

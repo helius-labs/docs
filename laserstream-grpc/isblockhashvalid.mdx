@@ -1,0 +1,30 @@
+---
+title: "IsBlockhashValid"
+description: "Check if a blockhash is still valid on the Solana blockchain using the LaserStream gRPC API."
+---
+
+## Endpoints
+
+gRPC services are available on mainnet and devnet with the following URLs:
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+
+## Authorizations
+
+<ParamField query="x-token" type="string" required>
+  Your Helius API key. You can get one for free in the
+  [dashboard](https://dashboard.helius.dev/api-keys).
+</ParamField>
+
+## Message
+
+<ParamField body="blockhash" type="string" required>
+  The blockhash to check as a base-58 encoded string.
+</ParamField>
+
+## Response
+
+<ResponseField name="valid" type="boolean">
+  Whether the blockhash is still valid (true) or expired (false).
+</ResponseField>
