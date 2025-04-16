@@ -1,0 +1,74 @@
+---
+title: "Dedicated Nodes"
+description: "Private Dedicated Nodes optimized for low latency and high performance"
+---
+
+Get a Dedicated Node in a specific region with no rate or credit limits. 
+
+Perfect for latency-sensitive applications such as data streaming or handling a high volume of requests, it's ideal for teams seeking a dedicated environment with consistent performance and cost management. Choose a single node in a specific location to enhance server-to-server interactions or establish a node cluster for wide geographic distribution. Enhance capabilities using advanced Geyser plugins.
+
+## Node Options
+
+* AMD EPYC 7443p
+* AMD EPYC 7543p (Best for resource-intensive RPC calls)
+* AMD EPYC 9254 (Best for resource-intensive RPC calls)
+
+## Access Includes
+
+* Standard RPC and WebSocket methods
+* Premium support
+* Node clients — Agave (recommended) or Jito Labs
+* Geyser Plugin (Optional) — Yellowstone
+
+For trading teams and Telegram bots, we typically recommend purchasing Dedicated Nodes (lower latency) with the Yellowstone Geyser (gRPC) Plugin for streaming and Dedicated Staked Connections (optimized landing rates for sendTransaction).
+
+Dedicated nodes cannot access staked connections, which greatly improves landing rates. You'll need access to a standard paid plan to use staked connections. Learn more here: [Sending Transactions on Solana](/solana-rpc-nodes/send-transaction).
+
+## Dedicated Fleets 🛥️
+
+If your team needs a cluster of multiple Dedicated Nodes or needs to run a fleet of Pythnet nodes, contact our sales team. We'll review your requirements and help you with a custom solution.
+
+## How to Order a Dedicated Node
+
+Dedicated Nodes can be ordered directly from the developer portal on the Dedicated Nodes tab.
+
+### Node Type
+
+The type of node you choose depends on your specific project requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
+
+If you plan to make resource-intensive calls (e.g., getProgramAccounts, getTokenLargestAccounts, getTokenAccountsByDelegate, getTokenAccountsByOwner, getLargestAccounts), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
+
+The AMD EPYC 7443p is better if your workload does not require resource-intensive calls.
+
+### Node Location
+
+We offer nodes across multiple regions: in North America (Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver); in Europe (Dublin, London, Amsterdam, Frankfurt); and in Asia (Tokyo, Singapore) to ensure the best geographic coverage with the global Solana infrastructure.
+
+For optimal latency, choose a node closest to your server. Your node will be deployed within three hours of payment.
+
+### Node Client
+
+You can customize your node by selecting the client type — either Agave or Jito Labs (fork of Agave with an additional method `simulateBundle`)
+
+Dedicated nodes **cannot** send Jito Bundles on their own. To send Jito Bundles, you must use the Jito API, which handles packaging and sending the bundles through Jito's system.
+
+To simplify this process, our SDK provides an easy method called Send Jito Bundle.
+
+### Geyser Plugin (Optional)
+
+Add optional features like the Yellowstone Geyser Plugin, which supports streaming of slots, blocks, transactions, and account updates.
+
+We recommend running Geyser and RPC operations on separate nodes for optimal performance.
+
+### Payment Options
+
+You can pay via fiat or crypto (USDC). Once your payment goes through, your node will be deployed within 3 hours.
+
+For billing, fiat payments will receive a discount on the next month's bill for the number of days it took to provision the node. For crypto payments, the billing cycle starts once the node is delivered.
+
+## Demo
+
+Order a dedicated node from your Helius dashboard:
+- Choose your dedicated node's type and location
+- Select your dedicated node's client type
+- Select the Yellowstone gRPC Geyser Plugin (Optional) 

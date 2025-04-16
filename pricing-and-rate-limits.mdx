@@ -1,0 +1,96 @@
+---
+title: 'Pricing & Rate Limits'
+description: 'Flexible pricing for all your needs. Switch plans or cancel at anytime. Start in under 5 seconds.'
+---
+
+## Standard Plans
+
+Access a shared RPC node fleet across New York, Ashburn, Chicago, Vancouver, Los Angeles, Singapore, Tokyo, Frankfurt, and the UK, automatically routing requests to the nearest node.
+
+### Features:
+
+* RPC calls
+* Webhooks
+* Standard WebSockets
+* Enhanced WebSockets (beta) — available for Business and Professional plans only
+* DAS APIs
+* Enhanced Transactions API
+* Priority Fee API
+* Token Balance API
+* Photon Methods (ZK Compression)
+* for `sendTransaction`
+* Mint API (deprecated)
+
+Each plan has a set amount of credits and rate limits for different calls.
+
+| | Free | Developer | Business | Professional |
+| --- | --- | --- | --- | --- |
+| Price | $0/mo | $49/mo | $499/mo | $999/mo |
+| Credits | 500k Credits | 10M Credits | 100M Credits | 200M Credits |
+| RPC Rate Limits | 10 RPC requests/s* | 50 RPC requests/s* | 200 RPC requests/s* | 500 RPC requests/s* |
+| API Rate Limits | 2 API requests/s (DAS & Enhanced) | 10 API requests/s (DAS & Enhanced) | 50 API requests/s (DAS & Enhanced) | 100 API requests/s (DAS & Enhanced) |
+| API Keys | 1 API Key | 3 API Keys | 5 API Keys | 15 API Keys |
+| Users | 1 User | 2 Users | 5 Users | 10 Users |
+| Webhooks | 1 Webhook | 5 Webhooks | 25 Webhooks | 50 Webhooks |
+| Websockets | Standard Websockets | Standard Websockets | Standard + Enhanced Websockets | Standard + Enhanced Websockets |
+| Support | Community support (Discord) | Chat Support (Developer Portal) | Priority Chat Support (Developer Portal) | Slack/Telegram Support |
+
+\* See rate limit exceptions below.
+
+## Rate Limit Exceptions
+
+| Type | Free | Developer | Business | Professional |
+| --- | --- | --- | --- | --- |
+| `sendTransaction` | 1 call/sec | 5 calls/sec | 50 calls/sec | 100 calls/sec |
+| `getProgramAccounts` | 5 calls/sec | 25 calls/sec | 50 calls/sec | 75 calls/sec |
+
+## Photon Limits
+
+| Type | Free | Developer | Business | Professional |
+| --- | --- | --- | --- | --- |
+| Photon | 2 calls/sec | 10 calls/sec | 50 calls/sec | 100 calls/sec |
+| `getValidityProof` | 1 call/sec | 5 call/sec | 10 call/sec | 20 call/sec |
+
+## Credits
+
+A clear breakdown of the credit costs in our Standard plans.
+
+* **Standard RPC Calls**: 1 credit per call
+  * **Exceptions**:
+    * **Archival Calls:** 10 credits each
+    * **Send Transaction**: 10 credits
+    * **Priority Fee API**: 1 credit
+* **DAS Calls**: 10 credits each
+* **Photon Calls**:
+  * Standard Calls: 10 credits
+* **Webhook**:
+  * Webhook Pushes: 1 credit
+* **Enhanced Transactions API and Mint API**: 100 credits per call
+
+## Extra Credits
+
+If you exhaust your credits within a billing cycle, you can purchase additional credits:
+
+* **Crypto Plans —** purchase additional prepaid credits directly from the dashboard
+* **Card Payment Plans —** enable autoscaling in the Project Settings on the dashboard
+
+## Enterprise Plans
+
+Enterprise plans are ideal for large teams that need personalized rate limits and more credits than the professional plan offers. Enterprise customers receive discounted pricing for high credit volumes and longer commitments. You can choose your support level with service level agreements (SLAs), uptime guarantees, usage alerts, and direct access to our engineering team to help you optimize your setup.
+
+To explore Enterprise plans, [contact our sales team](https://form.typeform.com/to/KiacmxpZ).
+
+## Legacy (Deprecated) Plan Limits
+
+The following plans are no longer available for new users. For details on available plans, please refer to the 'Standard Plans' section above.
+
+| | Free V3 | Developer V3 | Business V3 | Performance V3 |
+| --- | --- | --- | --- | --- |
+| Credits | 500k Credits | 10M Credits | 200M Credits | 500M Credits |
+| RPC Rate Limits | 10 RPC requests/s* | 50 RPC requests/s* | 150 RPC requests/s* | 500 RPC requests/s* |
+| API Rate Limits | 2 API requests/s (DAS & Enhanced) | 10 API requests/s (DAS & Enhanced) | 50 API requests/s (DAS & Enhanced) | 100 API requests/s (DAS & Enhanced) |
+| API Keys | 1 API Key | 10 API Keys | 15 API Keys | 20 API Keys |
+| Webhooks | 1 Webhook | 3 Webhooks | 10 Webhooks | 20 Webhooks |
+| Support | Community support (Discord) | Chat Support (Developer Portal) | Priority Chat Support (Developer Portal) | Slack/Telegram Support |
+| getProgramAccounts | 5 gPA calls per second | 25 gPA calls per second | 50 gPA calls per second | 75 gPA calls per second |
+| sendTransaction | 1 sendTransaction call per second | 10 sendTransaction call per second | 50 sendTransaction call per second | 100 sendTransaction call per second | 
