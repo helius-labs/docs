@@ -1,0 +1,41 @@
+---
+title: "Protect Your Keys"
+sidebarTitle: "Protect Your Keys"
+description: "How to stop your Helius plans from being abused by malicious actors."
+---
+
+A common problem when working with RPCs or APIs on the client side is your API keys leaking.
+
+Malicious actors can run up your [quota or rate limits](/pricing-and-rate-limits) if they get access to your keys.
+
+Helius provides multiple options to protect your API keys:
+
+## RPC Access Control Rules
+
+You can configure access controls directly in your Helius dashboard to restrict who can use your endpoints:
+
+<Frame caption="Configure RPC Access Control Rules in the Endpoints section of your dashboard.">
+  <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="Configure RPC Access Control Rules in the Endpoints section of your dashboard." />
+</Frame>
+
+Available rule types:
+
+- **Allowed Domains**: Restrict access for your RPCs to specific domains that you enter here.
+- **Allowed IPs**: Restrict access for your RPCs to specific IP addresses that you enter here.
+- **Allowed CIDRs**: Restrict access for your RPCs to specific CIDR-notation IP ranges that you enter here.
+
+## Secure URL Option
+
+This URL hides your API key and is limited to 5 tps per IP. This is ideal for using in frontend applications where you don't want to worry about leaking your API key.
+
+## Cloudflare RPC Proxy
+
+For more advanced protection, using a proxy is the recommended solution.
+
+We've setup a simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare:
+
+<Card title="RPC Proxy" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
+  A simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare.
+</Card>
+
+This proxy acts as a secure intermediary between your application and the Helius RPC, keeping your API key protected server-side.

@@ -1,44 +1,67 @@
 ---
 title: "Dedicated Nodes"
-description: "Private Dedicated Nodes optimized for low latency and high performance"
+description: "Dedicated Nodes optimized for low latency and high performance"
 ---
 
-Get a Dedicated Node in a specific region with no rate or credit limits. 
-
-Perfect for latency-sensitive applications such as data streaming or handling a high volume of requests, it's ideal for teams seeking a dedicated environment with consistent performance and cost management. Choose a single node in a specific location to enhance server-to-server interactions or establish a node cluster for wide geographic distribution. Enhance capabilities using advanced Geyser plugins.
+Perfect for latency-sensitive applications such as data streaming or handling a high volume of requests, it’s ideal for teams seeking a dedicated environment with consistent performance and cost management. Choose a single node in a specific location to enhance server-to-server interactions or establish a node cluster for wide geographic distribution. Enhance capabilities using advanced Geyser plugins.
 
 ## Node Options
 
-* AMD EPYC 7443p
-* AMD EPYC 7543p (Best for resource-intensive RPC calls)
-* AMD EPYC 9254 (Best for resource-intensive RPC calls)
+- AMD EPYC 7443p
+- AMD EPYC 7543p (Best for resource-intensive RPC calls)
+- AMD EPYC 9254 (Best for resource-intensive RPC calls)
 
 ## Access Includes
 
-* Standard RPC and WebSocket methods
-* Premium support
-* Node clients — Agave (recommended) or Jito Labs
-* Geyser Plugin (Optional) — Yellowstone
+- Standard RPC and WebSocket methods
+- Premium support
+- Node clients — Agave (recommended) or Jito Labs
+- Geyser Plugin (Optional) — [Yellowstone](../../data-streaming/yellowstone-grpc.md)
 
-For trading teams and Telegram bots, we typically recommend purchasing Dedicated Nodes (lower latency) with the Yellowstone Geyser (gRPC) Plugin for streaming and Dedicated Staked Connections (optimized landing rates for sendTransaction).
+<Note>
+  For trading teams and Telegram bots, we typically recommend purchasing
+  Dedicated Nodes (lower latency) with the Yellowstone Geyser (gRPC) Plugin for
+  streaming and [Dedicated Staked Connections](./#dedicated-staked-connections)
+  (optimized landing rates for
+  [`sendTransaction`](../../rpc/http/sendtransaction.md)).
+</Note>
 
-Dedicated nodes cannot access staked connections, which greatly improves landing rates. You'll need access to a standard paid plan to use staked connections. Learn more here: [Sending Transactions on Solana](/solana-rpc-nodes/send-transaction).
+<Warning>
+  Dedicated nodes cannot access staked connections, which greatly improves
+  landing rates. You'll need access to a standard paid plan to use staked
+  connections. Learn more here: [Sending Transactions on
+  Solana](/send-transaction).
+</Warning>
 
-## Dedicated Fleets 🛥️
+## Dedicated Fleets
 
-If your team needs a cluster of multiple Dedicated Nodes or needs to run a fleet of Pythnet nodes, contact our sales team. We'll review your requirements and help you with a custom solution.
+If your team needs a cluster of multiple Dedicated Nodes or needs to run a fleet of Pythnet nodes, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). We'll review your requirements and help you with a custom solution.
 
 ## How to Order a Dedicated Node
 
-Dedicated Nodes can be ordered directly from the developer portal on the Dedicated Nodes tab.
+Dedicated Nodes can be ordered directly from the [developer portal](https://dashboard.helius.dev/dedicated-nodes) on the Dedicated Nodes tab.
+
+<Frame caption="Order a dedicated node from your Helius dashboard">
+  <img
+    src="/images/dedicated-nodes-order.png"
+    alt="Order a dedicated node from your Helius dashboard"
+  />
+</Frame>
 
 ### Node Type
 
 The type of node you choose depends on your specific project requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
 
-If you plan to make resource-intensive calls (e.g., getProgramAccounts, getTokenLargestAccounts, getTokenAccountsByDelegate, getTokenAccountsByOwner, getLargestAccounts), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
+If you plan to make resource-intensive calls (e.g., [`getProgramAccounts`](../../rpc/http/getprogramaccounts.md), [`getTokenLargestAccounts`](../../rpc/http/gettokenlargestaccounts.md), [`getTokenAccountsByDelegate`](../../rpc/http/gettokenaccountsbydelegate.md), [`getTokenAccountsByOwner`](../../rpc/http/gettokenaccountsbyowner.md), [`getLargestAccounts`](../../rpc/http/getlargestaccounts.md)), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
 
 The AMD EPYC 7443p is better if your workload does not require resource-intensive calls.
+
+<Frame caption="Choose your dedicated node's type and location">
+  <img
+    src="/images/dedicated-nodes-type-and-location.png"
+    alt="Choose your dedicated node's type and location"
+  />
+</Frame>
 
 ### Node Location
 
@@ -50,15 +73,34 @@ For optimal latency, choose a node closest to your server. Your node will be dep
 
 You can customize your node by selecting the client type — either Agave or Jito Labs (fork of Agave with an additional method `simulateBundle`)
 
-Dedicated nodes **cannot** send Jito Bundles on their own. To send Jito Bundles, you must use the Jito API, which handles packaging and sending the bundles through Jito's system.
+<Frame caption="Select your dedicated node's client type">
+  <img
+    src="/images/dedicated-nodes-client-type.png"
+    alt="Select your dedicated node's client type"
+  />
+</Frame>
 
-To simplify this process, our SDK provides an easy method called Send Jito Bundle.
+<Note>
+Dedicated nodes **cannot** send Jito Bundles on their own. To send Jito Bundles, you must use the Jito API, which handles packaging and sending the bundles through Jito’s system.
+
+To simplify this process, our SDK provides an easy method called [Send Jito Bundle](https://github.com/helius-labs/helius-sdk/tree/main?tab=readme-ov-file#sendJitoBundle).
+</Note>
 
 ### Geyser Plugin (Optional)
 
-Add optional features like the Yellowstone Geyser Plugin, which supports streaming of slots, blocks, transactions, and account updates.
+Add optional features like the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin, which supports [streaming](../../data-streaming/yellowstone-grpc.md) of slots, blocks, transactions, and account updates.
 
-We recommend running Geyser and RPC operations on separate nodes for optimal performance.
+<Frame caption="Select the Yellowstone gRPC Geyser Plugin (Optional)">
+  <img
+    src="/images/dedicated-nodes-geyser-plugin.png"
+    alt="Select the Yellowstone gRPC Geyser Plugin (Optional)"
+  />
+</Frame>
+
+<Note>
+  We recommend running Geyser and RPC operations on separate nodes for optimal
+  performance.
+</Note>
 
 ### Payment Options
 
@@ -66,9 +108,6 @@ You can pay via fiat or crypto (USDC). Once your payment goes through, your node
 
 For billing, fiat payments will receive a discount on the next month's bill for the number of days it took to provision the node. For crypto payments, the billing cycle starts once the node is delivered.
 
-## Demo
+### Demo
 
-Order a dedicated node from your Helius dashboard:
-- Choose your dedicated node's type and location
-- Select your dedicated node's client type
-- Select the Yellowstone gRPC Geyser Plugin (Optional) 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KjgUzY_3dsQ?si=r3aKXpc_H6b7hnqE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
