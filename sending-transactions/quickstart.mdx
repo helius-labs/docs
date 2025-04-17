@@ -1,0 +1,87 @@
+---
+title: 'Quickstart'
+description: 'Get started with sending transactions on Solana using Helius'
+---
+
+## Getting Started
+
+This guide will help you quickly set up and send transactions on Solana using Helius. Follow these steps to send your first transaction with optimal settings.
+
+## Prerequisites
+
+- A Helius API key - [Sign up here](https://dev.helius.xyz/dashboard/app)
+- Node.js installed on your machine
+- Basic knowledge of Solana transactions
+
+## Installation
+
+Install the Helius SDK:
+
+```bash
+npm install helius-sdk @solana/web3.js bs58
+```
+
+## Implementation
+
+<Steps>
+  <Step title="Initialize the Helius Client">
+    ```javascript
+    import { Helius } from 'helius-sdk';
+    import { 
+      Keypair, 
+      SystemProgram, 
+      LAMPORTS_PER_SOL,
+      PublicKey 
+    } from '@solana/web3.js';
+
+    // Initialize Helius with your API key
+    const helius = new Helius('YOUR_API_KEY');
+    ```
+  </Step>
+  
+  <Step title="Create a Simple Transfer Transaction">
+    ```javascript
+    // Create a new keypair (or load your existing one)
+    const payer = Keypair.generate();
+    // Recipient address
+    const recipientAddress = new PublicKey('RECIPIENT_ADDRESS');
+
+    // Create a transfer instruction
+    const transferInstruction = SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: recipientAddress,
+      lamports: 0.01 * LAMPORTS_PER_SOL // 0.01 SOL
+    });
+
+    // Array of instructions
+    const instructions = [transferInstruction];
+
+    // Array of signers
+    const signers = [payer];
+    ```
+  </Step>
+  
+  <Step title="Send the Transaction Using Smart Transactions">
+    ```javascript
+    // Send options
+    const sendOptions = {
+      skipPreflight: true, // Optional
+      maxRetries: 0, // Recommended
+    };
+
+    try {
+      // Send the transaction
+      const txid = await helius.rpc.sendSmartTransaction(
+        instructions,
+        signers,
+        [], // Optional lookup tables
+        sendOptions
+      );
+      
+      console.log(`Transaction sent! Signature: ${txid}`);
+    } catch (error) {
+      console.error(`Error sending transaction: ${error}`);
+    }
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,112 @@
+---
+title: 'Staked Connections'
+description: 'Use Helius Staked Connections for optimal transaction delivery on Solana'
+---
+
+## What are Staked Connections?
+
+Staked Connections are a premium feature from Helius that provide a direct path to Solana validators through staked RPC nodes. These connections significantly improve transaction confirmation times and success rates by bypassing traditional transaction propagation mechanisms.
+
+## How Staked Connections Work
+
+When you send a transaction through a staked connection:
+
+1. Your transaction is sent directly to the current leader validator
+2. The transaction bypasses the traditional gossip network
+3. This reduces confirmation latency and increases the likelihood of inclusion in the next block
+
+**Note:** Helius' staked connections guarantee 100% transaction delivery with minimal confirmation times when used correctly.
+
+## Staked Connection Options
+
+Helius offers two ways to access staked connections:
+
+### 1. Shared Staked Endpoint (Default)
+
+This option allows you to use staked connections through the standard Helius RPC endpoint when certain criteria are met.
+
+- **Requirements:**
+  - Priority fees meet or exceed the `recommended` value provided by the Priority Fee API
+  - Set `maxRetries` to 0 in your transaction send options
+
+- **Endpoint:** `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Cost:** 1 credit per request
+- **Usage metrics:** Displayed as `sendTransactionWithStake` in your dashboard
+
+- **Tips:**
+  - Check if you're getting staked connections by logging the `X-Helius-ConnectionType` response header
+  - The header value will be either `regular` or `staked`
+
+### 2. Dedicated Staked Endpoint
+
+This premium option is recommended for traders or applications that need guaranteed access to staked connections, especially during market congestion.
+
+- **Benefits:**
+  - Guaranteed access to staked connections regardless of network conditions
+  - Transactions sent over an optimized network across Asia, Europe, and North America
+  - Minimizes latency and confirmation times
+
+- **Endpoint:** `https://staked.helius-rpc.com?api-key=YOUR_API_KEY`
+- **Cost:** 50 credits per request
+
+## Optimizing for Staked Connections
+
+To get the most out of staked connections, we recommend these additional optimizations for latency-sensitive traders:
+
+1. **Regional Optimization**
+   - Send transactions from Eastern US or Western Europe
+   - Consider Frankfurt or Pittsburgh for co-location with Helius transaction-sending servers
+   - Avoid sending from regions far from the validator network (e.g., LATAM or South Africa)
+
+2. **Cache Warming**
+   - Send a `getHealth` call every second using the same endpoint & API key you use for sending transactions
+   - Only one warming thread is required per region (additional warming threads provide no benefit)
+
+## Using Staked Connections
+
+Staked connections are automatically used when:
+
+1. You send transactions via Smart Transactions with appropriate priority fees
+2. You send transactions directly to the staked endpoint
+3. You meet the requirements for the shared staked connection (correct priority fee + maxRetries=0)
+
+### Example: Direct Usage with Web3.js
+
+```javascript
+import { Connection, Keypair, SystemProgram } from '@solana/web3.js';
+
+// Initialize connection to Helius staked endpoint
+const connection = new Connection('https://staked.helius-rpc.com?api-key=YOUR_API_KEY');
+
+// Create and sign transaction
+// ...
+
+// Send with recommended settings
+const signature = await connection.sendRawTransaction(serializedTransaction, {
+  skipPreflight: true,
+  maxRetries: 0
+});
+```
+
+### Example: Checking Connection Type
+
+```javascript
+// Using fetch directly to access headers
+const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'sendTransaction',
+    params: [
+      serializedTransaction,
+      { skipPreflight: true, maxRetries: 0 }
+    ]
+  })
+});
+
+// Check if using staked connection
+const connectionType = response.headers.get('X-Helius-ConnectionType');
+console.log(`Using ${connectionType} connection`); // Will show "staked" or "regular"
+```
