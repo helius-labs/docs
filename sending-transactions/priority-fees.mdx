@@ -1,0 +1,216 @@
+---
+title: 'How to Set Priority Fees'
+sidebarTitle: 'Priority Fees'
+description: 'Learn how to set up priority fees for faster transaction processing on Solana'
+---
+
+## What Are Priority Fees?
+
+On Solana, each transaction has a base fee. Priority fees allow you to pay an additional fee so your transaction is prioritized over others in the validator's queue. This extra amount helps ensure validators process your transaction before ones offering a lower fee.
+
+In practice, you set a price for each compute unit (CU) your transaction may use. The higher the price, the more likely your transaction will be included first.
+
+<Note>
+While priority fees were originally used for time-sensitive or high-value transactions, they're becoming more commonplace and can help any transaction get confirmed faster when network congestion is high.
+</Note>
+
+## Why Priority Fees Matter
+
+When the Solana network is busy, transactions can experience delays. Adding a priority fee helps your transaction get confirmed faster. Whether you're:
+
+- Minting NFTs
+- Swapping tokens
+- Making time-sensitive trades
+- Any operation during high network congestion
+
+Priority fees keep your transaction ahead of the crowd by incentivizing validators to process it first.
+
+## How Much Should You Pay?
+
+Paying more gets you faster transaction processing, but you shouldn't overpay. Helius provides an API method to estimate appropriate fees:
+
+### Using the Priority Fee API
+
+The `getPriorityFeeEstimate` RPC method calculates how much others recently paid for similar transactions. You can provide either a full, signed transaction or the account keys involved.
+
+The API suggests a fee in micro-lamports that should land your transaction in your chosen percentile:
+- "Low" (25th percentile)
+- "Medium" (50th percentile) 
+- "High" (75th percentile)
+- "VeryHigh" (90th percentile)
+
+Example API call:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "example",
+  "method": "getPriorityFeeEstimate",
+  "params": [
+    {
+      "transaction": "INSERT_SERIALIZED_TRANSACTION_HERE",
+      "options": {
+        "recommended": true
+      }
+    }
+  ]
+}
+```
+
+The response provides a suggested priority fee:
+
+```json
+{
+  "priorityFeeEstimate": 10000
+}
+```
+
+## Setting Up Priority Fees in Your Code
+
+You can add priority fees by inserting two instructions in your transaction:
+
+1. `ComputeBudgetProgram.setComputeUnitPrice` – Sets the fee (in micro-lamports) per compute unit
+2. `ComputeBudgetProgram.setComputeUnitLimit` – (Optional) Increases the maximum compute units your transaction can use
+
+Here's a simplified implementation flow:
+
+### 1. Create the Compute Budget Instructions
+
+```javascript
+const computePriceIx = ComputeBudgetProgram.setComputeUnitPrice({
+  microLamports: 1000, // Adjust based on getPriorityFeeEstimate results
+});
+
+// Optional: Set compute unit limit if your transaction needs more than default
+const computeLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+  units: 200_000,
+});
+```
+
+### 2. Add Them to Your Transaction
+
+```javascript
+const transaction = new Transaction().add(
+  computePriceIx,
+  computeLimitIx,
+  // ... plus your other instructions
+);
+```
+
+### 3. Sign and Send
+
+```javascript
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.sign(yourKeypair);
+const txid = await sendAndConfirmTransaction(connection, transaction, [yourKeypair]);
+console.log("Transaction sent:", txid);
+```
+
+<Note>
+The order of instructions matters. If you need more compute units, set `computeLimitIx` before any instruction that may exceed the default limit.
+</Note>
+
+## Complete Example: Sending a Transaction with Priority Fees
+
+This example shows how to transfer SOL with priority fees using the API to determine the appropriate fee:
+
+```javascript
+const {
+  Connection,
+  SystemProgram,
+  Transaction,
+  sendAndConfirmTransaction,
+  Keypair,
+  ComputeBudgetProgram,
+} = require("@solana/web3.js");
+const bs58 = require("bs58");
+
+const HeliusURL = "https://mainnet.helius-rpc.com/?api-key=<YOUR_API_KEY>";
+const connection = new Connection(HeliusURL);
+const fromKeypair = Keypair.fromSecretKey(Uint8Array.from("[Your secret key]")); // Replace with your own private key
+const toPubkey = "CckxW6C1CjsxYcXSiDbk7NYfPLhfqAm3kSB5LEZunnSE"; // Replace with destination public key
+
+async function getPriorityFeeEstimate(priorityLevel, transaction) {
+  const response = await fetch(HeliusURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [
+        {
+          transaction: bs58.encode(transaction.serialize()),
+          options: { priorityLevel: priorityLevel },
+        },
+      ],
+    }),
+  });
+  const data = await response.json();
+  console.log(
+    "Fee estimate for",
+    priorityLevel,
+    ":",
+    data.result.priorityFeeEstimate
+  );
+  return data.result;
+}
+
+async function sendTransactionWithPriorityFee(priorityLevel) {
+  const transaction = new Transaction();
+  const transferIx = SystemProgram.transfer({
+    fromPubkey: fromKeypair.publicKey,
+    toPubkey,
+    lamports: 100,
+  });
+  transaction.add(transferIx);
+
+  let feeEstimate = { priorityFeeEstimate: 0 };
+  if (priorityLevel !== "NONE") {
+    feeEstimate = await getPriorityFeeEstimate(priorityLevel, transaction);
+    const computePriceIx = ComputeBudgetProgram.setComputeUnitPrice({
+      microLamports: feeEstimate.priorityFeeEstimate,
+    });
+    transaction.add(computePriceIx);
+  }
+  
+  transaction.recentBlockhash = (
+    await connection.getLatestBlockhash()
+  ).blockhash;
+  transaction.sign(fromKeypair);
+
+  try {
+    const txid = await sendAndConfirmTransaction(connection, transaction, [
+      fromKeypair,
+    ]);
+    console.log(`Transaction sent successfully with signature ${txid}`);
+  } catch (e) {
+    console.error(`Failed to send transaction: ${e}`);
+  }
+}
+
+// Choose between "Min", "Low", "Medium", "High", "VeryHigh", "UnsafeMax"
+sendTransactionWithPriorityFee("High");
+```
+
+## Priority Fees with Staked Connections
+
+When using Helius' [Staked Connections](/sending-transactions/staked-connections), priority fees play an important role:
+
+- For **Shared Staked Endpoints**, your priority fees must meet or exceed the `recommended` value from the Priority Fee API to access staked connections
+- For **Dedicated Staked Endpoints**, priority fees still determine your transaction's position in the validator queue
+
+## Best Practices
+
+1. **Don't overestimate your compute needs.** Request only as many compute units as your transaction truly requires.
+
+2. **Use the Priority Fee API.** Instead of guessing, use `getPriorityFeeEstimate` to determine appropriate fees based on current network conditions.
+
+3. **Stay flexible.** Adjust your priority fees based on:
+   - Network congestion levels
+   - Transaction urgency
+   - The specific type of operation
+
+4. **Set maxRetries to 0** when using priority fees with Helius to enable staked connections.
+
+5. **Monitor transaction performance** and adjust your priority fee strategy based on real-world results. 
