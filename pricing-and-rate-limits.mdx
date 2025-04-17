@@ -4,11 +4,9 @@ description: 'Flexible pricing for all your needs. Switch plans or cancel at any
 ---
 
 ## Standard Plans
-
 Access a shared RPC node fleet across New York, Ashburn, Chicago, Vancouver, Los Angeles, Singapore, Tokyo, Frankfurt, and the UK, automatically routing requests to the nearest node.
 
-### Features:
-
+### Features
 * RPC calls
 * Webhooks
 * Standard WebSockets
@@ -18,38 +16,21 @@ Access a shared RPC node fleet across New York, Ashburn, Chicago, Vancouver, Los
 * Priority Fee API
 * Token Balance API
 * Photon Methods (ZK Compression)
-* for `sendTransaction`
-* Mint API (deprecated)
+* [Shared Staked Connections](/sending-transactions-on-solana#staked-connections) for `sendTransaction`;
 
 Each plan has a set amount of credits and rate limits for different calls.
 
-| | Free | Developer | Business | Professional |
-| --- | --- | --- | --- | --- |
-| Price | $0/mo | $49/mo | $499/mo | $999/mo |
-| Credits | 500k Credits | 10M Credits | 100M Credits | 200M Credits |
-| RPC Rate Limits | 10 RPC requests/s* | 50 RPC requests/s* | 200 RPC requests/s* | 500 RPC requests/s* |
-| API Rate Limits | 2 API requests/s (DAS & Enhanced) | 10 API requests/s (DAS & Enhanced) | 50 API requests/s (DAS & Enhanced) | 100 API requests/s (DAS & Enhanced) |
-| API Keys | 1 API Key | 3 API Keys | 5 API Keys | 15 API Keys |
-| Users | 1 User | 2 Users | 5 Users | 10 Users |
-| Webhooks | 1 Webhook | 5 Webhooks | 25 Webhooks | 50 Webhooks |
-| Websockets | Standard Websockets | Standard Websockets | Standard + Enhanced Websockets | Standard + Enhanced Websockets |
-| Support | Community support (Discord) | Chat Support (Developer Portal) | Priority Chat Support (Developer Portal) | Slack/Telegram Support |
+<table><thead align="left"><tr><th width="189">Free</th><th width="176">Developer</th><th width="191">Business</th><th>Professional</th></tr></thead><tbody><tr><td>\$0/mo</td><td>\$49/mo</td><td>\$499/mo</td><td>\$999/mo</td></tr><tr><td>500k Credits</td><td>10M Credits</td><td>100M Credits</td><td>200M Credits</td></tr><tr><td>10 RPC requests/s*</td><td>50 RPC requests/s*</td><td>200 RPC requests/s*</td><td>500 RPC requests/s*</td></tr><tr><td>2 API requests/s (DAS &#x26; Enhanced)</td><td>10 API requests/s (DAS &#x26; Enhanced)</td><td>50 API requests/s (DAS &#x26; Enhanced)</td><td>100 API requests/s (DAS &#x26; Enhanced)</td></tr><tr><td>1 API Key</td><td>3 API Keys</td><td>5 API Keys</td><td>15 API Keys</td></tr><tr><td>1 User</td><td>2 Users</td><td>5 Users</td><td>10 Users</td></tr><tr><td>1 Webhook</td><td>5 Webhooks</td><td>25 Webhooks</td><td>50 Webhooks</td></tr><tr><td>Standard Websockets</td><td>Standard Websockets</td><td>Standard + Enhanced Websockets</td><td>Standard + Enhanced Websockets</td></tr><tr><td>Community support (Discord)</td><td>Chat Support (Developer Portal)</td><td>Priority Chat Support (Developer Portal)</td><td>Slack /Telegram Support</td></tr></tbody></table>
 
-\* See rate limit exceptions below.
+\*  If you are on a legacy (old) plan, please refer to the '[Legacy Plan Limits](#legacy-deprecated-plan-limits)' section below for applicable details.
 
-## Rate Limit Exceptions
+\*  See rate limit exceptions below.
 
-| Type | Free | Developer | Business | Professional |
-| --- | --- | --- | --- | --- |
-| `sendTransaction` | 1 call/sec | 5 calls/sec | 50 calls/sec | 100 calls/sec |
-| `getProgramAccounts` | 5 calls/sec | 25 calls/sec | 50 calls/sec | 75 calls/sec |
+### Rate Limit Exceptions \*
+<table><thead align="left"><tr><th width="230">Type</th><th width="115">Free</th><th width="124">Developer</th><th width="128">Business</th><th>Professional</th></tr></thead><tbody><tr><td><code>sendTransaction</code></td><td>1 call/sec</td><td>5 calls/sec</td><td>50 calls/sec</td><td>100 calls/sec</td></tr><tr><td><code>getProgramAccounts</code></td><td>5 calls/sec </td><td>25 calls/sec</td><td>50 calls/sec</td><td>75  calls/sec</td></tr></tbody></table>
 
-## Photon Limits
-
-| Type | Free | Developer | Business | Professional |
-| --- | --- | --- | --- | --- |
-| Photon | 2 calls/sec | 10 calls/sec | 50 calls/sec | 100 calls/sec |
-| `getValidityProof` | 1 call/sec | 5 call/sec | 10 call/sec | 20 call/sec |
+### Photon Limits
+<table><thead align="left"><tr><th width="167">Type</th><th width="140">Free</th><th width="147">Developer</th><th width="151">Business</th><th>Professional</th></tr></thead><tbody><tr><td>Photon</td><td>2 calls/sec</td><td>10 calls/sec</td><td>50 calls/sec</td><td>100 calls/sec</td></tr><tr><td><code>getValidityProof</code></td><td>1 call/sec</td><td>5 call/sec</td><td>10 call/sec</td><td>20  call/sec</td></tr></tbody></table>
 
 ## Credits
 
@@ -57,40 +38,58 @@ A clear breakdown of the credit costs in our Standard plans.
 
 * **Standard RPC Calls**: 1 credit per call
   * **Exceptions**:
+    * [`getProgramAccounts`](/rpc/http/getprogramaccounts) : 10 credits
     * **Archival Calls:** 10 credits each
-    * **Send Transaction**: 10 credits
+      * [`getTransaction`](/rpc/http/gettransaction)
+      * [`getBlock`](/rpc/http/getblock)
+      * [`getBlocks`](/rpc/http/getblocks)
+      * [`getInflationReward`](/rpc/http/getinflationreward)
+      * [`getSignaturesForAddress`](/rpc/http/getsignaturesforaddress)
+      * [`getBlockTime`](/rpc/http/getblocktime)
+    * **Send Transaction**:;
+      * Via [https://mainnet.helius-rpc.com](https://mainnet.helius-rpc.com) : 1 credit
+      * Via [https://staked.helius-rpc.com](https://staked.helius-rpc.com) : 50 credits
     * **Priority Fee API**: 1 credit
 * **DAS Calls**: 10 credits each
-* **Photon Calls**:
+  * [`getAsset`](/das-api/getasset)
+  * [`getAssetProof`](/das-api/getassetproof)
+  * [`getAssetsByOwner`](/das-api/getassetsbyowner)
+  * [`getAssetsByAuthority`](/das-api/getassetsbyauthority)
+  * [`getAssetsByCreator`](/das-api/getassetsbycreator)
+  * [`getAssetsByGroup`](/das-api/getassetsbygroup)
+  * [`searchAssets`](/das-api/searchassets)
+  * [`getSignaturesForAsset`](/das-api/getsignaturesforasset)
+  * [`getTokenAccounts`](/das-api/gettokenaccounts)
+  * [`getNFTEditions`](/das-api/getnfteditions)
+* **Photon Calls:**
   * Standard Calls: 10 credits
+  * ;[`getValidityProofs`](/zk-compression/getvalidityproof): 100 credits (due to higher computation)
 * **Webhook**:
   * Webhook Pushes: 1 credit
+  * Webhook Updates via [API](http://localhost:3000/webhooks/update-webhook): 100 credits
 * **Enhanced Transactions API and Mint API**: 100 credits per call
 
-## Extra Credits
+### Extra Credits
 
 If you exhaust your credits within a billing cycle, you can purchase additional credits:
 
-* **Crypto Plans —** purchase additional prepaid credits directly from the dashboard
+* **Crypto Plans —** purchase additional prepaid credits directly from the dashboard;
 * **Card Payment Plans —** enable autoscaling in the Project Settings on the dashboard
+
+We've expanded our documentation on prepaid credits and autoscaling. For detailed information and step-by-step guidance, please visit our updated [Credits and Autoscaling Guide](/prepaid-credits-and-autoscaling).
 
 ## Enterprise Plans
 
 Enterprise plans are ideal for large teams that need personalized rate limits and more credits than the professional plan offers. Enterprise customers receive discounted pricing for high credit volumes and longer commitments. You can choose your support level with service level agreements (SLAs), uptime guarantees, usage alerts, and direct access to our engineering team to help you optimize your setup.
 
+<Note>
 To explore Enterprise plans, [contact our sales team](https://form.typeform.com/to/KiacmxpZ).
+</Note>
 
 ## Legacy (Deprecated) Plan Limits
 
-The following plans are no longer available for new users. For details on available plans, please refer to the 'Standard Plans' section above.
+<table><thead align="left"><tr><th width="189">Free V3</th><th width="181">Developer V3</th><th width="191">Business V3 </th><th>Performance V3</th></tr></thead><tbody><tr><td>500k Credits</td><td>10M Credits</td><td>200M Credits</td><td>500M Credits</td></tr><tr><td>10 RPC requests/s*</td><td>50 RPC requests/s*</td><td>150 RPC requests/s*</td><td>500 RPC requests/s*</td></tr><tr><td>2 API requests/s (DAS &#x26; Enhanced)</td><td>10 API requests/s (DAS &#x26; Enhanced)</td><td>50 API requests/s (DAS &#x26; Enhanced)</td><td>100 API requests/s (DAS &#x26; Enhanced)</td></tr><tr><td>1 API Key</td><td>10 API Keys</td><td>15 API Keys</td><td>20 API Keys</td></tr><tr><td>1 Webhook</td><td>3 Webhooks</td><td>10 Webhooks</td><td>20 Webhooks</td></tr><tr><td>Community support (Discord)</td><td>Chat Support (Developer Portal)</td><td>Priority Chat Support (Developer Portal)</td><td>Slack /Telegram Support</td></tr><tr><td>5 gPA calls per second</td><td>25 gPA calls per second</td><td>50 gPA calls per second</td><td>75 gPA calls per second</td></tr><tr><td>1 sendTransaction call per second</td><td>10 sendTransaction call per second</td><td>50 sendTransaction call per second</td><td>100 sendTransaction call per second</td></tr></tbody></table>
 
-| | Free V3 | Developer V3 | Business V3 | Performance V3 |
-| --- | --- | --- | --- | --- |
-| Credits | 500k Credits | 10M Credits | 200M Credits | 500M Credits |
-| RPC Rate Limits | 10 RPC requests/s* | 50 RPC requests/s* | 150 RPC requests/s* | 500 RPC requests/s* |
-| API Rate Limits | 2 API requests/s (DAS & Enhanced) | 10 API requests/s (DAS & Enhanced) | 50 API requests/s (DAS & Enhanced) | 100 API requests/s (DAS & Enhanced) |
-| API Keys | 1 API Key | 10 API Keys | 15 API Keys | 20 API Keys |
-| Webhooks | 1 Webhook | 3 Webhooks | 10 Webhooks | 20 Webhooks |
-| Support | Community support (Discord) | Chat Support (Developer Portal) | Priority Chat Support (Developer Portal) | Slack/Telegram Support |
-| getProgramAccounts | 5 gPA calls per second | 25 gPA calls per second | 50 gPA calls per second | 75 gPA calls per second |
-| sendTransaction | 1 sendTransaction call per second | 10 sendTransaction call per second | 50 sendTransaction call per second | 100 sendTransaction call per second | 
+<Warning>
+The limits in the table above apply to deprecated V3 plans. These plans are no longer available for new users. For details on available plans, please refer to the '[Pricing & Rate Limits](#standard-plans)' section above.
+</Warning>
