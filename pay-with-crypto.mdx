@@ -1,70 +1,83 @@
 ---
 title: 'Pay with Crypto'
-description: 'Helius offers the flexibility to purchase plans using USDC on Solana, making it easy to subscribe with your preferred cryptocurrency wallet.
-'
+description: 'Purchasing a Helius Plan with Crypto'
 ---
 
-## Getting Started with Crypto Payments 🪙
+## Getting Started with Crypto Payments
 
 Helius allows you to buy plans using USDC. You can secure your subscription in just one straightforward transaction—no hassle. Below, you'll find an easy-to-follow guide on how to get started.
 
-## Purchasing a Plan with Crypto 💲
+![Pay with Crypto](/images/pay-with-crypto.png)
 
-1. **Initiate Crypto Payment**
-   * Click **Pay with Crypto** and connect your preferred wallet.
+***
 
-2. **Enter Billing Information**
-   * Provide your **name** and **billing address**.
+### Purchasing a Plan with Crypto
 
-3. **Confirm Payment**
-   * Click **Pay with USDC** and wait for your transaction to process.
-   * Once it's complete, your new plan will be active!
+<Steps>
+  <Step title="Navigate to the Billing Page">
+    Go to [https://dashboard.helius.dev/billing](https://dashboard.helius.dev/billing) and select the subscription plan that fits your needs (e.g., Business). Choose either **monthly** or **annual** billing.
+  </Step>
+  <Step title="Initiate Crypto Payment">
+    Click **Pay with Crypto** and connect your preferred wallet.
+  </Step>
+  <Step title="Enter Billing Information">
+    Provide your **name** and **billing address**.
+  </Step>
+  <Step title="Authorize Automatic Withdrawals">
+    By authorizing, you consent to allow automatic deductions of USDC from your wallet at each billing period. Learn more about [automatic withdrawals](#what-does-authorize-automatic-withdrawals-mean).
+  </Step>
+  <Step title="Confirm Payment">
+    Click **Pay with USDC** and wait for your transaction to process. Once it's complete, your new plan will be active!
+  </Step>
+</Steps>
 
+<Note>
 **Important Notes**:
 
 * **Prepare Your Wallet for Auto-Renewal**: Your wallet must have sufficient funds for upcoming billing periods.
 * **Automatic Withdrawals**: Funds will be automatically deducted from your wallet at each billing cycle.
 * **Manage Permissions**: You can revoke permissions or change your wallet anytime.
 * **Cancel Anytime**: You can cancel your subscription if needed.
+</Note>
+
+***
 
 ## Frequently Asked Questions
 
-### I want to switch between fiat and crypto payments.
+<AccordionGroup>
+  <Accordion title="I want to switch between fiat and crypto payments.">
+    Please contact our [support](https://dashboard.helius.dev/support) team, and they will assist you with changing your payment method.
+  </Accordion>
 
-Please contact our [support](https://discord.com/invite/6GXdee3gBj) team, and they will assist you with changing your payment method.
+  <Accordion title="I paid for a plan, but it hasn't been updated yet in my dashboard.">
+    It can take up to **1 hour** for the system to update your plan. If it still doesn't update after that, reach out to our [support](https://dashboard.helius.dev/support) team.
+  </Accordion>
 
-### I paid for a plan, but it hasn't been updated yet in my dashboard.
+  <Accordion title="How do I cancel my subscription?">
+    You can cancel by going to the [**Billing**](https://dashboard.helius.dev/billing) page and clicking the **Cancel Subscription** button.
+  </Accordion>
 
-It can take up to **1 hour** for the system to update your plan. If it still doesn't update after that, reach out to our [support](https://discord.com/invite/6GXdee3gBj) team.
+  <Accordion title="What does 'Authorize Automatic Withdrawals' mean?">
+    When you authorize automatic withdrawals, you're giving the platform permission to pull the necessary amount of USDC (on Solana) directly from your wallet whenever a new billing period starts. This is often referred to as a "subscription" or "recurring payment," where you don't have to manually approve each individual charge.
 
-### How do I cancel my subscription?
+    * **How It Works:**
+      * At the beginning of each billing cycle, the system checks if you have enough USDC in your Solana wallet.
+      * If sufficient funds are available, the required amount is automatically deducted to cover the plan's cost.
+      * If you ever want to stop automatic charges, you can revoke this authorization via your wallet or billing settings.
+    * **Why Authorize?**
+      * It saves you from having to manually make a payment every month (or billing period).
+      * It ensures your service continues without interruption, as the payment is handled automatically.
+    * **Things to Keep in Mind:**
+      * **Sufficient Funds:** Make sure your wallet has enough USDC ahead of each billing date.
+      * **Revoking Authorization:** You can usually disable or revoke this automatic withdrawal at any time if you decide you'd rather pay manually.
+  </Accordion>
 
-You can cancel by going to the [Billing](https://dashboard.helius.dev/billing) page and clicking the **Cancel Subscription** button.
+  <Accordion title="How can I manually pay for my subscription instead of authorizing payments?">
+    Manual payments are not supported. You must authorize USDC so it can be automatically deducted on billing days. However, you can **revoke** this authorization after each purchase by following these steps:
 
-### What does "Authorize Automatic Withdrawals" mean?
-
-When you authorize automatic withdrawals, you're giving the platform permission to pull the necessary amount of USDC (on Solana) directly from your wallet whenever a new billing period starts. This is often referred to as a "subscription" or "recurring payment," where you don't have to manually approve each individual charge.
-
-* **How It Works:**
-  * At the beginning of each billing cycle, the system checks if you have enough USDC in your Solana wallet.
-  * If sufficient funds are available, the required amount is automatically deducted to cover the plan's cost.
-  * If you ever want to stop automatic charges, you can revoke this authorization via your wallet or billing settings.
-
-* **Why Authorize?**
-  * It saves you from having to manually make a payment every month (or billing period).
-  * It ensures your service continues without interruption, as the payment is handled automatically.
-
-* **Things to Keep in Mind:**
-  * **Sufficient Funds:** Make sure your wallet has enough USDC ahead of each billing date.
-  * **Revoking Authorization:** You can usually disable or revoke this automatic withdrawal at any time if you decide you'd rather pay manually.
-
-### How can I manually pay for my subscription instead of authorizing payments?
-
-Manual payments are not supported. You must authorize USDC so it can be automatically deducted on billing days. However, you can **revoke** this authorization after each purchase by following these steps:
-
-1. Navigate to the [Billing Page](https://dashboard.helius.dev/billing) and select the subscription plan that fits your needs (e.g., Business). Choose either **monthly** or **annual** billing.
-2. Select your plan (e.g., Developer).
-3. Click **Edit** in the Authorization section.
-4. Set the limit to **0** to revoke authorization.
-
-Go to the [Billing](https://dashboard.helius.dev/billing) page and click **Manage Delegate Wallet** (this will redirect you to Loop). 
+    1. Go to the [**Billing**](https://dashboard.helius.dev/billing) page and click **Manage Delegate Wallet** (this will redirect you to Loop).
+    2. Select your plan (e.g., Developer).
+    3. Click **Edit** in the Authorization section.
+    4. Set the limit to **0** to revoke authorization.
+  </Accordion>
+</AccordionGroup>
