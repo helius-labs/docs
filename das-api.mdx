@@ -1,0 +1,44 @@
+---
+title: 'Digital Asset Standard (DAS) API'
+description: 'The Digital Asset Standard (DAS) API is an open-source specification and system that provides a unified interface for interacting with digital assets. The API supports fungible tokens, regular NFTs, and compressed NFTs. Some methods (e.g. "getAssetProof") are exclusively for compressed assets.'
+---
+
+## Endpoints
+
+Helius' API is fully compatible with the shared [OpenRPC specification](https://github.com/helius-labs/rpc-openrpc). The API is exposed via our standard RPC endpoints:
+
+* **Mainnet** – `https://mainnet.helius-rpc.com`
+* **Devnet** – `https://devnet.helius-rpc.com`
+
+## DAS API Methods
+
+The DAS endpoints enable users to query tokens and regular & compressed NFTs:
+
+* [Get Asset](/das-api/getasset) – Get an asset by its ID.
+* [Get Asset Batch](/das-api/getassetbatch) – Get multiple assets by their IDs.
+* [Get Asset Proof](/das-api/getassetproof) – Get Merkle proof for a compressed asset using its ID.
+* [Get Asset Proof Batch](/das-api/getassetproofbatch) – Get multiple asset proofs using their IDs.
+* [Search Assets](/das-api/searchassets) – Search for assets using a variety of parameters.
+* [Get Assets by Owner](/das-api/getassetsbyowner) – Get a list of assets owned by an address.
+* [Get Assets by Authority](/das-api/getassetsbyauthority) – Get a list of assets with a specific authority.
+* [Get Assets by Creator](/das-api/getassetsbycreator) – Get a list of assets created by an address.
+* [Get Assets by Group](/das-api/getassetsbygroup) – Get a list of assets by a group key and value.
+* [Get Signatures For Asset](/das-api/getsignaturesforasset) – Get a list of transaction signatures related to a compressed asset.
+* [Get Token Accounts](/das-api/gettokenaccounts) – Get information about all token accounts for a specific mint or an owner.
+* [Get Nft Editions](/das-api/getnfteditions) – Get information about all the edition NFTs for a specific master NFT.
+
+## Fungible Token Extension
+
+Helius has extended the DAS API to support **all tokens**, including plain SPL tokens (without metadata) and Token22 (plus their extensions). Fungible token support is available through the [getAssetsByOwner](/das-api/getassetsbyowner) and [searchAssets](/das-api/searchassets) methods.
+
+## Inscriptions & SPL-20
+
+You can optionally display inscription and SPL-20 token data with the `showInscription` flag. You can learn more about inscriptions and SPL-20 [here](https://www.helius.dev/blog/solana-inscriptions-spl-20-tokens-everything-you-need-to-know). Please note that this is an experimental feature.
+
+The Helius API does not verify SPL-20 tokens. Trade at your own risk. Please use the [validator tool](https://libreplex.io/inscriptions/validator) or join the [Libreplex Discord channel](https://discord.gg/libreplex) for more information.
+
+## Off-chain Indexing
+
+Most NFT collections store additional metadata, such as attributes and image URLs, off-chain, typically on platforms like Arweave or IPFS. DAS enables you to retrieve this off-chain data alongside regular NFT data in a single API call by indexing all the off-chain information.
+
+Please note that Helius cannot detect off-chain data mutations. The off-chain data will only be updated once the NFT is seen by the system again (e.g. when the NFT is modified on-chain). If you need the off-chain data for a collection to be re-indexed, please reach out to Helius support. 
