@@ -1,0 +1,388 @@
+---
+title: Guide to listening for cNFT Events
+description: Learn how to listen for and retrieve cNFT events on Solana using Helius APIs.
+---
+
+### 1. Understanding cNFTs and Their Event Lifecycle
+
+On Solana, [**Compressed NFTs (cNFTs)**](./) differ from traditional NFTs in a crucial way:
+
+* **Traditional NFTs** each have their own mint address and token account.
+* **Compressed NFTs** store data within a **Merkle tree** managed by the **related cNFT** program. This single on-chain account holds the Merkle tree root, and each NFT is represented as a leaf in that tree.
+
+#### Key Points:
+
+* A **cNFT mint** adds a new leaf.
+* A **cNFT transfer** updates the ownership data in the existing leaf.
+* A **cNFT burn** removes or invalidates the leaf from the tree.
+
+Because cNFTs lack typical token accounts, standard Solana NFT tracking methods (e.g., "watch the mint address" or "subscribe to a token account") won't work. Instead, you focus on program instructions or the **Merkle tree** account.
+
+***
+
+### 2. Why listen for cNFT Events?
+
+Imagine building a marketplace, wallet, or analytics dashboard around cNFTs. You need to know:
+
+* When new cNFTs are minted.
+* Which cNFTs are transferred to or from a user.
+* Whether a cNFT was burned.
+
+Receiving these updates in **real time** helps you keep your interface or data layer in perfect sync with on-chain state. Combined with **historical** lookups, you gain a complete timeline of cNFT activity, from the moment it was created to its current status.
+
+***
+
+### 3. Event Listening Methods
+
+Helius offers **three major** ways to listen for cNFT events. Below is a recap of each approach.
+
+#### 3.1 WebSockets (Standard & Enhanced)
+
+[**Standard WebSockets**](../../rpc/websocket/)
+
+* **Persistent connection**: You subscribe to accounts or programs, and Solana pushes updates.
+
+```js
+const WebSocket = require('ws');
+
+// Replace <API_KEY> with your actual values
+const HELIUS_WS_URL = 'wss://mainnet.helius-rpc.com/?api-key=<API_KEY>';
+const ws = new WebSocket(HELIUS_WS_URL);
+
+ws.on('open', () => {
+  console.log('Connected to Helius WebSocket');
+
+  // Subscribe to the Bubblegum program to catch cNFT events
+  const subscribeMsg = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'programSubscribe',
+    params: [
+      'BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY', 
+      { commitment: 'confirmed' }
+    ]
+  };
+
+  ws.send(JSON.stringify(subscribeMsg));
+});
+
+ws.on('message', (rawData) => {
+  try {
+    const data = JSON.parse(rawData);
+    console.log('New cNFT event:', data);
+    // Parse for mints/transfers/burns
+  } catch (err) {
+    console.error('Failed to parse WS message:', err);
+  }
+});
+
+ws.on('error', (err) => {
+  console.error('WebSocket error:', err);
+});
+
+ws.on('close', () => {
+  console.log('WebSocket closed');
+});
+```
+
+[**Enhanced WebSockets**](../../data-streaming/enhanced-websockets-beta.md)
+
+* **Enhanced** WebSocket with advanced filters (`accountInclude`, `accountRequired`, etc.).
+* **Reduces parsing overhead** because you only receive transactions relevant to your addresses.
+
+```js
+const WebSocket = require('ws');
+
+const HELIUS_ENHANCED_WS_URL = 'wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>';
+const ws = new WebSocket(HELIUS_ENHANCED_WS_URL);
+
+ws.on('open', () => {
+  console.log('Connected to Enhanced WebSocket');
+  const msg = {
+    jsonrpc: '2.0',
+    id: 42,
+    method: 'transactionSubscribe',
+    params: [
+      {
+        accountInclude: ['MERKLE_TREE_ADDRESS']
+      },
+      {
+        commitment: 'confirmed',
+        transactionDetails: 'full'
+      }
+    ]
+  };
+
+  ws.send(JSON.stringify(msg));
+});
+
+ws.on('message', (rawData) => {
+  const data = JSON.parse(rawData);
+  console.log('Enhanced cNFT event:', data);
+  // Check for Bubblegum instructions
+});
+```
+
+***
+
+#### 3.2 Webhooks
+
+[**Webhooks**](../../data-streaming/webhooks/) let Helius notify your server via HTTP POST whenever an on-chain event occurs. Ideal if you **don't want** a persistent connection.
+
+1. **Create** the webhook via [API](../../data-streaming/webhooks/#via-helius-api), [SDK](../../data-streaming/webhooks/#via-helius-sdk) or [Dashboard](../../data-streaming/webhooks/#via-helius-dashboard).
+2. **Specify** addresses to watch (Merkle tree address, user wallet, etc.).
+3. **Receive** transaction data on your server endpoint; parse for cNFT instructions.
+
+**Creating a Webhook** (API Example):
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My cNFT Webhook",
+    "webhookURL": "https://myapp.com/cnft-webhook",
+    "type": "rawTransaction",
+    "txnStatus": "all",
+    "accountAddresses": ["MERKLE_TREE_ADDRESS"]
+  }' \
+  "https://api.helius.xyz/v0/webhooks?api-key=<API_KEY>"
+```
+
+***
+
+#### 3.3 gRPC (Yellowstone)
+
+[**gRPC**](../../data-streaming/yellowstone-grpc.md) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](../../solana-rpc-nodes/dedicated-nodes/).
+
+* **Advanced filtering** (memcmp, owners, accounts, etc.).
+* **Enterprise-level** throughput for large-scale apps.
+
+**Example** (TypeScript with reconnection logic shortened):
+
+```ts
+import Client, { CommitmentLevel, SubscribeRequest } from "@triton-one/yellowstone-grpc";
+
+class GrpcStreamManager {
+  // ...
+}
+
+async function monitorCNFTTree() {
+  const manager = new GrpcStreamManager("your-node-url:2053", "x-token");
+
+  const subscribeReq: SubscribeRequest = {
+    commitment: CommitmentLevel.CONFIRMED,
+    accounts: {
+      accountSubscribe: { account: ["MERKLE_TREE_ADDRESS"] }
+    },
+    accountsDataSlice: [],
+    transactions: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    slots: {},
+    transactionsStatus: {}
+  };
+
+  await manager.connect(subscribeReq);
+}
+
+monitorCNFTTree().catch(console.error);
+```
+
+***
+
+### 4. Retrieving Historical cNFT Data
+
+Real-time event feeds are great for capturing **future** events. But what if you need the **past**—the entire lifetime of a cNFT or all transactions that impacted a Merkle tree or wallet?
+
+In this section, we'll explore **two** primary methods for historical lookups:
+
+1. Helius' Parsed Transaction API
+2. Normal Solana RPC Calls: `getSignaturesForAddress` + `getParsedTransaction` or `getTransaction`
+
+***
+
+#### 4.1 Helius' Parsed Transaction API
+
+Helius offers an **Enriched** or **Parsed Transaction** API. It automatically decodes NFT, SPL, and Swap transactions into a human-readable format. This saves you from manually parsing raw data.
+
+**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](../../solana-apis/enhanced-transactions-api/parse-transaction-s.md)**)**
+
+**Endpoint**:
+
+* **Mainnet**: `https://api.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>`
+* **Devnet**: `https://api-devnet.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>`
+
+You send up to **100** transaction signatures in the request body, and Helius returns an **array** of parsed transactions.
+
+**Example**:
+
+```js
+const fetch = require('node-fetch');
+
+async function parseMultipleTransactions(signatures) {
+  const url = 'https://api.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>';
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transactions: signatures })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Fetch error: ${response.status}`);
+  }
+
+  const parsedTxs = await response.json();
+  console.log("Parsed transactions:", JSON.stringify(parsedTxs, null, 2));
+}
+
+parseMultipleTransactions([
+  "TxSignature1",
+  "TxSignature2",
+  // ...
+]);
+```
+
+Within each parsed transaction, you may find a `compressed` object under `events`, indicating a cNFT mint, transfer, or burn:
+
+```json
+"compressed": {
+  "type": "COMPRESSED_NFT_MINT",
+  "treeId": "MERKLE_TREE_ADDRESS",
+  "assetId": "...",
+  "leafIndex": 12,
+  "instructionIndex": 1,
+  "newLeafOwner": "UserWalletAddress",
+  ...
+}
+```
+
+**4.1.2 Parsed Transaction History by Address (**[**`/v0/addresses/{address}/transactions`**](../../solana-apis/enhanced-transactions-api/parsed-transaction-history.md)**)**
+
+If you want **parsed** transactions for a **specific** address—say a **Merkle tree** or **user wallet**—you can call:
+
+* **Mainnet**: `https://api.helius.xyz/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
+* **Devnet**: `https://api-devnet.helius.xyz/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
+
+**Example**:
+
+```js
+const fetch = require('node-fetch');
+
+async function getParsedHistoryForAddress(address) {
+  // Returns the latest transactions by default
+  const url = `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=<YOUR_API_KEY>`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Fetch error: ${response.status}`);
+  }
+
+  const parsedHistory = await response.json();
+  console.log("Parsed history:", JSON.stringify(parsedHistory, null, 2));
+
+  // If you want to paginate, look for the "before" parameter usage
+}
+
+getParsedHistoryForAddress("MERKLE_TREE_ADDRESS_OR_USER_WALLET");
+```
+
+***
+
+#### 4.2 Normal Methods: `getSignaturesForAddress` + `getParsedTransaction` / `getTransaction`
+
+If you prefer the **traditional Solana approach** or want maximum control, you can call **Solana's native RPC** methods:
+
+1. **`getSignaturesForAddress`**: Returns an array of transaction signatures involving the given address (e.g., the Merkle tree or user's wallet).
+2. **`getParsedTransaction`**: Returns a **Solana-parsed** JSON for a given signature.
+3. **`getTransaction`**: Returns the **raw** binary-encoded transaction, which you can parse using an external library (e.g., [Blockbuster](https://github.com/helius-labs/blockbuster)) if you need specialized cNFT decoding.
+
+**4.2.1 `getSignaturesForAddress`**
+
+This is a **pagination-friendly** method. You can pass `before` or `until` to walk backward or forward through transaction history.
+
+**Example**:
+
+```js
+async function fetchSignatures(address) {
+  const rpcUrl = "https://mainnet.helius-rpc.com/?api-key=<YOUR_API_KEY>";
+  const body = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "getSignaturesForAddress",
+    params: [
+      address,
+      { limit: 5 } // example limit
+    ]
+  };
+
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  console.log("Signatures for address:", data.result);
+}
+
+fetchSignatures("MERKLE_TREE_ADDRESS");
+```
+
+**4.2.2 `getParsedTransaction` or `getTransaction`**
+
+Once you have the signatures, retrieve each transaction's details:
+
+```js
+async function fetchTransaction(signature) {
+  const rpcUrl = "https://mainnet.helius-rpc.com/?api-key=<YOUR_API_KEY>";
+  const body = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "getTransaction",
+    params: [signature, "confirmed"] // or "finalized"
+  };
+
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  console.log("Transaction:", JSON.stringify(data.result, null, 2));
+}
+
+// Usage:
+fetchTransaction("TransactionSignature");
+```
+
+Look for instructions referencing the **cNFT** program or the **Merkle tree**. If you use `getTransaction` instead, you'll get raw data (e.g., base64), which you'd decode with a specialized parser.
+
+***
+
+### 5. Putting It All Together
+
+1. **Listen for cNFT Events**
+   * Pick a method: WebSockets, Webhooks, or gRPC.
+   * Filter for the **cNFT** program or a **Merkle tree** address.
+   * Parse instructions in real time to track mints, transfers, and burns.
+2. **Retrieve Historical Data**
+   * **Helius Parsed Transaction API**: The easiest way to get a human-readable breakdown of cNFT actions.
+   * **Normal RPC**: `getSignaturesForAddress` + `getParsedTransaction` (or `getTransaction` + manual parsing) for maximum flexibility or if you already rely on standard Solana RPC calls.
+3. **Build a Complete Timeline**
+   * Merge **future** (real-time) events with **past** (historical) data.
+   * If your event listening solution ever goes down, fill gaps by pulling recent transaction signatures for your Merkle tree or user address.
+
+***
+
+### 6. Next Steps and Best Practices
+
+* **Leverage Helius**: The **Parsed Transaction API** is particularly handy if you want cNFT events (mints, transfers, burns) in a straightforward JSON format.
+* **Pagination**: For addresses with a lot of activity, you may need to iterate with `before` or `until` to get older data.
+* **Verification**: For extra security, you can verify Merkle proofs to confirm a cNFT leaf is valid under the on-chain root.
+* **Indexing**: If you're building a large-scale solution, consider storing parsed cNFT events in your own database for quick queries.
+* **Performance**: For high-volume event listening, a **Dedicated Node + gRPC** approach offers top performance and advanced filters.
+
+**Happy building!**

@@ -1,0 +1,63 @@
+---
+title: What is NFT compression on Solana?
+description: >-
+  The most cost-efficient way of minting large numbers of digital assets in
+  crypto.
+---
+
+## What is Compression?
+
+Data is stored in [accounts](https://solana.com/docs/core/accounts) on Solana, which can be expensive. **Compression** offers a cost-efficient alternative by storing data directly on the Solana ledger.
+
+## NFT Compression
+
+NFT Compression enables developers to mint large numbers of NFTs at a fraction of the cost by storing their properties on the Solana ledger instead of individual accounts. Traditionally, each NFT required its own account, which could become expensive for large collections. With compression, NFTs are stored in a **Merkle tree**, and the tree's validity is verified using its **root hash**, which is stored in a single account.
+
+Modifications to a compressed NFT require **proof** to ensure that the NFT cannot be maliciously modified. The data returned by an indexer can also be verified by comparing the root hash with what is stored in the root account. For more details, see the Solana documentation and our [blog explainer](https://www.helius.dev/blog/solana-nft-compression).
+
+Helius simplifies NFT development by tracking compressed NFT states, providing faster look-ups, and returning data with cryptographic proof to ensure integrity.
+
+## How are compressed NFTs different?
+
+* Compressed NFTs are not native Solana tokens. They do not have a token account, mint account, or metadata.
+* One account exists per Merkle tree; each tree can hold millions of NFTs.
+* One collection can use multiple Merkle trees (recommended for larger collections).
+* A Merkle tree account can also hold multiple collections (not recommended).
+* A [DAS API](../digital-asset-standard-das-api/) call is required to read any information about a compressed NFT (e.g., attributes, collection information, etc.). This would affect Solana dApps loading your assets, etc.&#x20;
+* A compressed NFT can be converted to a regular NFT but not vice versa.
+
+<Note>
+It is recommended to keep the tree size to 1 million or less for practical reasons. This is because the proof path will begin to exceed the Solana transaction account limit.
+</Note>
+
+<Note>
+All cNFT modifications must occur through the [Bubblegum program](https://github.com/metaplex-foundation/mpl-bubblegum/tree/main/programs/bubblegum). You can refer to the methods [here](https://developers.metaplex.com/bubblegum).&#x20;
+</Note>
+
+## How does the indexer work?
+
+Compressed NFT information is not stored in a traditional Solana account. Instead, all metadata is stored on a ledger, which requires indexing services to efficiently fetch the needed metadata. While it's possible to derive the current state by replaying relevant transactions, we handle this process for convenience.
+
+The indexer monitors all Bubblegum transactions, parses them, and updates its internal state. For example, when a compressed NFT is minted, the indexer parses the transaction to extract key details such as the NFT's name, collection, and owner. If the indexer encounters a previously unseen tree or detects a missing update, it fetches the tree's transaction history and reconstructs the complete state. The indexer code can be found [here](https://github.com/metaplex-foundation/digital-asset-rpc-infrastructure).
+
+## Examples
+
+You can get started with the following examples:
+
+* [Helius Compression Examples](https://github.com/helius-labs/compression-examples)
+* [Metaplex Compression Examples](https://github.com/metaplex-foundation/compression-read-api-js-examples)
+
+## Further Reading
+
+* [What is Compression, a Twitter Thread](https://twitter.com/heliuslabs/status/1686796581193023489)
+* [Metaplex Compression Overview](https://metaplex.notion.site/Compression-for-NFTs-Public-94f9faa25f034110b513414a11a85bbe)
+* [Metaplex Compression Documentation Hub](https://docs.metaplex.com/programs/compression/)
+* [Solana Account Compression Repo](https://github.com/solana-labs/solana-program-library/tree/master/account-compression)
+* [Exploring Compression on Solana](https://www.helius.dev/blog/solana-nft-compression)
+
+If you're more of a visual learner, here's a crash course on it:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vKIE7tHad8w?si=rkFCHdhMGQYrEH1O" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+
+
