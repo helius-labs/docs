@@ -1,0 +1,90 @@
+---
+title: 'Event Listening Quickstart'
+sidebarTitle: Quickstart
+description: 'Get started with Helius event listening in minutes'
+---
+
+This guide will walk you through setting up your first event listener with Helius.
+
+## Prerequisites
+
+- A Helius API key (Get one from the [Helius Dashboard](https://dashboard.helius.dev))
+- A webhook endpoint that can receive POST requests (for webhook listeners)
+
+## Setup Options
+
+Helius offers two primary methods for event listening:
+
+1. **Webhooks** - Receive notifications when specific blockchain events occur
+2. **WebSockets** - Real-time event streaming for responsive applications
+
+## Quick Setup: Webhooks
+
+<Steps>
+  <Step title="Create a Webhook">
+    ```bash
+    curl -X POST 'https://api.helius.xyz/v0/webhooks' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
+        "transactionTypes": ["ANY"],
+        "webhookURL": "YOUR_WEBHOOK_URL",
+        "authHeader": {"key": "value"}, // optional
+        "webhookType": "enhanced"
+      }' \
+      -H 'Authorization: Bearer YOUR_API_KEY'
+    ```
+  </Step>
+  <Step title="Verify Receipt">
+    Events matching your criteria will be sent to your webhook URL as POST requests. The payload will include:
+
+    ```json
+    {
+      "accountData": [],
+      "description": "",
+      "events": {},
+      "fee": 5000,
+      "feePayer": "YOUR_ACCOUNT_ADDRESS",
+      "signature": "TRANSACTION_SIGNATURE",
+      "slot": 1234567,
+      "timestamp": 1234567890000,
+      "type": "TRANSACTION_TYPE"
+    }
+    ```
+  </Step>
+</Steps>
+
+## Quick Setup: WebSockets
+
+<Steps>
+  <Step title="Connect to WebSocket Endpoint">
+    ```javascript
+    const WebSocket = require('ws');
+
+    // Connect to Helius WebSocket endpoint
+    const ws = new WebSocket('wss://api.helius.xyz/v0/webhook-events?api-key=YOUR_API_KEY');
+    ```
+  </Step>
+  <Step title="Set Up Event Handlers">
+    ```javascript
+    // Handle connection open
+    ws.on('open', () => {
+      console.log('Connected to Helius WebSocket');
+    });
+
+    // Handle incoming messages
+    ws.on('message', (data) => {
+      const event = JSON.parse(data);
+      console.log('Received event:', event);
+    });
+    ```
+  </Step>
+</Steps>
+
+## Next Steps
+
+- [Learn more about Webhooks](/event-listening/webhooks)
+- Explore advanced event filtering options
+- Set up notifications for specific transaction types
+
+For additional help, join our [Discord](https://discord.com/invite/6GXdee3gBj) or [Telegram](https://t.me/helius_help) communities. 

@@ -1,0 +1,63 @@
+---
+title: 'Event Listening'
+sidebarTitle: Overview
+description: 'Event listening allows you to monitor and respond to blockchain events in real-time without constant polling. Helius provides robust event listening capabilities through webhooks and websockets that notify your application when specific blockchain events occur.'
+---
+
+## Why Use Event Listening?
+
+- **Real-time Updates**: Receive instant notifications when blockchain events occur
+- **Reduced Infrastructure Costs**: Eliminate the need for constant polling
+- **Scalable Architecture**: Handle high volumes of events efficiently
+- **Flexible Event Filtering**: Configure exactly which events you want to monitor
+
+## Available Event Listening Options
+
+### Webhooks
+
+[Webhooks](/webhooks) are HTTP callbacks that deliver data to your application when events occur on the Solana blockchain. They're ideal for:
+
+- Tracking token transfers
+- Monitoring NFT activities
+- Detecting program interactions
+- Receiving notifications about account changes
+
+Helius webhooks deliver comprehensive event data with detailed transaction information, making it easy to build reactive applications that respond to on-chain activity.
+
+### Websockets
+
+[Websockets](/websockets) provide a persistent connection between your application and the Solana blockchain, allowing for real-time bidirectional communication. They're particularly useful for:
+
+- Applications requiring immediate updates
+- User interfaces that need to reflect blockchain state in real-time
+- Cases where lower latency is critical
+- Scenarios requiring continuous data streaming
+
+Unlike webhooks, websockets maintain an open connection, eliminating HTTP overhead for each event delivery and providing faster notifications.
+
+## Choosing Between Webhooks and Websockets
+
+- **Use Webhooks when**: You need reliable delivery with retry mechanisms, prefer a stateless approach, or want to process events asynchronously.
+
+- **Use Websockets when**: You need lowest possible latency, require bidirectional communication, or are building highly interactive applications.
+
+## Getting Started
+
+To begin using event listening capabilities:
+
+1. For webhooks: [Create a webhook](/webhooks/create-webhook) configured for your specific use case
+2. For websockets: [Connect to our websocket endpoint](/websockets/getting-started)
+3. Set up your application to process the incoming events
+4. Implement appropriate business logic based on the events received
+
+For common questions about implementation, check our [Webhooks FAQ](/webhooks/faqs) or [Websockets FAQ](/websockets/faqs).
+
+## Use Cases
+
+- **NFT Marketplaces**: Track listing, sales, and transfers in real-time
+- **Wallets**: Notify users of incoming transactions
+- **DeFi Applications**: Monitor trades, liquidity changes, and protocol events
+- **Gaming**: Capture in-game actions stored on-chain
+- **Analytics Platforms**: Aggregate transaction data as it happens
+
+Ready to implement event listening in your application? Explore our detailed documentation on [Webhooks](/webhooks) or [Websockets](/websockets) to get started. 
