@@ -1,0 +1,494 @@
+---
+title: LaserStream Enhanced Websocket
+sidebarTitle: Enhanced Websocket
+description: Highly configurable real-time data streams.
+---
+
+# Enhanced Websocket
+
+<Warning>
+**Important:**\
+**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
+</Warning>
+
+### Overview
+
+Laserstream offers **Enhanced WebSockets** (distinct from standard Solana WebSockets), delivering **faster response times** and **additional filters**. Current methods:
+
+* `transactionSubscribe`
+* `accountSubscribe`
+
+<Tip>
+WebSockets have a 10-minute inactivity timer. Use health checks or send pings every minute to keep the connection alive.
+</Tip>
+
+<Note>
+**Looking for Atlas WebSockets?**\
+If you need information on Atlas Enhanced WebSockets, please see our [Disclaimer](enhanced-websocket.md#disclaimer-transition-from-atlas-enhanced-websockets).
+</Note>
+
+***
+
+### Quickstart
+
+#### 1. Create a Basic WebSocket Client
+
+```bash
+mkdir laserstream-enhanced-ws-demo
+cd laserstream-enhanced-ws-demo
+npm init -y
+npm install ws
+```
+
+_(You only need the `ws` library for a Node.js WebSocket client. No additional libraries are strictly required.)_
+
+#### 2. Obtain Your API Key
+
+Generate a key from the [Helius Dashboard](https://dashboard.helius.dev/).
+
+#### 3. Minimal Code Example
+
+Create an **`index.js`** file:
+
+```js
+// index.js
+
+const WebSocket = require('ws');
+
+// 1. Use the Laserstream Enhanced WebSockets endpoint (Mainnet example):
+const WS_URL = `laserstream-ws-url`;
+
+const ws = new WebSocket(WS_URL);
+
+// 2. Define a transactionSubscribe request for real-time token transactions
+// Replace "accountInclude" with any accounts you want to track
+function buildSubscriptionRequest() {
+  return {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "transactionSubscribe",
+    params: [
+      {
+        vote: false,
+        failed: false,
+        accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        accountExclude: [],
+        accountRequired: []
+        // You can add "signature" or "fromSlot" if needed
+      },
+      {
+        commitment: "confirmed",
+        encoding: "jsonParsed",
+        transactionDetails: "full",
+        showRewards: false,
+        maxSupportedTransactionVersion: 0
+        // fromSlot: 224339000 // Uncomment for replay from a specific slot
+      }
+    ]
+  };
+}
+
+// 3. Optional: Keep the connection alive (ping every 30s)
+function startPing(ws) {
+  setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.ping();
+      console.log("Ping sent");
+    }
+  }, 30000);
+}
+
+// 4. Set up WebSocket event handlers
+ws.on('open', () => {
+  console.log("Enhanced WebSocket is open");
+  // Send the subscription request
+  const request = buildSubscriptionRequest();
+  ws.send(JSON.stringify(request));
+  startPing(ws);
+});
+
+ws.on('message', (data) => {
+  try {
+    const msg = JSON.parse(data);
+    console.log("Received:", msg);
+  } catch (e) {
+    console.error("Failed to parse JSON:", e);
+  }
+});
+
+ws.on('error', (err) => {
+  console.error("WebSocket error:", err);
+});
+
+ws.on('close', () => {
+  console.log("WebSocket is closed");
+});
+```
+
+#### **4. Replace Your Endpoint and API Key**
+
+Replace the placeholder **`laserstream-ws-url`** with your actual WebSocket URL, and include your `api-key` as follows:
+
+```js
+const WS_URL = `wss://<YOUR_ENDPOINT>/?api-key=<YOUR_API_KEY>`;
+```
+
+Make sure to use the key you obtained from the [Helius Dashboard](https://dashboard.helius.dev).
+
+#### 5. Run and View Results
+
+```bash
+node index.js
+```
+
+You'll start receiving transaction events whenever **confirmed** token transactions involve `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`. Expect JSON objects showing transaction details and slots.
+
+***
+
+### Transaction Subscribe
+
+The transactionSubscribe websocket method enables real-time transaction events. To use it, provide a `TransactionSubscribeFilter` and optionally include `TransactionSubscribeOptions` for further customization.
+
+#### **TransactionSubscribeFilter**
+
+`vote`: A boolean flag to include/exclude vote-related transactions.
+
+`failed`: A boolean flag to include/exclude transactions that failed.
+
+`signature`: Filters updates to a specific transaction based on its signature.
+
+`accountInclude`: A list of accounts for which you want to receive transaction updates. This means that only one of the accounts must be included in the transaction updates (e.g., Account 1 OR Account 2).
+
+`accountExclude`: A list of accounts you want to exclude from transaction updates.
+
+`accountRequired`: Transactions must involve these specified accounts to be included in updates. This means that all of the accounts must be included in the transaction updates (e.g., Account 1 AND Account 2).
+
+<Tip>
+You can include up to 50,000 addresses in the accountsInclude, accountExclude and accountRequired arrays.&#x20;
+</Tip>
+
+#### &#x20;**TransactionSubscribeOptions (Optional)**
+
+`commitment`: Specifies the commitment level for fetching data, dictating at what stage of the transaction lifecycle updates are sent. The possible values are **processed**, **confirmed** and **finalized**
+
+`encoding`: Sets the encoding format of the returned transaction data. The possible values are **base58**, **base64** and **jsonParsed**
+
+`transactionDetails` : Determines the level of detail for the returned transaction data. The possible values are **full, signatures, accounts** and **none**
+
+`showRewards`: A boolean flag indicating if reward data should be included in the transaction updates.
+
+`maxSupportedTransactionVersion`: Specifies the highest version of transactions you want to receive updates. To get Versioned Transactions, set the value to 1.
+
+`fromSlot`: Begin the subscription from a specific Solana slot, replaying any relevant transactions from that slot forward until you catch up to real-time data.
+
+<Note>
+`maxSupportedTransactionVersion` is required to return the accounts and full-level details of a given transaction (i.e., `transactionDetails: "accounts" | "full"`).
+</Note>
+
+#### Transaction Subscribe Example
+
+<details>
+
+<summary>Example Payload</summary>
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 420,
+  "method": "transactionSubscribe",
+  "params": [
+      {
+        "vote": false,
+        "failed": false,
+        "signature": "2dd5zTLrSs2udfNsegFRCnzSyQcPrM9svX6m1UbEM5bSdXXFj3XpqaodtKarLYFP2mTVUsV27sRDdZCgcKhjeD9S",
+        "accountInclude": ["pqx3fvvh6b2eZBfLhTtQ5KxzU3CginmgGTmDCjk8TPP"],
+        "accountExclude": ["FbfwE8ZmVdwUbbEXdq4ofhuUEiAxeSk5kaoYrJJekpnZ"],
+        "accountRequired": ["As1XYY9RdGkjs62isDhLKG3yxMCMatnbanXrqU85XvXW"]
+      },
+      {
+	"commitment": "processed",
+    	"encoding": "base64",
+    	"transactionDetails": "full",
+    	"showRewards": true,
+    	"maxSupportedTransactionVersion": 0
+      }
+  ]
+}
+```
+
+</details>
+
+<details>
+
+<summary>Example Notifications</summary>
+
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "transactionNotification",
+    "params": {
+        "subscription": 4743323479349712,
+        "result": {
+            "transaction": {
+                "transaction": [
+                    "Ae6zfSExLsJ/E1+q0jI+3ueAtSoW+6HnuDohmuFwagUo2BU4OpkSdUKYNI1dJfMOonWvjaumf4Vv1ghn9f3Avg0BAAEDGycH0OcYRpfnPNuu0DBQxTYPWpmwHdXPjb8y2P200JgK3hGiC2JyC9qjTd2lrug7O4cvSRUVWgwohbbefNgKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HcpwKokfYDDAJTaF/TWRFWm0Gz5/me17PRnnywHurMBAgIAAQwCAAAAoIYBAAAAAAA=",
+                    "base64"
+                ],
+                "meta": {
+                    "err": null,
+                    "status": {
+                        "Ok": null
+                    },
+                    "fee": 5000,
+                    "preBalances": [
+                        28279852264,
+                        158122684,
+                        1
+                    ],
+                    "postBalances": [
+                        28279747264,
+                        158222684,
+                        1
+                    ],
+                    "innerInstructions": [],
+                    "logMessages": [
+                        "Program 11111111111111111111111111111111 invoke [1]",
+                        "Program 11111111111111111111111111111111 success"
+                    ],
+                    "preTokenBalances": [],
+                    "postTokenBalances": [],
+                    "rewards": null,
+                    "loadedAddresses": {
+                        "writable": [],
+                        "readonly": []
+                    },
+                    "computeUnitsConsumed": 0
+                }
+            },
+            "signature": "5moMXe6VW7L7aQZskcAkKGQ1y19qqUT1teQKBNAAmipzdxdqVLAdG47WrsByFYNJSAGa9TByv15oygnqYvP6Hn2p",
+            "slot": 224341380
+        }
+    }
+}
+```
+
+</details>
+
+<details>
+
+<summary>Code Example</summary>
+
+In this example, we are subscribing to transactions that contain the Raydium account                   `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`. Whenever a transaction occurs that contains `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`in the `accountKeys` of the transaction, we will receive a websocket notification.&#x20;
+
+Based on the subscription options, the transaction notification will be sent at the `processed` commitment level,`jsonParsed`encoding, `full` transaction details, and will show rewards.
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('laserstream-ws-url');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "transactionSubscribe",
+        params: [
+            {
+                accountInclude: ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"]
+            },
+            {
+                commitment: "processed",
+                encoding: "jsonParsed",
+                transactionDetails: "full",
+                showRewards: true,
+                maxSupportedTransactionVersion: 0
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</details>
+
+***
+
+### Account Subscribe
+
+Solana's Websockets supports a method that allows you to subscribe to an account and receive notifications via the websocket connection whenever there are changes to the lamports or data associated with a matching account public key. This method aligns directly with the Solana [Websocket API specification](../../rpc/websocket/accountsubscribe.md).
+
+#### **Parameters**
+
+`string`: The account public key, sent in base58 format (required).
+
+`object`: An optional object used to pass additional parameters.
+
+* `encoding`: Specifies the format for data returned in the AccountNotification. Supported values: **base58**, **base64**, **base64+zstd**, **jsonParsed** (default is **base58**).
+* `commitment`: Defines the commitment level for the transaction. Supported values: **finalized**, **confirmed**, **processed** (default is **finalized**).
+* `fromSlot`: Replay from this slot, receiving historical changes for the account up to the current slot.
+
+#### Account Subscribe Example
+
+<details>
+
+<summary>Example Payload</summary>
+
+```bash
+{
+  "jsonrpc": "2.0",
+  "id": 420,
+  "method": "accountSubscribe",
+   "params": [
+    "SysvarC1ock11111111111111111111111111111111",
+    {
+      "encoding": "jsonParsed",
+      "commitment": "finalized"
+    }
+  ]
+}
+```
+
+</details>
+
+<details>
+
+<summary>Example Notification</summary>
+
+```bash
+{
+    'jsonrpc': '2.0', 
+    'method': 'accountNotification', 
+    'params': 
+        {
+          'subscription': 237508762798666, 
+          'result': 
+           {
+            'context': {'slot': 235781083}, 
+            'value': 
+             {
+             'lamports': 1169280, 
+             'data': 'BvEhEb6hixL3QPn41gHcyi2CDGKt381jbNKFFCQr6XDTzCTXCuSUG9D', 
+             'owner': 'Sysvar1111111111111111111111111111111111111', 
+             'executable': False, 
+             'rentEpoch': 361, 
+             'space': 40
+             }
+           }
+        }
+}
+```
+
+</details>
+
+<details>
+
+<summary>Code Example</summary>
+
+In this example, we are subscribing to account changes for the  account `SysvarC1ock11111111111111111111111111111111` . \
+\
+We will see an update whenever a change occurs to the account data or the lamports for this account.\
+This happens at a frequent interval for this specific account as the `slot` and `unixTimestamp` are both a part of the returned account data.
+
+```javascript
+// Create a WebSocket connection
+const ws = new WebSocket('laserstream-ws-url');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "accountSubscribe",
+        params: [
+            "SysvarC1ock11111111111111111111111111111111", // pubkey of account we want to subscribe to
+            {
+                encoding: "jsonParsed", // base58, base64, base65+zstd, jsonParsed
+                commitment: "confirmed", // defaults to finalized if unset
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</details>
+
+***
+
+### Disclaimer: Atlas Enhanced WebSockets
+
+Atlas Enhanced WebSockets will be **powered by Laserstream under the hood**. This means you can continue using the same Atlas endpoints, and you'll still have access to Laserstream's advanced capabilities—such as **`fromSlot`** replay—without needing to migrate. If you're already on Atlas, **no changes** are required; if you prefer the dedicated Laserstream endpoints, you can use those as well.

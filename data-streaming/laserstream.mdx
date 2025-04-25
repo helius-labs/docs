@@ -1,0 +1,61 @@
+---
+title: LaserStream
+sidebarTitle: Overview
+description: Highly configurable real-time data streams.
+---
+
+<Note>
+**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
+</Note>
+
+## Introduction
+
+Laserstream is a multi-protocol streaming service for Solana that delivers real-time data (transactions, slots, blocks, accounts, etc.) without requiring a dedicated node. It's designed to serve as a near drop-in replacement for existing Solana streaming solutions, requiring minimal configuration changes.
+
+### **Key Highlights**
+
+* **Multiple Protocol Support**: gRPC, Enhanced WebSockets, and standard Solana WebSockets.
+* **Historical Replay**: Automatically backfills data if you disconnect, ensuring you never miss critical updates.
+* **Never Lag Behind**: Aggregates data from multiple nodes, so you stay synced with Solana's high throughput.
+* **Easy Setup**: Dedicated client libraries and straightforward configuration.
+* **Extreme Availability**: Each Laserstream worker is backed by multiple RPC nodes, deployed across multiple clusters for failover.
+
+***
+
+## Supported Protocols
+
+You can choose whichever protocol (or combination) best suits your application's needs:
+
+### **gRPC**
+
+High-performance streaming interface (via Helius Laserstream client or the Yellowstone library).
+
+<Card title="gRPC" href="grpc.md">
+High-performance streaming interface
+</Card>
+
+#### **Enhanced WebSocket**
+
+Offering faster response times than standard Solana WebSockets, with specialized subscription methods (`transactionSubscribe`, `accountSubscribe`).
+
+<Card title="Enhanced WebSocket" href="enhanced-websocket.md">
+Faster response times with specialized subscription methods
+</Card>
+
+### **WebSocket**
+
+Standard approach aligned with Solana's stable WebSocket methods, but augmented by Helius's infrastructure.
+
+<Card title="WebSocket" href="websocket.md">
+Standard Solana WebSocket methods with Helius enhancements
+</Card>
+
+<Info>
+We suggest using **gRPC** for backend applications due to its high performance, low latency, and robust streaming capabilities. However, since gRPC is a binary protocol and not readily supported in most browsers, **WebSockets**—either Enhanced or standard—are recommended for frontend use.
+</Info>
+
+***
+
+Laserstream gives you the freedom to choose the **streaming protocol**—gRPC, Enhanced WebSockets, or standard Solana WebSockets—that best fits your application. Combined with our multi-node infrastructure, historical replay, and failover capabilities, you can confidently build real-time Solana applications without worrying about data gaps or lag.
+
+For more details, join the discussion on our [Discord](https://discord.com/invite/6GXdee3gBj) or [Telegram](https://t.me/helius_help).

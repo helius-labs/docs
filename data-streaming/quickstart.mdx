@@ -1,0 +1,188 @@
+---
+title: Quickstart
+description: Get started with Helius data streaming in minutes.
+---
+
+## Overview
+
+This guide will help you get started with Helius data streaming using standard WebSockets. It includes basic examples for the most common use cases.
+
+## Prerequisites
+
+- A Helius API key (sign up on the [Helius dashboard](https://dashboard.helius.dev) if you don't have one)
+- Basic knowledge of JavaScript and WebSockets
+
+## Setting Up a WebSocket Connection
+
+First, let's set up a basic WebSocket connection to Helius:
+
+```javascript
+// Initialize WebSocket connection
+const ws = new WebSocket('wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY');
+
+// Handle connection opened
+ws.onopen = () => {
+  console.log('WebSocket connection established');
+  // You can send subscription requests once the connection is established
+};
+
+// Handle received messages
+ws.onmessage = (event) => {
+  const response = JSON.parse(event.data);
+  console.log('Received data:', response);
+};
+
+// Handle errors
+ws.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
+// Handle connection close
+ws.onclose = () => {
+  console.log('WebSocket connection closed');
+};
+```
+
+Replace `YOUR_API_KEY` with your actual Helius API key.
+
+## Subscribing to Account Updates
+
+To receive updates whenever an account changes:
+
+```javascript
+// Subscribe to account updates
+const subscribeToAccount = (accountPublicKey) => {
+  const subscriptionRequest = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'accountSubscribe',
+    params: [
+      accountPublicKey,
+      {
+        encoding: 'jsonParsed',
+        commitment: 'confirmed'
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(subscriptionRequest));
+};
+
+// Example: Subscribe to a token account
+subscribeToAccount('9PejEmViKHgUkVFWN57cNEZnFS4Qo6SzsLj5UPAXfDTF');
+```
+
+## Subscribing to Program Updates
+
+To receive notifications when any account owned by a program changes:
+
+```javascript
+// Subscribe to program updates
+const subscribeToProgram = (programId) => {
+  const subscriptionRequest = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'programSubscribe',
+    params: [
+      programId,
+      {
+        encoding: 'jsonParsed',
+        commitment: 'confirmed'
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(subscriptionRequest));
+};
+
+// Example: Subscribe to the Token Program
+subscribeToProgram('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+```
+
+## Subscribing to Transaction Signatures
+
+To track the status of a specific transaction:
+
+```javascript
+// Subscribe to signature updates
+const subscribeToSignature = (signature) => {
+  const subscriptionRequest = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'signatureSubscribe',
+    params: [
+      signature,
+      {
+        commitment: 'confirmed'
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(subscriptionRequest));
+};
+
+// Example: Subscribe to a transaction signature
+subscribeToSignature('5UfDuA1mQcZeb7BZyWU5T6CvZsYqsRwBUHFyMeTzwcnn8S6W9vzVDjp3NgjV7qHJQvw5qQbbGvGxoULZKHGUdSmo');
+```
+
+## Subscribing to Log Messages
+
+To receive log messages that match specific filters:
+
+```javascript
+// Subscribe to log messages
+const subscribeToLogs = (filter) => {
+  const subscriptionRequest = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'logsSubscribe',
+    params: [
+      filter,
+      {
+        commitment: 'confirmed'
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(subscriptionRequest));
+};
+
+// Example 1: Subscribe to all logs
+subscribeToLogs('all');
+
+// Example 2: Subscribe to logs from a specific program
+subscribeToLogs({
+  mentions: ['11111111111111111111111111111111']  // System Program
+});
+```
+
+## Unsubscribing
+
+To stop receiving updates for a subscription:
+
+```javascript
+// Unsubscribe from a subscription
+const unsubscribe = (subscriptionId) => {
+  const unsubscribeRequest = {
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'unsubscribe',
+    params: [subscriptionId]
+  };
+  
+  ws.send(JSON.stringify(unsubscribeRequest));
+};
+
+// Example: Unsubscribe using the ID returned from a subscription response
+unsubscribe(12345);  // Replace with your actual subscription ID
+```
+
+## Next Steps
+
+This quickstart covers the basics of using Helius data streaming with standard WebSockets. For more advanced streaming capabilities, consider:
+
+- [LaserStream](/data-streaming/laserstream) - Our premium streaming solution with historical replay and multiple protocol options
+- [Enhanced WebSockets](/data-streaming/laserstream-enhanced-websockets) - Faster WebSockets with additional subscription methods
+- [gRPC Streaming](/data-streaming/laserstream-grpc) - High-performance binary protocol for backend applications
+
+For a complete reference of all WebSocket methods, see the [WebSocket documentation](/data-streaming/websocket). 

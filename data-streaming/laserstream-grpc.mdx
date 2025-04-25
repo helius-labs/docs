@@ -1,0 +1,533 @@
+---
+title: LaserStream gRPC
+sidebarTitle: gRPC
+description: Highly configurable real-time data streams.
+---
+
+<Note type="warning">
+**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
+</Note>
+
+## Overview
+
+Laserstream's gRPC offering builds on a Yellowstone-based interface and enhances it with features like historical replay, multi-node failover, and a fully managed environment. You can connect either directly with `@yellowstone-grpc` or use the higher-level **Helius Laserstream client** for added benefits (auto-reconnect, subscription management, error handling, etc.).
+
+<Divider />
+
+## Quickstart
+
+<Steps>
+  <Step title="Create a New Project">
+    ```bash
+    mkdir laserstream-grpc-demo
+    cd laserstream-grpc-demo
+    npm init -y
+    ```
+  </Step>
+
+  <Step title="Install Dependencies">
+    ```bash
+    npm install helius-laserstream
+    npm install --save-dev typescript ts-node
+    npx tsc --init
+    ```
+  </Step>
+
+  <Step title="Obtain Your API Key">
+    Generate a key from the [Helius Dashboard](https://dashboard.helius.dev/).
+  </Step>
+
+  <Step title="Create a Subscription Script">
+    Create **`index.ts`** with the following:
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+      const subscriptionRequest: SubscribeRequest = {
+        transactions: {
+          client: {
+            accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+            accountExclude: [],
+            accountRequired: [],
+            vote: false,
+            failed: false
+          }
+        },
+        commitment: CommitmentLevel.CONFIRMED,
+        accounts: {},
+        slots: {},
+        transactionsStatus: {},
+        blocks: {},
+        blocksMeta: {},
+        entry: {},
+        accountsDataSlice: [],
+        // Optionally, you can replay missed data by specifying a fromSlot:
+        // fromSlot: '224339000'
+        // Note: Currently, you can only go back up to 3000 slots.
+      };
+
+    // TODO: Replace the values below with your actual Laserstream API key and endpoint
+    const config: LaserstreamConfig = {
+      apiKey: 'your-api-key',
+      endpoint: 'your-endpoint',
+    }
+
+      await subscribe(config, subscriptionRequest, async (data) => {
+        
+        console.log(data);
+
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+
+    main().catch(console.error);
+    ```
+  </Step>
+
+  <Step title="Replace Your Endpoint and API Key">
+    In `index.ts`, update the `config` object with the actual `apiKey` and `endpoint` from your Helius Dashboard:
+
+    ```typescript
+    const config: LaserstreamConfig = {
+      apiKey: 'YOUR_ACTUAL_API_KEY',
+      endpoint: 'YOUR_ACTUAL_ENDPOINT',
+    }
+    ```
+  </Step>
+
+  <Step title="Run and View Results">
+    ```bash
+    npx ts-node index.ts
+    ```
+    Whenever a `confirmed` token transaction involves `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`, you'll see the data in your console.
+  </Step>
+</Steps>
+
+<Divider />
+
+## Subscribe Request
+
+In the subscribe request, you need to include the following:
+
+<ParamField name="commitment" type="enum">
+  Specifies the commitment level, which can be **processed**, **confirmed**, or **finalized**.
+</ParamField>
+
+<ParamField name="accountsDataSlice" type="array">
+  An array of objects `{ offset: uint64, length: uint64 }` that allows you to receive only the required data slices from accounts.
+</ParamField>
+
+<ParamField name="ping" type="boolean" optional>
+  Some cloud providers (e.g., Cloudflare) close idle streams. To keep the connection alive, set this to **true**. The server will respond with a Pong message every 15 seconds, avoiding the need to resend filters.
+</ParamField>
+
+```typescript
+const subscriptionRequest: SubscribeRequest = {
+  commitment: CommitmentLevel.CONFIRMED,
+  accountsDataSlice: [],
+  transactions: {},
+  accounts: {},
+  slots: {},
+  blocks: {},
+  blocksMeta: {},
+  entry: {},
+}
+```
+
+Next, you'll need to specify the filters for the data you want to subscribe to, such as accounts, blocks, slots, or transactions.
+
+<Accordion title="Slots">
+  <ParamField name="filterByCommitment" type="boolean">
+    By default, slots are sent for all commitment levels. With this filter, you can choose to receive only the selected commitment level.
+  </ParamField>
+
+  <ParamField name="interslotUpdates" type="boolean">
+    Enables the subscription to receive updates for changes within a slot, not just at the beginning of new slots. This is useful for more granular, real-time slot data.
+  </ParamField>
+
+```typescript
+slots: {
+  // mySlotLabel is a user-defined name for slot updates
+  mySlotLabel: {
+    // filterByCommitment: true => Only broadcast slot updates at the specified subscribeRequest commitment
+    filterByCommitment: true
+    // interslotUpdates: true allows receiving updates for changes occurring within a slot, not just new slots.
+    interslotUpdates: true
+  }
+},
+```
+</Accordion>
+
+<Accordion title="Accounts">
+  <ParamField name="account" type="array">
+    Matches any public key from the provided array.
+  </ParamField>
+
+  <ParamField name="owner" type="array">
+    The account owner's public key. Matches any public key from the provided array.
+  </ParamField>
+
+  <ParamField name="filters" type="array">
+    Similar to the filters in [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts). This is an array of `dataSize` and/or `memcmp` filters. Supported encoding includes `bytes`, `base58`, and `base64`.
+  </ParamField>
+
+  If all fields are empty, all accounts are broadcasted. Otherwise:
+
+  * Fields operate as a logical **AND**.
+  * Values within arrays act as a logical **OR** (except within filters, which operate as a logical **AND**)
+
+```typescript
+accounts: {
+  // tokenAccounts is a user-defined label for the "accounts" subscription
+  tokenAccounts: {
+    // Matches any of these public keys (logical OR)
+    account: ["9SHQTA66Ekh7ZgMnKWsjxXk6DwXku8przs45E8bcEe38"],
+    // Matches owners that are any of these public keys
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    // Filters - all must match (AND logic)
+    filters: [
+      { dataSize: 165 },
+      {
+        memcmp: {
+          offset: 0,
+          data: { base58: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" }
+        }
+      }
+    ]
+  }
+},
+```
+</Accordion>
+
+<Accordion title="Transaction">
+  <ParamField name="vote" type="boolean">
+    Enable or disable the broadcast of vote transactions.
+  </ParamField>
+
+  <ParamField name="failed" type="boolean">
+    Enable or disable the broadcast of failed transactions.
+  </ParamField>
+
+  <ParamField name="signature" type="string">
+    Broadcast only transactions matching the specified signature.
+  </ParamField>
+
+  <ParamField name="accountInclude" type="array">
+    Filter transactions that involve any account from the provided list.
+  </ParamField>
+
+  <ParamField name="accountExclude" type="array">
+    Exclude transactions that involve any account from the provided list (opposite of `accountInclude`).
+  </ParamField>
+
+  <ParamField name="accountRequired" type="array">
+    Filter transactions that involve all accounts from the provided list (all accounts must be used).
+  </ParamField>
+
+  If all fields are left empty, all transactions are broadcasted. Otherwise:
+
+  * Fields operate as a logical **AND**.
+  * Values within arrays are treated as a logical **OR**.
+
+```typescript
+transactions: {
+  // myTxSubscription is a user-defined label for transaction filters
+  myTxSubscription: {
+    vote: false,
+    failed: false,
+    signature: "",
+    // Transaction must include at least one of these public keys (OR)
+    accountInclude: ["86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"],
+    // Exclude if it matches any of these
+    accountExclude: [],
+    // Require all accounts in this array (AND)
+    accountRequired: []
+  }
+},
+```
+</Accordion>
+
+<Accordion title="Block">
+  <ParamField name="accountInclude" type="array">
+    Filters transactions and accounts that involve any account from the provided list.
+  </ParamField>
+
+  <ParamField name="includeTransactions" type="boolean">
+    Includes all transactions in the broadcast.
+  </ParamField>
+
+  <ParamField name="includeAccounts" type="boolean">
+    Includes all account updates in the broadcast.
+  </ParamField>
+
+  <ParamField name="includeEntries" type="boolean">
+    Includes all entries in the broadcast.
+  </ParamField>
+
+```typescript
+blocks: {
+  // myBlockLabel is a user-defined label for block subscription
+  myBlockLabel: {
+    // Only broadcast blocks referencing these accounts
+    accountInclude: ["86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"],
+    includeTransactions: true,
+    includeAccounts: false,
+    includeEntries: false
+  }
+},
+```
+</Accordion>
+
+<Accordion title="Blocks Meta">
+  This functions similarly to Blocks but excludes transactions, accounts, and entries. Currently, no filters are available for block metadata—all messages are broadcasted by default.
+
+```typescript
+blocksMeta: {
+  blockmetadata: {}
+},
+```
+</Accordion>
+
+<Accordion title="Entries">
+  Currently, there are no filters available for entries; all entries are broadcasted.
+
+```typescript
+entry: {
+  entrySubscribe: {}
+},
+```
+</Accordion>
+
+<Divider />
+
+## Code Examples
+
+<Tabs>
+  <Tab title="Slot Updates">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+      const subscriptionRequest: SubscribeRequest = {
+        transactions: {},
+        commitment: CommitmentLevel.CONFIRMED,
+        accounts: {},
+        slots: {
+          slot: { filterByCommitment: true },
+        },
+        transactionsStatus: {},
+        blocks: {},
+        blocksMeta: {},
+        entry: {},
+        accountsDataSlice: [],
+      }
+
+
+     const config: LaserstreamConfig = {
+        apiKey: 'your-api-key',
+        endpoint: 'your-endpoint',
+      }
+
+      await subscribe(config, subscriptionRequest, async (data) => {
+        console.log(data);
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  
+  <Tab title="Account Updates">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+        const subscribeRequest: SubscribeRequest = {
+            accounts: {
+                accountSubscribe: {
+                    account: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint account
+                    owner: [],
+                    filters: []
+                }
+            },
+            accountsDataSlice: [],
+            commitment: CommitmentLevel.CONFIRMED,
+            slots: {},
+            transactions: {},
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {}
+        };
+
+
+     const config: LaserstreamConfig = {
+        apiKey: 'your-api-key',
+        endpoint: 'your-endpoint',
+      }
+
+      await subscribe(config, subscribeRequest, async (data) => {
+        console.log(data);
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  
+  <Tab title="Transaction Updates">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+      const subscriptionRequest: SubscribeRequest = {
+        transactions: {
+          client: {
+            accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+            accountExclude: [],
+            accountRequired: [],
+            vote: false,
+            failed: false
+          }
+        },
+        commitment: CommitmentLevel.CONFIRMED,
+        accounts: {},
+        slots: {},
+        transactionsStatus: {},
+        blocks: {},
+        blocksMeta: {},
+        entry: {},
+        accountsDataSlice: [],
+      };
+
+     const config: LaserstreamConfig = {
+        apiKey: 'your-api-key',
+        endpoint: 'your-endpoint',
+      }
+
+      await subscribe(config, subscriptionRequest, async (data) => {
+        console.log(data);
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  
+  <Tab title="Blocks">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {},
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {
+                blocks: {
+                    accountInclude: []
+                }
+            },
+            blocksMeta: {},
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+
+     const config: LaserstreamConfig = {
+        apiKey: 'your-api-key',
+        endpoint: 'your-endpoint',
+      }
+
+      await subscribe(config, subscriptionRequest, async (data) => {
+        console.log(data);
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  
+  <Tab title="Block Metadata">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {},
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {},
+            blocksMeta: {
+                blockmetadata: {}
+            },
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+
+
+        const config: LaserstreamConfig = {
+            apiKey: 'your-api-key',
+            endpoint: 'your-endpoint',
+        }
+
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  
+  <Tab title="Entries">
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {
+                entrySubscribe: {}  // Subscribe to all entries
+            },
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {},
+            blocksMeta: {},
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+
+
+        const config: LaserstreamConfig = {
+            apiKey: 'your-api-key',
+            endpoint: 'your-endpoint',
+        }
+
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+</Tabs>

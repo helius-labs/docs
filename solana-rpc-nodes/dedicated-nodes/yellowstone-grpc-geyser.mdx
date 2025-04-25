@@ -1,0 +1,456 @@
+---
+title: Yellowstone gRPC
+sidebarTitle: Overview
+description: Highly configurable real-time data streams.
+---
+
+## What are gRPC streams?
+
+Geyser or gRPC streams provide the fastest and most efficient way to stream Solana data directly to your backend. With gRPC, you can subscribe to blocks, slots, transactions, and account updates. It is highly configurable. You can filter or limit each subscription. It allows the client-server to create new subscriptions or cancel existing ones immediately.&#x20;
+
+To learn more, please read the examples provided in the [source repo](https://github.com/rpcpool/yellowstone-grpc).
+
+<Note>
+gRPC is only available for dedicated nodes. You can provision a dedicated node directly from the [Dashboard](https://dashboard.helius.dev/dedicated-nodes). To learn more, please visit [dedicated-nodes](../../solana-rpc-nodes/dedicated-nodes/ "mention").&#x20;
+</Note>
+
+## Subscribe Request
+
+In the subscribe request, you need to include the following:
+
+`commitment`: Specifies the commitment level, which can be **processed**, **confirmed**, or **finalized**.
+
+`accounts_data_slice`: An array of objects `{ offset: uint64, length: uint64 }` that allows you to receive only the required data slices from accounts.
+
+`ping`: An optional boolean. Some cloud providers (e.g., Cloudflare) close idle streams. To keep the connection alive, set this to **true**. The server will respond with a Pong message every 15 seconds, avoiding the need to resend filters.
+
+Next, you'll need to specify the filters for the data you want to subscribe to, such as accounts, blocks, slots, or transactions.
+
+<details>
+
+<summary>Slots</summary>
+
+`filter_by_commitment` — By default, slots are sent for all commitment levels. With this filter, you can choose to receive only the selected commitment level.
+
+</details>
+
+<details>
+
+<summary>Accounts</summary>
+
+`account` : Matches any public key from the provided array.
+
+`owner` : The account owner's public key. Matches any public key from the provided array.
+
+`filters` : Similar to the filters in [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts). This is an array of `dataSize` and/or `Memcmp` filters. Supported encoding includes `bytes`, `base58`, and `base64`.
+
+If all fields are empty, all accounts are broadcasted. Otherwise:
+
+* Fields operate as a logical **AND**.
+* Values within arrays act as a logical **OR** (except within filters, which operate as a logical **AND**)
+
+</details>
+
+<details>
+
+<summary>Transaction</summary>
+
+`vote`: Enable or disable the broadcast of vote transactions.
+
+`failed` : Enable or disable the broadcast of failed transactions.
+
+`signature`: Broadcast only transactions matching the specified signature.
+
+`account_include`: Filter transactions that involve any account from the provided list.
+
+`account_exclude`: Exclude transactions that involve any account from the provided list (opposite of `account_include`).
+
+`account_required`: Filter transactions that involve all accounts from the provided list (all accounts must be used).
+
+If all fields are left empty, all transactions are broadcasted. Otherwise:
+
+* Fields operate as a logical **AND**.
+* Values within arrays are treated as a logical **OR**.
+
+</details>
+
+<details>
+
+<summary>Block</summary>
+
+`account_include`: Filters transactions and accounts that involve any account from the provided list.
+
+`include_transactions`: Includes all transactions in the broadcast.
+
+`include_accounts`: Includes all account updates in the broadcast.
+
+`include_entries`: Includes all entries in the broadcast.
+
+</details>
+
+<details>
+
+<summary>Blocks Meta</summary>
+
+This functions similarly to Blocks but excludes transactions, accounts, and entries. Currently, no filters are available for block metadata—all messages are broadcasted by default.
+
+</details>
+
+<details>
+
+<summary><strong>Entries</strong></summary>
+
+Currently, there are no filters available for entries; all entries are broadcasted.
+
+</details>
+
+## Examples
+
+<details>
+
+<summary>Typescript Slot Subscription </summary>
+
+The following code examples subscribe to slot updates and include a ping to the gRPC server to keep the connection alive.&#x20;
+
+```javascript
+import Client, {
+  CommitmentLevel,
+  SubscribeRequest,
+  SubscribeRequestFilterAccountsFilter,
+} from "@triton-one/yellowstone-grpc";
+
+const GRPC_URL = "add-geyser-url";
+const X_TOKEN = "add-x-token";
+const PING_INTERVAL_MS = 30_000; // 30s
+
+async function main() {
+  // Open connection.
+  const client = new Client(GRPC_URL, X_TOKEN, {
+    "grpc.max_receive_message_length": 64 * 1024 * 1024, // 64MiB
+  });
+
+  // Subscribe for events
+  const stream = await client.subscribe();
+
+  // Create `error` / `end` handler
+  const streamClosed = new Promise<void>((resolve, reject) => {
+    stream.on("error", (error) => {
+      reject(error);
+      stream.end();
+    });
+    stream.on("end", () => {
+      resolve();
+    });
+    stream.on("close", () => {
+      resolve();
+    });
+  });
+
+  // Handle updates
+  stream.on("data", (data) => {
+    let ts = new Date();
+    if (data.filters[0] == "slot") {
+      console.log(
+        `${ts.toUTCString()}: Received slot update: ${data.slot.slot}`
+      );
+    } else if (data.pong) {
+      console.log(`${ts.toUTCString()}: Processed ping response!`);
+    }
+  });
+
+  // Example subscribe request.
+  // Listen to all slot updates.
+  const slotRequest: SubscribeRequest = {
+    slots: {
+      slot: { filterByCommitment: true },
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+
+    // Required, but unused arguments
+    accounts: {},
+    accountsDataSlice: [],
+    transactions: {},
+    transactionsStatus: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+  };
+
+  // Send subscribe request
+  await new Promise<void>((resolve, reject) => {
+    stream.write(slotRequest, (err) => {
+      if (err === null || err === undefined) {
+        resolve();
+      } else {
+        reject(err);
+      }
+    });
+  }).catch((reason) => {
+    console.error(reason);
+    throw reason;
+  });
+
+  // Send pings every 5s to keep the connection open
+  const pingRequest: SubscribeRequest = {
+    ping: { id: 1 },
+    // Required, but unused arguments
+    accounts: {},
+    accountsDataSlice: [],
+    transactions: {},
+    transactionsStatus: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    slots: {},
+  };
+  setInterval(async () => {
+    await new Promise<void>((resolve, reject) => {
+      stream.write(pingRequest, (err) => {
+        if (err === null || err === undefined) {
+          resolve();
+        } else {
+          reject(err);
+        }
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      throw reason;
+    });
+  }, PING_INTERVAL_MS);
+
+  await streamClosed;
+}
+
+main();
+```
+
+</details>
+
+<details>
+
+<summary>TypeScript Transaction Subscription with Parsed Data</summary>
+
+```typescript
+import Client, {
+  CommitmentLevel,
+  SubscribeRequest,
+  SubscribeRequestFilterAccountsFilter
+} from "@triton-one/yellowstone-grpc";
+import bs58 from 'bs58';
+
+const GRPC_URL = "add-geyser-url";
+const X_TOKEN = "add-x-token";
+const PING_INTERVAL_MS = 30_000; // 30s
+
+// Add this utility function to process the transaction object
+function convertBuffers(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  // Handle Buffer objects
+  if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+    return bs58.encode(new Uint8Array(obj.data));
+  }
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffers(item));
+  }
+
+  // Handle objects
+  if (typeof obj === 'object') {
+    // Handle Uint8Array directly
+    if (obj instanceof Uint8Array) {
+      return bs58.encode(obj);
+    }
+
+    const converted: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip certain keys that shouldn't be converted
+      if (key === 'uiAmount' || key === 'decimals' || key === 'uiAmountString') {
+        converted[key] = value;
+      } else {
+        converted[key] = convertBuffers(value);
+      }
+    }
+    return converted;
+  }
+
+  return obj;
+}
+
+async function main() {
+  // Open connection.
+  const client = new Client(GRPC_URL, X_TOKEN, {
+    "grpc.max_receive_message_length": 1024 * 1024 * 1024, // 64MiB
+  });
+
+  // Subscribe for events
+  const stream = await client.subscribe();
+
+  // Create `error` / `end` handler
+  const streamClosed = new Promise<void>((resolve, reject) => {
+    stream.on("error", (error) => {
+      reject(error);
+      stream.end();
+    });
+    stream.on("end", () => {
+      resolve();
+    });
+    stream.on("close", () => {
+      resolve();
+    });
+  });
+
+  // Handle updates
+  stream.on("data", (data) => {
+    let ts = new Date();
+    if (data) {
+
+      if(data.transaction) {
+        const tx = data.transaction;
+        // Convert the entire transaction object
+        const convertedTx = convertBuffers(tx);
+        // If you want to see the entire converted transaction:
+        console.log(`${ts.toUTCString()}: Received update: ${JSON.stringify(convertedTx)}`);
+      }
+
+      else {
+        console.log(`${ts.toUTCString()}: Received update: ${data}`);
+      }
+      stream.end();
+    } else if (data.pong) {
+      console.log(`${ts.toUTCString()}: Processed ping response!`);
+    }
+  });
+
+  // Example subscribe request.
+const request: SubscribeRequest = {
+  commitment: CommitmentLevel.PROCESSED,
+  accountsDataSlice: [],
+  ping: undefined,
+  transactions: {
+    client: {
+      vote: false,
+      failed: false,
+      accountInclude: [
+        "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
+      ],
+      accountExclude: [],
+      accountRequired: [],
+    },
+  },
+  // unused arguments
+  accounts: {},
+  slots: {},
+  transactionsStatus: {},
+  entry: {},
+  blocks: {},
+  blocksMeta: {},
+};
+
+  // Send subscribe request
+  await new Promise<void>((resolve, reject) => {
+    stream.write(request, (err: any) => {
+      if (err === null || err === undefined) {
+        resolve();
+      } else {
+        reject(err);
+      }
+    });
+  }).catch((reason) => {
+    console.error(reason);
+    throw reason;
+  });
+
+  // Send pings every 5s to keep the connection open
+  const pingRequest: SubscribeRequest = {
+    // Required, but unused arguments
+    accounts: {},
+    accountsDataSlice: [],
+    transactions: {},
+    blocks: {},
+    blocksMeta: {},
+    slots: {},
+    transactionsStatus: {},
+    entry: {},
+  };
+  setInterval(async () => {
+    await new Promise<void>((resolve, reject) => {
+      stream.write(pingRequest, (err: null | undefined) => {
+        if (err === null || err === undefined) {
+          resolve();
+        } else {
+          reject(err);
+        }
+      });
+    }).catch((reason) => {
+      console.error(reason);
+      throw reason;
+    });
+  }, PING_INTERVAL_MS);
+
+  await streamClosed;
+}
+
+main();
+
+```
+
+</details>
+
+<details>
+
+<summary>Subscribe Requests with all filters</summary>
+
+It's possible to add limits for filters in the config. If `filters` field is omitted, then filters don't have any limits.
+
+```typescript
+"grpc": {
+   "filters": {
+      "accounts": {
+         "max": 1,
+         "any": false,
+         "account_max": 10,
+         "account_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+         "owner_max": 10,
+         "owner_reject": ["11111111111111111111111111111111"]
+      },
+      "slots": {
+         "max": 1
+      },
+      "transactions": {
+         "max": 1,
+         "any": false,
+         "account_include_max": 10,
+         "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+         "account_exclude_max": 10,
+         "account_required_max": 10
+      },
+      "blocks": {
+         "max": 1,
+         "account_include_max": 10,
+         "account_include_any": false,
+         "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+         "include_transactions": true,
+         "include_accounts" : false,
+         "include_entries" : false
+      },
+      "blocks_meta": {
+         "max": 1
+      },
+      "entry": {
+         "max": 1
+      }
+   }
+}
+```
+
+</details>
+
+You can also refer to the examples in [Rust](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/rust) and [Go](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/golang).
+
+<Note>
+gRPC is typically accessed behind a load-balancer or proxy, terminating an inactive connection after 10 minutes. The best solution is to ping the gRPC every N seconds or minutes.
+</Note>

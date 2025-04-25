@@ -1,0 +1,275 @@
+---
+title: WebSocket API
+sidebarTitle: WebSocket
+description: Stream real-time Solana data using standard WebSockets.
+---
+
+## Introduction
+
+Helius provides a standard Solana WebSocket interface that allows you to receive real-time updates about accounts, programs, transactions, and blockchain state. Our WebSocket implementation follows the standard Solana WebSocket API, making it compatible with existing Solana clients and libraries, while benefiting from Helius's infrastructure for improved reliability.
+
+## Connection Setup
+
+To connect to the Helius WebSocket endpoint, use the following URL format:
+
+```
+wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY
+```
+
+Replace `YOUR_API_KEY` with your Helius API key. You can also use our other network endpoints:
+
+- Mainnet: `wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY`
+- Devnet: `wss://devnet.helius-rpc.com?api-key=YOUR_API_KEY`
+
+## Subscription Methods
+
+Helius supports all standard Solana WebSocket subscription methods:
+
+### Account Subscriptions
+
+Subscribe to changes for a specific account:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "accountSubscribe",
+  "params": [
+    "9PejEmViKHgUkVFWN57cNEZnFS4Qo6SzsLj5UPAXfDTF",
+    {
+      "encoding": "jsonParsed",
+      "commitment": "confirmed"
+    }
+  ]
+}
+
+// Response
+{
+  "jsonrpc": "2.0",
+  "result": 23784,
+  "id": 1
+}
+
+// Notification
+{
+  "jsonrpc": "2.0",
+  "method": "accountNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 5199307
+      },
+      "value": {
+        "data": ["base64-encoded-data", "base64"],
+        "executable": false,
+        "lamports": 1000000000,
+        "owner": "11111111111111111111111111111111",
+        "rentEpoch": 18
+      }
+    },
+    "subscription": 23784
+  }
+}
+```
+
+[Learn more about accountSubscribe](/rpc/websocket/accountsubscribe)
+
+### Program Subscriptions
+
+Subscribe to changes for all accounts owned by a program:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "programSubscribe",
+  "params": [
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    {
+      "encoding": "jsonParsed",
+      "commitment": "confirmed"
+    }
+  ]
+}
+
+// Response
+{
+  "jsonrpc": "2.0",
+  "result": 24040,
+  "id": 1
+}
+```
+
+[Learn more about programSubscribe](/rpc/websocket/programsubscribe)
+
+### Logs Subscriptions
+
+Subscribe to transaction log messages:
+
+```javascript
+// Request - subscribe to all logs
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "logsSubscribe",
+  "params": [
+    "all",
+    {
+      "commitment": "confirmed"
+    }
+  ]
+}
+
+// Request - subscribe to specific program logs
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "logsSubscribe",
+  "params": [
+    {
+      "mentions": ["11111111111111111111111111111111"]
+    },
+    {
+      "commitment": "confirmed"
+    }
+  ]
+}
+```
+
+[Learn more about logsSubscribe](/rpc/websocket/logssubscribe)
+
+### Signature Subscriptions
+
+Subscribe to transaction status updates:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "signatureSubscribe",
+  "params": [
+    "5UfDuA1mQcZeb7BZyWU5T6CvZsYqsRwBUHFyMeTzwcnn8S6W9vzVDjp3NgjV7qHJQvw5qQbbGvGxoULZKHGUdSmo",
+    {
+      "commitment": "confirmed"
+    }
+  ]
+}
+```
+
+[Learn more about signatureSubscribe](/rpc/websocket/signaturesubscribe)
+
+### Slot Subscriptions
+
+Subscribe to new slots:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "slotSubscribe"
+}
+```
+
+[Learn more about slotSubscribe](/rpc/websocket/slotsubscribe)
+
+### Slot Updates Subscriptions
+
+Subscribe to detailed information about slots:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "slotsUpdatesSubscribe"
+}
+```
+
+[Learn more about slotsUpdatesSubscribe](/rpc/websocket/slotsupdatessubscribe)
+
+### Root Subscriptions
+
+Subscribe to new roots (finalized blocks):
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "rootSubscribe"
+}
+```
+
+[Learn more about rootSubscribe](/rpc/websocket/rootsubscribe)
+
+### Vote Subscriptions
+
+Subscribe to vote activity:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "voteSubscribe"
+}
+```
+
+[Learn more about voteSubscribe](/rpc/websocket/votesubscribe)
+
+## Unsubscribing
+
+To stop receiving updates for any subscription:
+
+```javascript
+// Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "unsubscribe",
+  "params": [23784]
+}
+
+// Response
+{
+  "jsonrpc": "2.0",
+  "result": true,
+  "id": 1
+}
+```
+
+Replace the number in the params array with your actual subscription ID.
+
+## Error Handling
+
+WebSocket errors follow the JSON-RPC 2.0 specification:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32602,
+    "message": "Invalid params"
+  },
+  "id": 1
+}
+```
+
+## Rate Limits
+
+Websockets are subject to rate limits based on your Helius plan. If you exceed these limits, connections may be dropped or throttled. For high-volume applications, consider upgrading to a higher tier plan or using [LaserStream](/data-streaming/laserstream) for enhanced capabilities.
+
+## Enhanced Capabilities with LaserStream
+
+For applications requiring more advanced streaming features, Helius offers [LaserStream](/data-streaming/laserstream), which provides:
+
+- Historical replay to catch up on missed data
+- Enhanced stability through multi-node aggregation
+- Multiple protocol options (gRPC, Enhanced WebSockets)
+- Higher throughput and lower latency
+
+Learn more about [LaserStream](/data-streaming/laserstream) for enterprise-grade data streaming capabilities. 
