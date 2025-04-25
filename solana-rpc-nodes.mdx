@@ -6,7 +6,14 @@ description: "Solana's most loved RPC nodes."
 
 ## What is Solana RPC?
 
-To interact with blockchain data, you must use an RPC node. Here is a brief explainer on how RPCs on Solana work:
+RPC (Remote Procedure Call) nodes are the gateway to interacting with the Solana blockchain. They allow applications to:
+
+- Read blockchain data like account balances and transaction history
+- Submit new transactions to the network
+- Subscribe to events and updates
+- Query current network status and performance
+
+Without RPC nodes, applications couldn't communicate with the Solana blockchain. These nodes maintain a full copy of the blockchain and expose standardized APIs that developers can use to build applications.
 
 <Card title="How Solana RPCs Work" icon="newspaper" href="https://www.helius.dev/blog/how-solana-rpcs-work">
   Demystify the inner workings of Solana RPCs, what makes them function, and how they differ from RPCs on Ethereum.
@@ -20,41 +27,36 @@ We take pride in offering the most well-rounded RPC solution in the ecosystem, r
 
 Should you face any challenges, our best-in-class 24/7 support team is always here to help, ensuring you stay unblocked and moving forward.
 
-## How to use Helius RPCs?
+## Types of Helius RPC Nodes
 
-<Steps>
-  <Step title="Generate an API key">
-    Create an API key from the [dashboard](https://dashboard.helius.dev/).
-  </Step>
-  
-  <Step title="Use the appropriate endpoint">
-    To make [standard RPC calls](../rpc/http/) use these endpoints:
-    
-    * **Mainnet** – `https://mainnet.helius-rpc.com?api-key=YOUR_API_KEY`
-    * **Devnet** – `https://devnet.helius-rpc.com?api-key=YOUR_API_KEY`
-    
-    Add your API key to the endpoint URL. The complete endpoints are also available in the [Endpoints](https://dashboard.helius.dev/endpoints) section of your dashboard.
-    
-    ![dashboard.helius.dev/endpoints](/images/dashboard-endpoints.png)
-  </Step>
-  
-  <Step title="Configure access controls (optional)">
-    Our platform offers controls to customize your RPC access patterns—for instance, restricting requests to specific IPs or domains. These configurations can be managed directly in the [dashboard](https://dashboard.helius.dev/endpoints).
-    
-    ![Configure RPC Access Control Rules in the Endpoints section of your dashboard.](/images/dashboard-endpoints-access-control.png)
-  </Step>
-</Steps>
+Helius offers two types of RPC node solutions to meet different needs:
 
-## Shared RPC Node Locations
+### Shared Nodes
 
-Helius provides services through a globally distributed set of nodes strategically positioned in key locations: **Newark, Vancouver, Los Angeles, Salt Lake City, Pittsburgh, Singapore, Tokyo, Frankfurt, Amsterdam, Dublin, and London**. Helius automatically directs user requests to the closest node, guaranteeing the quickest and most efficient routing.
+Shared nodes are our standard offering that provides high-performance, reliable access to the Solana blockchain at an affordable price point.
 
-## Dedicated Nodes
+**Key benefits:**
+- Cost-effective solution for most projects
+- No setup or maintenance required
+- Globally distributed for low-latency access
+- Automatic routing to the nearest node
+- Flexible pay-as-you-go pricing
 
-We offer [dedicated private RPC](helius-rpcs-overview.md#dedicated-nodes) nodes at industry-leading rates. These nodes are ideal for teams seeking an isolated environment with predictable performance and billing.
+<Card title="Learn more about Shared Nodes" icon="arrow-right" href="/solana-rpc-nodes/shared-nodes">
+  Get more details about our Shared Nodes.
+</Card>
 
-Visit the [Helius Dashboard](https://dashboard.helius.dev/dedicated-nodes) to effortlessly set up your dedicated node!
+### Dedicated Nodes
 
-<Note>
-If you need a dedicated fleet of nodes, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). We will take your requirements, provision your nodes, and set up a custom fleet for you team.
-</Note>
+Dedicated nodes provide a private, exclusive RPC environment for your project. These nodes are ideal for high-volume applications, projects requiring consistent performance guarantees, or teams with specific regulatory requirements.
+
+**Key benefits:**
+- Exclusive access with no resource competition
+- Predictable performance under all conditions
+- Enhanced security and isolation
+- Customizable configurations
+- Predictable billing regardless of usage patterns
+
+<Card title="Learn more about Dedicated Nodes" icon="arrow-right" href="/solana-rpc-nodes/dedicated-nodes">
+  Explore the benefits of Dedicated Nodes.
+</Card>
