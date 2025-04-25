@@ -1,0 +1,171 @@
+---
+title: "How to get NFTs"
+sidebarTitle: "NFTs"
+description: "Learn how to retrieve and query NFT data using Helius DAS API"
+---
+
+The Helius Digital Asset Standard (DAS) API provides powerful tools for reading and querying NFT data on Solana.
+
+## Getting a Single NFT
+
+Retrieve comprehensive data for a specific NFT using `getAsset`:
+
+```typescript
+const response = await fetch('', {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAccountInfo",
+    params: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"],
+  }),
+});
+const data = await response.json();
+```
+
+## Querying NFTs by Owner
+
+Find all NFTs owned by a specific wallet:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAssetsByOwner",
+    params: {
+      ownerAddress: WALLET_ADDRESS,
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+const data = await response.json();
+```
+
+## Searching NFTs
+
+Search for NFTs by various attributes:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "searchAssets",
+    params: {
+      ownerAddress: WALLET_ADDRESS,
+      creatorAddress: CREATOR_ADDRESS,
+      grouping: ["collection"],
+      groupValue: COLLECTION_ADDRESS,
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+const data = await response.json();
+```
+
+## Advanced Queries
+
+### By Creator
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAssetsByCreator",
+    params: {
+      creatorAddress: CREATOR_ADDRESS,
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+const data = await response.json();
+```
+
+### By Collection
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAssetsByGroup",
+    params: {
+      groupKey: "collection",
+      groupValue: COLLECTION_ADDRESS,
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+const data = await response.json();
+```
+
+## NFT Transaction History
+
+Track the history of an NFT:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getSignaturesForAsset",
+    params: {
+      id: NFT_MINT_ADDRESS,
+      page: 1,
+      limit: 100,
+    },
+  }),
+});
+const data = await response.json();
+```
+
+## Getting On-Chain Proof
+
+Verify NFT authenticity with Merkle proofs:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAssetProof",
+    params: {
+      id: NFT_MINT_ADDRESS,
+    },
+  }),
+});
+const proof = await response.json();
+```

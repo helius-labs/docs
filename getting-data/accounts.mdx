@@ -1,0 +1,108 @@
+---
+title: 'How to get accounts'
+sidebarTitle: 'Accounts'
+description: 'Learn how to fetch Solana account data using Helius APIs'
+---
+
+Solana accounts store all raw data on the blockchain. This guide demonstrates how to efficiently retrieve account data using Helius APIs.
+
+## Using RPC Methods
+
+The most direct way to read account data is through Solana RPC methods:
+
+<CodeGroup>
+
+```typescript JavaScript
+// Replace YOUR_API_KEY with the API key from your Helius dashboard
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAccountInfo",
+    params: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"],
+  }),
+});
+const data = await response.json();
+console.log(data);
+```
+
+```typescript web3.js
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getAccountInfo",
+    params: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"],
+  }),
+});
+const data = await response.json();
+```
+
+```rust Rust
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
+use anyhow::Result;
+use std::str::FromStr;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed()
+    );
+    let pubkey = Pubkey::from_str("83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri")?;
+    let account = client.get_account(&pubkey).await?;
+
+    println!("{:#?}", account);
+
+    Ok(())
+}
+```
+
+```bash cURL
+curl -X POST https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"getAccountInfo","params":["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"]}'
+```
+
+</CodeGroup>
+
+## Common Parameters
+
+- `encoding`: Choose from `base58`, `base64`, or `jsonParsed` (recommended)
+- `commitment`: Data consistency level (`processed`, `confirmed`, or `finalized`)
+- `dataSlice`: Fetch only a specific portion of the account data
+
+## Getting Multiple Accounts
+
+For batch retrieval, use `getMultipleAccounts`:
+
+```typescript
+const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getMultipleAccounts',
+    params: [
+      ['Account1', 'Account2', 'Account3'],
+      { encoding: 'jsonParsed' }
+    ]
+  })
+});
+```
+
+## Best Practices
+
+- Use account subscriptions via WebSockets for real-time updates
+- For large-scale data needs, consider using the Helius DAS API or LaserStream
+- Cache account data when appropriate to reduce API calls 

@@ -1,0 +1,152 @@
+---
+title: 'How to get SPL tokens'
+sidebarTitle: 'SPL Tokens'
+description: 'Learn how to retrieve and query SPL token data using Helius APIs'
+---
+
+Solana's SPL token ecosystem is vast, and Helius provides multiple APIs to efficiently query token data.
+
+## Basic Token Account Information
+
+Get balance for a specific token account using RPC:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountBalance',
+    params: [
+      'TOKEN_ACCOUNT_ADDRESS'
+    ]
+  })
+});
+const data = await response.json();
+```
+
+## Finding Token Accounts by Owner
+
+List all token accounts owned by a wallet:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByOwner',
+    params: [
+      'OWNER_WALLET_ADDRESS',
+      {
+        programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      },
+      {
+        encoding: 'jsonParsed'
+      }
+    ]
+  })
+});
+const data = await response.json();
+```
+
+## Finding Token Accounts by Mint
+
+List all accounts holding a specific token:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByDelegate',
+    params: [
+      'DELEGATE_ADDRESS',
+      {
+        mint: 'MINT_ADDRESS'
+      },
+      {
+        encoding: 'jsonParsed'
+      }
+    ]
+  })
+});
+```
+
+## Getting Token Supply
+
+Check the total supply of a token:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenSupply',
+    params: [
+      'MINT_ADDRESS'
+    ]
+  })
+});
+```
+
+## Finding Large Token Holders
+
+Identify the largest accounts holding a token:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenLargestAccounts',
+    params: [
+      'MINT_ADDRESS'
+    ]
+  })
+});
+```
+
+## Advanced Token Data with DAS API
+
+For more comprehensive token information including metadata:
+
+```typescript
+const response = await fetch(HELIUS_API_URL + '/v0/tokens/metadata', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${API_KEY}`
+  },
+  body: JSON.stringify({
+    mintAccounts: ['TOKEN_MINT_ADDRESS']
+  })
+});
+const metadata = await response.json();
+```
+
+## Tracking Token Activity
+
+Monitor a token account's transaction history:
+
+```typescript
+const response = await fetch(HELIUS_API_URL + '/v1/addresses/' + WALLET_ADDRESS + '/transactions', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`
+  },
+  params: {
+    'type': 'TOKEN',
+    'mintAccount': TOKEN_MINT_ADDRESS
+  }
+});
+const transactions = await response.json();
+``` 

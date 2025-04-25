@@ -1,7 +1,9 @@
 ---
-title: 'Quickstart'
-description: 'Make your first API call using Helius in just a few steps.'
+title: "Quickstart"
+description: "Make your first API call using Helius in just a few steps."
 ---
+
+import { Quickstart } from "/snippets/quickstart.mdx";
 
 <Steps>
   <Step title="Sign up for a Free Helius Account">
@@ -11,25 +13,76 @@ description: 'Make your first API call using Helius in just a few steps.'
     Go to the [API Keys](https://dashboard.helius.dev/api-keys) section of your dashboard and copy your key.
   </Step>
   <Step title="Make Your First API Call">
-    Replace `YOUR_API_KEY` with your key, then run this command in your terminal:
 
-    ```bash
-    curl --request POST \
-      --url 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY' \
-      --header 'Content-Type: application/json' \
-      --data '{
-      "jsonrpc": "2.0",
-      "id": "1",
-      "method": "getAssetsByOwner",
-      "params": {
-        "ownerAddress": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
-      }  
-    }'
-    ```
+    Paste your API key into the input field and click the button to fetch a random NFT from the owner address `86xCn…o2MMY`.
+    <Quickstart />
+
   </Step>
-  <Step title="Success!" icon="check">
-    Success! You’ve fetched all assets owned by the address `86xCn…o2MMY` which is the wallet address of [Anatoly Yakovenko](https://x.com/aeyakovenko), one of the founders of Solana. Now try it with one of your own wallet addresses.
+  <Step title="Success!">
+    Success! You've fetched a random NFT owned by the address `86xCn…o2MMY` which is the wallet address of [Anatoly Yakovenko](https://x.com/aeyakovenko), one of the founders of Solana. Now try it with one of your own wallet addresses.
   </Step>
+</Steps>
+
+## Now let's do it in code
+
+<Note>
+We'll use Node.js for this example. If you don't have it yet, you can download it [here](https://nodejs.org/en/download).
+</Note>
+
+<Steps>
+<Step title="Create a new file">
+```bash
+touch fetchRandomNFT.js
+````
+</Step>
+<Step title="Copy the following code into the file">
+```javascript fetchRandomNFT.js
+async function fetchRandomNFT() {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
+      },
+    }),
+  })
+
+  const data = await response.json()
+
+  if (data.error) {
+    console.error('Error fetching NFTs:', data.error.message)
+    return
+  }
+  if (data.result && data.result.items && data.result.items.length > 0) {
+    const randomIndex = Math.floor(Math.random() * data.result.items.length)
+    const selectedNft = data.result.items[randomIndex]
+    console.log(`Id: ${selectedNft.id}`)
+    console.log(`Name: ${selectedNft.content?.metadata?.name || 'Unnamed NFT'}`)
+    console.log(`Symbol: ${selectedNft.content?.metadata?.symbol || 'N/A'}`)
+    console.log(`Image: ${selectedNft.content.files[0].uri || 'No image available'}`)
+  }
+}
+
+fetchRandomNFT();
+````
+</Step>
+<Step title="Replace the API key">
+  Replace `YOUR_API_KEY` with your API key.
+</Step>
+<Step title="Run the code">
+```bash
+node fetchRandomNFT.js
+````
+</Step>
+<Step title="Success!">
+  Success! You should see the ID, name, symbol, and image of a random NFT owned by the address `86xCn…o2MMY` in your terminal.
+</Step>
 </Steps>
 
 ## Next Steps
@@ -37,7 +90,11 @@ description: 'Make your first API call using Helius in just a few steps.'
 Explore more quickstarts to get the most out of Helius:
 
 <CardGroup cols={2}>
-  <Card title="Send Smart Transactions" icon="paper-plane" href="/guides/sending-transactions">
+  <Card
+    title="Send Smart Transactions"
+    icon="paper-plane"
+    href="/guides/sending-transactions"
+  >
     Learn how to send smart transactions using the Helius SDK.
   </Card>
   <Card title="Fetch Token Metadata" icon="images" href="/guides/fetching-nfts">
@@ -47,6 +104,7 @@ Explore more quickstarts to get the most out of Helius:
     Stream live blockchain data with gRPC or WebSocket for low-latency updates.
   </Card>
   <Card title="Listen to On-Chain Events" icon="bell" href="/guides/webhooks">
-   Subscribe to on-chain activity using Webhooks.
+    Subscribe to on-chain activity using Webhooks.
   </Card>
 </CardGroup>
+````

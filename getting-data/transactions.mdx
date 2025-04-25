@@ -1,0 +1,167 @@
+---
+title: 'How to get transactions'
+sidebarTitle: 'Transactions'
+description: 'Learn how to retrieve and parse Solana transactions using Helius APIs'
+---
+
+Transactions represent all state changes on Solana. Helius provides multiple ways to read transaction data, from raw RPC methods to enriched transaction APIs.
+
+## Getting a Single Transaction
+
+Retrieve transaction details using the standard RPC method:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTransaction',
+    params: [
+      'TRANSACTION_SIGNATURE',
+      {
+        encoding: 'json',
+        maxSupportedTransactionVersion: 0
+      }
+    ]
+  })
+});
+const data = await response.json();
+```
+
+## Getting Enriched Transaction Data
+
+Helius's enriched transaction API provides human-readable transaction details:
+
+```typescript
+const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${API_KEY}`
+  },
+  body: JSON.stringify({
+    transactions: ['TRANSACTION_SIGNATURE']
+  })
+});
+const enrichedTx = await response.json();
+```
+
+## Finding Transactions for an Address
+
+Get transaction history for a specific wallet:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getSignaturesForAddress',
+    params: [
+      'ACCOUNT_ADDRESS',
+      {
+        limit: 10,
+        before: 'OPTIONAL_BEFORE_SIGNATURE', // for pagination
+        until: 'OPTIONAL_UNTIL_SIGNATURE'    // for pagination
+      }
+    ]
+  })
+});
+const signatures = await response.json();
+```
+
+## Enhanced Transaction History
+
+For richer transaction history with parsed data:
+
+```typescript
+const response = await fetch(HELIUS_API_URL + '/v1/addresses/' + WALLET_ADDRESS + '/transactions', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`
+  },
+  params: {
+    'before': 'OPTIONAL_BEFORE_SIGNATURE',  // for pagination
+    'limit': 10
+  }
+});
+const transactions = await response.json();
+```
+
+## Getting Multiple Transactions
+
+Batch retrieve multiple transactions:
+
+```typescript
+const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${API_KEY}`
+  },
+  body: JSON.stringify({
+    transactions: [
+      'SIGNATURE_1',
+      'SIGNATURE_2',
+      'SIGNATURE_3'
+    ]
+  })
+});
+const enrichedTxs = await response.json();
+```
+
+## Transaction Status Checking
+
+Check the status of multiple transactions:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getSignatureStatuses',
+    params: [
+      [
+        'SIGNATURE_1',
+        'SIGNATURE_2'
+      ],
+      {
+        searchTransactionHistory: true
+      }
+    ]
+  })
+});
+const statuses = await response.json();
+```
+
+## Real-time Transaction Monitoring
+
+For real-time transaction updates, use WebSockets:
+
+```typescript
+const ws = new WebSocket(HELIUS_WS_URL);
+
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'signatureSubscribe',
+    params: [
+      'TRANSACTION_SIGNATURE',
+      {
+        commitment: 'finalized'
+      }
+    ]
+  }));
+};
+
+ws.onmessage = (event) => {
+  const response = JSON.parse(event.data);
+  console.log('Transaction update:', response);
+};
+``` 

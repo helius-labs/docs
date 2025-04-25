@@ -1,0 +1,124 @@
+
+export const Quickstart = () => {
+  const [apiKey, setApiKey] = useState('')
+  const [ownerAddress, setOwnerAddress] = useState('86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY')
+  const [loading, setLoading] = useState(false)
+  const [randomNft, setRandomNft] = useState(null)
+  const [error, setError] = useState(null)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setRandomNft(null)
+    
+    try {
+      const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress,
+          },
+        }),
+      })
+      
+      const data = await response.json()
+      if (data.error) {
+        setError(data.error.message || 'Error calling API')
+      } else if (data.result && data.result.items && data.result.items.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.result.items.length)
+        const selectedNft = data.result.items[randomIndex]
+        setRandomNft(selectedNft)
+      } else {
+        setError('No NFTs found for this wallet')
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to fetch data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="p-4 border dark:border-zinc-950/80 rounded-xl bg-white dark:bg-zinc-950/80 shadow-sm">      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm text-zinc-950/70 dark:text-white/70 mb-1">Your API Key</label>
+          <input
+            type="text"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your API key"
+            className="w-full p-2 border rounded dark:bg-zinc-900 dark:border-zinc-700"
+            required
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm text-zinc-950/70 dark:text-white/70 mb-1">Owner Address</label>
+          <input
+            type="text"
+            value={ownerAddress}
+            onChange={(e) => setOwnerAddress(e.target.value)}
+            placeholder="Solana wallet address"
+            className="w-full p-2 border rounded dark:bg-zinc-900 dark:border-zinc-700"
+            required
+          />
+        </div>
+        
+        <button
+          type="submit"
+          disabled={loading}
+          className={`px-4 py-2 rounded font-medium rounded-full ${
+            loading
+              ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary/80 text-white'
+          }`}
+        >
+          {loading ? 'Loading...' : 'Get Random NFT'}
+        </button>
+      </form>
+      
+      {error && (
+        <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-300">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+      
+      {randomNft && (
+        <div className="mt-6">
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-semibold mb-1 text-zinc-950 dark:text-white">
+              {randomNft.content?.metadata?.name || 'Unnamed NFT'}
+            </h3>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              {randomNft.id}
+            </p>
+          </div>
+          
+          <div className="flex justify-center mb-4">
+            {randomNft.content?.files && randomNft.content.files.length > 0 && randomNft.content.files[0].uri ? (
+              <img 
+                src={randomNft.content.files[0].uri} 
+                alt={randomNft.content?.metadata?.name || 'NFT'} 
+                className="rounded-lg max-h-64 border border-zinc-200 dark:border-zinc-800 shadow-sm"
+              />
+            ) : (
+              <div className="bg-gray-200 dark:bg-zinc-800 rounded-lg w-64 h-64 flex items-center justify-center">
+                <span className="text-zinc-500 dark:text-zinc-400">No image available</span>
+              </div>
+            )}
+          </div>
+          
+          
+        </div>
+      )}
+    </div>
+  )
+} 

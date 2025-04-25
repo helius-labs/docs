@@ -1,0 +1,75 @@
+---
+title: 'How to get program accounts'
+sidebarTitle: 'Program Accounts'
+description: 'Learn how to efficiently query program accounts using Helius APIs'
+---
+
+Program accounts contain the data for all instances of a Solana program. This guide shows you how to efficiently query and filter program accounts.
+
+## Using getProgramAccounts
+
+The primary method for fetching program accounts is `getProgramAccounts`:
+
+```typescript
+const response = await fetch(HELIUS_RPC_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getProgramAccounts',
+    params: [
+      'ProgramAddressHere',
+      {
+        encoding: 'jsonParsed',
+        filters: [
+          // Optional filters go here
+        ]
+      }
+    ]
+  })
+});
+const data = await response.json();
+```
+
+## Advanced Filtering
+
+Optimize your queries with filters to reduce response size and improve performance:
+
+```typescript
+// Example filtering by memcmp (memory comparison)
+const filters = [
+  {
+    memcmp: {
+      offset: 4, // bytes offset into the account data
+      bytes: 'base58encodedBytes'
+    }
+  },
+  {
+    dataSize: 128 // exact data size in bytes
+  }
+];
+```
+
+## Filter Types
+
+- `memcmp`: Filter accounts that match a specific pattern at a given offset
+- `dataSize`: Filter accounts by their exact data size
+- Multiple filters: All conditions must be satisfied (logical AND)
+
+## Performance Tips
+
+Program account queries can be expensive to execute. Follow these practices:
+
+- Always use the most restrictive filters possible
+- Consider paginating results for programs with many accounts
+- Use WebSocket subscriptions for accounts you need to monitor continuously
+- For tokens and NFTs, prefer the specialized DAS API endpoints over raw program account queries
+
+## Rate Limiting Considerations
+
+Heavy use of `getProgramAccounts` might result in rate limiting. For high-volume needs, consider:
+
+- Using dedicated RPC nodes
+- Caching frequently accessed data
+- Implementing backoff strategies for retries 
