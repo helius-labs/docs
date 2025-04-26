@@ -1,0 +1,15 @@
+---
+title: What is ZK Compression on Solana?
+description: >-
+  ZK Compression is a generalized compression framework that allows developers to store data on Solana at a fraction of the cost.
+---
+
+[ZK Compression](https://www.zkcompression.com/) is a generalized compression framework that allows developers to store data on Solana at a fraction of the cost. After helping develop cNFT compression, Helius saw the need to build a generalized system. So, along with the [Light team](https://lightprotocol.com/), we built ZK Compression to allow developers to store arbitrary data in _compressed accounts_, akin to native Solana accounts.&#x20;
+
+## Photon: the ZK Compression Indexer
+
+Helius built [Photon](https://github.com/helius-labs/photon), the ZK Compression indexer. In ZK Compression, programs log compressed account data in Solana transactions and store the fingerprint of that data in validator memory. Photon indexes Solana transactions to parse and store compressed account data. It then exposes an API similar to Solana's native API to help users access compression data. Though developers can directly host Photon, we expose a Photon API to streamline the developer experience.
+
+<Note>
+Please visit the official [ZK Compression docs](https://www.zkcompression.com/) to learn more about ZK Compression and Photon.
+</Note>

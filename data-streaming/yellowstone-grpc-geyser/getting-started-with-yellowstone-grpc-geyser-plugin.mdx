@@ -1,0 +1,252 @@
+---
+title: Getting Started with Yellowstone gRPC(Geyser Plugin)
+sidebarTitle: Getting Started
+description: >-
+  A comprehensive setup guide for connecting to Solana's real-time data stream
+  using Yellowstone gRPC.
+---
+
+## Introduction
+
+With Dedicated Node, you can leverage the powerful Yellowstone gRPC interface to receive real-time updates about on-chain events. The Geyser plugin provides a high-performance, low-latency stream of Solana blockchain data.
+
+<Info>
+  Yellowstone gRPC provides real-time data streams with high throughput and low latency, making it ideal for applications that need immediate access to on-chain events.
+</Info>
+
+## What is gRPC and Why Use It?
+
+gRPC (Google Remote Procedure Call) is a modern, high-performance framework that enables client and server applications to communicate transparently. For Solana blockchain data streaming, gRPC offers several key advantages:
+
+<Card title="Key Advantages" icon="stars">
+  1. **Language Agnostic**: Using Protocol Buffers (protobuf), gRPC allows you to write clients in multiple programming languages while maintaining type safety and consistency.
+  
+  2. **Binary Protocol**: Unlike JSON-based REST APIs, gRPC uses a binary protocol that is more efficient in terms of bandwidth and parsing overhead.
+  
+  3. **Bi-directional Streaming**: gRPC supports bi-directional streaming, perfect for receiving continuous updates about blockchain events.
+  
+  4. **Type Safety**: The protobuf schema ensures type safety across all supported languages.
+</Card>
+
+## Getting Started
+
+Your Helius Dedicated Node exposes the Yellowstone gRPC interface on port 2053. The service provides various subscription options for different types of blockchain data:
+
+<AccordionGroup>
+  <Accordion title="Account updates" icon="user">
+    Subscribe to changes in account data, including balance changes, data modifications, ownership changes, and creation/deletion events.
+  </Accordion>
+  <Accordion title="Slot updates" icon="clock">
+    Receive notifications about new slots, confirmed slots, finalized slots, and parent slot relationships.
+  </Accordion>
+  <Accordion title="Transaction information" icon="exchange">
+    Stream transactions to receive updates about transaction signatures, status, success/failure information, and account involvement.
+  </Accordion>
+  <Accordion title="Block data" icon="cube">
+    Access comprehensive block information including metadata, included transactions, account updates, and entry information.
+  </Accordion>
+  <Accordion title="Entry data" icon="code">
+    Track low-level entry information including entry indexes, transaction counts, and entry hashes.
+  </Accordion>
+</AccordionGroup>
+
+### Installation & Project Setup
+
+Before diving into specific examples in the following sections, let's set up our development environment for each supported language:
+
+<Tabs>
+  <Tab title="TypeScript/JavaScript">
+    1. Create a new project:
+
+    ```bash
+    mkdir ts-yellowstone-client
+    cd ts-yellowstone-client
+    npm init -y
+    ```
+
+    2. Install dependencies:
+
+    ```bash
+    npm install @triton-one/yellowstone-grpc bs58
+    npm install typescript ts-node @types/node --save-dev
+    ```
+
+    3. Create TypeScript configuration:
+
+    ```bash
+    npx tsc --init
+    ```
+  </Tab>
+  <Tab title="Rust">
+    1. Create a new project:
+
+    ```bash
+    cargo new rust-yellowstone-client
+    cd rust-yellowstone-client
+    ```
+
+    2. Add to `Cargo.toml`:
+
+    ```toml
+    [dependencies]
+    yellowstone-grpc-client = "1.13.0"
+    yellowstone-grpc-proto = "1.13.0"
+    tokio = { version = "1.0", features = ["full"] }
+    anyhow = "1.0"
+    futures = "0.3"
+    tonic = "0.10"
+    tonic-health = "0.10"
+    hex = "0.4"
+    solana-sdk = "1.17"
+    log = "0.4"
+    ```
+  </Tab>
+  <Tab title="Go">
+    1. Create a new project:
+
+    ```bash
+    mkdir go-yellowstone-client
+    cd go-yellowstone-client
+    ```
+
+    2. Initialize Go module:
+
+    ```bash
+    go mod init go-yellowstone-client
+    ```
+
+    3. Create project structure:
+
+    ```bash
+    mkdir -p cmd/client
+    touch cmd/client/main.go
+    ```
+
+    4. Install required dependencies:
+
+    ```bash
+    go get github.com/mr-tron/base58@v1.2.0
+    go get github.com/rpcpool/yellowstone-grpc/examples/golang@latest
+    go get google.golang.org/grpc@v1.67.1
+    ```
+
+    5. Your `go.mod` should look similar to this:
+
+    ```go
+    module go-yellowstone-client
+
+    go 1.21
+
+    require (
+        github.com/mr-tron/base58 v1.2.0
+        github.com/rpcpool/yellowstone-grpc/examples/golang v0.0.0-20250206164228-b9f96ae944bb
+        google.golang.org/grpc v1.67.1
+    )
+
+    require (
+        golang.org/x/net v0.28.0 // indirect
+        golang.org/x/sys v0.24.0 // indirect
+        golang.org/x/text v0.17.0 // indirect
+        google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142 // indirect
+        google.golang.org/protobuf v1.35.1 // indirect
+    )
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  These setups provide the foundation for the examples in the following sections. Each subsequent guide will build upon this basic setup to demonstrate specific monitoring capabilities.
+</Note>
+
+## Available Subscriptions
+
+The Yellowstone gRPC interface allows you to subscribe to various types of data:
+
+### 1. Account Updates
+
+<Card title="Account Updates" icon="user">
+  Subscribe to changes in [account data](https://docs.helius.dev/data-streaming/geyser-yellowstone/account-monitoring), including:
+
+  * Account balance changes
+  * Data modifications
+  * Ownership changes
+  * Creation/deletion events
+</Card>
+
+### 2. Slot Updates
+
+<Card title="Slot Updates" icon="clock">
+  [Monitor slots](https://docs.helius.dev/data-streaming/geyser-yellowstone/slot-and-block-monitoring) to receive notifications about:
+
+  * New slots
+  * Confirmed slots
+  * Finalized slots
+  * Parent slot relationships
+</Card>
+
+### 3. Transaction Information
+
+<Card title="Transaction Information" icon="exchange">
+  [Stream transactions](https://docs.helius.dev/data-streaming/geyser-yellowstone/transaction-monitoring) to receive updates about:
+
+  * Transaction signatures
+  * Transaction status
+  * Success/failure information
+  * Account involvement
+</Card>
+
+### 4. Block Data
+
+<Card title="Block Data" icon="cube">
+  Access comprehensive [block information](https://docs.helius.dev/data-streaming/geyser-yellowstone/slot-and-block-monitoring):
+
+  * Block metadata
+  * Included transactions
+  * Account updates
+  * Entry information
+</Card>
+
+### 5. Entry Data
+
+<Card title="Entry Data" icon="code">
+  Track low-level [entry information](https://docs.helius.dev/data-streaming/geyser-yellowstone/entry-monitoring):
+
+  * Entry indexes
+  * Transaction counts
+  * Entry hashes
+</Card>
+
+### Commitment Levels
+
+<Accordion title="Commitment Levels" defaultOpen={true}>
+  Yellowstone gRPC supports three commitment levels:
+
+  * <Tip>**PROCESSED**: Fastest, but may include unconfirmed data</Tip>
+  * <Info>**CONFIRMED**: Balance between speed and finality</Info>
+  * <Check>**FINALIZED**: Highest level of finality</Check>
+
+  Choose the appropriate commitment level based on your application's requirements for data finality versus latency.
+</Accordion>
+
+### Next Steps
+
+Continue to the following sections to learn about the core subscription types in Yellowstone gRPC:
+
+<Steps>
+  <Step title="Account Monitoring">
+    Monitor account updates and changes
+  </Step>
+  <Step title="Transaction Monitoring">
+    Track transactions and their status
+  </Step>
+  <Step title="Slot and Block Monitoring">
+    Monitor slots, blocks, and their metadata
+  </Step>
+  <Step title="Entry Monitoring">
+    Track low-level block entries and execution
+  </Step>
+</Steps>
+
+<Warning>
+  Each guide includes complete working examples in TypeScript, Rust, and Go, along with advanced filtering patterns and best practices.
+</Warning>
