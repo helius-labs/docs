@@ -1,5 +1,6 @@
 ---
 title: Guide to listening for cNFT Events
+sidebarTitle: cNFT Events
 description: Learn how to listen for and retrieve cNFT events on Solana using Helius APIs.
 ---
 
@@ -38,7 +39,7 @@ Helius offers **three major** ways to listen for cNFT events. Below is a recap o
 
 #### 3.1 WebSockets (Standard & Enhanced)
 
-[**Standard WebSockets**](../../rpc/websocket/)
+[**Standard WebSockets**](/rpc/websocket)
 
 * **Persistent connection**: You subscribe to accounts or programs, and Solana pushes updates.
 
@@ -85,7 +86,7 @@ ws.on('close', () => {
 });
 ```
 
-[**Enhanced WebSockets**](../../data-streaming/enhanced-websockets-beta.md)
+[**Enhanced WebSockets**](/data-streaming/laserstream-enhanced-websocket)
 
 * **Enhanced** WebSocket with advanced filters (`accountInclude`, `accountRequired`, etc.).
 * **Reduces parsing overhead** because you only receive transactions relevant to your addresses.
@@ -127,9 +128,9 @@ ws.on('message', (rawData) => {
 
 #### 3.2 Webhooks
 
-[**Webhooks**](../../data-streaming/webhooks/) let Helius notify your server via HTTP POST whenever an on-chain event occurs. Ideal if you **don't want** a persistent connection.
+[**Webhooks**](/webhooks) let Helius notify your server via HTTP POST whenever an on-chain event occurs. Ideal if you **don't want** a persistent connection.
 
-1. **Create** the webhook via [API](../../data-streaming/webhooks/#via-helius-api), [SDK](../../data-streaming/webhooks/#via-helius-sdk) or [Dashboard](../../data-streaming/webhooks/#via-helius-dashboard).
+1. **Create** the webhook via [API](/webhooks/#via-api), [SDK](/webhooks/#via-sdk) or [Dashboard](/webhooks/#via-dashboard).
 2. **Specify** addresses to watch (Merkle tree address, user wallet, etc.).
 3. **Receive** transaction data on your server endpoint; parse for cNFT instructions.
 
@@ -152,7 +153,7 @@ curl -X POST \
 
 #### 3.3 gRPC (Yellowstone)
 
-[**gRPC**](../../data-streaming/yellowstone-grpc.md) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](../../solana-rpc-nodes/dedicated-nodes/).
+[**gRPC**](../../data-streaming/yellowstone-grpc-geyser.mdx) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](/solana-rpc-nodes/dedicated-nodes).
 
 * **Advanced filtering** (memcmp, owners, accounts, etc.).
 * **Enterprise-level** throughput for large-scale apps.
@@ -206,7 +207,7 @@ In this section, we'll explore **two** primary methods for historical lookups:
 
 Helius offers an **Enriched** or **Parsed Transaction** API. It automatically decodes NFT, SPL, and Swap transactions into a human-readable format. This saves you from manually parsing raw data.
 
-**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](../../solana-apis/enhanced-transactions-api/parse-transaction-s.md)**)**
+**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](/enriched-transactions-api/getenrichedtransactions)**)**
 
 **Endpoint**:
 

@@ -1,0 +1,246 @@
+---
+title: 'Search'
+sidebarTitle: 'Search'
+description: Search for Tokens, NFTs, and Compressed NFTs using a variety of parameters.
+---
+
+## Overview
+
+This method will return assets based on the custom search criteria passed in. This can define compressed, regular NFTs, and fungible tokens. This method is optimal for most custom use cases, such as token gating.
+
+<Callout type="info">
+  The **`page`** parameter in the request starts at **1**.
+</Callout>
+
+<Card title="Search Assets Endpoint" icon="magnifying-glass">
+  <ParamField path="/" method="POST">
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": "my-id",
+      "method": "searchAssets",
+      "params": {
+        "ownerAddress": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+        "tokenType": "fungible"
+      }
+    }
+    ```
+  </ParamField>
+  <ResponseField name="result" type="object">
+    Response will include assets that match the search criteria
+  </ResponseField>
+</Card>
+
+## Fungible Token Extension
+
+Fungible tokens will include their associated information (decimals, supply, and price). Token22 tokens are also supported, and their extensions are parsed. We also display native balances if you enable the `showNativeBalance` flag.
+
+The options for `tokenType` include:
+
+<Properties>
+  <Property name="fungible" type="string">
+    Returns all fungible tokens
+  </Property>
+  <Property name="nonFungible" type="string">
+    Returns all NFTs (compressed and regular NFTs)
+  </Property>
+  <Property name="regularNFT" type="string">
+    Returns only the regular NFTs
+  </Property>
+  <Property name="compressedNFT" type="string">
+    Returns only the compressed NFTs
+  </Property>
+  <Property name="all" type="string">
+    Returns all the tokens
+  </Property>
+</Properties>
+
+When using the `tokenType` as a filter, it is mandatory to also include the `ownerAddress` filter.
+
+<Accordion title="Unsupported filters with 'fungible' or 'all' token types">
+  <Properties>
+    <Property name="creatorAddress" type="string" />
+    <Property name="creatorVerified" type="boolean" />
+    <Property name="grouping" type="array" />
+    <Property name="ownerType" type="string" />
+    <Property name="specificationAssetClass" type="string" />
+    <Property name="compressed" type="boolean" />
+    <Property name="compressible" type="boolean" />
+    <Property name="specificationVersion" type="string" />
+    <Property name="authorityAddress" type="string" />
+    <Property name="delegate" type="string" />
+    <Property name="frozen" type="boolean" />
+    <Property name="supply" type="number" />
+    <Property name="supplyMint" type="string" />
+    <Property name="royalty" type="object" />
+    <Property name="burnt" type="boolean" />
+    <Property name="jsonUri" type="string" />
+    <Property name="collections" type="array" />
+    <Property name="name" type="string" />
+  </Properties>
+</Accordion>
+
+## Inscriptions & SPL-20
+
+You can optionally display inscription and SPL-20 token data with the `showInscription` flag. You can learn more about inscriptions and SPL-20 [here](https://x.com/nick_pennie/status/1727877242045542858).
+
+<Note>This is an experimental feature.</Note>
+
+<Callout type="warning">
+  The Helius API does not verify SPL-20 tokens. Trade at your own risk. For more information, please use the [validator tool](https://www.spl20.io/) or join the [Libreplex Discord channel](https://discord.gg/kTRGwcXx).
+</Callout>
+
+## Code Examples
+
+<CodeGroup>
+  <CodeBlock title="Searching for all Fungible Tokens in a wallet" language="javascript">
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const searchAssets = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+        tokenType: 'fungible',
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssets();
+```
+  </CodeBlock>
+
+  <CodeBlock title="Showing native balance and token info" language="javascript">
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const searchAssetsTokenInfo = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+                tokenType: 'fungible',
+                displayOptions: {
+                    showNativeBalance: true,
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+
+    result.items.forEach(item => {  // for each item in the result, log the token_info
+      console.log(item.token_info);
+    });
+
+    console.log("Native Balance: ", result.nativeBalance); // logging native balance
+};
+
+searchAssetsTokenInfo();
+```
+  </CodeBlock>
+
+  <CodeBlock title="Searching for Drip NFTs" language="javascript">
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const searchAssetsDrip = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: 'BAVjpySHMMGDpq3whU7qaqCCRE8ksCeGwxa53Qv2i8jS',
+        grouping: ["collection", "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"],
+        page: 1, // Starts at 1
+        limit: 1000
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Drip Haus Assets: ", result);
+};
+searchAssetsDrip();
+```
+  </CodeBlock>
+
+  <CodeBlock title="Searching for Compressed Assets" language="javascript">
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const searchAssetsCompressed = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha',
+        compressed: true,
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssetsCompressed();
+```
+  </CodeBlock>
+
+  <CodeBlock title="Searching for Inscriptions & SPL-20 data" language="javascript">
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api-key>`
+
+const searchAssetsInscriptions = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '6GmTFg5SCs4zGfDEidUAJjS5pSrXEPwW8Rpfs3RHrbc5',
+                tokenType: 'regularNft',
+                displayOptions: {
+                    showInscription: true, // display inscription & spl-20 data
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+    console.log(result.items.map((i) => [i.id, i.inscription, i.spl20]));
+};
+searchAssetsInscriptions();
+```
+  </CodeBlock>
+</CodeGroup>
