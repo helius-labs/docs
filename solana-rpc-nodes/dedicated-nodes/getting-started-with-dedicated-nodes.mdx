@@ -76,7 +76,7 @@ There are also 4 action buttons on the right that give you full control over you
 
 Each dedicated eode comes with an RPC URL that you can use like in the example below.
 
-Here we are using Solana web3.js to call [`getSlot`](../../rpc/http/getslot.md) using our dedicated node:
+Here we are using Solana web3.js to call [`getSlot`](../../rpc/http/getslot) using our dedicated node:
 
 ```javascript
 // Using @solana/web3.js
@@ -210,7 +210,7 @@ main().catch(console.error);
 
 While nodes don't have strict usage limits, they are bound by hardware constraints. A balanced workload helps maintain optimal performance and node liveliness.
 
-* Avoid mixing heavy account-based calls (e.g. [getProgramAccounts](../../rpc/http/getprogramaccounts.md), [getTokenAccountsByOwner](../../rpc/http/gettokenaccountsbyowner.md), etc.) with gRPC usage on the same node.
+* Avoid mixing heavy account-based calls (e.g. [getProgramAccounts](../../rpc/http/getprogramaccounts), [getTokenAccountsByOwner](../../rpc/http/gettokenaccountsbyowner), etc.) with gRPC usage on the same node.
   * It's best to move heavy account-based calls to a shared plan since we have a [**custom indexer**](https://x.com/heliuslabs/status/1864750969755422797) that makes those calls much faster.
 * Monitor your node's metrics to understand its performance based on response times, successful request %, and error counts.
 * Consider distributing intensive workloads across multiple nodes in a dedicated fleet

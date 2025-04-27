@@ -17,21 +17,21 @@ Perfect for latency-sensitive applications such as data streaming or handling a 
 - Standard RPC and WebSocket methods
 - Premium support
 - Node clients — Agave (recommended) or Jito Labs
-- Geyser Plugin (Optional) — [Yellowstone](/data-streaming/yellowstone-grpc-geyser.mdx)
+- Geyser Plugin (Optional) — [Yellowstone](/data-streaming/yellowstone-grpc-geyser)
 
 <Note>
   For trading teams and Telegram bots, we typically recommend purchasing
   Dedicated Nodes (lower latency) with the Yellowstone Geyser (gRPC) Plugin for
   streaming and [Dedicated Staked Connections](#dedicated-staked-connections)
   (optimized landing rates for
-  [`sendTransaction`](/rpc/http/sendtransaction.mdx)).
+  [`sendTransaction`](/rpc/http/sendtransaction)).
 </Note>
 
 <Warning>
   Dedicated nodes cannot access staked connections, which greatly improves
   landing rates. You'll need access to a standard paid plan to use staked
   connections. Learn more here: [Sending Transactions on
-  Solana](/sending-transactions/staked-connections.mdx).
+  Solana](/sending-transactions/staked-connections).
 </Warning>
 
 ## Dedicated Fleets
@@ -53,7 +53,7 @@ Dedicated Nodes can be ordered directly from the [developer portal](https://dash
 
 The type of node you choose depends on your specific project requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
 
-If you plan to make resource-intensive calls (e.g., [`getProgramAccounts`](/rpc/http/getprogramaccounts.mdx), [`getTokenLargestAccounts`](/rpc/http/gettokenlargestaccounts.mdx), [`getTokenAccountsByDelegate`](/rpc/http/gettokenaccountsbydelegate.mdx), [`getTokenAccountsByOwner`](/rpc/http/gettokenaccountsbyowner.mdx), [`getLargestAccounts`](/rpc/http/getlargestaccounts.mdx)), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
+If you plan to make resource-intensive calls (e.g., [`getProgramAccounts`](/rpc/http/getprogramaccounts), [`getTokenLargestAccounts`](/rpc/http/gettokenlargestaccounts), [`getTokenAccountsByDelegate`](/rpc/http/gettokenaccountsbydelegate), [`getTokenAccountsByOwner`](/rpc/http/gettokenaccountsbyowner), [`getLargestAccounts`](/rpc/http/getlargestaccounts)), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
 
 The AMD EPYC 7443p is better if your workload does not require resource-intensive calls.
 
@@ -89,7 +89,7 @@ To simplify this process, our SDK provides an easy method called [Send Jito Bund
 
 ### Geyser Plugin (Optional)
 
-Add optional features like the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin, which supports [streaming](/data-streaming/yellowstone-grpc-geyser.mdx) of slots, blocks, transactions, and account updates.
+Add optional features like the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin, which supports [streaming](/data-streaming/yellowstone-grpc-geyser) of slots, blocks, transactions, and account updates.
 
 <Frame caption="Select the Yellowstone gRPC Geyser Plugin (Optional)">
   <img
