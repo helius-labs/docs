@@ -1,0 +1,113 @@
+---
+title: 'Quickstart'
+sidebarTitle: 'Quickstart'
+description: 'Learn how to quickly connect to Helius Solana RPC nodes'
+---
+
+## Getting Your RPC URL
+
+Once you've created your Helius account:
+
+<Steps>
+  <Step title="Log in to the Helius Dashboard">
+    Navigate to the [Helius Dashboard](https://dashboard.helius.dev)
+  </Step>
+  <Step title="Navigate to API Keys">
+    Go to the API Keys section in the dashboard
+  </Step>
+  <Step title="Copy your RPC URL">
+    Your RPC URL will look like: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+  </Step>
+</Steps>
+
+## Connecting with Popular Libraries
+
+### JavaScript/TypeScript with Web3.js
+
+```javascript
+import { Connection } from '@solana/web3.js';
+
+// Your Helius RPC URL
+const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
+
+// Create a connection
+const connection = new Connection(rpcUrl);
+
+// Test the connection
+const getVersion = async () => {
+  try {
+    const version = await connection.getVersion();
+    console.log('Connection successful!');
+    console.log('Solana version:', version);
+  } catch (error) {
+    console.error('Connection failed:', error);
+  }
+};
+
+getVersion();
+```
+
+### Python with Solana.py
+
+```python
+from solana.rpc.api import Client
+
+# Your Helius RPC URL
+rpc_url = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'
+
+# Create a client
+client = Client(rpc_url)
+
+# Test the connection
+try:
+    version = client.get_version()
+    print('Connection successful!')
+    print(f'Solana version: {version}')
+except Exception as e:
+    print(f'Connection failed: {e}')
+```
+
+### Rust with Solana SDK
+
+```rust
+use solana_client::rpc_client::RpcClient;
+use solana_sdk::commitment_config::CommitmentConfig;
+
+fn main() {
+    // Your Helius RPC URL
+    let rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+    
+    // Create a client
+    let client = RpcClient::new_with_commitment(
+        rpc_url.to_string(),
+        CommitmentConfig::confirmed(),
+    );
+    
+    // Test the connection
+    match client.get_version() {
+        Ok(version) => {
+            println!("Connection successful!");
+            println!("Solana version: {:?}", version);
+        }
+        Err(err) => {
+            println!("Connection failed: {}", err);
+        }
+    }
+}
+```
+
+## Using Different Networks
+
+Helius provides RPC nodes for different Solana networks:
+
+- Mainnet: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- Devnet: `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+## Next Steps
+
+Now that you've connected to Helius RPC nodes, you can:
+
+- Explore [RPC optimization techniques](/solana-rpc-nodes/rpc-optimization-techniques)
+- Learn about [Dedicated Nodes](/solana-rpc-nodes/dedicated-nodes) for high-performance applications
+- Check out our [API Reference](/api-reference/introduction) for all available RPC methods
+- Understand [pricing and rate limits](/pricing-and-rate-limits) for your Helius plan 

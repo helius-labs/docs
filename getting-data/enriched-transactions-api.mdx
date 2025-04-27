@@ -25,3 +25,71 @@ Retrieve complete historical transaction data for a specific address in parsed, 
 
 - [Parse Transaction(s)](/enriched-transactions-api/getenrichedtransaction)
 - [Parsed Transaction History](/enriched-transactions-api/getenrichedtransactions) 
+
+## FAQs
+
+### General Questions
+
+<AccordionGroup>
+  <Accordion title="What is the Enhanced Transactions API?">
+    The Enhanced Transactions API provides parsed transaction data in a human-readable format. It allows you to parse individual or multiple transactions or fetch the complete historical transaction history for a specific address.
+  </Accordion>
+
+  <Accordion title="What types of transactions can be parsed?">
+    Currently, the Enhanced Transactions API only parses NFT, Jupiter, and SPL-related transactions. Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions.
+  </Accordion>
+
+  <Accordion title="What's the difference between V1 and V2?">
+    Enhanced Transaction API V1 won't be updated while we are working on V2. V2 will introduce additional parsing capabilities and improvements.
+  </Accordion>
+</AccordionGroup>
+
+### Usage Questions
+
+<AccordionGroup>
+  <Accordion title="How do I authenticate API requests?">
+    All requests to the Enhanced Transactions API require your Helius API key, which should be provided as a query parameter (`?api-key=YOUR_API_KEY`).
+  </Accordion>
+
+  <Accordion title="Are there rate limits?">
+    Yes, API usage is subject to Helius's standard rate limiting and pricing policies. Please refer to the [Pricing & Rate limits](/pricing-and-rate-limits) page for more information.
+  </Accordion>
+
+  <Accordion title="How do I handle pagination for large transaction histories?">
+    When fetching transaction history for an address, use the `before` parameter with the signature of the oldest transaction from your previous request to paginate through results.
+  </Accordion>
+
+  <Accordion title="What commitment level should I use?">
+    If not specified, the default commitment level is "finalized". You can optionally specify "processed" or "confirmed" depending on your use case.
+  </Accordion>
+</AccordionGroup>
+
+### Technical Questions
+
+<AccordionGroup>
+  <Accordion title="What information is included in the parsed transaction?">
+    The parsed transaction includes:
+    - Human-readable description
+    - Transaction type
+    - Source program
+    - Fee information
+    - Signature
+    - Slot and timestamp
+    - Token transfers
+    - Native SOL transfers
+    - Account data changes
+    - Categorized events (NFT, swap, SOL transfers)
+  </Accordion>
+
+  <Accordion title="How do I parse raw transactions?">
+    You can send either transaction signatures or raw transactions to the `/v0/transactions` endpoint. For raw transactions, provide the base64-encoded transaction data.
+  </Accordion>
+
+  <Accordion title="Can I filter transactions by type?">
+    The API doesn't currently support filtering by transaction type in the request. You'll need to filter the results on your end after receiving them.
+  </Accordion>
+
+  <Accordion title="How far back can I fetch transaction history?">
+    The API allows you to fetch the complete transaction history for a Solana address, subject to the limitations of the underlying Solana blockchain data availability.
+  </Accordion>
+</AccordionGroup> 
