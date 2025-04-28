@@ -1,0 +1,115 @@
+---
+title: Account Subscribe (Beta)
+sidebarTitle: Account Subscribe
+description: >-
+  Stream real-time account updates directly to your applications with account subscribe.
+---
+
+## Account Subscribe
+
+Solana's Websockets support a method that allows you to subscribe to an account and receive notifications via the WebSocket connection whenever there are changes to the lamports or data associated with a matching account public key. This method aligns directly with the Solana [Websocket API specification](https://solana.com/docs/rpc/websocket#accountsubscribe).
+
+### **Parameters**
+
+`string`: The account public key, sent in base58 format (required).
+
+`object`: An optional object used to pass additional parameters.
+
+* `encoding`: Specifies the format for data returned in the AccountNotification. Supported values: **base58**, **base64**, **base64+zstd**, **jsonParsed** (default is **base58**).
+* `commitment`: Defines the commitment level for the transaction. Supported values: **finalized**, **confirmed**, **processed** (default is **finalized**).
+
+## Examples
+
+### Basic Account Subscribe Example
+
+<AccordionGroup>
+<Accordion title="Code Example">
+In this example, we are subscribing to account changes for the  account `SysvarC1ock11111111111111111111111111111111` . \
+\
+We will see an update whenever a change occurs to the account data or the lamports for this account.\
+This happens at a frequent interval for this specific account as the `slot` and `unixTimestamp` are both a part of the returned account data.
+
+```javascript
+// Create a WebSocket connection
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com?api-key=<API_KEY>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "accountSubscribe",
+        params: [
+            "SysvarC1ock11111111111111111111111111111111", // pubkey of account we want to subscribe to
+            {
+                encoding: "jsonParsed", // base58, base64, base65+zstd, jsonParsed
+                commitment: "confirmed", // defaults to finalized if unset
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+</Accordion>
+<Accordion title="Example Notification">
+```bash
+{
+    'jsonrpc': '2.0', 
+    'method': 'accountNotification', 
+    'params': 
+        {
+          'subscription': 237508762798666, 
+          'result': 
+           {
+            'context': {'slot': 235781083}, 
+            'value': 
+             {
+             'lamports': 1169280, 
+             'data': 'BvEhEb6hixL3QPn41gHcyi2CDGKt381jbNKFFCQr6XDTzCTXCuSUG9D', 
+             'owner': 'Sysvar1111111111111111111111111111111111111', 
+             'executable': False, 
+             'rentEpoch': 361, 
+             'space': 40
+             }
+           }
+        }
+}
+```
+</Accordion>
+</AccordionGroup> 
