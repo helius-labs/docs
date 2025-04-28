@@ -24,9 +24,9 @@ tags:
   - name: Tokens
     description: Token account data, metadata, and off-chain data for both fungible and non-fungible tokens
   - name: Transactions
-    description: Enriched and human-readable transaction histories.
+    description: Enhanced and human-readable transaction histories.
   - name: Addresses
-    description: An enriched on-chain identity.
+    description: An enhanced on-chain identity.
  
 ##### PATHS #####
 
@@ -82,8 +82,8 @@ paths:
     get:
       tags:
         - Transactions
-      summary: Returns an enriched transaction history for a given address
-      operationId: getEnrichedTransactions
+      summary: Returns an enhanced transaction history for a given address
+      operationId: getEnhancedTransactions
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/beforeParam'
@@ -96,13 +96,13 @@ paths:
 
       responses:
         200:
-          description: Returns an array of enriched transactions.
+          description: Returns an array of enhanced transactions.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnrichedTransaction'
+                  $ref: '#/components/schemas/EnhancedTransaction'
         400:
           $ref: '#/components/responses/400-BadRequest'
         401:
@@ -170,8 +170,8 @@ paths:
     post:
       tags:
         - Transactions
-      summary: Returns an array of enriched, human-readable versions of the given transactions.
-      operationId: getEnrichedTransaction
+      summary: Returns an array of enhanced, human-readable versions of the given transactions.
+      operationId: getEnhancedTransaction
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/commitmentParam'
@@ -184,13 +184,13 @@ paths:
                 
       responses:
         200:
-          description: Returns an array of enriched transactions.
+          description: Returns an array of enhanced transactions.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EnrichedTransaction'
+                  $ref: '#/components/schemas/EnhancedTransaction'
         400:
           $ref: '#/components/responses/400-BadRequest'
         401:
@@ -1923,7 +1923,7 @@ components:
         
           
     
-    EnrichedTransaction:
+    EnhancedTransaction:
       type: object
       properties:
         description:

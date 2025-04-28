@@ -4,7 +4,7 @@ sidebarTitle: 'Transactions'
 description: 'Learn how to retrieve and parse Solana transactions using Helius APIs'
 ---
 
-Transactions represent all state changes on Solana. Helius provides multiple ways to read transaction data, from raw RPC methods to enriched transaction APIs.
+Transactions represent all state changes on Solana. Helius provides multiple ways to read transaction data, from raw RPC methods to enhanced transaction APIs.
 
 ## Getting a Single Transaction
 
@@ -30,9 +30,9 @@ const response = await fetch(HELIUS_RPC_URL, {
 const data = await response.json();
 ```
 
-## Getting Enriched Transaction Data
+## Getting Enhanced Transaction Data
 
-Helius's enriched transaction API provides human-readable transaction details:
+Helius's enhanced transaction API provides human-readable transaction details:
 
 ```typescript
 const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
@@ -45,7 +45,7 @@ const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
     transactions: ['TRANSACTION_SIGNATURE']
   })
 });
-const enrichedTx = await response.json();
+const enhancedTx = await response.json();
 ```
 
 ## Finding Transactions for an Address
@@ -110,7 +110,7 @@ const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
     ]
   })
 });
-const enrichedTxs = await response.json();
+const enhancedTxs = await response.json();
 ```
 
 ## Transaction Status Checking

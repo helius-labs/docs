@@ -203,11 +203,11 @@ In this section, we'll explore **two** primary methods for historical lookups:
 
 ***
 
-#### 4.1 Helius' Parsed Transaction API
+#### 4.1 Helius' Enhanced Transaction API
 
-Helius offers an **Enriched** or **Parsed Transaction** API. It automatically decodes NFT, SPL, and Swap transactions into a human-readable format. This saves you from manually parsing raw data.
+Helius offers an **Enhanced** Transaction API. It automatically decodes NFT, SPL, and Swap transactions into a human-readable format. This saves you from manually parsing raw data.
 
-**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](/enriched-transactions-api/getenrichedtransactions)**)**
+**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](/enhanced-transactions-api/gettransactions)**)**
 
 **Endpoint**:
 
@@ -259,7 +259,7 @@ Within each parsed transaction, you may find a `compressed` object under `events
 }
 ```
 
-**4.1.2 Parsed Transaction History by Address (**[**`/v0/addresses/{address}/transactions`**](/enriched-transactions-api/getenrichedtransactions)**)**
+**4.1.2 Parsed Transactions by Address (**[**`/v0/addresses/{address}/transactions`**](/enhanced-transactions-api/gettransactionsbyaddress)**)**
 
 If you want **parsed** transactions for a **specific** address—say a **Merkle tree** or **user wallet**—you can call:
 
