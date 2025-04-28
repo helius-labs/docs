@@ -56,7 +56,7 @@ From this point on, every snippet will assume you imported this `helius` instanc
 | Helper | Purpose | Return value | Example call |
 | :------ | :------- | :------------ | :------------ |
 | **createStakeTransaction** | Builds a serialized, unsigned transaction that creates a new stake account, and delegates it to the Helius validator | `{ serializedTx, stakeAccountPubkey }` | `await helius.rpc.createStakeTransaction(owner, 1.5)` |
-| **getStakeInstructions** | The same as **createStakeTransaction**, except it _only_ returns the `TransactionInstruction[]`. This is useful inside browser wallets that construct their own transaction object, or pairing with the SDK's [smart transactions](https://docs.helius.dev/guides/sending-transactions-on-solana#sending-smart-transactions) | `{ instructions, stakeAccount }` | `await helius.rpc.getStakeInstructions(owner, 1.5)` |
+| **getStakeInstructions** | The same as **createStakeTransaction**, except it _only_ returns the `TransactionInstruction[]`. This is useful inside browser wallets that construct their own transaction object, or pairing with the SDK's [smart transactions](/sending-transactions/smart-transactions) | `{ instructions, stakeAccount }` | `await helius.rpc.getStakeInstructions(owner, 1.5)` |
 | **createUnstakeTransaction** | Builds a serialized, unsigned transaction that sends a `Deactivate` instruction to an existing stake account | `serializedTx` | `await helius.rpc.createUnstakeTransaction(owner, stakeAcc)` |
 | **getUnstakeInstruction** | Single `Deactivate` instruction with no wrapper transaction | `TransactionInstruction` | `helius.rpc.getUnstakeInstruction(owner, stakeAcc)` |
 | **getWithdrawableAmount** | Returns the number of lamports that can be withdrawn right now from a given stake account. Pass `true` to include the rent-exempt minimum into the withdrawable amount | `number` | `await helius.rpc.getWithdrawableAmount(stakeAcc, true)` |
@@ -152,7 +152,7 @@ Loop over wallets, call `createStakeTransaction` for each, and send the blobs in
 </Accordion>
 
 <Accordion title="Smart Transactions">
-Use `getStakeInstructions`, `getUnstakeInstruction`, and `getWithdrawInstruction` with our [smart transactions](https://docs.helius.dev/guides/sending-transactions-on-solana#sending-smart-transactions) to ensure your staking transactions are well-optimized and land as fast as possible
+Use `getStakeInstructions`, `getUnstakeInstruction`, and `getWithdrawInstruction` with our [smart transactions](/sending-transactions/smart-transactions) to ensure your staking transactions are well-optimized and land as fast as possible
 </Accordion>
 
 ***

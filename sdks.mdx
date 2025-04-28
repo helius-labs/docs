@@ -1,0 +1,208 @@
+---
+title: SDKs
+description: SDKs for building the future of Solana
+---
+
+  At Helius, we've developed a [Node.js](https://github.com/helius-labs/helius-sdk) and a [Rust SDK](https://github.com/helius-labs/helius-rust-sdk) to make developing on Solana easier. The following page includes information on installing and using these SDKs. It also covers common error handling, where to find the latest documentation, and how to contribute to these SDKs.
+
+We also outline a list of unofficial community SDKs made by our wonderful community. Note that those SDKs are not officially maintained by our team — only the Node.js and Rust SDKs are.
+
+<CardGroup cols={2}>
+  <Card title="Node.js SDK" icon="js" href="https://github.com/helius-labs/helius-sdk">
+    Official Helius Node.js SDK for Solana development
+  </Card>
+  <Card title="Rust SDK" icon="rust" href="https://github.com/helius-labs/helius-rust-sdk">
+    Official Helius Rust SDK for Solana development
+  </Card>
+</CardGroup>
+
+## Node.js SDK
+
+### Installation
+
+The Helius Node.js SDK can be installed with any of the following package managers:
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install helius-sdk
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm install helius-sdk
+    ```
+  </Tab>
+  <Tab title="Yarn">
+    ```bash
+    yarn add helius-sdk
+    ```
+  </Tab>
+</Tabs>
+
+### Quick Start
+
+Here's a straightforward example of how to use the Node.js SDK to fetch a list of assets owned by a given address:
+
+```typescript
+import { Helius } from "helius-sdk";
+
+const helius = new Helius("YOUR_API_KEY");
+const response = await helius.rpc.getAssetsByOwner({
+  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+  page: 1,
+});
+
+console.log(response.items);
+```
+
+### Documentation
+
+The [README file](https://github.com/helius-labs/helius-sdk/blob/main/README.md) is filled with in-depth code examples covering each method and basic usage. For API reference documentation, refer to our [documentation](/api-reference) and the [official Solana documentation](https://solana.com/docs/rpc) for general Solana JSON RPC API help.
+
+## Rust SDK
+
+### Installation
+
+<Steps>
+  <Step title="Add dependency to Cargo.toml">
+    To start using the Helius Rust SDK in your project, add it as a dependency via [`cargo`](https://doc.rust-lang.org/cargo/). Open your project's `Cargo.toml` and add the following line under `[dependencies]`:
+
+    ```toml
+    helius = "x.y.z"
+    ```
+
+    where `x.y.z` is your desired version.
+  </Step>
+  <Step title="Alternative: Use cargo add command">
+    Alternatively, use `cargo add helius` to add the dependency directly via the command line. This will automatically find the latest version compatible with your project and add it to your `Cargo.toml`.
+  </Step>
+  <Step title="Keep your SDK updated">
+    Remember to run `cargo update` regularly to fetch the latest version of the SDK.
+  </Step>
+</Steps>
+
+### Quick Start
+
+Here is a straightforward example of using the [Enhanced Transactions API](/enhanced-transactions-api) to [parse a given transaction](/enhanced-transactions-api/gettransactions):
+
+```rust
+use helius::error::Result;
+use helius::types::*;
+use helius::Helius;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let api_key: &str = "your_api_key";
+    let cluster: Cluster = Cluster::MainnetBeta;
+
+    let helius: Helius = Helius::new(api_key, cluster).unwrap();
+
+    let request: ParseTransactionsRequest = ParseTransactionsRequest {
+        transactions: vec![
+            "2sShYqqcWAcJiGc3oK74iFsYKgLCNiY2DsivMbaJGQT8pRzR8z5iBcdmTMXRobH8cZNZgeV9Ur9VjvLsykfFE2Li".to_string(),
+        ],
+    };
+
+    let response: Result<Vec<EnhancedTransaction>, HeliusError> = helius.parse_transactions(request).await;
+    println!("Assets: {:?}", response);
+
+    Ok(())
+}
+```
+
+### Documentation
+
+<CardGroup cols={3}>
+  <Card title="Rust Docs" icon="book" href="https://docs.rs/helius/latest/helius/">
+    Latest documentation on docs.rs
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference">
+    Helius API documentation
+  </Card>
+  <Card title="Examples" icon="code-branch" href="https://github.com/helius-labs/helius-rust-sdk/tree/dev/examples">
+    Code examples in the GitHub repo
+  </Card>
+</CardGroup>
+
+## Error Handling
+
+<Callout type="warning">
+  An error message will be thrown when the API returns a non-success (i.e., 4xx or 5xx status code).
+</Callout>
+
+For example:
+
+```typescript
+// From our Node.js SDK
+try {
+  const response = await helius.rpc.getAssetsByOwner({
+    ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+    page: 1,
+  });
+  console.log(response.items);
+} catch (error) {
+  console.log(error);
+}
+```
+
+### Common Error Codes
+
+When working with the Helius SDK, you may encounter several error codes. Below is a table detailing some of the common error codes along with additional information to help you troubleshoot:
+
+<AccordionGroup>
+  <Accordion title="401: Unauthorized">
+    This occurs when an invalid API key is provided or access is restricted due to RPC rules.
+  </Accordion>
+  <Accordion title="429: Too Many Requests">
+    This indicates that the user has exceeded the request limit in a given timeframe or is out of credits.
+  </Accordion>
+  <Accordion title="5XX: Internal Server Error">
+    This is a generic error message for server-side issues. Please contact Helius support for assistance.
+  </Accordion>
+</AccordionGroup>
+
+If you encounter any of these errors:
+
+<Steps>
+  <Step title="Check error documentation">
+    Refer to [`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs) for a list of all possible errors returned by the `Helius` client, if using the Rust SDK
+  </Step>
+  <Step title="Review the documentation">
+    Refer to the [Helius documentation](/) for further guidance
+  </Step>
+  <Step title="Contact support">
+    Reach out to the Helius support team for more detailed assistance
+  </Step>
+</Steps>
+
+## Contribution to Our SDKs
+
+We welcome all contributions to our SDKs! If you're interested, here are our GitHub Repositories:
+
+<CardGroup cols={2}>
+  <Card title="Node.js SDK" icon="js" href="https://github.com/helius-labs/helius-sdk">
+    Contribute to our Node.js SDK
+  </Card>
+  <Card title="Rust SDK" icon="rust" href="https://github.com/helius-labs/helius-rust-sdk">
+    Contribute to our Rust SDK
+  </Card>
+</CardGroup>
+
+<Callout type="info">
+  Interested in contributing to the Helius Rust SDK specifically? Read the following [contributions guide](https://github.com/helius-labs/helius-rust-sdk/blob/dev/CONTRIBUTIONS.md) before opening up a pull request!
+</Callout>
+
+## Unofficial Community SDKs
+
+<Callout emoji="👏">
+  Our amazing community members have also created their own SDKs to interact with our REST APIs. Please note our team does not officially maintain these.
+</Callout>
+
+<CardGroup cols={3}>
+  <Card title="Kotlin SDK" href="https://github.com/dlgrech/khelius" />
+  <Card title="PHP SDK" href="https://github.com/HowRareIs/helius-php-sdk" />
+  <Card title="Python SDK" href="https://github.com/vmpyre/helius_sdk" />
+  <Card title="Rust SDK (Synchronous)" href="https://github.com/bgreni/helius-rust-sdk" />
+  <Card title="Rust SDK (Asynchronous)" href="https://github.com/dougEfresh/selene-helius-sdk" />
+</CardGroup>
