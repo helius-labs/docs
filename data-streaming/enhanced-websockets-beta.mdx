@@ -1,0 +1,504 @@
+---
+title: Enhanced Websockets (Beta)
+description: >-
+  Stream real-time transaction and account updates directly to your applications
+  with our enhanced websocket integration.
+---
+
+## What are Enhanced Websockets?
+
+Helius provides Enhanced WebSockets in addition to Solana's standard WebSocket methods. These enhanced WebSockets offer faster response times than traditional WebSockets. We support two subscription methods: `transactionSubscribe` and `accountSubscribe`.
+
+<Warning>
+These WebSockets are currently in beta and may occasionally experience delayed data. To address this, we're releasing [Laserstream](laserstream/), a new product that offers replay capabilities and ensures real-time delivery without delays.
+</Warning>
+
+<Info>
+This feature is available exclusively for **business and professional plans**. Please note that this is the **Enhanced WebSocket**, not **Yellowstone Geyser**. For Yellowstone Geyser functionality, a [**Dedicated Node**](../solana-rpc-nodes/dedicated-nodes/) is required.
+</Info>
+
+## Subscription Endpoints
+
+Geyser-enhanced WebSockets are currently available on `mainnet` and `devnet` with the following URLs
+
+**Mainnet:** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+
+**Devnet:** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Warning>
+Websockets have a 10-minute inactivity timer; to keep the WebSocket connection alive, it is highly recommended that health checks be implemented and that pings be sent every minute.
+</Warning>
+
+## Transaction Subscribe
+
+The transactionSubscribe websocket method enables real-time transaction events. To use it, provide a `TransactionSubscribeFilter` and optionally include `TransactionSubscribeOptions` for further customization.
+
+### **TransactionSubscribeFilter**
+
+`vote`: A boolean flag to include/exclude vote-related transactions.
+
+`failed`: A boolean flag to include/exclude transactions that failed.
+
+`signature`: Filters updates to a specific transaction based on its signature.
+
+`accountInclude`: A list of accounts for which you want to receive transaction updates. This means that only one of the accounts must be included in the transaction updates (e.g., Account 1 OR Account 2).
+
+`accountExclude`: A list of accounts you want to exclude from transaction updates.
+
+`accountRequired`: Transactions must involve these specified accounts to be included in updates. This means that all of the accounts must be included in the transaction update (e.g., Account 1 AND Account 2).
+
+<Tip>
+You can include up to 50,000 addresses in the accountsInclude, accountExclude and accountRequired arrays.&#x20;
+</Tip>
+
+### &#x20;**TransactionSubscribeOptions (Optional)**
+
+`commitment`: Specifies the commitment level for fetching data, dictating at what stage of the transaction lifecycle updates are sent. The possible values are **processed**, **confirmed** and **finalized**
+
+`encoding`: Sets the encoding format of the returned transaction data. The possible values are **base58**, **base64** and **jsonParsed**
+
+`transactionDetails` : Determines the level of detail for the returned transaction data. The possible values are **full, signatures, accounts** and **none**
+
+`showRewards`: A boolean flag indicating if reward data should be included in the transaction updates.
+
+`maxSupportedTransactionVersion`: Specifies the highest version of transactions you want to receive updates. To get Versioned Transactions, set the value to 1.
+
+<Info>
+`maxSupportedTransactionVersion` is required to return the accounts and full-level details of a given transaction (i.e., `transactionDetails: "accounts" | "full"`).
+</Info>
+
+## Account Subscribe
+
+Solana's Websockets support a method that allows you to subscribe to an account and receive notifications via the WebSocket connection whenever there are changes to the lamports or data associated with a matching account public key. This method aligns directly with the Solana [Websocket API specification](https://solana.com/docs/rpc/websocket#accountsubscribe).
+
+### **Parameters**
+
+`string`: The account public key, sent in base58 format (required).
+
+`object`: An optional object used to pass additional parameters.
+
+* `encoding`: Specifies the format for data returned in the AccountNotification. Supported values: **base58**, **base64**, **base64+zstd**, **jsonParsed** (default is **base58**).
+* `commitment`: Defines the commitment level for the transaction. Supported values: **finalized**, **confirmed**, **processed** (default is **finalized**).
+
+## Examples
+
+### Basic Account Subscribe Example
+
+<AccordionGroup>
+<Accordion title="Code Example">
+In this example, we are subscribing to account changes for the  account `SysvarC1ock11111111111111111111111111111111` . \
+\
+We will see an update whenever a change occurs to the account data or the lamports for this account.\
+This happens at a frequent interval for this specific account as the `slot` and `unixTimestamp` are both a part of the returned account data.
+
+```javascript
+// Create a WebSocket connection
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com?api-key=<API_KEY>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "accountSubscribe",
+        params: [
+            "SysvarC1ock11111111111111111111111111111111", // pubkey of account we want to subscribe to
+            {
+                encoding: "jsonParsed", // base58, base64, base65+zstd, jsonParsed
+                commitment: "confirmed", // defaults to finalized if unset
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+</Accordion>
+<Accordion title="Example Notification">
+```bash
+{
+    'jsonrpc': '2.0', 
+    'method': 'accountNotification', 
+    'params': 
+        {
+          'subscription': 237508762798666, 
+          'result': 
+           {
+            'context': {'slot': 235781083}, 
+            'value': 
+             {
+             'lamports': 1169280, 
+             'data': 'BvEhEb6hixL3QPn41gHcyi2CDGKt381jbNKFFCQr6XDTzCTXCuSUG9D', 
+             'owner': 'Sysvar1111111111111111111111111111111111111', 
+             'executable': False, 
+             'rentEpoch': 361, 
+             'space': 40
+             }
+           }
+        }
+}
+```
+</Accordion>
+</AccordionGroup>
+### Basic Transaction Subscribe Example
+
+<AccordionGroup>
+<Accordion title="Code Example">
+In this example, we are subscribing to transactions that contain the Raydium account                   `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`. Whenever a transaction occurs that contains `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`in the `accountKeys` of the transaction, we will receive a websocket notification.&#x20;
+
+Based on the subscription options, the transaction notification will be sent at the `processed` commitment level,`jsonParsed`encoding, `full` transaction details, and will show rewards.
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "transactionSubscribe",
+        params: [
+            {
+                accountInclude: ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"]
+            },
+            {
+                commitment: "processed",
+                encoding: "jsonParsed",
+                transactionDetails: "full",
+                showRewards: true,
+                maxSupportedTransactionVersion: 0
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+</Accordion>
+<Accordion title="Example Notification">
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "transactionNotification",
+    "params": {
+        "subscription": 4743323479349712,
+        "result": {
+            "transaction": {
+                "transaction": [
+                    "Ae6zfSExLsJ/E1+q0jI+3ueAtSoW+6HnuDohmuFwagUo2BU4OpkSdUKYNI1dJfMOonWvjaumf4Vv1ghn9f3Avg0BAAEDGycH0OcYRpfnPNuu0DBQxTYPWpmwHdXPjb8y2P200JgK3hGiC2JyC9qjTd2lrug7O4cvSRUVWgwohbbefNgKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HcpwKokfYDDAJTaF/TWRFWm0Gz5/me17PRnnywHurMBAgIAAQwCAAAAoIYBAAAAAAA=",
+                    "base64"
+                ],
+                "meta": {
+                    "err": null,
+                    "status": {
+                        "Ok": null
+                    },
+                    "fee": 5000,
+                    "preBalances": [
+                        28279852264,
+                        158122684,
+                        1
+                    ],
+                    "postBalances": [
+                        28279747264,
+                        158222684,
+                        1
+                    ],
+                    "innerInstructions": [],
+                    "logMessages": [
+                        "Program 11111111111111111111111111111111 invoke [1]",
+                        "Program 11111111111111111111111111111111 success"
+                    ],
+                    "preTokenBalances": [],
+                    "postTokenBalances": [],
+                    "rewards": null,
+                    "loadedAddresses": {
+                        "writable": [],
+                        "readonly": []
+                    },
+                    "computeUnitsConsumed": 0
+                }
+            },
+            "signature": "5moMXe6VW7L7aQZskcAkKGQ1y19qqUT1teQKBNAAmipzdxdqVLAdG47WrsByFYNJSAGa9TByv15oygnqYvP6Hn2p",
+            "slot": 224341380
+        }
+    }
+}
+```
+</Accordion>
+</AccordionGroup>
+### Monitoring new Jupiter DCAs using Transaction Subscribe + getAsset
+
+<AccordionGroup>
+<Accordion title="Code Example">
+```javascript
+const WebSocket = require('ws');   
+const bs58      = require('bs58').default;
+
+/* ───────────────────── 1.  CONFIG ──────────────────────────── */
+const API_KEY   = process.env.HELIUS_API_KEY || (() => { throw new Error('Set HELIUS_API_KEY'); })();
+const HELIUS_WS  = `wss://atlas-mainnet.helius-rpc.com?api-key=${API_KEY}`;
+const HELIUS_RPC = `https://mainnet.helius-rpc.com/?api-key=${API_KEY}`;
+const DCA_PROGRAM_ID = 'DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M';
+
+/* ───────────────────── 2.  BINARY DECODER ──────────────────── */
+function decodeOpenDcaV2(base58Data) {
+  const buf = Buffer.from(bs58.decode(base58Data));
+  return {
+    appIdx:    buf.readBigUInt64LE(8), // Application Index
+    inAmount:  buf.readBigUInt64LE(16), // Input Amount
+    perCycle:  buf.readBigUInt64LE(24), // Per Cycle
+    interval:  buf.readBigUInt64LE(32) // Interval
+  };
+}
+
+const TOKEN_META = new Map();   // mint → { symbol, decimals }
+/**
+ * Fetch symbol & decimals for a mint once then cache.
+ * Uses Helius getAsset DAS method.
+ */
+async function getMeta(mint) {
+  if (TOKEN_META.has(mint)) return TOKEN_META.get(mint);
+
+  const body = {
+    jsonrpc: '2.0',
+    id:      'meow',
+    method:  'getAsset',
+    params:  { id: mint, displayOptions: { showFungible: true } }
+  };
+
+  const { result } = await fetch(HELIUS_RPC, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body)
+  }).then(r => r.json());
+
+  const tokenInfo = result.token_info || {};
+  const metadata = { symbol: tokenInfo.symbol || '?', decimals: tokenInfo.decimals ?? 0 };
+  TOKEN_META.set(mint, metadata);
+  return metadata;
+}
+
+/* ───────────────────── 4.  PRETTY HELPERS ──────────────────── */
+function formatTimestamp(unixSeconds) {
+    return new Date(Number(unixSeconds) * 1_000)
+             .toISOString()
+             .replace('T', ' ')
+             .replace('.000Z', ' UTC');
+}
+function formatInterval(seconds) {
+    if (seconds % 86_400 === 0) return `every ${seconds / 86_400}d`;
+    if (seconds %  3_600 === 0) return `every ${seconds /  3_600}h`;
+    if (seconds %     60 === 0) return `every ${seconds /     60}m`;
+    return `every ${seconds}s`;
+  }
+
+  function formatAmount(raw, decimals, symbol) {
+    const ui = Number(raw) / 10 ** decimals;
+    return `${ui} ${symbol}`;
+  }
+/* ───────────────────── 5.  WEBSOCKET SETUP ─────────────────── */
+const ws = new WebSocket(HELIUS_WS);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id:      1,
+    method:  'transactionSubscribe',
+    params: [
+      { failed: false, accountInclude: [DCA_PROGRAM_ID] },
+      {
+        commitment: 'confirmed',
+        encoding:   'jsonParsed',
+        transactionDetails: 'full',
+        maxSupportedTransactionVersion: 0
+      }
+    ]
+  }));
+
+  setInterval(() => ws.ping(), 10_000);
+});
+
+/* ───────────────────── 6.  MAIN MESSAGE HANDLER ────────────── */
+ws.on('message', async raw => {
+  const payload = JSON.parse(raw);
+  const result  = payload.params?.result;
+  if (!result) return;
+
+  // Look for the `OpenDcaV2` log message
+  const logs = result.transaction.meta.logMessages || [];
+  if (!logs.some(l => l.includes('OpenDcaV2'))) return;
+
+  // loop through all instructions in the transaction to find the DCA instruction
+  for (const ix of result.transaction.transaction.message.instructions) {
+    if (ix.programId !== DCA_PROGRAM_ID) continue;
+
+    try {
+      // 1) decode binary payload
+      const d = decodeOpenDcaV2(ix.data);
+
+      // 2) fetch token symbols / decimals (cached)
+      const [inMeta, outMeta] = await Promise.all([
+        getMeta(ix.accounts[3]),   // input mint
+        getMeta(ix.accounts[4])    // output mint
+      ]);
+
+      // 3) create a nice looking table
+      console.table({
+        user:        ix.accounts[2],
+        pair:        `${inMeta.symbol} → ${outMeta.symbol}`,
+        opened:      formatTimestamp(d.appIdx),
+        'total in':  formatAmount(d.inAmount,  inMeta.decimals, inMeta.symbol),
+        'per cycle': formatAmount(d.perCycle,  inMeta.decimals, inMeta.symbol),
+        interval:    formatInterval(Number(d.interval))
+      });
+    } catch (e) {}
+  }
+});
+
+ws.on('error', console.error);
+
+ws.on('close', () => process.exit(1));
+```
+</Accordion>
+<Accordion title="Example Notification">
+<Frame>
+  <img src="/images/enhanced-websockets-example-1.png" />
+</Frame>
+</Accordion>
+</AccordionGroup>
+
+### Monitoring new pump.fun tokens using Transaction Subscribe
+
+<AccordionGroup>
+<Accordion title="Code Example">
+```javascript
+const WebSocket = require('ws');
+
+const KEY    = process.env.HELIUS_API_KEY ?? (() => { throw new Error('Set HELIUS_API_KEY'); })();
+const WS_URL = `wss://atlas-mainnet.helius-rpc.com?api-key=${KEY}`;
+const PUMP_FUN_PROG = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
+
+/* ────────── 2.  OPEN WEBSOCKET & SUBSCRIBE ──────────────────── */
+const ws = new WebSocket(WS_URL);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc : '2.0',
+    id      : 1,
+    method  : 'transactionSubscribe',
+    params  : [
+      { failed:false, accountInclude:[PUMP_FUN_PROG] },
+      { commitment:'confirmed', encoding:'jsonParsed',
+        transactionDetails:'full', maxSupportedTransactionVersion:0 }
+    ]
+  }));
+  // ping every 10 s so Atlas doesn't drop us
+  setInterval(() => ws.ping(), 10_000);
+});
+
+/* ────────── 3.  MESSAGE HANDLER ─────────────────────────────── */
+ws.on('message', raw => {
+  const payload = JSON.parse(raw);
+  const result  = payload.params?.result;
+  if (!result) return;
+
+  const logs = result.transaction.meta.logMessages || [];
+  // filter for the pump.fun "InitializeMint2" log
+  if (!logs.some(l => l.includes('Instruction: InitializeMint2'))) return;
+
+  const sig   = result.signature;    // transaction signature
+  const keys  = result.transaction.transaction.message.accountKeys
+                             .map(k => k.pubkey);
+  //   keys[0] → creator wallet
+  //   keys[1] → the new token
+  console.table({
+    tx:      sig,
+    creator: keys[0],
+    token:   keys[1]
+  });
+});
+
+ws.on('error', console.error);
+ws.on('close', () => process.exit(1));  
+```
+</Accordion>
+<Accordion title="Notification Example">
+<Frame>
+  <img src="/images/enhanced-websockets-example-2.png" />
+</Frame>
+</Accordion>
+</AccordionGroup>

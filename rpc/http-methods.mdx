@@ -1,0 +1,215 @@
+---
+title: 'HTTP RPC Methods'
+sidebarTitle: 'Overview'
+description: 'A comprehensive overview of HTTP RPC methods for client-server communication'
+---
+
+# HTTP RPC Methods
+
+This page provides an overview of all available HTTP RPC methods that can be used to interact with the API.
+
+## Account Information
+
+<CardGroup cols={2}>
+  <Card title="getAccountInfo" href="/rpc/http/getaccountinfo">
+    Retrieves information about an account from the blockchain.
+  </Card>
+  <Card title="getMultipleAccounts" href="/rpc/http/getmultipleaccounts">
+    Retrieves information about multiple accounts in a single request.
+  </Card>
+  <Card title="getProgramAccounts" href="/rpc/http/getprogramaccounts">
+    Returns all accounts owned by a specific program.
+  </Card>
+  <Card title="getBalance" href="/rpc/http/getbalance">
+    Returns the balance of an account at the current time.
+  </Card>
+  <Card title="getMinimumBalanceForRentExemption" href="/rpc/http/getminimumbalanceforrentexemption">
+    Returns the minimum balance required to make an account rent exempt.
+  </Card>
+  <Card title="getLargestAccounts" href="/rpc/http/getlargestaccounts">
+    Returns the accounts with the largest balances.
+  </Card>
+</CardGroup>
+
+## Block Information
+
+<CardGroup cols={2}>
+  <Card title="getBlock" href="/rpc/http/getblock">
+    Returns identity and transaction information about a confirmed block.
+  </Card>
+  <Card title="getBlocks" href="/rpc/http/getblocks">
+    Returns a list of confirmed blocks between two slots.
+  </Card>
+  <Card title="getBlocksWithLimit" href="/rpc/http/getblockwithlimit">
+    Returns a list of confirmed blocks starting at a given slot with a limit.
+  </Card>
+  <Card title="getBlockHeight" href="/rpc/http/getblockheight">
+    Returns the current block height of the node.
+  </Card>
+  <Card title="getBlockTime" href="/rpc/http/getblocktime">
+    Returns the estimated production time of a block.
+  </Card>
+  <Card title="getBlockCommitment" href="/rpc/http/getblockcommitment">
+    Returns commitment information for a block.
+  </Card>
+  <Card title="getBlockProduction" href="/rpc/http/getblockproduction">
+    Returns recent block production information.
+  </Card>
+  <Card title="getLatestBlockhash" href="/rpc/http/getlatestblockhash">
+    Returns the latest blockhash.
+  </Card>
+  <Card title="isBlockhashValid" href="/rpc/http/isblockhashvalid">
+    Returns whether a blockhash is still valid or not.
+  </Card>
+</CardGroup>
+
+## Transaction Information
+
+<CardGroup cols={2}>
+  <Card title="getTransaction" href="/rpc/http/gettransaction">
+    Returns transaction details for a confirmed transaction.
+  </Card>
+  <Card title="getTransactionCount" href="/rpc/http/gettransactioncount">
+    Returns the current Transaction count from the ledger.
+  </Card>
+  <Card title="getSignaturesForAddress" href="/rpc/http/getsignaturesforaddress">
+    Returns signatures for confirmed transactions that include the given address.
+  </Card>
+  <Card title="getSignatureStatuses" href="/rpc/http/getsignaturestatuses">
+    Returns the statuses of a list of signatures.
+  </Card>
+  <Card title="getFeeForMessage" href="/rpc/http/getfeeformessage">
+    Returns the fee for a message.
+  </Card>
+</CardGroup>
+
+## Token Information
+
+<CardGroup cols={2}>
+  <Card title="getTokenAccountBalance" href="/rpc/http/gettokenaccountbalance">
+    Returns the token balance of an account.
+  </Card>
+  <Card title="getTokenAccountsByOwner" href="/rpc/http/gettokenaccountsbyowner">
+    Returns all token accounts owned by the specified address.
+  </Card>
+  <Card title="getTokenAccountsByDelegate" href="/rpc/http/gettokenaccountsbydelegate">
+    Returns all token accounts that delegate to the specified address.
+  </Card>
+  <Card title="getTokenLargestAccounts" href="/rpc/http/gettokenlargestaccounts">
+    Returns the largest accounts for a specific token.
+  </Card>
+  <Card title="getTokenSupply" href="/rpc/http/gettokensupply">
+    Returns the total supply of a token.
+  </Card>
+</CardGroup>
+
+## Slot Information
+
+<CardGroup cols={2}>
+  <Card title="getSlot" href="/rpc/http/getslot">
+    Returns the current slot that the node is processing.
+  </Card>
+  <Card title="getSlotLeader" href="/rpc/http/getslotleader">
+    Returns the identity of the current slot leader.
+  </Card>
+  <Card title="getSlotLeaders" href="/rpc/http/getslotleaders">
+    Returns the slot leaders for a slot range.
+  </Card>
+  <Card title="getMinimumLedgerSlot" href="/rpc/http/minimumledgerslot">
+    Returns the lowest slot that the node has information about.
+  </Card>
+  <Card title="getMaxRetransmitSlot" href="/rpc/http/getmaxretransmitslot">
+    Returns the maximum slot seen from retransmit stage.
+  </Card>
+  <Card title="getMaxShredInsertSlot" href="/rpc/http/getmaxshredinsertslot">
+    Returns the maximum slot seen from shred insert.
+  </Card>
+  <Card title="getHighestSnapshotSlot" href="/rpc/http/gethighestsnapshotslot">
+    Returns the highest available snapshot slot.
+  </Card>
+</CardGroup>
+
+## Epoch Information
+
+<CardGroup cols={2}>
+  <Card title="getEpochInfo" href="/rpc/http/getepochinfo">
+    Returns information about the current epoch.
+  </Card>
+  <Card title="getEpochSchedule" href="/rpc/http/getepochschedule">
+    Returns epoch schedule information.
+  </Card>
+  <Card title="getLeaderSchedule" href="/rpc/http/getleaderschedule">
+    Returns the leader schedule for an epoch.
+  </Card>
+</CardGroup>
+
+## Inflation & Rewards
+
+<CardGroup cols={2}>
+  <Card title="getInflationGovernor" href="/rpc/http/getinflationgovernor">
+    Returns the current inflation governor parameters.
+  </Card>
+  <Card title="getInflationRate" href="/rpc/http/getinflationrate">
+    Returns the specific inflation values for the current epoch.
+  </Card>
+  <Card title="getInflationReward" href="/rpc/http/getinflationreward">
+    Returns the inflation reward for a list of addresses for an epoch.
+  </Card>
+</CardGroup>
+
+## System Information
+
+<CardGroup cols={2}>
+  <Card title="getHealth" href="/rpc/http/gethealth">
+    Returns the current health status of the node.
+  </Card>
+  <Card title="getIdentity" href="/rpc/http/getidentity">
+    Returns the identity pubkey for the current node.
+  </Card>
+  <Card title="getVersion" href="/rpc/http/getversion">
+    Returns the current software version running on the node.
+  </Card>
+  <Card title="getClusterNodes" href="/rpc/http/getclusternodes">
+    Returns information about all the nodes in the cluster.
+  </Card>
+  <Card title="getGenesisHash" href="/rpc/http/getgenesishash">
+    Returns the genesis hash.
+  </Card>
+  <Card title="getFirstAvailableBlock" href="/rpc/http/getfirstavailableblock">
+    Returns the lowest slot that the node has information about.
+  </Card>
+  <Card title="getRecentPerformanceSamples" href="/rpc/http/getrecentperformancesamples">
+    Returns a list of recent performance samples.
+  </Card>
+  <Card title="getRecentPrioritizationFees" href="/rpc/http/getrecentprioritizationfees">
+    Returns recent block hash fee information.
+  </Card>
+  <Card title="getVoteAccounts" href="/rpc/http/getvoteaccounts">
+    Returns the current vote accounts.
+  </Card>
+  <Card title="getSupply" href="/rpc/http/getsupply">
+    Returns information about the current supply.
+  </Card>
+</CardGroup>
+
+## Stake Information
+
+<CardGroup cols={2}>
+  <Card title="getStakeMinimumDelegation" href="/rpc/http/getstakeminimumdelegation">
+    Returns the minimum delegation required for staking.
+  </Card>
+</CardGroup>
+
+## Transaction Submission
+
+<CardGroup cols={2}>
+  <Card title="sendTransaction" href="/rpc/http/sendtransaction">
+    Submits a signed transaction to the cluster for processing.
+  </Card>
+  <Card title="simulateTransaction" href="/rpc/http/simulatetransaction">
+    Simulates the execution of a transaction.
+  </Card>
+  <Card title="requestAirdrop" href="/rpc/http/requestairdrop">
+    Requests an airdrop of lamports to a Pubkey.
+  </Card>
+</CardGroup>
