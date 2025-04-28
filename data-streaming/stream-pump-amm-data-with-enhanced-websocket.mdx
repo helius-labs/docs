@@ -1,0 +1,321 @@
+---
+title: "Stream Pump AMM Data with Helius - Enhanced WebSocket"
+sidebarTitle: "Enhanced WebSocket"
+description: >-
+  Learn how to stream live Pump AMM data from Solana using Enhanced WebSocket with Helius.
+---
+
+## Enhanced WebSocket
+
+<p>
+  <strong>Why choose Enhanced WebSocket</strong> – fast JSON streams with
+  decoded accounts and transactions. No custom network stack is required.
+</p>
+
+<Info>
+  Available on <strong>Business</strong> and higher plans.
+</Info>
+
+<p>
+  How it works – connect to the Atlas endpoint, subscribe to Pump AMM
+  transactions, and listen for updates. The sample retries five times with
+  exponential back‑off.
+</p>
+
+## Requirements
+
+<Card>
+  <ul>
+    <li><strong>Node.js ≥ 18</strong> (tested with v20)</li>
+    <li><strong>TypeScript ≥ 5</strong> if you plan to run the <code>.ts</code> samples with <code>ts‑node</code></li>
+    <li>A <strong>Helius Business Plan or higher</strong></li>
+    <li>An <strong>environment variable</strong> named <code>HELIUS_API_KEY</code> that stores your API key</li>
+  </ul>
+
+  <Tip>
+    Install dependencies globally: <code>npm i -g typescript ts‑node</code>
+  </Tip>
+</Card>
+
+## Implementation
+
+<Steps>
+  <Step title="Install Dependencies">
+    ```bash
+    npm install ws
+    ```
+  </Step>
+
+  <Step title="Create the WebSocket Client">
+    Create a file named `enhanced-ws-pump.ts` with the following code:
+    
+    ```ts
+    // enhanced-ws-pump.ts
+    import WebSocket from 'ws';
+
+    // Configuration for reconnection
+    const MAX_RETRIES = 5;
+    const INITIAL_RETRY_DELAY = 1000; // 1 second
+    let retryCount = 0;
+    let retryDelay = INITIAL_RETRY_DELAY;
+
+    // Function to create a new WebSocket connection
+    function createWebSocket() {
+      return new WebSocket(`wss://atlas-mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`);
+    }
+
+    // Function to send a request to the WebSocket server
+    function sendRequest(ws: WebSocket) {
+      const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "transactionSubscribe",
+        params: [
+          {
+            accountInclude: ["pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"]
+          },
+          {
+            commitment: "processed",
+            encoding: "jsonParsed",
+            transactionDetails: "full",
+            maxSupportedTransactionVersion: 0
+          }
+        ]
+      };
+      ws.send(JSON.stringify(request));
+    }
+
+    // Function to send a ping to the WebSocket server
+    function startPing(ws: WebSocket) {
+      return setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.ping();
+          console.log('Ping sent');
+        }
+      }, 30000); // Ping every 30 seconds
+    }
+
+    // Function to handle reconnection
+    function reconnect() {
+      if (retryCount >= MAX_RETRIES) {
+        console.error('Maximum retry attempts reached.');
+        return;
+      }
+
+      console.log(`Attempting to reconnect in ${retryDelay/1000} seconds... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+
+      setTimeout(() => {
+        retryCount++;
+        retryDelay *= 2; // Exponential backoff
+        initializeWebSocket();
+      }, retryDelay);
+    }
+
+    // Function to initialize WebSocket with all event handlers
+    function initializeWebSocket() {
+      const ws = createWebSocket();
+      let pingInterval: NodeJS.Timeout;
+
+      ws.on('open', function open() {
+        console.log('WebSocket is open');
+        retryCount = 0; // Reset retry count on successful connection
+        retryDelay = INITIAL_RETRY_DELAY; // Reset retry delay
+        sendRequest(ws);
+        pingInterval = startPing(ws);
+      });
+
+      ws.on('message', function incoming(data: WebSocket.Data) {
+        const messageStr = data.toString('utf8');
+        try {
+          const messageObj = JSON.parse(messageStr);
+          
+          // Check if it's a subscription confirmation
+          if (messageObj.result !== undefined) {
+            console.log('Subscription confirmed:', messageObj);
+            return;
+          }
+          
+          // Check if it's transaction data
+          if (messageObj.params && messageObj.params.result) {
+            const transaction = messageObj.params.result;
+            console.log('Received transaction:', JSON.stringify(transaction, null, 2));
+          }
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
+        }
+      });
+
+      ws.on('error', function error(err: Error) {
+        console.error('WebSocket error:', err);
+      });
+
+      ws.on('close', function close() {
+        console.log('WebSocket is closed');
+        if (pingInterval) {
+          clearInterval(pingInterval);
+        }
+        reconnect();
+      });
+    }
+
+    // Start the WebSocket connection
+    initializeWebSocket();
+
+    // Handle program termination
+    process.on('SIGINT', () => {
+      console.log('Shutting down...');
+      process.exit(0);
+    });
+    ```
+  </Step>
+
+  <Step title="Set Environment Variables">
+    Add your Helius API key as an environment variable:
+    
+    ```bash
+    export HELIUS_API_KEY=your-helius-api-key
+    ```
+    
+    Replace `your-helius-api-key` with your actual Helius API key from the dashboard.
+  </Step>
+
+  <Step title="Run the Application">
+    Execute the script to start streaming Pump AMM data:
+    
+    ```bash
+    npx ts-node enhanced-ws-pump.ts
+    ```
+    
+    You will see parsed Pump AMM transactions in your terminal. The client retries automatically when the socket closes.
+  </Step>
+</Steps>
+
+## Key benefits
+
+- **Browser-compatible** - The WebSocket protocol works in both Node.js and browser environments
+- **Rich data** - Get fully parsed transaction objects with decoded instructions and accounts
+- **Simple implementation** - No special libraries required beyond a standard WebSocket client
+- **Auto-reconnect** - Built-in retry logic ensures a stable connection
+
+## Common issues and solutions
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    Verify your HELIUS_API_KEY is correct.
+  </Accordion>
+  <Accordion title="No logs received">
+    Ensure the Pump AMM program address is correct and there is activity on the program.
+  </Accordion>
+  <Accordion title="Connection dropping">
+    Implement more robust reconnection logic or check network stability.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<Steps>
+  <Step title="Create a UI Dashboard">
+    Build a web interface to visualize incoming Pump AMM transactions in real-time using React or Vue.js.
+  </Step>
+  
+  <Step title="Implement Database Storage">
+    Store transaction data in a database like MongoDB or PostgreSQL for historical analysis:
+    
+    ```typescript
+    import { MongoClient } from 'mongodb';
+    
+    // Setup MongoDB connection
+    async function setupDatabase() {
+      const client = new MongoClient('mongodb://localhost:27017');
+      await client.connect();
+      return client.db('pump-amm').collection('transactions');
+    }
+    
+    // Then in your message handler:
+    ws.on('message', async function incoming(data: WebSocket.Data) {
+      const messageStr = data.toString('utf8');
+      try {
+        const messageObj = JSON.parse(messageStr);
+        
+        if (messageObj.params && messageObj.params.result) {
+          const transaction = messageObj.params.result;
+          
+          // Store in database
+          const collection = await setupDatabase();
+          await collection.insertOne({
+            timestamp: new Date(),
+            transaction: transaction
+          });
+          
+          console.log('Transaction stored in database');
+        }
+      } catch (e) {
+        console.error('Failed to process message:', e);
+      }
+    });
+    ```
+  </Step>
+  
+  <Step title="Set Up Alerting System">
+    Configure alerts for high-value transactions or specific patterns using a service like Discord webhooks:
+    
+    ```typescript
+    import axios from 'axios';
+    
+    // Send alert to Discord webhook
+    async function sendAlert(message: string) {
+      await axios.post('YOUR_DISCORD_WEBHOOK_URL', {
+        content: message
+      });
+    }
+    
+    // Then in your message handler:
+    if (messageObj.params && messageObj.params.result) {
+      const transaction = messageObj.params.result;
+      
+      // Example: Check for transactions above a certain value
+      const isHighValue = checkIfHighValueTransaction(transaction);
+      
+      if (isHighValue) {
+        sendAlert(`High-value transaction detected: ${transaction.signature}`);
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Implement Heartbeat Monitoring">
+    Add a more robust heartbeat system to ensure continuous connectivity:
+    
+    ```typescript
+    // Enhanced heartbeat system
+    function setupHeartbeat(ws: WebSocket) {
+      let lastPongTime = Date.now();
+      
+      // Send ping regularly
+      const pingInterval = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.ping();
+        }
+      }, 30000);
+      
+      // Track pong responses
+      ws.on('pong', () => {
+        lastPongTime = Date.now();
+      });
+      
+      // Check connection health
+      const healthCheck = setInterval(() => {
+        const now = Date.now();
+        if (now - lastPongTime > 90000) {  // No pong for 90 seconds
+          console.warn('Connection seems unresponsive, reconnecting...');
+          ws.terminate();
+          clearInterval(pingInterval);
+          clearInterval(healthCheck);
+        }
+      }, 30000);
+      
+      return { pingInterval, healthCheck };
+    }
+    ```
+  </Step>
+</Steps> 
