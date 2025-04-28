@@ -1,0 +1,51 @@
+---
+title: Priority Fee API
+sidebarTitle: Overview
+description: Estimate priority fees for Solana transactions.
+---
+
+## Introduction
+
+The Helius Priority Fee API helps you determine the appropriate priority fees for your Solana transactions. Priority fees allow your transactions to be processed faster during network congestion by incentivizing validators to include your transactions before others with lower fees.
+
+## What Are Priority Fees?
+
+On Solana, each transaction has a base fee. Priority fees are additional fees you can pay to prioritize your transaction in the validator's queue. You set a price for each compute unit your transaction may use - the higher the price, the more likely your transaction will be processed before others.
+
+Priority fees are essential for:
+- Minting NFTs during popular launches
+- Swapping tokens during market volatility
+- Making time-sensitive trades
+- Any operation during high network congestion
+
+## Available API Methods
+
+<Card title="getPriorityFeeEstimate" href="/priority-fee-api/getpriorityfeeestimate">
+Get accurate fee estimates based on current network conditions
+</Card>
+
+## How the API Works
+
+The Priority Fee API analyzes recent transactions to calculate appropriate fee levels. It provides estimates at several priority levels:
+
+- **Min** (0th percentile) - Minimum viable fee
+- **Low** (25th percentile) - Longer confirmation time
+- **Medium** (50th percentile) - Standard confirmation time
+- **High** (75th percentile) - Faster confirmation
+- **VeryHigh** (95th percentile) - Very fast confirmation
+- **UnsafeMax** - Maximum observed fee (may be unnecessarily high)
+
+## Getting Started
+
+There are two ways to implement the Priority Fee API:
+
+<CardGroup cols={2}>
+  <Card title="Serialized Transaction (Recommended)" href="/sending-transactions/estimating-fees-using-serialized-transaction">
+    Provide a fully serialized transaction for the most accurate fee estimates tailored to your specific transaction.
+  </Card>
+  <Card title="Account Keys" href="/sending-transactions/estimating-fees-using-account-keys">
+    Supply the account keys involved in your transaction when a serialized transaction is not available.
+  </Card>
+</CardGroup>
+
+You can also customize your fee estimates with options like lookback period, priority level, and more.
