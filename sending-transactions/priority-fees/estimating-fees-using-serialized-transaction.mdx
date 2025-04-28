@@ -1,0 +1,323 @@
+---
+title: Estimating Priority Fees using Serialized Transactions
+description: Guide for estimating priority fees using serialized transactions with the Helius Priority Fee API
+---
+
+## Overview
+
+This guide demonstrates how to estimate priority fees using serialized transactions, which is the recommended approach for accurate fee estimation with the Helius Priority Fee API.
+
+<Callout type="info">
+Using serialized transactions provides the most accurate fee estimates because the API can analyze the exact accounts and operations that will be performed.
+</Callout>
+
+## Why Use Serialized Transactions?
+
+Serialized transactions offer several advantages for fee estimation:
+
+- **Higher accuracy**: The API can analyze the exact writable and read-only accounts in your transaction
+- **Detailed analysis**: Incorporates instruction-specific data that may affect priority fee markets
+- **Realistic estimates**: Reflects the actual transaction you'll be sending to the network
+
+## Implementation Steps
+
+### 1. Create Your Transaction
+
+First, build your transaction with all necessary instructions (except the priority fee instruction):
+
+```javascript
+import { 
+  Connection, 
+  PublicKey, 
+  Transaction, 
+  SystemProgram, 
+  ComputeBudgetProgram 
+} from "@solana/web3.js";
+import bs58 from "bs58";
+
+// Initialize connection
+const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
+
+// Create transaction with your instructions
+const transaction = new Transaction();
+
+// Add your regular instructions
+const transferIx = SystemProgram.transfer({
+  fromPubkey: senderKeypair.publicKey,
+  toPubkey: recipientPublicKey,
+  lamports: 1000000, // 0.001 SOL
+});
+transaction.add(transferIx);
+
+// Temporarily set required fields for serialization
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.feePayer = senderKeypair.publicKey;
+```
+
+### 2. Serialize the Transaction
+
+The transaction must be serialized before sending it to the Priority Fee API:
+
+```javascript
+// Serialize the transaction
+const serializedTransaction = bs58.encode(transaction.serialize());
+```
+
+### 3. Call the Priority Fee API
+
+Make a request to the Helius Priority Fee API with the serialized transaction:
+
+```javascript
+async function getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel = "Medium") {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [
+        {
+          transaction: serializedTransaction,
+          options: { 
+            priorityLevel: priorityLevel,
+            recommended: true 
+          }
+        }
+      ]
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.error) {
+    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  }
+  
+  return result.result.priorityFeeEstimate;
+}
+```
+
+### 4. Add the Priority Fee to Your Transaction
+
+After receiving the fee estimate, update your transaction with the priority fee instruction:
+
+```javascript
+// Get priority fee estimate
+const priorityFee = await getPriorityFeeEstimate(connection, serializedTransaction, "High");
+console.log(`Estimated priority fee: ${priorityFee} micro-lamports`);
+
+// Reset transaction instructions
+transaction.instructions = [];
+
+// Add priority fee instruction first
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+  microLamports: priorityFee
+});
+transaction.add(priorityFeeIx);
+
+// Re-add your original instructions
+transaction.add(transferIx);
+
+// Update blockhash and sign
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.sign(senderKeypair);
+```
+
+### 5. Send the Transaction
+
+Finally, send your transaction with the priority fee:
+
+```javascript
+try {
+  const signature = await sendAndConfirmTransaction(
+    connection,
+    transaction,
+    [senderKeypair],
+    { maxRetries: 0 } // Set to 0 for staked connection usage
+  );
+  console.log(`Transaction successful with signature: ${signature}`);
+  return signature;
+} catch (error) {
+  console.error("Error sending transaction:", error);
+  throw error;
+}
+```
+
+## Complete Example
+
+Here's a complete example combining all steps:
+
+```javascript
+const { 
+  Connection, 
+  PublicKey, 
+  Transaction, 
+  SystemProgram, 
+  ComputeBudgetProgram, 
+  sendAndConfirmTransaction,
+  Keypair
+} = require("@solana/web3.js");
+const bs58 = require("bs58");
+
+// Initialize connection and accounts
+const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
+const senderKeypair = Keypair.fromSecretKey(bs58.decode("YOUR_PRIVATE_KEY"));
+const receiverPublicKey = new PublicKey("RECIPIENT_PUBLIC_KEY");
+
+async function sendTransactionWithPriorityFee(amount, priorityLevel = "Medium") {
+  // Create transaction with transfer instruction
+  const transaction = new Transaction();
+  const transferIx = SystemProgram.transfer({
+    fromPubkey: senderKeypair.publicKey,
+    toPubkey: receiverPublicKey,
+    lamports: amount,
+  });
+  transaction.add(transferIx);
+  
+  // Temporarily set a recent blockhash for serialization
+  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  transaction.feePayer = senderKeypair.publicKey;
+  
+  // Serialize the transaction
+  const serializedTransaction = bs58.encode(transaction.serialize());
+  
+  // Get priority fee estimate
+  const priorityFee = await getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel);
+  console.log(`Estimated ${priorityLevel} priority fee: ${priorityFee} micro-lamports`);
+  
+  // Reset transaction and add priority fee instruction first
+  transaction.instructions = [];
+  
+  // Add priority fee instruction
+  const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: priorityFee
+  });
+  transaction.add(priorityFeeIx);
+  
+  // Add the original transfer instruction
+  transaction.add(transferIx);
+  
+  // Update blockhash and sign
+  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  transaction.sign(senderKeypair);
+  
+  // Send transaction
+  try {
+    const signature = await sendAndConfirmTransaction(
+      connection,
+      transaction,
+      [senderKeypair],
+      { maxRetries: 0 } // Set to 0 for staked connection usage
+    );
+    console.log(`Transaction successful with signature: ${signature}`);
+    return signature;
+  } catch (error) {
+    console.error("Error sending transaction:", error);
+    throw error;
+  }
+}
+
+// Helper function to get priority fee estimate
+async function getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel) {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [
+        {
+          transaction: serializedTransaction,
+          options: { 
+            priorityLevel: priorityLevel,
+            recommended: true 
+          }
+        }
+      ]
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.error) {
+    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  }
+  
+  return result.result.priorityFeeEstimate;
+}
+
+// Send 0.01 SOL with High priority
+sendTransactionWithPriorityFee(10000000, "High");
+```
+
+## Advanced Options
+
+### All Priority Levels
+
+You can request estimates for all priority levels simultaneously:
+
+```javascript
+async function getAllPriorityLevels(connection, serializedTransaction) {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [
+        {
+          transaction: serializedTransaction,
+          options: { 
+            includeAllPriorityFeeLevels: true
+          }
+        }
+      ]
+    })
+  });
+  
+  const result = await response.json();
+  return result.result.priorityFeeLevels;
+}
+
+// Usage
+const allLevels = await getAllPriorityLevels(connection, serializedTransaction);
+console.log("Available priority levels:", allLevels);
+// Output: { min: 0.0, low: 10.0, medium: 10000.0, high: 25000.0, veryHigh: 1000000.0, unsafeMax: 50000000.0 }
+```
+
+### Empty Slot Evaluation
+
+The `evaluateEmptySlotAsZero` option optimizes fee calculations for accounts with sparse transaction history:
+
+```javascript
+const response = await fetch(connection.rpcEndpoint, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getPriorityFeeEstimate",
+    params: [
+      {
+        transaction: serializedTransaction,
+        options: { 
+          priorityLevel: "Medium",
+          recommended: true,
+          evaluateEmptySlotAsZero: true  // Default is true
+        }
+      }
+    ]
+  })
+});
+```
+
+When `true` (default), this treats slots with no transactions for a particular account as having zero fees, rather than excluding them from the calculation. This can provide more accurate estimates for accounts with infrequent activity.
+
+## Related Resources
+
+- [Understanding Priority Fees](/sending-transactions/priority-fees)
+- [Priority Fee API Reference](/sending-transactions/priority-fee-api)
+- [Implementing Priority Fees](/sending-transactions/implementing-priority-fees) 

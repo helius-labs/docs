@@ -1,0 +1,53 @@
+---
+title: Priority Fees Best Practices
+sidebarTitle: Best Practices
+description: Comprehensive guide to effectively implementing and optimizing priority fees for Solana transactions
+---
+
+## Introduction to Priority Fees
+
+Priority fees allow you to increase the likelihood of your Solana transactions being processed quickly by paying an additional fee. This enables your transactions to compete more effectively for block space during network congestion.
+
+## Determining Appropriate Priority Fees
+
+1. **Use the Priority Fee API**: Always use `getPriorityFeeEstimate` with the `recommended: true` option to get a reasonable baseline fee based on current network conditions.
+
+2. **Match transaction urgency to priority level**:
+   - `Low` - Non-urgent transactions, can wait for confirmation
+   - `Medium` - Standard priority, reasonable confirmation time
+   - `High` - Time-sensitive transactions
+   - `VeryHigh` - Critical transactions during high congestion
+
+3. **Adjust during network congestion**: During high network activity, consider using higher priority levels to ensure timely processing.
+
+4. **Monitor performance**: Track your transaction performance and adjust your priority fee strategy based on real-world results.
+
+## Transaction Configuration
+
+1. **Add compute budget instructions first**: Always place compute budget instructions at the beginning of your transaction for proper processing.
+
+2. **Don't overestimate compute unit needs**: Request only the compute units your transaction actually requires to avoid wasting SOL.
+
+3. **Set maxRetries to 0 with staked connections**: This ensures proper handling by the Helius infrastructure.
+
+4. **Update before sending**: Always refresh the blockhash before signing and sending the final transaction.
+
+## Account-Based Estimates
+
+1. **Include all relevant accounts**: For accurate estimates, include all writable accounts that will be part of your transaction.
+
+2. **Focus on writable accounts**: The v2 algorithm primarily considers writable accounts, so prioritize including those in your account list.
+
+3. **Be aware of limitations**: Account-based estimates don't consider instruction-specific factors that might affect fees.
+
+4. **Handle sparse history**: Use `evaluateEmptySlotAsZero: true` for accounts with infrequent activity.
+
+## Serialized Transaction Estimates
+
+1. **Always serialize the actual transaction**: For accurate local fee market estimates, serialize the same transaction you'll send, not a simplified version.
+
+2. **Include all actual instructions**: The Priority Fee API works best when the serialized transaction includes all instructions (except the priority fee instruction itself).
+
+3. **Compare with account-based estimates**: When possible, compare these estimates with account-based estimates to understand the differences.
+
+4. **Handle errors gracefully**: The API may return errors if your transaction is malformed or contains invalid instructions.
