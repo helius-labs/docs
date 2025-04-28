@@ -1,0 +1,144 @@
+---
+title: "Getting Started with Dedicated Nodes"
+sidebarTitle: "Getting Started"
+description: "Working with your Dedicated Node"
+---
+
+## Getting Started
+
+Once you have your Dedicated Node set up and ready (status: **Succeeded**), you can start working with it. For information about the dashboard and managing your node, see the [Dashboard](/solana-rpc-nodes/dedicated-nodes/dashboard) page.
+
+## Connecting to your dedicated node
+
+### RPC and Websocket
+
+Each dedicated node comes with an RPC URL that you can use like in the example below.
+
+Here we are using Solana web3.js to call [`getSlot`](/rpc/http/getslot) using our dedicated node:
+
+```javascript
+// Using @solana/web3.js
+const { Connection } = require('@solana/web3.js');
+
+const connection = new Connection('https://liveried-grazings-gxzjabdgqa-dedicated.helius-rpc.com?api-key=465964ff-f718-47d2-a51c-66ddcce332d7');
+
+// Get the current slot
+const getSlot = async () => {
+    const slot = await connection.getSlot();
+    console.log('Current slot:', slot);
+};
+
+getSlot();
+```
+
+This is how you would set up a native websocket connection to stream new slots:
+
+```javascript
+const Websocket = require('ws');
+const ws = new Websocket('wss://liveried-grazings-gxzjabdgqa-dedicated.helius-rpc.com?api-key=465964ff-f718-47d2-a51c-66ddcce332d7	');
+
+ws.onopen = () => {
+    ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'slotSubscribe'
+    }));
+};
+
+ws.onmessage = (event) => {
+    console.log(JSON.parse(event.data));
+};
+```
+
+### Set up your Geyser Plugin
+
+To begin using the Geyser plugin you need to clone the Yellowstone repo:
+
+```shell
+git clone https://github.com/helius-labs/yellowstone-grpc.git
+```
+
+#### Using the CLI
+
+```sh
+cd yellowstone-grpc/examples/rust/
+cargo run --bin client -- -e "https://liveried-grazings-gxzjabdgqa-dedicated-lb.helius-rpc.com:2053" --x-token 42f03938-1daa-4162-a457-bb551ecaf590 subscribe --slots
+```
+
+Once complete, you should see the terminal output new slots. Don't forget to replace the URL and Token with your own.
+
+<Frame caption="Terminal output of new slots">
+  <img src="/images/slots.png" />
+</Frame>
+
+### TypeScript Example
+
+This example streams all Raydium transactions live in JSON format:
+
+```typescript
+import Client, { CommitmentLevel, SubscribeRequest } from "@triton-one/yellowstone-grpc";
+import * as bs58 from 'bs58';
+
+const processBuffers = (obj: any): any =>
+  !obj ? obj :
+  Buffer.isBuffer(obj) || obj instanceof Uint8Array ? bs58.encode(obj) :
+  Array.isArray(obj) ? obj.map(processBuffers) :
+  typeof obj === 'object' ? Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, processBuffers(v)])) :
+  obj;
+
+const main = async () => {
+  const client = new Client("grpc_url", 
+    "x_token", 
+    { "grpc.max_receive_message_length": 64 * 1024 * 1024 });
+
+  const stream = await client.subscribe();
+  const write = (req: SubscribeRequest) => new Promise<void>((resolve, reject) => 
+    stream.write(req, (err) => err ? reject(err) : resolve()));
+
+  stream.on("data", (data) => {
+    try { console.log(JSON.stringify(processBuffers(data), null, 2)); }
+    catch (e) { console.error('Error:', e); }
+  });
+
+  await write({
+    slots: {},
+    accounts: {},
+    accountsDataSlice: [],
+    transactions: {
+      allRaydiumTxs: {
+        accountInclude: ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"],
+        accountExclude: [],
+        accountRequired: [],
+      }
+    },
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    commitment: CommitmentLevel.PROCESSED,
+  });
+
+  setInterval(() => write({
+    ping: { id: 1 },
+    accounts: {},
+    accountsDataSlice: [],
+    transactions: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    slots: {},
+  }).catch(console.error), 30000);
+
+  await new Promise<void>((resolve, reject) => {
+    stream.on("error", (e) => { console.error("Stream error:", e); reject(e); stream.end(); });
+    stream.on("end", resolve);
+    stream.on("close", resolve);
+  });
+};
+
+main().catch(console.error);
+```
+
+<Frame caption="Example output of a partial Raydium transaction">
+  <img src="/images/raydium-tx.png" />
+</Frame>
+

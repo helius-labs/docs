@@ -1,0 +1,33 @@
+---
+title: "Dedicated Nodes Best Practices"
+sidebarTitle: "Best Practices"
+description: "Optimize Performance and Maintain Node Health"
+---
+
+## Best Practices
+
+### Managing Node Load
+
+While nodes don't have strict usage limits, they are bound by hardware constraints. A balanced workload helps maintain optimal performance and node liveliness.
+
+* Avoid mixing heavy account-based calls (e.g. [getProgramAccounts](/rpc/http/getprogramaccounts), [getTokenAccountsByOwner](/rpc/http/gettokenaccountsbyowner), etc.) with gRPC usage on the same node.
+  * It's best to move heavy account-based calls to a shared plan since we have a [**custom indexer**](https://x.com/heliuslabs/status/1864750969755422797) that makes those calls much faster.
+* Monitor your node's metrics to understand its performance based on response times, successful request %, and error counts.
+* Consider distributing intensive workloads across multiple nodes in a dedicated fleet
+
+<Note>
+If your team needs a cluster of multiple dedicated nodes, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). We will take in your requirements and configure a dedicated fleet for your team.
+</Note>
+
+### System Recovery
+
+Our nodes include an automatic recovery mechanism:
+
+* If a node falls too far behind in processing slots, it will automatically initiate a restart
+* During this recovery period, all requests are seamlessly routed to our shared backup pool
+* Once your node catches up and becomes healthy, traffic will resume to it
+
+### Questions and Support
+
+* Contact us through your Telegram group (available for dedicated node customers)
+* You can also get support from the chat system on our website or in our Discord server 

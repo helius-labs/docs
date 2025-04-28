@@ -1,0 +1,71 @@
+---
+title: "Dedicated Nodes Dashboard"
+sidebarTitle: "Dashboard"
+description: "Understanding and using your Dedicated Node Dashboard"
+---
+
+## Dashboard Overview
+
+Once you have placed an order for a Dedicated Node you will get access to the overview page which will be your Dedicated Node Hub. This will have all your pending orders and active Nodes. It can be reached by going to the Dedicated Nodes tab on the main dashboard or by clicking [here](https://dashboard.helius.dev/dedicated-nodes).  You will get an email once your node is ready and the status will change to **Succeeded**.
+
+<Frame caption="Dedicated Nodes Dashboard">
+  <img src="/images/dedicated-nodes-dashboard.png" />
+</Frame>
+
+### Order ID and Host ID
+
+Order ID and Host ID are identifiers that can be used when contacting the support team with questions regarding your order (Order ID) or your node (Host ID). Think of them as names for your Node.
+
+### URL
+
+The URL is your standard Solana RPC URL which can be used to call [RPC methods](/rpc/http/) or used as a [websocket](/rpc/websocket/) by changing https to wss.
+
+### gRPC URL & gRPC Token
+
+Your gRPC URL and gRPC Token are used when working with the Geyser Plugin that you chose. There will be code examples in the Getting Started guide that explain how to use the gRPC and stream Solana events with minimal latency. All our dedicated nodes are [**Shredstream**](https://docs.jito.wtf/lowlatencytxnfeed/) enhanced.
+
+### Region
+
+This is where your node is located.
+
+### Solana version
+
+This is the current version that is running on your node.
+
+### Geyser type
+
+This is the Geyser plugin you chose.
+
+### Status
+
+Status represents the current state of your node:
+
+* **Pending —** signifies a pending order for your node
+* **Underway —** your node is being set up
+* **Succeeded —** your node is fully set up
+* **Failed —** your node is down
+
+### Node Deactivated
+
+This indicates if your node is currently suspended. If a payment is missed, your node will be deactivated automatically. You have a **3-day grace period** to reactivate it by completing the payment.
+
+## Action Buttons
+
+There are also 4 action buttons on the right that give you full control over your node's lifecycle and performance monitoring.
+
+### Update Version
+
+* Lets you update or downgrade your node's version
+* Use this when you want to update to a newer version
+* Important to keep your node up-to-date with latest features and performance updates
+
+### Metrics
+
+* Shows your node's performance
+* Track things like your response times, requests per second, success and failure rates
+* Monitor health and usage with request success rates and error rates
+
+### Delete Node
+
+* Permanently and immediately removes your node and cancels the subscription
+* This cannot be undone and you will have to order a new Node 
