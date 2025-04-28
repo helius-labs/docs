@@ -1,0 +1,75 @@
+---
+title: "Credits"
+description: "Understanding how credits work across different RPC calls and APIs."
+---
+
+## What Are Credits?
+
+Credits are the measurement unit for API usage on Helius. Each API call consumes a specific number of credits based on its complexity and resource requirements. Your subscription plan includes a set number of credits per month, and you can add more if needed.
+
+## Credit Costs By Service
+
+### Standard RPC Calls
+
+Most standard RPC calls cost **1 credit** per call, with these exceptions:
+
+- **Higher Complexity Calls**
+  - [`getProgramAccounts`](/rpc/http/getprogramaccounts): 10 credits
+
+- **Archival Calls** (10 credits each)
+  - [`getTransaction`](/rpc/http/gettransaction)
+  - [`getBlock`](/rpc/http/getblock)
+  - [`getBlocks`](/rpc/http/getblocks)
+  - [`getInflationReward`](/rpc/http/getinflationreward)
+  - [`getSignaturesForAddress`](/rpc/http/getsignaturesforaddress)
+  - [`getBlockTime`](/rpc/http/getblocktime)
+
+- **Transaction Submission**
+  - Via [https://mainnet.helius-rpc.com](https://mainnet.helius-rpc.com): 1 credit
+  - Via [https://staked.helius-rpc.com](https://staked.helius-rpc.com): 50 credits
+
+- **Priority Fee API**: 1 credit
+
+### Digital Asset Standard (DAS) API
+
+All DAS calls cost **10 credits** each:
+
+- [`getAsset`](/das-api/getasset)
+- [`getAssetProof`](/das-api/getassetproof)
+- [`getAssetsByOwner`](/das-api/getassetsbyowner)
+- [`getAssetsByAuthority`](/das-api/getassetsbyauthority)
+- [`getAssetsByCreator`](/das-api/getassetsbycreator)
+- [`getAssetsByGroup`](/das-api/getassetsbygroup)
+- [`searchAssets`](/das-api/searchassets)
+- [`getSignaturesForAsset`](/das-api/getsignaturesforasset)
+- [`getTokenAccounts`](/das-api/gettokenaccounts)
+- [`getNFTEditions`](/das-api/getnfteditions)
+
+### ZK Compression API
+
+- **Standard ZK Compression Calls**: 10 credits
+- [`getValidityProofs`](/zk-compression/getvalidityproof): 100 credits (due to higher computation)
+
+### Webhooks
+
+- **Webhook Event Delivery**: 1 credit per event push
+- **Webhook Management via [API](/webhooks/update-webhook)**: 100 credits
+
+### Enhanced Transactions API
+
+- **Enhanced Transactions API**: 100 credits per call
+
+## Adding More Credits
+
+If you run out of credits during your billing cycle, you have two options:
+
+### Crypto Payment Plans
+Purchase prepaid credits directly from your [Helius Dashboard](https://dashboard.helius.dev/):
+- Credits activate immediately and never expire
+- Available by clicking the **Buy More Credits** button
+
+### Card Payment Plans
+Enable autoscaling in your Project Settings:
+- Automatically adds credits as needed
+- Set limits to control spending
+
