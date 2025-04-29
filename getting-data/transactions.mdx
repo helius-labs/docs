@@ -54,36 +54,6 @@ console.log('Enhanced transaction history:', transactions);
   Get Enhanced Transactions By Address
 </Card>
 
-## Getting Multiple Transactions
-
-Batch retrieve multiple transactions:
-
-```typescript
-const HELIUS_API_URL = 'https://api.helius.xyz';
-const API_KEY = 'YOUR_API_KEY';
-
-const response = await fetch(HELIUS_API_URL + '/v0/transactions', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${API_KEY}`
-  },
-  body: JSON.stringify({
-    transactions: [
-      '5rxRt2GVpSUFJTqQ8YtYm3m2T47bzWNKuXS4FmtfKW3o2esgxtdgqUJpgZbc5wfGwmJvLq9jY8Wdbz7q3r8U4p96',
-      '4Ej2KZ9mGQQQr5MGNAKsAXxbzALDzEd7nuaWJ3iHxzNr4VNyiLKj8xwCKzS5xLKDqpGbpdeiZu4c4bCSTQRrPGCj',
-      '2Rs7PE8rBj9ToBgv2pJbgzbURcJ5JhYcSwVCPJr3cSBjYxU5oFtUE2JkCPfA5hjYQqLk1gCuprMpVQPJpizwTgj1'
-    ]
-  })
-});
-const enhancedTxs = await response.json();
-console.log('Multiple transactions:', enhancedTxs);
-```
-
-<Card title="API Reference" horizontal icon="code" href="/http/transactions">
-  Enhanced Transactions API
-</Card>
-
 ## Transaction Status Checking
 
 Check the status of multiple transactions:
@@ -98,8 +68,8 @@ const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_K
     method: 'getSignatureStatuses',
     params: [
       [
-        '5rxRt2GVpSUFJTqQ8YtYm3m2T47bzWNKuXS4FmtfKW3o2esgxtdgqUJpgZbc5wfGwmJvLq9jY8Wdbz7q3r8U4p96',
-        '4Ej2KZ9mGQQQr5MGNAKsAXxbzALDzEd7nuaWJ3iHxzNr4VNyiLKj8xwCKzS5xLKDqpGbpdeiZu4c4bCSTQRrPGCj'
+        '5iT4xEsUHJXWuUfX7ypPoP2h2KGLmomsSfdTnjaV67NhRiUptvFTpVM4Gdeve2Mr6Ye8mgFPx4ESLxEPMsK6pmVS',
+        '4aRAsUtUSKbz5UAw3z3HZs2wU2NuY614RRfugE8BpfidKrkvjU49VXdSLsT7EPKNRA9KZH1yqkiVKK8aNBoAEdMU'
       ],
       {
         searchTransactionHistory: true
@@ -114,43 +84,3 @@ console.log('Transaction statuses:', statuses.result);
 <Card title="API Reference" horizontal icon="code" href="/rpc/getsignaturestatuses">
   getSignatureStatuses
 </Card>
-
-## Real-time Transaction Monitoring
-
-For real-time transaction updates, use WebSockets:
-
-```typescript
-const HELIUS_WS_URL = 'wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY';
-const ws = new WebSocket(HELIUS_WS_URL);
-
-ws.onopen = () => {
-  console.log('WebSocket connection established');
-  ws.send(JSON.stringify({
-    jsonrpc: '2.0',
-    id: 1,
-    method: 'signatureSubscribe',
-    params: [
-      '5rxRt2GVpSUFJTqQ8YtYm3m2T47bzWNKuXS4FmtfKW3o2esgxtdgqUJpgZbc5wfGwmJvLq9jY8Wdbz7q3r8U4p96',
-      {
-        commitment: 'finalized'
-      }
-    ]
-  }));
-  console.log('Subscription request sent');
-};
-
-ws.onmessage = (event) => {
-  const response = JSON.parse(event.data);
-  console.log('Transaction update received:', response);
-};
-
-// Example: closing connection after 60 seconds
-setTimeout(() => {
-  ws.close();
-  console.log('WebSocket connection closed');
-}, 60000);
-```
-
-<Card title="API Reference" horizontal icon="code" href="/rpc/signaturesubscribe">
-  signatureSubscribe
-</Card> 
