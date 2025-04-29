@@ -11,7 +11,7 @@ Solana's SPL token ecosystem is vast, and Helius provides multiple APIs to effic
 Get balance for a specific token account using RPC:
 
 ```typescript
-const response = await fetch(HELIUS_RPC_URL, {
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -31,7 +31,7 @@ const data = await response.json();
 List all token accounts owned by a wallet:
 
 ```typescript
-const response = await fetch(HELIUS_RPC_URL, {
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -57,7 +57,7 @@ const data = await response.json();
 List all accounts holding a specific token:
 
 ```typescript
-const response = await fetch(HELIUS_RPC_URL, {
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -82,7 +82,7 @@ const response = await fetch(HELIUS_RPC_URL, {
 Check the total supply of a token:
 
 ```typescript
-const response = await fetch(HELIUS_RPC_URL, {
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -101,7 +101,7 @@ const response = await fetch(HELIUS_RPC_URL, {
 Identify the largest accounts holding a token:
 
 ```typescript
-const response = await fetch(HELIUS_RPC_URL, {
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
