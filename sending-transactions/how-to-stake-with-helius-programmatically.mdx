@@ -53,16 +53,117 @@ From this point on, every snippet will assume you imported this `helius` instanc
 
 ## 3. Method Reference with Example Calls
 
-| Helper | Purpose | Return value | Example call |
-| :------ | :------- | :------------ | :------------ |
-| **createStakeTransaction** | Builds a serialized, unsigned transaction that creates a new stake account, and delegates it to the Helius validator | `{ serializedTx, stakeAccountPubkey }` | `await helius.rpc.createStakeTransaction(owner, 1.5)` |
-| **getStakeInstructions** | The same as **createStakeTransaction**, except it _only_ returns the `TransactionInstruction[]`. This is useful inside browser wallets that construct their own transaction object, or pairing with the SDK's [smart transactions](/sending-transactions/smart-transactions) | `{ instructions, stakeAccount }` | `await helius.rpc.getStakeInstructions(owner, 1.5)` |
-| **createUnstakeTransaction** | Builds a serialized, unsigned transaction that sends a `Deactivate` instruction to an existing stake account | `serializedTx` | `await helius.rpc.createUnstakeTransaction(owner, stakeAcc)` |
-| **getUnstakeInstruction** | Single `Deactivate` instruction with no wrapper transaction | `TransactionInstruction` | `helius.rpc.getUnstakeInstruction(owner, stakeAcc)` |
-| **getWithdrawableAmount** | Returns the number of lamports that can be withdrawn right now from a given stake account. Pass `true` to include the rent-exempt minimum into the withdrawable amount | `number` | `await helius.rpc.getWithdrawableAmount(stakeAcc, true)` |
-| **createWithdrawTransaction** | Builds a serialized, unsigned transaction that moves lamports out of a stake account into any destination address. Works only after the cooldown period has ended | `serializedTx` | `await helius.rpc.createWithdrawTransaction(owner, stakeAcc, dest, amount)` |
-| **getWithdrawInstruction** | Stand-alone withdraw instruction | `TransactionInstruction` | `helius.rpc.getWithdrawInstruction(owner, stakeAcc, dest, amount)` |
-| **getHeliusStakeAccounts** | Returns all stake accounts that are currently delegated to the Helius validator for a given wallet | `ParsedAccountData[]` | `await helius.rpc.getHeliusStakeAccounts(wallet)` |
+### createStakeTransaction
+Builds a serialized, unsigned transaction that creates a new stake account, and delegates it to the Helius validator
+
+**Example call:**
+```ts
+await helius.rpc.createStakeTransaction(owner, 1.5)
+```
+
+**Return value:**
+```json
+{'{ serializedTx, stakeAccountPubkey }'}
+```
+
+
+### getStakeInstructions
+The same as **createStakeTransaction**, except it _only_ returns the `TransactionInstruction[]`. This is useful inside browser wallets that construct their own transaction object, or pairing with the SDK's [smart transactions](/sending-transactions/smart-transactions)
+
+**Example call:**
+```ts
+await helius.rpc.getStakeInstructions(owner, 1.5)
+```
+
+**Return value:**
+```json
+{'{ instructions, stakeAccount }'}
+```
+
+
+### createUnstakeTransaction
+Builds a serialized, unsigned transaction that sends a `Deactivate` instruction to an existing stake account
+
+**Example call:**
+```ts
+await helius.rpc.createUnstakeTransaction(owner, stakeAcc)
+```
+
+**Return value:**
+```json
+serializedTx
+```
+
+
+### getUnstakeInstruction
+Single `Deactivate` instruction with no wrapper transaction
+
+**Example call:**
+```ts
+helius.rpc.getUnstakeInstruction(owner, stakeAcc)
+```
+
+**Return value:**
+```json
+TransactionInstruction
+```
+
+
+### getWithdrawableAmount
+Returns the number of lamports that can be withdrawn right now from a given stake account. Pass `true` to include the rent-exempt minimum into the withdrawable amount
+
+**Example call:**
+```ts
+await helius.rpc.getWithdrawableAmount(stakeAcc, true)
+```
+
+**Return value:**
+```json
+number
+```
+
+
+### createWithdrawTransaction
+Builds a serialized, unsigned transaction that moves lamports out of a stake account into any destination address. Works only after the cooldown period has ended
+
+**Example call:**
+```ts
+await helius.rpc.createWithdrawTransaction(owner, stakeAcc, dest, amount)
+```
+
+**Return value:**
+```json
+serializedTx
+```
+
+
+### getWithdrawInstruction
+Stand-alone withdraw instruction
+
+**Example call:**
+```ts
+helius.rpc.getWithdrawInstruction(owner, stakeAcc, dest, amount)
+```
+
+**Return value:**
+```json
+TransactionInstruction
+```
+
+
+### getHeliusStakeAccounts
+Returns all stake accounts that are currently delegated to the Helius validator for a given wallet
+
+**Example call:**
+```ts
+await helius.rpc.getHeliusStakeAccounts(wallet)
+```
+
+**Return value:**
+```json
+ParsedAccountData[]
+```
+
 
 ***
 
