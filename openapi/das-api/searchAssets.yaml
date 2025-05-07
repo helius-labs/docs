@@ -23,6 +23,7 @@ paths:
       tags:
         - "RPC"
       summary: searchAssets
+      description: Returns a list of assets that match the given search criteria.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -41,16 +42,22 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The version of the JSON-RPC protocol.
+                  default: "2.0"
                 id:
                   type: string
                   description: An ID to identify the request.
+                  default: "1"
                 method:
                   type: string
                   enum: ["searchAssets"]
                   description: The name of the JSON-RPC method to invoke.
+                  default: "searchAssets"
                 params:
                   type: object
                   description: Parameters for the `searchAssets` method.
+                  default:
+                    ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                    tokenType: "all"
                   required:
                     - ownerAddress
                     - tokenType

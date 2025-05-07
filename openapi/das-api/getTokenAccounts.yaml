@@ -23,6 +23,7 @@ paths:
             tags:
                 - 'RPC'
             summary: getTokenAccounts
+            description: Returns a list of token accounts for a given mint and owner.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -41,15 +42,21 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    example: '1'
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getTokenAccounts']
                                     description: The name of the method to invoke.
+                                    default: 'getTokenAccounts'
                                 params:
                                     type: object
+                                    default:
+                                        owner: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
                                     properties:
                                         mint:
                                             type: string
@@ -58,7 +65,7 @@ paths:
                                         owner:
                                             type: string
                                             description: The owner address key.
-                                            example: 'string'
+                                            example: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
                                         page:
                                             type: integer
                                             description: The page of results to return.

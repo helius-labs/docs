@@ -24,6 +24,7 @@ paths:
                 - RPC
             summary: getAssetsByCreator
             operationId: rpc
+            description: Returns a list of assets created by a given creator.
             security:
                 - ApiKeyQuery: []
             requestBody:
@@ -41,15 +42,20 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getAssetsByCreator']
                                     description: The name of the DAS method to invoke.
+                                    default: 'getAssetsByCreator'
                                 params:
                                     type: object
+                                    default:
+                                        creatorAddress: 'D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3'
                                     properties:
                                         creatorAddress:
                                             type: string

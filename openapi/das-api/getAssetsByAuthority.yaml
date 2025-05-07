@@ -23,6 +23,7 @@ paths:
             tags:
                 - RPC
             summary: getAssetsByAuthority
+            description: Returns a list of assets owned by a given authority.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -41,15 +42,20 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getAssetsByAuthority']
                                     description: The name of the DAS method to invoke.
+                                    default: 'getAssetsByAuthority'
                                 params:
                                     type: object
+                                    default:
+                                        authorityAddress: '2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW'
                                     properties:
                                         authorityAddress:
                                             type: string

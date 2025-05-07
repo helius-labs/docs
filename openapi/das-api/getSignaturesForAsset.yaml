@@ -23,6 +23,7 @@ paths:
       tags: 
         - RPC
       summary: getSignaturesForAsset
+      description: Returns a list of signatures for a given asset.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -41,15 +42,21 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The version of the JSON-RPC protocol.
+                  default: "2.0"
                 id:
                   type: string
                   description: An ID to identify the request.
+                  example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getSignaturesForAsset"]
                   description: The name of the DAS method to invoke.
+                  default: "getSignaturesForAsset"
                 params:
                   type: object
+                  default:
+                    id: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
                   required:
                     - id
                     - page

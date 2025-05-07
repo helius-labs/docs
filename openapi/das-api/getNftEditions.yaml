@@ -23,6 +23,7 @@ paths:
             tags:
                 - RPC
             summary: getNftEditions
+            description: Returns a list of NFT editions for a given master edition.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -41,15 +42,21 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    example: '1'
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getNftEditions']
                                     description: The name of the DAS method to invoke.
+                                    default: 'getNftEditions'
                                 params:
                                     type: object
+                                    default:
+                                        mint: 'Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL'
                                     properties:
                                         mint:
                                             type: string

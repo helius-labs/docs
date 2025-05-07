@@ -23,6 +23,7 @@ paths:
       tags:
         - "RPC"
       summary: getAssetsByOwner
+      description: Returns a list of assets owned by a given owner.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -36,15 +37,21 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The version of the JSON-RPC protocol.
+                  default: "2.0"
                 id:
                   type: string
                   description: An ID to identify the request.
+                  example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getAssetsByOwner"]
                   description: The name of the DAS method to invoke.
+                  default: "getAssetsByOwner"
                 params:
                   description: Parameters for the getAssetsByOwner method.
+                  default:
+                    ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
                   oneOf:
                     #
                     # 1) Page-based pagination variant

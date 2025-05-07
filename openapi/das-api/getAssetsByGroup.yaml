@@ -23,6 +23,7 @@ paths:
             tags:
                 - RPC
             summary: getAssetsByGroup
+            description: Returns a list of assets that match the given group key and value.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -41,15 +42,21 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getAssetsByGroup']
                                     description: The name of the DAS method to invoke.
+                                    default: 'getAssetsByGroup'
                                 params:
                                     type: object
+                                    default:
+                                        groupKey: 'collection'
+                                        groupValue: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
                                     properties:
                                         groupKey:
                                             type: string
