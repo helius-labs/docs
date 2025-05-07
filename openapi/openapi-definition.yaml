@@ -84,6 +84,7 @@ paths:
         - Transactions
       summary: Returns an enhanced transaction history for a given address
       operationId: getEnhancedTransactions
+      description: Returns an array of enhanced transactions.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/beforeParam'
@@ -805,7 +806,8 @@ components:
       required: true
       schema:
         type: string
-        
+        example: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
+        default: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
     webhookIDParam:
       name: webhookID
       in: path
