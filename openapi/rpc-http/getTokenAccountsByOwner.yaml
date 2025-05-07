@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Comprehensive Solana token account discovery API for retrieving SPL token balances, NFTs, and other token holdings associated with any wallet address on the Solana blockchain.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,12 @@ paths:
         - RPC
       summary: getTokenAccountsByOwner
       operationId: getTokenAccountsByOwner
-      description: Returns the token accounts for a given owner.
+      description: |
+        Retrieve all SPL token accounts owned by a specific Solana wallet address with powerful filtering options.
+        This essential API allows developers to discover complete token holdings including fungible tokens and NFTs,
+        with the ability to filter by specific token mints or limit to accounts created by particular token programs.
+        Supports parsed data for human-readable token information including balances, decimals, and ownership status.
+        Critical for wallets, portfolio trackers, and DeFi applications that need comprehensive token holdings data.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,18 +66,18 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the account owner to query, as a base-58 encoded string.
+                        description: Solana wallet address (pubkey) of the account owner to query token holdings for, as a base-58 encoded string.
                         example: "A1TMhSGzQxMr1TboBKtgixKz1sS6REASMxPo1qsyTSJd"
                       - type: object
-                        description: JSON object with either `mint` or `programId` filter.
+                        description: Filter configuration to narrow down token accounts by mint address or program ID.
                         properties:
                           mint:
                             type: string
-                            description: Pubkey of the specific token Mint to limit accounts to, as a base-58 encoded string.
+                            description: Specific Solana token mint address to retrieve only accounts for a particular token or NFT.
                             example: "2cHr7QS3xfuSV8wdxo3ztuF4xbiarF6Nrgx3qpx3HzXR"
                           programId:
                             type: string
-                            description: Pubkey of the Token program that owns the accounts, as a base-58 encoded string.
+                            description: Specific Solana token program ID (typically SPL Token program) that created the token accounts.
                             example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                       - type: object
                         description: Configuration object with optional fields.

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Tokenomics analytics API for retrieving current circulation and total supply metrics for any SPL token or fungible asset on the Solana blockchain.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getTokenSupply
       operationId: getTokenSupply
-      description: Returns the token supply for a given mint.
+      description: |
+        Retrieve comprehensive token supply metrics for any SPL token on the Solana blockchain.
+        This essential tokenomics API provides accurate and real-time data on token circulating
+        supply, total mint amount, and decimal configuration. Critical for token analytics dashboards,
+        DeFi applications, market cap calculations, protocol metrics, and trading platforms that need
+        reliable token supply information. Supports all SPL token types including fungible tokens and
+        community tokens with proper decimal formatting for accurate display.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,7 +67,7 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the token Mint to query, as a base-58 encoded string.
+                        description: Solana token mint address to retrieve supply metrics for (SPL token's unique identifier).
                         example: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
                       - type: object
                         description: Configuration object.
@@ -117,19 +124,19 @@ paths:
                         properties:
                           amount:
                             type: string
-                            description: The raw total token supply without decimals, as a string representation of u64.
+                            description: The raw total Solana token supply as a precise integer string without decimal formatting.
                             example: "100000"
                           decimals:
                             type: integer
-                            description: Number of base 10 digits to the right of the decimal place.
+                            description: Number of decimal places defined by the token for accurate supply representation.
                             example: 2
                           uiAmount:
                             type: number
-                            description: The total token supply, using mint-prescribed decimals (deprecated).
+                            description: The human-readable token supply with proper decimal formatting (deprecated).
                             example: 1000
                           uiAmountString:
                             type: string
-                            description: The total token supply as a string, using mint-prescribed decimals.
+                            description: The canonical string representation of the total token supply with correct decimal places.
                             example: "1000"
               examples:
                 responseExample:

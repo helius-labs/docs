@@ -2,14 +2,15 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Digital Asset Standard (DAS) API for retrieving comprehensive Solana NFT and token ownership data with advanced filtering and pagination options.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: https://mainnet.helius-rpc.com
-    description: Mainnet RPC endpoint
+    description: Mainnet RPC endpoint for production Solana applications
   - url: https://devnet.helius-rpc.com
-    description: Devnet RPC endpoint
+    description: Devnet RPC endpoint for Solana development and testing
 components:
   securitySchemes:
     ApiKeyQuery:
@@ -23,7 +24,11 @@ paths:
       tags:
         - "RPC"
       summary: getAssetsByOwner
-      description: Returns a list of assets owned by a given owner.
+      description: |
+        Retrieve a comprehensive list of all digital assets owned by a specific Solana wallet address.
+        Access complete NFT collections, compressed assets, fungible tokens, and native SOL balances
+        with advanced filtering, sorting, and pagination options. Supports both traditional and compressed
+        NFTs with detailed metadata for complete wallet portfolio analysis.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -49,7 +54,7 @@ paths:
                   description: The name of the DAS method to invoke.
                   default: "getAssetsByOwner"
                 params:
-                  description: Parameters for the getAssetsByOwner method.
+                  description: Parameters for querying Solana digital assets by owner address with filtering and pagination options.
                   default:
                     ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
                   oneOf:
@@ -60,59 +65,59 @@ paths:
                       properties:
                         ownerAddress:
                           type: string
-                          description: The owner address key.
+                          description: The Solana wallet address to retrieve all owned digital assets for.
                           example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
                         page:
                           type: integer
-                          description: The page of results to return.
+                          description: The page number for paginating through large asset collections (1-based indexing).
                           example: 1
                         limit:
                           type: integer
-                          description: The maximum number of assets to return.
+                          description: The maximum number of assets to return per page (up to 1000).
                           example: 50
                         sortBy:
                           type: object
-                          description: The sorting options for the response.
+                          description: Sorting configuration for ordering the returned Solana assets.
                           properties:
                             sortBy:
                               type: string
-                              description: The criteria by which the retrieved assets will be sorted.
+                              description: Criteria for sorting Solana digital assets in the response.
                               enum: ["created", "recent_action", "updated", "none"]
                             sortDirection:
                               type: string
-                              description: The direction by which the retrieved assets will be sorted.
+                              description: Sort direction for ordering Solana digital assets in the response.
                               enum: ["asc", "desc"]
                         options:
                           type: object
-                          description: The display options for the response.
+                          description: Display and filtering options for the returned Solana asset data.
                           properties:
                             showUnverifiedCollections:
                               type: boolean
-                              description: Displays grouping information for unverified collections.
+                              description: Include grouping information for unverified Solana NFT collections.
                               default: false
                             showCollectionMetadata:
                               type: boolean
-                              description: Displays metadata for the collection.
+                              description: Include detailed metadata for Solana NFT collections.
                               default: false
                             showGrandTotal:
                               type: boolean
-                              description: Shows the total number of assets. Slower request.
+                              description: Include the total count of all assets owned by the address (may increase response time).
                               default: false
                             showFungible:
                               type: boolean
-                              description: Shows fungible tokens.
+                              description: Include SPL tokens and fungible assets held by the Solana wallet.
                               default: false
                             showNativeBalance:
                               type: boolean
-                              description: Shows the SOL balance held by the owner.
+                              description: Include native SOL balance held by the Solana wallet.
                               default: false
                             showInscription:
                               type: boolean
-                              description: Displays inscription details.
+                              description: Include inscription details for assets with on-chain inscriptions.
                               default: false
                             showZeroBalance:
                               type: boolean
-                              description: Displays assets with zero balance.
+                              description: Include assets with zero balance in the ownership list.
                               default: false
                       required:
                         - ownerAddress
@@ -124,59 +129,59 @@ paths:
                       properties:
                         ownerAddress:
                           type: string
-                          description: The owner address key.
+                          description: The Solana wallet address to retrieve all owned digital assets for.
                           example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
                         before:
                           type: string
-                          description: The cursor for paginating backwards through the assets.
+                          description: Pagination cursor for retrieving assets before this position (for backwards pagination).
                           example: "string"
                         after:
                           type: string
-                          description: The cursor for paginating forwards through the assets.
+                          description: Pagination cursor for retrieving assets after this position (for forwards pagination).
                           example: "string"
                         sortBy:
                           type: object
-                          description: The sorting options for the response.
+                          description: Sorting configuration for ordering the returned Solana assets.
                           properties:
                             sortBy:
                               type: string
-                              description: The criteria by which the retrieved assets will be sorted.
+                              description: Criteria for sorting Solana digital assets in the response.
                               enum: ["created", "recent_action", "updated", "none"]
                             sortDirection:
                               type: string
-                              description: The direction by which the retrieved assets will be sorted.
+                              description: Sort direction for ordering Solana digital assets in the response.
                               enum: ["asc", "desc"]
                         options:
                           type: object
-                          description: The display options for the response.
+                          description: Display and filtering options for the returned Solana asset data.
                           properties:
                             showUnverifiedCollections:
                               type: boolean
-                              description: Displays grouping information for unverified collections.
+                              description: Include grouping information for unverified Solana NFT collections.
                               default: false
                             showCollectionMetadata:
                               type: boolean
-                              description: Displays metadata for the collection.
+                              description: Include detailed metadata for Solana NFT collections.
                               default: false
                             showGrandTotal:
                               type: boolean
-                              description: Shows the total number of assets. Slower request.
+                              description: Include the total count of all assets owned by the address (may increase response time).
                               default: false
                             showFungible:
                               type: boolean
-                              description: Shows fungible tokens.
+                              description: Include SPL tokens and fungible assets held by the Solana wallet.
                               default: false
                             showNativeBalance:
                               type: boolean
-                              description: Shows the SOL balance held by the owner.
+                              description: Include native SOL balance held by the Solana wallet.
                               default: false
                             showInscription:
                               type: boolean
-                              description: Displays inscription details.
+                              description: Include inscription details for assets with on-chain inscriptions.
                               default: false
                             showZeroBalance:
                               type: boolean
-                              description: Displays assets with zero balance.
+                              description: Include assets with zero balance in the ownership list.
                               default: false
                       required:
                         - ownerAddress
@@ -187,7 +192,7 @@ paths:
                 - params
       responses:
         "200":
-          description: Successful response
+          description: Successfully retrieved Solana digital assets owned by the specified wallet address
           content:
             application/json:
               schema:

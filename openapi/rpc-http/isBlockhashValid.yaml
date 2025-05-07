@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Transaction validity verification API for checking if a previously acquired Solana blockhash is still within its usable lifetime window for new transaction submissions.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -41,7 +42,15 @@ paths:
         - RPC
       summary: isBlockhashValid
       operationId: isBlockhashValid
-      description: Returns whether a given blockhash is still valid.
+      description: |
+        Verify whether a Solana blockhash is still valid for transaction submission.
+        This essential transaction preparation API allows applications to determine if a previously 
+        acquired blockhash is still within its validity window (typically ~2 minutes or ~150 blocks).
+        Transactions constructed with expired blockhashes will be rejected by the network, so checking
+        validity before submission helps prevent transaction failures and timeout errors. Critical for
+        wallet applications, exchanges, payment processors, and any service that prepares transactions
+        in advance or needs to check if a pending transaction can still be submitted or needs to be
+        reconstructed with a fresh blockhash to avoid expiration rejections.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,7 +86,7 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: The blockhash to evaluate, as a base-58 encoded string.
+                        description: Blockhash to check validity status for, as a base-58 encoded string.
                         example: "J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW"
                       - type: object
                         description: Configuration options for the request.
@@ -129,7 +138,7 @@ paths:
                             example: 2483
                       value:
                         type: boolean
-                        description: True if the blockhash is still valid.
+                        description: Boolean indicating if this blockhash is still within its validity window and can be used in new transactions.
                         example: false
               examples:
                 default:

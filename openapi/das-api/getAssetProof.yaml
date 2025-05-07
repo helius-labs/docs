@@ -1,7 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Compressed NFT Verification API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for retrieving cryptographic merkle proofs 
+    for compressed NFTs on the Solana blockchain. This specialized verification API enables 
+    applications to validate compressed assets using state proofs without requiring the full 
+    on-chain data, supporting efficient ownership verification for compressed NFTs with up to 
+    1000x cost savings compared to traditional NFTs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,6 +29,13 @@ paths:
             tags: 
               - RPC
             summary: getAssetProof
+            description: |
+              Retrieve the cryptographic merkle proof for a compressed Solana NFT or token.
+              This verification API returns the complete proof path required to validate a compressed
+              digital asset's existence and data integrity on the Solana blockchain without storing
+              the full asset data on-chain. Essential for marketplaces, wallets, and applications
+              that need to verify ownership and authenticity of compressed NFTs with the security
+              guarantees of traditional on-chain assets but at a fraction of the storage cost.
             operationId: rpc
             security:
               - ApiKeyQuery: []
@@ -60,7 +73,7 @@ paths:
                                     properties:
                                         id:
                                             type: string
-                                            description: The ID of the compressed asset to return it's proof.
+                                            description: The unique identifier (mint address) of the compressed Solana NFT to retrieve the merkle proof for.
                                             example: 'Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss'
             responses:
                 200:
@@ -72,11 +85,11 @@ paths:
                                 properties:
                                     root:
                                         type: string
-                                        description: The root of the merkle tree.
+                                        description: The root hash of the Solana state compression merkle tree that contains this compressed NFT.
                                         example: '2o6Y6EiY3WXhoaEpei2pHmHLYnHDcEQVhgD89GrGHDBH'
                                     proof:
                                         type: array
-                                        description: The proof of the asset.
+                                        description: The array of merkle proof hashes needed to cryptographically verify this Solana compressed NFT exists in the tree.
                                         items:
                                             type: string
                                             example:
@@ -96,14 +109,15 @@ paths:
                                                 - 'E3oMtCuPEauftdZLX8EZ8YX7BbFzpBCVRYEiLxwPJLY2'
                                     node_index:
                                         type: integer
+                                        description: The position index of this compressed NFT in the Solana merkle tree structure.
                                         example: 16384
                                     leaf:
                                         type: string
-                                        description: The leaf of the merkle tree.
+                                        description: The leaf hash representing this compressed NFT's data in the Solana merkle tree.
                                         example: '6YdZXw49M97mfFTwgQb6kxM2c6eqZkHSaW9XhhoZXtzv'
                                     tree_id:
                                         type: string
-                                        description: The ID of the merkle tree.
+                                        description: The unique identifier of the Solana merkle tree where this compressed NFT is stored.
                                         example: '2kuTFCcjbV22wvUmtmgsFR7cas7eZUzAu96jzJUvUcb7'
                 204:
                     description: 'No content.'

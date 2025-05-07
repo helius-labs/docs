@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Essential Solana transaction preparation API for retrieving the latest valid blockhash required for creating and signing blockchain transactions.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getLatestBlockhash
       operationId: getLatestBlockhash
-      description: Returns the latest blockhash.
+      description: |
+        Retrieve the latest valid blockhash from the Solana blockchain, essential for transaction creation.
+        This fundamental API provides the current blockhash and its validity period, which are required
+        components when constructing any Solana transaction. The blockhash serves as both a recent state
+        reference and a replay protection mechanism. Every transaction must include a recent blockhash
+        to be considered valid by the network. Critical for wallet providers, DApps, and any service
+        that submits transactions to the Solana blockchain.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -111,11 +118,11 @@ paths:
                         properties:
                           blockhash:
                             type: string
-                            description: A hash as a base-58 encoded string.
+                            description: The latest Solana blockhash encoded as a base-58 string, required for transaction creation.
                             example: "EkSnNWid2cvwEVnVx9aBqawnmiCNiDgp3gUdkDPTKN1N"
                           lastValidBlockHeight:
                             type: integer
-                            description: The last block height at which the blockhash will be valid.
+                            description: The last Solana block height at which this blockhash will be accepted in transactions.
                             example: 3090
         400:
           description: Invalid request.

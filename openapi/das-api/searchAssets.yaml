@@ -1,7 +1,12 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana NFT Discovery & Search API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for searching and discovering NFTs, tokens, and other digital assets across the Solana ecosystem with powerful filtering capabilities.
+    This comprehensive search API provides the foundation for NFT marketplaces, portfolio applications, and analytics platforms
+    to discover and filter digital assets based on multiple criteria including collections, creators, compression status,
+    and ownership - with support for both traditional and compressed NFTs across the entire Solana ecosystem.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +28,21 @@ paths:
       tags:
         - "RPC"
       summary: searchAssets
-      description: Returns a list of assets that match the given search criteria.
+      description: |
+        Search and discover Solana digital assets with comprehensive filtering options.
+        This powerful discovery API enables applications to find NFTs, compressed NFTs, fungible tokens,
+        and other digital assets using multiple criteria including ownership, creators, collections,
+        compression status, and metadata attributes. Perfect for marketplaces, portfolio
+        trackers, and analytics platforms needing advanced asset discovery capabilities
+        across the Solana ecosystem.
+        
+        Key capabilities:
+        - Multi-criteria search across all Solana NFT standards (traditional, compressed, programmable)
+        - Collection-based filtering for NFT projects and communities
+        - Creator and ownership-based queries for attribution and portfolio analysis
+        - Compression status filtering to identify cost-efficient assets
+        - Metadata attribute search for trait-based discovery
+        - Complete pagination support for large result sets
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -64,7 +83,7 @@ paths:
                   properties:
                     ownerAddress:
                       type: string
-                      description: The address of the owner whose assets to retrieve.
+                      description: The Solana wallet address to retrieve owned digital assets for filtering search results.
                       example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
                     tokenType:
                       type: string
@@ -74,7 +93,9 @@ paths:
                         - regularNFT
                         - compressedNFT
                         - all
-                      description: The type of token being searched for.
+                      description: |
+                        Filter for specific Solana token types including compressed NFTs (cNFTs), regular NFTs,
+                        programmable NFTs (pNFTs), or fungible SPL tokens for targeted asset discovery.
                       example: "all"
                     page:
                       type: integer
@@ -82,7 +103,9 @@ paths:
                       example: 1
                     authorityAddress:
                       type: string
-                      description: The authority address criteria for the asset search.
+                      description: |
+                        The authority address criteria for filtering Solana digital assets based on program authority,
+                        useful for finding assets controlled by specific protocols or update authorities.
                       example: "string"
                     limit:
                       type: integer
@@ -102,18 +125,24 @@ paths:
                           enum: ["asc", "desc"]
                     compressed:
                       type: boolean
-                      description: Whether an asset is compressed.
+                      description: |
+                        Filter for compressed Solana NFTs (cNFTs) that use state compression technology
+                        for reduced storage costs and improved scalability.
                       example: true
                     compressible:
                       type: boolean
-                      description: Whether an asset is compressible.
+                      description: |
+                        Filter for Solana assets that are eligible for compression but have not yet
+                        been compressed into the state compression format.
                       example: false
                     delegate:
                       type: integer
                       description: Delegate criteria for the asset search.
                     creatorAddress:
                       type: string
-                      description: Creator address criteria for the asset search.
+                      description: |
+                        Creator wallet address criteria for finding Solana NFTs created by specific artists,
+                        projects, or creators for attribution and royalty tracking.
                       example: "string"
                     creatorVerified:
                       type: boolean
@@ -123,7 +152,9 @@ paths:
                       type: array
                       items:
                         type: string
-                      description: A grouping array (e.g. ["collection", "<collectionKey>"]).
+                      description: |
+                        Collection grouping array for filtering Solana NFTs by their collection membership
+                        (e.g. ["collection", "<collectionKey>"]) to find related assets.
                       example: ["collection", "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"]
                     supply:
                       type: integer
@@ -142,7 +173,9 @@ paths:
                       example: false
                     interface:
                       type: string
-                      description: The interface of the asset.
+                      description: |
+                        The Solana token standard interface type to filter for specific NFT implementations
+                        including programmable NFTs, legacy NFTs, and fungible tokens.
                       enum:
                         - "V1_NFT"
                         - "V1_PRINT"
@@ -181,7 +214,7 @@ paths:
                       example: "string"
                     options:
                       type: object
-                      description: Display options for the response.
+                      description: Advanced display options for customizing the Solana asset search response.
                       properties:
                         showUnverifiedCollections:
                           type: boolean
@@ -231,7 +264,7 @@ paths:
                     properties:
                       total:
                         type: integer
-                        description: The total number of assets found.
+                        description: The total number of Solana NFTs and digital assets matching the search criteria.
                         example: 80
                       limit:
                         type: integer
@@ -249,34 +282,16 @@ paths:
                           properties:
                             interface:
                               type: string
-                              description: The interface of the asset.
-                              enum:
-                                - "V1_NFT"
-                                - "V1_PRINT"
-                                - "LEGACY_NFT"
-                                - "V2_NFT"
-                                - "FungibleAsset"
-                                - "FungibleToken"
-                                - "Custom"
-                                - "Identity"
-                                - "Executable"
-                                - "ProgrammableNFT"
+                              description: The Solana token standard implementation type of the digital asset.
                             id:
                               type: string
-                              description: The unique ID of the asset.
+                              description: The unique mint address identifier of the Solana digital asset.
                             ownership:
                               type: object
-                              description: Ownership details.
-                              properties:
-                                owner:
-                                  type: string
-                                  description: Current owner address.
-                                ownership_model:
-                                  type: string
-                                  description: Ownership model (e.g. "single", "split").
+                              description: Ownership details of the Solana digital asset including current owner and model.
                             content:
                               type: object
-                              description: The content of the asset (metadata, etc.).
+                              description: The content and metadata of the Solana digital asset including URI, attributes, and media.
                             # Additional properties omitted for brevity
                     example:
                       total: 80
@@ -294,7 +309,7 @@ paths:
                   # Example top-level
                   nativeBalance:
                     type: object
-                    description: The native SOL balance of the account.
+                    description: The native SOL balance of the Solana wallet account in lamports and USD value.
                     properties:
                       lamports:
                         type: integer

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Comprehensive Solana validator monitoring API for tracking network participants, staking activity, and consensus participation across the blockchain ecosystem.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getVoteAccounts
       operationId: getVoteAccounts
-      description: Returns the vote accounts for a given validator.
+      description: |
+        Retrieve detailed information about Solana validators and their participation in network consensus.
+        This powerful API provides comprehensive validator metrics including identity addresses, staking amounts,
+        commission rates, voting activity, and performance status. Essential for staking applications, validator
+        selection tools, network monitoring dashboards, and decentralization analysis. Categorizes validators
+        as either current (active participants) or delinquent (underperforming), providing critical insights
+        for delegators looking to optimize their staking strategy and rewards on the Solana blockchain.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -69,15 +76,15 @@ paths:
                         example: finalized
                       votePubkey:
                         type: string
-                        description: Validator vote address (base-58 encoded).
+                        description: Specific validator vote account address to filter results (base-58 encoded).
                         example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
                       keepUnstakedDelinquents:
                         type: boolean
-                        description: Whether to include delinquent validators with no stake.
+                        description: Include validators that have fallen behind but have no stake delegated to them.
                         example: true
                       delinquentSlotDistance:
                         type: integer
-                        description: Slots behind the tip to consider a validator delinquent. Not recommended for ecosystem consistency.
+                        description: Custom threshold of slots behind to mark validators as delinquent or underperforming.
                         example: 128
             example:
               jsonrpc: "2.0"
@@ -109,33 +116,33 @@ paths:
                     properties:
                       current:
                         type: array
-                        description: List of current vote accounts.
+                        description: Active validators participating properly in Solana network consensus.
                         items:
                           type: object
                           properties:
                             votePubkey:
                               type: string
-                              description: Vote account address.
+                              description: Unique Solana vote account address associated with this validator.
                               example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
                             nodePubkey:
                               type: string
-                              description: Validator identity.
+                              description: Validator identity address that controls the vote account.
                               example: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
                             activatedStake:
                               type: integer
-                              description: Stake delegated to this vote account (lamports).
+                              description: Total SOL delegated to this validator in lamports, determining their consensus weight.
                               example: 42
                             epochVoteAccount:
                               type: boolean
-                              description: Whether the vote account is staked for this epoch.
+                              description: Whether this validator is eligible for rewards in the current epoch.
                               example: true
                             commission:
                               type: integer
-                              description: Percentage (0-100) of rewards payout owed to the vote account.
+                              description: Validator commission percentage (0-100) taken from staking rewards.
                               example: 0
                             lastVote:
                               type: integer
-                              description: Most recent slot voted on by this vote account.
+                              description: Most recent Solana slot this validator voted on, indicating activity.
                               example: 147
                             epochCredits:
                               type: array
@@ -152,7 +159,7 @@ paths:
                               example: 42
                       delinquent:
                         type: array
-                        description: List of delinquent vote accounts.
+                        description: Underperforming validators that have fallen behind in consensus participation.
                         items:
                           type: object
                           properties:

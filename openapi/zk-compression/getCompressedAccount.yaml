@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana State Compression API
+  description: |
+    Advanced Solana indexer for compressed state accounts using zero-knowledge proofs for efficient data storage and retrieval.
+    This API enables cost-efficient NFT and token operations through Solana's state compression technology,
+    reducing storage costs by up to 1000x compared to traditional accounts.
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -15,7 +18,18 @@ paths:
   /:
     summary: getCompressedAccount
     post:
-      description: Retrieves a compressed account
+      description: |
+        Retrieve detailed data for a compressed Solana account using state compression technology.
+        This endpoint provides access to efficient on-chain data storage with up to 1000x cost savings 
+        compared to regular Solana accounts. Query compressed NFTs and token accounts by address or hash 
+        to get complete account information, ownership details, and on-chain data.
+        
+        Key benefits:
+        - Dramatically lower costs for Solana NFT projects and token issuers
+        - Reduced storage fees for high-volume applications
+        - Full compatibility with Solana's security and consensus model
+        - Scalable solution for large NFT collections and token sets
+        - Increased throughput for compressed asset operations
       operationId: getCompressedAccount
       security:
         - ApiKeyQuery: []
@@ -48,7 +62,9 @@ paths:
                   default: getCompressedAccount
                 params:
                   type: object
-                  description: Request for compressed account data
+                  description: |
+                    Request parameters for retrieving compressed account data on Solana, including 
+                    address identifier or data hash for compressed NFTs and tokens
                   default:
                     address: null
                     hash: '11111111111111111111111111111111'
@@ -58,11 +74,13 @@ paths:
                       allOf:
                       - $ref: '#/components/schemas/SerializablePubkey'
                       nullable: true
+                      description: The Solana public key of the compressed account to retrieve data for
                     hash:
                       type: string
                       allOf:
                       - $ref: '#/components/schemas/Hash'
                       nullable: true
+                      description: The data hash identifier of the compressed Solana account if the address is not available
                   additionalProperties: false
                   example:
                     address: null
@@ -70,7 +88,7 @@ paths:
         required: true
       responses:
         '200':
-          description: ''
+          description: 'Successfully retrieved compressed account data from the Solana blockchain'
           content:
             application/json:
               schema:
@@ -122,22 +140,31 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Unique identifier address for the compressed Solana account
         data:
           $ref: '#/components/schemas/AccountData'
+          description: On-chain data stored in the compressed Solana account
         hash:
           $ref: '#/components/schemas/Hash'
+          description: Cryptographic hash of the compressed account data for verification
         lamports:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: SOL balance held by this compressed account in lamports (1 SOL = 1,000,000,000 lamports)
         leafIndex:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Position index in the merkle tree where this compressed account is stored
         owner:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Solana program that owns this compressed account (typically the compression program)
         seq:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Sequence number for tracking updates to this compressed account
         slotCreated:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Solana blockchain slot when this compressed account was created
         tree:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Address of the merkle tree where this compressed account is stored
       additionalProperties: false
     AccountData:
       type: object
@@ -155,7 +182,7 @@ components:
       additionalProperties: false
     Base64String:
       type: string
-      description: A base 64 encoded string.
+      description: A base64 encoded string representing compressed account data on Solana.
       default: SGVsbG8sIFdvcmxkIQ==
       example: SGVsbG8sIFdvcmxkIQ==
     Context:
@@ -167,16 +194,18 @@ components:
           type: integer
           default: 100
           example: 100
+          description: The current Solana blockchain slot context for this request
     Hash:
       type: string
-      description: A 32-byte hash represented as a base58 string.
+      description: A 32-byte cryptographic hash represented as a base58 string, used for Solana compressed account verification.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     SerializablePubkey:
       type: string
-      description: A Solana public key represented as a base58 string.
+      description: A Solana public key represented as a base58 encoded string, used to identify accounts, programs, and users.
       default: 11111112D1oxKts8YPdTJRG5FzxTNpMtWmq8hkVx3
       example: 11111112D1oxKts8YPdTJRG5FzxTNpMtWmq8hkVx3
     UnsignedInteger:
       type: integer
       default: 100
       example: 100
+      description: A non-negative integer value used for various numeric parameters in Solana compressed accounts

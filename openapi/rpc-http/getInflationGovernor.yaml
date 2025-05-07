@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Economic policy API for retrieving the core Solana inflation model parameters that govern token issuance, including initial rate, terminal rate, and decay schedule.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getInflationGovernor
       operationId: getInflationGovernor
-      description: Returns the inflation governor information.
+      description: |
+        Retrieve the fundamental parameters that control Solana's long-term monetary policy.
+        This economic design API provides detailed information about the blockchain's inflation 
+        model configuration, including initial and terminal inflation rates, disinflationary taper 
+        rate, and foundation allocation details. Solana uses a disinflationary token issuance 
+        model where inflation gradually decreases from an initial higher rate to a long-term 
+        sustainable lower rate. Essential for economic researchers, tokenomics analysts, long-term 
+        investors, and applications modeling future token supply, staking rewards projections, 
+        or forecasting Solana's monetary policy trajectory over extended timeframes.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,32 +86,32 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Inflation governor information.
+                    description: Comprehensive parameters defining Solana's long-term monetary policy and inflation model.
                     properties:
                       initial:
                         type: number
                         format: float
-                        description: The initial inflation percentage from time 0.
+                        description: Starting annual inflation rate at the beginning of Solana's mainnet (decimal format, e.g., 0.08 = 8%).
                         example: 0.15
                       terminal:
                         type: number
                         format: float
-                        description: The terminal inflation percentage.
+                        description: Long-term sustainable inflation rate that the system will eventually reach and maintain indefinitely.
                         example: 0.015
                       taper:
                         type: number
                         format: float
-                        description: The rate per year at which inflation is lowered.
+                        description: Annual rate at which inflation decreases from initial to terminal rate (disinflationary schedule speed).
                         example: 0.15
                       foundation:
                         type: number
                         format: float
-                        description: The percentage of total inflation allocated to the foundation.
+                        description: Percentage of total inflation allocated to the Solana Foundation for ecosystem development.
                         example: 0.05
                       foundationTerm:
                         type: number
                         format: float
-                        description: The duration of foundation pool inflation in years.
+                        description: Duration in years for which the foundation receives an allocation from inflation.
                         example: 7
               example:
                 jsonrpc: "2.0"

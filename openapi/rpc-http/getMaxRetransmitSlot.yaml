@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator reliability API for retrieving the highest blockchain slot where this Solana node is actively retransmitting missing data fragments to other nodes.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getMaxRetransmitSlot
       operationId: getMaxRetransmitSlot
-      description: Returns the maximum retransmit slot.
+      description: |
+        Retrieve the highest slot where this Solana validator is actively retransmitting blockchain data.
+        This advanced diagnostic API exposes information about the validator's data repair mechanism,
+        showing the maximum slot for which it's currently helping to recover and redistribute missing
+        blockchain fragments to other nodes. Critical for validator operators monitoring network
+        participation, data availability engineers ensuring blockchain resilience, and diagnostic
+        tools tracking the effectiveness of Solana's turbine block propagation system in maintaining
+        network-wide data integrity during periods of packet loss or network congestion.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,7 +85,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Slot number.
+                    description: Highest Solana slot number where this validator node is currently retransmitting data shreds to help repair other nodes.
                     example: 1234
         400:
           description: Invalid request.

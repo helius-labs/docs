@@ -1,7 +1,11 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana Compressed Token Portfolio API
+  description: |
+    Advanced Solana indexer for compressed token accounts using state compression technology for efficient and cost-effective token storage and retrieval.
+    This API provides optimized access to Solana compressed tokens and NFTs, enabling up to 1000x cost savings while maintaining 
+    full security and compatibility with the Solana token ecosystem. Ideal for wallet applications, marketplaces, and token-based dApps
+    needing efficient portfolio management for compressed assets.
   license:
     name: Apache-2.0
   version: 0.50.0
@@ -14,7 +18,18 @@ paths:
   /:
     summary: getCompressedTokenAccountsByOwner
     post:
-      description: Retrieves getCompressedTokenAccountsByOwner information
+      description: |
+        Retrieve all compressed token accounts owned by a specific Solana wallet address. 
+        This portfolio endpoint provides complete compressed SPL token and NFT holdings data with 
+        significant cost savings using Solana's state compression technology. Filter results by mint address, 
+        paginate through large collections efficiently, and access detailed account data with full ownership verification.
+        
+        Key benefits:
+        - Reduced on-chain storage costs for token accounts (up to 1000x savings)
+        - Support for large-scale wallet integrations with efficient pagination
+        - Compatibility with Solana's SPL token standard and compressed NFTs
+        - Mint-specific filtering for targeted token queries
+        - Complete token account data including balances, delegates, and states
       operationId: getCompressedTokenAccountsByOwner
       security:
         - ApiKeyQuery: []
@@ -54,21 +69,25 @@ paths:
                       allOf:
                       - $ref: '#/components/schemas/Base58String'
                       nullable: true
+                      description: Pagination cursor for retrieving subsequent sets of compressed token accounts in Solana wallets with large holdings
                     limit:
                       allOf:
                       - $ref: '#/components/schemas/Limit'
                       nullable: true
+                      description: Maximum number of compressed token accounts to return per request (for pagination)
                     mint:
                       allOf:
                       - $ref: '#/components/schemas/SerializablePubkey'
                       nullable: true
+                      description: Filter compressed token accounts by specific Solana token mint address
                     owner:
                       $ref: '#/components/schemas/SerializablePubkey'
+                      description: The Solana wallet address that owns the compressed token accounts to be retrieved
                   additionalProperties: false
         required: true
       responses:
         '200':
-          description: ''
+          description: 'Successfully retrieved compressed token accounts from the Solana blockchain for the specified wallet owner'
           content:
             application/json:
               schema:
@@ -121,22 +140,31 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: The unique address of the compressed account on Solana
         data:
           $ref: '#/components/schemas/AccountData'
+          description: Account data stored in a compressed format on Solana
         hash:
           $ref: '#/components/schemas/Hash'
+          description: Cryptographic hash of the compressed account data for verification
         lamports:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Balance in lamports associated with the compressed account
         leafIndex:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Index position in the merkle tree where the compressed account is stored
         owner:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Solana program that owns this compressed account
         seq:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Sequence number for tracking updates to the compressed account
         slotCreated:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Solana blockchain slot when the compressed account was created
         tree:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Address of the merkle tree containing this compressed account
       additionalProperties: false
     AccountData:
       type: object
@@ -147,24 +175,28 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/Base64String'
+          description: Base64-encoded data of the compressed Solana account
         dataHash:
           $ref: '#/components/schemas/Hash'
+          description: Hash of the compressed account data for integrity verification
         discriminator:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Identifier for the account type in the Solana program
       additionalProperties: false
     AccountState:
       type: string
       enum:
       - initialized
       - frozen
+      description: Current state of the compressed token account (initialized or frozen)
     Base58String:
       type: string
-      description: A base 58 encoded string.
+      description: A base 58 encoded string used for Solana addresses and identifiers.
       default: 3J98t1WpEZ73CNm
       example: 3J98t1WpEZ73CNm
     Base64String:
       type: string
-      description: A base 64 encoded string.
+      description: A base 64 encoded string for storing binary data in compressed Solana accounts.
       default: SGVsbG8sIFdvcmxkIQ==
       example: SGVsbG8sIFdvcmxkIQ==
     Context:
@@ -176,17 +208,19 @@ components:
           type: integer
           default: 100
           example: 100
+          description: Current Solana blockchain slot for this response
     Hash:
       type: string
-      description: A 32-byte hash represented as a base58 string.
+      description: A 32-byte cryptographic hash represented as a base58 string for Solana data verification.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     Limit:
       type: integer
       format: int64
       minimum: 0
+      description: Maximum number of compressed token accounts to return in a single request
     SerializablePubkey:
       type: string
-      description: A Solana public key represented as a base58 string.
+      description: A Solana public key represented as a base58 string for account and wallet addresses.
       default: 11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9
       example: 11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9
     TokenAcccount:
@@ -197,8 +231,10 @@ components:
       properties:
         account:
           $ref: '#/components/schemas/Account'
+          description: Compressed account information for the token account on Solana, including tree position and verification data
         tokenData:
           $ref: '#/components/schemas/TokenData'
+          description: Specific token-related data including balance, mint, owner and delegation status
       additionalProperties: false
     TokenAccountList:
       type: object
@@ -207,10 +243,12 @@ components:
       properties:
         cursor:
           $ref: '#/components/schemas/Base58String'
+          description: Pagination cursor to retrieve the next set of compressed token accounts in subsequent requests
         items:
           type: array
           items:
             $ref: '#/components/schemas/TokenAcccount'
+          description: Array of compressed token accounts owned by the specified Solana wallet address
     TokenData:
       type: object
       required:
@@ -221,17 +259,24 @@ components:
       properties:
         amount:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Token balance amount held in this compressed token account
         delegate:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Optional delegate address authorized to perform operations on this compressed token account
         mint:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: The Solana SPL token mint address that this compressed token account belongs to
         owner:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: The Solana wallet address that owns this compressed token account
         state:
           $ref: '#/components/schemas/AccountState'
+          description: Current state of the compressed token account (initialized or frozen)
         tlv:
           $ref: '#/components/schemas/Base64String'
+          description: Optional type-length-value encoded data for extended token account information
     UnsignedInteger:
       type: integer
       default: 100
       example: 100
+      description: Non-negative integer value used for token amounts, sequence numbers, and other numeric values

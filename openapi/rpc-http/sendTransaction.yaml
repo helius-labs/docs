@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Fast and reliable Solana transaction submission API for sending signed transactions to the Solana blockchain with configurable preflight checks and retry options.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -37,7 +38,13 @@ paths:
         - RPC
       summary: sendTransaction
       operationId: sendTransaction
-      description: Sends a signed transaction to the network.
+      description: |
+        Submit signed transactions to the Solana blockchain network with configurable options. 
+        This essential API enables applications to broadcast transactions for validation and 
+        inclusion in the ledger, supporting all Solana transaction types including token transfers, 
+        NFT minting, smart contract calls, and program deployments. Features include preflight 
+        checks, customizable retry logic, and immediate transaction signature responses for 
+        tracking confirmation status.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -73,25 +80,25 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: The fully-signed transaction, as a base-58 encoded string.
+                        description: The fully-signed Solana transaction encoded as a base-58 string for blockchain submission.
                         example: "4hXTCkRzt9WyecNzV1XPgCDfGAZzQKNxLXgynz5QDuWWPSAZBZSHptvWRL3BjCvzUXRdKvHL2b7yGrRQcWyaqsaBCncVG7BFggS8w9snUts67BSh3EqKpXLUm5UMHfD7ZBe9GhARjbNQMLJ1QD3Spr6oMTBU6EhdB4RD8CP2xUxr2u3d6fos36PD98XS6oX8TQjLpsMwncs5DAMiD4nNnR8NBfyghGCWvCVifVwvA8B8TJxE1aiyiv2L429BCWfyzAme5sZW8rDb14NeCQHhZbtNqfXhcp2tAnaAT"
                       - type: object
-                        description: Configuration object for transaction options.
+                        description: Advanced configuration options for Solana transaction submission and processing.
                         properties:
                           encoding:
                             type: string
-                            description: Encoding used for the transaction data.
+                            description: Data encoding format used for the Solana transaction payload.
                             enum:
                               - base58
                               - base64
                             example: base64
                           skipPreflight:
                             type: boolean
-                            description: When true, skip the preflight transaction checks.
+                            description: When true, bypasses Solana's preflight transaction validation for faster submission.
                             example: false
                           preflightCommitment:
                             type: string
-                            description: Commitment level to use for preflight.
+                            description: Solana network commitment level for transaction validation checks.
                             enum:
                               - confirmed
                               - finalized
@@ -99,11 +106,11 @@ paths:
                             example: finalized
                           maxRetries:
                             type: integer
-                            description: Maximum number of retries for the transaction.
+                            description: Maximum number of automatic retry attempts for failed Solana transaction submissions.
                             example: 5
                           minContextSlot:
                             type: integer
-                            description: Minimum slot at which to perform preflight transaction checks.
+                            description: Minimum Solana blockchain slot required for transaction processing.
                             example: 1000
             example:
               jsonrpc: "2.0"
@@ -131,7 +138,7 @@ paths:
                     example: "1"
                   result:
                     type: string
-                    description: The first transaction signature embedded in the transaction, as a base-58 encoded string.
+                    description: The unique Solana transaction signature for tracking confirmation status and transaction history.
                     example: "2id3YC2jK9G5Wo2phDx4gJVAew8DcY5NAojnVuao8rkxwPYPe8cSwE5GzhEgJA2y8fVjDEo6iR6ykBvDxrTQrtpb"
               example:
                 jsonrpc: "2.0"

@@ -1,7 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Digital Asset Transaction History API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for retrieving complete transaction histories 
+    for any NFT or token on the Solana blockchain. This specialized transaction monitoring API provides 
+    comprehensive visibility into all historical operations performed on specific digital assets, 
+    enabling applications to track ownership transfers, mints, burns, and other lifecycle events 
+    for both traditional and compressed Solana NFTs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +29,13 @@ paths:
       tags: 
         - RPC
       summary: getSignaturesForAsset
-      description: Returns a list of signatures for a given asset.
+      description: |
+        Retrieve a complete chronological history of all transactions involving a specific Solana NFT or token.
+        This transaction history API returns an ordered list of transaction signatures and operation types
+        that affected a particular digital asset on the Solana blockchain, enabling applications to track
+        the full ownership history, creation events, transfers, listings, sales, and other operations.
+        Essential for marketplace provenance verification, wallet transaction history, and analytics 
+        platforms tracking the lifecycle of NFTs and tokens across the Solana ecosystem.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -63,15 +75,15 @@ paths:
                   properties:
                     id:
                       type: string
-                      description: The ID of the asset to retrieve the signatures for.
+                      description: The unique identifier (mint address) of the Solana digital asset to retrieve transaction history for.
                       example: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
                     page:
                       type: integer
-                      description: The page of results to return.
+                      description: The page number for paginating through the Solana asset's transaction history.
                       example: 1
                     limit:
                       type: integer
-                      description: The maximum number of signatures to return.
+                      description: The maximum number of Solana transaction signatures to return per request.
                       example: 100
                     before:
                       type: string
@@ -97,15 +109,15 @@ paths:
                     properties:
                       total:
                         type: integer
-                        description: The total number of signatures found.
+                        description: The total number of transactions found in this Solana digital asset's history.
                         example: 3
                       limit:
                         type: integer
-                        description: The maximum number of signatures requested.
+                        description: The maximum number of Solana transaction signatures requested per page.
                         example: 1000
                       items:
                         type: array
-                        description: An array of signatures and their types.
+                        description: An array of Solana transaction signatures with their corresponding operation types affecting this digital asset.
                         items:
                           type: array
                           items:

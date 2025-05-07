@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Blockchain synchronization API for retrieving the current Solana network slot number with different finality guarantees for real-time monitoring and progress tracking.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -37,7 +38,13 @@ paths:
         - RPC
       summary: getSlot
       operationId: getSlot
-      description: Returns the current slot number.
+      description: |
+        Retrieve the current slot number on the Solana blockchain with configurable finality guarantees.
+        This fundamental API provides real-time information about the network's progression, essential for
+        synchronization, monitoring, and tracking blockchain advancement. The slot number represents the
+        current height of the chain and is used as a reference for transaction inclusion, block timing,
+        and determining finality status. Critical for applications that need to track network progress,
+        determine confirmation status, or implement timing-based logic with blockchain synchronization.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -75,7 +82,7 @@ paths:
                     properties:
                       commitment:
                         type: string
-                        description: The commitment level for the request.
+                        description: The finality level to retrieve the slot for (processed = fastest, finalized = fully confirmed).
                         enum:
                           - confirmed
                           - finalized
@@ -83,7 +90,7 @@ paths:
                         example: finalized
                       minContextSlot:
                         type: integer
-                        description: The minimum slot that the request can be evaluated at.
+                        description: Minimum Solana blockchain slot that must be reached before processing this request.
                         example: 1000
             examples:
               getSlotExample:
@@ -108,7 +115,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Current slot number.
+                    description: Current Solana blockchain slot number representing the network's height and progress.
                     example: 1234
               examples:
                 getSlotExample:

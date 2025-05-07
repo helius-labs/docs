@@ -1,7 +1,12 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana Compressed Account Verification API
+  description: |
+    Advanced Solana indexer for verifying compressed accounts using merkle proofs.
+    This specialized verification API enables applications to cryptographically validate 
+    the existence and data integrity of compressed NFTs and token accounts on the Solana blockchain
+    through efficient merkle proof verification, supporting the secure usage of state compression
+    technology that reduces on-chain storage costs by up to 1000x compared to traditional accounts.
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -15,7 +20,13 @@ paths:
   /:
     summary: getCompressedAccountProof
     post:
-      description: Retrieves getCompressedAccountProof information
+      description: |
+        Retrieve the cryptographic merkle proof for a specific compressed Solana account.
+        This verification endpoint returns the complete proof path needed to validate a compressed
+        NFT or token account's existence and data integrity on the Solana blockchain without requiring
+        the full account data to be stored on-chain. Essential for wallet applications, marketplaces,
+        and DeFi protocols that need to verify ownership and authenticity of compressed assets while
+        benefiting from Solana's breakthrough state compression technology for dramatic cost reductions.
       operationId: getCompressedAccountProof
       security:
         - ApiKeyQuery: []
@@ -42,7 +53,7 @@ paths:
                   default: "1"
                 method:
                   type: string
-                  description: The name of the method to invoke.
+                  description: The name of the method to invoke for retrieving Solana compressed account proof data.
                   enum:
                   - getCompressedAccountProof
                   default: getCompressedAccountProof
@@ -53,10 +64,11 @@ paths:
                   properties:
                     hash:
                       $ref: '#/components/schemas/Hash'
+                      description: The hash of the Solana compressed account to retrieve the proof for
         required: true
       responses:
         '200':
-          description: Successful response
+          description: 'Successfully retrieved merkle proof for the requested Solana compressed account'
           content:
             application/json:
               schema:
@@ -105,9 +117,10 @@ components:
           type: integer
           default: 100
           example: 100
+          description: Current Solana blockchain slot for this compressed account proof request
     Hash:
       type: string
-      description: A 32-byte hash represented as a base58 string.
+      description: A 32-byte cryptographic hash represented as a base58 string, uniquely identifying a Solana compressed account.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     MerkleProofWithContext:
       type: object
@@ -121,25 +134,31 @@ components:
       properties:
         hash:
           $ref: '#/components/schemas/Hash'
+          description: The unique hash identifier of the Solana compressed account being verified
         leafIndex:
           type: integer
           format: int32
           minimum: 0
+          description: The position index of this compressed account in the Solana merkle tree structure
         merkleTree:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: The address of the Solana merkle tree where this compressed account is stored
         proof:
           type: array
           items:
             $ref: '#/components/schemas/Hash'
+          description: Array of hashes forming the merkle proof path to verify this Solana compressed account
         root:
           $ref: '#/components/schemas/Hash'
+          description: The root hash of the Solana merkle tree containing this compressed account
         rootSeq:
           type: integer
           format: int64
           minimum: 0
+          description: The sequence number of the root in the Solana merkle tree for version tracking
       additionalProperties: false
     SerializablePubkey:
       type: string
-      description: A Solana public key represented as a base58 string.
+      description: A Solana public key represented as a base58 string, used to identify merkle trees and accounts.
       default: 11111117353mdUKehx9GW6JNHznGt5oSZs9fWkVkB
       example: 11111117353mdUKehx9GW6JNHznGt5oSZs9fWkVkB

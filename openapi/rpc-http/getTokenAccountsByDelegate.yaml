@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Advanced Solana API for querying delegate token authorizations, allowing applications to retrieve all SPL token accounts that have granted specific permissions to third-party addresses.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getTokenAccountsByDelegate
       operationId: getTokenAccountsByDelegate
-      description: Returns the token accounts for a given delegate.
+      description: |
+        Retrieve all SPL token accounts that have delegated authority to a specific Solana address.
+        This powerful API identifies all token accounts that have granted spending or management
+        permissions to third-party applications, wallets, or other delegate addresses. Essential
+        for security monitoring, delegation tracking, and applications that need to discover which
+        token accounts they have permission to manage or spend from. Supports filtering by specific
+        token types and delegation authorization levels with parsed data for easy integration.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,18 +67,18 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the account delegate to query, as a base-58 encoded string.
+                        description: Solana address (public key) of the delegate that has been authorized to manage token accounts.
                         example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
                       - type: object
-                        description: JSON object with optional filter fields.
+                        description: Filter configuration to narrow results to specific token types or programs.
                         properties:
                           mint:
                             type: string
-                            description: Pubkey of the specific token Mint to limit accounts to, as a base-58 encoded string.
+                            description: Specific token mint address to filter delegated accounts by a particular token type.
                             example: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
                           programId:
                             type: string
-                            description: Pubkey of the Token program that owns the accounts, as a base-58 encoded string.
+                            description: Specific token program ID (typically SPL Token program) to filter delegated accounts.
                             example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                       - type: object
                         description: Configuration object.
@@ -207,11 +214,11 @@ paths:
                                                   example: "0.1"
                                             delegate:
                                               type: string
-                                              description: Delegate account Pubkey.
+                                              description: The Solana address that has been granted delegate authorization to spend or manage tokens.
                                               example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
                                             delegatedAmount:
                                               type: object
-                                              description: Amount delegated to the account.
+                                              description: The amount of tokens the delegate has been authorized to spend on behalf of the owner.
                                               properties:
                                                 amount:
                                                   type: string

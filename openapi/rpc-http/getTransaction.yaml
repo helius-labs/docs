@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Advanced Solana transaction retrieval API for accessing detailed transaction data, signatures, and execution results from the Solana blockchain.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,10 @@ paths:
         - RPC
       summary: getTransaction
       operationId: getTransaction
-      description: Returns the transaction details for a given signature.
+      description: |
+        Retrieve comprehensive transaction details from the Solana blockchain by transaction signature.
+        Access complete data including account changes, instruction details, token transfers, program
+        logs, and execution status. Support for parsed data, multiple encoding formats, and transaction versions.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -55,15 +59,15 @@ paths:
                   default: "getTransaction"
                 params:
                   type: array
-                  description: Parameters for querying a transaction.
+                  description: Parameters for querying a Solana transaction by signature.
                   default: ["D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"]
                   items:
                     oneOf:
                       - type: string
-                        description: Transaction signature as a base-58 encoded string.
+                        description: Solana transaction signature as a base-58 encoded string for lookup.
                         example: "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"
                       - type: string
-                        description: Encoding format for the returned transaction.
+                        description: Encoding format for the returned Solana transaction data.
                         enum:
                           - json
                           - jsonParsed
@@ -71,18 +75,18 @@ paths:
                           - base58
                         example: "json"
                       - type: object
-                        description: Configuration object for advanced options.
+                        description: Advanced configuration options for Solana transaction retrieval.
                         properties:
                           commitment:
                             type: string
-                            description: The commitment level for the request (processed is not supported).
+                            description: Blockchain commitment level for transaction finality verification.
                             enum:
                               - confirmed
                               - finalized
                             example: finalized
                           maxSupportedTransactionVersion:
                             type: integer
-                            description: Maximum transaction version to return in responses.
+                            description: Maximum Solana transaction version to return in responses (for versioned transaction support).
                             example: 0
             example:
               jsonrpc: "2.0"
@@ -93,7 +97,7 @@ paths:
                 - {"commitment": "finalized"}
       responses:
         200:
-          description: Successfully retrieved the transaction details.
+          description: Successfully retrieved the detailed Solana transaction data.
           content:
             application/json:
               schema:
@@ -111,155 +115,91 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Transaction details.
+                    description: Complete Solana transaction details including execution data.
                     properties:
                       slot:
                         type: integer
-                        description: Slot this transaction was processed in.
+                        description: Solana blockchain slot number when this transaction was processed.
                         example: 430
                       transaction:
                         type: object
-                        description: Transaction object.
+                        description: Comprehensive Solana transaction object with all transaction details.
                         properties:
                           message:
                             type: object
-                            description: Transaction message details.
+                            description: Solana transaction message containing detailed execution instructions.
                             properties:
                               accountKeys:
                                 type: array
-                                description: List of account keys involved in the transaction.
+                                description: List of Solana account public keys involved in the transaction.
                                 items:
                                   type: string
                                   example: "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
                               header:
                                 type: object
-                                description: Header information for the transaction.
+                                description: Solana transaction header metadata with access control information.
                                 properties:
                                   numReadonlySignedAccounts:
                                     type: integer
-                                    description: Number of read-only signed accounts.
+                                    description: Number of read-only signed Solana accounts in the transaction.
                                     example: 0
                                   numReadonlyUnsignedAccounts:
                                     type: integer
-                                    description: Number of read-only unsigned accounts.
+                                    description: Number of read-only unsigned Solana accounts in the transaction.
                                     example: 3
                                   numRequiredSignatures:
                                     type: integer
-                                    description: Number of required signatures.
+                                    description: Number of required signatures for Solana transaction validation.
                                     example: 1
                               instructions:
                                 type: array
-                                description: List of instructions in the transaction.
+                                description: List of program instructions executed within the Solana transaction.
                                 items:
                                   type: object
                                   properties:
                                     accounts:
                                       type: array
-                                      description: List of accounts involved in the instruction.
+                                      description: Indexed list of Solana accounts accessed by this instruction.
                                       items:
                                         type: integer
                                         example: 1
                                     data:
                                       type: string
-                                      description: Encoded instruction data.
+                                      description: Encoded instruction data passed to the Solana program.
                                       example: "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1"
                                     programIdIndex:
                                       type: integer
-                                      description: Program ID index for the instruction.
+                                      description: Index of the Solana program that processes this instruction.
                                       example: 4
                               recentBlockhash:
                                 type: string
-                                description: Recent blockhash for the transaction.
+                                description: Recent Solana blockhash used for transaction validity window.
                                 example: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
                           signatures:
                             type: array
-                            description: Transaction signatures.
+                            description: List of cryptographic signatures validating the Solana transaction.
                             items:
                               type: string
                               example: "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
                       meta:
                         type: object
-                        description: Transaction status metadata.
+                        description: Solana transaction execution metadata and results.
                         properties:
                           err:
                             oneOf:
                               - type: object
                               - type: "null"
-                            description: Error if transaction failed; null if successful.
+                            description: Error information if Solana transaction failed; null if successful.
                             example: null
                           fee:
                             type: integer
-                            description: Transaction fee in lamports.
+                            description: Transaction fee paid in Solana lamports (1 SOL = 1,000,000,000 lamports).
                             example: 5000
                           innerInstructions:
                             type: array
-                            description: List of inner instructions.
+                            description: List of inner instructions generated during Solana transaction execution.
                             items:
                               type: object
-                          postBalances:
-                            type: array
-                            description: Account balances after the transaction.
-                            items:
-                              type: integer
-                              example: 499998932500
-                          preBalances:
-                            type: array
-                            description: Account balances before the transaction.
-                            items:
-                              type: integer
-                              example: 499998937500
-                          rewards:
-                            oneOf:
-                              - type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    pubkey:
-                                      type: string
-                                      description: Public key of the rewarded account.
-                                      example: "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
-                                    lamports:
-                                      type: integer
-                                      description: Number of lamports credited or debited.
-                                      example: 500
-                                    postBalance:
-                                      type: integer
-                                      description: Account balance after reward application.
-                                      example: 1000
-                                    rewardType:
-                                      type: string
-                                      description: Type of reward.
-                                      example: "rent"
-                              - type: "null"
-                            description: Transaction-level rewards.
-              example:
-                jsonrpc: "2.0"
-                id: "1"
-                result:
-                  slot: 430
-                  transaction:
-                    message:
-                      accountKeys:
-                        - "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
-                        - "AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc"
-                      header:
-                        numReadonlySignedAccounts: 0
-                        numReadonlyUnsignedAccounts: 3
-                        numRequiredSignatures: 1
-                      instructions:
-                        - accounts: [1, 2, 3, 0]
-                          data: "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1"
-                          programIdIndex: 4
-                      recentBlockhash: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
-                    signatures:
-                      - "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
-                  meta:
-                    err: null
-                    fee: 5000
-                    innerInstructions: []
-                    postBalances: [499998932500, 26858640, 1, 1, 1]
-                    preBalances: [499998937500, 26858640, 1, 1, 1]
-                    rewards: []
         400:
           description: Invalid request.
         401:

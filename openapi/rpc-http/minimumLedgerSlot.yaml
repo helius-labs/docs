@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator storage management API for identifying the lowest ledger slot that is still being actively maintained by this Solana node for replay and state reconstruction.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: minimumLedgerSlot
       operationId: minimumLedgerSlot
-      description: Returns the minimum ledger slot number.
+      description: |
+        Retrieve the lowest slot number that is still maintained in this Solana validator's ledger storage.
+        This blockchain state management API helps identify the earliest accessible slot in the validator's 
+        active ledger storage, which represents the lower boundary for replaying the chain to reconstruct
+        historical states. Unlike getFirstAvailableBlock which tracks block storage, this method exposes
+        information about the validator's record of state transitions. Essential for applications building
+        state reconstruction tools, ledger analysis utilities, validator monitoring systems, and services
+        that need to understand how far back this node can replay the blockchain for account state verification.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -83,7 +91,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Minimum ledger slot number.
+                    description: Lowest Solana slot number still maintained in this validator's state replay buffer, providing the minimum boundary for chain reconstruction.
                     example: 1234
               examples:
                 default:

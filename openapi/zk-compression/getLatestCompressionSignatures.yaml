@@ -1,7 +1,11 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana Compressed Asset Transaction Monitoring API
+  description: |
+    Advanced Solana indexer for monitoring recent compressed NFT and token transactions.
+    This specialized API enables developers to track and analyze the latest compression activity
+    on the Solana blockchain, providing visibility into real-time compressed asset operations, 
+    mints, transfers, and other compression-related transactions with efficient pagination support.
   license:
     name: Apache-2.0
   version: 0.50.0
@@ -14,7 +18,13 @@ paths:
   /:
     summary: getLatestCompressionSignatures
     post:
-      description: Retrieves getLatestCompressionSignatures information
+      description: |
+        Retrieve the most recent transaction signatures for Solana compression operations.
+        This monitoring endpoint returns a paginated list of the latest transaction signatures
+        involving compressed NFTs and tokens on the Solana blockchain, including their timestamp
+        and slot information. Essential for tracking compressed asset activity, market analysis,
+        wallet history synchronization, and auditing compression-related transactions across the
+        Solana ecosystem. Supports efficient pagination for continuous monitoring of compression activity.
       operationId: getLatestCompressionSignatures
       security:
         - ApiKeyQuery: []
@@ -41,7 +51,7 @@ paths:
                   default: "1"
                 method:
                   type: string
-                  description: The name of the method to invoke.
+                  description: The name of the method to invoke for retrieving recent Solana compression transaction signatures.
                   enum:
                   - getLatestCompressionSignatures
                   default: getLatestCompressionSignatures
@@ -51,15 +61,17 @@ paths:
                     cursor:
                       type: string
                       nullable: true
+                      description: Pagination cursor for navigating through large sets of Solana compression transaction signatures
                     limit:
                       allOf:
                       - $ref: '#/components/schemas/Limit'
                       nullable: true
+                      description: Maximum number of Solana compression transaction signatures to return per request
                   additionalProperties: false
         required: true
       responses:
         '200':
-          description: ''
+          description: 'Successfully retrieved latest Solana compression transaction signatures'
           content:
             application/json:
               schema:
@@ -108,10 +120,12 @@ components:
           type: integer
           default: 100
           example: 100
+          description: Current Solana blockchain slot for this compression signature request
     Limit:
       type: integer
       format: int64
       minimum: 0
+      description: Maximum number of Solana compression transaction signatures to return in a single request
     PaginatedSignatureInfoList:
       type: object
       required:
@@ -120,13 +134,15 @@ components:
         cursor:
           type: string
           nullable: true
+          description: Pagination cursor to retrieve the next set of Solana compression transaction signatures
         items:
           type: array
           items:
             $ref: '#/components/schemas/SignatureInfo'
+          description: Array of Solana compressed NFT and token transaction signatures with their metadata
     SerializableSignature:
       type: string
-      description: A Solana transaction signature.
+      description: A Solana transaction signature for a compression-related operation, used to identify and verify transactions.
       default: 5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c
       example: 5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c
     SignatureInfo:
@@ -138,16 +154,20 @@ components:
       properties:
         blockTime:
           $ref: '#/components/schemas/UnixTimestamp'
+          description: Unix timestamp when this Solana compressed asset transaction was processed
         signature:
           $ref: '#/components/schemas/SerializableSignature'
+          description: Unique transaction signature for this Solana compressed asset operation
         slot:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Solana blockchain slot in which this compressed asset transaction was included
     UnixTimestamp:
       type: integer
-      description: An Unix timestamp (seconds)
+      description: Unix timestamp (seconds) when the Solana compressed asset transaction was processed
       default: 1714081554
       example: 1714081554
     UnsignedInteger:
       type: integer
       default: 100
       example: 100
+      description: Non-negative integer value representing a Solana blockchain slot number

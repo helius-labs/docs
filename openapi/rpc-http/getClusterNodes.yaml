@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Network discovery API for retrieving a comprehensive list of active Solana validator nodes with their network addresses, versions, and connectivity endpoints.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getClusterNodes
       operationId: getClusterNodes
-      description: Returns information about the nodes in the cluster.
+      description: |
+        Retrieve detailed information about all active validator nodes in the Solana network.
+        This network topology API provides a complete mapping of the current validator landscape,
+        returning essential connectivity details for each participating node. Information includes
+        validator public keys, network addresses for different protocols (gossip, TPU, RPC),
+        software versions, and feature sets. Essential for network monitoring tools, validator
+        statistics dashboards, client libraries implementing intelligent node selection, networking
+        tools that need direct communication with validators, and applications that want to understand
+        the geographical and version distribution of the Solana validator network.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,42 +86,42 @@ paths:
                     example: "1"
                   result:
                     type: array
-                    description: List of nodes in the cluster with their details.
+                    description: Comprehensive list of all discoverable Solana validator nodes currently participating in the network.
                     items:
                       type: object
                       properties:
                         pubkey:
                           type: string
-                          description: Node public key as a base-58 encoded string.
+                          description: Unique validator identity public key (base-58 encoded) that identifies this node on the Solana network.
                           example: "9QzsJf7LPLj8GkXbYT3LFDKqsj2hHG7TA3xinJHu8epQ"
                         gossip:
                           type: string
                           nullable: true
-                          description: Gossip network address for the node.
+                          description: IP address and port for connecting to this validator's gossip protocol endpoint for peer discovery.
                           example: "10.239.6.48:8001"
                         tpu:
                           type: string
                           nullable: true
-                          description: TPU network address for the node.
+                          description: Transaction Processing Unit address where clients can directly submit transactions to this validator.
                           example: "10.239.6.48:8856"
                         rpc:
                           type: string
                           nullable: true
-                          description: JSON RPC network address for the node, or null if not enabled.
+                          description: JSON-RPC API endpoint address if this validator offers public RPC services, or null if not publicly available.
                           example: "10.239.6.48:8899"
                         version:
                           type: string
                           nullable: true
-                          description: Software version of the node.
+                          description: Solana software version and build identifier running on this validator node.
                           example: "1.0.0 c375ce1f"
                         featureSet:
                           type: integer
                           nullable: true
-                          description: Unique identifier of the node's feature set.
+                          description: Numeric identifier of the feature set enabled on this validator, used to track protocol compatibility.
                         shredVersion:
                           type: integer
                           nullable: true
-                          description: Shred version the node has been configured to use.
+                          description: Network compatibility version number used for shred processing and routing between validator nodes.
         400:
           description: Invalid request.
           content:

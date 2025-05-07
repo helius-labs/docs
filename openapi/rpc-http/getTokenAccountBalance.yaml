@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Fast and reliable Solana SPL token balance retrieval API for accessing fungible token and NFT balances with proper decimal formatting and human-readable amounts.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -44,7 +45,13 @@ paths:
         - RPC
       summary: getTokenAccountBalance
       operationId: getTokenAccountBalance
-      description: Returns the balance of a given token account.
+      description: |
+        Retrieve SPL token balances from any Solana token account with proper decimal formatting.
+        This essential API provides access to fungible token balances, NFT holdings, and other
+        SPL token data with support for token-specific decimal places for accurate display.
+        Returns both raw and formatted balances with human-readable amounts, critical for
+        wallets, DeFi applications, exchanges, and any service that needs to display
+        token balances to users.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -80,7 +87,7 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the token account to query, as a base-58 encoded string.
+                        description: Solana SPL token account address to query for balance information, as a base-58 encoded string.
                         example: "3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa"
                       - type: object
                         description: Configuration options.
@@ -132,19 +139,19 @@ paths:
                         properties:
                           amount:
                             type: string
-                            description: The raw balance without decimals, as a string representation of u64.
+                            description: The raw Solana token balance as a string integer without decimal formatting.
                             example: "9864"
                           decimals:
                             type: integer
-                            description: Number of base 10 digits to the right of the decimal place.
+                            description: Number of decimal places defined by the token's mint for proper display formatting.
                             example: 2
                           uiAmount:
                             type: number
-                            description: The balance, using mint-prescribed decimals (deprecated). Can be null.
+                            description: The human-readable Solana token balance with proper decimal formatting (deprecated).
                             example: 98.64
                           uiAmountString:
                             type: string
-                            description: The balance as a string, using mint-prescribed decimals.
+                            description: The canonical string representation of the token balance with proper decimal places.
                             example: "98.64"
               examples:
                 default:

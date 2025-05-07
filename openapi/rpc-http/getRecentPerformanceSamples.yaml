@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Network performance analytics API for monitoring Solana blockchain throughput, transaction processing rates, and real-time health metrics across recent time periods.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getRecentPerformanceSamples
       operationId: getRecentPerformanceSamples
-      description: Returns the recent performance samples.
+      description: |
+        Retrieve detailed performance metrics about the Solana blockchain's recent operational efficiency.
+        This network analytics API provides time-series data showing transaction throughput, slot production,
+        and voting activity across regular sampling intervals. Essential for monitoring network health,
+        analyzing blockchain capacity, tracking performance trends, and verifying network reliability.
+        The metrics offer insights into both the overall transaction volume and specifically non-voting
+        transactions, helping differentiate between consensus overhead and actual user operations on the network.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -63,7 +70,7 @@ paths:
                   default: [4]
                   items:
                     type: integer
-                    description: Number of samples to return (maximum 720).
+                    description: Number of historical performance sample intervals to retrieve (maximum 720, representing up to 12 hours).
                     example: 4
       responses:
         200:
@@ -92,24 +99,24 @@ paths:
                       properties:
                         slot:
                           type: integer
-                          description: Slot in which the sample was taken.
+                          description: Solana blockchain slot at the end of this performance sampling period.
                           example: 348125
                         numTransactions:
                           type: integer
-                          description: Number of transactions processed during the sample period.
+                          description: Total number of transactions processed during this sampling window, including both user transactions and validator votes.
                           example: 126
                         numNonVoteTransactions:
                           type: integer
-                          description: Number of non-vote transactions processed during the sample period.
+                          description: Number of actual user transactions (excluding validator consensus votes) processed in this period.
                           example: 1
                         samplePeriodSecs:
                           type: integer
                           format: int16
-                          description: Number of seconds in a sample window.
+                          description: Duration of this performance measurement window in seconds, typically 60-second intervals.
                           example: 60
                         numSlots:
                           type: integer
-                          description: Number of slots completed during the sample period.
+                          description: Number of Solana slots successfully produced during this sampling period, indicating blockchain progress.
                           example: 126
         400:
           description: Invalid request.

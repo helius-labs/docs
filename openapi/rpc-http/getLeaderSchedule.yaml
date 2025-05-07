@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator scheduling API for retrieving the complete Solana leader rotation sequence that determines which validators produce blocks during specific slots of an epoch.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,16 @@ paths:
         - RPC
       summary: getLeaderSchedule
       operationId: getLeaderSchedule
-      description: Returns the leader schedule for a given epoch.
+      description: |
+        Retrieve the complete validator rotation schedule for an entire Solana epoch.
+        This consensus API provides the detailed mapping of which validator nodes are assigned 
+        as slot leaders throughout an epoch, showing exactly which slots each validator is
+        responsible for producing blocks. The leader schedule is deterministically derived
+        using a verifiable random function based on stake-weighted selection. Essential for 
+        validator operators monitoring their upcoming block production responsibilities,
+        staking applications analyzing validator participation opportunities, network 
+        monitoring tools visualizing consensus patterns, and applications that need to
+        predict or analyze block production timing and distribution across the network.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -63,7 +73,7 @@ paths:
                   items:
                     oneOf:
                       - type: integer
-                        description: Slot for the epoch whose leader schedule is fetched. If null, current epoch is used.
+                        description: Epoch or slot number to retrieve the leader schedule for. If omitted, returns the schedule for the current epoch.
                         example: null
                       - type: object
                         description: Configuration object with additional options.
@@ -78,7 +88,7 @@ paths:
                             example: finalized
                           identity:
                             type: string
-                            description: Only return results for this validator identity (base-58 encoded).
+                            description: Optional validator identity public key to filter results for a specific validator's schedule only.
                             example: "4Qkev8aNZcqFNSRhQzwyLMFSsi94jHqE8WNVTJzTP99F"
       responses:
         200:
@@ -103,10 +113,10 @@ paths:
                       - type: "null"
                         description: Null if the requested epoch is not found.
                       - type: object
-                        description: Dictionary of validator identities and their corresponding leader slot indices.
+                        description: Mapping of validator identities to their assigned leader slots within this epoch.
                         additionalProperties:
                           type: array
-                          description: Array of slot indices relative to the first slot in the epoch.
+                          description: Array of slot indices within the epoch where this validator is scheduled to produce blocks.
                           items:
                             type: integer
                             example: 0

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Account storage cost calculator API for determining the minimum SOL balance required to make Solana accounts rent-exempt based on their data size requirements.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getMinimumBalanceForRentExemption
       operationId: getMinimumBalanceForRentExemption
-      description: Returns the minimum balance required to rent a new account.
+      description: |
+        Calculate the minimum SOL balance required to make a Solana account permanently rent-exempt.
+        This essential economic API helps determine the precise amount of SOL that must be allocated
+        to an account based on its data size to avoid paying recurring rent fees. Accounts that
+        maintain this minimum balance are exempt from the network's storage rent charges, ensuring
+        their long-term persistence on the blockchain. Critical for wallet developers, DApp builders,
+        and any application creating on-chain accounts to accurately estimate account creation costs
+        and properly fund new accounts based on their intended storage requirements.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -64,7 +72,7 @@ paths:
                   items:
                     oneOf:
                       - type: integer
-                        description: The account's data length (optional).
+                        description: Size of account data in bytes that you need to store on the Solana blockchain.
                         example: 50
                       - type: object
                         description: Configuration object with additional options.
@@ -97,7 +105,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Minimum lamports required in the account to remain rent-free.
+                    description: Minimum SOL balance in lamports required to make an account with this data size permanently rent-exempt.
                     example: 500
         400:
           description: Invalid request.

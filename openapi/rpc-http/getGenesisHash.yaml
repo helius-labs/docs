@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Network identification API for retrieving the unique genesis hash that serves as the cryptographic identifier of the specific Solana blockchain network (mainnet, testnet, or devnet).
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getGenesisHash
       operationId: getGenesisHash
-      description: Returns the genesis hash of the current network.
+      description: |
+        Retrieve the unique cryptographic identifier of the Solana blockchain network you're connected to.
+        This network verification API returns the genesis hash - a distinctive fingerprint created from the
+        very first block of the blockchain that uniquely identifies whether you're connected to Solana mainnet,
+        testnet, devnet, or a custom cluster. The genesis hash serves as a fundamental chain identifier that
+        never changes for a specific network. Essential for applications that need to verify they're connected
+        to the expected Solana network before performing transactions, cross-chain services that must
+        distinguish between different Solana environments, and frameworks building network-aware functionality.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,7 +85,7 @@ paths:
                     example: "1"
                   result:
                     type: string
-                    description: A hash as a base-58 encoded string.
+                    description: Unique genesis hash (base-58 encoded) that cryptographically identifies this specific Solana blockchain network (different for mainnet, testnet, devnet).
                     example: "GH7ome3EiwEr7tu9JuTh2dpYWBJK3z69Xm1ZE3MEE6JC"
         400:
           description: Invalid request.

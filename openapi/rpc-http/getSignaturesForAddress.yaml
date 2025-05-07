@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Comprehensive Solana transaction history API for retrieving and analyzing historical blockchain activities associated with any wallet address or program.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getSignaturesForAddress
       operationId: getSignaturesForAddress
-      description: Returns the signatures for a given address.
+      description: |
+        Retrieve transaction signatures for activity involving a specific Solana address with powerful pagination.
+        This essential API provides transaction history for any Solana wallet, token, program, or NFT address,
+        returning chronological transaction signatures with their status, timing, and execution results.
+        Perfect for building wallet transaction histories, program activity monitoring, address analytics,
+        and any application that needs to track historical operations on the Solana blockchain.
+        Supports flexible pagination for accessing complete transaction history.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -65,10 +72,10 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Account address as a base-58 encoded string.
+                        description: Solana account address to retrieve transaction history for (wallet, token, program, NFT, etc.).
                         example: "Vote111111111111111111111111111111111111111"
                       - type: object
-                        description: Configuration object with additional options.
+                        description: Advanced query configuration for customizing transaction history retrieval.
                         properties:
                           commitment:
                             type: string
@@ -84,15 +91,15 @@ paths:
                             example: 1000
                           limit:
                             type: integer
-                            description: Maximum transaction signatures to return (1 to 1,000).
+                            description: Maximum number of transaction signatures to return in a single request (1-1,000).
                             example: 1000
                           before:
                             type: string
-                            description: Start searching backwards from this transaction signature.
+                            description: Pagination parameter to get transactions before this signature (earlier in time).
                             example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                           until:
                             type: string
-                            description: Search until this transaction signature is found, if before the limit is reached.
+                            description: Get transactions until this signature is reached, useful for specific time ranges.
                             example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
       responses:
         200:

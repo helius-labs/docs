@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator synchronization API for retrieving the highest slot where a Solana node is processing incoming blockchain data fragments for network consensus.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getMaxShredInsertSlot
       operationId: getMaxShredInsertSlot
-      description: Returns the maximum shred insert slot.
+      description: |
+        Retrieve the highest slot number where this Solana validator node is actively accepting data shreds.
+        This low-level network API provides insight into the blockchain's internal data propagation mechanism,
+        returning the maximum slot for which the node is currently processing incoming blockchain fragments.
+        Shreds are the fundamental data units that validators exchange to construct complete Solana blocks.
+        This diagnostic endpoint is primarily useful for validator operators, network monitoring tools,
+        and advanced applications that need to monitor validator synchronization status and blockchain
+        propagation efficiency at the data transport layer.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,7 +85,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Slot number.
+                    description: Highest Solana slot number where this validator is currently accepting incoming data shreds (blockchain fragments).
                     example: 1234
         400:
           description: Invalid request.

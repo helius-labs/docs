@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Transaction volume metrics API for tracking Solana blockchain network activity and total processed operations since genesis.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -37,7 +38,13 @@ paths:
         - RPC
       summary: getTransactionCount
       operationId: getTransactionCount
-      description: Returns the current transaction count from the ledger.
+      description: |
+        Retrieve the total transaction count processed by the Solana blockchain since genesis.
+        This network activity metric provides insights into blockchain throughput and historical
+        volume, tracking the cumulative number of transactions successfully processed across
+        the network's entire history. Essential for blockchain analytics, network monitoring
+        dashboards, throughput analysis, and applications tracking Solana's growth over time.
+        Results can be queried at different commitment levels for varying degrees of finality.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -75,7 +82,7 @@ paths:
                     properties:
                       commitment:
                         type: string
-                        description: The commitment level for the request.
+                        description: The finality level at which to measure the transaction count (processed = recent, finalized = confirmed).
                         enum:
                           - confirmed
                           - finalized
@@ -108,7 +115,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: The current transaction count from the ledger.
+                    description: Total number of transactions processed by the Solana blockchain since network inception.
                     example: 268
               examples:
                 sampleResponse:

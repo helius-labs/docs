@@ -1,7 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Creator Attribution API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for retrieving all digital assets created by specific artists, 
+    projects, or creator addresses on the Solana blockchain. This specialized API enables comprehensive discovery of 
+    creator portfolios, including both traditional and compressed NFTs with detailed metadata and collection information.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +28,12 @@ paths:
                 - RPC
             summary: getAssetsByCreator
             operationId: rpc
-            description: Returns a list of assets created by a given creator.
+            description: |
+                Retrieve a comprehensive list of all Solana digital assets created by a specific wallet address.
+                This creator attribution API returns complete NFT collections, artwork, tokens, and other assets
+                where the specified address is listed as a creator, with verification status. Essential for artist
+                portfolios, creator royalty tracking, marketplace attribution, and collection discovery across 
+                the Solana ecosystem.
             security:
                 - ApiKeyQuery: []
             requestBody:
@@ -59,7 +68,7 @@ paths:
                                     properties:
                                         creatorAddress:
                                             type: string
-                                            description: The creator address key to return assets.
+                                            description: The Solana wallet address of the creator to retrieve all digital assets for.
                                             example: 'D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3'
                                         page:
                                             type: integer
@@ -75,11 +84,11 @@ paths:
                                             properties:
                                                 sortBy:
                                                     type: string
-                                                    description: The criteria by which the retrieved assets will be sorted.
+                                                    description: The criteria by which the retrieved Solana assets will be sorted in the response.
                                                     enum: ['created', 'recent_action', 'updated', 'none']
                                                 sortDirection:
                                                     type: string
-                                                    description: The direction by which the retrieved assets will be sorted.
+                                                    description: The direction by which the retrieved Solana assets will be sorted in the response.
                                                     enum: ['asc', 'desc']
                                         before:
                                             type: string
@@ -107,7 +116,7 @@ paths:
                                                     default: false
                                                 showInscription:
                                                     type: boolean
-                                                    description: Displays inscription details of assets inscribed on-chain.
+                                                    description: Displays inscription details of Solana assets with on-chain inscriptions.
                                                     default: false
                                     required:
                                         - creatorAddress
@@ -127,7 +136,7 @@ paths:
                                         properties:
                                             total:
                                                 type: integer
-                                                description: The total number of assets found.
+                                                description: The total number of Solana digital assets created by this address.
                                                 example: 1
                                             limit:
                                                 type: integer
@@ -145,94 +154,39 @@ paths:
                                                     properties:
                                                         interface:
                                                             type: string
-                                                            description: The interface of the asset.
+                                                            description: The Solana token standard interface type of the digital asset.
                                                             example: "Custom"
                                                         id:
                                                             type: string
-                                                            description: The ID of the asset.
+                                                            description: The unique mint address identifier of the Solana digital asset.
                                                             example: "JEH7cJxAKdprFG5AvdsY2c4ZqojxLBjFmw19zADV6oK5"
                                                         content:
                                                             type: object
-                                                            description: The content of the asset.
-                                                            example: {
-                                                                "$schema": "https://schema.metaplex.com/nft1.0.json",
-                                                                "json_uri": "https://famousfoxes.com/metadata/7045.json",
-                                                                "files": [
-                                                                    {
-                                                                        "uri": "https://famousfoxes.com/hd/7045.png",
-                                                                        "cdn_uri": "https://cdn.helius-rpc.com/cdn-cgi/image//https://famousfoxes.com/hd/7045.png",
-                                                                        "mime": "image/png"
-                                                                    }
-                                                                ]
-                                                            }
+                                                            description: The content and metadata of the Solana digital asset including URI, images, and attributes.
                                                         authorities:
                                                             type: array
                                                             items:
                                                                 type: object
-                                                            description: The authorities of the asset.
-                                                            example: [
-                                                                {
-                                                                    "address": "3pMvTLUA9NzZQd4gi725p89mvND1wRNQM3C8XEv1hTdA",
-                                                                    "scopes": ["full"]
-                                                                }
-                                                            ]
+                                                            description: The update authorities associated with the Solana digital asset for metadata modifications.
                                                         compression:
                                                             type: object
-                                                            description: The compression details for asset.
-                                                            example: {
-                                                                "eligible": false,
-                                                                "compressed": false,
-                                                                "data_hash": "",
-                                                                "creator_hash": "",
-                                                                "asset_hash": "",
-                                                                "tree": "",
-                                                                "seq": 0,
-                                                                "leaf_id": 0
-                                                            }
+                                                            description: The state compression details for the Solana asset, indicating if it uses cost-efficient storage.
                                                         grouping:
                                                             type: array
                                                             items:
                                                                 type: object
-                                                            description: The grouping details for asset.
-                                                            example: [
-                                                                {
-                                                                    "group_key": "collection",
-                                                                    "group_value": "BUjZjAS2vbbb65g7Z1Ca9ZRVYoJscURG5L3AkVvHP9ac"
-                                                                }
-                                                            ]
+                                                            description: The collection grouping details for organizing Solana NFTs into verified collections.
                                                         royalty:
                                                             type: object
-                                                            description: The royalty details for asset.
-                                                            example: {
-                                                                "royalty_model": "creators",
-                                                                "target": null,
-                                                                "percent": 0.042,
-                                                                "basis_points": 420,
-                                                                "primary_sale_happened": true,
-                                                                "locked": false
-                                                            }
+                                                            description: The creator royalty configuration for Solana marketplace sales of this digital asset.
                                                         creators:
                                                             type: array
                                                             items:
                                                                 type: object
-                                                            description: The creators details for asset.
-                                                            example: [
-                                                                {
-                                                                    "address": "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3",
-                                                                    "share": 0,
-                                                                    "verified": true
-                                                                }
-                                                            ]
+                                                            description: The verified creator addresses and share allocations for this Solana digital asset.
                                                         ownership:
                                                             type: object
-                                                            description: The ownership details for asset.
-                                                            example: {
-                                                                "frozen": false,
-                                                                "delegated": false,
-                                                                "delegate": null,
-                                                                "ownership_model": "single",
-                                                                "owner": "1BWutmTvYPwDtmw9abTkS4Ssr8no61spGAvW1X6NDix"
-                                                            }
+                                                            description: The current ownership details for this Solana digital asset, including owner address and delegation status.
                 '400':
                     description: Invalid request.
                     content:

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator scheduling API for identifying which Solana validator is responsible for producing blocks in a specific slot of the blockchain.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getSlotLeader
       operationId: getSlotLeader
-      description: Returns the slot leader for a given slot.
+      description: |
+        Identify the specific Solana validator assigned to produce blocks for the current or future slot.
+        This consensus coordination API returns the validator identity (public key) that has been
+        scheduled as the leader for a particular slot in the blockchain. Essential for network
+        monitoring tools, validator performance analysis, block production tracking, and applications
+        that need to understand the current leader schedule. The slot leader information is determined
+        by Solana's proof-of-stake leader selection algorithm based on stake weight and randomness.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -97,7 +104,7 @@ paths:
                     example: "1"
                   result:
                     type: string
-                    description: Node identity Pubkey as a base-58 encoded string.
+                    description: The Solana validator identity (public key) scheduled as block producer for this slot.
                     example: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
               example:
                 jsonrpc: "2.0"

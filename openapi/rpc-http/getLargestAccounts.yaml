@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Wealth distribution analytics API for identifying and monitoring the largest SOL holders on the Solana blockchain with filtering options for circulating and reserve accounts.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getLargestAccounts
       operationId: getLargestAccounts
-      description: Returns the largest accounts in the ledger.
+      description: |
+        Retrieve a ranked list of the largest SOL holders on the Solana blockchain.
+        This wealth analytics API provides insights into SOL distribution by identifying the
+        accounts holding the most significant native token balances. Returns the top 20 accounts
+        ranked by SOL balance, with options to filter between circulating supply (active accounts)
+        and non-circulating supply (reserve accounts). Essential for market researchers, economic
+        analysts, whale watchers, wealth concentration studies, and applications monitoring major
+        SOL holders and their potential impact on token economics and market movements.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -73,7 +81,7 @@ paths:
                         example: finalized
                       filter:
                         type: string
-                        description: Filter results by account type.
+                        description: Filter results by account type - either all circulating SOL accounts or only special non-circulating reserve accounts.
                         enum:
                           - circulating
                           - nonCirculating
@@ -110,17 +118,17 @@ paths:
                             example: 54
                       value:
                         type: array
-                        description: Array of account information.
+                        description: Top 20 largest Solana accounts ranked by SOL balance, from highest to lowest.
                         items:
                           type: object
                           properties:
                             lamports:
                               type: integer
-                              description: Number of lamports in the account.
+                              description: SOL balance of this account in lamports (1 SOL = 1,000,000,000 lamports).
                               example: 999974
                             address:
                               type: string
-                              description: Base-58 encoded address of the account.
+                              description: Unique Solana wallet address of this major account holder.
                               example: "99P8ZgtJYe1buSK8JXkvpLh8xPsCFuLYhz9hQFNw93WJ"
         400:
           description: Invalid request.

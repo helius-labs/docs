@@ -1,7 +1,12 @@
 openapi: 3.0.0
 info:
-    title: Helius API
+    title: Solana Compressed NFT Minting API
     version: 1.0.0
+    description: |
+      Advanced API for minting compressed NFTs on Solana using state compression technology for cost-efficient NFT creation and management.
+      This cutting-edge API leverages Solana's state compression for massive scalability improvements, enabling projects to mint
+      thousands of NFTs at a fraction of the cost compared to traditional methods. The compressed NFT standard maintains full
+      compatibility with marketplaces while dramatically reducing storage requirements and transaction fees.
     license:
         name: MIT
         url: https://opensource.org/licenses/MIT
@@ -16,13 +21,27 @@ paths:
     /:
         post:
             operationId: mintCompressedNft
-            summary: mintCompressedNft
+            summary: Mint Compressed Solana NFT
+            description: |
+                Create cost-efficient compressed NFTs on Solana using state compression technology.
+                This advanced minting API allows developers to mint NFTs at a fraction of the cost of regular NFTs,
+                with complete support for metadata, attributes, creators, and royalties. Optimize your
+                Solana NFT project with up to 100x cost savings compared to traditional NFT minting while
+                maintaining full compatibility with the Solana ecosystem and NFT marketplaces.
+                
+                Key benefits:
+                - Up to 100x reduction in minting costs compared to traditional Solana NFTs
+                - Significantly reduced storage fees for large NFT collections
+                - Full compatibility with Metaplex token standard and major NFT marketplaces
+                - Complete support for royalties, collections, and creator attribution
+                - Simplified minting process with automatic transaction handling
+                - Ideal for large-scale Solana NFT projects, gaming assets, and digital collectibles
             security:
                 - apiKey: []
             parameters:
                 - name: api-key
                   in: query
-                  description: The API key.
+                  description: Your Helius API key for authentication and access to compressed NFT minting.
                   required: true
                   schema:
                       type: string
@@ -49,71 +68,72 @@ paths:
                                     properties:
                                         name:
                                             type: string
-                                            description: The name of the NFT.
+                                            description: The name of the compressed Solana NFT to be minted, displayed on marketplaces and wallets.
                                             example: 'Exodia the Forbidden One'
                                         symbol:
                                             type: string
-                                            description: The symbol of the NFT.
+                                            description: The symbol of the compressed Solana NFT collection, typically a short identifier for the project.
                                             example: 'ETFO'
                                         description:
                                             type: string
-                                            description: The description of the NFT.
+                                            description: Detailed description of the compressed NFT for marketplaces and indexers.
                                             example: 'Exodia the Forbidden One is a powerful, legendary creature.'
                                         owner:
                                             type: string
-                                            description: The owner of the NFT.
+                                            description: The Solana wallet address that will receive and own the compressed NFT after minting is complete.
                                             example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
                                         delegate:
                                             type: string
-                                            description: The delegate of the NFT.
+                                            description: Optional delegate address for the compressed NFT with usage permissions.
                                             example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
                                         collection:
                                             type: string
-                                            description: The NFT will be added to this collection.
+                                            description: Collection address to add this compressed NFT to for grouping, discovery and verification on Solana marketplaces.
                                         uri:
                                             type: string
-                                            description: The uri for the off-chain JSON.
+                                            description: The URI pointing to the off-chain JSON metadata for the compressed NFT, typically hosted on Arweave or IPFS.
                                         attributes:
                                             type: array
+                                            description: Array of traits and attributes that define the compressed NFT's characteristics.
                                             items:
                                                 type: object
                                                 properties:
                                                     trait_type:
                                                         type: string
-                                                        description: The trait type.
+                                                        description: The category or type of the trait for the compressed NFT.
                                                         example: 'Rarity'
                                                     value:
                                                         type: string
-                                                        description: The value of the trait.
+                                                        description: The specific value of the trait for the compressed NFT.
                                                         example: 'Mythical'
                                                 required:
                                                     - trait_type
                                                     - value
                                         imageUrl:
                                             type: string
-                                            description: The image url for the NFT.
+                                            description: Direct URL to the image that represents the compressed NFT on marketplaces.
                                             example: 'https://cdna.artstation.com/p/assets/images/images/052/118/830/large/julie-almoneda-03.jpg?1658992401'
                                         externalUrl:
                                             type: string
-                                            description: The external url for the NFT.
+                                            description: Optional website URL related to the compressed NFT or collection.
                                             example: 'https://www.yugioh-card.com/en/'
                                         sellerFeeBasisPoints:
                                             type: integer
-                                            description: The seller fee basis points.
+                                            description: Royalty percentage for creator earnings on secondary sales in basis points (100 = 1%, 1000 = 10%) on Solana marketplaces.
                                             example: 5000
                                         creators:
                                             type: array
-                                            description: The NFT creators.
+                                            description: Array of creator addresses that contributed to the compressed NFT with royalty shares.
                                             items:
                                                 type: object
                                                 properties:
                                                     address:
                                                         type: string
-                                                        description: The address of the creator.
+                                                        description: Solana wallet address of the creator to receive royalties.
                                                         example: DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF
                                                     share:
                                                         type: integer
-                                                        description: The royalty share of the creator.
+                                                        description: Percentage share of royalties allocated to this creator (sum must equal 100).
                                                         example: 100
                                                         minimum: 0
                                                         maximum: 100
@@ -122,7 +142,7 @@ paths:
                                                     - share
                                         confirmTransaction:
                                             type: boolean
-                                            description: If the API should wait for the transcation to confirm.
+                                            description: If true, the API will wait for on-chain confirmation before responding.
                                     required:
                                         - name
                                         - symbol
@@ -135,7 +155,7 @@ paths:
                                 - params
             responses:
                 200:
-                    description: Successful response
+                    description: Successfully minted compressed Solana NFT
                     content:
                         application/json:
                             schema:
@@ -153,15 +173,15 @@ paths:
                                         properties:
                                             signature:
                                                 type: string
-                                                description: The signature of the mint transaction.
+                                                description: The Solana blockchain transaction signature of the successful compressed NFT mint operation for verification.
                                                 example: 4FRxjAvHLGCEUXJqkucG7SdKrrmAeqjfTQKmhMZWvqGvkPGvWeZXY8Vfj8oxXtGnf7q3n4n8XHVDsExkpCtAEdKj
                                             minted:
                                                 type: boolean
-                                                description: If the NFT was successfully minted.
+                                                description: Confirmation that the compressed NFT was successfully minted on Solana.
                                                 example: true
                                             assetId:
                                                 type: string
-                                                description: The ID of the asset.
+                                                description: The unique Solana asset ID of the minted compressed NFT, used for querying with the Digital Asset Standard (DAS) API.
                                                 example: 6sx2ChPvudKVt4Gc6qr3X4FFwtM4vVa6uZMmQHn5udQE
                                 required:
                                     - jsonrpc

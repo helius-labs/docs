@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Blockchain time structure API for retrieving Solana's epoch scheduling parameters which govern consensus cycles, validator rotation periods, and network time organization.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,16 @@ paths:
         - RPC
       summary: getEpochSchedule
       operationId: getEpochSchedule
-      description: Returns the epoch schedule information.
+      description: |
+        Retrieve the core timing parameters that define Solana's epoch-based blockchain structure.
+        This network configuration API provides the fundamental timing constants that govern how
+        slots are organized into epochs on the Solana blockchain. Epochs represent the primary
+        time measurement unit for validator rotations, staking rewards, rent collections, and
+        other periodic blockchain operations. The epoch schedule parameters define exactly how
+        many slots constitute an epoch and when leader schedules are calculated. Essential for
+        applications performing time-based calculations, staking systems tracking reward periods,
+        validator software predicting leader schedules, and analytical tools correlating blockchain
+        events with the network's fundamental timing structure.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -79,27 +89,27 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Epoch schedule information.
+                    description: Comprehensive timing constants that define the epoch structure of the Solana blockchain.
                     properties:
                       slotsPerEpoch:
                         type: integer
-                        description: The maximum number of slots in each epoch.
+                        description: Number of slots that constitute a complete Solana epoch during normal operation (after warm-up period).
                         example: 8192
                       leaderScheduleSlotOffset:
                         type: integer
-                        description: The number of slots before the beginning of an epoch to calculate a leader schedule for that epoch.
+                        description: Offset before an epoch when the validator leader schedule for the next epoch is calculated and published.
                         example: 8192
                       warmup:
                         type: boolean
-                        description: Whether epochs start short and grow.
+                        description: Boolean indicating if the network uses a warmup period with gradually increasing epoch lengths at genesis.
                         example: true
                       firstNormalEpoch:
                         type: integer
-                        description: First normal-length epoch.
+                        description: The first epoch number that reaches full standard length as defined by slotsPerEpoch.
                         example: 8
                       firstNormalSlot:
                         type: integer
-                        description: First normal slot.
+                        description: The absolute slot number when epochs begin their standard length after the initial warmup period.
                         example: 8160
               examples:
                 response:

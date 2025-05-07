@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Runtime information API for retrieving Solana blockchain software version details and feature set identifiers for compatibility verification.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -37,7 +38,14 @@ paths:
         - RPC
       summary: getVersion
       operationId: getVersion
-      description: Returns the version of the Solana software.
+      description: |
+        Retrieve current Solana node software version and feature set information.
+        This essential API provides details about the blockchain runtime environment,
+        helping developers ensure compatibility between their applications and the network.
+        The version information includes both the Solana core software release number and a
+        unique feature set identifier that represents the specific capabilities enabled on
+        the node. Critical for DApp developers, node operators, and tools that need to
+        verify network compatibility or implement version-specific behavior.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -97,11 +105,11 @@ paths:
                     properties:
                       solana-core:
                         type: string
-                        description: The software version of solana-core.
+                        description: The Solana blockchain node software release version running on this validator.
                         example: "1.16.7"
                       feature-set:
                         type: integer
-                        description: Unique identifier of the current software's feature set.
+                        description: Unique numerical identifier representing the specific Solana feature set currently active.
                         example: 2891131721
               examples:
                 default:

@@ -1,7 +1,12 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Priority Fee Optimization API
   version: 1.0.0
+  description: |
+    Advanced Solana priority fee estimation API for optimizing transaction confirmation times and costs on the Solana blockchain.
+    This specialized API helps developers maximize transaction throughput during network congestion by providing real-time,
+    data-driven fee recommendations across multiple priority levels. Ideal for wallets, DeFi applications, NFT platforms, 
+    and any Solana project requiring reliable transaction processing with optimized costs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -25,7 +30,7 @@ components:
           type: string
           enum: ["2.0"]
           default: "2.0"
-          description: JSON-RPC version identifier, must be "2.0"
+          description: JSON-RPC version identifier for the Solana RPC API request, must be "2.0"
         id:
           type: string
           default: "1"
@@ -49,44 +54,47 @@ components:
             properties:
               transaction:
                 type: string
-                description: Base58 or Base64 encoded transaction for which to estimate priority fees
+                description: |
+                  Base58 or Base64 encoded Solana transaction for which to estimate optimal priority fees.
+                  The API will analyze the specific instructions and accounts in this transaction to provide
+                  accurate fee estimates based on current network conditions and computational complexity.
               accountKeys:
                 type: array
-                description: Array of account public keys to estimate fees for (alternative to providing a transaction)
+                description: Array of Solana account public keys to estimate priority fees for (alternative to providing a transaction)
                 items:
                   type: string
-                  description: Base58 encoded public key of an account
+                  description: Base58 encoded public key of a Solana account
               options:
                 $ref: "#/components/schemas/PriorityFeeOptions"
     PriorityFeeOptions:
       type: object
-      description: Options for customizing the priority fee estimation
+      description: Advanced options for customizing Solana priority fee estimation based on network conditions
       properties:
         transactionEncoding:
           type: string
           enum: ["Base58", "Base64"]
-          description: Encoding format of the provided transaction
+          description: Encoding format of the provided Solana transaction
         priorityLevel:
           type: string
           enum: ["Min", "Low", "Medium", "High", "VeryHigh", "UnsafeMax"]
-          description: Specific priority level to estimate fees for
+          description: Specific priority level to estimate fees for based on current Solana network congestion
         includeAllPriorityFeeLevels:
           type: boolean
-          description: When true, returns estimates for all priority levels
+          description: When true, returns comprehensive estimates for all priority levels from minimum to maximum
         lookbackSlots:
           type: integer
           minimum: 1
           maximum: 150
-          description: Number of recent slots to analyze for fee estimation (1-150)
+          description: Number of recent Solana blockchain slots to analyze for accurate fee estimation (1-150)
         includeVote:
           type: boolean
-          description: When true, includes vote transactions in the fee calculation
+          description: When true, includes vote transactions in the fee calculation for more comprehensive analysis
         recommended:
           type: boolean
-          description: When true, returns the recommended fee based on current network conditions
+          description: When true, returns the recommended optimal fee based on current Solana network conditions
         evaluateEmptySlotAsZero:
           type: boolean
-          description: When true, slots with no transactions are counted as zero-fee slots
+          description: When true, slots with no transactions are counted as zero-fee slots in the calculation
     PriorityFeeEstimateResponse:
       type: object
       properties:
@@ -99,45 +107,73 @@ components:
           description: Client-generated identifier matching the request
         result:
           type: object
-          description: Result object containing fee estimates
+          description: Result object containing comprehensive Solana priority fee estimates
           properties:
             priorityFeeEstimate:
               type: number
               format: float
-              description: Estimated priority fee in microlamports
+              description: |
+                Estimated optimal priority fee in microlamports for the requested Solana transaction,
+                calculated based on recent blockchain activity and computational requirements.
             priorityFeeLevels:
               type: object
-              description: Fee estimates for different priority levels (in microlamports)
+              description: |
+                Detailed fee estimates for different priority levels on the Solana blockchain (in microlamports),
+                allowing developers to choose the optimal balance between cost and confirmation speed.
               properties:
                 min:
                   type: number
                   format: float
-                  description: Minimum viable fee (may result in transaction failure during congestion)
+                  description: |
+                    Minimum viable fee for Solana transactions - suitable for non-urgent transactions during low congestion periods
+                    (may result in transaction failure during network congestion)
                 low:
                   type: number
                   format: float
-                  description: Low priority fee (longer confirmation time)
+                  description: |
+                    Low priority fee for Solana transactions - economical option for transactions that aren't time-sensitive
+                    (longer confirmation time, lower cost)
                 medium:
                   type: number
                   format: float
-                  description: Medium priority fee (standard confirmation time)
+                  description: |
+                    Medium priority fee for Solana transactions - balanced option for most standard transactions
+                    (reasonable confirmation time with moderate cost)
                 high:
                   type: number
                   format: float
-                  description: High priority fee (faster confirmation)
+                  description: |
+                    High priority fee for Solana transactions - prioritized processing for time-sensitive operations
+                    like DeFi trades or NFT mints (faster confirmation, higher cost)
                 veryHigh:
                   type: number
                   format: float
-                  description: Very high priority fee (very fast confirmation)
+                  description: |
+                    Very high priority fee for Solana transactions - premium option for critical transactions requiring
+                    near-immediate confirmation (very fast confirmation, premium cost)
                 unsafeMax:
                   type: number
                   format: float
-                  description: Maximum observed fee (fastest possible confirmation, may be unnecessarily high)
+                  description: |
+                    Maximum observed fee on Solana - the highest fee seen in the analysis window, representing
+                    an upper bound during extreme congestion (fastest possible confirmation, but potentially unnecessarily high)
 paths:
   /:
     post:
-      summary: Get priority fee estimates
-      description: Provides fee recommendations based on historical data, considering both global and local fee markets
+      summary: Get Solana priority fee estimates
+      description: |
+        Calculate optimal priority fee recommendations for Solana transactions based on real-time 
+        network conditions. This advanced API analyzes historical fee data and current congestion 
+        levels to provide precise fee estimates for different priority levels, helping developers 
+        optimize transaction costs and confirmation times on the Solana blockchain.
+        
+        Key benefits:
+        - Optimize Solana transaction costs while ensuring timely confirmations
+        - Multiple priority levels from minimum viable to ultra-fast confirmation
+        - Transaction-specific fee recommendations based on included instructions
+        - Account-specific fee analysis for programs with varying computational demands
+        - Configurable lookback window to adjust for rapidly changing network conditions
+        - Comprehensive fee levels to accommodate different transaction urgency requirements
       operationId: getPriorityFeeEstimate
       security:
         - ApiKeyQuery: []
@@ -174,7 +210,7 @@ paths:
                     ]
       responses:
         "200":
-          description: Successful response
+          description: Successfully retrieved Solana priority fee estimates
           content:
             application/json:
               schema:

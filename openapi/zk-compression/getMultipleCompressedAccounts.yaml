@@ -1,7 +1,10 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana State Compression Batch API
+  description: |
+    Advanced Solana indexer for compressed accounts using state compression technology to enable efficient and cost-effective data storage on the Solana blockchain.
+    This API provides optimized batch retrieval of compressed NFTs and token accounts, enabling applications to scale efficiently
+    while benefiting from Solana's breakthrough compression technology that reduces on-chain storage costs by up to 1000x.
   license:
     name: Apache-2.0
   version: 0.50.0
@@ -14,7 +17,19 @@ paths:
   /:
     summary: getMultipleCompressedAccounts
     post:
-      description: Retrieves getMultipleCompressedAccounts information
+      description: |
+        Efficiently retrieve multiple compressed accounts from the Solana blockchain in a single request.
+        This optimized batch endpoint allows developers to retrieve multiple state-compressed accounts by their addresses
+        or hashes in one operation, reducing RPC calls and network overhead. Ideal for applications working with large
+        collections of compressed NFTs, tokens, or other compressed Solana data structures that require
+        high-performance and cost-effective data access.
+        
+        Key use cases:
+        - Mass retrieval of compressed NFT collection data
+        - Wallet applications displaying multiple compressed assets
+        - Marketplaces loading batches of compressed NFT metadata
+        - Analytics platforms processing multiple compressed tokens
+        - Games retrieving multiple in-game assets efficiently
       operationId: getMultipleCompressedAccounts
       security:
         - ApiKeyQuery: []
@@ -47,7 +62,9 @@ paths:
                   default: getMultipleCompressedAccounts
                 params:
                   type: object
-                  description: Request for compressed account data
+                  description: |
+                    Request parameters for batch retrieving multiple compressed Solana accounts data,
+                    supporting lookups by either addresses or cryptographic hashes
                   default:
                     addresses: null
                     hashes:
@@ -59,11 +76,13 @@ paths:
                       items:
                         $ref: '#/components/schemas/SerializablePubkey'
                       nullable: true
+                      description: Array of Solana public keys for the compressed accounts to retrieve
                     hashes:
                       type: array
                       items:
                         $ref: '#/components/schemas/Hash'
                       nullable: true
+                      description: Array of data hashes identifying the compressed Solana accounts to retrieve
                   additionalProperties: false
                   example:
                     addresses: null
@@ -73,7 +92,7 @@ paths:
         required: true
       responses:
         '200':
-          description: ''
+          description: 'Successfully retrieved multiple compressed Solana accounts in a single batch operation'
           content:
             application/json:
               schema:
@@ -126,22 +145,31 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: The unique Solana address of the compressed account
         data:
           $ref: '#/components/schemas/AccountData'
+          description: Compressed account data in an efficient storage format
         hash:
           $ref: '#/components/schemas/Hash'
+          description: Cryptographic hash of the compressed account data for verification
         lamports:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Balance in lamports associated with the compressed account
         leafIndex:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Index position in the merkle tree where the compressed account is stored
         owner:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Solana program that owns this compressed account
         seq:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Sequence number for tracking updates to the compressed account
         slotCreated:
           $ref: '#/components/schemas/UnsignedInteger'
+          description: Solana blockchain slot when the compressed account was created
         tree:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Address of the merkle tree containing this compressed account
       additionalProperties: false
     AccountData:
       type: object
@@ -171,7 +199,7 @@ components:
       additionalProperties: false
     Base64String:
       type: string
-      description: A base 64 encoded string.
+      description: A base64 encoded string containing compressed Solana account data.
       default: SGVsbG8sIFdvcmxkIQ==
       example: SGVsbG8sIFdvcmxkIQ==
     Context:
@@ -183,16 +211,18 @@ components:
           type: integer
           default: 100
           example: 100
+          description: Current Solana blockchain slot at the time of the request
     Hash:
       type: string
-      description: A 32-byte hash represented as a base58 string.
+      description: A 32-byte cryptographic hash represented as a base58 string, used to verify Solana compressed account data integrity.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     SerializablePubkey:
       type: string
-      description: A Solana public key represented as a base58 string.
+      description: A Solana public key represented as a base58 string, used to identify compressed accounts, merkle trees, and owners.
       default: 11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo
       example: 11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo
     UnsignedInteger:
       type: integer
       default: 100
       example: 100
+      description: Non-negative integer value used for various parameters in Solana compressed account structures

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Development-focused Solana API for requesting SOL token airdrops on test networks to fund accounts for application development, testing, and experimentation.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -22,7 +23,13 @@ paths:
         - RPC
       summary: requestAirdrop
       operationId: requestAirdrop
-      description: Requests an airdrop of SOL to a given account.
+      description: |
+        Request free SOL tokens on Solana test networks for development and testing purposes.
+        This development-only API allows developers to fund wallets with SOL on devnet and testnet 
+        environments to build and test Solana applications without using real funds. Essential for 
+        local development, CI/CD pipelines, automated testing, and experimenting with new Solana 
+        features. The airdropped SOL can be used for paying transaction fees, creating accounts, 
+        and testing financial logic in non-production environments.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -58,10 +65,10 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: The public key of the account to receive lamports, as a base-58 encoded string.
+                        description: Solana wallet address (public key) to receive the airdrop of test SOL tokens.
                         example: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
                       - type: integer
-                        description: The number of lamports to airdrop, as a u64 integer.
+                        description: Amount of SOL to airdrop in lamports (1 SOL = 1,000,000,000 lamports) for testing.
                         example: 1000000000
                       - type: object
                         description: Configuration object for the airdrop.
@@ -103,7 +110,7 @@ paths:
                     example: "1"
                   result:
                     type: string
-                    description: Transaction signature of the airdrop.
+                    description: Solana transaction signature of the completed airdrop, can be used to verify the SOL was received.
                     example: "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
               examples:
                 responseExample:

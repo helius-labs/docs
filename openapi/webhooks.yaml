@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  description: Documentation for the Helius API. To learn more about Helius, go to <a href=https://helius.xyz>helius.xyz</a>.
+  description: "Comprehensive webhook API documentation for Helius - the leading real-time blockchain notifications service for Solana developers. Set up powerful event-driven applications with customizable real-time triggers. Visit <a href=https://helius.xyz>helius.xyz</a> for more information about our enterprise-grade infrastructure."
   version: 1.0.1
   title: Helius API
   contact:
@@ -17,13 +17,15 @@ security:
 
 tags:
   - name: NFTs
-    description: NFT-related events, collection-level aggregations, stats, and historical activity.
+    description: "Access comprehensive NFT data including events, collection aggregations, real-time stats, and complete historical activity on Solana."
   - name: Tokens
-    description: Token account data, metadata, and off-chain data for both fungible and non-fungible tokens
+    description: "Complete token account data, on-chain and off-chain metadata, and detailed information for both fungible and non-fungible Solana tokens."
   - name: Transactions
-    description: Enhanced and human-readable transaction histories.
+    description: "Enhanced and human-readable transaction histories with decoded instruction data and detailed context."
   - name: Addresses
-    description: An enhanced on-chain identity.
+    description: "Enhanced on-chain identity data with complete wallet activity and ownership information."
+  - name: Webhooks
+    description: "Configure real-time blockchain notifications for any Solana address, transaction type, or on-chain event with customizable delivery options."
  
 ##### PATHS #####
 
@@ -34,6 +36,9 @@ paths:
         - Webhooks
       summary: Returns all webhooks.
       operationId: getWebhooks
+      description: |
+        Retrieve a complete list of all configured webhooks for your API key with detailed
+        configuration information including trigger conditions, delivery endpoints, and status.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
       responses:
@@ -69,6 +74,10 @@ paths:
         - Webhooks
       summary: Creates a webhook.
       operationId: createWebhook
+      description: |
+        Create a new webhook for real-time Solana blockchain notifications. Configure triggers 
+        based on addresses, transaction types, or specific on-chain events. Customize delivery 
+        options and notification formatting for seamless integration with your application.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
       requestBody:
@@ -109,7 +118,9 @@ paths:
         - Webhooks
       summary: Returns given Webhook.
       operationId: getWebhook
-      description: Query a webhook by its ID.
+      description: |
+        Retrieve detailed information about a specific webhook configuration by its unique ID.
+        Access complete webhook settings including trigger conditions, delivery endpoints, and status metrics.
       parameters:
        - $ref: '#/components/parameters/webhookIDParam'
        - $ref: '#/components/parameters/apiKeyParam'
@@ -134,6 +145,10 @@ paths:
         - Webhooks
       summary: Edits a webhook.
       operationId: editWebhook
+      description: |
+        Update an existing webhook configuration with new trigger conditions, delivery endpoints,
+        or notification formatting. Modify your real-time blockchain notification settings to adapt
+        to changing application requirements without service interruption.
       parameters:
         - $ref: '#/components/parameters/webhookIDParam' 
         - $ref: '#/components/parameters/apiKeyParam'
@@ -176,6 +191,10 @@ paths:
         - Webhooks
       summary: Deletes a webhook.
       operationId: deleteWebhook
+      description: |
+        Permanently remove a webhook configuration from your account. Immediately stop
+        receiving notifications for the specified webhook trigger conditions and free up
+        resources for other webhook configurations.
       parameters:
         - $ref: '#/components/parameters/webhookIDParam' 
         - $ref: '#/components/parameters/apiKeyParam'

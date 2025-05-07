@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Optimized Solana batch account data retrieval API for efficiently accessing multiple blockchain accounts in a single request with configurable encoding options.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getMultipleAccounts
       operationId: getMultipleAccounts
-      description: Returns the account information for multiple accounts.
+      description: |
+        Retrieve data for multiple Solana accounts in a single efficient batch request.
+        This performance-optimized API reduces network overhead by fetching up to 100 accounts
+        simultaneously, with support for various data encodings including JSON parsing for known
+        program types. Ideal for DApps, wallets, and services that need to access multiple
+        token balances, NFT metadata, program states, or any combination of on-chain account data
+        with minimal latency and bandwidth usage.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -65,14 +72,14 @@ paths:
                   items:
                     oneOf:
                       - type: array
-                        description: An array of Pubkeys to query, as base-58 encoded strings (required, max 100).
+                        description: Array of Solana account addresses (up to 100) to fetch in a single optimized batch request.
                         items:
                           type: string
                         example:
                           - "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
                           - "4fYNw3dojWmQ4dXtSGE9epjRGy9pFSx62YypT7avPYvA"
                       - type: object
-                        description: Configuration object with additional options.
+                        description: Advanced configuration options for customizing the batch account data retrieval.
                         properties:
                           commitment:
                             type: string

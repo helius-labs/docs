@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Node monitoring API for checking Solana validator operational status and synchronization health to verify service reliability and blockchain connectivity.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getHealth
       operationId: getHealth
-      description: Returns the health status of the node.
+      description: |
+        Check if the Solana node is functioning correctly and synchronized with the network.
+        This essential monitoring API provides a simple health status indicator to verify if 
+        the RPC endpoint is operational and keeping up with the blockchain. Returns a 
+        successful response if the node is healthy or an error response with diagnostic 
+        details if the node is experiencing issues such as falling behind in blockchain 
+        synchronization. Critical for infrastructure monitoring systems, reliability dashboards,
+        high-availability setups, application health checks, and any service requiring confirmation
+        that a Solana RPC endpoint is functioning properly before sending transaction requests.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -79,7 +88,7 @@ paths:
                     example: "1"
                   result:
                     type: string
-                    description: Health status, "ok" if the node is healthy.
+                    description: Health status indicator confirming the node is operational and synchronized with the Solana network.
                     example: "ok"
               examples:
                 response:
@@ -143,13 +152,13 @@ paths:
                         example: -32005
                       message:
                         type: string
-                        description: Error message describing the issue.
+                        description: Detailed error message explaining the specific node health issue impacting service availability.
                         example: "Node is behind by 42 slots"
                       data:
                         type: object
-                        description: Additional error details.
+                        description: Diagnostic metrics about the node's synchronization status.
                         properties:
                           numSlotsBehind:
                             type: integer
-                            description: Number of slots the node is behind.
+                            description: Number of Solana blockchain slots the node has fallen behind the current network tip.
                             example: 42

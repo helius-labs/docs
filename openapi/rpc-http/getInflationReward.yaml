@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Staking rewards analytics API for retrieving and calculating inflation-based earnings paid to Solana delegators and validators during specific epochs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +24,15 @@ paths:
       tags:
         - RPC
       summary: getInflationReward
-      description: Returns the inflation / staking reward for a list of addresses for an epoch.
+      description: |
+        Retrieve detailed staking reward information for Solana validators and delegator accounts.
+        This essential staking API provides precise data about SOL rewards distributed to specified
+        accounts during a particular epoch. These inflation-based rewards represent earnings from
+        participating in Solana's proof-of-stake consensus, either directly as validators or
+        indirectly as delegators. Returns reward amounts, commission rates, post-balance data,
+        and timing information for accurate staking yield calculations. Critical for staking dashboards,
+        yield trackers, wallet applications, tax reporting tools, and any service tracking returns
+        from Solana staking activities.
       operationId: getInflationReward 
       security:
         - ApiKeyQuery: []
@@ -64,7 +73,7 @@ paths:
                   items:
                     oneOf:
                       - type: array
-                        description: An array of addresses to query, as base-58 encoded strings.
+                        description: List of Solana addresses (validators or delegators) to retrieve staking rewards for, as base-58 encoded strings.
                         items:
                           type: string
                         example:
@@ -82,7 +91,7 @@ paths:
                             example: finalized
                           epoch:
                             type: integer
-                            description: An epoch for which the reward occurs. If omitted, the previous epoch will be used.
+                            description: Specific Solana epoch number to retrieve rewards for. If omitted, returns the most recently distributed rewards.
                             example: 2
                           minContextSlot:
                             type: integer
@@ -108,35 +117,35 @@ paths:
                     example: "1"
                   result:
                     type: array
-                    description: Array of reward information for each queried address.
+                    description: Array of detailed staking reward information for each requested account, in the same order as requested.
                     items:
                       oneOf:
                         - type: object
-                          description: Reward details.
+                          description: Solana staking reward details for this account.
                           properties:
                             epoch:
                               type: integer
-                              description: Epoch for which the reward occurred.
+                              description: Solana epoch number when these staking rewards were distributed.
                               example: 2
                             effectiveSlot:
                               type: integer
-                              description: The slot in which the rewards are effective.
+                              description: Specific blockchain slot when these rewards were calculated and became effective.
                               example: 224
                             amount:
                               type: integer
-                              description: Reward amount in lamports.
+                              description: Staking reward amount in lamports (1 SOL = 1,000,000,000 lamports) earned by this account.
                               example: 2500
                             postBalance:
                               type: integer
-                              description: Post balance of the account in lamports.
+                              description: Account balance in lamports after this staking reward was credited.
                               example: 499999442500
                             commission:
                               type: integer
-                              description: Vote account commission when the reward was credited.
+                              description: Validator commission percentage taken from delegator rewards (null for delegator accounts, 0-100 for validators).
                               nullable: true
                               example: 5
                         - type: "null"
-                          description: If no reward information is available.
+                          description: Null if this account did not receive any staking rewards during the specified epoch.
                           example: null
         400:
           description: Invalid request.

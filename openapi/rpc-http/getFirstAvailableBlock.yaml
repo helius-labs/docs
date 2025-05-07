@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Blockchain history management API for identifying the oldest Solana block data available on this node, helping applications determine ledger data retention boundaries.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getFirstAvailableBlock
       operationId: getFirstAvailableBlock
-      description: Returns the slot of the lowest confirmed block that has not been purged from the ledger.
+      description: |
+        Retrieve the earliest Solana block that is still accessible in this node's ledger storage.
+        This blockchain history API identifies the lower boundary of available historical data,
+        returning the slot number of the oldest block that hasn't been purged from storage.
+        Solana nodes typically do not store the entire blockchain history from genesis, instead
+        maintaining a sliding window of recent blocks based on storage capacity constraints.
+        Essential for applications working with historical blockchain data, archival services,
+        indexers, and analytics tools that need to determine how far back they can query
+        block, transaction, and account data on this particular Solana node.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,7 +86,7 @@ paths:
                     example: "1"
                   result:
                     type: integer
-                    description: Slot of the lowest confirmed block that has not been purged from the ledger.
+                    description: Earliest Solana block slot number still available in this node's storage history, indicating the lower boundary of accessible blockchain data.
                     example: 250000
         400:
           description: Invalid request.

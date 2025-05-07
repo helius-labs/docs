@@ -1,7 +1,11 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana Zero-Knowledge Proof Validation API
+  description: |
+    Advanced Solana indexer for state compression validation using zero-knowledge cryptography.
+    This specialized API enables verification of compressed NFTs and token accounts on the Solana blockchain
+    through cryptographic validity proofs, providing mathematical certainty of data integrity for compressed 
+    assets while maintaining the security guarantees of the Solana consensus model.
   license:
     name: Apache-2.0
   version: 0.50.0
@@ -14,7 +18,13 @@ paths:
   /:
     summary: getValidityProof
     post:
-      description: Retrieves getValidityProof information
+      description: |
+        Retrieve cryptographic zero-knowledge validity proofs for Solana compressed accounts.
+        This advanced verification endpoint returns the mathematical proof components needed to
+        validate compressed NFTs and token accounts without requiring full on-chain data.
+        Essential for applications that need cryptographic verification of compressed asset state
+        while benefiting from Solana's state compression technology for reduced storage costs
+        and improved scalability.
       operationId: getValidityProof
       security:
         - ApiKeyQuery: []
@@ -52,10 +62,12 @@ paths:
                       type: array
                       items:
                         $ref: '#/components/schemas/Hash'
+                      description: Array of cryptographic hashes for Solana compressed accounts to verify
                     newAddressesWithTrees:
                       type: array
                       items:
                         $ref: '#/components/schemas/AddressWithTree'
+                      description: Array of Solana account addresses with their associated merkle trees for verification
                   additionalProperties: false
         required: true
       responses:
@@ -108,8 +120,10 @@ components:
       properties:
         address:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Solana account address to verify through zero-knowledge proof
         tree:
           $ref: '#/components/schemas/SerializablePubkey'
+          description: Merkle tree address where the compressed Solana account is stored
       additionalProperties: false
     CompressedProof:
       type: object
@@ -121,12 +135,15 @@ components:
         a:
           type: string
           format: binary
+          description: First component of the Solana zero-knowledge validity proof
         b:
           type: string
           format: binary
+          description: Second component of the Solana zero-knowledge validity proof
         c:
           type: string
           format: binary
+          description: Third component of the Solana zero-knowledge validity proof
     CompressedProofWithContext:
       type: object
       required:
@@ -139,30 +156,36 @@ components:
       properties:
         compressedProof:
           $ref: '#/components/schemas/CompressedProof'
+          description: The zero-knowledge cryptographic proof for validating Solana compressed accounts
         leafIndices:
           type: array
           items:
             type: integer
             format: int32
             minimum: 0
+          description: Indices of the leaves in the Solana merkle trees for the compressed accounts
         leaves:
           type: array
           items:
             type: string
+          description: Leaf node data for the Solana compressed accounts being verified
         merkleTrees:
           type: array
           items:
             type: string
+          description: Addresses of the Solana merkle trees containing the compressed accounts
         rootIndices:
           type: array
           items:
             type: integer
             format: int64
             minimum: 0
+          description: Indices of the roots in the Solana merkle trees for the compressed accounts
         roots:
           type: array
           items:
             type: string
+          description: Root hashes of the Solana merkle trees for the compressed accounts
     Context:
       type: object
       required:
@@ -172,12 +195,13 @@ components:
           type: integer
           default: 100
           example: 100
+          description: Current Solana blockchain slot for this validity proof request
     Hash:
       type: string
-      description: A 32-byte hash represented as a base58 string.
+      description: A 32-byte cryptographic hash represented as a base58 string, used for Solana compressed account verification.
       example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     SerializablePubkey:
       type: string
-      description: A Solana public key represented as a base58 string.
+      description: A Solana public key represented as a base58 string, used to identify accounts, trees, and programs.
       default: 11111118eRTi4fUVRoeYEeeTyL4DPAwxatvWT5q1Z
       example: 11111118eRTi4fUVRoeYEeeTyL4DPAwxatvWT5q1Z

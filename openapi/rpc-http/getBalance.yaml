@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Fast and reliable Solana wallet balance retrieval API for getting account SOL balances with configurable commitment levels for different finality guarantees.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,12 @@ paths:
         - RPC
       summary: getBalance
       operationId: getBalance
-      description: Returns the balance of a given account.
+      description: |
+        Retrieve native SOL balances for any Solana wallet address with configurable finality levels.
+        This essential API provides fast access to account balances in lamports (1 SOL = 1,000,000,000 lamports),
+        supporting different commitment levels to balance between speed and finality guarantees.
+        Critical for wallets, financial applications, trading platforms, and any service that needs
+        to track Solana account balances in real-time.
       security:
         - ApiKeyQuery: []
       requestBody:

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Staking requirements API for retrieving the minimum SOL delegation threshold needed to participate in Solana's proof-of-stake network and earn rewards.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getStakeMinimumDelegation
       operationId: getStakeMinimumDelegation
-      description: Returns the minimum delegation value for a given stake.
+      description: |
+        Retrieve the minimum SOL delegation amount required for active participation in Solana staking.
+        This essential staking API provides the current threshold amount necessary to create valid stake
+        accounts and delegate to validators on the Solana network. The minimum delegation requirement
+        is a key economic parameter that helps prevent stake account fragmentation and ensures efficiency
+        in the validator voting process. Critical for staking applications, wallet integrations, validator
+        dashboards, and any service offering delegation features to Solana users.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -105,7 +112,7 @@ paths:
                             example: 501
                       value:
                         type: integer
-                        description: The stake minimum delegation in lamports.
+                        description: The minimum SOL amount (in lamports) required to create an active stake delegation on the Solana network.
                         example: 1000000000
               examples:
                 success:

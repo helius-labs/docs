@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Node identification API for retrieving the unique validator public key of the Solana RPC endpoint you're currently connected to.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getIdentity
       operationId: getIdentity
-      description: Returns the identity of the node.
+      description: |
+        Retrieve the validator identity public key of the Solana node you're connected to.
+        This discovery API returns the unique cryptographic identifier of the specific validator
+        node hosting this RPC endpoint. Each Solana validator has a distinct identity keypair
+        that serves as its network identifier in consensus participation, block production,
+        and vote signing. Essential for applications that need to verify which specific validator
+        they're communicating with, tools mapping RPC endpoints to specific validators,
+        network monitoring systems tracking validator characteristics, and services that need
+        to identify the source of blockchain data they're receiving.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -77,11 +86,11 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Identity of the node.
+                    description: Validator identity information for the connected Solana node.
                     properties:
                       identity:
                         type: string
-                        description: The identity pubkey of the current node (as a base-58 encoded string).
+                        description: Unique validator public key (base-58 encoded) of this Solana node, serving as its network identifier.
                         example: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
               examples:
                 response:

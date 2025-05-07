@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Advanced Solana block data retrieval API for accessing comprehensive blockchain block information including transactions, signatures, and rewards with configurable detail levels.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,11 @@ paths:
         - RPC
       summary: getBlock
       operationId: getBlock
-      description: Returns the block details for a given slot.
+      description: |
+        Retrieve detailed Solana block information for a specified slot number. Access complete 
+        block data including transactions, signatures, account changes, rewards, and timing information.
+        Configure the level of transaction detail and encoding format to optimize for your specific 
+        application needs.
       security:
         - ApiKeyQuery: []
       requestBody:

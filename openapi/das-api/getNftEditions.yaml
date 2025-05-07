@@ -1,7 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana NFT Edition Tracking API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for tracking and retrieving limited edition NFTs 
+    from master editions on the Solana blockchain. This specialized API provides comprehensive visibility 
+    into edition-based NFT collections, enabling applications to verify edition numbers, track print 
+    distribution, monitor minting progress, and access the complete set of NFT prints derived from 
+    a single master artwork on Solana.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +29,13 @@ paths:
             tags:
                 - RPC
             summary: getNftEditions
-            description: Returns a list of NFT editions for a given master edition.
+            description: |
+              Retrieve all limited edition prints created from a master NFT on the Solana blockchain.
+              This specialized edition tracking API returns a complete list of all individual NFT editions
+              that have been minted from a specific master edition, along with their unique mint addresses, 
+              edition numbers, and current supply information. Essential for NFT platforms managing limited
+              edition artwork, collectors tracking edition rarity, and marketplaces verifying authentic prints
+              within the Solana NFT ecosystem.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -60,15 +72,15 @@ paths:
                                     properties:
                                         mint:
                                             type: string
-                                            description: The Mint of the master edition NFT to retrieve.
+                                            description: The mint address of the Solana master edition NFT to retrieve all editions for.
                                             example: 'Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL'
                                         page:
                                             type: integer
-                                            description: The page of results to return.
+                                            description: The page number for paginating through the Solana NFT edition results.
                                             example: 1
                                         limit:
                                             type: integer
-                                            description: The maximum number of editions to return.
+                                            description: The maximum number of Solana NFT editions to return in a single request.
                                             example: 100
                                     required:
                                         - mint
@@ -82,7 +94,7 @@ paths:
                                 properties:
                                     total:
                                         type: integer
-                                        description: The total number of NFT editions found.
+                                        description: The total number of limited edition Solana NFTs minted from this master edition.
                                         example: 1
                                     limit:
                                         type: integer
@@ -94,32 +106,32 @@ paths:
                                         example: 1
                                     master_edition_address:
                                         type: string
-                                        description: The address of the master edition.
+                                        description: The Solana blockchain address of the master edition NFT that controls the print editions.
                                         example: "8SHfqzJYABeGfiG1apwiEYt6TvfGQiL1pdwEjvTKsyiZ"
                                     supply:
                                         type: integer
-                                        description: Current supply of editions.
+                                        description: Current supply of minted Solana NFT editions from this master edition.
                                         example: 61
                                     max_supply:
                                         type: integer
-                                        description: Maximum possible supply of editions.
+                                        description: Maximum possible supply of Solana NFT editions that can be minted from this master.
                                         example: 69
                                     editions:
                                         type: array
-                                        description: An array of editions.
+                                        description: An array of individual Solana NFT editions minted from this master edition.
                                         items:
                                             type: object
                                             properties:
                                                 mint:
                                                     type: string
-                                                    description: The mint of the NFT edition.
+                                                    description: The unique mint address of this individual Solana NFT edition.
                                                     example: "GJvFDcBWf6aDncd1TBzx2ou1rgLFYaMBdbYLBa9oTAEw"
                                                 edition_address:
                                                     type: string
-                                                    description: The address of the NFT edition.
+                                                    description: The Solana blockchain address of this edition account for the NFT.
                                                 edition:
                                                     type: integer
-                                                    description: The edition number of the NFT.
+                                                    description: The sequential edition number of this Solana NFT in the print series.
                 400:
                     description: Invalid request.
                     content:

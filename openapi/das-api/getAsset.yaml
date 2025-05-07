@@ -1,7 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Digital Asset Standard (DAS) API
   version: 1.0.0
+  description: |
+    The Solana Digital Asset Standard (DAS) API provides comprehensive and standardized access to Solana blockchain NFTs and digital assets. 
+    This powerful API set enables developers to retrieve detailed information about any digital asset on Solana, 
+    including both traditional and compressed NFTs, with consistent data formatting regardless of token standard.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +27,18 @@ paths:
         tags:
             - RPC
         summary: getAsset
-        description: Returns the asset details for a given ID.
+        description: |
+          Retrieve comprehensive data for any Solana NFT or digital asset by its unique identifier.
+          This endpoint provides complete on-chain and off-chain metadata, ownership details, royalty information,
+          collection data, and compression state for any Solana digital asset. The getAsset method supports all token standards 
+          including compressed NFTs (cNFTs), programmable NFTs (pNFTs), and traditional SPL tokens.
+          
+          Use this endpoint to:
+          - Fetch complete metadata for NFT marketplace listings
+          - Retrieve asset ownership information for wallet integrations
+          - Access royalty and creator data for royalty enforcement
+          - Check compression status to identify cost-efficient compressed NFTs
+          - View collection grouping for NFT collection analytics
         operationId: rpc
         security:
             - ApiKeyQuery: []
@@ -60,11 +75,11 @@ paths:
                                 properties:
                                     id:
                                         type: string
-                                        description: The ID of the asset to retrieve.
+                                        description: The unique identifier of the Solana NFT or digital asset to retrieve. This is typically the mint address of the NFT or token.
                                         example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
                                     options:
                                         type: object
-                                        description: The display options for the response.
+                                        description: Display and formatting options for the asset data response.
                                         properties:
                                             showUnverifiedCollections:
                                                 type: boolean
@@ -102,7 +117,7 @@ paths:
                                     properties:
                                         interface:
                                             type: string
-                                            description: The interface type of the asset.
+                                            description: The interface type of the Solana digital asset, indicating its token standard and implementation.
                                             enum:
                                                 - V1_NFT
                                                 - V1_PRINT
@@ -119,14 +134,14 @@ paths:
                                             description: The unique identifier of the asset.
                                         content:
                                             type: object
-                                            description: Content information of the asset.
+                                            description: Content information of the Solana digital asset, including metadata, files, and links.
                                             properties:
                                                 $schema:
                                                     type: string
                                                     description: The schema URL for the asset metadata.
                                                 json_uri:
                                                     type: string
-                                                    description: URI pointing to the JSON metadata.
+                                                    description: URI pointing to the JSON metadata for the Solana NFT, typically hosted on Arweave or other decentralized storage.
                                                 files:
                                                     type: array
                                                     description: Array of files associated with the asset.
@@ -134,7 +149,7 @@ paths:
                                                         type: object
                                                 metadata:
                                                     type: object
-                                                    description: Metadata information about the asset.
+                                                    description: Complete metadata information about the Solana digital asset, including name, symbol, attributes, and token standard.
                                                     properties:
                                                         name:
                                                             type: string
@@ -179,14 +194,14 @@ paths:
                                                             type: string
                                         compression:
                                             type: object
-                                            description: Compression details of the asset.
+                                            description: Compression details of the Solana digital asset, indicating if it's a compressed NFT with state proof validation.
                                             properties:
                                                 eligible:
                                                     type: boolean
                                                     description: Whether the asset is eligible for compression.
                                                 compressed:
                                                     type: boolean
-                                                    description: Whether the asset is currently compressed.
+                                                    description: Whether the asset is currently compressed using Solana's state compression technology, which reduces storage costs.
                                                 data_hash:
                                                     type: string
                                                     description: Hash of the asset data.
@@ -219,7 +234,7 @@ paths:
                                                         description: The value associated with the group.
                                         royalty:
                                             type: object
-                                            description: Royalty information for the asset.
+                                            description: Royalty information for the Solana digital asset, used for marketplace fee calculations and creator payments.
                                             properties:
                                                 royalty_model:
                                                     type: string
@@ -256,7 +271,7 @@ paths:
                                                         description: Whether the creator is verified.
                                         ownership:
                                             type: object
-                                            description: Ownership details of the asset.
+                                            description: Ownership details of the Solana digital asset, including current owner, delegation status, and freezing information.
                                             required:
                                                 - frozen
                                                 - delegated

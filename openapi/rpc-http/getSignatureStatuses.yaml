@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Transaction confirmation tracking API for monitoring the status and finality level of multiple Solana transactions with real-time updates.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getSignatureStatuses
       operationId: getSignatureStatuses
-      description: Returns the signature statuses for a given transaction.
+      description: |
+        Retrieve confirmation status for multiple Solana transactions in a single efficient batch request.
+        This essential transaction tracking API allows applications to monitor the progression of transactions
+        through the Solana consensus process, from initial submission to final confirmation. Returns detailed
+        information about transaction status including processing slot, confirmation count, error details,
+        and finality level. Critical for wallets, exchanges, payment processors, and any application that
+        needs to verify when transactions have been successfully settled on the blockchain with configurable
+        historical transaction lookup options.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -69,7 +77,7 @@ paths:
                         properties:
                           searchTransactionHistory:
                             type: boolean
-                            description: Search ledger cache for signatures not found in recent status cache.
+                            description: Enable searching beyond recent status cache to find older historical transactions.
                             example: true
             examples:
               requestExample:
@@ -120,21 +128,21 @@ paths:
                               properties:
                                 slot:
                                   type: integer
-                                  description: Slot where the transaction was processed.
+                                  description: Solana blockchain slot number where this transaction was included in a block.
                                   example: 48
                                 confirmations:
                                   oneOf:
                                     - type: integer
-                                      description: Number of blocks since signature confirmation.
+                                      description: Number of confirmed blocks since this transaction was processed (null if fully finalized).
                                     - type: "null"
-                                      description: Null if rooted.
+                                      description: Null indicates transaction has reached maximum finality (rooted).
                                   example: 48
                                 err:
                                   oneOf:
                                     - type: object
-                                      description: Error if the transaction failed.
+                                      description: Error object containing details if the transaction failed during execution.
                                     - type: "null"
-                                      description: Null if successful.
+                                      description: Null indicates the transaction executed successfully without errors.
                                   example: null
                                 confirmationStatus:
                                   type: string
@@ -142,7 +150,7 @@ paths:
                                     - processed
                                     - confirmed
                                     - finalized
-                                  description: Transaction's cluster confirmation status.
+                                  description: Current finality status of the transaction on the Solana network (processed → confirmed → finalized).
                                   example: "finalized"
               examples:
                 responseExample:

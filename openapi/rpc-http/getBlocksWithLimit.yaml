@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Blockchain history API for retrieving sequential Solana block slots within a specified range with customizable limit controls to optimize data volume and query performance.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getBlocksWithLimit
       operationId: getBlocksWithLimit
-      description: Returns confirmed blocks with a specified limit.
+      description: |
+        Retrieve a contiguous sequence of Solana blocks starting from a specific slot with a customizable limit.
+        This blockchain history API returns an array of confirmed block slot numbers within the requested range,
+        allowing efficient pagination through historical blocks. The controlled limit parameter helps manage
+        response size and performance when scanning large sections of the blockchain. Essential for blockchain
+        explorers, historical data analysis tools, audit systems scanning transaction history, indexing services,
+        data analytics platforms, and applications that need to efficiently process sequential blocks without
+        overwhelming memory or network constraints. Limited to retrieving 500,000 blocks per request.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -67,15 +75,15 @@ paths:
                     properties:
                       start_slot:
                         type: integer
-                        description: Start slot (required).
+                        description: Starting Solana slot number from which to begin retrieving the sequential block list.
                         example: 5
                       limit:
                         type: integer
-                        description: Limit (required, must be ≤ 500,000 blocks from start slot).
+                        description: Maximum number of sequential blocks to return (up to 500,000 blocks per request).
                         example: 3
                       commitment:
                         type: string
-                        description: The commitment level for the request.
+                        description: Finality level to query blocks at - either confirmed (optimistic confirmation) or finalized (full confirmation).
                         enum:
                           - confirmed
                           - finalized
@@ -100,7 +108,7 @@ paths:
                     example: "1"
                   result:
                     type: array
-                    description: List of confirmed blocks starting at start_slot for up to the limit.
+                    description: Ordered list of confirmed Solana block slot numbers in ascending sequence starting from the requested slot.
                     items:
                       type: integer
                     example:

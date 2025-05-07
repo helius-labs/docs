@@ -1,7 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana Batch Compressed NFT Verification API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for efficiently retrieving multiple cryptographic 
+    merkle proofs for compressed NFTs in a single request. This optimized batch verification API enables 
+    applications to validate multiple compressed assets simultaneously, significantly reducing API calls 
+    and improving performance for marketplace listings, wallet displays, and other applications working 
+    with collections of compressed Solana NFTs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,14 +29,19 @@ paths:
             tags:
               - RPC
             summary: getAssetProofBatch
-            description: Returns a batch of asset proofs for a given list of IDs.
+            description: |
+              Efficiently retrieve cryptographic merkle proofs for multiple compressed Solana NFTs in a single batch request.
+              This optimized verification API returns the complete proof paths required to validate multiple compressed
+              digital assets' existence and data integrity on the Solana blockchain without requiring separate API calls for each NFT.
+              Essential for high-performance applications like marketplaces, wallets, and gaming platforms that need to verify
+              ownership and authenticity of multiple compressed NFTs simultaneously with minimal latency and API usage.
             operationId: rpc
             security:
               - ApiKeyQuery: []
             parameters:
                 - name: api-key
                   in: query
-                  description: The API key.
+                  description: Your Helius API key required for authenticating batch requests to the Solana compression API.
                   required: true
                   schema:
                       type: string
@@ -72,7 +83,7 @@ paths:
                                             type: array
                                             items:
                                                 type: string
-                                                description: The ID of the asset proof to retrieve.
+                                                description: Array of unique identifiers (mint addresses) of the compressed Solana NFTs to retrieve merkle proofs for.
                                                 example: 'Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss'
             responses:
                 200:
@@ -93,11 +104,11 @@ paths:
                                                 properties:
                                                     root:
                                                         type: string
-                                                        description: The root of the merkle tree.
+                                                        description: The root hash of the Solana state compression merkle tree containing this compressed NFT.
                                                         example: "2o6Y6EiY3WXhoaEpei2pHmHLYnHDcEQVhgD89GrGHDBH"
                                                     proof:
                                                         type: array
-                                                        description: The proof of the asset.
+                                                        description: Array of merkle proof hashes needed to cryptographically verify this Solana compressed NFT's existence.
                                                         items:
                                                             type: string
                                                         example: [
@@ -106,14 +117,15 @@ paths:
                                                         ]
                                                     node_index:
                                                         type: integer
+                                                        description: The position index of this compressed Solana NFT in the merkle tree structure.
                                                         example: 16384
                                                     leaf:
                                                         type: string
-                                                        description: The leaf of the merkle tree.
+                                                        description: The leaf hash representing this compressed Solana NFT's data in the merkle tree.
                                                         example: "6YdZXw49M97mfFTwgQb6kxM2c6eqZkHSaW9XhhoZXtzv"
                                                     tree_id:
                                                         type: string
-                                                        description: The ID of the merkle tree.
+                                                        description: The unique identifier of the Solana merkle tree where this compressed NFT is stored.
                                                         example: "2kuTFCcjbV22wvUmtmgsFR7cas7eZUzAu96jzJUvUcb7"
                                     id:
                                         type: string

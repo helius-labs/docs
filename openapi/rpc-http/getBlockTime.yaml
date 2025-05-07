@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Blockchain timestamping API for retrieving the Unix timestamp when a particular Solana block was produced, enabling correlation between on-chain events and real-world time.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getBlockTime
       operationId: getBlockTime
-      description: Returns the production time of a given block.
+      description: |
+        Convert a Solana block slot number to its corresponding real-world timestamp.
+        This time correlation API translates blockchain slots to Unix timestamps (seconds since epoch),
+        providing the exact time when a specific block was produced. Essential for applications that
+        need to establish precise timing relationships between on-chain events and real-world time,
+        including transaction history displays, financial reporting tools, audit systems, analytics
+        platforms tracking temporal patterns, tax calculation software, and any application that
+        needs to present blockchain activity with familiar human-readable dates and times rather
+        than just technical slot numbers.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -61,7 +70,7 @@ paths:
                   default: [5]
                   items:
                     type: integer
-                    description: Block number identified by Slot (as `u64` integer).
+                    description: Block slot number to retrieve the corresponding timestamp for.
                     example: 5
       responses:
         200:
@@ -78,7 +87,7 @@ paths:
                     type: string
                   result:
                     type: integer
-                    description: Estimated production time as Unix timestamp (seconds since Unix epoch).
+                    description: Unix timestamp (seconds since the Unix epoch) when this specific Solana block was produced by a validator.
                     example: 1574721591
         400:
           description: Block time not available.
@@ -101,5 +110,5 @@ paths:
                         example: -32004
                       message:
                         type: string
-                        description: Error message describing the failure.
+                        description: Error message indicating the requested block is not available in this node's ledger history.
                         example: "Block not available for slot 150"

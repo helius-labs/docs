@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator schedule projection API for retrieving the upcoming sequence of Solana validators assigned to produce blocks across multiple future slots.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -48,7 +49,13 @@ paths:
         - RPC
       summary: getSlotLeaders
       operationId: getSlotLeaders
-      description: Returns the slot leaders for a given range of slots.
+      description: |
+        Retrieve the ordered sequence of Solana validators scheduled to produce blocks for future slots.
+        This predictive consensus API returns the complete validator rotation schedule for an upcoming
+        range of slots, allowing applications to forecast which validators will be responsible for block
+        production. Essential for network monitoring dashboards, validator performance tracking, consensus
+        visualization tools, and applications that need to anticipate the upcoming leader schedule.
+        Supports querying up to 5,000 slots in a single request for efficient schedule retrieval.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -84,10 +91,10 @@ paths:
                   items:
                     oneOf:
                       - type: integer
-                        description: Start slot as a `u64` integer.
+                        description: Starting Solana slot number to begin retrieving the validator schedule from.
                         example: 100
                       - type: integer
-                        description: Limit of slots (between 1 and 5,000).
+                        description: Number of consecutive slots to retrieve the scheduled validator identities for (1-5,000).
                         example: 10
             examples:
               example1:
@@ -112,10 +119,10 @@ paths:
                     example: "1"
                   result:
                     type: array
-                    description: Array of Node identity public keys as base-58 encoded strings.
+                    description: Ordered sequence of Solana validator identities scheduled for upcoming block production.
                     items:
                       type: string
-                      description: Node identity Pubkey.
+                      description: Solana validator identity (public key) scheduled as block producer for a specific slot.
                       example: "ChorusmmK7i1AxXeiTtQgQZhQNiXYU84ULeaYF1EH15n"
               examples:
                 example1:

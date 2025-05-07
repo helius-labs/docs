@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Transaction fee calculator API for estimating exact Solana transaction costs based on a serialized message, enabling precise gas fee budgeting before submission.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,15 @@ paths:
         - RPC
       summary: getFeeForMessage
       operationId: getFeeForMessage
-      description: Returns the fee for a given message.
+      description: |
+        Calculate the exact transaction fee cost for a specific serialized Solana message.
+        This fee estimation API provides precise SOL fee calculations based on the actual 
+        transaction message structure, offering more accurate results than general fee estimates. 
+        By analyzing the exact operations within the pre-serialized message, it determines the 
+        exact lamport cost that would be charged. Essential for wallet applications requiring 
+        precise fee estimation, exchanges calculating withdrawal fees, DApps planning transaction 
+        budgets, payment processors requiring exact cost calculation, and any application that 
+        needs to know the precise fee before submitting a transaction to the Solana network.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -65,7 +74,7 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Base-64 encoded message (required).
+                        description: Base-64 encoded serialized Solana transaction message to calculate the exact fee for.
                         example: "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQAA"
                       - type: object
                         description: Configuration object containing optional parameters.
@@ -114,7 +123,7 @@ paths:
                       value:
                         type: integer
                         nullable: true
-                        description: Fee corresponding to the message at the specified blockhash.
+                        description: Exact transaction fee in lamports (1 SOL = 1,000,000,000 lamports) required to process this specific message on the network.
                         example: 5000
         400:
           description: Invalid request.

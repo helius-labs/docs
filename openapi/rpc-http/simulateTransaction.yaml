@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Advanced Solana transaction simulation API for testing and debugging blockchain transactions before committing them to the Solana network.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,12 @@ paths:
         - RPC
       summary: simulateTransaction
       operationId: simulateTransaction
-      description: Simulates a transaction before sending it to the network.
+      description: |
+        Simulate Solana transactions without executing them on the blockchain. This powerful 
+        debugging tool allows developers to test transaction execution, verify program behavior,
+        estimate compute unit consumption, detect errors, and preview account state changes
+        before committing transactions to the network. Essential for Solana application
+        development, smart contract testing, and transaction optimization.
       security:
         - ApiKeyQuery: []
       requestBody:

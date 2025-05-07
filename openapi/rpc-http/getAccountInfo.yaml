@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Comprehensive Solana account data retrieval API for accessing program ownership, balance, and on-chain data with multiple encoding options and configurable commitment levels.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,12 @@ paths:
         - RPC
       summary: getAccountInfo
       operationId: getAccountInfo
-      description: Returns the account information for a given pubkey.
+      description: |
+        Retrieve detailed Solana account information including balances, owners, and on-chain data.
+        This essential API provides access to any account's current state on the Solana blockchain,
+        supporting multiple data encoding formats including JSON parsing for known program types.
+        Critical for wallets, explorers, and dApps that need to access token balances, NFT metadata,
+        program states, and other on-chain account data with configurable finality guarantees.
       security:
         - ApiKeyQuery: []
       requestBody:

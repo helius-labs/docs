@@ -1,7 +1,13 @@
 openapi: 3.1.0
 info:
-  title: Solana RPC API
+  title: Solana NFT Collection Explorer API
   version: 1.0.0
+  description: |
+    Advanced Solana Digital Asset Standard (DAS) API for exploring complete NFT collections and token groups 
+    on the Solana blockchain. This specialized collection browsing API enables applications to retrieve all 
+    digital assets within specific collections, communities, or groupings with powerful filtering and sorting 
+    capabilities. Perfect for NFT marketplaces, portfolio applications, and analytics platforms that need to 
+    display complete collections with consistent formatting across both traditional and compressed NFTs.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -23,7 +29,13 @@ paths:
             tags:
                 - RPC
             summary: getAssetsByGroup
-            description: Returns a list of assets that match the given group key and value.
+            description: |
+              Retrieve all Solana digital assets belonging to a specific collection or grouping.
+              This powerful collection browsing API returns a complete list of NFTs that share the same 
+              group designation (such as collection, community, or other grouping), with comprehensive 
+              metadata and ownership details for each asset. Essential for NFT marketplaces displaying 
+              collections, portfolio applications showing grouped assets, and analytics platforms tracking 
+              collection-wide metrics across the Solana ecosystem.
             operationId: rpc
             security:
                 - ApiKeyQuery: []
@@ -60,19 +72,19 @@ paths:
                                     properties:
                                         groupKey:
                                             type: string
-                                            description: The group key for the asset search.
+                                            description: The Solana group classification type to search by (e.g., 'collection', 'community', 'creator', etc.).
                                             example: 'collection'
                                         groupValue:
                                             type: string
-                                            description: The address value of the group.
+                                            description: The Solana collection address or group identifier to retrieve all matching NFTs for.
                                             example: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
                                         page:
                                             type: integer
-                                            description: The page of results to return.
+                                            description: The page number for paginating through the Solana collection results.
                                             example: 1
                                         limit:
                                             type: integer
-                                            description: The maximum number of assets to return.
+                                            description: The maximum number of Solana NFTs to return per request from this collection.
                                             example: 100
                                         sortBy:
                                             type: object
@@ -80,11 +92,11 @@ paths:
                                             properties:
                                                 sortBy:
                                                     type: string
-                                                    description: The criteria by which the retrieved assets will be sorted.
+                                                    description: The criteria by which the retrieved Solana NFTs in the collection will be sorted.
                                                     enum: ['created', 'recent_action', 'updated', 'none']
                                                 sortDirection:
                                                     type: string
-                                                    description: The direction by which the retrieved assets will be sorted.
+                                                    description: The direction by which the retrieved Solana NFTs in the collection will be sorted.
                                                     enum: ['asc', 'desc']
                                         before:
                                             type: string
@@ -112,7 +124,7 @@ paths:
                                                     default: false
                                                 showInscription:
                                                     type: boolean
-                                                    description: Displays inscription details of assets inscribed on-chain.
+                                                    description: Displays inscription details for Solana NFTs with on-chain inscriptions in the collection.
                                                     default: false
                                     required:
                                         - groupKey
@@ -133,7 +145,7 @@ paths:
                                         properties:
                                             total:
                                                 type: integer
-                                                description: The total number of assets found.
+                                                description: The total number of Solana NFTs found in this collection or group.
                                                 example: 1
                                             limit:
                                                 type: integer
@@ -145,85 +157,46 @@ paths:
                                                 example: 1
                                             items:
                                                 type: array
-                                                description: An array of assets.
+                                                description: An array of Solana NFTs belonging to this collection or group.
                                                 items:
                                                     type: object
                                                     properties:
                                                         interface:
                                                             type: string
-                                                            description: The interface of the asset.
+                                                            description: The Solana token standard interface of the NFT in this collection.
                                                             example: "ProgrammableNFT"
                                                         id:
                                                             type: string
+                                                            description: The unique mint address of this Solana NFT in the collection.
                                                             example: "JEGruwYE13mhX2wi2MGrPmeLiVyZtbBptmVy9vG3pXRC"
                                                         authorities:
                                                             type: array
-                                                            example: [
-                                                                {
-                                                                    "address": "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW",
-                                                                    "scopes": ["full"]
-                                                                }
-                                                            ]
+                                                            description: The update authorities for this Solana NFT in the collection.
                                                         compression:
                                                             type: object
-                                                            example: {
-                                                                "eligible": false,
-                                                                "compressed": false,
-                                                                "data_hash": "",
-                                                                "creator_hash": "",
-                                                                "asset_hash": "",
-                                                                "tree": "",
-                                                                "seq": 0,
-                                                                "leaf_id": 0
-                                                            }
+                                                            description: The compression status of this Solana NFT, indicating if it uses state compression technology.
                                                         grouping:
                                                             type: array
-                                                            example: [
-                                                                {
-                                                                    "group_key": "collection",
-                                                                    "group_value": "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
-                                                                }
-                                                            ]
+                                                            description: The collection and grouping associations for this Solana NFT.
                                                         royalty:
                                                             type: object
-                                                            example: {
-                                                                "royalty_model": "creators",
-                                                                "target": null,
-                                                                "percent": 0.042,
-                                                                "basis_points": 420,
-                                                                "primary_sale_happened": true,
-                                                                "locked": false
-                                                            }
+                                                            description: The royalty configuration for this Solana NFT when sold in marketplaces.
                                                         creators:
                                                             type: array
-                                                            example: [
-                                                                {
-                                                                    "address": "5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv",
-                                                                    "share": 0,
-                                                                    "verified": true
-                                                                }
-                                                            ]
+                                                            description: The verified creator addresses associated with this Solana NFT in the collection.
                                                         ownership:
                                                             type: object
-                                                            example: {
-                                                                "frozen": true,
-                                                                "delegated": false,
-                                                                "delegate": null,
-                                                                "ownership_model": "single",
-                                                                "owner": "3F21SJs4FMpsakrxmd8GjgfQZG6BN6MVsvXcm5Yc6Jcf"
-                                                            }
+                                                            description: The current ownership details for this Solana NFT in the collection.
                                                         supply:
                                                             type: object
-                                                            example: {
-                                                                "print_max_supply": 0,
-                                                                "print_current_supply": 0,
-                                                                "edition_nonce": 254
-                                                            }
+                                                            description: The supply information for this Solana NFT if it's a master edition with prints.
                                                         mutable:
                                                             type: boolean
+                                                            description: Whether this Solana NFT's metadata can be updated by the authority.
                                                             example: true
                                                         burnt:
                                                             type: boolean
+                                                            description: Whether this Solana NFT has been burned/destroyed.
                                                             example: false
                 '400':
                     description: Invalid request.

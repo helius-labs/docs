@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator performance analytics API for monitoring Solana block production efficiency and comparing leader schedule slots against actual blocks created.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getBlockProduction
       operationId: getBlockProduction
-      description: Returns the block production information for a given validator identity.
+      description: |
+        Retrieve detailed block production statistics for Solana validators within a specified slot range.
+        This performance analytics API provides precise metrics about each validator's efficiency in
+        producing blocks when scheduled as leader. Returns both the number of slots where a validator
+        was assigned as leader and the actual number of blocks they successfully produced, allowing 
+        calculation of reliability rates. Essential for validator performance monitoring, network health
+        analysis, staking dashboards, and applications that need to evaluate validator reliability when
+        making delegation decisions or monitoring overall Solana network participation effectiveness.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -69,19 +77,19 @@ paths:
                             example: finalized
                           identity:
                             type: string
-                            description: Only return results for this validator identity (base-58 encoded).
+                            description: Optional validator identity public key (base-58 encoded) to filter results for a specific validator.
                             example: "85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr"
                           range:
                             type: object
-                            description: Slot range to return block production for.
+                            description: Optional slot range boundaries to limit the block production statistics time period.
                             properties:
                               firstSlot:
                                 type: integer
-                                description: First slot to return block production information for (inclusive).
+                                description: Starting slot number to begin analyzing block production statistics from (inclusive).
                                 example: 0
                               lastSlot:
                                 type: integer
-                                description: Last slot to return block production information for (inclusive). If not provided, defaults to the highest slot.
+                                description: Ending slot number to analyze block production statistics until (inclusive). If omitted, uses the current slot.
                                 example: 9887
       responses:
         200:
@@ -115,8 +123,8 @@ paths:
                               type: array
                               items:
                                 type: integer
-                              description: Two-element array with the number of leader slots and blocks produced.
-                            description: Dictionary of validator identities with block production statistics.
+                              description: Two-element array containing [leaderSlots, blocksProduced] statistics for this validator.
+                            description: Map of validator identity public keys to their block production performance metrics.
                             example:
                               "85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr": [9888, 9886]
                           range:
@@ -124,11 +132,11 @@ paths:
                             properties:
                               firstSlot:
                                 type: integer
-                                description: First slot of block production information (inclusive).
+                                description: Starting slot number of the analyzed block production statistics period.
                                 example: 0
                               lastSlot:
                                 type: integer
-                                description: Last slot of block production information (inclusive).
+                                description: Ending slot number of the analyzed block production statistics period.
                                 example: 9887
         400:
           description: Invalid request.

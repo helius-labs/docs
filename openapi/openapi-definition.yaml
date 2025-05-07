@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  description: Documentation for the Helius API. To learn more about Helius, go to <a href=https://helius.xyz>helius.xyz</a>.
+  description: "Comprehensive documentation for the Helius API - the leading blockchain API for Solana developers. Access high-performance RPC nodes, indexed data, and advanced blockchain features. Visit <a href=https://helius.xyz>helius.xyz</a> to learn more about our enterprise-grade infrastructure."
   version: 1.0.1
   title: Helius API
   contact:
@@ -20,13 +20,13 @@ security:
 
 tags:
   - name: NFTs
-    description: NFT-related events, collection-level aggregations, stats, and historical activity.
+    description: "Access comprehensive NFT data including events, collection aggregations, real-time stats, and complete historical activity on Solana."
   - name: Tokens
-    description: Token account data, metadata, and off-chain data for both fungible and non-fungible tokens
+    description: "Complete token account data, on-chain and off-chain metadata, and detailed information for both fungible and non-fungible Solana tokens."
   - name: Transactions
-    description: Enhanced and human-readable transaction histories.
+    description: "Enhanced and human-readable transaction histories with decoded instruction data and detailed context."
   - name: Addresses
-    description: An enhanced on-chain identity.
+    description: "Enhanced on-chain identity data with complete wallet activity and ownership information."
  
 ##### PATHS #####
 
@@ -38,8 +38,9 @@ paths:
       summary: Returns all NFT related events associated with the given address.
       operationId: getNftEvents
       description: |
-        By passing in the appropriate query parameters, you can search for
-        event types and sources.
+        Retrieve comprehensive NFT events data for any Solana address. Filter by event types, 
+        transaction sources, and time ranges to get precise NFT activity including mints, 
+        sales, listings, and transfers.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/beforeParam'
@@ -84,7 +85,10 @@ paths:
         - Transactions
       summary: Returns an enhanced transaction history for a given address
       operationId: getEnhancedTransactions
-      description: Returns an array of enhanced transactions.
+      description: |
+        Access comprehensive transaction history for any Solana address with human-readable 
+        decoded data. Filter by transaction types, sources, and time ranges to get detailed
+        insights into wallet activity with context and decoded instructions.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/beforeParam'
@@ -131,6 +135,10 @@ paths:
         - Transactions
       summary: Returns raw transaction history for a given address
       operationId: getRawTransactionHistory
+      description: |
+        Retrieve complete raw transaction data for any Solana address with full
+        transaction details in their original format. Access historical transaction 
+        data with precise time filtering options.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
         - $ref: '#/components/parameters/beforeParam'
@@ -172,7 +180,10 @@ paths:
       tags:
         - Transactions
       summary: Returns an array of enhanced, human-readable versions of the given transactions.
-      description: Returns an array of enhanced transactions.
+      description: |
+        Convert raw Solana transactions into enhanced, human-readable formats with
+        decoded instruction data and contextual information. Process multiple transactions
+        in a single request for efficient data analysis and display.
       operationId: getEnhancedTransaction
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'

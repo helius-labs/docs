@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Native SOL supply analytics API for monitoring total circulation, token economics, and distribution metrics across the Solana blockchain ecosystem.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -49,7 +50,14 @@ paths:
         - RPC
       summary: getSupply
       operationId: getSupply
-      description: Returns the supply information for the current epoch.
+      description: |
+        Retrieve comprehensive metrics about Solana's native SOL token supply and distribution.
+        This essential tokenomics API provides detailed breakdowns of circulating and non-circulating
+        token supply, helping track SOL distribution across the ecosystem. Data includes total SOL
+        supply, active circulation figures, tokens in reserve, and a list of accounts holding
+        non-circulating tokens. Critical for financial analysts, token economics researchers,
+        market trackers, and applications that need accurate metrics on Solana's native token
+        supply and distribution patterns.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -95,7 +103,7 @@ paths:
                         example: finalized
                       excludeNonCirculatingAccountsList:
                         type: boolean
-                        description: Exclude non-circulating accounts list from the response.
+                        description: Option to exclude the detailed list of non-circulating SOL reserve accounts for faster response.
                         example: true
             examples:
               default:
@@ -136,19 +144,19 @@ paths:
                         properties:
                           total:
                             type: integer
-                            description: Total supply in lamports.
+                            description: Total SOL supply in existence (in lamports), including both circulating and locked tokens.
                             example: 1016000
                           circulating:
                             type: integer
-                            description: Circulating supply in lamports.
+                            description: Amount of SOL (in lamports) currently in circulation and available for public use.
                             example: 16000
                           nonCirculating:
                             type: integer
-                            description: Non-circulating supply in lamports.
+                            description: Amount of SOL (in lamports) held in reserve accounts and not currently available in circulation.
                             example: 1000000
                           nonCirculatingAccounts:
                             type: array
-                            description: List of non-circulating account addresses as strings. Empty if `excludeNonCirculatingAccountsList` is enabled.
+                            description: List of Solana wallet addresses that hold non-circulating SOL tokens in reserve.
                             items:
                               type: string
                             example:

@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Comprehensive Solana epoch monitoring API for tracking validator cycle progress, staking periods, and blockchain time metrics with detailed epoch statistics.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getEpochInfo
       operationId: getEpochInfo
-      description: Returns information about the current epoch.
+      description: |
+        Retrieve detailed information about the current Solana epoch, validator cycle, and network progression.
+        This essential API provides comprehensive epoch metrics including current epoch number, slot progression,
+        and transaction counts. Epochs represent validator rotation cycles, staking reward periods, and
+        time segmentation on the Solana blockchain. Critical for staking applications, reward calculators,
+        validator monitoring tools, and any application that needs to track network progress or implement
+        epoch-based logic such as rewards distribution or protocol upgrades.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -101,28 +108,28 @@ paths:
                     properties:
                       absoluteSlot:
                         type: integer
-                        description: The current slot.
+                        description: The current absolute Solana slot number representing global blockchain progress.
                         example: 166598
                       blockHeight:
                         type: integer
-                        description: The current block height.
+                        description: Current Solana blockchain height in blocks, useful for tracking overall chain growth.
                         example: 166500
                       epoch:
                         type: integer
-                        description: The current epoch.
+                        description: Current Solana epoch number representing the validator cycle and staking period.
                         example: 27
                       slotIndex:
                         type: integer
-                        description: The current slot relative to the start of the current epoch.
+                        description: Current position within the epoch, showing progression through the validator cycle.
                         example: 2790
                       slotsInEpoch:
                         type: integer
-                        description: The number of slots in this epoch.
+                        description: Total number of slots in the current epoch, defining epoch duration and validator schedule length.
                         example: 8192
                       transactionCount:
                         type: integer
                         nullable: true
-                        description: Total number of transactions processed without error since genesis.
+                        description: Cumulative number of successful transactions processed on Solana since genesis.
                         example: 22661093
               examples:
                 default:

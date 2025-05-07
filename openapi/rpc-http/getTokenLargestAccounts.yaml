@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Token concentration analysis API for identifying major holders and tracking token distribution patterns across the Solana blockchain ecosystem.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -50,7 +51,13 @@ paths:
         - RPC
       summary: getTokenLargestAccounts
       operationId: getTokenLargestAccounts
-      description: Returns the largest token accounts for a given mint.
+      description: |
+        Identify and analyze the largest holders of any Solana SPL token with detailed balance information.
+        This powerful token distribution API provides insights into token concentration patterns, 
+        revealing major holders ("whales") and their relative positions. Essential for market analysis,
+        token distribution audits, investor relations, and DAO governance tracking. Automatically
+        returns addresses sorted by balance in descending order with proper decimal formatting
+        for immediate integration into analytics dashboards and monitoring tools.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -86,7 +93,7 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the token Mint to query, as a base-58 encoded string.
+                        description: Solana token mint address to analyze for largest holder accounts and distribution patterns.
                         example: "he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A"
                       - type: object
                         description: Configuration object.
@@ -140,24 +147,24 @@ paths:
                           properties:
                             address:
                               type: string
-                              description: The address of the token account.
+                              description: Solana wallet address holding a significant portion of the token supply.
                               example: "FYjHNoFtSQ5uijKrZFyYAxvEr87hsKXkXcxkcmkBAf4r"
                             amount:
                               type: string
-                              description: The raw token account balance without decimals.
+                              description: Raw token balance of this major holder account without decimal formatting.
                               example: "771"
                             decimals:
                               type: integer
-                              description: Number of base 10 digits to the right of the decimal place.
+                              description: Number of decimal places defined by the token for proper balance representation.
                               example: 2
                             uiAmount:
                               type: number
-                              description: The token account balance using mint-prescribed decimals (deprecated).
+                              description: Human-readable token balance of this major holder with proper decimal formatting (deprecated).
                               example: 7.71
                               deprecated: true
                             uiAmountString:
                               type: string
-                              description: The token account balance as a string using mint-prescribed decimals.
+                              description: Canonical string representation of this major holder's token balance with decimal places.
                               example: "7.71"
               examples:
                 tokenResponse:

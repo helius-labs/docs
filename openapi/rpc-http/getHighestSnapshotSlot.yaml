@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Validator synchronization API for retrieving information about available Solana blockchain snapshots that enable fast node bootstrapping and ledger state reconstruction.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -37,7 +38,15 @@ paths:
         - RPC
       summary: getHighestSnapshotSlot
       operationId: getHighestSnapshotSlot
-      description: Returns the highest snapshot slot.
+      description: |
+        Retrieve information about the latest available Solana blockchain snapshots for validator bootstrapping.
+        This node synchronization API returns the highest slots for which this RPC endpoint has snapshot data
+        available. Snapshots are point-in-time archives of blockchain state that enable new validators to
+        rapidly bootstrap without replaying the entire transaction history. The response includes both full 
+        and incremental snapshot information, with full snapshots containing complete ledger state and incremental
+        snapshots containing only state changes since the last full snapshot. Essential for validator operators 
+        bootstrapping new nodes, network monitoring tools, and services tracking snapshot availability across 
+        the network to facilitate fast validator deployment and recovery operations.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -90,16 +99,16 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Snapshot slot information.
+                    description: Latest available Solana blockchain snapshot information from this node.
                     properties:
                       full:
                         type: integer
-                        description: Highest full snapshot slot.
+                        description: Highest Solana slot for which a complete blockchain state snapshot is available on this node.
                         example: 100
                       incremental:
                         type: integer
                         nullable: true
-                        description: Highest incremental snapshot slot based on full snapshot.
+                        description: Highest Solana slot for which an incremental state delta snapshot is available, built on top of the full snapshot.
                         example: 110
         500:
           description: The node has no snapshot.
@@ -124,11 +133,11 @@ paths:
                     properties:
                       code:
                         type: integer
-                        description: Error code indicating the issue.
+                        description: Error code indicating the node has no snapshot data available for bootstrap operations.
                         example: -32008
                       message:
                         type: string
-                        description: Error message describing the issue.
+                        description: Error message indicating this node does not have snapshot archives available.
                         example: "No snapshot"
         400:
           description: Invalid request

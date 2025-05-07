@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Transaction fee market monitoring API for tracking recent priority fees paid on Solana to optimize transaction pricing and execution during network congestion.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,14 @@ paths:
         - RPC
       summary: getRecentPrioritizationFees
       operationId: getRecentPrioritizationFees
-      description: Returns the recent prioritization fees.
+      description: |
+        Retrieve recent priority fee levels paid by transactions on the Solana network.
+        This dynamic fee market API provides insights into transaction pricing trends,
+        helping determine optimal fees during periods of network congestion. Returns
+        historical data on fees paid per compute unit in recent blocks, optionally filtered
+        by specific accounts being written to. Essential for wallets, exchanges, and DApps
+        that need to ensure timely transaction confirmation by setting competitive fee
+        levels based on current network conditions and fee market dynamics.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -65,7 +73,7 @@ paths:
                     description: An array of account addresses (maximum 128), as base-58 encoded strings.
                     items:
                       type: string
-                      description: A base-58 encoded account address.
+                      description: Specific Solana account address to filter for priority fees involving writes to this account.
                       example: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
       responses:
         200:
@@ -94,11 +102,11 @@ paths:
                       properties:
                         slot:
                           type: integer
-                          description: Slot in which the fee was observed.
+                          description: Solana blockchain slot number where these priority fee levels were observed.
                           example: 348125
                         prioritizationFee:
                           type: integer
-                          description: The per-compute-unit fee paid in micro-lamports.
+                          description: Priority fee rate in micro-lamports per compute unit paid by transactions in this slot.
                           example: 1234
         400:
           description: Invalid request.

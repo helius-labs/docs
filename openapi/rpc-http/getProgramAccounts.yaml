@@ -2,6 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
+  description: Advanced Solana program account indexing API for querying and filtering accounts owned by specific programs with powerful data filtering capabilities.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -24,7 +25,13 @@ paths:
         - RPC
       summary: getProgramAccounts
       operationId: getProgramAccounts
-      description: Returns the account information for a given program.
+      description: |
+        Retrieve all accounts owned by a specific Solana program with powerful filtering capabilities.
+        This essential API enables developers to efficiently query on-chain data structures used by
+        any program, with advanced filtering by account size, memory contents, and other criteria.
+        Perfect for indexing NFT collections, DEX liquidity pools, lending positions, governance proposals,
+        and other protocol-specific data stored on the Solana blockchain. Supports multiple data encoding
+        formats for optimal parsing efficiency.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -65,10 +72,10 @@ paths:
                   items:
                     oneOf:
                       - type: string
-                        description: Pubkey of the program, as a base-58 encoded string.
+                        description: The Solana program public key (address) to query accounts for, as a base-58 encoded string.
                         example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
                       - type: object
-                        description: Configuration object with additional options.
+                        description: Advanced configuration options for optimizing program account queries.
                         properties:
                           commitment:
                             type: string
@@ -109,30 +116,30 @@ paths:
                                 example: 0
                           filters:
                             type: array
-                            description: Filter results using up to 4 filter objects.
+                            description: Powerful filtering system to efficiently query specific Solana account data patterns.
                             items:
                               oneOf:
                                 - type: object
-                                  description: Filter based on data size.
+                                  description: Filter Solana accounts by their exact data size in bytes.
                                   properties:
                                     dataSize:
                                       type: integer
-                                      description: The size of the data in bytes.
+                                      description: The exact size of the account data in bytes for filtering.
                                       example: 17
                                 - type: object
-                                  description: Filter based on memory comparison.
+                                  description: Filter Solana accounts by comparing data at specific memory offsets (most powerful filter).
                                   properties:
                                     memcmp:
                                       type: object
-                                      description: Memory comparison filter.
+                                      description: Memory comparison filter for finding accounts with specific data patterns.
                                       properties:
                                         offset:
                                           type: integer
-                                          description: Byte offset to compare.
+                                          description: Byte offset within account data to perform the comparison.
                                           example: 4
                                         bytes:
                                           type: string
-                                          description: Data to compare at the offset.
+                                          description: Base-58 encoded data to compare at the specified offset position.
                                           example: "3Mc6vR"
       responses:
         200:

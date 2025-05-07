@@ -1,7 +1,12 @@
 openapi: 3.0.3
 info:
-  title: photon-indexer
-  description: Solana indexer for general compression
+  title: Solana Compression Indexer Monitoring API
+  description: |
+    Advanced Solana indexer health monitoring API for state compression infrastructure.
+    This monitoring endpoint enables developers to verify the operational status of the 
+    Solana compression indexer service, ensuring that compressed NFT and token operations 
+    can be reliably processed. Critical for applications depending on Solana's state 
+    compression technology for cost-efficient digital assets.
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -22,7 +27,14 @@ paths:
   /:
     summary: getIndexerHealth
     post:
-      description: Retrieves getIndexerHealth information
+      description: |
+        Check if the Solana compression indexer is functioning correctly and synchronized with the network.
+        This essential monitoring API provides a simple health status indicator to verify if the compression
+        indexer service is operational and keeping up with the Solana blockchain. Returns a successful response
+        if the indexer is healthy or an error response with diagnostic details if experiencing issues. 
+        Critical for infrastructure monitoring systems, reliability dashboards, and any service requiring 
+        confirmation that the Solana compression infrastructure is functioning properly before performing 
+        operations on compressed NFTs or tokens.
       operationId: getIndexerHealth
       security:
         - ApiKeyQuery: []
@@ -48,19 +60,19 @@ paths:
                   default: "1"
                 method:
                   type: string
-                  description: The name of the method to invoke.
+                  description: The name of the method to invoke for checking Solana compression indexer health status.
                   enum:
                   - getIndexerHealth
                   default: getIndexerHealth
         required: true
       responses:
         '200':
-          description: ''
+          description: 'The Solana compression indexer is healthy and synchronized with the network'
           content:
             application/json:
               schema:
                 type: string
-                description: ok if healthy
+                description: Returns "ok" when the Solana compression indexer is healthy and functioning properly
                 default: ok
                 enum:
                 - ok
@@ -74,7 +86,7 @@ paths:
                   error:
                     type: string
         '500':
-          description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+          description: 'The Solana compression indexer is experiencing issues or not synchronized with the network'
           content:
             application/json:
               schema:
