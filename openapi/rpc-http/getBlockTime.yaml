@@ -42,17 +42,22 @@ paths:
                   type: string
                   enum: ["2.0"]
                   description: The JSON-RPC protocol version.
+                  example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum: ["getBlockTime"]
                   description: The name of the RPC method to invoke.
+                  default: "getBlockTime"
                 params:
                   type: array
                   description: Parameters for the request.
+                  default: [5]
                   items:
                     type: integer
                     description: Block number identified by Slot (as `u64` integer).
