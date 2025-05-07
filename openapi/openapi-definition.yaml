@@ -171,6 +171,7 @@ paths:
       tags:
         - Transactions
       summary: Returns an array of enhanced, human-readable versions of the given transactions.
+      description: Returns an array of enhanced transactions.
       operationId: getEnhancedTransaction
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
@@ -2338,6 +2339,8 @@ components:
       properties:
         transactions:
           type: array
+          default:
+            - '4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf'
           items:
             type: string
             description: 'The transaction IDs/signatures to parse for.'
