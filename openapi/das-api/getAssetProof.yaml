@@ -41,15 +41,20 @@ paths:
                                     type: string
                                     enum: ['2.0']
                                     description: The version of the JSON-RPC protocol.
+                                    default: '2.0'
                                 id:
                                     type: string
                                     description: An ID to identify the request.
+                                    default: '1'
                                 method:
                                     type: string
                                     enum: ['getAssetProof']
                                     description: The name of the DAS method to invoke.
+                                    default: 'getAssetProof'
                                 params:
                                     type: object
+                                    default:
+                                       id: 'Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss'
                                     required:
                                       - id
                                     properties:

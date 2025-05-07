@@ -23,6 +23,7 @@ paths:
       tags:
         - RPC
       summary: getAssetBatch
+      description: Returns a batch of assets based on their IDs.
       operationId: rpc
       security:
         - ApiKeyQuery: []
@@ -41,16 +42,22 @@ paths:
                   type: string
                   enum: ['2.0']
                   description: The version of the JSON-RPC protocol.
+                  default: '2.0'
                 id:
                   type: string
-                  example: 'test'
+                  example: '1'
                   description: An ID to identify the request.
+                  default: '1'
                 method:
                   type: string
                   enum: ['getAssetBatch']
                   description: The name of the DAS method to invoke.
+                  default: 'getAssetBatch'
                 params:
                   type: object
+                  default:
+                    ids:
+                      - 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
                   properties:
                     ids:
                       type: array
