@@ -39,19 +39,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getSignatureStatuses"
                   description: The name of the RPC method to invoke.
                   example: "getSignatureStatuses"
+                  default: "getSignatureStatuses"
                 params:
                   type: array
                   description: Array containing transaction signatures and optional configuration object.
+                  default: [["5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"]]
                   items:
                     oneOf:
                       - type: array

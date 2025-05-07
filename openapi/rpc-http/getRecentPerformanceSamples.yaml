@@ -43,19 +43,23 @@ paths:
                   enum:
                     - "2.0"
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   description: The name of the RPC method to invoke.
                   enum:
                     - "getRecentPerformanceSamples"
                   example: "getRecentPerformanceSamples"
+                  default: "getRecentPerformanceSamples"
                 params:
                   type: array
                   description: Optional parameter to limit the number of samples to return.
+                  default: [4]
                   items:
                     type: integer
                     description: Number of samples to return (maximum 720).

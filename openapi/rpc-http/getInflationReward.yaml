@@ -23,6 +23,7 @@ paths:
       tags:
         - RPC
       summary: getInflationReward
+      description: Returns the inflation / staking reward for a list of addresses for an epoch.
       operationId: getInflationReward
       security:
         - ApiKeyQuery: []
@@ -43,19 +44,23 @@ paths:
                   enum:
                     - "2.0"
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   description: The name of the RPC method to invoke.
                   enum:
                     - "getInflationReward"
                   example: "getInflationReward"
+                  default: "getInflationReward"
                 params:
                   type: array
                   description: Parameters for the method.
+                  default: [["6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu"]]
                   items:
                     oneOf:
                       - type: array

@@ -44,19 +44,23 @@ paths:
                     - "2.0"
                   example: "2.0"
                   description: The JSON-RPC protocol version.
+                  default: "2.0"
                 id:
                   type: string
                   example: "1"
                   description: A unique identifier for the request.
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getSignaturesForAddress"
                   example: "getSignaturesForAddress"
                   description: The name of the RPC method to invoke.
+                  default: "getSignaturesForAddress"
                 params:
                   type: array
                   description: Array containing the required account address and optional configuration object.
+                  default: ["Vote111111111111111111111111111111111111111"]
                   items:
                     oneOf:
                       - type: string

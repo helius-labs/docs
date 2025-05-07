@@ -43,19 +43,23 @@ paths:
                   enum:
                     - "2.0"
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   description: The name of the RPC method to invoke.
                   enum:
                     - "getLargestAccounts"
                   example: "getLargestAccounts"
+                  default: "getLargestAccounts"
                 params:
                   type: array
                   description: Optional configuration object for filtering accounts.
+                  default: []
                   items:
                     type: object
                     properties:

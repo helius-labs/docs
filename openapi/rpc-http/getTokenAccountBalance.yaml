@@ -59,19 +59,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getTokenAccountBalance"
                   description: The name of the RPC method to invoke.
                   example: "getTokenAccountBalance"
+                  default: "getTokenAccountBalance"
                 params:
                   type: array
                   description: Parameters for querying the token account balance.
+                  default: ["3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa"]
                   items:
                     oneOf:
                       - type: string

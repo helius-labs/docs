@@ -63,19 +63,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getSlotLeaders"
                   description: The name of the RPC method to invoke.
                   example: "getSlotLeaders"
+                  default: "getSlotLeaders"
                 params:
                   type: array
                   description: Parameters for specifying the start slot and limit.
+                  default: [100, 10]
                   items:
                     oneOf:
                       - type: integer

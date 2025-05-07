@@ -39,19 +39,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getTokenAccountsByDelegate"
                   description: The name of the RPC method to invoke.
                   example: "getTokenAccountsByDelegate"
+                  default: "getTokenAccountsByDelegate"
                 params:
                   type: array
                   description: Parameters for querying token accounts by delegate.
+                  default: ["4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T", {"programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"}, {"encoding": "jsonParsed"}]
                   items:
                     oneOf:
                       - type: string
