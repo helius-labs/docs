@@ -56,19 +56,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "45"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "isBlockhashValid"
                   description: The name of the RPC method to invoke.
                   example: "isBlockhashValid"
+                  default: "isBlockhashValid"
                 params:
                   type: array
                   description: Parameters for evaluating blockhash validity.
+                  default: ["J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW", {"commitment": "processed"}]
                   items:
                     oneOf:
                       - type: string

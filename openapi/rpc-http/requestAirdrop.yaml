@@ -6,8 +6,6 @@ info:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: https://mainnet.helius-rpc.com
-    description: Mainnet RPC endpoint
   - url: https://devnet.helius-rpc.com
     description: Devnet RPC endpoint
 components:
@@ -39,19 +37,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "requestAirdrop"
                   description: The name of the RPC method to invoke.
                   example: "requestAirdrop"
+                  default: "requestAirdrop"
                 params:
                   type: array
                   description: Parameters for the airdrop request.
+                  default: ["83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri", 1000000000]
                   items:
                     oneOf:
                       - type: string

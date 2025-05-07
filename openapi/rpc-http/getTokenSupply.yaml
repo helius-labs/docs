@@ -39,24 +39,28 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getTokenSupply"
                   description: The name of the RPC method to invoke.
                   example: "getTokenSupply"
+                  default: "getTokenSupply"
                 params:
                   type: array
                   description: Parameters for querying the token supply.
+                  default: ["7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"]
                   items:
                     oneOf:
                       - type: string
                         description: Pubkey of the token Mint to query, as a base-58 encoded string.
-                        example: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                        example: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
                       - type: object
                         description: Configuration object.
                         properties:
@@ -75,7 +79,7 @@ paths:
                   id: "1"
                   method: "getTokenSupply"
                   params:
-                    - "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                    - "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
       responses:
         200:
           description: Successfully retrieved the token supply.

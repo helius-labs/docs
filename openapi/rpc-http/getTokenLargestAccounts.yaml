@@ -65,19 +65,23 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getTokenLargestAccounts"
                   description: The name of the RPC method to invoke.
                   example: "getTokenLargestAccounts"
+                  default: "getTokenLargestAccounts"
                 params:
                   type: array
                   description: Parameters for querying the largest token accounts for a specific mint.
+                  default: ["he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A"]
                   items:
                     oneOf:
                       - type: string

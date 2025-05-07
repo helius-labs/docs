@@ -39,24 +39,28 @@ paths:
                     - "2.0"
                   description: The JSON-RPC protocol version.
                   example: "2.0"
+                  default: "2.0"
                 id:
                   type: string
                   description: A unique identifier for the request.
                   example: "1"
+                  default: "1"
                 method:
                   type: string
                   enum:
                     - "getTransaction"
                   description: The name of the RPC method to invoke.
                   example: "getTransaction"
+                  default: "getTransaction"
                 params:
                   type: array
                   description: Parameters for querying a transaction.
+                  default: ["D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"]
                   items:
                     oneOf:
                       - type: string
                         description: Transaction signature as a base-58 encoded string.
-                        example: "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
+                        example: "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"
                       - type: string
                         description: Encoding format for the returned transaction.
                         enum:
