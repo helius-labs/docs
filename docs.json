@@ -47,11 +47,11 @@
           {
             "group": "Billing",
             "pages": [
-              "plans-and-rate-limits",
-              "credits",
-              "prepaid-credits",
-              "autoscaling",
-              "pay-with-crypto"
+              "billing/plans-and-rate-limits",
+              "billing/credits",
+              "billing/prepaid-credits",
+              "billing/autoscaling",
+              "billing/pay-with-crypto"
             ]
           },
           {
@@ -66,11 +66,11 @@
           {
             "group": "Dedicated Nodes",
             "pages": [
-              "solana-rpc-nodes/dedicated-nodes",
-              "solana-rpc-nodes/dedicated-nodes/order-dedicated-node",
-              "solana-rpc-nodes/dedicated-nodes/getting-started",
-              "solana-rpc-nodes/dedicated-nodes/dashboard",
-              "solana-rpc-nodes/dedicated-nodes/best-practices"
+              "dedicated-nodes",
+              "dedicated-nodes/order-dedicated-node",
+              "dedicated-nodes/getting-started",
+              "dedicated-nodes/dashboard",
+              "dedicated-nodes/best-practices"
             ]
           },
           {
@@ -81,7 +81,7 @@
               "sending-transactions/smart-transactions",
               "sending-transactions/staked-connections",
               {
-                "group": "Priority Fees API",
+                "group": "Priority Fees",
                 "pages": [
                   "sending-transactions/priority-fee-api",
                   "sending-transactions/priority-fees",
@@ -97,20 +97,20 @@
             "group": "Getting Data",
             "pages": [
               "getting-data",
-              "getting-data/accounts",
-              "getting-data/program-accounts",
-              "getting-data/nfts",
-              "getting-data/tokens",
-              "getting-data/transactions",
+              "rpc/accounts",
+              "rpc/program-accounts",
+              "rpc/transactions",
+              "das/nfts",
+              "das/tokens",
               {
                 "group": "Digital Asset Standard (DAS)",
                 "pages": [
-                  "getting-data/das-api",
-                  "getting-data/das-api/fungible-token-extension",
-                  "getting-data/das-api/paginating"
+                  "das-api",
+                  "das/fungible-token-extension",
+                  "das/paginating"
                 ]
               },
-              "getting-data/enhanced-transactions-api"
+              "enhanced-transactions"
             ]
           },
           {
@@ -118,41 +118,40 @@
             "pages": [
               "data-streaming",
               "data-streaming/quickstart",
-              "data-streaming/websocket",
+              {
+                "group": "Standard Websockets",
+                "pages": [
+                  "websocket",
+                  "websocket/guides/stream-pump-amm-data"
+                ]
+              },
               {
                 "group": "Enhanced Websockets (Beta)",
                 "pages": [
-                  "data-streaming/enhanced-websockets",
-                  "data-streaming/enhanced-websockets/transaction-subscribe",
-                  "data-streaming/enhanced-websockets/account-subscribe"
+                  "enhanced-websockets",
+                  "enhanced-websockets/transaction-subscribe",
+                  "enhanced-websockets/account-subscribe",
+                  "enhanced-websockets/guides/stream-pump-amm-data"
                 ]
               },
               {
                 "group": "LaserStream",
                 "pages": [
-                  "data-streaming/laserstream",
-                  "data-streaming/laserstream-grpc",
-                  "data-streaming/laserstream-enhanced-websocket"
+                  "laserstream",
+                  "laserstream/grpc",
+                  "laserstream/websocket"
                 ]
               },
               {
                 "group": "Yellowstone gRPC",
                 "pages": [
-                  "data-streaming/yellowstone-grpc-geyser",
-                  "data-streaming/yellowstone-grpc-geyser/getting-started-with-yellowstone-grpc-geyser-plugin",
-                  "data-streaming/yellowstone-grpc-geyser/account-monitoring",
-                  "data-streaming/yellowstone-grpc-geyser/transaction-monitoring",
-                  "data-streaming/yellowstone-grpc-geyser/entry-monitoring",
-                  "data-streaming/yellowstone-grpc-geyser/slot-and-block-monitoring"
-                ]
-              },
-              {
-                "group": "How to Stream Pump AMM Data",
-                "pages": [
-                  "data-streaming/stream-pump-amm-data",
-                  "data-streaming/stream-pump-amm-data-with-grpc",
-                  "data-streaming/stream-pump-amm-data-with-enhanced-websocket",
-                  "data-streaming/stream-pump-amm-data-with-standard-websocket"
+                  "grpc",
+                  "grpc/getting-started-with-yellowstone-grpc-geyser-plugin",
+                  "grpc/account-monitoring",
+                  "grpc/transaction-monitoring",
+                  "grpc/entry-monitoring",
+                  "grpc/slot-and-block-monitoring",
+                  "grpc/guides/stream-pump-amm-data"
                 ]
               }
             ]
@@ -165,17 +164,17 @@
               {
                 "group": "Webhooks",
                 "pages": [
-                  "event-listening/webhooks",
-                  "event-listening/webhooks/transaction-types",
-                  "event-listening/webhooks/faqs"                  
+                  "webhooks",
+                  "webhooks/transaction-types",
+                  "webhooks/faqs",
+                  "webhooks/guides/cnft-event-listening"
                 ]
-              },
-              "event-listening/guide-to-listening-for-cnft-events"
+              }
             ]
           },
           {
             "group": "Compression",
-            "pages": ["compression/nft-compression", "compression/what-is-zk-compression-on-solana"]
+            "pages": ["nfts/nft-compression", "zk-compression/introduction"]
           },
           {
             "group": "Resources",
@@ -204,84 +203,84 @@
                 "group": "HTTP Methods",
                 "icon": "server",
                 "pages": [
-                  "rpc/http-methods",
-                  "rpc/http/getaccountinfo",
-                  "rpc/http/getbalance",
-                  "rpc/http/getblock",
-                  "rpc/http/getblockcommitment",
-                  "rpc/http/getblockheight",
-                  "rpc/http/getblockproduction",
-                  "rpc/http/getblocks",
-                  "rpc/http/getblockswithlimit",
-                  "rpc/http/getblocktime",
-                  "rpc/http/getclusternodes",
-                  "rpc/http/getepochinfo",
-                  "rpc/http/getepochschedule",
-                  "rpc/http/getfeeformessage",
-                  "rpc/http/getfirstavailableblock",
-                  "rpc/http/getgenesishash",
-                  "rpc/http/gethealth",
-                  "rpc/http/gethighestsnapshotslot",
-                  "rpc/http/getidentity",
-                  "rpc/http/getinflationgovernor",
-                  "rpc/http/getinflationrate",
-                  "rpc/http/getinflationreward",
-                  "rpc/http/getlargestaccounts",
-                  "rpc/http/getlatestblockhash",
-                  "rpc/http/getleaderschedule",
-                  "rpc/http/getmaxretransmitslot",
-                  "rpc/http/getmaxshredinsertslot",
-                  "rpc/http/getminimumbalanceforrentexemption",
-                  "rpc/http/getmultipleaccounts",
-                  "rpc/http/getprogramaccounts",
-                  "rpc/http/getrecentperformancesamples",
-                  "rpc/http/getrecentprioritizationfees",
-                  "rpc/http/getsignaturesforaddress",
-                  "rpc/http/getsignaturestatuses",
-                  "rpc/http/getslot",
-                  "rpc/http/getslotleader",
-                  "rpc/http/getslotleaders",
-                  "rpc/http/getstakeminimumdelegation",
-                  "rpc/http/getsupply",
-                  "rpc/http/gettokenaccountbalance",
-                  "rpc/http/gettokenaccountsbydelegate",
-                  "rpc/http/gettokenaccountsbyowner",
-                  "rpc/http/gettokenlargestaccounts",
-                  "rpc/http/gettokensupply",
-                  "rpc/http/gettransaction",
-                  "rpc/http/gettransactioncount",
-                  "rpc/http/getversion",
-                  "rpc/http/getvoteaccounts",
-                  "rpc/http/isblockhashvalid",
-                  "rpc/http/minimumledgerslot",
-                  "rpc/http/requestairdrop",
-                  "rpc/http/sendtransaction",
-                  "rpc/http/simulatetransaction"
+                  "api-reference/rpc/http-methods",
+                  "api-reference/rpc/http/getaccountinfo",
+                  "api-reference/rpc/http/getbalance",
+                  "api-reference/rpc/http/getblock",
+                  "api-reference/rpc/http/getblockcommitment",
+                  "api-reference/rpc/http/getblockheight",
+                  "api-reference/rpc/http/getblockproduction",
+                  "api-reference/rpc/http/getblocks",
+                  "api-reference/rpc/http/getblockswithlimit",
+                  "api-reference/rpc/http/getblocktime",
+                  "api-reference/rpc/http/getclusternodes",
+                  "api-reference/rpc/http/getepochinfo",
+                  "api-reference/rpc/http/getepochschedule",
+                  "api-reference/rpc/http/getfeeformessage",
+                  "api-reference/rpc/http/getfirstavailableblock",
+                  "api-reference/rpc/http/getgenesishash",
+                  "api-reference/rpc/http/gethealth",
+                  "api-reference/rpc/http/gethighestsnapshotslot",
+                  "api-reference/rpc/http/getidentity",
+                  "api-reference/rpc/http/getinflationgovernor",
+                  "api-reference/rpc/http/getinflationrate",
+                  "api-reference/rpc/http/getinflationreward",
+                  "api-reference/rpc/http/getlargestaccounts",
+                  "api-reference/rpc/http/getlatestblockhash",
+                  "api-reference/rpc/http/getleaderschedule",
+                  "api-reference/rpc/http/getmaxretransmitslot",
+                  "api-reference/rpc/http/getmaxshredinsertslot",
+                  "api-reference/rpc/http/getminimumbalanceforrentexemption",
+                  "api-reference/rpc/http/getmultipleaccounts",
+                  "api-reference/rpc/http/getprogramaccounts",
+                  "api-reference/rpc/http/getrecentperformancesamples",
+                  "api-reference/rpc/http/getrecentprioritizationfees",
+                  "api-reference/rpc/http/getsignaturesforaddress",
+                  "api-reference/rpc/http/getsignaturestatuses",
+                  "api-reference/rpc/http/getslot",
+                  "api-reference/rpc/http/getslotleader",
+                  "api-reference/rpc/http/getslotleaders",
+                  "api-reference/rpc/http/getstakeminimumdelegation",
+                  "api-reference/rpc/http/getsupply",
+                  "api-reference/rpc/http/gettokenaccountbalance",
+                  "api-reference/rpc/http/gettokenaccountsbydelegate",
+                  "api-reference/rpc/http/gettokenaccountsbyowner",
+                  "api-reference/rpc/http/gettokenlargestaccounts",
+                  "api-reference/rpc/http/gettokensupply",
+                  "api-reference/rpc/http/gettransaction",
+                  "api-reference/rpc/http/gettransactioncount",
+                  "api-reference/rpc/http/getversion",
+                  "api-reference/rpc/http/getvoteaccounts",
+                  "api-reference/rpc/http/isblockhashvalid",
+                  "api-reference/rpc/http/minimumledgerslot",
+                  "api-reference/rpc/http/requestairdrop",
+                  "api-reference/rpc/http/sendtransaction",
+                  "api-reference/rpc/http/simulatetransaction"
                 ]
               },
               {
                 "group": "WebSocket Methods",
                 "icon": "signal-stream",
                 "pages": [
-                  "rpc/websocket-methods",
-                  "rpc/websocket/accountsubscribe",
-                  "rpc/websocket/accountunsubscribe",
-                  "rpc/websocket/blocksubscribe",
-                  "rpc/websocket/blockunsubscribe",
-                  "rpc/websocket/logssubscribe",
-                  "rpc/websocket/logsunsubscribe",
-                  "rpc/websocket/programsubscribe",
-                  "rpc/websocket/programunsubscribe",
-                  "rpc/websocket/rootsubscribe",
-                  "rpc/websocket/rootunsubscribe",
-                  "rpc/websocket/signaturesubscribe",
-                  "rpc/websocket/signatureunsubscribe",
-                  "rpc/websocket/slotsubscribe",
-                  "rpc/websocket/slotsupdatessubscribe",
-                  "rpc/websocket/slotsupdatesunsubscribe",
-                  "rpc/websocket/slotunsubscribe",
-                  "rpc/websocket/votesubscribe",
-                  "rpc/websocket/voteunsubscribe"
+                  "api-reference/rpc/websocket-methods",
+                  "api-reference/rpc/websocket/accountsubscribe",
+                  "api-reference/rpc/websocket/accountunsubscribe",
+                  "api-reference/rpc/websocket/blocksubscribe",
+                  "api-reference/rpc/websocket/blockunsubscribe",
+                  "api-reference/rpc/websocket/logssubscribe",
+                  "api-reference/rpc/websocket/logsunsubscribe",
+                  "api-reference/rpc/websocket/programsubscribe",
+                  "api-reference/rpc/websocket/programunsubscribe",
+                  "api-reference/rpc/websocket/rootsubscribe",
+                  "api-reference/rpc/websocket/rootunsubscribe",
+                  "api-reference/rpc/websocket/signaturesubscribe",
+                  "api-reference/rpc/websocket/signatureunsubscribe",
+                  "api-reference/rpc/websocket/slotsubscribe",
+                  "api-reference/rpc/websocket/slotsupdatessubscribe",
+                  "api-reference/rpc/websocket/slotsupdatesunsubscribe",
+                  "api-reference/rpc/websocket/slotunsubscribe",
+                  "api-reference/rpc/websocket/votesubscribe",
+                  "api-reference/rpc/websocket/voteunsubscribe"
                 ]
               }
             ]
@@ -293,65 +292,65 @@
                 "group": "Digital Asset Standard (DAS)",
                 "icon": "hexagon-image",
                 "pages": [
-                  "das-api",
-                  "das-api/getasset",
-                  "das-api/getassetbatch",
-                  "das-api/getassetproof",
-                  "das-api/getassetproofbatch",
-                  "das-api/getassetsbyauthority",
-                  "das-api/getassetsbycreator",
-                  "das-api/getassetsbygroup",
-                  "das-api/getassetsbyowner",
-                  "das-api/getnfteditions",
-                  "das-api/getsignaturesforasset",
-                  "das-api/gettokenaccounts",
-                  "das-api/searchassets"
+                  "api-reference/das",
+                  "api-reference/das/getasset",
+                  "api-reference/das/getassetbatch",
+                  "api-reference/das/getassetproof",
+                  "api-reference/das/getassetproofbatch",
+                  "api-reference/das/getassetsbyauthority",
+                  "api-reference/das/getassetsbycreator",
+                  "api-reference/das/getassetsbygroup",
+                  "api-reference/das/getassetsbyowner",
+                  "api-reference/das/getnfteditions",
+                  "api-reference/das/getsignaturesforasset",
+                  "api-reference/das/gettokenaccounts",
+                  "api-reference/das/searchassets"
                 ]
               },
               {
                 "group": "Priority Fee",
                 "icon": "star",
-                "pages": ["priority-fee-api/getpriorityfeeestimate"]
+                "pages": ["api-reference/priority-fee/getpriorityfeeestimate"]
               },
               {
                 "group": "Enhanced Transactions",
                 "icon": "receipt",
                 "pages": [
-                  "enhanced-transactions-api",
-                  "enhanced-transactions-api/gettransactions",
-                  "enhanced-transactions-api/gettransactionsbyaddress"
+                  "api-reference/enhanced-transactions",
+                  "api-reference/enhanced-transactions/gettransactions",
+                  "api-reference/enhanced-transactions/gettransactionsbyaddress"
                 ]
               },
               {
                 "group": "ZK Compression",
                 "icon": "arrows-to-circle",
                 "pages": [
-                  "zk-compression-api",
-                  "zk-compression/getcompressedaccount",
-                  "zk-compression/getcompressedaccountproof",
-                  "zk-compression/getcompressedaccountsbyowner",
-                  "zk-compression/getcompressedbalance",
-                  "zk-compression/getcompressedbalancebyowner",
-                  "zk-compression/getcompressedminttokenholders",
-                  "zk-compression/getcompressedtokenaccountbalance",
-                  "zk-compression/getcompressedtokenaccountsbydelegate",
-                  "zk-compression/getcompressedtokenaccountsbyowner",
-                  "zk-compression/getcompressedtokenbalancesbyowner",
-                  "zk-compression/getcompressedtokenbalancesbyownerv2",
-                  "zk-compression/getcompressionsignaturesforaccount",
-                  "zk-compression/getcompressionsignaturesforaddress",
-                  "zk-compression/getcompressionsignaturesforowner",
-                  "zk-compression/getcompressionsignaturesfortokenowner",
-                  "zk-compression/getindexerhealth",
-                  "zk-compression/getindexerslot",
-                  "zk-compression/getlatestcompressionsignatures",
-                  "zk-compression/getlatestnonvotingsignatures",
-                  "zk-compression/getmultiplecompressedaccountproofs",
-                  "zk-compression/getmultiplecompressedaccounts",
-                  "zk-compression/getmultiplenewaddressproofs",
-                  "zk-compression/getmultiplenewaddressProofsv2",
-                  "zk-compression/gettransactionwithcompressioninfo",
-                  "zk-compression/getvalidityproof"
+                  "api-reference/zk-compression",
+                  "api-reference/zk-compression/getcompressedaccount",
+                  "api-reference/zk-compression/getcompressedaccountproof",
+                  "api-reference/zk-compression/getcompressedaccountsbyowner",
+                  "api-reference/zk-compression/getcompressedbalance",
+                  "api-reference/zk-compression/getcompressedbalancebyowner",
+                  "api-reference/zk-compression/getcompressedminttokenholders",
+                  "api-reference/zk-compression/getcompressedtokenaccountbalance",
+                  "api-reference/zk-compression/getcompressedtokenaccountsbydelegate",
+                  "api-reference/zk-compression/getcompressedtokenaccountsbyowner",
+                  "api-reference/zk-compression/getcompressedtokenbalancesbyowner",
+                  "api-reference/zk-compression/getcompressedtokenbalancesbyownerv2",
+                  "api-reference/zk-compression/getcompressionsignaturesforaccount",
+                  "api-reference/zk-compression/getcompressionsignaturesforaddress",
+                  "api-reference/zk-compression/getcompressionsignaturesforowner",
+                  "api-reference/zk-compression/getcompressionsignaturesfortokenowner",
+                  "api-reference/zk-compression/getindexerhealth",
+                  "api-reference/zk-compression/getindexerslot",
+                  "api-reference/zk-compression/getlatestcompressionsignatures",
+                  "api-reference/zk-compression/getlatestnonvotingsignatures",
+                  "api-reference/zk-compression/getmultiplecompressedaccountproofs",
+                  "api-reference/zk-compression/getmultiplecompressedaccounts",
+                  "api-reference/zk-compression/getmultiplenewaddressproofs",
+                  "api-reference/zk-compression/getmultiplenewaddressProofsv2",
+                  "api-reference/zk-compression/gettransactionwithcompressioninfo",
+                  "api-reference/zk-compression/getvalidityproof"
                 ]
               }
             ]
@@ -363,25 +362,14 @@
                 "group": "LaserStream gRPC",
                 "icon": "bolt",
                 "pages": [
-                  "laserstream-grpc-api",
-                  "laserstream-grpc/subscribe",
-                  "laserstream-grpc/getblockheight",
-                  "laserstream-grpc/getlatestblockhash",
-                  "laserstream-grpc/getslot",
-                  "laserstream-grpc/getversion",
-                  "laserstream-grpc/isblockhashvalid",
-                  "laserstream-grpc/ping"
-                ]
-              },
-              {
-                "group": "LaserStream Enhanced WebSockets",
-                "icon": "signal-stream",
-                "pages": [
-                  "laserstream-enhanced-websockets-api",
-                  "laserstream-enhanced-websockets/accountsubscribe",
-                  "laserstream-enhanced-websockets/accountunsubscribe",
-                  "laserstream-enhanced-websockets/transactionsubscribe",
-                  "laserstream-enhanced-websockets/transactionunsubscribe"
+                  "api-reference/laserstream-grpc",
+                  "api-reference/laserstream-grpc/subscribe",
+                  "api-reference/laserstream-grpc/getblockheight",
+                  "api-reference/laserstream-grpc/getlatestblockhash",
+                  "api-reference/laserstream-grpc/getslot",
+                  "api-reference/laserstream-grpc/getversion",
+                  "api-reference/laserstream-grpc/isblockhashvalid",
+                  "api-reference/laserstream-grpc/ping"
                 ]
               }
             ]
@@ -393,12 +381,12 @@
                 "group": "Webhooks",
                 "icon": "webhook",
                 "pages": [
-                  "webhooks-api",
-                  "webhooks/create-webhook",
-                  "webhooks/get-webhook",
-                  "webhooks/get-all-webhooks",
-                  "webhooks/update-webhook",
-                  "webhooks/delete-webhook"
+                  "api-reference/webhooks",
+                  "api-reference/webhooks/create-webhook",
+                  "api-reference/webhooks/get-webhook",
+                  "api-reference/webhooks/get-all-webhooks",
+                  "api-reference/webhooks/update-webhook",
+                  "api-reference/webhooks/delete-webhook"
                 ]
               }
             ]
@@ -409,12 +397,12 @@
               {
                 "group": "Token Metadata",
                 "icon": "ban",
-                "pages": ["token-metadata/querymetadatav1"]
+                "pages": ["api-reference/token-metadata/querymetadatav1"]
               },
               {
                 "group": "Mint",
                 "icon": "ban",
-                "pages": ["mint-api/mintcompressednft"]
+                "pages": ["api-reference/mint/mintcompressednft"]
               }
             ]
           }
