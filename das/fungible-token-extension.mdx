@@ -6,7 +6,7 @@ description: The most versatile API for working with tokens on Solana.
 
 ## Background
 
-Initially, the DAS API only supported ownership queries against Metaplex NFTs and cNFTs. Helius has extended the DAS API to support **all tokens**, including plain SPL tokens (without metadata) and Token22 (plus their extensions).&#x20;
+Initially, the DAS API only supported ownership queries against Metaplex NFTs and cNFTs. Helius has extended the DAS API to support **all tokens**, including plain SPL tokens (without metadata) and Token22 (plus their extensions).
 
 Users can query for the token balances of **any** account, across **all** tokens (SPL, Token22, NFTs, compressed NFTs).  We've also included token prices in USD.
 
@@ -18,9 +18,9 @@ Want to learn more about Token22? Check out the Helius [blog post](https://www.h
 
 ## How does it work?
 
-The Helius extension for fungible tokens resolves around ownership indexing. The following queries provide a unified view of an account's assets. [GetAsset](/das-api/getasset), [GetAssetsByOwner](/das-api/getassetsbyowner), and [SearchAssets](/das-api/searchassets) support fungible tokens.
+The Helius extension for fungible tokens resolves around ownership indexing. The following queries provide a unified view of an account's assets. [GetAsset](/api-reference/das/getasset), [GetAssetsByOwner](/api-reference/das/getassetsbyowner), and [SearchAssets](/api-reference/das/searchassets) support fungible tokens.
 
-This extension adds an extra field called `tokenType`. This field allows you to query against all assets the account owns, including fungible and Token22 tokens.&#x20;
+This extension adds an extra field called `tokenType`. This field allows you to query against all assets the account owns, including fungible and Token22 tokens.
 
 The options for `tokenType` include:
 
@@ -30,7 +30,7 @@ The options for `tokenType` include:
 * `compressedNFT`: Returns only the compressed NFTs.
 * `all` : Returns all the tokens.
 
-Example:&#x20;
+Example:
 
 ```json
 {
@@ -44,7 +44,7 @@ Example:&#x20;
 }
 ```
 
-You'll now see fungible tokens like JitoSOL in the response (trimmed for brevity). It will include the total account balance, the token's program address, the associated token address, the total supply in circulation, and the price information.&#x20;
+You'll now see fungible tokens like JitoSOL in the response (trimmed for brevity). It will include the total account balance, the token's program address, the associated token address, the total supply in circulation, and the price information.
 
 ```json
 "id": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
@@ -101,7 +101,7 @@ We support Token22 tokens and parse their extensions. The response will include 
 
 ### Backwards Compatibility
 
-For backwards compatibility, the behaviour is identical to the original DAS, meaning only NFTs and compressed NFTs are returned.&#x20;
+For backwards compatibility, the behaviour is identical to the original DAS, meaning only NFTs and compressed NFTs are returned.
 
 ```json
 {

@@ -24,10 +24,10 @@ The transactionSubscribe websocket method enables real-time transaction events. 
 `accountRequired`: Transactions must involve these specified accounts to be included in updates. This means that all of the accounts must be included in the transaction update (e.g., Account 1 AND Account 2).
 
 <Tip>
-You can include up to 50,000 addresses in the accountsInclude, accountExclude and accountRequired arrays.&#x20;
+You can include up to 50,000 addresses in the accountsInclude, accountExclude and accountRequired arrays.
 </Tip>
 
-### &#x20;**TransactionSubscribeOptions (Optional)**
+### **TransactionSubscribeOptions (Optional)**
 
 `commitment`: Specifies the commitment level for fetching data, dictating at what stage of the transaction lifecycle updates are sent. The possible values are **processed**, **confirmed** and **finalized**
 
@@ -49,7 +49,7 @@ You can include up to 50,000 addresses in the accountsInclude, accountExclude an
 
 <AccordionGroup>
 <Accordion title="Code Example">
-In this example, we are subscribing to transactions that contain the Raydium account                   `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`. Whenever a transaction occurs that contains `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`in the `accountKeys` of the transaction, we will receive a websocket notification.&#x20;
+In this example, we are subscribing to transactions that contain the Raydium account                   `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`. Whenever a transaction occurs that contains `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`in the `accountKeys` of the transaction, we will receive a websocket notification.
 
 Based on the subscription options, the transaction notification will be sent at the `processed` commitment level,`jsonParsed`encoding, `full` transaction details, and will show rewards.
 

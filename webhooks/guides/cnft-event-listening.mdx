@@ -86,7 +86,7 @@ ws.on('close', () => {
 });
 ```
 
-[**Enhanced WebSockets**](/data-streaming/laserstream-enhanced-websocket)
+[**Enhanced WebSockets**](/laserstream/websocket)
 
 * **Enhanced** WebSocket with advanced filters (`accountInclude`, `accountRequired`, etc.).
 * **Reduces parsing overhead** because you only receive transactions relevant to your addresses.
@@ -153,7 +153,7 @@ curl -X POST \
 
 #### 3.3 gRPC (Yellowstone)
 
-[**gRPC**](/data-streaming/yellowstone-grpc-geyser) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](/solana-rpc-nodes/dedicated-nodes).
+[**gRPC**](/grpc) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](/dedicated-nodes).
 
 * **Advanced filtering** (memcmp, owners, accounts, etc.).
 * **Enterprise-level** throughput for large-scale apps.
@@ -207,7 +207,7 @@ In this section, we'll explore **two** primary methods for historical lookups:
 
 Helius offers an **Enhanced** Transaction API. It automatically decodes NFT, SPL, and Swap transactions into a human-readable format. This saves you from manually parsing raw data.
 
-**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](/enhanced-transactions-api/gettransactions)**)**
+**4.1.1 Single or Batched Transactions (**[**`/v0/transactions`**](/api-reference/enhanced-transactions/gettransactions)**)**
 
 **Endpoint**:
 
@@ -259,7 +259,7 @@ Within each parsed transaction, you may find a `compressed` object under `events
 }
 ```
 
-**4.1.2 Parsed Transactions by Address (**[**`/v0/addresses/{address}/transactions`**](/enhanced-transactions-api/gettransactionsbyaddress)**)**
+**4.1.2 Parsed Transactions by Address (**[**`/v0/addresses/{address}/transactions`**](/api-reference/enhanced-transactions/gettransactionsbyaddress)**)**
 
 If you want **parsed** transactions for a **specific** address—say a **Merkle tree** or **user wallet**—you can call:
 
