@@ -1,0 +1,79 @@
+---
+title: "How to Use getClusterNodes to Discover Network Nodes"
+description: "Learn to use the Solana getClusterNodes RPC method to retrieve a list of all known nodes participating in the cluster and their contact information."
+---
+
+# How to Use `getClusterNodes` to Discover Network Nodes
+
+The `getClusterNodes` RPC method returns a list of all known nodes currently participating in the Solana cluster. This information can be useful for network analysis, discovering alternative RPC endpoints, or understanding the current topology of the network from the perspective of the queried node.
+
+## Common Use Cases
+
+*   **Network Topology Analysis:** Get a snapshot of the known nodes in the cluster, including their public keys and network addresses (gossip, TPU, RPC).
+*   **Discovering RPC Endpoints:** Identify other potential RPC servers within the cluster (though availability and rate limits might vary).
+*   **Monitoring Node Versions:** Observe the software versions being run by different nodes in the cluster.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an array of objects. Each object represents a node and contains the following fields:
+
+*   **`pubkey`** (string): The public key (identity) of the node, base58 encoded.
+*   **`gossip`** (string | null): The IP address and port for the node's gossip service. Can be `null` if not available.
+*   **`tpu`** (string | null): The IP address and port for the node's Transaction Processing Unit (TPU). This is used for submitting transactions directly. Can be `null`.
+*   **`rpc`** (string | null): The IP address and port for the node's JSON-RPC service. Can be `null` if the RPC service is not enabled or advertised by this node.
+*   **`version`** (string | null): The software version of the node. Can be `null` if version information is not available.
+*   **`featureSet`** (u32 | null): The unique identifier of the node's feature set. Can be `null`.
+*   **`shredVersion`** (u16 | null): The version of the data structure used by this node to store and transmit blocks (shreds). Can be `null`.
+
+## Examples
+
+### 1. Get All Known Cluster Nodes
+
+This example fetches the list of all nodes known to the queried RPC endpoint.
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getClusterNodes"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getNodesInCluster() {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    const clusterNodes = await connection.getClusterNodes();
+    console.log(`Found ${clusterNodes.length} cluster nodes:`);
+    clusterNodes.forEach(node => {
+      console.log(
+        `  PubKey: ${node.pubkey}, Gossip: ${node.gossip || 'N/A'}, RPC: ${node.rpc || 'N/A'}, Version: ${node.version || 'N/A'}`
+      );
+    });
+    // For full details:
+    // console.log(JSON.stringify(clusterNodes, null, 2));
+  } catch (error) {
+    console.error('Error fetching cluster nodes:', error);
+  }
+}
+
+getNodesInCluster();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Node's Perspective:** The returned list reflects the nodes known to the specific RPC node you are querying. Different RPC nodes might have slightly different views of the cluster, especially during network changes.
+*   **RPC Availability:** Not all nodes listed will necessarily have their RPC ports open or publicly accessible. The `rpc` field being non-null indicates an advertised RPC endpoint, but it doesn't guarantee accessibility or performance.
+*   **Dynamic List:** The cluster topology is dynamic. Nodes can join and leave, so the list can change over time.
+*   **Large Response:** On a large network like Mainnet Beta, the response can be quite extensive, listing many nodes.
+
+This guide provides the necessary information to use the `getClusterNodes` RPC method for discovering and understanding the nodes within a Solana cluster. 
