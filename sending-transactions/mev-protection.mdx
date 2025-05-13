@@ -63,13 +63,19 @@ Each URL you supply in `validatorAcls` must return a JSON document with the foll
 }
 ```
 
-Field semantics:
+<ResponseField name="version" type="integer" required>
+  Schema version (currently `1`). Reserved for future upgrades.
+</ResponseField>
 
-- `version` – Schema version (currently `1`). Reserved for future upgrades.
-- `validator_acl.type` – Either `"allow"` or `"deny"`.
-  • **allow** → Only the listed `identities` are permitted to receive the transaction.
-  • **deny**  → All validators *except* the listed `identities` are permitted.
-- `validator_acl.identities` – Array of base-58 validator identity pubkeys to apply the rule to.
+<ResponseField name="validator_acl.type" type="string" required>
+  Either `"allow"` or `"deny"`:
+  - **allow** → Only the listed `identities` are permitted to receive the transaction.
+  - **deny** → All validators *except* the listed `identities` are permitted.
+</ResponseField>
+
+<ResponseField name="validator_acl.identities" type="string[]" required>
+  Array of base-58 validator identity pubkeys to apply the rule to.
+</ResponseField>
 
 Example *deny-list* ACL:
 
