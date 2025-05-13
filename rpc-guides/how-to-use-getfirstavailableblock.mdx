@@ -1,0 +1,63 @@
+---
+title: "How to Use getFirstAvailableBlock to Find the Oldest Block"
+description: "Learn to use the Solana getFirstAvailableBlock RPC method to find the slot of the oldest block currently available on a node."
+---
+
+# How to Use `getFirstAvailableBlock` to Find the Oldest Block
+
+The `getFirstAvailableBlock` RPC method returns the slot number of the lowest (oldest) confirmed block that has not yet been purged from the ledger by the queried node. This is useful for understanding the range of historical data a particular node currently stores.
+
+## Common Use Cases
+
+*   **Historical Data Queries:** Determine the starting point from which you can begin querying historical block or transaction data on a specific node.
+*   **Node Synchronization Checks:** While not a direct measure of synchronization, it can give an idea of how much historical data a node is retaining compared to others.
+*   **Ledger Analysis:** Understand the depth of the ledger available on a given RPC endpoint.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be a `u64` (unsigned 64-bit integer) representing the slot number of the first available block.
+
+## Examples
+
+### 1. Get the First Available Block Slot
+
+This example fetches the slot of the oldest block available on the queried node.
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getFirstAvailableBlock"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logFirstAvailableBlock() {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    const firstAvailableBlock = await connection.getFirstAvailableBlock();
+    console.log(`First Available Block Slot: ${firstAvailableBlock}`);
+  } catch (error) {
+    console.error('Error fetching first available block:', error);
+  }
+}
+
+logFirstAvailableBlock();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Node Specific:** The first available block can vary significantly between different RPC nodes. Nodes can be configured to prune ledger data at different rates, so one node might have a much deeper history than another.
+*   **Not Fixed:** The value returned by `getFirstAvailableBlock` will increase over time as older slots are eventually purged from the ledger to save space.
+*   **Confirmed Blocks:** This method refers to confirmed blocks. Blocks that are processed but not yet confirmed or finalized are not considered.
+
+This guide explains how to use the `getFirstAvailableBlock` RPC method to identify the oldest available block slot on a Solana node. 
