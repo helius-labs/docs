@@ -1,0 +1,83 @@
+---
+title: "How to Use getBlockHeight to Find the Current Block Height"
+description: "Learn to use the Solana getBlockHeight RPC method to retrieve the current block height of the blockchain."
+---
+
+# How to Use `getBlockHeight` to Find the Current Block Height
+
+The `getBlockHeight` RPC method is a simple way to query a Solana node for its current block height. The block height represents the number of blocks that have been processed since the genesis block (slot 0).
+
+This method is useful for quickly understanding how far the chain has progressed or for referencing the latest block height at a specific commitment level.
+
+## Common Use Cases
+
+*   **Monitoring Chain Progression:** Periodically call this method to see the chain advancing.
+*   **Getting a Snapshot of Chain Length:** Determine the total number of blocks processed up to a certain point (based on commitment).
+*   **Cross-Referencing with Other Data:** Use the block height as a reference point when analyzing other on-chain data or events.
+
+## Example: Fetching the Current Block Height
+
+Let's fetch the current block height from the Helius Devnet RPC.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+curl https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBlockHeight",
+  "params": [] 
+}'
+```
+
+```javascript web3.js
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentBlockHeight() {
+  const rpcUrl = 'https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+
+  try {
+    const blockHeight = await connection.getBlockHeight();
+    console.log(`Current Block Height: ${blockHeight}`);
+
+  } catch (error) {
+    console.error('Error fetching block height:', error);
+  }
+}
+
+getCurrentBlockHeight();
+```
+</CodeGroup>
+
+## Parameters
+
+`getBlockHeight` can optionally take a configuration object as its first parameter (or be called with no parameters to use defaults):
+
+1.  `config` (object, optional): A configuration object with the following fields:
+    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use for the query. Defaults to `finalized`.
+        *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
+        *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
+        *   `processed`: The node will query its most recent block. Note that the block may not be complete.
+    *   `minContextSlot` (number, optional): The minimum slot that the request can be evaluated at. This ensures that the block height returned is from a slot equal to or greater than `minContextSlot`.
+
+If no parameters are provided, the method typically defaults to the `finalized` commitment.
+
+## Response
+
+The `result` field of the JSON-RPC response will be a single number:
+
+*   `blockHeight` (number): The current block height (u64) of the node according to the specified commitment level.
+
+**Example Response JSON:**
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 275123456, // Example block height
+  "id": 1
+}
+```
+
+This value represents the number of blocks on the longest chain from the genesis block (slot 0) to the current head of the chain, as seen by the queried node. 
