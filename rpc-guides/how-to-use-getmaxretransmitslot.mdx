@@ -1,0 +1,67 @@
+---
+title: "How to Use getMaxRetransmitSlot for Network Monitoring"
+description: "Learn to use the Solana getMaxRetransmitSlot RPC method to get the maximum slot seen by the node's retransmit stage, aiding in network health and synchronization analysis."
+---
+
+# How to Use `getMaxRetransmitSlot` for Network Monitoring
+
+The `getMaxRetransmitSlot` RPC method returns the highest slot number that the queried RPC node has processed or is aware of from its retransmit stage. The retransmit stage is a crucial part of Solana's architecture where validators request and receive missing shreds (parts of blocks) from their peers to reconstruct full blocks.
+
+This value can give an indication of how up-to-date a node is with the tip of the network from the perspective of block data propagation and repair.
+
+## Common Use Cases
+
+*   **Node Health/Synchronization Check:** Monitor this value to understand if a node is actively receiving and processing information about recent slots. A significantly lagging `maxRetransmitSlot` compared to the cluster's actual highest slot might indicate synchronization issues for that node.
+*   **Network Analysis (Advanced):** Researchers or sophisticated monitoring tools might use this metric as one of several indicators of overall network health or the speed of block propagation.
+*   **Debugging Connectivity Issues:** If a node consistently reports a low `maxRetransmitSlot`, it might point to problems with its peer connections or its ability to participate in the retransmit protocol.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be a `u64` (unsigned 64-bit integer) representing the maximum slot number seen by the node from the retransmit stage.
+
+## Examples
+
+### 1. Get the Maximum Retransmit Slot
+
+This example fetches the maximum slot seen from the retransmit stage by the connected node.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMaxRetransmitSlot"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMaxRetransmitSlot() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const maxRetransmitSlot = await connection.getMaxRetransmitSlot();
+    console.log(`Maximum Slot seen from Retransmit Stage: ${maxRetransmitSlot}`);
+  } catch (error) {
+    console.error('Error fetching maximum retransmit slot:', error);
+  }
+}
+
+fetchMaxRetransmitSlot();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Node-Specific Value:** This value is specific to the RPC node you are querying. Different nodes in the cluster might have slightly different values at any given moment due to network latency and their individual view of the retransmit process.
+*   **Not the Absolute Highest Slot:** This value represents the highest slot the node has *seen data for in retransmit*. It may not be the same as the absolute highest slot confirmed by the cluster (which can be obtained via methods like `getSlot` with `finalized` commitment or `getBlockHeight`). It is more of an indicator of the progress of data propagation to this specific node.
+*   **Dynamic Value:** This number will continuously increase as the network produces new slots and data is retransmitted.
+
+This guide provides the necessary steps to use the `getMaxRetransmitSlot` RPC method, which can be a useful tool for monitoring the synchronization status and health of a Solana node in relation to block data propagation. 
