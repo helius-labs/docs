@@ -1,0 +1,224 @@
+---
+title: "How to Fetch Program Accounts with getProgramAccounts"
+description: "Learn to use the Solana getProgramAccounts RPC method to efficiently retrieve all accounts owned by a specific program, using filters and encoding options."
+---
+
+# How to Use `getProgramAccounts`
+
+The `getProgramAccounts` RPC method is a powerful tool for querying the Solana blockchain. It allows you to retrieve all accounts that are owned by a specific on-chain program. This is essential for a wide range of applications, from finding all token accounts associated with a user for a particular token mint, to discovering all user-specific data accounts for a decentralized application.
+
+Due to the potentially large number of accounts a program might own, `getProgramAccounts` provides robust filtering capabilities to help you narrow down your search and retrieve only the data you need efficiently.
+
+## Common Use Cases
+
+*   **Finding All Token Accounts for a Mint:** Discover all holders of a specific SPL token.
+*   **Retrieving User-Specific Data:** Fetch all accounts created by a program for a particular user (e.g., a user's positions in a DeFi protocol, their game state in a Play-to-Earn game).
+*   **Listing All Instances of a Custom Account Type:** If your program defines a specific account structure, `getProgramAccounts` can find all instances of that structure.
+*   **Monitoring Program State:** Observing all accounts related to a program to track its overall state or activity.
+*   **Building Explorers and Analytics Tools:** Aggregating data about programs and their associated accounts.
+
+## Request Parameters
+
+1.  **`programId`** (`string`, required):
+    *   The base-58 encoded public key of the program whose accounts you want to fetch.
+    *   Example: `"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"` (for the SPL Token Program).
+
+2.  **`options`** (`object`, optional): A configuration object with the following fields:
+    *   **`commitment`** (`string`): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) (e.g., `"finalized"`, `"confirmed"`).
+    *   **`encoding`** (`string`): Encoding for the `data` field within each returned account. Defaults to `"base64"`.
+        *   `"base58"`: Slower alternative for binary data.
+        *   `"base64"`: Standard base64 encoding for binary data.
+        *   `"base64+zstd"`: Base64 encoded, zstd-compressed binary data.
+        *   `"jsonParsed"`: If the RPC node has a parser for the program's account type (e.g., SPL Token, Stake), the `data` field will be a structured JSON object. This is highly recommended for readability and ease of use.
+    *   **`filters`** (`array`): An array of filter objects to apply to the accounts. This is crucial for performance and relevance. You can use up to 4 filters. Common filters include:
+        *   **`dataSize`** (`object`):
+            *   `dataSize` (`u64`): Filters accounts by their data length in bytes. Example: `{ "dataSize": 165 }` (for SPL Token accounts).
+        *   **`memcmp`** (`object`): Memory comparison. Compares a slice of the account's data with the provided bytes.
+            *   `offset` (`usize`): The byte offset into the account data at which to start the comparison.
+            *   `bytes` (`string`): A base-58 encoded string of the bytes to match. The byte string must be less than 129 bytes.
+            *   Example: To find token accounts for a specific mint, you'd use `memcmp` with `offset: 0` (where the mint address is stored in a token account) and `bytes` set to the mint's public key.
+    *   **`dataSlice`** (`object`): Returns only a specific slice of each account's data. Useful for large accounts when you only need partial data.
+        *   `offset` (`usize`): The byte offset from which to start slicing.
+        *   `length` (`usize`): The number of bytes to return.
+        *   *Note: `dataSlice` is primarily for binary encodings, not `jsonParsed`.*
+    *   **`withContext`** (`boolean`): If `true`, the response will be an `RpcResponse` object containing a `context` (with `slot`) and the `value` (the array of accounts). If `false` or omitted, it typically returns just the array of accounts. Behavior can vary slightly by RPC provider.
+    *   **`minContextSlot`** (`u64`): The minimum slot that the request can be evaluated at.
+
+## Response Structure
+
+The response is an array of objects, where each object represents an account found and includes:
+
+*   **`pubkey`** (`string`): The base-58 encoded public key of the account.
+*   **`account`** (`object`):
+    *   `lamports` (`u64`): Balance of the account in lamports.
+    *   `owner` (`string`): Base-58 encoded public key of the program that owns this account (this will be the `programId` you queried by).
+    *   `data` (`string`, `array`, or `object`): The account's data, formatted according to the `encoding` parameter.
+        *   For `jsonParsed`: A JSON object representing the deserialized account state.
+        *   For `base64`: An array `["encoded_string", "base64"]`.
+    *   `executable` (`boolean`): Whether the account is executable (i.e., a program itself).
+    *   `rentEpoch` (`u64`): The epoch at which this account will next owe rent.
+    *   `space` (`u64`, optional): The data length of the account in bytes. Sometimes referred to as `data.length` if data is a buffer, or part of the parsed structure.
+
+If `withContext: true` is used, this array will be nested under the `value` field of an `RpcResponse` object.
+
+## Examples
+
+### 1. Find All Token Accounts for a Specific Mint (USDC)
+
+This example finds all SPL Token accounts that hold USDC. It uses `dataSize` to filter for token accounts (165 bytes) and `memcmp` to match the USDC mint address at offset 0.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# USDC Mint: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+# Token Program ID: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      {
+        "encoding": "jsonParsed",
+        "filters": [
+          { "dataSize": 165 },
+          {
+            "memcmp": {
+              "offset": 0, 
+              "bytes": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            }
+          }
+        ]
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+const { TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+
+const USDC_MINT_ADDRESS = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+
+async function findUsdcTokenAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const accounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+      encoding: 'jsonParsed',
+      filters: [
+        {
+          dataSize: 165, // Standard token account size
+        },
+        {
+          memcmp: {
+            offset: 0, // Offset for the mint address in a token account
+            bytes: USDC_MINT_ADDRESS, // Base-58 encoded mint address
+          },
+        },
+      ],
+    });
+
+    console.log(`Found ${accounts.length} USDC token accounts.`);
+    accounts.forEach((accountInfo, index) => {
+      console.log(`--- Account ${index + 1} ---`);
+      console.log(`  Pubkey: ${accountInfo.pubkey.toBase58()}`);
+      // Accessing parsed data
+      const parsedData = accountInfo.account.data.parsed.info;
+      console.log(`  Owner: ${parsedData.owner}`);
+      console.log(`  Amount: ${parsedData.tokenAmount.uiAmountString}`);
+    });
+  } catch (error) {
+    console.error('Error fetching USDC token accounts:', error);
+  }
+}
+
+findUsdcTokenAccounts();
+```
+</CodeGroup>
+
+### 2. Find All Token Accounts Owned by a Specific Wallet
+
+This example finds all SPL Token accounts owned by a specific wallet address. It uses `dataSize` (165 bytes) and `memcmp` at offset 32 (where the owner pubkey is stored in a token account).
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Example Wallet Address: Helioo21241PANoNdeG55722hgUnp2VawDgsz2g
+# Token Program ID: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getProgramAccounts",
+    "params": [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      {
+        "encoding": "jsonParsed",
+        "filters": [
+          { "dataSize": 165 },
+          {
+            "memcmp": {
+              "offset": 32, 
+              "bytes": "Helioo21241PANoNdeG55722hgUnp2VawDgsz2g"
+            }
+          }
+        ]
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+const { TOKEN_PROGRAM_ID } = require('@solana/spl-token');
+
+const TARGET_WALLET_ADDRESS = 'Helioo21241PANoNdeG55722hgUnp2VawDgsz2g';
+
+async function findWalletTokenAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const accounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+      encoding: 'jsonParsed',
+      filters: [
+        {
+          dataSize: 165, // Standard token account size
+        },
+        {
+          memcmp: {
+            offset: 32, // Offset for the owner address in a token account
+            bytes: TARGET_WALLET_ADDRESS, // Base-58 encoded wallet address
+          },
+        },
+      ],
+    });
+
+    console.log(`Found ${accounts.length} token accounts for wallet ${TARGET_WALLET_ADDRESS}.`);
+    accounts.forEach((accountInfo, index) => {
+      console.log(`--- Account ${index + 1} (${accountInfo.pubkey.toBase58()}) ---`);
+      const parsedData = accountInfo.account.data.parsed.info;
+      console.log(`  Mint: ${parsedData.mint}`);
+      console.log(`  Amount: ${parsedData.tokenAmount.uiAmountString}`);
+    });
+  } catch (error) {
+    console.error('Error fetching token accounts for wallet:', error);
+  }
+}
+
+findWalletTokenAccounts();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Performance:** `getProgramAccounts` can be resource-intensive on RPC nodes, especially without filters or for programs with many accounts. Always use filters (`dataSize`, `memcmp`) and `dataSlice` where possible to reduce the query scope and response size.
+*   **No Pagination:** This method does not currently support pagination. If a query returns too many results, the response might be truncated or the request might time out. Design your queries carefully.
+*   **Rate Limits:** Be mindful of RPC provider rate limits, as frequent or heavy `getProgramAccounts` calls can hit these limits.
+*   **Data Layout Knowledge:** Effective use of `memcmp` requires understanding the byte layout of the account data you are querying.
+*   **`jsonParsed` Availability:** The `jsonParsed` encoding depends on the RPC node having a parser for the specific program's account types. It's widely supported for common programs like SPL Token.
+
+`getProgramAccounts` is an indispensable method for developers needing to query and interact with sets of accounts owned by a program. Mastering its filtering options is key to building efficient and robust Solana applications. 
