@@ -1,0 +1,75 @@
+---
+title: "How to Use getInflationRate for Current Epoch Inflation"
+description: "Learn to use the Solana getInflationRate RPC method to retrieve the specific inflation breakdown (total, validator, foundation) for the current epoch."
+---
+
+# How to Use `getInflationRate` for Current Epoch Inflation
+
+The `getInflationRate` RPC method returns a breakdown of the inflation rates for the current epoch. This includes the total inflation rate, the portion allocated to validators, the portion allocated to the foundation, and the epoch number these rates apply to.
+
+This method provides a snapshot of the current rewards distribution from new token issuance (inflation).
+
+## Common Use Cases
+
+*   **Staking Reward Estimation:** Understand the current annualized inflation rate being distributed to validators, which is a key component in calculating staking APR.
+*   **Monitoring Foundation Allocation:** Observe the portion of current inflation directed towards the Solana Foundation.
+*   **Current Epoch Analysis:** Get a quick overview of the inflation metrics for the active epoch.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   **`total`** (f64): The total inflation rate for the current epoch (e.g., 0.065 for 6.5%).
+*   **`validator`** (f64): The portion of the total inflation rate allocated to validators for the current epoch (e.g., 0.06 for 6%).
+*   **`foundation`** (f64): The portion of the total inflation rate allocated to the foundation for the current epoch (e.g., 0.005 for 0.5%).
+*   **`epoch`** (u64): The epoch number for which these inflation rates are valid.
+
+## Examples
+
+### 1. Get Current Epoch Inflation Rates
+
+This example fetches the inflation rate details for the current epoch.
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationRate"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logCurrentInflationRate() {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    const inflationRate = await connection.getInflationRate();
+    console.log(`Inflation Rate for Epoch ${inflationRate.epoch}:`);
+    console.log(`  Total: ${(inflationRate.total * 100).toFixed(4)}%`);
+    console.log(`  Validator: ${(inflationRate.validator * 100).toFixed(4)}%`);
+    console.log(`  Foundation: ${(inflationRate.foundation * 100).toFixed(4)}%`);
+    // For full raw details:
+    // console.log(JSON.stringify(inflationRate, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation rate:', error);
+  }
+}
+
+logCurrentInflationRate();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Epoch Specific:** The returned values are specific to the current epoch at the time of the query. These rates are derived from the overall inflation schedule defined by `getInflationGovernor` but represent the annualized rate for this specific epoch.
+*   **Annualized Rates:** The rates are typically expressed as annualized percentages, even though they apply to the current epoch.
+*   **Dynamic Values:** While the underlying inflation schedule (`getInflationGovernor`) changes infrequently, the calculated `getInflationRate` will vary epoch by epoch as the overall inflation tapers.
+
+This guide explains how to use the `getInflationRate` RPC method to get a snapshot of the current epoch's inflation distribution. 

@@ -1,0 +1,158 @@
+---
+title: "How to Use getInflationReward to Check Staking Rewards"
+description: "Learn to use the Solana getInflationReward RPC method to retrieve the inflation rewards credited to specific addresses for a given epoch."
+---
+
+# How to Use `getInflationReward` to Check Staking Rewards
+
+The `getInflationReward` RPC method allows you to query the inflation rewards (commonly known as staking rewards) that were credited to one or more addresses for a specific epoch.
+
+This is useful for verifying rewards received by stake accounts or any account that might have received inflation rewards.
+
+## Common Use Cases
+
+*   **Verify Staking Rewards:** Check if a stake account received the expected rewards for a past epoch.
+*   **Track Reward History:** Query rewards for multiple epochs to build a history for an address.
+*   **Audit Validator Payouts:** Validators can use this to verify reward distribution (though rewards are paid to stake accounts, not directly to validator identities).
+
+## Request Parameters
+
+The method takes two main parameters:
+
+1.  **`addresses`** (array of strings): A list of base-58 encoded public keys for the accounts you want to query. The maximum number of addresses allowed may vary depending on the RPC provider (e.g., Helius allows up to 1005 for paid plans).
+2.  **`config`** (object, optional): A configuration object with the following optional fields:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment). Defaults to `finalized` if not provided.
+    *   **`epoch`** (integer, optional): The epoch number for which to fetch the rewards. If omitted, the RPC node will typically use the most recently completed epoch for which rewards have been distributed.
+    *   **`minContextSlot`** (integer, optional): The minimum [slot](https://solana.com/docs/terminology#slot) that the request can be evaluated at. This ensures the query is made against a ledger state that has processed up to at least this slot.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an array corresponding to the input `addresses` array. Each element in the result array will either be:
+
+*   An **object** containing the inflation reward details if the address received a reward for the specified epoch.
+*   **`null`** if the address did not receive an inflation reward for that epoch or if the account did not exist.
+
+The reward object has the following fields:
+
+*   **`epoch`** (u64): The epoch for which this reward was credited.
+*   **`effectiveSlot`** (u64): The slot in which the reward was applied and became effective.
+*   **`amount`** (u64): The amount of the reward, in lamports.
+*   **`postBalance`** (u64): The balance of the account, in lamports, after the reward was credited.
+*   **`commission`** (u8 | undefined): For vote accounts, this is the commission percentage (0-100) taken by the validator at the time the reward was credited. It will be `undefined` for non-vote accounts.
+
+## Examples
+
+### 1. Get Inflation Reward for a Single Address (Previous Epoch)
+
+This example fetches the inflation reward for a specific address for the most recently completed epoch.
+
+<CodeGroup>
+```bash cURL
+# Replace YOUR_VOTE_ACCOUNT_PUBKEY with an actual vote account public key
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationReward",
+    "params": [
+      ["YOUR_VOTE_ACCOUNT_PUBKEY"]
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace YOUR_VOTE_ACCOUNT_PUBKEY with an actual vote account public key
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkInflationReward() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const voteAccountPubkey = new PublicKey('YOUR_VOTE_ACCOUNT_PUBKEY'); // Example: 'Vote111111111111111111111111111111111111111'
+
+  try {
+    const rewards = await connection.getInflationReward([voteAccountPubkey]);
+    if (rewards && rewards[0]) {
+      const rewardInfo = rewards[0];
+      console.log(`Reward for Epoch ${rewardInfo.epoch}:`);
+      console.log(`  Amount: ${rewardInfo.amount} lamports`);
+      console.log(`  Effective Slot: ${rewardInfo.effectiveSlot}`);
+      console.log(`  Post Balance: ${rewardInfo.postBalance} lamports`);
+      if (rewardInfo.commission !== undefined) {
+        console.log(`  Commission: ${rewardInfo.commission}%`);
+      }
+    } else {
+      console.log('No inflation reward found for the address in the previous epoch.');
+    }
+    // console.log(JSON.stringify(rewards, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation reward:', error);
+  }
+}
+
+checkInflationReward();
+```
+</CodeGroup>
+
+### 2. Get Inflation Rewards for Multiple Addresses for a Specific Epoch
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace PUBKEY_1 and PUBKEY_2 with actual public keys
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationReward",
+    "params": [
+      ["PUBKEY_1", "PUBKEY_2"],
+      { "epoch": 450, "commitment": "confirmed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+// Replace PUBKEY_1 and PUBKEY_2 with actual public keys
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkMultipleRewards() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address1 = new PublicKey('PUBKEY_1'); 
+  const address2 = new PublicKey('PUBKEY_2');
+  const specificEpoch = 450;
+
+  try {
+    const rewards = await connection.getInflationReward(
+      [address1, address2],
+      specificEpoch,
+      { commitment: 'confirmed' }
+    );
+    rewards.forEach((rewardInfo, index) => {
+      const address = index === 0 ? 'PUBKEY_1' : 'PUBKEY_2';
+      if (rewardInfo) {
+        console.log(`Reward for ${address} in Epoch ${rewardInfo.epoch}:`);
+        console.log(`  Amount: ${rewardInfo.amount} lamports`);
+      } else {
+        console.log(`No inflation reward found for ${address} in Epoch ${specificEpoch}.`);
+      }
+    });
+    // console.log(JSON.stringify(rewards, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation rewards for epoch ', specificEpoch, error);
+  }
+}
+
+checkMultipleRewards();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Epoch Specificity:** Rewards are credited once per epoch. Ensure you are querying for the correct epoch number.
+*   **Timing of Rewards:** Inflation rewards are calculated at the end of an epoch and applied at the beginning of the next. The `effectiveSlot` indicates when this happens.
+*   **Null Results:** A `null` result for an address means no reward was found for that address in the specified epoch. This could be because the account wasn't eligible (e.g., not a sufficiently staked stake account), the reward was zero, or the account didn't exist at that time.
+*   **Rate Limits:** Be mindful of RPC provider rate limits, especially when querying for a large number of addresses.
+
+This guide helps you use the `getInflationReward` method to accurately retrieve and verify staking rewards on the Solana network. 
