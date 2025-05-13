@@ -1,0 +1,80 @@
+---
+title: "How to Use getBalance to Check SOL Balance"
+description: "Learn to use the Solana getBalance RPC method to quickly retrieve the SOL (lamport) balance of any account."
+---
+
+# How to Use `getBalance` to Check SOL Balance
+
+The `getBalance` RPC method is a straightforward way to find out the native SOL balance of any account on the Solana blockchain. It returns the balance in lamports (1 SOL = 1,000,000,000 lamports).
+
+This method is more lightweight than `getAccountInfo` if you *only* need the SOL balance and no other account details.
+
+## Main Use Case
+
+*   **Quickly Checking an Account's SOL Holdings:** The primary use is to determine how much SOL an account (wallet, program, etc.) holds.
+
+## Example: Fetching an Account's Balance
+
+Let's check the SOL balance of the Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) on mainnet. This program account itself holds SOL for rent exemption.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBalance",
+  "params": [
+    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
+  ]
+}'
+```
+
+```javascript web3.js
+const { Connection, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+
+async function checkBalance() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  const accountPubKey = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin');
+
+  try {
+    const lamports = await connection.getBalance(accountPubKey);
+    const sol = lamports / LAMPORTS_PER_SOL;
+
+    console.log(`Account PubKey: ${accountPubKey.toBase58()}`);
+    console.log(`Balance (Lamports): ${lamports}`);
+    console.log(`Balance (SOL): ${sol}`);
+
+  } catch (error) {
+    console.error('Error fetching balance:', error);
+  }
+}
+
+checkBalance();
+```
+</CodeGroup>
+
+## Parameters
+
+1.  `publicKey` (string, required): The base-58 encoded public key of the account to query.
+
+2.  `config` (object, optional): A configuration object with the following fields:
+    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use for the query. Defaults to `finalized`.
+        *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
+        *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
+        *   `processed`: The node will query its most recent block. Note that the block may not be complete.
+    *   `minContextSlot` (number, optional): The minimum slot that the request can be evaluated at.
+
+## Response
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   `context` (object):
+    *   `slot` (number): The slot at which the balance was retrieved.
+    *   `apiVersion` (string, optional): The RPC API version (may not be present from all nodes).
+*   `value` (number): The balance of the account in lamports (unsigned 64-bit integer).
+
+If the account does not exist on-chain, `getBalance` will typically return a value of `0` lamports. 

@@ -1,27 +1,109 @@
 ---
-title: "How to Use getAccountInfo"
-description: "A practical guide to using the getAccountInfo RPC method."
+title: "How to Use getAccountInfo to Fetch Account Details"
+description: "Learn to use the Solana getAccountInfo RPC method to retrieve detailed information about an account, including its balance, owner, and data."
 ---
 
-# How to Use `getAccountInfo`
+# How to Use `getAccountInfo` to Fetch Account Details
 
-This guide explains how to use the `getAccountInfo` Solana RPC method to retrieve information about an account on the blockchain.
+The `getAccountInfo` RPC method is a fundamental tool for querying the Solana blockchain. It allows you to retrieve all stored information associated with a specific account public key. This includes the account's lamport balance, the program that owns it, whether it's executable, and its stored data.
 
 ## Common Use Cases
 
-*   Checking an account's SOL balance.
-*   Verifying if an account exists.
-*   Retrieving an account's data, such as for a program account.
-*   Getting the owner program of an account.
+*   **Checking SOL Balance:** Determine the native SOL balance of any account.
+*   **Verifying Account Existence:** Check if an account with a given public key has been initialized (i.e., has lamports or data).
+*   **Inspecting Program Accounts:** Retrieve the data stored within an account owned by a program, which is crucial for understanding a program's state.
+*   **Identifying Account Owner:** Find out which program is the owner of an account. This helps determine how the account's data should be interpreted or if it's a system-owned account.
+*   **Checking if an Account is Executable:** Identify if an account contains a deployed program.
 
-## Example
+## Example: Fetching Account Information
 
-(Example code using curl or a library will go here)
+Let's fetch information for the Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) on mainnet.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getAccountInfo",
+  "params": [
+    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+    {
+      "encoding": "jsonParsed"
+    }
+  ]
+}'
+```
+
+```javascript web3.js
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getAccountDetails() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  const accountPubKey = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin');
+
+  try {
+    const accountInfo = await connection.getAccountInfo(accountPubKey);
+
+    if (accountInfo === null) {
+      console.log('Account not found.');
+      return;
+    }
+
+    console.log('Account Info:');
+    console.log(`   Lamports: ${accountInfo.lamports}`);
+    console.log(`   Owner: ${accountInfo.owner.toBase58()}`);
+    console.log(`   Executable: ${accountInfo.executable}`);
+    console.log(`   Rent Epoch: ${accountInfo.rentEpoch}`);
+    // Data is a Buffer, you might need to deserialize it based on the account type
+    // console.log(`   Data: ${accountInfo.data.toString()}`); 
+  } catch (error) {
+    console.error('Error fetching account info:', error);
+  }
+}
+
+getAccountDetails();
+```
+</CodeGroup>
 
 ## Parameters
 
-(Details about parameters like the account public key and commitment)
+1.  `publicKey` (string, required): The base-58 encoded public key of the account to query.
+
+2.  `config` (object, optional): A configuration object with the following fields:
+    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use for the query. Defaults to `finalized`.
+        *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
+        *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
+        *   `processed`: The node will query its most recent block. Note that the block may not be complete.
+    *   `encoding` (string, optional): The encoding for account data. Defaults to `base64`.
+        *   `base58` (slow)
+        *   `base64`
+        *   `base64+zstd` (if data is compressed)
+        *   `jsonParsed`: If the account data is a known program state (e.g., token accounts, stake accounts), the node will attempt to parse it into a JSON structure. For generic program accounts, this usually falls back to binary (base64).
+    *   `dataSlice` (object, optional): Limits the returned account data to a specific slice. Only available for `base58`, `base64`, or `base64+zstd` encodings.
+        *   `offset` (number): The number of bytes from the start of the account data to begin the slice.
+        *   `length` (number): The number of bytes to return.
+    *   `minContextSlot` (number, optional): The minimum slot that the request can be evaluated at.
 
 ## Response
 
-(Details about the structure of the response object) 
+If the account is found, the `result` field will contain an object with two main properties:
+
+*   `context` (object): Contains metadata about the request.
+    *   `slot` (number): The slot at which the information was retrieved.
+    *   `apiVersion` (string, optional): The RPC API version.
+
+*   `value` (object | null): If the account does not exist, this will be `null`. Otherwise, it's an object containing:
+    *   `lamports` (number): The number of lamports (1 SOL = 1,000,000,000 lamports) owned by the account.
+    *   `owner` (string): The base-58 encoded public key of the program that owns this account.
+    *   `data` (array | object | string): The data stored in the account. The format depends on the `encoding` parameter used in the request.
+        *   For `base64` (default), `base58`, `base64+zstd`: This is typically an array `[encoded_string, encoding_format]`, e.g., `["string_data", "base64"]`.
+        *   For `jsonParsed`: This can be a JSON object if the data is parsable by the RPC node (e.g., for SPL Token accounts). Otherwise, it may default to `["", "base64"]` or similar if the data isn't recognized as a standard layout.
+    *   `executable` (boolean): `true` if the account contains a program, `false` otherwise.
+    *   `rentEpoch` (number): The next epoch at which this account will owe rent.
+    *   `space` (number, optional): The length of the data in bytes. (Note: The official Solana docs list `space`, while some RPC providers might include it. It represents the total space allocated for the account's data).
+
+If the account is not found, the `value` field in the result will be `null`. 
