@@ -1,0 +1,41 @@
+---
+title: "MEV Protection"
+sidebarTitle: "MEV Protection"
+description: "Learn how to prevent front-running and other forms of MEV on Solana by using validator acl when broadcasting transactions with Helius."
+---
+
+## Why MEV Protection Matters
+
+Maximal Extractable Value (MEV) refers to the additional profit a validator (or a block builder) can earn by re-ordering, inserting, or censoring transactions in a block.  
+For end-users this often shows up as:
+
+- **Front-running** – a validator sees your pending transaction and inserts its own before yours to capture price movement.
+- **Back-running / Sandwiching** – your trade is wrapped by two adversarial trades causing you to receive a worse execution price.
+
+By default, a Solana transaction is gossiped to _all_ validators. While this increases liveness, it also exposes your intent to potentially malicious actors. **Helius allows you to explicitly control which validators receive your transaction** via the `validatorAcls` parameter.
+
+## Code Example
+
+```ts
+import { Helius, SFDP_REJECTS_URL } from "helius-sdk";
+import bs58 from "bs58";
+
+const helius = new Helius("YOUR_API_KEY");
+
+try {
+  const response = await helius.rpc.sendTransaction(transaction, {
+    validatorAcls: [SFDP_REJECTS_URL],
+    skipPreflight: true,
+  });
+} catch (error) {
+  console.error(error);
+}
+```
+
+<Card
+  title="Node.js SDK"
+  icon="js"
+  href="https://github.com/helius-labs/helius-sdk"
+>
+  Official Helius Node.js SDK for Solana development
+</Card>
