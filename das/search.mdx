@@ -1,0 +1,268 @@
+---
+title: "Search Assets"
+description: "Master the searchAssets endpoint to discover NFTs, compressed assets, and fungible tokens on Solana."
+---
+
+The **Digital Asset Standard (DAS) API** lets you query any on-chain asset—regular NFTs, compressed NFTs (cNFTs), programmable NFTs (pNFTs), Token-22s, and classic SPL tokens—with a single, flexible endpoint: **`searchAssets`**.
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/das/searchassets">
+  View detailed documentation for searchAssets
+</Card>
+
+Whether you're building a marketplace, portfolio tracker, token-gated experience, or simply need a *Swiss-army knife* for on-chain discovery, this guide will walk you from "hello world" to advanced, production-ready queries.
+
+---
+
+## Quick Start
+
+<Callout type="warning">
+<strong>Required parameter:</strong> Every <code>searchAssets</code> request must include a <code>tokenType</code>. Pick one of:
+<code>fungible</code>, <code>nonFungible</code>, <code>regularNft</code>, <code>compressedNft</code>, or <code>all</code>.
+</Callout>
+
+```ts TypeScript
+// Replace YOUR_API_KEY with your Helius API key
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+async function searchAssets(params) {
+  const body = {
+    jsonrpc: "2.0",
+    id: "search-assets-example",
+    method: "searchAssets",
+    params,
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+  const { result } = await res.json();
+  return result;
+}
+
+// Example: fetch first 50 compressed NFTs in a wallet
+searchAssets({
+  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+  tokenType: "compressedNft",
+  limit: 50,
+}).then(console.log);
+```
+
+<Tip>
+The <code>page</code> parameter starts at <strong>1</strong>. For blazing-fast infinite scrolling, use cursor pagination (<code>before</code>/<code>after</code>).
+</Tip>
+
+---
+
+## Core Concepts
+
+### 1. Choosing a <code>tokenType</code>
+
+<ParamField body="tokenType" type="string" required>
+A required string that specifies **what kind of assets** you want in the response.  
+Accepted values: <code>fungible</code>, <code>nonFungible</code>, <code>regularNft</code>, <code>compressedNft</code>, <code>all</code>.
+</ParamField>
+
+| tokenType | What you get | Typical use-case |
+|-----------|--------------|------------------|
+| `fungible` | SPL & Token-22 tokens only | Wallet balances, token-gating |
+| `nonFungible` | All NFTs (compressed **and** regular) | Portfolio overview |
+| `regularNft` | Legacy & pNFTs (uncompressed) | Marketplace listings |
+| `compressedNft` | cNFTs only | Ultra-cheap mass mints |
+| `all` | Everything (tokens **and** NFTs) | Catch-all discovery |
+
+---
+
+### 2. Pagination & Sorting
+
+Solana wallets can own thousands of assets—efficient paging matters.
+
+* **Page / Limit** – classic pagination (`page` starts at **1**). Good for static views.
+* **Cursor** – pass `before` or `after` values from the previous response for fast, infinite scrolling.
+
+<CodeGroup>
+```json5 sortBy
+"sortBy": {
+  "sortBy": "created",      // created | recent_action | updated | none
+  "sortDirection": "desc"   // asc | desc
+}
+```
+</CodeGroup>
+
+<Tip>
+For full code samples on page/limit and cursor-based strategies, visit the dedicated <a href="/das/pagination">Pagination guide</a>.
+</Tip>
+
+
+### 3. Display Options (<code>options</code>)
+
+These flags **add metadata**; they never change which assets are returned.
+
+| Flag | Effect |
+|------|--------|
+| `showNativeBalance` | Includes SOL balance of the wallet |
+| `showCollectionMetadata` | Adds collection-level JSON data |
+| `showGrandTotal` | Returns the total match count (slower) |
+| `showInscription` | Appends inscription & SPL-20 info (experimental) |
+
+<CodeGroup>
+```json5 options
+"options": {
+  "showNativeBalance": true,
+  "showCollectionMetadata": true,
+  "showGrandTotal": true,
+  "showInscription": true
+}
+```
+</CodeGroup>
+
+## Code Examples
+
+### Searching for all Fungible Tokens in a wallet
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssets = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+        tokenType: 'fungible',
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssets();
+```
+
+### Searching for all Fungible Tokens (showing native balance and token info)
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsTokenInfo = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+                tokenType: 'fungible',
+                displayOptions: {
+                    showNativeBalance: true,
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+
+    result.items.forEach(item => {
+      console.log(item.token_info);
+    });
+
+    console.log("Native Balance: ", result.nativeBalance);
+};
+
+searchAssetsTokenInfo();
+```
+
+### Searching for Drip NFTs owned by vibhu.sol
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsDrip = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: 'BAVjpySHMMGDpq3whU7qaqCCRE8ksCeGwxa53Qv2i8jS',
+        grouping: ["collection", "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"],
+        page: 1,
+        limit: 1000
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Drip Haus Assets: ", result);
+};
+searchAssetsDrip();
+```
+
+### Searching for Compressed Assets in a wallet
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsCompressed = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha',
+        compressed: true,
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssetsCompressed();
+```
+
+### Searching for Inscriptions & SPL-20 data
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsInscriptions = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '6GmTFg5SCs4zGfDEidUAJjS5pSrXEPwW8Rpfs3RHrbc5',
+                tokenType: 'regularNft',
+                displayOptions: {
+                    showInscription: true,
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+    console.log(result.items.map((i) => [i.id, i.inscription, i.spl20]));
+};
+searchAssetsInscriptions();
+```
