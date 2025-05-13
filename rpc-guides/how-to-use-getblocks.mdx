@@ -1,0 +1,157 @@
+---
+title: "How to Use getBlocks to Retrieve a List of Blocks"
+description: "Learn to use the Solana getBlocks RPC method to fetch a list of confirmed block slot numbers within a specified range."
+---
+
+# How to Use `getBlocks` to Retrieve a List of Blocks
+
+The `getBlocks` RPC method allows you to retrieve a list of confirmed block slot numbers between a specified start slot and an optional end slot. This is useful when you need to know which blocks have been confirmed in a particular range without fetching the full content of each block.
+
+## Common Use Cases
+
+*   **Identifying Confirmed Blocks in a Range:** Quickly get a list of all block slots that were successfully confirmed between two points in the ledger.
+*   **Iterating Through Blocks:** Use the returned list of slots to subsequently fetch detailed information for each block using `getBlock` if needed.
+*   **Basic Block Auditing:** Verify block presence within a certain range.
+
+## Request Parameters
+
+The `getBlocks` method takes the following parameters:
+
+1.  **`start_slot`** (u64, required): The first slot to consider for the range (inclusive).
+2.  **`end_slot`** (u64, optional): The last slot to consider for the range (inclusive). 
+    *   If not provided, the query will return blocks up to the latest confirmed slot from `start_slot`.
+    *   The range between `start_slot` and `end_slot` (or latest slot if `end_slot` is omitted) **must not exceed 500,000 slots**.
+3.  **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query. If omitted, the default commitment of the node is used. This is passed as the sole field in a configuration object as the last parameter.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an array of u64 integers. Each integer in the array represents a confirmed block slot number within the specified range.
+
+*   Example: `[5, 6, 7, 8, 9, 10]`
+
+## Examples
+
+### 1. Get Blocks within a Specific Slot Range
+
+This example fetches the list of confirmed block slots between slot `250000000` and `250000010`.
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      250000000,
+      250000010
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksInRange(startSlot, endSlot) {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    const blocks = await connection.getBlocks(startSlot, endSlot);
+    console.log(`Confirmed blocks between slot ${startSlot} and ${endSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks:', error);
+  }
+}
+
+// Example usage:
+const startSlot = 250000000;
+const endSlot = 250000010;
+getBlocksInRange(startSlot, endSlot);
+```
+</CodeGroup>
+
+### 2. Get Blocks from a Start Slot to the Latest Confirmed Slot
+
+This example fetches confirmed block slots starting from `260000000` up to the latest block confirmed by the node (respecting the 500,000 slot range limit from the start slot).
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      260000000 
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksFromStart(startSlot) {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    // The endSlot parameter is omitted to fetch up to the latest confirmed block
+    const blocks = await connection.getBlocks(startSlot);
+    console.log(`Confirmed blocks from slot ${startSlot} to latest:`, blocks);
+    if (blocks.length > 0) {
+      console.log(`Latest block in range: ${blocks[blocks.length - 1]}`);
+    }
+  } catch (error) {
+    console.error('Error fetching blocks:', error);
+  }
+}
+
+// Example usage (ensure this doesn't exceed the 500,000 slot limit from latest block):
+const recentStartSlot = 260000000; 
+getBlocksFromStart(recentStartSlot);
+```
+</CodeGroup>
+
+### 3. Get Blocks with a Specific Commitment Level
+
+This example fetches blocks using the `confirmed` commitment level.
+
+<CodeGroup>
+```bash cURL
+curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      270000000,
+      270000005,
+      { "commitment": "confirmed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js'); 
+
+async function getBlocksWithCommitment(startSlot, endSlot) {
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  try {
+    const blocks = await connection.getBlocks(startSlot, endSlot, { commitment: 'confirmed' });
+    console.log(`Confirmed blocks (with 'confirmed' commitment) between slot ${startSlot} and ${endSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks with commitment:', error);
+  }
+}
+
+// Example usage:
+const commitStartSlot = 270000000;
+const commitEndSlot = 270000005;
+getBlocksWithCommitment(commitStartSlot, commitEndSlot);
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Range Limit:** Remember the 500,000 slot range limit. Requesting a larger range will result in an error.
+*   **Node Data Availability:** Nodes may not retain information for all historical slots. Very old `start_slot` values might return empty arrays or errors depending on the node's configuration and ledger retention.
+*   **Block Confirmation:** This method returns *confirmed* blocks. The exact set of blocks can vary slightly depending on the chosen `commitment` level and which node you query, especially for very recent slots.
+
+This guide provides a clear overview of how to use the `getBlocks` RPC method to list confirmed block slots on the Solana network. 
