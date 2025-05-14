@@ -1,0 +1,138 @@
+---
+title: "How to Use getRecentPerformanceSamples for Network Monitoring"
+description: "Learn to use the Solana getRecentPerformanceSamples RPC method to retrieve recent network performance data, including transaction counts and slot production over time."
+---
+
+# How to Use `getRecentPerformanceSamples`
+
+The `getRecentPerformanceSamples` RPC method provides a snapshot of the Solana network's recent performance. It returns a list of samples, taken approximately every 60 seconds, detailing the number of transactions and slots processed within those periods. This data is invaluable for monitoring network throughput and health.
+
+## Common Use Cases
+
+*   **Network Health Monitoring:** Track transaction processing rates and slot production to assess overall network health and identify potential congestion or slowdowns.
+*   **Performance Analysis:** Analyze historical performance data to understand network behavior under different conditions.
+*   **Dashboarding:** Display key performance indicators (KPIs) like transactions per second (TPS) and slots per minute on monitoring dashboards.
+*   **Capacity Planning:** Observe trends in network load to inform scaling decisions for applications or infrastructure.
+
+## Request Parameters
+
+1.  **`limit`** (`usize`, optional):
+    *   The number of most recent performance samples to return.
+    *   Maximum value: `720` (representing approximately 12 hours of data, as samples are taken every 60 seconds).
+    *   If omitted, the RPC node will return a default number of samples (the exact default can vary by RPC provider).
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an array of performance sample objects, returned in reverse chronological order (most recent sample first). Each object has the following structure:
+
+*   **`slot`** (`u64`): The slot number in which this performance sample was recorded.
+*   **`numTransactions`** (`u64`): The total number of transactions (including vote and non-vote transactions) processed during the `samplePeriodSecs` leading up to this `slot`.
+*   **`numSlots`** (`u64`): The number of slots that were processed during the `samplePeriodSecs` leading up to this `slot`.
+*   **`samplePeriodSecs`** (`u16`): The duration, in seconds, over which this sample was taken (typically `60`).
+*   **`numNonVoteTransactions`** (`u64`): The number of transactions that were not consensus vote transactions, processed during the `samplePeriodSecs`.
+
+## Examples
+
+### 1. Get the Last 5 Performance Samples
+
+This example requests the five most recent performance samples from the network.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPerformanceSamples",
+    "params": [5]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchRecentPerformance() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const samples = await connection.getRecentPerformanceSamples(5);
+    if (samples && samples.length > 0) {
+      console.log(`Fetched ${samples.length} performance samples:`);
+      samples.forEach((sample, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${sample.slot}`);
+        console.log(`  Number of Slots in Period: ${sample.numSlots}`);
+        console.log(`  Total Transactions: ${sample.numTransactions}`);
+        console.log(`  Non-Vote Transactions: ${sample.numNonVoteTransactions}`);
+        console.log(`  Sample Period (seconds): ${sample.samplePeriodSecs}`);
+        const tps = sample.numTransactions / sample.samplePeriodSecs;
+        const nonVoteTps = sample.numNonVoteTransactions / sample.samplePeriodSecs;
+        console.log(`  Average TPS (Total): ${tps.toFixed(2)}`);
+        console.log(`  Average TPS (Non-Vote): ${nonVoteTps.toFixed(2)}`);
+      });
+    } else {
+      console.log('No performance samples returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching recent performance samples:', error);
+  }
+}
+
+fetchRecentPerformance();
+```
+</CodeGroup>
+
+### 2. Get Default Number of Performance Samples
+
+This example omits the `limit` parameter, requesting the RPC node's default number of samples.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPerformanceSamples"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchDefaultPerformanceSamples() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const samples = await connection.getRecentPerformanceSamples(); // No limit parameter
+    if (samples && samples.length > 0) {
+      console.log(`Fetched ${samples.length} (default) performance samples:`);
+      // Process or log samples as needed - e.g., the first one
+      const sample = samples[0];
+      console.log(`--- Most Recent Sample ---`);
+      console.log(`  Slot: ${sample.slot}`);
+      console.log(`  Total Transactions: ${sample.numTransactions}`);
+      console.log(`  Non-Vote Transactions: ${sample.numNonVoteTransactions}`);
+      console.log(`  Slots in Period: ${sample.numSlots}`);
+      console.log(`  Sample Period (seconds): ${sample.samplePeriodSecs}`);
+    } else {
+      console.log('No performance samples returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching default performance samples:', error);
+  }
+}
+
+fetchDefaultPerformanceSamples();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Sampling Interval:** Samples are typically taken every 60 seconds, but this is an approximation. The `samplePeriodSecs` field in the response indicates the actual duration for each sample.
+*   **Historical Data Limit:** The maximum `limit` of 720 samples provides a window of approximately 12 hours of historical data. For longer-term performance analysis, external data logging and aggregation are necessary.
+*   **Vote vs. Non-Vote Transactions:** `numTransactions` includes all transactions, while `numNonVoteTransactions` specifically counts those that are not part of the consensus voting process. The latter is often a better indicator of user-driven network activity.
+*   **Node Variability:** The exact data might vary slightly between different RPC nodes depending on their synchronization state and local view of the network when a sample is taken.
+
+By utilizing `getRecentPerformanceSamples`, developers and network observers can gain valuable insights into the operational status and throughput of the Solana network. 

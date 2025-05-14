@@ -1,0 +1,149 @@
+---
+title: "How to Use getRecentPrioritizationFees for Optimal Transaction Fees"
+description: "Learn to use the Solana getRecentPrioritizationFees RPC method to fetch recent priority fee data, helping you set competitive fees for your transactions."
+---
+
+# How to Use `getRecentPrioritizationFees`
+
+The `getRecentPrioritizationFees` RPC method provides insights into the prioritization fees paid in recent blocks on the Solana network. By examining these fees, developers can make more informed decisions about the additional fee (priority fee) to attach to their transactions to increase their likelihood of being processed promptly, especially during periods of high network activity.
+
+Nodes typically cache prioritization fee data for up to 150 recent blocks.
+
+## Common Use Cases
+
+*   **Dynamic Fee Estimation:** Determine a competitive priority fee for a transaction by observing what fees have been successful recently.
+*   **Congestion Analysis:** Understand the current state of network congestion by looking at the level of priority fees being paid.
+*   **Wallet Integration:** Allow wallets to suggest appropriate priority fees to users based on recent network conditions.
+*   **Arbitrage Bots:** For time-sensitive operations like arbitrage, setting an optimal priority fee is crucial for timely execution.
+
+## Request Parameters
+
+1.  **`lockedWritableAccounts`** (`array` of `string`, optional):
+    *   An array of base-58 encoded public keys of accounts that your transaction intends to write-lock.
+    *   Maximum of 128 addresses can be provided.
+    *   If provided, the method returns prioritization fees paid by transactions that locked **all** of the specified accounts as writable.
+    *   If omitted or an empty array is passed, the method returns a more general view of prioritization fees observed across recent blocks, not specific to any particular set of accounts.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an array of prioritization fee objects. Each object details fees from a specific recent slot and has the following structure:
+
+*   **`slot`** (`u64`): The slot number in which the transactions contributing to this fee data were processed.
+*   **`prioritizationFee`** (`u64`): The minimum prioritization fee (in micro-Lamports per Compute Unit) paid by at least one transaction in this slot (and matching the `lockedWritableAccounts` filter, if any). A value of `0` often means that no transactions in that slot (matching the criteria) paid an additional priority fee beyond the base fee, or the node did not observe any for the given accounts.
+
+## Examples
+
+### 1. Get Recent Global Prioritization Fees
+
+This example fetches a general list of recent prioritization fees without specifying any locked accounts.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPrioritizationFees",
+    "params": [[]] # Empty array for global fees
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchGlobalPrioritizationFees() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    // Pass an empty array or omit the parameter for global fees
+    const fees = await connection.getRecentPrioritizationFees([]); 
+    if (fees && fees.length > 0) {
+      console.log(`Fetched ${fees.length} recent prioritization fee samples (global):`);
+      fees.forEach((feeInfo, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${feeInfo.slot}`);
+        console.log(`  Prioritization Fee (micro-lamports/CU): ${feeInfo.prioritizationFee}`);
+      });
+      // Example: Calculate the median of non-zero fees
+      const nonZeroFees = fees.filter(f => f.prioritizationFee > 0).map(f => f.prioritizationFee).sort((a,b) => a - b);
+      if (nonZeroFees.length > 0) {
+        const mid = Math.floor(nonZeroFees.length / 2);
+        const medianFee = nonZeroFees.length % 2 !== 0 ? nonZeroFees[mid] : (nonZeroFees[mid - 1] + nonZeroFees[mid]) / 2;
+        console.log(`\nMedian non-zero priority fee: ${medianFee} micro-lamports/CU`);
+      }
+    } else {
+      console.log('No recent prioritization fee data returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching global prioritization fees:', error);
+  }
+}
+
+fetchGlobalPrioritizationFees();
+```
+</CodeGroup>
+
+### 2. Get Recent Prioritization Fees for Specific Writable Accounts
+
+This example fetches prioritization fees relevant for a transaction that needs to write-lock two specific accounts.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace with actual public keys you are interested in
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPrioritizationFees",
+    "params": [[
+      "Vote111111111111111111111111111111111111111", 
+      "Stake11111111111111111111111111111111111111"
+    ]]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchPrioritizationFeesForAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  
+  // Replace with actual public keys your transaction will lock
+  const accountsToLock = [
+    new PublicKey('Vote111111111111111111111111111111111111111'),
+    new PublicKey('Stake11111111111111111111111111111111111111')
+  ];
+
+  try {
+    const fees = await connection.getRecentPrioritizationFees(accountsToLock.map(pk => pk.toBase58()));
+    if (fees && fees.length > 0) {
+      console.log(`Fetched ${fees.length} recent prioritization fee samples for specified accounts:`);
+      fees.forEach((feeInfo, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${feeInfo.slot}`);
+        console.log(`  Prioritization Fee (micro-lamports/CU): ${feeInfo.prioritizationFee}`);
+      });
+    } else {
+      console.log('No recent prioritization fee data returned for the specified accounts.');
+    }
+  } catch (error) {
+    console.error('Error fetching prioritization fees for accounts:', error);
+  }
+}
+
+fetchPrioritizationFeesForAccounts();
+```
+</CodeGroup>
+
+**Important Considerations:**
+
+*   **Fee Units:** Prioritization fees are expressed in micro-Lamports (0.000001 Lamports) per Compute Unit (CU).
+*   **Cache Window:** RPC nodes typically cache these fees for about 150 blocks. This means you are looking at a relatively short historical window (roughly 1-2 minutes).
+*   **Zero Fees:** A `prioritizationFee` of `0` doesn't necessarily mean no fees were paid, but rather that for the given slot and account(s), the sampled transactions did not include a priority fee, or were below a threshold the node considers significant.
+*   **Strategic Use:** Don't just pick the highest recent fee. Analyze the distribution (e.g., median, 75th percentile of non-zero fees) to make a cost-effective choice. Overpaying doesn't guarantee faster inclusion beyond a certain point if the block is already full of high-priority transactions.
+*   **Compute Units:** The total priority fee for your transaction will be `prioritizationFee_per_CU * your_transaction_compute_units`. You also need to set the compute unit limit for your transaction (`ComputeBudgetProgram.setComputeUnitLimit`) and the price (`ComputeBudgetProgram.setComputeUnitPrice`).
+
+Using `getRecentPrioritizationFees` effectively can significantly improve transaction confirmation reliability in dynamic network conditions. 
