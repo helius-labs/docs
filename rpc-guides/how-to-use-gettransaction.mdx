@@ -1,0 +1,198 @@
+---
+title: "How to Use getTransaction to Retrieve Transaction Details"
+description: "Learn to use the Solana getTransaction RPC method to fetch detailed information about a confirmed transaction using its signature."
+---
+
+# How to Use `getTransaction`
+
+The `getTransaction` RPC method allows you to retrieve detailed information about a confirmed transaction by providing its signature. This includes the transaction's slot, block time, metadata (like fees, status, and balance changes), and the transaction structure itself.
+
+## Common Use Cases
+
+*   **Transaction Verification:** Confirming that a transaction has been processed and checking its outcome (success or failure).
+*   **Transaction History Display:** Showing users the details of their past transactions in a wallet or explorer.
+*   **Auditing and Analysis:** Examining the specifics of a transaction, including instructions executed, fees paid, and accounts involved.
+*   **Debugging Failed Transactions:** Inspecting `logMessages` and `err` fields in the metadata to understand why a transaction failed.
+*   **Data Indexing:** Extracting specific information from transactions for off-chain storage and analysis.
+
+## Request Parameters
+
+1.  **`transactionSignature`** (string, required): The base-58 encoded transaction signature you want to query.
+
+2.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) (e.g., `"finalized"`, `"confirmed"`). If not provided, the node's default commitment is used (usually `"finalized"`).
+    *   **`encoding`** (string, optional): The encoding for the `transaction` data. Common values:
+        *   `"json"`: Returns the transaction data in a structured JSON format (but instructions might still be base64 encoded).
+        *   `"jsonParsed"`: Returns the transaction data with program-specific instructions parsed into a human-readable JSON structure where possible. This is often the most useful encoding for analysis.
+        *   `"base58"`: Returns the transaction data as a base-58 encoded string.
+        *   `"base64"`: Returns the transaction data as a base-64 encoded string.
+        *   Defaults to `"json"` if not specified by Helius, but Solana default might be different. It's best to specify this.
+    *   **`maxSupportedTransactionVersion`** (number, optional): The maximum transaction version the RPC endpoint should process. 
+        *   Set to `0` to include versioned transactions (including legacy).
+        *   If omitted, some nodes might only return legacy transactions or error if versioned transactions are encountered. It is highly recommended to set this to `0` to support all transaction types.
+
+## Response Structure
+
+The method returns `null` if the transaction is not found (e.g., not yet processed or signature is incorrect) or not confirmed to the specified commitment level. Otherwise, it returns an object with the following fields:
+
+*   **`slot`** (u64): The slot number in which the transaction was included in a block.
+*   **`blockTime`** (i64 | null): The estimated Unix timestamp (seconds since epoch) when the block containing the transaction was produced. Can be `null` if not available.
+*   **`meta`** (object | null): An object containing metadata about the transaction's execution. Can be `null` if the transaction failed before being processed or if metadata is unavailable.
+    *   **`err`** (object | null): An error object if the transaction failed, otherwise `null`.
+    *   **`fee`** (u64): The fee in lamports paid for the transaction.
+    *   **`preBalances`** (array of u64): Lamport balances of accounts involved *before* the transaction was processed.
+    *   **`postBalances`** (array of u64): Lamport balances of accounts involved *after* the transaction was processed.
+    *   **`preTokenBalances`** (array of objects | null): Token balances of token accounts involved *before* the transaction.
+    *   **`postTokenBalances`** (array of objects | null): Token balances of token accounts involved *after* the transaction.
+    *   **`innerInstructions`** (array of objects | null): An array of instructions executed as part of CPI (Cross-Program Invocations) within this transaction.
+    *   **`logMessages`** (array of string | null): An array of log messages emitted by the transaction's instructions and any inner instructions.
+    *   **`loadedAddresses`** (object, optional): Specifies the accounts loaded from address lookup tables for this transaction. Contains `writable` and `readonly` arrays of public keys.
+    *   **`returnData`** (object, optional): Data returned by the transaction via `sol_set_return_data` and `sol_get_return_data`. Contains `programId` (string) and `data` (array: `[string, encoding]`).
+    *   **`computeUnitsConsumed`** (u64, optional): The number of compute units consumed by this transaction.
+*   **`transaction`** (object | array): The transaction structure itself. The format depends on the `encoding` parameter:
+    *   If `encoding` is `"jsonParsed"` or `"json"`: An object with `message` (containing `accountKeys`, `instructions`, `recentBlockhash`, etc.) and `signatures` (array of strings).
+    *   If `encoding` is `"base58"`, `"base64"`: An array `[encoded_string, encoding_format_string]`. 
+*   **`version`** ("legacy" | number | undefined): The version of the transaction. Can be `"legacy"` for older transactions or a number (e.g., `0`) for versioned transactions. `undefined` if `maxSupportedTransactionVersion` is not set and the transaction is versioned.
+
+**Example Response (`jsonParsed` encoding):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "blockTime": 1635900000,
+    "meta": {
+      "err": null,
+      "fee": 5000,
+      "innerInstructions": [],
+      "logMessages": [
+        "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]",
+        "Program log: Memo 'Hello, Solana!'",
+        "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS success"
+      ],
+      "postBalances": [
+        499999999999994999, 
+        1000000000
+      ],
+      "postTokenBalances": [],
+      "preBalances": [
+        500000000000000000, 
+        1000000000
+      ],
+      "preTokenBalances": [],
+      "rewards": [],
+      "status": { "Ok": null },
+      "computeUnitsConsumed": 200
+    },
+    "slot": 98765432,
+    "transaction": {
+      "message": {
+        "accountKeys": [
+          "SysvarRent111111111111111111111111111111111",
+          "Vote111111111111111111111111111111111111111"
+        ],
+        "instructions": [
+          {
+            "parsed": {
+              "type": "vote",
+              "info": {
+                "votePubkey": "Vote111111111111111111111111111111111111111",
+                "slot": 123,
+                "hash": "abc..."
+              }
+            },
+            "program": "vote",
+            "programId": "Vote111111111111111111111111111111111111111"
+          }
+        ],
+        "recentBlockhash": "xyz..."
+      },
+      "signatures": [
+        "sig1..."
+      ]
+    },
+    "version": "legacy"
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Replace <TRANSACTION_SIGNATURE> with an actual signature
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransaction",
+    "params": [
+      "<TRANSACTION_SIGNATURE>",
+      {
+        "encoding": "jsonParsed",
+        "maxSupportedTransactionVersion": 0
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getTransactionDetails(signature) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+
+  try {
+    const transaction = await connection.getTransaction(signature, {
+      maxSupportedTransactionVersion: 0, // Recommended to support all transaction versions
+      // commitment: 'confirmed', // Optional: specify commitment level
+    });
+
+    if (transaction) {
+      console.log('Transaction Details:');
+      console.log(`  Slot: ${transaction.slot}`);
+      console.log(`  Block Time: ${transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : 'N/A'}`);
+      console.log(`  Fee: ${transaction.meta ? transaction.meta.fee : 'N/A'} lamports`);
+      console.log(`  Status: ${transaction.meta && transaction.meta.err ? 'Failed' : 'Success'}`);
+      if (transaction.meta && transaction.meta.err) {
+        console.log(`    Error: ${JSON.stringify(transaction.meta.err)}`);
+      }
+      // console.log(JSON.stringify(transaction, null, 2)); // Log full transaction details
+
+      if (transaction.meta && transaction.meta.logMessages) {
+        console.log('  Log Messages:');
+        transaction.meta.logMessages.forEach(log => console.log(`    ${log}`));
+      }
+
+    } else {
+      console.log('Transaction not found or not confirmed.');
+    }
+  } catch (error) {
+    console.error(`Error fetching transaction ${signature}:`, error);
+  }
+}
+
+// Replace with an actual transaction signature from Mainnet-beta or your test environment
+const exampleSignature = '5h4zCwobYsdL3mY26FgfXy8c4rTPkX6gYVXW8w2tTjCXZMWzE9jX9p8Q2Y8Yj9p8ZQ8Yj9p8ZQ8Yj9p8ZQ8Yj9'; // Replace with a real signature
+// getTransactionDetails(exampleSignature);
+
+// Example of a known transaction (you'll need to find a recent one on an explorer)
+// getTransactionDetails('2xNdnHjZDmJRy1L6jC1mF87K3V9nXZo2bY6vA8GzQ3T7bS9xU8cM7sR5eD3fG2hJ1aB0cE9lK6mN5pP4qR7');
+
+console.log("Please replace 'exampleSignature' with a real transaction signature to run the example.");
+
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Transaction Finality:** Ensure you query with an appropriate `commitment` level. Requesting a transaction that hasn't reached the specified commitment will result in `null`.
+*   **Data Volume:** The response object can be very large, especially for complex transactions with many instructions or detailed logging. Be mindful of this when processing the data.
+*   **`jsonParsed` vs. `json`:** While `jsonParsed` is very convenient, parsing support depends on the RPC node's capabilities for specific programs. If a program is not recognized, its instructions might fall back to a less parsed format even with `jsonParsed`.
+*   **Versioned Transactions:** Always set `maxSupportedTransactionVersion: 0` in your request options to ensure your application can handle both legacy and versioned transactions. Otherwise, you might miss data or encounter errors for newer transaction formats.
+*   **RPC Provider Differences:** While the core API is standard, some RPC providers might offer enhanced parsing or additional fields. Helius, for example, provides rich transaction parsing.
+
+This guide provides a comprehensive overview of the `getTransaction` RPC method, empowering you to fetch and understand detailed Solana transaction data. 

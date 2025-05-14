@@ -1,0 +1,97 @@
+---
+title: "How to Use getTransactionCount to Get Ledger Transaction Count"
+description: "Learn to use the Solana getTransactionCount RPC method to retrieve the total number of transactions processed by the ledger."
+---
+
+# How to Use `getTransactionCount`
+
+The `getTransactionCount` RPC method returns the current total number of transactions processed by the Solana ledger since genesis, at a specified commitment level.
+
+## Common Use Cases
+
+*   **Network Statistics:** Displaying the overall transaction volume on the network as a general health or activity indicator.
+*   **Growth Tracking:** Monitoring the increase in transaction count over time to observe network adoption and usage trends.
+*   **Dashboard Metrics:** Providing a high-level overview of blockchain activity.
+
+## Request Parameters
+
+This method has one optional parameter:
+
+1.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If not provided, the node's default commitment is used.
+    *   **`minContextSlot`** (u64, optional): The minimum slot that the request can be evaluated at.
+
+## Response Structure
+
+The `result` field in the JSON-RPC response is a single `u64` number representing the total transaction count from the ledger up to the slot determined by the commitment level.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 398146706879,
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Basic Request (uses default commitment of the RPC node):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionCount"
+  }' \
+  <YOUR_RPC_URL>
+
+# Request with a specific commitment level:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionCount",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentTransactionCount() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+
+  try {
+    const transactionCount = await connection.getTransactionCount();
+    console.log(`Current ledger transaction count: ${transactionCount}`);
+
+    // Example with commitment
+    const confirmedTransactionCount = await connection.getTransactionCount('confirmed');
+    console.log(`Current ledger transaction count (confirmed): ${confirmedTransactionCount}`);
+
+  } catch (error) {
+    console.error('Error fetching transaction count:', error);
+  }
+}
+
+getCurrentTransactionCount();
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Ledger-Wide Count:** This count represents all transactions processed on the ledger since its inception, not just for a specific account or block.
+*   **Increasing Value:** The transaction count is a monotonically increasing value.
+*   **Commitment Level:** The returned count depends on the chosen `commitment` level. A `processed` commitment will likely yield a higher, more up-to-the-second count than `finalized`, but `finalized` offers a guarantee against rollbacks.
+*   **Not a TPS Metric:** While related to network activity, this single value doesn't directly translate to Transactions Per Second (TPS) without comparing counts over a defined time period.
+
+This guide explains how to use the `getTransactionCount` RPC method to retrieve the total number of transactions on the Solana network. 

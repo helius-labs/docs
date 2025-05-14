@@ -1,0 +1,134 @@
+---
+title: "How to Use getTokenLargestAccounts to Find Top Token Holders"
+description: "Learn to use the Solana getTokenLargestAccounts RPC method to retrieve the 20 largest token accounts for a specific SPL Token mint."
+---
+
+# How to Use `getTokenLargestAccounts`
+
+The `getTokenLargestAccounts` RPC method returns a list of the 20 largest token accounts for a given SPL Token mint. This is useful for analyzing token distribution and identifying major holders of a particular token.
+
+## Common Use Cases
+
+*   **Token Distribution Analysis:** Understanding how a token's supply is distributed among its holders.
+*   **Identifying Whales:** Finding accounts that hold significant amounts of a specific token.
+*   **Market Research:** Gauging the concentration of token ownership.
+*   **Displaying Top Holders:** Showing a list of the largest accounts in a token explorer or dashboard.
+
+## Request Parameters
+
+1.  **`mintAddress`** (string, required): The base-58 encoded public key of the token mint for which you want to find the largest accounts.
+
+2.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`).
+
+## Response Structure
+
+The `result.value` field in the JSON-RPC response is an array of up to 20 objects. Each object represents one of the largest token accounts and contains the following fields:
+
+*   **`address`** (string): The base-58 encoded public key of the token account.
+*   **`amount`** (string): The raw balance of the token account, as a string. This value is not adjusted for decimals.
+*   **`decimals`** (u8): The number of decimal places defined for this token mint.
+*   **`uiAmount`** (number | null): The token balance as a floating-point number, adjusted for decimals. This field might be deprecated or less reliable; `uiAmountString` is preferred.
+*   **`uiAmountString`** (string): The token balance as a string, adjusted for decimals. This is the most user-friendly representation of the balance.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 123456789 },
+    "value": [
+      {
+        "address": "TokenAccountPubkey1...",
+        "amount": "1000000000000", // e.g., 1,000,000 tokens with 6 decimals
+        "decimals": 6,
+        "uiAmount": 1000000.0,
+        "uiAmountString": "1000000.0"
+      },
+      {
+        "address": "TokenAccountPubkey2...",
+        "amount": "500000000000",  // e.g., 500,000 tokens with 6 decimals
+        "decimals": 6,
+        "uiAmount": 500000.0,
+        "uiAmountString": "500000.0"
+      }
+      // ... up to 18 more accounts
+    ]
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Replace <TOKEN_MINT_PUBKEY> with the actual mint address
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenLargestAccounts",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>"
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Example with commitment level
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenLargestAccounts",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>",
+      { "commitment": "confirmed" }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getLargestTokenHolders(mintAddress) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const mintPublicKey = new PublicKey(mintAddress);
+
+  try {
+    const largestAccounts = await connection.getTokenLargestAccounts(mintPublicKey);
+    console.log(`Largest accounts for mint ${mintAddress}:`);
+    largestAccounts.value.forEach(account => {
+      console.log(`  Address: ${account.address}`);
+      console.log(`    UI Amount: ${account.uiAmountString}`);
+      console.log(`    Raw Amount: ${account.amount}`);
+      console.log(`    Decimals: ${account.decimals}`);
+    });
+    // For full details:
+    // console.log(JSON.stringify(largestAccounts, null, 2));
+  } catch (error) {
+    console.error(`Error fetching largest token accounts for mint ${mintAddress}:`, error);
+  }
+}
+
+// Replace with the actual token mint public key you want to query
+const exampleTokenMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
+getLargestTokenHolders(exampleTokenMint);
+
+// Example with a different mint (e.g., Raydium)
+// const raydiumMint = '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R';
+// getLargestTokenHolders(raydiumMint);
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Fixed Limit:** This method always returns up to the top 20 largest accounts. It does not support pagination or requesting more than 20 accounts.
+*   **Data Accuracy:** The data reflects the state of the ledger at the slot determined by the specified commitment level.
+*   **Token Mint Specific:** The results are specific to the single token mint provided in the request.
+*   **Performance:** This is a targeted query and generally performs well. However, excessive polling should be avoided.
+
+This guide helps you use the `getTokenLargestAccounts` RPC method to discover the primary holders of any SPL token on Solana. 
