@@ -37,7 +37,7 @@ This example fetches the list of confirmed block slots between slot `250000000` 
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -53,7 +53,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getBlocksInRange(startSlot, endSlot) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blocks = await connection.getBlocks(startSlot, endSlot);
     console.log(`Confirmed blocks between slot ${startSlot} and ${endSlot}:`, blocks);
@@ -75,7 +75,7 @@ This example fetches confirmed block slots starting from `260000000` up to the l
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -90,7 +90,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getBlocksFromStart(startSlot) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     // The endSlot parameter is omitted to fetch up to the latest confirmed block
     const blocks = await connection.getBlocks(startSlot);
@@ -115,7 +115,7 @@ This example fetches blocks using the `confirmed` commitment level.
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -132,7 +132,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js'); 
 
 async function getBlocksWithCommitment(startSlot, endSlot) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blocks = await connection.getBlocks(startSlot, endSlot, { commitment: 'confirmed' });
     console.log(`Confirmed blocks (with 'confirmed' commitment) between slot ${startSlot} and ${endSlot}:`, blocks);

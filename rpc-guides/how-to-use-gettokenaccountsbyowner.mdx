@@ -148,7 +148,7 @@ const { Connection, PublicKey } = require('@solana/web3.js');
 
 async function findOwnerTokenAccounts(ownerAddress, filter, encoding = 'jsonParsed') {
   // Replace with your RPC endpoint
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   const ownerPubKey = new PublicKey(ownerAddress);
 
   try {

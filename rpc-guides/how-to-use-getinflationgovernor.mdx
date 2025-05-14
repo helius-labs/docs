@@ -39,7 +39,7 @@ This example fetches the current inflation governor settings using the default c
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -51,7 +51,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function logInflationGovernor() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const inflationGovernor = await connection.getInflationGovernor();
     console.log('Current Inflation Governor Parameters:');
@@ -75,7 +75,7 @@ logInflationGovernor();
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -88,7 +88,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function logConfirmedInflationGovernor() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const inflationGovernor = await connection.getInflationGovernor('confirmed');
     console.log('Confirmed Inflation Governor Parameters:');

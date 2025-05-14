@@ -96,7 +96,7 @@ const { Connection } = require('@solana/web3.js');
 
 async function checkBlockhash(blockhashToCheck) {
   // Replace with your RPC endpoint
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
 
   try {
     console.log(`Checking validity of blockhash: ${blockhashToCheck}`);
@@ -119,7 +119,7 @@ async function checkBlockhash(blockhashToCheck) {
 
 // Example usage: First, get a recent blockhash
 async function getRecentBlockhashAndCheck() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const { blockhash } = await connection.getLatestBlockhash();
     await checkBlockhash(blockhash); 

@@ -11,7 +11,7 @@ This endpoint is crucial for monitoring node health, especially for applications
 
 ## How it Works
 
-Unlike most other RPC methods that use a JSON-RPC POST request, the `getHealth` check is often implemented as a simple HTTP `GET` request to the `/health` path of the RPC endpoint (e.g., `https://api.mainnet-beta.solana.com/health`).
+Unlike most other RPC methods that use a JSON-RPC POST request, the `getHealth` check is often implemented as a simple HTTP `GET` request to the `/health` path of the RPC endpoint (e.g., `https://mainnet.helius-rpc.com/?api-key=<api-key>/health`).
 
 However, some RPC providers might also expose it via the standard JSON-RPC POST mechanism with the method `getHealth`.
 
@@ -45,7 +45,7 @@ This method (whether as a GET request or a JSON-RPC call) does not typically tak
 This is the most common way to check the health endpoint directly.
 
 ```bash cURL (HTTP GET)
-curl https://api.mainnet-beta.solana.com/health
+curl https://mainnet.helius-rpc.com/?api-key=<api-key>/health
 ```
 
 **Expected output (for a healthy node):**
@@ -59,7 +59,7 @@ Some providers might support this.
 
 <CodeGroup>
 ```bash cURL (JSON-RPC POST)
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -96,8 +96,8 @@ async function checkNodeHealth(rpcEndpoint) {
 }
 
 // Example usage:
-checkNodeHealth('https://api.mainnet-beta.solana.com');
-checkNodeHealth('https://api.devnet.solana.com');
+checkNodeHealth('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+checkNodeHealth('https://devnet.helius-rpc.com/?api-key=<api-key>');
 
 // If your specific RPC provider supports `getHealth` as a JSON-RPC method via @solana/web3.js connection:
 const { Connection } = require('@solana/web3.js');
@@ -111,7 +111,7 @@ async function checkRpcHealthViaPost(rpcUrl) {
     }
 }
 
-// checkRpcHealthViaPost('https://api.mainnet-beta.solana.com');
+// checkRpcHealthViaPost('https://mainnet.helius-rpc.com/?api-key=<api-key>');
 
 ```
 </CodeGroup>

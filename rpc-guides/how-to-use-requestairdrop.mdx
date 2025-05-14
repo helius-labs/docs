@@ -55,7 +55,7 @@ curl -X POST -H "Content-Type: application/json" -d \
       1000000000
     ]
   }' \
-  https://api.devnet.solana.com 
+  https://devnet.helius-rpc.com/?api-key=<api-key> 
 
 # Request 0.5 SOL with "confirmed" commitment
 curl -X POST -H "Content-Type: application/json" -d \
@@ -71,7 +71,7 @@ curl -X POST -H "Content-Type: application/json" -d \
       }
     ]
   }' \
-  https://api.devnet.solana.com
+  https://devnet.helius-rpc.com/?api-key=<api-key>
 ```
 
 ```javascript JavaScript (using @solana/web3.js)
@@ -79,7 +79,7 @@ const { Connection, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 
 async function getAirdrop(walletAddress) {
   // Connect to Devnet
-  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+  const connection = new Connection('https://devnet.helius-rpc.com/?api-key=<api-key>', 'confirmed');
   const publicKey = new PublicKey(walletAddress);
 
   try {

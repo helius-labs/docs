@@ -48,7 +48,7 @@ This example fetches block production data for all validators in the current epo
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \\
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -60,7 +60,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getEpochBlockProduction() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blockProduction = await connection.getBlockProduction();
     console.log('Block Production for Current Epoch:', JSON.stringify(blockProduction, null, 2));
@@ -85,7 +85,7 @@ This example fetches block production for a specific validator identity in the c
 <CodeGroup>
 ```bash cURL
 # Replace YOUR_VALIDATOR_IDENTITY_PUBKEY with the actual validator's base58 public key.
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \\
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -102,7 +102,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getValidatorBlockProduction(validatorIdentity) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blockProduction = await connection.getBlockProduction({ identity: validatorIdentity });
     console.log(\`Block Production for \${validatorIdentity}:\`, JSON.stringify(blockProduction, null, 2));
@@ -124,7 +124,7 @@ This example fetches block production data for a specific validator within a def
 <CodeGroup>
 ```bash cURL
 # Replace YOUR_VALIDATOR_IDENTITY_PUBKEY, START_SLOT, and END_SLOT.
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \\
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -145,7 +145,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blockProduction = await connection.getBlockProduction({
       identity: validatorIdentity,
@@ -172,6 +172,6 @@ getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot);
 
 *   **Node Data Availability:** The range of historical data available can vary between RPC nodes. Very old slot ranges might not be available.
 *   **Epoch Boundaries:** When querying by `identity` without a `range`, the data returned is for the current epoch up to the latest processed slot by the node.
-*   **Mainnet-beta vs. Devnet/Testnet:** The examples use `https://api.mainnet-beta.solana.com`. Adjust the RPC endpoint for Devnet or Testnet as needed. Validator identities and slot numbers will also differ.
+*   **Mainnet-beta vs. Devnet/Testnet:** The examples use `https://mainnet.helius-rpc.com/?api-key=<api-key>`. Adjust the RPC endpoint for Devnet or Testnet as needed. Validator identities and slot numbers will also differ.
 
 This guide should give you a solid understanding of how to use the `getBlockProduction` RPC method to analyze block production on Solana. 

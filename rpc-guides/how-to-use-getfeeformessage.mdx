@@ -43,7 +43,7 @@ This example demonstrates how to construct a simple transfer, compile its messag
 # and then base64 encoding the serialized message.
 # The example message below is illustrative.
 # Replace "MESSAGE_BASE64_ENCODED" with your actual encoded message.
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -59,7 +59,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection, Keypair, SystemProgram, Transaction, LAMPORTS_PER_SOL } = require('@solana/web3.js');
 
 async function estimateTransactionFee() {
-  const connection = new Connection('https://api.devnet.solana.com');
+  const connection = new Connection('https://devnet.helius-rpc.com/?api-key=<api-key>');
 
   try {
     const fromPublicKey = Keypair.generate().publicKey;

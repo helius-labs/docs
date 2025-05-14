@@ -29,7 +29,7 @@ This example fetches the genesis hash from the RPC endpoint.
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -41,7 +41,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function logGenesisHash() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const genesisHash = await connection.getGenesisHash();
     console.log(`Genesis Hash: ${genesisHash}`);

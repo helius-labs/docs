@@ -43,7 +43,7 @@ This example fetches information about the current epoch using default commitmen
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -55,7 +55,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getCurrentEpochInfo() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const epochInfo = await connection.getEpochInfo();
     console.log(JSON.stringify(epochInfo, null, 2));
@@ -74,7 +74,7 @@ This example fetches epoch information using `confirmed` commitment.
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -91,7 +91,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getConfirmedEpochInfo() {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const epochInfo = await connection.getEpochInfo('confirmed'); // Or connection.getEpochInfo({ commitment: 'confirmed' });
     console.log(JSON.stringify(epochInfo, null, 2));

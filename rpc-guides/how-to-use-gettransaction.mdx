@@ -143,7 +143,7 @@ const { Connection } = require('@solana/web3.js');
 
 async function getTransactionDetails(signature) {
   // Replace with your RPC endpoint
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
 
   try {
     const transaction = await connection.getTransaction(signature, {

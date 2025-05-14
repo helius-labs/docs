@@ -37,7 +37,7 @@ This example fetches the estimated production time for a specific slot. Remember
 <CodeGroup>
 ```bash cURL
 # Replace SLOT_NUMBER_TO_QUERY with a valid slot, e.g., a recent one from an explorer
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -52,7 +52,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getSpecificBlockTime(slotToQuery) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blockTime = await connection.getBlockTime(slotToQuery);
     if (blockTime !== null) {

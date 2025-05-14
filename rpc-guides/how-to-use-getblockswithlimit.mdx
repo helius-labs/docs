@@ -35,7 +35,7 @@ This example fetches a list of up to 5 confirmed block slots starting from slot 
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -51,7 +51,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getBlocksWithLimitExample(startSlot, limit) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blocks = await connection.getBlocksWithLimit(startSlot, limit);
     console.log(`Up to ${limit} confirmed blocks starting from slot ${startSlot}:`, blocks);
@@ -73,7 +73,7 @@ This example fetches up to 3 blocks starting from slot `290000000` using the `co
 
 <CodeGroup>
 ```bash cURL
-curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
   '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -90,7 +90,7 @@ curl https://api.mainnet-beta.solana.com -X POST -H "Content-Type: application/j
 const { Connection } = require('@solana/web3.js');
 
 async function getBlocksWithLimitAndCommitment(startSlot, limit) {
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
   try {
     const blocks = await connection.getBlocksWithLimit(startSlot, limit, { commitment: 'confirmed' });
     console.log(`Up to ${limit} confirmed blocks (with 'confirmed' commitment) starting from slot ${startSlot}:`, blocks);
