@@ -1,0 +1,124 @@
+---
+title: "How to Use getSlot to Check Current Network Slot"
+description: "Learn to use the Solana getSlot RPC method to retrieve the current slot number at a specified commitment level."
+---
+
+# How to Use `getSlot`
+
+The `getSlot` RPC method returns the current slot that the RPC node considers to have reached a specific commitment level. This is a fundamental method for understanding the current state of the blockchain as perceived by the node.
+
+## Common Use Cases
+
+*   **Getting Current Network Progress:** Determine the most recent slot processed or confirmed by the node.
+*   **Node Synchronization Check:** Comparing the slot from different nodes can give an indication of their synchronization status.
+*   **Timestamping Operations:** Using the current slot as a reference point for operations or for understanding the age of certain data.
+*   **Input for Other RPC Calls:** Some RPC methods might use a slot number as a reference point.
+
+## Request Parameters
+
+This method takes an optional configuration object as its first parameter:
+
+1.  **`options`** (`object`, optional): An optional configuration object with the following fields:
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+        *   `processed`: The node will query its most recent slot. Note that this slot may not be confirmed by the cluster yet and could potentially be skipped.
+        *   `confirmed`: The node will query the most recent slot that has been voted on by a supermajority of the cluster.
+        *   `finalized`: The node will query the most recent slot confirmed by the supermajority of the cluster as having reached maximum lockout (cannot be rolled back).
+    *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This sets the minimum slot for the node's context. If the node's state is older than this slot, it may return an error or a slot number that reflects its current (older) state relative to this minimum.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is a single `u64` (unsigned 64-bit integer) representing the current slot number according to the specified commitment level.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 123456789,
+  "id": 1
+}
+```
+
+## Examples
+
+### 1. Get Current Slot (Default Commitment)
+
+This example fetches the current slot using the node's default commitment level (usually `finalized`).
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSlot"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentSlot() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const slot = await connection.getSlot();
+    console.log('Current slot (default commitment):', slot);
+  } catch (error) {
+    console.error('Error fetching current slot:', error);
+  }
+}
+
+getCurrentSlot();
+```
+</CodeGroup>
+
+### 2. Get Current Slot with a Specific Commitment
+
+This example fetches the current slot that has reached `confirmed` commitment.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSlot",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getConfirmedSlot() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const slot = await connection.getSlot('confirmed');
+    console.log('Current slot (confirmed commitment):', slot);
+    // Note: For @solana/web3.js v1.30.0 and later, you can pass commitment directly.
+    // For older versions or more complex options, use an object:
+    // const slot = await connection.getSlot({ commitment: 'confirmed' });
+  } catch (error) {
+    console.error('Error fetching confirmed slot:', error);
+  }
+}
+
+getConfirmedSlot();
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Commitment Matters:** The returned slot number heavily depends on the `commitment` level specified. `processed` will be the highest (most recent) slot the node is aware of, while `finalized` will be an older slot that is confirmed by the entire network. Choose the commitment level appropriate for your use case's need for data finality.
+*   **Node Variability:** Different RPC nodes might return slightly different slot numbers for the same commitment level due to network propagation delays or their own processing state. This is especially true for `processed` and `confirmed` levels.
+*   **`minContextSlot`:** This parameter ensures that the node processing your request has reached at least the `minContextSlot`. If the node is behind this slot, the behavior might vary (e.g., an error or the node's current highest slot which is less than `minContextSlot`). It's generally used in advanced scenarios where you need to ensure a query is made against a sufficiently recent state.
+
+`getSlot` is a simple yet essential method for interacting with the Solana blockchain and understanding its current progression. 

@@ -1,0 +1,121 @@
+---
+title: "How to Use getSlotLeader to Identify the Current Block Producer"
+description: "Learn to use the Solana getSlotLeader RPC method to find the public key of the validator currently producing blocks."
+---
+
+# How to Use `getSlotLeader`
+
+The `getSlotLeader` RPC method returns the public key of the validator that is the current leader for block production, based on the node's view at a specified commitment level. The leader is responsible for producing blocks for the current slot.
+
+## Common Use Cases
+
+*   **Identifying the Current Block Producer:** Find out which validator is currently scheduled to produce blocks.
+*   **Network Monitoring:** Observe the rotation of slot leaders.
+*   **Debugging Transaction Issues:** In some advanced scenarios, knowing the current slot leader might be relevant if transactions are being submitted directly to leaders (though this is not a common client-side practice).
+
+## Request Parameters
+
+This method takes an optional configuration object as its first parameter:
+
+1.  **`options`** (`object`, optional): An optional configuration object with the following fields:
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`). The slot leader is determined based on the slot that matches this commitment level.
+    *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This sets the minimum slot for the node's context.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is a single base-58 encoded string representing the public key (identity) of the current slot leader.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS",
+  "id": 1
+}
+```
+
+## Examples
+
+### 1. Get Current Slot Leader (Default Commitment)
+
+This example fetches the current slot leader using the node's default commitment level (usually `finalized`).
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSlotLeader"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentSlotLeader() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const slotLeader = await connection.getSlotLeader();
+    console.log('Current slot leader (default commitment):', slotLeader);
+  } catch (error) {
+    console.error('Error fetching current slot leader:', error);
+  }
+}
+
+getCurrentSlotLeader();
+```
+</CodeGroup>
+
+### 2. Get Current Slot Leader with `confirmed` Commitment
+
+This example fetches the slot leader for the latest slot that has reached `confirmed` commitment.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSlotLeader",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getConfirmedSlotLeader() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const slotLeader = await connection.getSlotLeader('confirmed');
+    console.log('Current slot leader (confirmed commitment):', slotLeader);
+    // Note: For @solana/web3.js v1.30.0 and later, you can pass commitment directly.
+    // For older versions or more complex options, use an object:
+    // const slotLeader = await connection.getSlotLeader({ commitment: 'confirmed' });
+  } catch (error) {
+    console.error('Error fetching confirmed slot leader:', error);
+  }
+}
+
+getConfirmedSlotLeader();
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Dynamic Nature:** Slot leaders change frequently (every few slots, typically 4). The result of this call is a snapshot in time based on the node's current view and the chosen commitment.
+*   **Commitment Level:** The commitment level affects which slot is considered "current" for determining the leader. Using `processed` will give you the leader of the very latest slot the node is aware of, which might change rapidly and may not yet be confirmed by the broader network.
+*   **Leader Schedule:** The sequence of slot leaders is determined by a leader schedule, which is calculated at the beginning of each epoch. For a more comprehensive view of upcoming leaders, use `getLeaderSchedule`.
+*   **Node's Perspective:** The returned slot leader is based on the information available to the specific RPC node you are querying. Different nodes might have slightly different views due to network latency.
+
+`getSlotLeader` provides a quick way to identify the validator currently responsible for producing blocks. For a broader view of the leader rotation, consider `getLeaderSchedule`. 
