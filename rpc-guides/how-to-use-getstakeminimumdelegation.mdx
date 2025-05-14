@@ -1,0 +1,124 @@
+---
+title: "How to Use getStakeMinimumDelegation to Find Minimum Stake Delegation Amount"
+description: "Learn to use the Solana getStakeMinimumDelegation RPC method to determine the minimum lamports required for a stake delegation."
+---
+
+# How to Use `getStakeMinimumDelegation`
+
+The `getStakeMinimumDelegation` RPC method returns the current minimum amount of lamports required to create a new stake delegation on the Solana network. This value can change over time due to network governance or updates.
+
+## Common Use Cases
+
+*   **Validating Stake Amounts:** Before creating a new stake account or delegating stake, check this value to ensure the intended delegation meets the minimum requirement.
+*   **Staking UI/UX:** Displaying the minimum delegation amount to users in staking interfaces to guide their input.
+*   **Automated Staking Scripts:** Ensuring automated staking processes use a valid delegation amount.
+
+## Request Parameters
+
+This method has one optional parameter:
+
+1.  **`config`** (object, optional): Configuration object containing the following field:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) to use when querying the value. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an `RpcResponse` object containing:
+
+*   **`context`** (object): An `RpcResponseContext` object with the following field:
+    *   **`slot`** (`u64`): The slot at which the data was retrieved.
+*   **`value`** (`u64`): The minimum stake delegation amount in lamports.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 123456789 },
+    "value": 1000000000 // Represents 1 SOL, for example
+  },
+  "id": 1
+}
+```
+
+## Examples
+
+### 1. Get the Current Stake Minimum Delegation
+
+This example fetches the current minimum stake delegation amount using the default commitment.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getStakeMinimumDelegation"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getMinimumDelegation() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const minDelegation = await connection.getStakeMinimumDelegation();
+    console.log(`Current minimum stake delegation: ${minDelegation} lamports`);
+    // The raw response includes context:
+    // const fullResponse = await connection.getStakeMinimumDelegation('confirmed'); // Example with commitment
+    // console.log(JSON.stringify(fullResponse, null, 2));
+  } catch (error) {
+    console.error('Error fetching stake minimum delegation:', error);
+  }
+}
+
+getMinimumDelegation();
+```
+</CodeGroup>
+
+### 2. Get Stake Minimum Delegation with Specific Commitment
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getStakeMinimumDelegation",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getMinimumDelegationConfirmed() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const minDelegationResponse = await connection.getStakeMinimumDelegation('confirmed');
+    console.log(`Confirmed minimum stake delegation: ${minDelegationResponse.value} lamports at slot ${minDelegationResponse.context.slot}`);
+  } catch (error) {
+    console.error('Error fetching confirmed stake minimum delegation:', error);
+  }
+}
+
+getMinimumDelegationConfirmed();
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Lamports vs. SOL:** The returned value is in lamports. Remember that 1 SOL = 1,000,000,000 lamports.
+*   **Dynamic Value:** The minimum delegation amount is subject to change by network parameters. It's advisable to query this value periodically or before critical operations rather than hardcoding it.
+*   **Commitment Levels:** Using different commitment levels can affect how up-to-date the returned value is. `finalized` provides the most certainty, while `processed` might give a newer value that hasn't been fully confirmed by the cluster.
+
+This guide should help you effectively use the `getStakeMinimumDelegation` RPC method to retrieve the minimum required stake delegation on Solana. 

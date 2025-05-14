@@ -1,0 +1,93 @@
+---
+title: "How to Use getSlotLeaders to Find Upcoming Block Producers"
+description: "Learn to use the Solana getSlotLeaders RPC method to retrieve a list of scheduled slot leaders for a given range of slots."
+---
+
+# How to Use `getSlotLeaders`
+
+The `getSlotLeaders` RPC method allows you to retrieve a list of public keys for the validators scheduled to be leaders for a specific range of slots. This can be useful for understanding the upcoming sequence of block producers.
+
+## Common Use Cases
+
+*   **Predicting Near-Term Block Producers:** Identify which validators are expected to produce blocks in the near future for a limited range of slots.
+*   **Analyzing Leader Distribution:** Observe the sequence of leaders for a segment of an epoch.
+*   **Network Analysis Tools:** Tools that monitor or analyze network behavior might use this to understand leader patterns.
+
+## Request Parameters
+
+1.  **`startSlot`** (`u64`): (Required) The first slot (inclusive) to fetch the leader schedule for.
+2.  **`limit`** (`u64`): (Required) The number of consecutive slots to retrieve leaders for. The limit must be between 1 and 5,000.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an array of base-58 encoded strings. Each string is the public key (identity) of a validator. The order of public keys in the array corresponds to the leader for each slot in the requested range, starting from `startSlot`.
+
+**Example Response (for a limit of 3 slots):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": [
+    "ValidatorPubkey1XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "ValidatorPubkey2XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "ValidatorPubkey3XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  ],
+  "id": 1
+}
+```
+
+## Examples
+
+### 1. Get Slot Leaders for a Specific Range
+
+This example fetches the leaders for 5 slots, starting from a specified slot.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace STARTING_SLOT with a recent or future slot number
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSlotLeaders",
+    "params": [
+      180000000, 
+      5          
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function getUpcomingSlotLeaders() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const startSlot = 180000000; // Replace with a recent or future slot number
+  const limit = 5;
+
+  try {
+    const leaders = await connection.getSlotLeaders(startSlot, limit);
+    console.log(`Slot leaders starting from slot ${startSlot} (limit ${limit}):`);
+    leaders.forEach((leader, index) => {
+      console.log(`  Slot ${startSlot + index}: ${leader}`);
+    });
+  } catch (error) {
+    console.error('Error fetching slot leaders:', error);
+  }
+}
+
+getUpcomingSlotLeaders();
+```
+</CodeGroup>
+
+## Important Considerations
+
+*   **Limit:** The `limit` parameter specifies how many consecutive slot leaders to return, up to a maximum of 5,000. This means you can look ahead for a substantial number of slots within an epoch.
+*   **Epoch Boundaries:** The leader schedule is determined for an entire epoch. This method allows you to query parts of that schedule. If your range crosses an epoch boundary, the leaders returned will still be based on the schedule of the epoch in which `startSlot` resides, up to the limit you provide or the end of that epoch's known schedule if the RPC node doesn't project further for that call.
+*   **Future Slots:** You can request leaders for future slots. The RPC node will return the scheduled leaders based on the current leader schedule for the relevant epoch.
+*   **Accuracy:** The leader schedule is fixed for an epoch, so the returned leaders are generally accurate unless there are exceptional network circumstances or changes to the validator set that might affect subsequent epoch calculations.
+*   **Distinction from `getLeaderSchedule`:** While `getSlotLeaders` gives you a direct list for a range, `getLeaderSchedule` provides the full schedule for an entire epoch, mapping validator identities to all their assigned slots within that epoch. `getSlotLeaders` is more direct if you only need a sequential list for a specific, limited range.
+
+Use `getSlotLeaders` when you need to know the sequence of block producers for a defined upcoming segment of slots. 
