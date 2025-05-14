@@ -13,6 +13,30 @@ The `getBlockCommitment` RPC method provides information about the commitment st
 *   **Understanding Cluster Health:** The `totalStake` provides insight into the total active stake in the cluster at the time the block was processed.
 *   **Advanced Confirmation Logic:** For applications requiring very specific guarantees about block finality beyond standard commitment levels (`confirmed`, `finalized`).
 
+## Parameters
+
+1.  `slot` (number, required): The slot number (u64) of the block for which to query commitment information.
+
+## Response
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   `commitment` (array of u64 integers | null):
+    *   An array of u64 integers, where each integer represents the amount of cluster stake (in lamports) that has voted on the block at a specific confirmation depth.
+    *   The array typically has 32 elements (representing depths 0 through `MAX_LOCKOUT_HISTORY`, which is 31).
+    *   Index `i` of the array shows the stake that has voted for the block, considering votes on the block itself and its descendants up to `i` levels deep.
+    *   If the block is not found or its commitment information is not available (e.g., it's too old and pruned from commitment tracking), this field will be `null`.
+*   `totalStake` (number):
+    *   The total active stake in the cluster (in lamports) at the slot this block was processed. This value is used to calculate the percentage of stake that has committed to the block.
+
+**Interpreting the `commitment` array:**
+
+*   Higher values in the array, especially at deeper indices, indicate stronger confirmation and finality for the block.
+*   A `null` value for the `commitment` array means the RPC node does not have commitment data for this slot, often because the slot is too old or was skipped.
+*   If `commitment[i] / totalStake` is greater than or equal to the supermajority threshold (typically 2/3), the block can be considered to have reached a certain level of finality at depth `i`.
+
+This method is generally used for more advanced use cases requiring a nuanced understanding of block finality beyond the standard `confirmed` or `finalized` commitment levels offered by other RPC calls.
+
 ## Example: Fetching Block Commitment Information
 
 Let's try to fetch commitment information for an illustrative slot number on Devnet. 
@@ -23,7 +47,7 @@ Let's try to fetch commitment information for an illustrative slot number on Dev
 <CodeGroup>
 ```bash curl
 # Replace 250000000 with a valid, recent slot number on Devnet/Mainnet
-curl https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
 '{
   "jsonrpc": "2.0",
   "id": 1,
@@ -34,11 +58,11 @@ curl https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Typ
 }'
 ```
 
-```javascript web3.js
+```javascript JavaScript (using @solana/web3.js)
 const { Connection } = require('@solana/web3.js');
 
 async function getBlockCommitmentDetails() {
-  const rpcUrl = 'https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
   const connection = new Connection(rpcUrl, 'confirmed');
   
   // Replace with a valid, recent slot number on your target network
@@ -86,28 +110,4 @@ async function getBlockCommitmentDetails() {
 
 getBlockCommitmentDetails();
 ```
-</CodeGroup>
-
-## Parameters
-
-1.  `slot` (number, required): The slot number (u64) of the block for which to query commitment information.
-
-## Response
-
-The `result` field of the JSON-RPC response will be an object containing:
-
-*   `commitment` (array of u64 integers | null):
-    *   An array of u64 integers, where each integer represents the amount of cluster stake (in lamports) that has voted on the block at a specific confirmation depth.
-    *   The array typically has 32 elements (representing depths 0 through `MAX_LOCKOUT_HISTORY`, which is 31).
-    *   Index `i` of the array shows the stake that has voted for the block, considering votes on the block itself and its descendants up to `i` levels deep.
-    *   If the block is not found or its commitment information is not available (e.g., it's too old and pruned from commitment tracking), this field will be `null`.
-*   `totalStake` (number):
-    *   The total active stake in the cluster (in lamports) at the slot this block was processed. This value is used to calculate the percentage of stake that has committed to the block.
-
-**Interpreting the `commitment` array:**
-
-*   Higher values in the array, especially at deeper indices, indicate stronger confirmation and finality for the block.
-*   A `null` value for the `commitment` array means the RPC node does not have commitment data for this slot, often because the slot is too old or was skipped.
-*   If `commitment[i] / totalStake` is greater than or equal to the supermajority threshold (typically 2/3), the block can be considered to have reached a certain level of finality at depth `i`.
-
-This method is generally used for more advanced use cases requiring a nuanced understanding of block finality beyond the standard `confirmed` or `finalized` commitment levels offered by other RPC calls. 
+</CodeGroup> 

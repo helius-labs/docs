@@ -15,60 +15,6 @@ The `getAccountInfo` RPC method is a fundamental tool for querying the Solana bl
 *   **Identifying Account Owner:** Find out which program is the owner of an account. This helps determine how the account's data should be interpreted or if it's a system-owned account.
 *   **Checking if an Account is Executable:** Identify if an account contains a deployed program.
 
-## Example: Fetching Account Information
-
-Let's fetch information for the Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) on mainnet.
-
-**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
-
-<CodeGroup>
-```bash curl
-curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
-'{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "getAccountInfo",
-  "params": [
-    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
-    {
-      "encoding": "jsonParsed"
-    }
-  ]
-}'
-```
-
-```javascript web3.js
-const { Connection, PublicKey } = require('@solana/web3.js');
-
-async function getAccountDetails() {
-  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
-  const connection = new Connection(rpcUrl, 'confirmed');
-  const accountPubKey = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin');
-
-  try {
-    const accountInfo = await connection.getAccountInfo(accountPubKey);
-
-    if (accountInfo === null) {
-      console.log('Account not found.');
-      return;
-    }
-
-    console.log('Account Info:');
-    console.log(`   Lamports: ${accountInfo.lamports}`);
-    console.log(`   Owner: ${accountInfo.owner.toBase58()}`);
-    console.log(`   Executable: ${accountInfo.executable}`);
-    console.log(`   Rent Epoch: ${accountInfo.rentEpoch}`);
-    // Data is a Buffer, you might need to deserialize it based on the account type
-    // console.log(`   Data: ${accountInfo.data.toString()}`); 
-  } catch (error) {
-    console.error('Error fetching account info:', error);
-  }
-}
-
-getAccountDetails();
-```
-</CodeGroup>
-
 ## Parameters
 
 1.  `publicKey` (string, required): The base-58 encoded public key of the account to query.
@@ -106,4 +52,58 @@ If the account is found, the `result` field will contain an object with two main
     *   `rentEpoch` (number): The next epoch at which this account will owe rent.
     *   `space` (number, optional): The length of the data in bytes. (Note: The official Solana docs list `space`, while some RPC providers might include it. It represents the total space allocated for the account's data).
 
-If the account is not found, the `value` field in the result will be `null`. 
+If the account is not found, the `value` field in the result will be `null`.
+
+## Example: Fetching Account Information
+
+Let's fetch information for the Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) on mainnet.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getAccountInfo",
+  "params": [
+    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+    {
+      "encoding": "jsonParsed"
+    }
+  ]
+}'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getAccountDetails() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  const accountPubKey = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin');
+
+  try {
+    const accountInfo = await connection.getAccountInfo(accountPubKey);
+
+    if (accountInfo === null) {
+      console.log('Account not found.');
+      return;
+    }
+
+    console.log('Account Info:');
+    console.log(`   Lamports: ${accountInfo.lamports}`);
+    console.log(`   Owner: ${accountInfo.owner.toBase58()}`);
+    console.log(`   Executable: ${accountInfo.executable}`);
+    console.log(`   Rent Epoch: ${accountInfo.rentEpoch}`);
+    // Data is a Buffer, you might need to deserialize it based on the account type
+    // console.log(`   Data: ${accountInfo.data.toString()}`); 
+  } catch (error) {
+    console.error('Error fetching account info:', error);
+  }
+}
+
+getAccountDetails();
+```
+</CodeGroup> 
