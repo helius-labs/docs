@@ -1,0 +1,168 @@
+---
+title: "Historical Replay"
+sidebarTitle: "Historical Replay"
+description: "Replay historical data with LaserStream's fromSlot parameter"
+---
+
+<Note>
+**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
+</Note>
+
+## Overview
+
+One of LaserStream's most powerful features is **Historical Replay**, which allows you to replay data from a specific point in time. This capability ensures you never miss critical on-chain events, even if your application disconnects temporarily.
+
+With Historical Replay, you can:
+
+- **Backfill missing data** after a disconnection
+- **Bootstrap new applications** with recent historical data
+- **Analyze past events** for specific accounts or transactions
+- **Test application behavior** with real historical data
+
+## How Historical Replay Works
+
+When you establish a LaserStream connection, you can optionally specify a starting slot using the `fromSlot` parameter. LaserStream will then:
+
+1. Begin streaming data from the specified slot
+2. Deliver all relevant events from that slot forward
+3. Eventually catch up to real-time data
+4. Continue streaming real-time events seamlessly
+
+<Note>
+**Automatic Reconnection**: The [LaserStream SDK (`helius-laserstream`)](https://github.com/helius-labs/laserstream-sdk) automatically handles reconnections and replay for you. If your connection drops, the SDK will reconnect and resume from where it left off without requiring any additional code.
+</Note>
+
+## Using the `fromSlot` Parameter
+
+The `fromSlot` parameter can be used with both gRPC and WebSocket connections.
+
+### With gRPC
+
+Add the `fromSlot` parameter to your `SubscribeRequest` object:
+
+```typescript
+const subscriptionRequest: SubscribeRequest = {
+  transactions: {
+    client: {
+      accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+      accountExclude: [],
+      accountRequired: [],
+      vote: false,
+      failed: false
+    }
+  },
+  commitment: CommitmentLevel.CONFIRMED,
+  accounts: {},
+  slots: {},
+  blocks: {},
+  blocksMeta: {},
+  entry: {},
+  accountsDataSlice: [],
+  fromSlot: '224339000' // Specify the starting slot for historical replay
+};
+```
+
+### With WebSockets
+
+For transaction subscribe:
+
+```javascript
+const request = {
+  jsonrpc: "2.0",
+  id: 1,
+  method: "transactionSubscribe",
+  params: [
+    {
+      vote: false,
+      failed: false,
+      accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]
+    },
+    {
+      commitment: "confirmed",
+      encoding: "jsonParsed",
+      transactionDetails: "full",
+      showRewards: false,
+      maxSupportedTransactionVersion: 0,
+      fromSlot: 224339000 // Specify the starting slot for historical replay
+    }
+  ]
+};
+```
+
+For account subscribe:
+
+```javascript
+const request = {
+  jsonrpc: "2.0",
+  id: 420,
+  method: "accountSubscribe",
+  params: [
+    "SysvarC1ock11111111111111111111111111111111",
+    {
+      encoding: "jsonParsed",
+      commitment: "finalized",
+      fromSlot: 224339000 // Specify the starting slot for historical replay
+    }
+  ]
+};
+```
+
+## Limitations
+
+- **Replay Window**: Currently, you can replay data from up to 3000 slots in the past.
+- **Data Availability**: Some very old historical data may not be available for replay.
+
+## Best Practices
+
+1. **Use Recent Slots**: When specifying a `fromSlot`, ensure it falls within the replay window (currently 3000 slots).
+2. **Handle High Volumes**: During catch-up, you may receive data at a faster rate than during real-time streaming.
+3. **Set Appropriate Filters**: To minimize the amount of data during replay, use specific filters.
+4. **Monitor Reconnections**: The SDK handles reconnections automatically, but it's good practice to log when they occur.
+
+## Simplified Example
+
+```typescript
+import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream';
+
+async function main() {
+  const subscriptionRequest: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+        vote: false,
+        failed: false
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    accounts: {},
+    slots: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    accountsDataSlice: [],
+    // Optional: specify a starting slot for replay
+    fromSlot: '224339000'
+  };
+
+  const config: LaserstreamConfig = {
+    apiKey: 'YOUR_API_KEY', // Replace with your key
+    endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+  };
+
+  // The subscribe function handles connection, reconnection, and replay automatically
+  await subscribe(config, subscriptionRequest, async (data) => {
+    // Process your data
+    console.log(data);
+  }, async (error) => {
+    console.error(error);
+  });
+}
+
+main().catch(console.error);
+```
+
+The LaserStream SDK will transparently handle:
+- Initial connection and data streaming
+- Automatic reconnection if the connection drops
+- Resuming from where it left off after a reconnection
+- Buffering and delivering data in the correct order 

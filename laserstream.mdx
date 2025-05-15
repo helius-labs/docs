@@ -8,46 +8,135 @@ description: Highly configurable real-time data streams for Solana.
 **Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
 </Note>
 
-## Introduction
+## What is LaserStream?
 
-Laserstream is a multi-protocol streaming service **designed for developers building real-time applications on Solana**. It delivers crucial on-chain data (transactions, slots, blocks, accounts, etc.) directly to your application without requiring you to manage a dedicated node.
+LaserStream is a next-generation streaming service **purpose-built for developers who need reliable, real-time Solana data**. It delivers on-chain events (transactions, slots, blocks, accounts, and more) directly to your application with industry-leading reliability, performance, and flexibility.
 
-Built to serve as a near drop-in replacement for existing Solana streaming solutions with minimal configuration changes, Laserstream offers significant advantages:
+Unlike standard Solana RPC nodes, LaserStream is specifically designed for streaming use cases, offering features not available in conventional node setups:
 
-*   **Historical Replay**: The [LaserStream client](https://github.com/helius-labs/laserstream) automatically backfills data if you disconnect, ensuring you never miss critical updates.
-*   **Stay Synced**: By aggregating data from multiple nodes, Laserstream keeps pace with Solana's high throughput, preventing your application from lagging behind.
-*   **Easy Setup**: Get started quickly with dedicated client libraries and straightforward configuration or by using existing libraries such as Yellowstone gRPC.
-*   **Extreme Availability**: Each Laserstream worker is backed by multiple RPC nodes deployed across multiple clusters, providing robust failover capabilities.
+<CardGroup cols={2}>
+  <Card title="Historical Replay" icon="clock-rotate-left">
+    Automatically backfill missed data by specifying a starting slot, ensuring data continuity even after disconnections.
+  </Card>
+  <Card title="Multi-Node Reliability" icon="server">
+    Stream from multiple aggregated nodes simultaneously, eliminating single points of failure and ensuring maximum uptime.
+  </Card>
+  <Card title="High Performance" icon="bolt">
+    Purpose-built for streaming with optimized connection handling, reducing latency and improving throughput compared to standard connections.
+  </Card>
+  <Card title="Protocol Flexibility" icon="shuffle">
+    Choose your preferred protocol to match your application's needs and environment requirements.
+  </Card>
+</CardGroup>
 
-***
+## Easy Migration
 
-## Supported Protocols
+<Note>
+**Drop-in Replacement**: LaserStream is designed as a seamless drop-in replacement for your existing gRPC setup. Simply change your endpoint and API token, and your application will work with LaserStream immediately.
+</Note>
 
-You can choose whichever protocol (or combination) best suits your application's needs:
+### Using Existing gRPC Code
 
-### **gRPC**
+If you already use Yellowstone gRPC, migrating to LaserStream is as simple as:
 
-High-performance streaming interface (via [Helius Laserstream client](https://github.com/helius-labs/laserstream) or the Yellowstone library).
+```typescript
+// Before: Using standard Yellowstone gRPC
+const connection = new GeyserConnection(
+  "your-current-endpoint.com",
+  { token: "your-current-token" }
+);
 
-<Card title="gRPC" href="/laserstream/grpc">
-High-performance streaming interface
+// After: Using LaserStream (just change endpoint and token)
+const connection = new GeyserConnection(
+  "laserstream-endpoint.helius.xyz",
+  { token: "your-helius-api-key" }
+);
+```
+
+### Enhanced Experience with the LaserStream SDK
+
+While LaserStream works with your existing code, we highly recommend using our [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) for enhanced capabilities:
+
+```typescript
+// Using the dedicated LaserStream SDK
+import { subscribe, CommitmentLevel, LaserstreamConfig } from 'helius-laserstream';
+
+const config = {
+  apiKey: "your-helius-api-key",
+  endpoint: "laserstream-endpoint.helius.xyz"
+};
+
+// The SDK automatically handles:
+// - Connection management
+// - Reconnection with backoff
+// - Historical replay after disconnects
+// - Subscription management
+await subscribe(config, subscriptionRequest, handleData, handleError);
+```
+
+## Key Features
+
+### Automatic Reconnection & Catch-up
+
+The [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) automatically handles dropped connections, network issues, and data gaps. When a reconnection occurs, the SDK automatically:
+
+- Reestablishes the connection with minimal delay
+- Requests any data that was missed during the disconnection period
+- Continues streaming without intervention
+- Implements exponential backoff for unstable connections
+
+### Multi-Protocol Support
+
+LaserStream is designed with multi-protocol support in mind:
+
+| Protocol | Status | Best For | Features | Implementation |
+| --- | --- | --- | --- | --- |
+| **gRPC** | ✅ Available | Backend services, high-throughput applications | Highest performance, binary protocol, bi-directional streaming | Via LaserStream SDK or Yellowstone |
+| **WebSocket** | 🔜 Coming soon | Frontend applications, browser clients | JSON-based, widely supported in browsers, familiar for web developers | Standard WebSocket clients (e.g., `ws` library) |
+
+<Note>
+**WebSocket support is coming soon!** Currently, LaserStream is available only via gRPC. WebSocket integration is under active development and will be available in a future update.
+</Note>
+
+### Advanced Filtering
+
+LaserStream supports sophisticated filtering options:
+
+- **Account Filtering**: Include, exclude, or require specific accounts
+- **Transaction Types**: Filter by transaction status, vote transactions, etc.
+- **Commitment Levels**: Choose from processed, confirmed, or finalized
+- **Data Content**: Request specific data fields or full data
+
+### Extreme Scalability
+
+- **Load Balancing**: Connections distributed across multiple nodes
+- **Auto-scaling**: Backend resources scale to match demand
+- **Efficient Routing**: Requests automatically routed to the most responsive node
+
+## Getting Started
+
+<Card title="gRPC" icon="bolt" href="/laserstream/grpc">
+  High-performance streaming optimized for backend services and high-throughput applications
 </Card>
 
-<hide>
-#### **WebSocket**
+For applications that need to catch up on historical data or implement fault-tolerant connections:
 
-Offering faster response times than standard Solana WebSockets, with specialized subscription methods (`transactionSubscribe`, `accountSubscribe`).
-
-<Card title="WebSocket" href="/laserstream/websocket">
-Faster response times with specialized subscription methods
+<Card title="Historical Replay" icon="clock-rotate-left" href="/laserstream/historical-replay">
+  Learn how to implement historical replay to ensure data continuity
 </Card>
 
-<Info>
-We suggest using **gRPC** for backend applications due to its high performance, low latency, and robust streaming capabilities. However, since gRPC is a binary protocol and not readily supported in most browsers, **WebSockets**—either Enhanced or standard—are recommended for frontend use.
-</Info>
+## When to Use LaserStream vs. Other Solana Streaming Options
 
-***
+| Feature | LaserStream | Standard Solana RPC | Yellowstone gRPC |
+|---------|-------------|---------------------|------------------|
+| **Historical replay** | ✅ Up to 3000 slots | ❌ Not available | ❌ Limited |
+| **Auto-reconnect** | ✅ Built-in | ❌ Manual implementation | ❌ Manual implementation |
+| **Multi-node failover** | ✅ Automatic | ❌ Manual implementation | ❌ Manual implementation |
+| **WebSocket support** | 🔜 Coming soon | ✅ Standard | ❌ Not available |
+| **gRPC support** | ✅ Enhanced | ❌ Not available | ✅ Standard |
+| **Setup complexity** | ⭐ Low | ⭐⭐⭐ High | ⭐⭐ Medium |
+| **Infrastructure management** | ⭐ None (fully managed) | ⭐⭐⭐ High | ⭐⭐ Medium |
 
-Laserstream gives you the freedom to choose the **streaming protocol**—gRPC, Enhanced WebSockets, or standard Solana WebSockets—that best fits your application. Combined with our multi-node infrastructure, historical replay, and failover capabilities, you can confidently build real-time Solana applications without worrying about data gaps or lag.
-</hide>
-For more details, join the discussion on our [Discord](https://discord.com/invite/6GXdee3gBj) or [Telegram](https://t.me/helius_help).
+## Next Steps
+
+For more information or to request access to the LaserStream private beta, join the discussion on our [Discord](https://discord.com/invite/6GXdee3gBj) or [Telegram](https://t.me/helius_help).
