@@ -109,12 +109,12 @@ const request = {
 
 ## Limitations
 
-- **Replay Window**: Currently, you can replay data from up to 3000 slots in the past.
+- **Replay Window**: Currently, you can replay data from up to 3000 slots in the past (approximately 20 minutes of blockchain activity).
 - **Data Availability**: Some very old historical data may not be available for replay.
 
 ## Best Practices
 
-1. **Use Recent Slots**: When specifying a `fromSlot`, ensure it falls within the replay window (currently 3000 slots).
+1. **Use Recent Slots**: When specifying a `fromSlot`, ensure it falls within the replay window (currently 3000 slots or about 20 minutes).
 2. **Handle High Volumes**: During catch-up, you may receive data at a faster rate than during real-time streaming.
 3. **Set Appropriate Filters**: To minimize the amount of data during replay, use specific filters.
 4. **Monitor Reconnections**: The SDK handles reconnections automatically, but it's good practice to log when they occur.
