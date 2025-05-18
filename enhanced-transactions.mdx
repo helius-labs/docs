@@ -3,12 +3,27 @@ title: "Enhanced Transactions API"
 description: "Transform complex Solana blockchain transactions into human-readable data with Helius Enhanced Transactions API. Parse transaction details, fetch history, and understand on-chain activity without manual decoding."
 ---
 
+<CardGroup cols={2}>
+  <Card title="Parse Transaction(s)" icon="code" href="#parse-individual-transactions">
+    Parse individual or multiple transactions to get human-readable data
+  </Card>
+  <Card title="Transaction History" icon="clock-rotate-left" href="#fetch-transaction-history-for-an-address">
+    Get historical transaction data for any address
+  </Card>
+</CardGroup>
+
 <Note>
-Enhanced Transaction API V1 won't be updated while we are working on V2
+**Quick Reference**:
+- `/v0/transactions` - Parse individual or multiple transaction signatures
+- `/v0/addresses/{address}/transactions` - Get transaction history for an address
+- Filter by transaction type using the `type` parameter (e.g., `NFT_SALE`, `SWAP`, `TRANSFER`)
 </Note>
 
 <Warning>
-We only parse NFT, Jupiter, and SPL-related transactions. **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions.**
+**Important Limitations**:
+- Enhanced Transaction API V1 won't be updated while we are working on V2
+- We only parse NFT, Jupiter, and SPL-related transactions
+- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
 </Warning>
 
 ## Overview
@@ -20,41 +35,55 @@ The Enhanced Transactions API transforms complex Solana transactions into human-
 - How much SOL or tokens were transferred
 - Timestamps and other metadata
 
-<CardGroup cols={2}>
-  <Card title="Parse Transaction(s)" icon="code" href="/api-reference/enhanced-transactions/gettransactions">
-    Parse individual or multiple transactions to get human-readable data.
-  </Card>
-  <Card title="Parsed Transaction History" icon="clock-rotate-left" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
-    Retrieve complete historical transaction data for a specific address in parsed, human-readable format.
-  </Card>
-</CardGroup>
-
 ## Getting Started
 
 ### Parse Individual Transactions
 
 Parse one or more transaction signatures or raw transaction data with a single API call:
 
-```javascript
-const parseTransaction = async () => {
-  const url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY";
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      transactions: ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"],
-    }),
-  });
-
-  const data = await response.json();
-  console.log("Parsed transaction:", data);
-};
-
-parseTransaction();
-```
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const parseTransaction = async () => {
+      const url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY";
+    
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactions: ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"],
+        }),
+      });
+    
+      const data = await response.json();
+      console.log("Parsed transaction:", data);
+    };
+    
+    parseTransaction();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    import json
+    
+    def parse_transaction():
+        url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY"
+        
+        payload = {
+            "transactions": ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"]
+        }
+        
+        response = requests.post(url, json=payload)
+        data = response.json()
+        print("Parsed transaction:", data)
+        
+    parse_transaction()
+    ```
+  </Tab>
+</Tabs>
 
 <Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactions">
   View detailed documentation for parsing transactions
@@ -64,18 +93,37 @@ parseTransaction();
 
 Retrieve transaction history for any Solana address:
 
-```javascript
-const fetchWalletTransactions = async () => {
-  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
-  const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
-  
-  const response = await fetch(url);
-  const transactions = await response.json();
-  console.log("Wallet transactions:", transactions);
-};
-
-fetchWalletTransactions();
-```
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api.helius.xyz/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+  </Tab>
+</Tabs>
 
 <Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
   View detailed documentation for transaction history
@@ -86,7 +134,7 @@ fetchWalletTransactions();
 
 Occasionally, history endpoint may return an incomplete set of transactions due to internal timeouts during data retrieval.
 
-To mitigate this issue, we recommend to:
+To mitigate this issue:
 1. First, call `getSignaturesForAddress` to retrieve a batch of transaction signatures
 2. Next, use the `/v0/transactions` endpoint with the received signatures
 3. If any transactions are missing from the response, you can retry fetching these specific transactions
@@ -139,16 +187,44 @@ const fetchAllTransactions = async () => {
 
 Get only specific transaction types, such as NFT sales:
 
-```javascript
-const fetchNftSales = async () => {
-  const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
-  const url = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
-  
-  const response = await fetch(url);
-  const nftSales = await response.json();
-  console.log("NFT sale transactions:", nftSales);
-};
-```
+<Tabs>
+  <Tab title="NFT Sales">
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+  </Tab>
+  <Tab title="Token Transfers">
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+  </Tab>
+  <Tab title="Swaps">
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+  </Tab>
+</Tabs>
 
 ## API Reference
 
@@ -195,6 +271,15 @@ Enhanced transaction responses include structured data with human-readable descr
 
 ## Best Practices
 
+<CardGroup cols={2}>
+  <Card title="Error Handling" icon="shield-check">
+    Implement proper error handling and retries for production applications
+  </Card>
+  <Card title="Rate Limiting" icon="gauge-high">
+    Use pagination and caching strategies to avoid hitting rate limits
+  </Card>
+</CardGroup>
+
 ### Error Handling
 
 Always implement proper error handling in your code:
@@ -226,6 +311,10 @@ To avoid hitting rate limits when working with the API:
 - Add exponential backoff for retries
 - Consider upgrading your API plan for high-volume applications
 
+<Tip>
+For high-traffic applications, consider implementing a caching layer with Redis or similar technology to minimize redundant API calls.
+</Tip>
+
 ## FAQs
 
 <AccordionGroup>
@@ -247,9 +336,5 @@ To avoid hitting rate limits when working with the API:
 
   <Accordion title="Are there rate limits?">
     Yes, API usage is subject to Helius's standard rate limiting and pricing policies. Please refer to the [Plans & Rate limits](/billing/plans-and-rate-limits) page for more information.
-  </Accordion>
-
-  <Accordion title="How far back can I fetch transaction history?">
-    The API allows you to fetch the complete transaction history for a Solana address, subject to the limitations of the underlying Solana blockchain data availability.
   </Accordion>
 </AccordionGroup> 
