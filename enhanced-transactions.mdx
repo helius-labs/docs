@@ -1,40 +1,321 @@
 ---
 title: "Enhanced Transactions API"
-description: "The Enhanced Transactions API provides parsed transaction data in a human-readable format. You can use it to parse individual or multiple transactions or fetch the complete historical transaction history for a specific address in a human-readable format."
+description: "Transform complex Solana blockchain transactions into human-readable data with Helius Enhanced Transactions API. Parse transaction details, fetch history, and understand on-chain activity without manual decoding."
 ---
 
-<Note>
-Enhanced Transaction API V1 won't be updated while we are working on V2
-</Note>
-
-<Warning>
-We only parse NFT, Jupiter, and SPL-related transactions. **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions.**
-</Warning>
-
-## Available Endpoints
-
-The Enhanced Transactions API offers the following capabilities:
-
-### Parse Transaction(s)
-Parse individual or multiple transactions to get human-readable data.
-
-### Get Enhanced Transaction History
-Retrieve complete historical transaction data for a specific address in parsed, human-readable format.
-
-## Next Steps
-
-<CardGroup>
-  <Card title="Parse Transaction(s)" icon="code" href="/api-reference/enhanced-transactions/gettransactions">
-    Parse individual or multiple transactions to get human-readable data.
+<CardGroup cols={2}>
+  <Card title="Parse Transaction(s)" icon="code" href="#parse-individual-transactions">
+    Parse individual or multiple transactions to get human-readable data
   </Card>
-  <Card title="Parsed Transaction History" icon="clock-rotate-left" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
-    Retrieve complete historical transaction data for a specific address in parsed, human-readable format.
+  <Card title="Transaction History" icon="clock-rotate-left" href="#fetch-transaction-history-for-an-address">
+    Get historical transaction data for any address
   </Card>
 </CardGroup>
 
-## FAQs
+<Note>
+**Quick Reference**:
+- `/v0/transactions` - Parse individual or multiple transaction signatures
+- `/v0/addresses/{address}/transactions` - Get transaction history for an address
+- Filter by transaction type using the `type` parameter (e.g., `NFT_SALE`, `SWAP`, `TRANSFER`)
+</Note>
 
-### General Questions
+<Warning>
+**Important Limitations**:
+- Enhanced Transaction API V1 won't be updated while we are working on V2
+- We only parse NFT, Jupiter, and SPL-related transactions
+- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
+</Warning>
+
+## Overview
+
+The Enhanced Transactions API transforms complex Solana transactions into human-readable data. Instead of dealing with raw instruction data and account lists, you get structured information about:
+
+- What happened in the transaction (transfers, swaps, NFT activities)
+- Which accounts were involved
+- How much SOL or tokens were transferred
+- Timestamps and other metadata
+
+## Getting Started
+
+### Parse Individual Transactions
+
+Parse one or more transaction signatures or raw transaction data with a single API call:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const parseTransaction = async () => {
+      const url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY";
+    
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactions: ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"],
+        }),
+      });
+    
+      const data = await response.json();
+      console.log("Parsed transaction:", data);
+    };
+    
+    parseTransaction();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    import json
+    
+    def parse_transaction():
+        url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY"
+        
+        payload = {
+            "transactions": ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"]
+        }
+        
+        response = requests.post(url, json=payload)
+        data = response.json()
+        print("Parsed transaction:", data)
+        
+    parse_transaction()
+    ```
+  </Tab>
+</Tabs>
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactions">
+  View detailed documentation for parsing transactions
+</Card>
+
+### Fetch Transaction History for an Address
+
+Retrieve transaction history for any Solana address:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api.helius.xyz/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+  </Tab>
+</Tabs>
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  View detailed documentation for transaction history
+</Card>
+
+<Warning>
+**Handling Incomplete Transaction Sets**
+
+Occasionally, history endpoint may return an incomplete set of transactions due to internal timeouts during data retrieval.
+
+To mitigate this issue:
+1. First, call `getSignaturesForAddress` to retrieve a batch of transaction signatures
+2. Next, use the `/v0/transactions` endpoint with the received signatures
+3. If any transactions are missing from the response, you can retry fetching these specific transactions
+</Warning>
+
+## Common Use Cases
+
+### Complete Pagination Example
+
+For high-volume addresses, implement pagination to fetch all transactions:
+
+```javascript
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before=${lastSignature}`;
+    }
+    
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
+      break;
+    }
+  }
+  
+  return allTransactions;
+};
+```
+
+### Filter Transactions by Type
+
+Get only specific transaction types, such as NFT sales:
+
+<Tabs>
+  <Tab title="NFT Sales">
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+  </Tab>
+  <Tab title="Token Transfers">
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+  </Tab>
+  <Tab title="Swaps">
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## API Reference
+
+### Query Parameters
+
+| Parameter | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `limit` | Number of transactions to return | 10 | `&limit=25` |
+| `before` | Fetch transactions before this signature | - | `&before=sig123...` |
+| `until` | Fetch transactions until this signature | - | `&until=sig456...` |
+| `type` | Filter by transaction type | - | `&type=NFT_SALE` |
+| `commitment` | Commitment level | `finalized` | `&commitment=confirmed` |
+
+### Response Example
+
+Enhanced transaction responses include structured data with human-readable descriptions:
+
+```json
+{
+  "description": "Transfer 0.1 SOL to FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+  "type": "TRANSFER",
+  "source": "SYSTEM_PROGRAM",
+  "fee": 5000,
+  "feePayer": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+  "signature": "5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP",
+  "slot": 171341028,
+  "timestamp": 1674080473,
+  "nativeTransfers": [
+    {
+      "fromUserAccount": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "toUserAccount": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 100000000
+    }
+  ],
+  "events": {
+    "sol": {
+      "from": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "to": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 0.1
+    }
+  }
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Error Handling" icon="shield-check">
+    Implement proper error handling and retries for production applications
+  </Card>
+  <Card title="Rate Limiting" icon="gauge-high">
+    Use pagination and caching strategies to avoid hitting rate limits
+  </Card>
+</CardGroup>
+
+### Error Handling
+
+Always implement proper error handling in your code:
+
+```javascript
+const fetchTransactions = async () => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+    // Implement retry logic or user-friendly error messages
+  }
+};
+```
+
+### Rate Limiting Considerations
+
+To avoid hitting rate limits when working with the API:
+
+- Implement pagination for large datasets
+- Cache responses when appropriate
+- Add exponential backoff for retries
+- Consider upgrading your API plan for high-volume applications
+
+<Tip>
+For high-traffic applications, consider implementing a caching layer with Redis or similar technology to minimize redundant API calls.
+</Tip>
+
+## FAQs
 
 <AccordionGroup>
   <Accordion title="What is the Enhanced Transactions API?">
@@ -48,54 +329,12 @@ Retrieve complete historical transaction data for a specific address in parsed, 
   <Accordion title="What's the difference between V1 and V2?">
     Enhanced Transaction API V1 won't be updated while we are working on V2. V2 will introduce additional parsing capabilities and improvements.
   </Accordion>
-</AccordionGroup>
 
-### Usage Questions
-
-<AccordionGroup>
   <Accordion title="How do I authenticate API requests?">
     All requests to the Enhanced Transactions API require your Helius API key, which should be provided as a query parameter (`?api-key=YOUR_API_KEY`).
   </Accordion>
 
   <Accordion title="Are there rate limits?">
     Yes, API usage is subject to Helius's standard rate limiting and pricing policies. Please refer to the [Plans & Rate limits](/billing/plans-and-rate-limits) page for more information.
-  </Accordion>
-
-  <Accordion title="How do I handle pagination for large transaction histories?">
-    When fetching transaction history for an address, use the `before` parameter with the signature of the oldest transaction from your previous request to paginate through results.
-  </Accordion>
-
-  <Accordion title="What commitment level should I use?">
-    If not specified, the default commitment level is "finalized". You can optionally specify "processed" or "confirmed" depending on your use case.
-  </Accordion>
-</AccordionGroup>
-
-### Technical Questions
-
-<AccordionGroup>
-  <Accordion title="What information is included in the parsed transaction?">
-    The parsed transaction includes:
-    - Human-readable description
-    - Transaction type
-    - Source program
-    - Fee information
-    - Signature
-    - Slot and timestamp
-    - Token transfers
-    - Native SOL transfers
-    - Account data changes
-    - Categorized events (NFT, swap, SOL transfers)
-  </Accordion>
-
-  <Accordion title="How do I parse raw transactions?">
-    You can send either transaction signatures or raw transactions to the `/v0/transactions` endpoint. For raw transactions, provide the base64-encoded transaction data.
-  </Accordion>
-
-  <Accordion title="Can I filter transactions by type?">
-    The API doesn't currently support filtering by transaction type in the request. You'll need to filter the results on your end after receiving them.
-  </Accordion>
-
-  <Accordion title="How far back can I fetch transaction history?">
-    The API allows you to fetch the complete transaction history for a Solana address, subject to the limitations of the underlying Solana blockchain data availability.
   </Accordion>
 </AccordionGroup> 
