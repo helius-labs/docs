@@ -1,205 +1,513 @@
 ---
-title: "How to get NFTs"
-sidebarTitle: 'Get NFTs'
-description: "Learn how to retrieve and query NFT data using Helius DAS API"
+title: "How to get Assets"
+sidebarTitle: 'Get Assets'
+description: "Learn how to retrieve and query data for all Solana assets including NFTs and SPL tokens using Helius APIs"
 ---
 
-The Helius Digital Asset Standard (DAS) API provides powerful tools for reading and querying NFT data on Solana.
+<Note>
+**Quick Reference**: Use `getAsset` for single assets, `getAssetsByOwner` for wallet holdings, `searchAssets` for filtered queries, and access real-time price data for Jupiter verified tokens.
+</Note>
 
-## Getting a Single NFT
+The Helius Digital Asset Standard (DAS) API provides powerful tools for reading and querying both NFT and token data on Solana. This guide shows you how to work with different types of Solana assets effectively.
 
-Retrieve comprehensive data for a specific NFT using `getAsset`:
+<CardGroup cols={2}>
+  <Card title="Query NFTs" icon="image" href="#working-with-nfts-and-digital-collectibles">
+    Retrieve, search, and manage NFT data and collections
+  </Card>
+  <Card title="Access SPL Tokens" icon="coins" href="#working-with-spl-tokens">
+    Get token balances, accounts, and holder information
+  </Card>
+  <Card title="Token Pricing" icon="chart-line" href="#price-data-for-jupiter-verified-tokens">
+    Access real-time price data for Jupiter verified tokens
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/das">
+    View detailed API documentation
+  </Card>
+</CardGroup>
+
+## Price Data for Jupiter Verified Tokens
 
 ```typescript
-const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getAsset",
-    params: {
-      id: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk",
+const fetchTokenPriceData = async () => {
+  const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  }),
-});
-const data = await response.json();
-console.log(data);
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getAsset",
+      params: {
+        id: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263", // Bonk token mint address
+        displayOptions: {
+          showFungibleTokens: true
+        }
+      },
+    }),
+  });
+  
+  const data = await response.json();
+  
+  // Calculate market cap
+  if (data.result?.token_info?.price_info) {
+    const marketCap = data.result.token_info.price_info.price_per_token * data.result.token_info.supply;
+    console.log(`Market Cap: $${marketCap.toLocaleString()}`);
+  }
+  
+  return data;
+};
 ```
 
 <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getasset">
   View detailed documentation for getAsset
 </Card>
 
-## Querying NFTs by Owner
+### Response Structure
 
-Find all NFTs owned by a specific wallet:
+The price data is available in the response under `token_info.price_info`:
 
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getAssetsByOwner",
-    params: {
-      ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-      page: 1,
-      limit: 10,
-    },
-  }),
-});
-const data = await response.json();
-console.log(data);
+```json
+{
+  "token_info": {
+    "symbol": "Bonk",
+    "supply": 8881594973561640000,
+    "decimals": 5,
+    "token_program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "price_info": {
+      "price_per_token": 0.0000192271,
+      "currency": "USDC"
+    }
+  }
+}
 ```
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbyowner">
-  View detailed documentation for getAssetsByOwner
-</Card>
+### Calculating Market Cap
 
-## Searching NFTs
-
-Search for NFTs by various attributes:
+To calculate a token's market cap, multiply its price by the total supply:
 
 ```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "searchAssets",
-    params: {
-      ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-      tokenType: "all",
-      limit: 50,
-    },
-  }),
-});
-const data = await response.json();
-console.log(data);
+const marketCap = pricePerToken * supply;
 ```
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/searchassets">
-  View detailed documentation for searchAssets
-</Card>
+This calculation gives you the total market valuation of the token.
 
-## Advanced Queries
+## Working with NFTs and Digital Collectibles
 
-### By Creator
+The DAS API offers several methods for working with NFTs and digital collectibles. These methods allow you to retrieve individual assets, query by owner or creator, and verify on-chain authenticity.
+
+<Tabs>
+  <Tab title="Get Single NFT">
+    <div>
+      <h3>Getting a Single NFT</h3>
+      <p>Retrieve comprehensive data for a specific NFT:</p>
+      
+      ```typescript
+      const getNFT = async (mintAddress) => {
+        const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getAsset",
+            params: {
+              id: mintAddress,
+            },
+          }),
+        });
+        
+        const data = await response.json();
+        return data;
+      };
+
+      // Example usage
+      getNFT("F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk");
+      ```
+    </div>
+  </Tab>
+  <Tab title="Find by Owner">
+    <div>
+      <h3>Finding NFTs by Owner</h3>
+      <p>Retrieve all NFTs owned by a specific wallet address:</p>
+      
+      ```typescript
+      const getNFTsByOwner = async (ownerAddress) => {
+        const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getAssetsByOwner",
+            params: {
+              ownerAddress: ownerAddress,
+              page: 1,
+              limit: 10,
+            },
+          }),
+        });
+        
+        const data = await response.json();
+        return data;
+      };
+
+      // Example usage
+      getNFTsByOwner("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+      ```
+    </div>
+  </Tab>
+  <Tab title="Advanced Search">
+    <div>
+      <h3>Searching Assets with Advanced Filters</h3>
+      <p>Search for assets by various attributes with detailed filters:</p>
+      
+      ```typescript
+      const searchAssets = async (params) => {
+        const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "searchAssets",
+            params: params,
+          }),
+        });
+        
+        const data = await response.json();
+        return data;
+      };
+
+      // Example: Find all NFTs owned by an address
+      searchAssets({
+        ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+        tokenType: "all",
+        limit: 50,
+      });
+      ```
+    </div>
+  </Tab>
+</Tabs>
+
+<CardGroup cols={3}>
+  <Card title="getAsset" icon="image" href="/api-reference/das/getasset">
+    Detailed data for a single asset
+  </Card>
+  <Card title="getAssetsByOwner" icon="user" href="/api-reference/das/getassetsbyowner">
+    All assets owned by an address
+  </Card>
+  <Card title="searchAssets" icon="magnifying-glass" href="/api-reference/das/searchassets">
+    Filter assets by multiple criteria
+  </Card>
+</CardGroup>
+
+### Advanced NFT Query Methods
+
+<Tabs>
+  <Tab title="By Creator">
+    ```typescript
+    const getAssetsByCreator = async (creatorAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getAssetsByCreator",
+          params: {
+            creatorAddress: creatorAddress,
+            page: 1,
+            limit: 100,
+          },
+        }),
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getAssetsByCreator("9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F");
+    ```
+  </Tab>
+  <Tab title="By Collection">
+    ```typescript
+    const getAssetsByCollection = async (collectionAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getAssetsByGroup",
+          params: {
+            groupKey: "collection",
+            groupValue: collectionAddress,
+            page: 1,
+            limit: 100,
+          },
+        }),
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getAssetsByCollection("J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w");
+    ```
+  </Tab>
+  <Tab title="Transaction History">
+    ```typescript
+    const getNFTTransactionHistory = async (mintAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getSignaturesForAsset",
+          params: {
+            id: mintAddress,
+            page: 1,
+            limit: 100,
+          },
+        }),
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getNFTTransactionHistory("FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC");
+    ```
+  </Tab>
+  <Tab title="On-Chain Proof">
+    ```typescript
+    const getNFTProof = async (mintAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getAssetProof",
+          params: {
+            id: mintAddress,
+          },
+        }),
+      });
+      
+      const proof = await response.json();
+      return proof;
+    };
+    
+    // Example usage
+    getNFTProof("Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss");
+    ```
+  </Tab>
+</Tabs>
+
+<CardGroup cols={4}>
+  <Card title="By Creator" icon="user" href="/api-reference/das/getassetsbycreator">API Reference</Card>
+  <Card title="By Collection" icon="layer-group" href="/api-reference/das/getassetsbygroup">API Reference</Card>
+  <Card title="Transaction History" icon="history" href="/api-reference/das/getsignaturesforasset">API Reference</Card>
+  <Card title="On-Chain Proof" icon="check-double" href="/api-reference/das/getassetproof">API Reference</Card>
+</CardGroup>
+
+## Working with SPL Tokens
+
+SPL tokens can be queried through multiple methods in the Helius API. These methods let you check balances, find token accounts, and get token metadata.
+
+### Common SPL Token Operations
+
+<Tabs>
+  <Tab title="Token Balance">
+    ```typescript
+    const getTokenBalance = async (tokenAccountAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenAccountBalance',
+          params: [tokenAccountAddress]
+        })
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getTokenBalance("3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa");
+    ```
+    
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/rpc/http/gettokenaccountbalance">
+      View getTokenAccountBalance documentation
+    </Card>
+  </Tab>
+  <Tab title="Tokens by Owner">
+    ```typescript
+    const getTokensByOwner = async (ownerAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenAccountsByOwner',
+          params: [
+            ownerAddress,
+            {
+              programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+            },
+            {
+              encoding: 'jsonParsed'
+            }
+          ]
+        })
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getTokensByOwner("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+    ```
+    
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/rpc/http/gettokenaccountsbyowner">
+      View getTokenAccountsByOwner documentation
+    </Card>
+  </Tab>
+  <Tab title="Token Supply">
+    ```typescript
+    const getTokenSupply = async (mintAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenSupply',
+          params: [mintAddress]
+        })
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getTokenSupply("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+    ```
+    
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/rpc/http/gettokensupply">
+      View getTokenSupply documentation
+    </Card>
+  </Tab>
+  <Tab title="Largest Holders">
+    ```typescript
+    const getTokenLargestAccounts = async (mintAddress) => {
+      const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getTokenLargestAccounts',
+          params: [mintAddress]
+        })
+      });
+      
+      const data = await response.json();
+      return data;
+    };
+    
+    // Example usage
+    getTokenLargestAccounts("he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A");
+    ```
+    
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/rpc/http/gettokenlargestaccounts">
+      View getTokenLargestAccounts documentation
+    </Card>
+  </Tab>
+</Tabs>
+
+### Advanced SPL Token Queries
+
+You can also find all accounts holding a specific token mint:
 
 ```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getAssetsByCreator",
-    params: {
-      creatorAddress: "9uBX3ASjxWvNBAD1xjbVaKA74mWGZys3RGSF7DdeDD3F",
-      page: 1,
-      limit: 100,
-    },
-  }),
-});
-const data = await response.json();
-console.log(data);
+const getTokenAccountsByMint = async (mintAddress) => {
+  const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'getTokenAccountsByOwner',
+      params: [
+        'CEXq1uy9y15PL2Wb4vDQwQfcJakBGjaAjeuR2nKLj8dk', // Owner address
+        {
+          mint: mintAddress
+        },
+        {
+          encoding: 'jsonParsed'
+        }
+      ]
+    })
+  });
+  
+  const data = await response.json();
+  return data;
+};
+
+// Example usage
+getTokenAccountsByMint("8wXtPeU6557ETkp9WHFY1n1EcU6NxDvbAggHGsMYiHsB");
 ```
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbycreator">
-  View detailed documentation for getAssetsByCreator
-</Card>
+## Best Practices
 
-### By Collection
+When working with the DAS API, keep these best practices in mind:
 
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getAssetsByGroup",
-    params: {
-      groupKey: "collection",
-      groupValue: "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w",
-      page: 1,
-      limit: 100,
-    },
-  }),
-});
-const data = await response.json();
-console.log(data);
-```
+1. **Use pagination** for methods that return large data sets
+2. **Handle errors gracefully** by implementing try/catch blocks
+3. **Cache responses** when appropriate to reduce API calls
+4. **Respect rate limits** to avoid disruptions in your application
+5. **Verify Jupiter price data** is available before calculating market cap
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbygroup">
-  View detailed documentation for getAssetsByGroup
-</Card>
+## FAQ
 
-## NFT Transaction History
-
-Track the history of an NFT:
-
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getSignaturesForAsset",
-    params: {
-      id: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC",
-      page: 1,
-      limit: 100,
-    },
-  }),
-});
-const data = await response.json();
-console.log(data);
-```
-
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/getsignaturesforasset">
-  View detailed documentation for getSignaturesForAsset
-</Card>
-
-## Getting On-Chain Proof
-
-Verify NFT authenticity with Merkle proofs:
-
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getAssetProof",
-    params: {
-      id: "Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss",
-    },
-  }),
-});
-const proof = await response.json();
-console.log(proof);
-```
-
-<Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetproof">
-  View detailed documentation for getAssetProof
-</Card>
+<AccordionGroup>
+  <Accordion title="How do I get all NFTs for a wallet?">
+    Use the `getAssetsByOwner` method with the wallet address. Be sure to implement pagination if the wallet might contain many assets.
+  </Accordion>
+  <Accordion title="Can I get price data for any token?">
+    Price data is only available for tokens that are verified on Jupiter. Check if `token_info.price_info` exists in the response.
+  </Accordion>
+  <Accordion title="How do I find the largest holders of a token?">
+    Use the `getTokenLargestAccounts` method with the token's mint address to retrieve a list of the largest holder accounts.
+  </Accordion>
+  <Accordion title="What's the difference between getAsset and searchAssets?">
+    `getAsset` retrieves data for a single asset by its mint address, while `searchAssets` allows you to query multiple assets using various filters.
+  </Accordion>
+</AccordionGroup>
