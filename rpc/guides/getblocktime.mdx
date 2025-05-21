@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlockTime to Estimate Block Production Time"
-description: "Learn to use the Solana getBlockTime RPC method to retrieve the estimated production time of a specific block."
+title: "How to Use getBlockTime"
+description: "Learn getBlockTime use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlockTime` to Estimate Block Production Time
-
-The `getBlockTime` RPC method provides the estimated production time of a specified block, identified by its slot number. The time is returned as a Unix timestamp (seconds since the Unix epoch).
+The [`getBlockTime`](https://www.helius.dev/docs/api-reference/rpc/http/getblocktime) RPC method provides the estimated production time of a specified block, identified by its slot number. The time is returned as a Unix timestamp (seconds since the Unix epoch).
 
 This method is useful when you need to correlate block production with real-world time.
 
@@ -72,7 +70,7 @@ getSpecificBlockTime(slotToQuery);
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Timestamp Availability:** Timestamps might not be available for all blocks, especially very old ones or slots that were skipped. In such cases, the method returns `null`.
 *   **Estimation:** The time is an *estimate*. It's derived from stake-weighted mean of Vote timestamps from validators. While generally accurate, it's not a guaranteed, cryptographically secure timestamp for every single block in the same way a blockhash is.

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBalance to Check SOL Balance"
-description: "Learn to use the Solana getBalance RPC method to quickly retrieve the SOL (lamport) balance of any account."
+title: "How to Use getBalance"
+description: "Learn getBalance use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBalance` to Check SOL Balance
-
-The `getBalance` RPC method is a straightforward way to find out the native SOL balance of any account on the Solana blockchain. It returns the balance in lamports (1 SOL = 1,000,000,000 lamports).
+The [`getBalance`](https://www.helius.dev/docs/api-reference/rpc/http/getbalance) RPC method is a straightforward way to find out the native SOL balance of any account on the Solana blockchain. It returns the balance in lamports (1 SOL = 1,000,000,000 lamports).
 
 This method is more lightweight than `getAccountInfo` if you *only* need the SOL balance and no other account details.
 
@@ -18,7 +16,7 @@ This method is more lightweight than `getAccountInfo` if you *only* need the SOL
 1.  `publicKey` (string, required): The base-58 encoded public key of the account to query.
 
 2.  `config` (object, optional): A configuration object with the following fields:
-    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use for the query. Defaults to `finalized`.
+    *   `commitment` (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Defaults to `finalized`.
         *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
         *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
         *   `processed`: The node will query its most recent block. Note that the block may not be complete.
@@ -78,3 +76,11 @@ async function checkBalance() {
 checkBalance();
 ```
 </CodeGroup> 
+
+## Developer Tips
+
+*   **Simplicity for SOL Balance:** If you only need an account's SOL balance and no other on-chain data (like owner, data, or executable status), `getBalance` is more efficient than `getAccountInfo` as it fetches less data.
+*   **Non-Existent Accounts:** If an account does not exist on-chain (has never been initialized or had SOL), `getBalance` will return `0`. This can be a quick way to check for account existence if you only care about its SOL balance.
+*   **Lamports vs. SOL:** Remember that the balance is returned in lamports. You'll need to divide by `LAMPORTS_PER_SOL` (1,000,000,000) to convert it to SOL.
+*   **Commitment Levels:** The choice of `commitment` can affect how quickly you get the balance and how confirmed that balance is. For most UI display purposes, `confirmed` offers a good balance. For critical financial transactions, `finalized` provides the highest assurance. Refer to our guide on [Solana Commitment Levels](https://www.helius.dev/blog/solana-commitment-levels) for more details.
+*   **Batching with `getMultipleAccounts`:** While `getBalance` is for a single account, if you need balances for many accounts, using `getMultipleAccounts` and then extracting the lamport balance from each account's info can be more performant than many individual `getBalance` calls. 

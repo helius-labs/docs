@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlock to Retrieve Block Details"
-description: "Learn to use the Solana getBlock RPC method to fetch detailed information about a confirmed block, including its transactions, blockhash, and parent slot."
+title: "How to Use getBlock"
+description: "Learn getBlock use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlock` to Retrieve Block Details
-
-The `getBlock` RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time.
+The [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time. To understand more about how slots, blocks, and epochs work together on Solana, check out our deep dive: [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -20,7 +18,7 @@ The `getBlock` RPC method allows you to retrieve detailed information about a co
 1.  `slot` (number, required): The slot number of the block to query (u64).
 
 2.  `config` (object, optional): A configuration object with the following fields:
-    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use. `processed` is not supported for this method. Defaults to `finalized`.
+    *   `commitment` (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use. `processed` is not supported for this method. Defaults to `finalized`.
     *   `encoding` (string, optional): The encoding for transaction data. Defaults to `json` if `transactionDetails` is `full` or `accounts`, otherwise `base64`.
         *   `json`: Returns transactions and accounts data in JSON format (deprecated in favor of `jsonParsed`).
         *   `jsonParsed`: Returns transactions and accounts data as parsed JSON. This is recommended as it includes all transaction account keys (including those from Address Lookup Tables).
@@ -119,3 +117,17 @@ async function getBlockDetails() {
 getBlockDetails();
 ```
 </CodeGroup> 
+
+## Developer Tips
+
+*   **Slot vs. Block Height:** Remember that `getBlock` takes a `slot` number as input, not necessarily a block height. While slots are sequential, some slots might be skipped by leaders. The `blockHeight` field in the response indicates the actual number of blocks before this one.
+*   **`maxSupportedTransactionVersion` is Crucial:** To inspect blocks with versioned transactions (which are standard now and use Address Lookup Tables), you **must** set `maxSupportedTransactionVersion: 0` (or a higher version if a new standard emerges). Forgetting this will result in errors for most modern blocks.
+*   **Choosing `transactionDetails`:** 
+    *   `full` is needed for most detailed analysis but returns the most data.
+    *   `signatures` is useful if you only need to list transactions in a block.
+    *   `accounts` can be a middle ground if you need to see which accounts were involved without fetching all instruction data.
+    *   `none` is rare but could be used if you only care about block-level metadata like `blockhash` or `rewards`.
+*   **`jsonParsed` is Recommended for Encoding:** When requesting transaction details, `jsonParsed` provides the most developer-friendly output and correctly resolves accounts from Address Lookup Tables, which `json` (deprecated) does not.
+*   **Block Unavailability:** A `null` result means the block at that slot was not found. This could be because the slot was skipped, the block hasn't been confirmed to the level specified by your `commitment`, or the RPC node has pruned that historical block from its ledger (common for older slots).
+*   **Rewards Information:** Setting `rewards: true` is necessary to see the distribution of block rewards to the validator (and potentially stakers, depending on the reward type). This adds to the response size.
+*   **Understanding Block Structure:** For a deeper understanding of how blocks fit into Solana's architecture, refer to our guide: [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). 

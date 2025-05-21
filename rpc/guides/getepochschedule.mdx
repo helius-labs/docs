@@ -1,11 +1,9 @@
 ---
-title: "How to Use getEpochSchedule to Understand Epoch Timing"
-description: "Learn to use the Solana getEpochSchedule RPC method to retrieve the cluster's epoch schedule, including slots per epoch and warmup periods."
+title: "How to Use getEpochSchedule"
+description: "Learn getEpochSchedule use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getEpochSchedule` to Understand Epoch Timing
-
-The `getEpochSchedule` RPC method returns the epoch schedule information from the cluster's genesis configuration. This data defines how epochs are structured, including their length and how the leader schedule is determined relative to an epoch's start.
+The [`getEpochSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getepochschedule) RPC method returns the epoch schedule information from the cluster's genesis configuration. This data defines how epochs are structured, including their length and how the leader schedule is determined relative to an epoch's start. For a general overview of epochs in Solana, see our article on [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 Understanding the epoch schedule is crucial for applications that need to align with network events, predict epoch boundaries, or understand the leader rotation mechanism.
 
@@ -63,7 +61,7 @@ getClusterEpochSchedule();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Static Information:** The epoch schedule is determined by the genesis configuration of the cluster and generally does not change unless there is a significant network upgrade or a new cluster launch with different parameters.
 *   **Mainnet vs. Testnet/Devnet:** The epoch schedule, particularly `slotsPerEpoch` and warmup parameters, can differ significantly between Mainnet Beta, Testnet, and Devnet. Always query the specific cluster you are interested in.

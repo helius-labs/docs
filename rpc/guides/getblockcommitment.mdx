@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlockCommitment to Check Block Finality"
-description: "Learn to use the Solana getBlockCommitment RPC method to understand the level of commitment or finality for a specific block."
+title: "How to Use getBlockCommitment"
+description: "Learn getBlockCommitment use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlockCommitment` to Check Block Finality
-
-The `getBlockCommitment` RPC method provides information about the commitment status of a specific block in the Solana ledger. This is useful for understanding how finalized a block is, based on the stake that has voted on it.
+The [`getBlockCommitment`](https://www.helius.dev/docs/api-reference/rpc/http/getblockcommitment) RPC method provides information about the commitment status of a specific block in the Solana ledger. This is useful for understanding how finalized a block is, based on the stake that has voted on it. For a comprehensive understanding of how Solana measures block consensus and finality, refer to our guide on [What are Solana Commitment Levels?](https://www.helius.dev/blog/solana-commitment-levels).
 
 ## Common Use Cases
 
@@ -29,13 +27,15 @@ The `result` field of the JSON-RPC response will be an object containing:
 *   `totalStake` (number):
     *   The total active stake in the cluster (in lamports) at the slot this block was processed. This value is used to calculate the percentage of stake that has committed to the block.
 
-**Interpreting the `commitment` array:**
+## Developer Tips
 
-*   Higher values in the array, especially at deeper indices, indicate stronger confirmation and finality for the block.
-*   A `null` value for the `commitment` array means the RPC node does not have commitment data for this slot, often because the slot is too old or was skipped.
-*   If `commitment[i] / totalStake` is greater than or equal to the supermajority threshold (typically 2/3), the block can be considered to have reached a certain level of finality at depth `i`.
-
-This method is generally used for more advanced use cases requiring a nuanced understanding of block finality beyond the standard `confirmed` or `finalized` commitment levels offered by other RPC calls.
+*   **Interpreting the `commitment` Array:**
+    *   The `commitment` array shows the stake (in lamports) that has voted for the block at different confirmation depths. Higher values at deeper indices signify stronger finality.
+    *   A `null` `commitment` array often means the node doesn't have data for the slot, possibly because it's too old or was skipped.
+    *   You can gauge finality at depth `i` if `commitment[i] / totalStake >= 2/3` (supermajority).
+*   **Advanced Use Cases:** `getBlockCommitment` is for nuanced finality analysis. For most common scenarios, relying on standard commitment levels (`processed`, `confirmed`, or `finalized`) with other RPC methods (like `getTransaction` or `getBlock`) is simpler and sufficient.
+*   **Understanding Commitment:** To fully leverage `getBlockCommitment`, a solid understanding of Solana's commitment levels is essential. Read our detailed explanation: [What are Solana Commitment Levels?](https://www.helius.dev/blog/solana-commitment-levels).
+*   **Pruning:** Be aware that RPC nodes might prune old commitment information, leading to `null` results for older slots.
 
 ## Example: Fetching Block Commitment Information
 

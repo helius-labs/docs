@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlockHeight to Find the Current Block Height"
-description: "Learn to use the Solana getBlockHeight RPC method to retrieve the current block height of the blockchain."
+title: "How to Use getBlockHeight"
+description: "Learn getBlockHeight use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlockHeight` to Find the Current Block Height
-
-The `getBlockHeight` RPC method is a simple way to query a Solana node for its current block height. The block height represents the number of blocks that have been processed since the genesis block (slot 0).
+The [`getBlockHeight`](https://www.helius.dev/docs/api-reference/rpc/http/getblockheight) RPC method is a simple way to query a Solana node for its current block height. The block height represents the number of blocks that have been processed since the genesis block (slot 0). For a deeper understanding of how Solana structures its blockchain time, see our article on [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 This method is useful for quickly understanding how far the chain has progressed or for referencing the latest block height at a specific commitment level.
 
@@ -20,13 +18,20 @@ This method is useful for quickly understanding how far the chain has progressed
 `getBlockHeight` can optionally take a configuration object as its first parameter (or be called with no parameters to use defaults):
 
 1.  `config` (object, optional): A configuration object with the following fields:
-    *   `commitment` (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc/commitment) to use for the query. Defaults to `finalized`.
+    *   `commitment` (string, optional): Specifies the commitment level to use for the query. Defaults to `finalized`.
         *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
         *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
         *   `processed`: The node will query its most recent block. Note that the block may not be complete.
     *   `minContextSlot` (number, optional): The minimum slot that the request can be evaluated at. This ensures that the block height returned is from a slot equal to or greater than `minContextSlot`.
 
 If no parameters are provided, the method typically defaults to the `finalized` commitment.
+
+## Developer Tips
+
+*   **Commitment Levels Matter**: The block height returned can vary based on the `commitment` level specified. `finalized` gives the most stable height, while `processed` might give a more current but potentially transient height.
+*   **`minContextSlot` for Consistency**: Use `minContextSlot` if you need to ensure the block height is queried from a state that is at least as recent as a specific slot you are tracking.
+*   **Not a Slot Number**: Remember that block height is different from the slot number. A slot is a period of time, and not every slot produces a block (these are called skipped slots). Block height is the count of actual blocks produced.
+*   **Basic Chain Health Check**: While simple, `getBlockHeight` can be part of a basic chain health or synchronization check for your application or monitoring system.
 
 ## Response
 

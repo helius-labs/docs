@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlocksWithLimit to Retrieve a Limited List of Blocks"
-description: "Learn to use the Solana getBlocksWithLimit RPC method to fetch a list of confirmed block slot numbers starting from a given slot, up to a specified limit."
+title: "How to Use getBlocksWithLimit"
+description: "Learn getBlocksWithLimit use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlocksWithLimit` to Retrieve a Limited List of Blocks
-
-The `getBlocksWithLimit` RPC method allows you to retrieve a list of confirmed block slot numbers, starting from a specified slot and returning up to a given limit. This is useful when you need a specific number of subsequent confirmed blocks from a certain point in the ledger.
+The [`getBlocksWithLimit`](https://www.helius.dev/docs/api-reference/rpc/http/getblockswithlimit) RPC method allows you to retrieve a list of confirmed block slot numbers, starting from a specified slot and returning up to a given limit. This is useful when you need a specific number of subsequent confirmed blocks from a certain point in the ledger. For a general understanding of what blocks are in Solana, refer to [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -19,7 +17,7 @@ The `getBlocksWithLimit` method takes the following parameters:
 
 1.  **`start_slot`** (u64, required): The first slot to consider (inclusive).
 2.  **`limit`** (u64, required): The maximum number of block slots to return. The total number of slots queried (from `start_slot` up to `limit` blocks after it) **must not exceed 500,000 slots**.
-3.  **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query. If omitted, the default commitment of the node is used. This is passed as the sole field in a configuration object as the last parameter.
+3.  **`commitment`** (string, optional): Specifies the commitment level for the query. If omitted, the default commitment of the node is used. This is passed as the sole field in a configuration object as the last parameter.
 
 ## Response Structure
 
@@ -106,10 +104,11 @@ getBlocksWithLimitAndCommitment(commitStartSlot, commitLimit);
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
-*   **Range Limit:** The `limit` itself can be up to 500,000, but the underlying constraint is that the difference between the last potential slot considered (i.e., `start_slot + limit - 1`) and `start_slot` should not implicitly create a range larger than 500,000 if the node were to return all blocks up to that conceptual end. However, `getBlocksWithLimit` is primarily about the count from the start.
+*   **Range Clarification:** The `limit` parameter dictates the maximum number of block *slots* to return. The 500,000 slot constraint applies to the conceptual range scanned (i.e., from `start_slot` to `start_slot + limit - 1`). Ensure this conceptual range doesn't exceed 500,000 slots, even if fewer actual blocks are found and returned within that range.
 *   **Node Data Availability:** Nodes may not retain information for all historical slots. A very old `start_slot` might return fewer blocks than the specified `limit`, or an empty array, depending on the node's ledger retention.
 *   **Block Confirmation:** This method returns *confirmed* blocks. The exact set of blocks can vary slightly depending on the chosen `commitment` level and which node you query, especially for very recent slots.
+*   **Use Case Specificity:** `getBlocksWithLimit` is ideal when you know the starting point and need a fixed number of subsequent blocks. If you need all blocks in a known slot range, `getBlocks` might be more appropriate.
 
 This guide provides a clear overview of how to use the `getBlocksWithLimit` RPC method to list a specific number of confirmed block slots on the Solana network. 

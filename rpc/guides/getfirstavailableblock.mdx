@@ -1,11 +1,9 @@
 ---
-title: "How to Use getFirstAvailableBlock to Find the Oldest Block"
-description: "Learn to use the Solana getFirstAvailableBlock RPC method to find the slot of the oldest block currently available on a node."
+title: "How to Use getFirstAvailableBlock"
+description: "Learn getFirstAvailableBlock use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getFirstAvailableBlock` to Find the Oldest Block
-
-The `getFirstAvailableBlock` RPC method returns the slot number of the lowest (oldest) confirmed block that has not yet been purged from the ledger by the queried node. This is useful for understanding the range of historical data a particular node currently stores.
+The [`getFirstAvailableBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getfirstavailableblock) RPC method returns the slot number of the lowest (oldest) confirmed block that has not yet been purged from the ledger by the queried node. This is useful for understanding the range of historical data a particular node currently stores.
 
 ## Common Use Cases
 
@@ -54,7 +52,7 @@ logFirstAvailableBlock();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Node Specific:** The first available block can vary significantly between different RPC nodes. Nodes can be configured to prune ledger data at different rates, so one node might have a much deeper history than another.
 *   **Not Fixed:** The value returned by `getFirstAvailableBlock` will increase over time as older slots are eventually purged from the ledger to save space.

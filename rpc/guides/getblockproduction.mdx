@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlockProduction to Monitor Block Production"
-description: "Learn to use the Solana getBlockProduction RPC method to retrieve information about block production by validators."
+title: "How to Use getBlockProduction"
+description: "Learn getBlockProduction use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlockProduction` to Monitor Block Production
-
-The `getBlockProduction` RPC method provides information about block production in the current epoch or a specified slot range. It can be used to retrieve data for all validators or for a specific validator identity. This is valuable for monitoring validator performance and understanding block production patterns on the network.
+The [`getBlockProduction`](https://www.helius.dev/docs/api-reference/rpc/http/getblockproduction) RPC method provides information about block production in the current epoch or a specified slot range. It can be used to retrieve data for all validators or for a specific validator identity. This is valuable for monitoring validator performance and understanding block production patterns on the network. For more on the fundamentals of how blocks are produced and organized, see our article on [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -18,7 +16,7 @@ The `getBlockProduction` RPC method provides information about block production 
 
 The `getBlockProduction` method accepts an optional configuration object with the following parameters:
 
-1.  **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) to use for the query. If omitted, the default commitment of the node is used.
+1.  **`commitment`** (string, optional): Specifies the commitment level to use for the query. If omitted, the default commitment of the node is used.
 2.  **`range`** (object, optional): Defines a slot range to query.
     *   `firstSlot` (u64): The first slot to fetch block production information for (inclusive).
     *   `lastSlot` (u64, optional): The last slot to fetch block production information for (inclusive). If omitted, the current epoch's block production up to the current slot will be returned.
@@ -39,6 +37,14 @@ The `result` field of the JSON-RPC response will be an object containing:
     *   `range` (object):
         *   `firstSlot` (u64): The first slot of the queried range.
         *   `lastSlot` (u64): The last slot of the queried range.
+
+## Developer Tips
+
+*   **Understand Epoch Boundaries**: When querying by `identity` without a `range`, the data returned is for the current epoch up to the latest processed slot by the node. If you need data for a *full* past epoch for a specific validator, you'll need to determine the `firstSlot` and `lastSlot` for that epoch.
+*   **Node Data Availability**: The range of historical block production data can vary between RPC nodes. Very old slot ranges might not be available on all nodes.
+*   **Performance Monitoring**: `getBlockProduction` is key for building dashboards or alerts related to validator uptime and block production success rates.
+*   **Combining with `getLeaderSchedule`**: For deeper analysis, you can correlate `getBlockProduction` data with the output of `getLeaderSchedule` to see which specific leader slots were made or missed.
+*   **Identity vs. All Validators**: Querying without an `identity` can return a large amount of data, especially if no `range` or a wide `range` is specified. Be mindful of response sizes and processing requirements.
 
 ## Examples
 
@@ -167,11 +173,5 @@ const lastSlot = 200010000;   // Example end slot
 getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot);
 ```
 </CodeGroup>
-
-**Important Considerations:**
-
-*   **Node Data Availability:** The range of historical data available can vary between RPC nodes. Very old slot ranges might not be available.
-*   **Epoch Boundaries:** When querying by `identity` without a `range`, the data returned is for the current epoch up to the latest processed slot by the node.
-*   **Mainnet-beta vs. Devnet/Testnet:** The examples use `https://mainnet.helius-rpc.com/?api-key=<api-key>`. Adjust the RPC endpoint for Devnet or Testnet as needed. Validator identities and slot numbers will also differ.
 
 This guide should give you a solid understanding of how to use the `getBlockProduction` RPC method to analyze block production on Solana. 

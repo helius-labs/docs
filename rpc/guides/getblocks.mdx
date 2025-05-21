@@ -1,11 +1,9 @@
 ---
-title: "How to Use getBlocks to Retrieve a List of Blocks"
-description: "Learn to use the Solana getBlocks RPC method to fetch a list of confirmed block slot numbers within a specified range."
+title: "How to Use getBlocks"
+description: "Learn getBlocks use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getBlocks` to Retrieve a List of Blocks
-
-The `getBlocks` RPC method allows you to retrieve a list of confirmed block slot numbers between a specified start slot and an optional end slot. This is useful when you need to know which blocks have been confirmed in a particular range without fetching the full content of each block.
+The [`getBlocks`](https://www.helius.dev/docs/api-reference/rpc/http/getblocks) RPC method allows you to retrieve a list of confirmed block slot numbers between a specified start slot and an optional end slot. This is useful when you need to know which blocks have been confirmed in a particular range without fetching the full content of each block. For a general understanding of what blocks are in Solana, refer to [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -21,7 +19,7 @@ The `getBlocks` method takes the following parameters:
 2.  **`end_slot`** (u64, optional): The last slot to consider for the range (inclusive). 
     *   If not provided, the query will return blocks up to the latest confirmed slot from `start_slot`.
     *   The range between `start_slot` and `end_slot` (or latest slot if `end_slot` is omitted) **must not exceed 500,000 slots**.
-3.  **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query. If omitted, the default commitment of the node is used. This is passed as the sole field in a configuration object as the last parameter.
+3.  **`commitment`** (string, optional): Specifies the commitment level for the query. If omitted, the default commitment of the node is used. This is passed as the sole field in a configuration object as the last parameter.
 
 ## Response Structure
 
@@ -148,10 +146,12 @@ getBlocksWithCommitment(commitStartSlot, commitEndSlot);
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Range Limit:** Remember the 500,000 slot range limit. Requesting a larger range will result in an error.
 *   **Node Data Availability:** Nodes may not retain information for all historical slots. Very old `start_slot` values might return empty arrays or errors depending on the node's configuration and ledger retention.
 *   **Block Confirmation:** This method returns *confirmed* blocks. The exact set of blocks can vary slightly depending on the chosen `commitment` level and which node you query, especially for very recent slots.
+*   **Complement to `getBlock`:** `getBlocks` is often used as a first step to identify relevant block slots before using `getBlock` to retrieve the full details of individual blocks within that list.
+*   **Pagination Alternative:** Since `getBlocks` has a range limit, if you need to scan a very large portion of the chain, you'll need to make multiple calls to `getBlocks`, chunking your desired total range into segments of 500,000 slots or less.
 
 This guide provides a clear overview of how to use the `getBlocks` RPC method to list confirmed block slots on the Solana network. 

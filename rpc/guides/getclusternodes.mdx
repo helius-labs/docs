@@ -1,11 +1,11 @@
 ---
-title: "How to Use getClusterNodes to Discover Network Nodes"
-description: "Learn to use the Solana getClusterNodes RPC method to retrieve a list of all known nodes participating in the cluster and their contact information."
+title: "How to Use getClusterNodes"
+description: "Learn getClusterNodes use cases, code examples, request parameters, response structure, and tips."
 ---
 
 # How to Use `getClusterNodes` to Discover Network Nodes
 
-The `getClusterNodes` RPC method returns a list of all known nodes currently participating in the Solana cluster. This information can be useful for network analysis, discovering alternative RPC endpoints, or understanding the current topology of the network from the perspective of the queried node.
+The [`getClusterNodes`](https://www.helius.dev/docs/api-reference/rpc/http/getclusternodes) RPC method returns a list of all known nodes currently participating in the Solana cluster. This information can be useful for network analysis, discovering alternative RPC endpoints, or understanding the current topology of the network from the perspective of the queried node.
 
 ## Common Use Cases
 
@@ -69,7 +69,7 @@ getNodesInCluster();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Node's Perspective:** The returned list reflects the nodes known to the specific RPC node you are querying. Different RPC nodes might have slightly different views of the cluster, especially during network changes.
 *   **RPC Availability:** Not all nodes listed will necessarily have their RPC ports open or publicly accessible. The `rpc` field being non-null indicates an advertised RPC endpoint, but it doesn't guarantee accessibility or performance.

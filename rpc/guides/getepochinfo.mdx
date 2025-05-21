@@ -1,11 +1,9 @@
 ---
-title: "How to Use getEpochInfo to Get Epoch Details"
-description: "Learn to use the Solana getEpochInfo RPC method to retrieve information about the current epoch, including slot progress, block height, and transaction count."
+title: "How to Use getEpochInfo"
+description: "Learn getEpochInfo use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getEpochInfo` to Get Epoch Details
-
-The `getEpochInfo` RPC method returns information about the current epoch. This can be useful for understanding the current state of the network, how far into the current epoch the network has progressed, and when the next epoch might begin.
+The [`getEpochInfo`](https://www.helius.dev/docs/api-reference/rpc/http/getepochinfo) RPC method returns information about the current epoch. This can be useful for understanding the current state of the network, how far into the current epoch the network has progressed, and when the next epoch might begin. To get a better understanding of how epochs, slots, and blocks work together on Solana, you can read our article on [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -104,9 +102,9 @@ getConfirmedEpochInfo();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
-*   **Commitment Levels:** The choice of `commitment` can affect the timeliness and finality of the data. `processed` is the fastest but least safe, while `finalized` is the safest but may lag slightly.
+*   **Commitment Levels:** The choice of `commitment` can affect the timeliness and finality of the data. `processed` is the fastest but least safe, while `finalized` is the safest but may lag slightly. You can learn more about commitment levels in [this Helius blog post](https://www.helius.dev/blog/solana-commitment-levels).
 *   **`transactionCount` Availability:** The `transactionCount` field might be `null` if the node doesn't have this information readily available or if it's not tracked for the specific commitment level.
 *   **Epoch Length:** The number of `slotsInEpoch` can vary. You can use `getEpochSchedule` to get more details about the epoch schedule.
 
