@@ -1,11 +1,9 @@
 ---
-title: "How to Use getVoteAccounts to Get Validator Voting Information"
-description: "Learn to use the Solana getVoteAccounts RPC method to retrieve information about current and delinquent voting accounts (validators)."
+title: "How to Use getVoteAccounts"
+description: "Learn getVoteAccounts use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getVoteAccounts`
-
-The `getVoteAccounts` RPC method returns information about all voting accounts (validators) in the current bank. It distinguishes between `current` (active) and `delinquent` validators and provides details about their stake, voting activity, and identity.
+The [`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvoteaccounts) RPC method returns information about all voting accounts (validators) in the current bank. It distinguishes between `current` (active) and `delinquent` validators and provides details about their stake, voting activity, and identity.
 
 ## Common Use Cases
 
@@ -145,7 +143,7 @@ fetchVoteAccounts();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Large Response:** This method can return a large amount of data, especially on networks with many validators like Mainnet Beta. Be mindful of response size and processing time.
 *   **Delinquency Definition:** The definition of "delinquent" can depend on the `delinquentSlotDistance` and the node's perspective. A validator might appear delinquent on one node but not another if their view of the ledger tip differs.

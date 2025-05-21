@@ -1,11 +1,9 @@
 ---
-title: "How to Efficiently Fetch Multiple Accounts with getMultipleAccounts"
-description: "Learn to use the Solana getMultipleAccounts RPC method to retrieve data for several accounts in a single request, improving dApp performance."
+title: "How to Use getMultipleAccounts"
+description: "Learn getMultipleAccounts use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getMultipleAccounts`
-
-The `getMultipleAccounts` RPC method is a highly efficient way to fetch information for a list of Solana accounts simultaneously. Instead of making individual `getAccountInfo` requests for each account, `getMultipleAccounts` allows you to batch these requests, reducing network overhead and improving the responsiveness of your application.
+The [`getMultipleAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getmultipleaccounts) RPC method is a highly efficient way to fetch information for a list of Solana accounts simultaneously. Instead of making individual `getAccountInfo` requests for each account, `getMultipleAccounts` allows you to batch these requests, reducing network overhead and improving the responsiveness of your application. You can learn more about optimizing RPC calls in our [RPC Optimization Techniques guide](https://www.helius.dev/docs/rpc/optimization-techniques).
 
 ## Common Use Cases
 
@@ -185,7 +183,7 @@ fetchParsedTokenAccounts();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Maximum 100 Accounts:** You can request a maximum of 100 accounts per call.
 *   **Atomicity:** The request is not atomic in the sense that if one account lookup fails, others might still succeed. Check each element in the `value` array for `null`.

@@ -1,13 +1,11 @@
 ---
-title: "How to Use getMinimumBalanceForRentExemption to Calculate Rent Exemption"
-description: "Learn how to use the Solana getMinimumBalanceForRentExemption RPC method to determine the minimum lamport balance required for an account to be rent-exempt based on its data size."
+title: "How to Use getMinimumBalanceForRentExemption"
+description: "Learn getMinimumBalanceForRentExemption use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getMinimumBalanceForRentExemption`
+In Solana, accounts must maintain a minimum balance to cover storage costs over time, a concept known as rent. Accounts holding a balance equivalent to two years of rent payments are considered "rent-exempt" and do not have their balances depleted by rent. You can learn more about Solana's account model and rent in the [Solana Executive Overview](https://www.helius.dev/blog/solana-executive-overview).
 
-In Solana, accounts must maintain a minimum balance to cover storage costs over time, a concept known as rent. Accounts holding a balance equivalent to two years of rent payments are considered "rent-exempt" and do not have their balances depleted by rent.
-
-The `getMinimumBalanceForRentExemption` RPC method allows you to calculate this minimum lamport balance required for an account of a specific data size to become rent-exempt.
+The [`getMinimumBalanceForRentExemption`](https://www.helius.dev/docs/api-reference/rpc/http/getminimumbalanceforrentexemption) RPC method allows you to calculate this minimum lamport balance required for an account of a specific data size to become rent-exempt.
 
 ## Common Use Cases
 
@@ -107,7 +105,7 @@ fetchMinimumBalanceForZeroByteAccount();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Rent Varies by Data Size:** The larger the account's data, the higher the rent-exempt minimum will be.
 *   **Network Parameter:** The underlying cost of rent (lamports per byte-year) is a network parameter that can theoretically change via a cluster vote, though this is rare. The `getMinimumBalanceForRentExemption` method will always return the current value based on the cluster's state.

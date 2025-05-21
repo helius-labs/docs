@@ -1,11 +1,9 @@
 ---
-title: "How to Use getRecentPrioritizationFees for Optimal Transaction Fees"
-description: "Learn to use the Solana getRecentPrioritizationFees RPC method to fetch recent priority fee data, helping you set competitive fees for your transactions."
+title: "How to Use getRecentPrioritizationFees"
+description: "Learn getRecentPrioritizationFees use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getRecentPrioritizationFees`
-
-The `getRecentPrioritizationFees` RPC method provides insights into the prioritization fees paid in recent blocks on the Solana network. By examining these fees, developers can make more informed decisions about the additional fee (priority fee) to attach to their transactions to increase their likelihood of being processed promptly, especially during periods of high network activity.
+The [`getRecentPrioritizationFees`](https://www.helius.dev/docs/api-reference/rpc/http/getrecentprioritizationfees) RPC method provides insights into the prioritization fees paid in recent blocks on the Solana network. By examining these fees, developers can make more informed decisions about the additional fee (priority fee) to attach to their transactions to increase their likelihood of being processed promptly, especially during periods of high network activity. For a detailed explanation of how priority fees work, see [Priority Fees: Understanding Solana's Transaction Fee Mechanics](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics).
 
 Nodes typically cache prioritization fee data for up to 150 recent blocks.
 
@@ -138,7 +136,7 @@ fetchPrioritizationFeesForAccounts();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Fee Units:** Prioritization fees are expressed in micro-Lamports (0.000001 Lamports) per Compute Unit (CU).
 *   **Cache Window:** RPC nodes typically cache these fees for about 150 blocks. This means you are looking at a relatively short historical window (roughly 1-2 minutes).

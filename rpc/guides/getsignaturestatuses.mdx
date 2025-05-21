@@ -1,11 +1,9 @@
 ---
-title: "How to Use getSignatureStatuses to Check Transaction Confirmations"
-description: "Learn to use the Solana getSignatureStatuses RPC method to efficiently query the status of one or more transaction signatures."
+title: "How to Use getSignatureStatuses"
+description: "Learn getSignatureStatuses use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSignatureStatuses`
-
-The `getSignatureStatuses` RPC method allows you to retrieve the processing and confirmation status of a list of transaction signatures. This is useful for determining if transactions have been processed, confirmed, or finalized by the network.
+The [`getSignatureStatuses`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturestatuses) RPC method allows you to retrieve the processing and confirmation status of a list of transaction signatures. This is useful for determining if transactions have been processed, confirmed, or finalized by the network. You can learn more about the different transaction confirmation statuses in the [Solana Executive Overview](https://www.helius.dev/blog/solana-executive-overview) (see the Consensus section).
 
 Unless the `searchTransactionHistory` option is enabled, this method primarily queries a recent status cache on the RPC node. For older transactions, enabling `searchTransactionHistory` is crucial.
 
@@ -158,7 +156,7 @@ checkSignaturesWithHistory();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **`searchTransactionHistory`:** Crucial for reliability. If `false` (default), the method only checks a limited recent cache. If a transaction is old or was potentially dropped and not in this cache, it will return `null` for that signature's status. Always set to `true` if you need to confirm the status of transactions that might not be very recent.
 *   **Signature Limit:** You can query a maximum of 256 signatures per call.

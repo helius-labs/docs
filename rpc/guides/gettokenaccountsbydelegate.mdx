@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTokenAccountsByDelegate to Find Delegated Token Accounts"
-description: "Learn how to use the Solana getTokenAccountsByDelegate RPC method to find all SPL Token accounts that have delegated authority to a specific account."
+title: "How to Use getTokenAccountsByDelegate"
+description: "Learn getTokenAccountsByDelegate use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTokenAccountsByDelegate`
-
-The `getTokenAccountsByDelegate` RPC method retrieves all SPL Token accounts that have approved a specific public key as a delegate. A delegate has authority to perform certain actions on the token account, such as transferring or burning tokens, up to the delegated amount.
+The [`getTokenAccountsByDelegate`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbydelegate) RPC method retrieves all SPL Token accounts that have approved a specific public key as a delegate. A delegate has authority to perform certain actions on the token account, such as transferring or burning tokens, up to the delegated amount.
 
 This method is useful for services that manage delegated authority or need to discover which token accounts a particular key can act on behalf of.
 
@@ -191,7 +189,7 @@ findDelegatedAccounts(exampleDelegate, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXC
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Filter Requirement:** You *must* provide either `mint` or `programId` in the filter parameter. You cannot query for all delegated accounts across all token types without one of these filters.
 *   **Encoding:** Using `"jsonParsed"` for the `encoding` option is highly recommended for easier data handling, as it decodes the binary account data into a structured JSON format.

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTokenSupply to Check Total Token Supply"
-description: "Learn to use the Solana getTokenSupply RPC method to retrieve the total supply of a specific SPL Token."
+title: "How to Use getTokenSupply"
+description: "Learn getTokenSupply use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTokenSupply`
-
-The `getTokenSupply` RPC method returns the total supply of a specific SPL Token mint. This is essential for understanding the overall quantity of a token that has been created.
+The [`getTokenSupply`](https://www.helius.dev/docs/api-reference/rpc/http/gettokensupply) RPC method returns the total supply of a specific SPL Token mint. This is essential for understanding the overall quantity of a token that has been created.
 
 ## Common Use Cases
 
@@ -109,7 +107,7 @@ checkTokenSupply(exampleTokenMint);
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Immutable Supply (Usually):** For most SPL tokens, once minted, the total supply from the perspective of the mint account itself is fixed unless the mint has a specific minting authority that can create more tokens (or burn them, though burning typically happens from token accounts, not the mint's supply directly).
 *   **`decimals` is Key:** Always use the `decimals` field to correctly interpret the `amount` or `uiAmountString`.

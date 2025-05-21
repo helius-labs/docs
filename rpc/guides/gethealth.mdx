@@ -1,11 +1,9 @@
 ---
-title: "How to Use getHealth to Check Node Status"
-description: "Learn to use the Solana getHealth RPC-related endpoint to check if a node is healthy and synchronized with the cluster."
+title: "How to Use getHealth"
+description: "Learn getHealth use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getHealth` to Check Node Status
-
-The `getHealth` endpoint is used to check the current health status of a Solana RPC node. A healthy node is generally considered to be one that is operational and reasonably synchronized with the rest of the cluster (specifically, within a certain slot distance of the latest cluster confirmed slot, known as `HEALTH_CHECK_SLOT_DISTANCE`).
+The [`getHealth`](https://www.helius.dev/docs/api-reference/rpc/http/gethealth) endpoint is used to check the current health status of a Solana RPC node. A healthy node is generally considered to be one that is operational and reasonably synchronized with the rest of the cluster (specifically, within a certain slot distance of the latest cluster confirmed slot, known as `HEALTH_CHECK_SLOT_DISTANCE`).
 
 This endpoint is crucial for monitoring node health, especially for applications or infrastructure that rely on the availability and reliability of an RPC node.
 
@@ -116,7 +114,7 @@ async function checkRpcHealthViaPost(rpcUrl) {
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **HTTP GET vs. JSON-RPC POST:** Prioritize using the HTTP `GET /health` endpoint if available, as it's the standard way defined by Solana nodes. JSON-RPC POST for `getHealth` might be a provider-specific wrapper.
 *   **Definition of Healthy:** "Healthy" generally means the node is responsive and not too far behind the cluster's tip. The exact slot difference (`HEALTH_CHECK_SLOT_DISTANCE`) can be configured on the node.

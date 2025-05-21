@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTransactionCount to Get Ledger Transaction Count"
-description: "Learn to use the Solana getTransactionCount RPC method to retrieve the total number of transactions processed by the ledger."
+title: "How to Use getTransactionCount"
+description: "Learn getTransactionCount use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTransactionCount`
-
-The `getTransactionCount` RPC method returns the current total number of transactions processed by the Solana ledger since genesis, at a specified commitment level.
+The [`getTransactionCount`](https://www.helius.dev/docs/api-reference/rpc/http/gettransactioncount) RPC method returns the current total number of transactions processed by the Solana ledger since genesis, at a specified commitment level.
 
 ## Common Use Cases
 
@@ -87,7 +85,7 @@ getCurrentTransactionCount();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Ledger-Wide Count:** This count represents all transactions processed on the ledger since its inception, not just for a specific account or block.
 *   **Increasing Value:** The transaction count is a monotonically increasing value.

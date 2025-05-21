@@ -1,11 +1,9 @@
 ---
-title: "How to Use requestAirdrop to Get Test SOL"
-description: "Learn to use the Solana requestAirdrop RPC method to receive free SOL on Devnet or Testnet for testing purposes."
+title: "How to Use requestAirdrop"
+description: "Learn requestAirdrop use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `requestAirdrop`
-
-The `requestAirdrop` RPC method allows you to request an airdrop of SOL (lamports) to a specified account. This method is **exclusively for non-mainnet environments** like Devnet and Testnet, where it serves as a faucet to provide developers with free SOL for testing their applications.
+The [`requestAirdrop`](https://www.helius.dev/docs/api-reference/rpc/http/requestairdrop) RPC method allows you to request an airdrop of SOL (lamports) to a specified account. This method is **exclusively for non-mainnet environments** like Devnet and Testnet, where it serves as a faucet to provide developers with free SOL for testing their applications.
 
 **Important: This method will not work on Mainnet Beta.**
 
@@ -123,7 +121,7 @@ if (myDevnetWallet === 'REPLACE_WITH_YOUR_DEVNET_WALLET_ADDRESS') {
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Network Specific:** This method is only functional on test networks (Devnet, Testnet) that have a faucet enabled. It will fail on Mainnet Beta.
 *   **Rate Limiting:** Airdrop faucets are often rate-limited to prevent abuse. If you make too many requests in a short period, you might receive errors.

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getSlot to Check Current Network Slot"
-description: "Learn to use the Solana getSlot RPC method to retrieve the current slot number at a specified commitment level."
+title: "How to Use getSlot"
+description: "Learn getSlot use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSlot`
-
-The `getSlot` RPC method returns the current slot that the RPC node considers to have reached a specific commitment level. This is a fundamental method for understanding the current state of the blockchain as perceived by the node.
+The [`getSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getslot) RPC method returns the current slot that the RPC node considers to have reached a specific commitment level. This is a fundamental method for understanding the current state of the blockchain as perceived by the node.
 
 ## Common Use Cases
 
@@ -19,7 +17,7 @@ The `getSlot` RPC method returns the current slot that the RPC node considers to
 This method takes an optional configuration object as its first parameter:
 
 1.  **`options`** (`object`, optional): An optional configuration object with the following fields:
-    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.xyz/blog/what-are-solana-commitment-levels) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
         *   `processed`: The node will query its most recent slot. Note that this slot may not be confirmed by the cluster yet and could potentially be skipped.
         *   `confirmed`: The node will query the most recent slot that has been voted on by a supermajority of the cluster.
         *   `finalized`: The node will query the most recent slot confirmed by the supermajority of the cluster as having reached maximum lockout (cannot be rolled back).
@@ -115,9 +113,9 @@ getConfirmedSlot();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
-*   **Commitment Matters:** The returned slot number heavily depends on the `commitment` level specified. `processed` will be the highest (most recent) slot the node is aware of, while `finalized` will be an older slot that is confirmed by the entire network. Choose the commitment level appropriate for your use case's need for data finality.
+*   **Commitment Matters:** The returned slot number heavily depends on the `commitment` level specified. You can learn more in our guide [What are Solana Commitment Levels?](https://www.helius.xyz/blog/what-are-solana-commitment-levels). `processed` will be the highest (most recent) slot the node is aware of, while `finalized` will be an older slot that is confirmed by the entire network. Choose the commitment level appropriate for your use case's need for data finality.
 *   **Node Variability:** Different RPC nodes might return slightly different slot numbers for the same commitment level due to network propagation delays or their own processing state. This is especially true for `processed` and `confirmed` levels.
 *   **`minContextSlot`:** This parameter ensures that the node processing your request has reached at least the `minContextSlot`. If the node is behind this slot, the behavior might vary (e.g., an error or the node's current highest slot which is less than `minContextSlot`). It's generally used in advanced scenarios where you need to ensure a query is made against a sufficiently recent state.
 

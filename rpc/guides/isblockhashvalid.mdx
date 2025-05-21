@@ -1,11 +1,9 @@
 ---
-title: "How to Use isBlockhashValid to Check Blockhash Status"
-description: "Learn to use the Solana isBlockhashValid RPC method to determine if a given blockhash is still valid for transaction processing."
+title: "How to Use isBlockhashValid"
+description: "Learn isBlockhashValid use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `isBlockhashValid`
-
-The `isBlockhashValid` RPC method checks whether a previously obtained blockhash is still considered valid by the network. Blockhashes have a limited lifetime (approximately 2 minutes, or 150 blocks), after which transactions referencing them will be rejected.
+The [`isBlockhashValid`](https://www.helius.dev/docs/api-reference/rpc/http/isblockhashvalid) RPC method checks whether a previously obtained blockhash is still considered valid by the network. Blockhashes have a limited lifetime (approximately 2 minutes, or 150 blocks), after which transactions referencing them will be rejected.
 
 This method is crucial for applications that hold onto blockhashes for some time before submitting a transaction, to ensure the transaction doesn't fail due to an expired blockhash.
 
@@ -138,7 +136,7 @@ getRecentBlockhashAndCheck();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Blockhashes Expire:** Blockhashes are only valid for a limited time (around 150 slots, or roughly 1-2 minutes). Always fetch a fresh blockhash if you are unsure or if significant time has passed.
 *   **`minContextSlot` Usage:** Use `minContextSlot` to protect against querying a stale RPC node that might give an outdated "valid" response for a blockhash that is actually too old from the perspective of the rest of the cluster.

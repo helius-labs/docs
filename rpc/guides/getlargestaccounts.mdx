@@ -1,11 +1,9 @@
 ---
-title: "How to Use getLargestAccounts to Find Top Accounts by Balance"
-description: "Learn to use the Solana getLargestAccounts RPC method to retrieve a list of the top 20 accounts by lamport balance, with options to filter by circulating supply status."
+title: "How to Use getLargestAccounts"
+description: "Learn getLargestAccounts use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getLargestAccounts` to Find Top Accounts by Balance
-
-The `getLargestAccounts` RPC method returns a list of the top 20 accounts on the Solana network, ranked by their lamport balance. This method can be useful for network analysis, understanding wealth distribution, or identifying significant holders of SOL.
+The [`getLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getlargestaccounts) RPC method returns a list of the top 20 accounts on the Solana network, ranked by their lamport balance. This method can be useful for network analysis, understanding wealth distribution, or identifying significant holders of SOL.
 
 Note that the results from this method may be cached by the RPC node for up to two hours.
 
@@ -116,7 +114,7 @@ logLargestCirculatingAccounts();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Cached Data:** The results can be cached by the RPC node for up to two hours. This means the data might not be real-time to the latest block.
 *   **Limited to Top 20:** This method only returns the top 20 accounts. For a more comprehensive analysis of wealth distribution, other data sources or methods might be needed.

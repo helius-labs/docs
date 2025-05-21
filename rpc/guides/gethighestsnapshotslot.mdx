@@ -1,11 +1,9 @@
 ---
-title: "How to Use getHighestSnapshotSlot for Snapshot Information"
-description: "Learn to use the Solana getHighestSnapshotSlot RPC method to find the latest full and incremental snapshot slots available on a node."
+title: "How to Use getHighestSnapshotSlot"
+description: "Learn getHighestSnapshotSlot use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getHighestSnapshotSlot` for Snapshot Information
-
-The `getHighestSnapshotSlot` RPC method returns information about the highest slot for which the queried Solana node has ledger snapshots. This includes both the latest full snapshot slot and, if available, the latest incremental snapshot slot that is based on that full snapshot.
+The [`getHighestSnapshotSlot`](https://www.helius.dev/docs/api-reference/rpc/http/gethighestsnapshotslot) RPC method returns information about the highest slot for which the queried Solana node has ledger snapshots. This includes both the latest full snapshot slot and, if available, the latest incremental snapshot slot that is based on that full snapshot.
 
 Snapshots are crucial for nodes to quickly sync with the network and for ledger maintenance.
 
@@ -65,7 +63,7 @@ logHighestSnapshotSlot();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Node Specific:** The snapshot information is specific to the node being queried. Different nodes in the cluster might have different highest snapshot slots depending on their configuration and operational status.
 *   **Snapshotting Frequency:** Nodes create snapshots at configured intervals. The highest snapshot slot will advance as new snapshots are generated.

@@ -1,15 +1,13 @@
 ---
-title: "How to Use getSignaturesForAddress to Retrieve Transaction History"
-description: "Learn how to use the Solana getSignaturesForAddress RPC method to fetch a list of transaction signatures for a specific account address."
+title: "How to Use getSignaturesForAddress"
+description: "Learn getSignaturesForAddress use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSignaturesForAddress`
-
-The `getSignaturesForAddress` RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
+The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
 
 ## Common Use Cases
 
-*   **Account Transaction History:** Displaying the past transactions for a user's wallet.
+*   **Account Transaction History:** Displaying the past transactions for a user's wallet. For more advanced parsing of transaction history, consider using Helius's [Enhanced Transactions API](https://www.helius.dev/docs/enhanced-transactions).
 *   **Activity Auditing:** Reviewing all transactions associated with a particular smart contract or account.
 *   **Specific Transaction Lookup:** Finding a specific transaction by iterating through an account's history if only the involved address is known.
 *   **Data Indexing:** Building a localized index of transactions for faster querying and analysis.
@@ -230,7 +228,7 @@ paginateSignatures();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Pagination:** To get a complete transaction history for an active account, you'll likely need to make multiple requests, using the `before` parameter with the last signature received in the previous batch and a `limit`.
 *   **Rate Limits:** Be mindful of RPC node rate limits when fetching extensive transaction histories.

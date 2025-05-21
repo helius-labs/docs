@@ -1,11 +1,9 @@
 ---
-title: "How to Use getIdentity to Get Node's Public Key"
-description: "Learn to use the Solana getIdentity RPC method to retrieve the public key (identity) of the connected RPC node."
+title: "How to Use getIdentity"
+description: "Learn getIdentity use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getIdentity` to Get Node's Public Key
-
-The `getIdentity` RPC method returns the public key (also known as the identity or node ID) of the specific Solana RPC node to which you are connected. Each node in the Solana network has a unique cryptographic keypair, and its public key serves as its identifier.
+The [`getIdentity`](https://www.helius.dev/docs/api-reference/rpc/http/getidentity) RPC method returns the public key (also known as the identity or node ID) of the specific Solana RPC node to which you are connected. Each node in the Solana network has a unique cryptographic keypair, and its public key serves as its identifier.
 
 ## Common Use Cases
 
@@ -57,7 +55,7 @@ logNodeIdentity();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Node Specific:** The returned identity is unique to the specific RPC node instance you are connected to. If you connect to a different RPC endpoint (even if it's part of the same cluster or operated by the same provider but load-balanced), you might get a different identity.
 *   **Not for User Wallets:** The identity returned is for the RPC node itself, not for any user wallet or account on the Solana network.

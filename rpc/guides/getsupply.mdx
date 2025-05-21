@@ -1,11 +1,9 @@
 ---
-title: "How to Use getSupply to Check SOL Tokenomics"
-description: "Learn to use the Solana getSupply RPC method to retrieve current information about the total, circulating, and non-circulating SOL supply."
+title: "How to Use getSupply"
+description: "Learn getSupply use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSupply`
-
-The `getSupply` RPC method provides information about the current supply of SOL on the Solana network. It details the total supply, circulating supply, non-circulating supply, and can optionally list non-circulating accounts.
+The [`getSupply`](https://www.helius.dev/docs/api-reference/rpc/http/getsupply) RPC method provides information about the current supply of SOL on the Solana network. It details the total supply, circulating supply, non-circulating supply, and can optionally list non-circulating accounts.
 
 ## Common Use Cases
 
@@ -142,7 +140,7 @@ getNetworkSupply();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Lamports vs. SOL:** The amounts are returned in lamports. Remember to divide by `1,000,000,000` (1 SOL = 10^9 lamports) to convert to SOL.
 *   **Data Freshness:** The data reflects the state at the slot indicated in the `context` object and based on the commitment level used.

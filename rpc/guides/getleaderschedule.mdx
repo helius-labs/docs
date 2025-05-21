@@ -1,11 +1,9 @@
 ---
-title: "How to Use getLeaderSchedule to Find Epoch Leaders"
-description: "Learn to use the Solana getLeaderSchedule RPC method to retrieve the leader schedule for an epoch, optionally filtering by validator identity."
+title: "How to Use getLeaderSchedule"
+description: "Learn getLeaderSchedule use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getLeaderSchedule` to Find Epoch Leaders
-
-The `getLeaderSchedule` RPC method returns the assignment of block production leadership to validators for a specific epoch. Understanding the leader schedule can be useful for network analysis, predicting which validator will produce blocks at certain times, or for tools that interact with specific leaders.
+The [`getLeaderSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getleaderschedule) RPC method returns the assignment of block production leadership to validators for a specific epoch. Understanding the leader schedule can be useful for network analysis, predicting which validator will produce blocks at certain times, or for tools that interact with specific leaders. For a deeper understanding of how epochs and leader schedules work, see our article on [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
 
 ## Common Use Cases
 
@@ -20,7 +18,7 @@ The method can take up to two optional parameters:
 
 1.  **`slot`** (u64, optional): A slot number. If provided, the leader schedule for the epoch containing this slot will be fetched. If `null` or omitted, the leader schedule for the current epoch is fetched.
 2.  **`config`** (object, optional): A configuration object that can contain:
-    *   **`commitment`** (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment). If not provided, the node's default commitment is used.
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels). If not provided, the node's default commitment is used.
     *   **`identity`** (string, optional): A base-58 encoded public key of a validator. If provided, the returned schedule will only include slots assigned to this specific validator.
 
 ## Response Structure
@@ -126,7 +124,7 @@ fetchValidatorEpochSchedule();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Epoch Boundaries:** The leader schedule is fixed for an entire epoch. You can use `getEpochInfo` to find the start and end slots of an epoch.
 *   **Future Epochs:** Requesting the schedule for an epoch far in the future might return `null` if the network hasn't calculated it yet.

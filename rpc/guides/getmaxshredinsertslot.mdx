@@ -1,11 +1,9 @@
 ---
-title: "How to Use getMaxShredInsertSlot for Monitoring Node Progress"
-description: "Learn to use the Solana getMaxShredInsertSlot RPC method to get the maximum slot for which the node has received and inserted shreds, indicating its block processing progress."
+title: "How to Use getMaxShredInsertSlot"
+description: "Learn getMaxShredInsertSlot use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getMaxShredInsertSlot` for Monitoring Node Progress
-
-The `getMaxShredInsertSlot` RPC method returns the highest slot number for which the queried RPC node has successfully received and processed (inserted) shreds. Shreds are the constituent parts of Solana blocks. This value provides insight into how current the node is with the network's block production from the perspective of data ingestion.
+The [`getMaxShredInsertSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getmaxshredinsertslot) RPC method returns the highest slot number for which the queried RPC node has successfully received and processed (inserted) shreds. Shreds are the constituent parts of Solana blocks, propagated via the Turbine protocol. You can learn more about how shreds and Turbine work in [Turbine: Block Propagation on Solana](https://www.helius.dev/blog/turbine-block-propagation-on-solana). This value provides insight into how current the node is with the network's block production from the perspective of data ingestion.
 
 Understanding this metric is useful for assessing a node's ability to keep up with the rest of the network.
 
@@ -58,7 +56,7 @@ fetchMaxShredInsertSlot();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Node-Specific Value:** The `maxShredInsertSlot` is particular to the RPC node being queried. Different nodes can have varying values at the same moment due to differences in network latency and processing speeds.
 *   **Indicator of Ingestion, Not Finality:** This slot reflects the progress of shred *ingestion* by the node. It is not a measure of block finality. A slot might have its shreds inserted on one node but not yet be confirmed or finalized by the broader cluster. Use methods like `getSlot` with `finalized` commitment for finality checks.

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getVersion to Check Node Software Version"
-description: "Learn to use the Solana getVersion RPC method to retrieve the software version of the queried RPC node."
+title: "How to Use getVersion"
+description: "Learn getVersion use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getVersion`
-
-The `getVersion` RPC method returns the current Solana software version running on the queried RPC node. This includes the `solana-core` version string and a `feature-set` identifier.
+The [`getVersion`](https://www.helius.dev/docs/api-reference/rpc/http/getversion) RPC method returns the current Solana software version running on the queried RPC node. This includes the `solana-core` version string and a `feature-set` identifier.
 
 This method is useful for verifying the version of a node you are interacting with or for diagnostic purposes.
 
@@ -73,7 +71,7 @@ getNodeVersion();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Simplicity:** This is one of the simplest RPC calls, useful for a quick check of the node's software.
 *   **Node Specific:** The version returned is specific to the RPC node you are querying. Different nodes in the cluster might be running slightly different versions, especially during upgrade periods.

@@ -1,11 +1,9 @@
 ---
-title: "How to Fetch Program Accounts with getProgramAccounts"
-description: "Learn to use the Solana getProgramAccounts RPC method to efficiently retrieve all accounts owned by a specific program, using filters and encoding options."
+title: "How to Use getProgramAccounts"
+description: "Learn getProgramAccounts use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getProgramAccounts`
-
-The `getProgramAccounts` RPC method is a powerful tool for querying the Solana blockchain. It allows you to retrieve all accounts that are owned by a specific on-chain program. This is essential for a wide range of applications, from finding all token accounts associated with a user for a particular token mint, to discovering all user-specific data accounts for a decentralized application.
+The [`getProgramAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getprogramaccounts) RPC method is a powerful tool for querying the Solana blockchain. It allows you to retrieve all accounts that are owned by a specific on-chain program. This is essential for a wide range of applications, from finding all token accounts associated with a user for a particular token mint, to discovering all user-specific data accounts for a decentralized application. Helius provides documentation on [how to use getProgramAccounts efficiently](https://www.helius.dev/docs/rpc/http/get-program-accounts) and has also [announced performance improvements for this call](https://www.helius.dev/blog/faster-getprogramaccounts).
 
 Due to the potentially large number of accounts a program might own, `getProgramAccounts` provides robust filtering capabilities to help you narrow down your search and retrieve only the data you need efficiently.
 
@@ -213,7 +211,7 @@ findWalletTokenAccounts();
 ```
 </CodeGroup>
 
-**Important Considerations:**
+## Developer Tips
 
 *   **Performance:** `getProgramAccounts` can be resource-intensive on RPC nodes, especially without filters or for programs with many accounts. Always use filters (`dataSize`, `memcmp`) and `dataSlice` where possible to reduce the query scope and response size.
 *   **No Pagination:** This method does not currently support pagination. If a query returns too many results, the response might be truncated or the request might time out. Design your queries carefully.

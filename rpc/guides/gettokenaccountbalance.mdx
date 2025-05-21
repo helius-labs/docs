@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTokenAccountBalance to Check SPL Token Balances"
-description: "Learn to use the Solana getTokenAccountBalance RPC method to retrieve the balance of a specific SPL Token account."
+title: "How to Use getTokenAccountBalance"
+description: "Learn getTokenAccountBalance use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTokenAccountBalance`
-
-The `getTokenAccountBalance` RPC method returns the token balance of a specific SPL Token account. This is essential for applications that need to display or verify the amount of a particular token held by a token account.
+The [`getTokenAccountBalance`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountbalance) RPC method returns the token balance of a specific SPL Token account. This is essential for applications that need to display or verify the amount of a particular token held by a token account.
 
 ## Common Use Cases
 
@@ -118,7 +116,7 @@ checkTokenBalance(exampleTokenAccount);
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Token Account vs. Mint Account vs. Owner Account:** Ensure you are providing the public key of the *SPL Token Account*, not the token's *mint address* or the *owner's wallet address*. You typically get token accounts for an owner using `getTokenAccountsByOwner`.
 *   **Decimals:** Always use the `decimals` field to correctly interpret the `amount`. The `uiAmountString` is generally safer for display than `uiAmount` to avoid floating-point precision issues.

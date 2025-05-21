@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTransaction to Retrieve Transaction Details"
-description: "Learn to use the Solana getTransaction RPC method to fetch detailed information about a confirmed transaction using its signature."
+title: "How to Use getTransaction"
+description: "Learn getTransaction use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTransaction`
-
-The `getTransaction` RPC method allows you to retrieve detailed information about a confirmed transaction by providing its signature. This includes the transaction's slot, block time, metadata (like fees, status, and balance changes), and the transaction structure itself.
+The [`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettransaction) RPC method allows you to retrieve detailed information about a confirmed transaction by providing its signature. This includes the transaction's slot, block time, metadata (like fees, status, and balance changes), and the transaction structure itself.
 
 ## Common Use Cases
 
@@ -187,7 +185,7 @@ console.log("Please replace 'exampleSignature' with a real transaction signature
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Transaction Finality:** Ensure you query with an appropriate `commitment` level. Requesting a transaction that hasn't reached the specified commitment will result in `null`.
 *   **Data Volume:** The response object can be very large, especially for complex transactions with many instructions or detailed logging. Be mindful of this when processing the data.

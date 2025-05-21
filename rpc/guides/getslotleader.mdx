@@ -1,11 +1,9 @@
 ---
-title: "How to Use getSlotLeader to Identify the Current Block Producer"
-description: "Learn to use the Solana getSlotLeader RPC method to find the public key of the validator currently producing blocks."
+title: "How to Use getSlotLeader"
+description: "Learn getSlotLeader use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSlotLeader`
-
-The `getSlotLeader` RPC method returns the public key of the validator that is the current leader for block production, based on the node's view at a specified commitment level. The leader is responsible for producing blocks for the current slot.
+The [`getSlotLeader`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleader) RPC method returns the public key of the validator that is the current leader for block production, based on the node's view at a specified commitment level. The leader is responsible for producing blocks for the current slot.
 
 ## Common Use Cases
 
@@ -111,11 +109,11 @@ getConfirmedSlotLeader();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Dynamic Nature:** Slot leaders change frequently (every few slots, typically 4). The result of this call is a snapshot in time based on the node's current view and the chosen commitment.
 *   **Commitment Level:** The commitment level affects which slot is considered "current" for determining the leader. Using `processed` will give you the leader of the very latest slot the node is aware of, which might change rapidly and may not yet be confirmed by the broader network.
-*   **Leader Schedule:** The sequence of slot leaders is determined by a leader schedule, which is calculated at the beginning of each epoch. For a more comprehensive view of upcoming leaders, use `getLeaderSchedule`.
+*   **Leader Schedule:** The sequence of slot leaders is determined by a leader schedule, which is calculated at the beginning of each epoch. You can learn more about this in our guide on [Slots, Blocks, and Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). For a more comprehensive view of upcoming leaders, use `getLeaderSchedule`.
 *   **Node's Perspective:** The returned slot leader is based on the information available to the specific RPC node you are querying. Different nodes might have slightly different views due to network latency.
 
 `getSlotLeader` provides a quick way to identify the validator currently responsible for producing blocks. For a broader view of the leader rotation, consider `getLeaderSchedule`. 

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getSlotLeaders to Find Upcoming Block Producers"
-description: "Learn to use the Solana getSlotLeaders RPC method to retrieve a list of scheduled slot leaders for a given range of slots."
+title: "How to Use getSlotLeaders"
+description: "Learn getSlotLeaders use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getSlotLeaders`
-
-The `getSlotLeaders` RPC method allows you to retrieve a list of public keys for the validators scheduled to be leaders for a specific range of slots. This can be useful for understanding the upcoming sequence of block producers.
+The [`getSlotLeaders`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleaders) RPC method allows you to retrieve a list of public keys for the validators scheduled to be leaders for a specific range of slots. This can be useful for understanding the upcoming sequence of block producers.
 
 ## Common Use Cases
 
@@ -82,10 +80,10 @@ getUpcomingSlotLeaders();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Limit:** The `limit` parameter specifies how many consecutive slot leaders to return, up to a maximum of 5,000. This means you can look ahead for a substantial number of slots within an epoch.
-*   **Epoch Boundaries:** The leader schedule is determined for an entire epoch. This method allows you to query parts of that schedule. If your range crosses an epoch boundary, the leaders returned will still be based on the schedule of the epoch in which `startSlot` resides, up to the limit you provide or the end of that epoch's known schedule if the RPC node doesn't project further for that call.
+*   **Epoch Boundaries:** The leader schedule is determined for an entire epoch, as detailed in our guide on [Slots, Blocks, and Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). This method allows you to query parts of that schedule. If your range crosses an epoch boundary, the leaders returned will still be based on the schedule of the epoch in which `startSlot` resides, up to the limit you provide or the end of that epoch's known schedule if the RPC node doesn't project further for that call.
 *   **Future Slots:** You can request leaders for future slots. The RPC node will return the scheduled leaders based on the current leader schedule for the relevant epoch.
 *   **Accuracy:** The leader schedule is fixed for an epoch, so the returned leaders are generally accurate unless there are exceptional network circumstances or changes to the validator set that might affect subsequent epoch calculations.
 *   **Distinction from `getLeaderSchedule`:** While `getSlotLeaders` gives you a direct list for a range, `getLeaderSchedule` provides the full schedule for an entire epoch, mapping validator identities to all their assigned slots within that epoch. `getSlotLeaders` is more direct if you only need a sequential list for a specific, limited range.

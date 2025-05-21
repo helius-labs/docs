@@ -1,11 +1,9 @@
 ---
-title: "How to Use minimumLedgerSlot to Find the Oldest Available Slot"
-description: "Learn to use the Solana minimumLedgerSlot RPC method to determine the lowest (oldest) slot the RPC node has in its ledger."
+title: "How to Use minimumLedgerSlot"
+description: "Learn minimumLedgerSlot use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `minimumLedgerSlot`
-
-The `minimumLedgerSlot` RPC method returns the lowest (oldest) slot that the queried RPC node has information about in its ledger. This is useful for understanding the historical data retention of a particular node.
+The [`minimumLedgerSlot`](https://www.helius.dev/docs/api-reference/rpc/http/minimumledgerslot) RPC method returns the lowest (oldest) slot that the queried RPC node has information about in its ledger. This is useful for understanding the historical data retention of a particular node.
 
 ## Common Use Cases
 
@@ -63,7 +61,7 @@ getMinLedgerSlot();
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Node Specific:** The returned `minimumLedgerSlot` is specific to the RPC node you are querying. Different nodes can have different ledger retention policies and thus different minimum slots.
 *   **Dynamic Value:** This value can increase over time as the node prunes older parts of its ledger to save space. It will not decrease.

@@ -1,11 +1,9 @@
 ---
-title: "How to Use getTokenLargestAccounts to Find Top Token Holders"
-description: "Learn to use the Solana getTokenLargestAccounts RPC method to retrieve the 20 largest token accounts for a specific SPL Token mint."
+title: "How to Use getTokenLargestAccounts"
+description: "Learn getTokenLargestAccounts use cases, code examples, request parameters, response structure, and tips."
 ---
 
-# How to Use `getTokenLargestAccounts`
-
-The `getTokenLargestAccounts` RPC method returns a list of the 20 largest token accounts for a given SPL Token mint. This is useful for analyzing token distribution and identifying major holders of a particular token.
+The [`getTokenLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenlargestaccounts) RPC method returns a list of the 20 largest token accounts for a given SPL Token mint. This is useful for analyzing token distribution and identifying major holders of a particular token.
 
 ## Common Use Cases
 
@@ -124,7 +122,7 @@ getLargestTokenHolders(exampleTokenMint);
 ```
 </CodeGroup>
 
-## Important Considerations
+## Developer Tips
 
 *   **Fixed Limit:** This method always returns up to the top 20 largest accounts. It does not support pagination or requesting more than 20 accounts.
 *   **Data Accuracy:** The data reflects the state of the ledger at the slot determined by the specified commitment level.
