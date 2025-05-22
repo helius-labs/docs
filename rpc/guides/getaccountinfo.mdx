@@ -19,7 +19,7 @@ The [`getAccountInfo`](https://www.helius.dev/docs/api-reference/rpc/http/getacc
 1.  `publicKey` (string, required): The base-58 encoded public key of the account to query.
 
 2.  `config` (object, optional): A configuration object with the following fields:
-    *   `commitment` (string, optional): Specifies the commitment level to use for the query. Defaults to `finalized`. You can learn more about commitment levels in [this Helius blog post](https://www.helius.dev/blog/solana-commitment-levels).
+    *   `commitment` (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Defaults to `finalized`.
         *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
         *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
         *   `processed`: The node will query its most recent block. Note that the block may not be complete.
@@ -49,7 +49,7 @@ If the account is found, the `result` field will contain an object with two main
         *   For `jsonParsed`: This can be a JSON object if the data is parsable by the RPC node (e.g., for SPL Token accounts). Otherwise, it may default to `["", "base64"]` or similar if the data isn't recognized as a standard layout.
     *   `executable` (boolean): `true` if the account contains a program, `false` otherwise.
     *   `rentEpoch` (number): The next epoch at which this account will owe rent.
-    *   `space` (number, optional): The length of the data in bytes. (Note: The official Solana docs list `space`, while some RPC providers might include it. It represents the total space allocated for the account's data). For more details on account data and deserialization, check out our guide on [Deserializing Account Data on Solana](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana).
+    *   `space` (number, optional): The length of the data in bytes. (Note: The official Solana docs list `space`, while some RPC providers might include it. It represents the total space allocated for the account's data). For more details on [account data and deserialization](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana), refer to our detailed guide.
 
 If the account is not found, the `value` field in the result will be `null`.
 
@@ -110,7 +110,7 @@ getAccountDetails();
 ## Developer Tips
 
 *   **Performance:** For applications requiring frequent checks of multiple accounts, consider using `getMultipleAccounts` to batch requests and reduce round trips.
-*   **Data Deserialization:** The `data` field often requires deserialization based on the owning program's data structures. Tools and libraries specific to the program (e.g., SPL Token library for token accounts) are usually needed. Our blog post on [Deserializing Account Data on Solana](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana) can be a helpful resource.
+*   **Data Deserialization:** The `data` field often requires deserialization based on the owning program's data structures. Tools and libraries specific to the program (e.g., SPL Token library for token accounts) are usually needed. Our blog post on [deserializing account data](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana) provides helpful techniques and examples.
 *   **Rate Limits:** Be mindful of RPC node rate limits, especially when querying a large number of accounts or making frequent requests.
 *   **Cost Management:** `getAccountInfo` is generally a low-cost query, but frequent polling can add up. Optimize your query patterns.
 *   **Use `jsonParsed` Wisely:** While `jsonParsed` can be convenient, it might not support all account types, and its output can change if a program updates its data structures. For critical applications, parsing binary data with a known layout offers more stability.

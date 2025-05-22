@@ -114,7 +114,7 @@ getConfirmedSlotLeader();
 
 *   **Dynamic Nature:** Slot leaders change frequently (every few slots, typically 4). The result of this call is a snapshot in time based on the node's current view and the chosen commitment.
 *   **Commitment Level:** The commitment level affects which slot is considered "current" for determining the leader. Using `processed` will give you the leader of the very latest slot the node is aware of, which might change rapidly and may not yet be confirmed by the broader network.
-*   **Leader Schedule:** The sequence of slot leaders is determined by a leader schedule, which is calculated at the beginning of each epoch. You can learn more about this in our guide on [Slots, Blocks, and Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). For a more comprehensive view of upcoming leaders, use `getLeaderSchedule`.
+*   **Leader Schedule:** The sequence of slot leaders is determined by a leader schedule, which is calculated at the beginning of each epoch. Our guide on [Slots, Blocks, and Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) provides more details on this process. For a more comprehensive view of upcoming leaders, use `getLeaderSchedule`.
 *   **Node's Perspective:** The returned slot leader is based on the information available to the specific RPC node you are querying. Different nodes might have slightly different views due to network latency.
 
 `getSlotLeader` provides a quick way to identify the validator currently responsible for producing blocks. For a broader view of the leader rotation, consider `getLeaderSchedule`. 

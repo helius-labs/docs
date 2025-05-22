@@ -4,7 +4,7 @@ sidebarTitle: "getFeeForMessage"
 description: "Learn getFeeForMessage use cases, code examples, request parameters, response structure, and tips."
 ---
 
-The [`getFeeForMessage`](https://www.helius.dev/docs/api-reference/rpc/http/getfeeformessage) RPC method allows you to estimate the fee the network will charge for processing a given transaction message. This is useful for understanding transaction costs before they are submitted to the network. For a detailed explanation of how fees work on Solana, check out our article on [Solana Fees in Theory and Practice](https://www.helius.dev/blog/solana-fees-in-theory-and-practice).
+The [`getFeeForMessage`](https://www.helius.dev/docs/api-reference/rpc/http/getfeeformessage) RPC method allows you to estimate the fee the network will charge for processing a given transaction message. This is useful for understanding transaction costs before they are submitted to the network. For a detailed explanation of how [Solana fees](https://www.helius.dev/blog/solana-fees-in-theory-and-practice) work in theory and practice, refer to our comprehensive article.
 
 **Version Note:** This method is available in `solana-core` v1.9 or newer. For older versions, consider using `getFees`.
 
@@ -106,7 +106,7 @@ estimateTransactionFee();
 
 *   **Message Construction:** The key to using `getFeeForMessage` is to correctly construct and serialize the transaction `Message`. This involves setting the fee payer, instructions, and a recent blockhash.
 *   **Recent Blockhash:** The message must be constructed with a recent blockhash. If the blockhash is too old, the `value` in the response might be `null`.
-*   **Fee vs. Priority Fee:** This method returns the base network fee. It does not include any additional priority fees you might add to a transaction to increase its likelihood of being processed quickly during times of network congestion. Use `getRecentPrioritizationFees` to estimate priority fees. You can learn more about how priority fees work in our blog post: [Priority Fees: Understanding Solana's Transaction Fee Mechanics](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics).
+*   **Fee vs. Priority Fee:** This method returns the base network fee. It does not include any additional priority fees you might add to a transaction to increase its likelihood of being processed quickly during times of network congestion. Use `getRecentPrioritizationFees` to estimate [priority fees](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics).
 *   **Lamports:** The fee is returned in lamports (1 SOL = 1,000,000,000 lamports).
 *   **Null Value:** A `null` value for the fee can indicate issues with the message (e.g., invalid blockhash, malformed message) or that the node cannot calculate a fee for it at the given commitment level or slot.
 

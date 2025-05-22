@@ -4,7 +4,7 @@ sidebarTitle: "getStakeMinimumDelegation"
 description: "Learn getStakeMinimumDelegation use cases, code examples, request parameters, response structure, and tips."
 ---
 
-The [`getStakeMinimumDelegation`](https://www.helius.dev/docs/api-reference/rpc/http/getstakeminimumdelegation) RPC method returns the current minimum amount of lamports required to create a new stake delegation on the Solana network. This value can change over time due to network governance or updates. For a general overview of staking on Solana, refer to our guide on [How to Stake SOL on Solana](https://www.helius.dev/blog/how-to-stake-solana).
+The [`getStakeMinimumDelegation`](https://www.helius.dev/docs/api-reference/rpc/http/getstakeminimumdelegation) RPC method returns the current minimum amount of lamports required to create a new stake delegation on the Solana network. This value can change over time due to network governance or updates. For a general overview of [staking on Solana](https://www.helius.dev/blog/how-to-stake-solana), see our comprehensive guide.
 
 ## Common Use Cases
 
@@ -117,7 +117,7 @@ getMinimumDelegationConfirmed();
 ## Developer Tips
 
 *   **Lamports vs. SOL:** The returned value is in lamports. Remember that 1 SOL = 1,000,000,000 lamports.
-*   **Dynamic Value:** The minimum delegation amount is subject to change by network parameters. It's advisable to query this value periodically or before critical operations rather than hardcoding it. You can learn more about staking in our [staking guide](https://www.helius.dev/blog/how-to-stake-solana).
+*   **Dynamic Value:** The minimum delegation amount is subject to change by network parameters. It's advisable to query this value periodically or before critical operations rather than hardcoding it. Learn more about [staking](https://www.helius.dev/blog/how-to-stake-solana) in our detailed guide.
 *   **Commitment Levels:** Using different commitment levels can affect how up-to-date the returned value is. `finalized` provides the most certainty, while `processed` might give a newer value that hasn't been fully confirmed by the cluster.
 
 This guide should help you effectively use the `getStakeMinimumDelegation` RPC method to retrieve the minimum required stake delegation on Solana. 

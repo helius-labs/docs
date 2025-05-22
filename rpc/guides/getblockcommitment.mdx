@@ -4,7 +4,7 @@ sidebarTitle: "getBlockCommitment"
 description: "Learn getBlockCommitment use cases, code examples, request parameters, response structure, and tips."
 ---
 
-The [`getBlockCommitment`](https://www.helius.dev/docs/api-reference/rpc/http/getblockcommitment) RPC method provides information about the commitment status of a specific block in the Solana ledger. This is useful for understanding how finalized a block is, based on the stake that has voted on it. For a comprehensive understanding of how Solana measures block consensus and finality, refer to our guide on [What are Solana Commitment Levels?](https://www.helius.dev/blog/solana-commitment-levels).
+The [`getBlockCommitment`](https://www.helius.dev/docs/api-reference/rpc/http/getblockcommitment) RPC method provides information about the commitment status of a specific block in the Solana ledger. This is useful for understanding how finalized a block is, based on the stake that has voted on it. For a comprehensive understanding of how Solana measures block consensus and finality, see [Solana Commitment Levels](https://www.helius.dev/blog/solana-commitment-levels).
 
 ## Common Use Cases
 
@@ -35,7 +35,7 @@ The `result` field of the JSON-RPC response will be an object containing:
     *   A `null` `commitment` array often means the node doesn't have data for the slot, possibly because it's too old or was skipped.
     *   You can gauge finality at depth `i` if `commitment[i] / totalStake >= 2/3` (supermajority).
 *   **Advanced Use Cases:** `getBlockCommitment` is for nuanced finality analysis. For most common scenarios, relying on standard commitment levels (`processed`, `confirmed`, or `finalized`) with other RPC methods (like `getTransaction` or `getBlock`) is simpler and sufficient.
-*   **Understanding Commitment:** To fully leverage `getBlockCommitment`, a solid understanding of Solana's commitment levels is essential. Read our detailed explanation: [What are Solana Commitment Levels?](https://www.helius.dev/blog/solana-commitment-levels).
+*   **Understanding Commitment:** To fully leverage `getBlockCommitment`, a solid understanding of Solana's commitment levels is essential. See [Solana Commitment Levels](https://www.helius.dev/blog/solana-commitment-levels) for detailed information.
 *   **Pruning:** Be aware that RPC nodes might prune old commitment information, leading to `null` results for older slots.
 
 ## Example: Fetching Block Commitment Information

@@ -4,7 +4,7 @@ sidebarTitle: "getBlock"
 description: "Learn getBlock use cases, code examples, request parameters, response structure, and tips."
 ---
 
-The [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time. To understand more about how slots, blocks, and epochs work together on Solana, check out our deep dive: [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
+The [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time. To understand how [slots, blocks, and epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) work together on Solana, refer to our detailed deep dive.
 
 ## Common Use Cases
 
@@ -131,4 +131,4 @@ getBlockDetails();
 *   **`jsonParsed` is Recommended for Encoding:** When requesting transaction details, `jsonParsed` provides the most developer-friendly output and correctly resolves accounts from Address Lookup Tables, which `json` (deprecated) does not.
 *   **Block Unavailability:** A `null` result means the block at that slot was not found. This could be because the slot was skipped, the block hasn't been confirmed to the level specified by your `commitment`, or the RPC node has pruned that historical block from its ledger (common for older slots).
 *   **Rewards Information:** Setting `rewards: true` is necessary to see the distribution of block rewards to the validator (and potentially stakers, depending on the reward type). This adds to the response size.
-*   **Understanding Block Structure:** For a deeper understanding of how blocks fit into Solana's architecture, refer to our guide: [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). 
+*   **Understanding Block Structure:** For a deeper understanding of how blocks fit into Solana's architecture, see [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). 

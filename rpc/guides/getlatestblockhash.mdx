@@ -4,7 +4,7 @@ sidebarTitle: "getLatestBlockhash"
 description: "Learn getLatestBlockhash use cases, code examples, request parameters, response structure, and tips."
 ---
 
-The [`getLatestBlockhash`](https://www.helius.dev/docs/api-reference/rpc/http/getlatestblockhash) RPC method is essential for preparing and sending transactions on the Solana network. It retrieves the most recent blockhash processed by the node, along with the last block height at which this blockhash will remain valid. For more details on how to effectively use blockhashes and ensure your transactions land, check out our guide on [How to Land Transactions on Solana](https://www.helius.dev/blog/how-to-land-transactions-on-solana).
+The [`getLatestBlockhash`](https://www.helius.dev/docs/api-reference/rpc/http/getlatestblockhash) RPC method is essential for preparing and sending transactions on the Solana network. It retrieves the most recent blockhash processed by the node, along with the last block height at which this blockhash will remain valid. For more details on how to effectively use blockhashes and ensure your [transactions land](https://www.helius.dev/blog/how-to-land-transactions-on-solana), refer to our comprehensive guide.
 
 Every transaction on Solana must reference a recent blockhash. This mechanism helps prevent certain types of attacks, such as transaction replay on a forked chain.
 
@@ -109,7 +109,7 @@ fetchConfirmedBlockhash();
 ## Developer Tips
 
 *   **Blockhash Validity:** A blockhash is valid for a limited time, approximately 2 minutes (though this can vary). Transactions must be confirmed by the network before their `lastValidBlockHeight` is passed. Always fetch a fresh blockhash if considerable time has passed since the last one was obtained.
-*   **Choosing Commitment:** For critical transactions, using `finalized` commitment provides the strongest guarantee that the blockhash is from the main chain fork, but it may be slightly older. `confirmed` offers a good balance. Learn more about commitment levels [here](https://www.helius.dev/blog/solana-commitment-levels).
+*   **Choosing Commitment:** For critical transactions, using `finalized` commitment provides the strongest guarantee that the blockhash is from the main chain fork, but it may be slightly older. `confirmed` offers a good balance. Learn more about [commitment levels](https://www.helius.dev/blog/solana-commitment-levels) for detailed information.
 *   **Transaction Fees:** Remember to also calculate and include appropriate transaction fees. The blockhash itself does not determine the fee.
 *   **Retry Logic:** If a transaction expires because its `lastValidBlockHeight` is passed, you must re-sign it with a new, more recent blockhash and resubmit.
 

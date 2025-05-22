@@ -116,7 +116,7 @@ getConfirmedSlot();
 
 ## Developer Tips
 
-*   **Commitment Matters:** The returned slot number heavily depends on the `commitment` level specified. You can learn more in our guide [What are Solana Commitment Levels?](https://www.helius.xyz/blog/what-are-solana-commitment-levels). `processed` will be the highest (most recent) slot the node is aware of, while `finalized` will be an older slot that is confirmed by the entire network. Choose the commitment level appropriate for your use case's need for data finality.
+*   **Commitment Matters:** The returned slot number heavily depends on the `commitment` level specified. Refer to [Solana Commitment Levels](https://www.helius.xyz/blog/what-are-solana-commitment-levels) for detailed information. `processed` will be the highest (most recent) slot the node is aware of, while `finalized` will be an older slot that is confirmed by the entire network. Choose the commitment level appropriate for your use case's need for data finality.
 *   **Node Variability:** Different RPC nodes might return slightly different slot numbers for the same commitment level due to network propagation delays or their own processing state. This is especially true for `processed` and `confirmed` levels.
 *   **`minContextSlot`:** This parameter ensures that the node processing your request has reached at least the `minContextSlot`. If the node is behind this slot, the behavior might vary (e.g., an error or the node's current highest slot which is less than `minContextSlot`). It's generally used in advanced scenarios where you need to ensure a query is made against a sufficiently recent state.
 
