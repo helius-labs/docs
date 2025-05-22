@@ -19,9 +19,9 @@ The method takes two main parameters:
 
 1.  **`addresses`** (array of strings): A list of base-58 encoded public keys for the accounts you want to query. The maximum number of addresses allowed may vary depending on the RPC provider (e.g., Helius allows up to 1005 for paid plans).
 2.  **`config`** (object, optional): A configuration object with the following optional fields:
-    *   **`commitment`** (string, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment). Defaults to `finalized` if not provided.
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels). Defaults to `finalized` if not provided.
     *   **`epoch`** (integer, optional): The epoch number for which to fetch the rewards. If omitted, the RPC node will typically use the most recently completed epoch for which rewards have been distributed.
-    *   **`minContextSlot`** (integer, optional): The minimum [slot](https://solana.com/docs/terminology#slot) that the request can be evaluated at. This ensures the query is made against a ledger state that has processed up to at least this slot.
+    *   **`minContextSlot`** (integer, optional): The minimum slot that the request can be evaluated at. This ensures the query is made against a ledger state that has processed up to at least this slot.
 
 ## Response Structure
 

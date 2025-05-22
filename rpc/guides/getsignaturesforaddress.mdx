@@ -19,7 +19,7 @@ The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/ht
     *   **`limit`** (`number`, optional): The maximum number of signatures to return. The default is 1000, and the maximum allowed is 1000.
     *   **`before`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will start searching for transactions before this signature.
     *   **`until`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will search for transactions until this signature is reached (exclusive).
-    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) to use for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
     *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This is not a filter on historical transactions but sets the minimum slot for the node's context.
 
 ## Response Structure

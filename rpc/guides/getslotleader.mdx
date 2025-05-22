@@ -16,7 +16,7 @@ The [`getSlotLeader`](https://www.helius.dev/docs/api-reference/rpc/http/getslot
 This method takes an optional configuration object as its first parameter:
 
 1.  **`options`** (`object`, optional): An optional configuration object with the following fields:
-    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://solana.com/docs/rpc#configuring-state-commitment) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`). The slot leader is determined based on the slot that matches this commitment level.
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`). The slot leader is determined based on the slot that matches this commitment level.
     *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This sets the minimum slot for the node's context.
 
 ## Response Structure

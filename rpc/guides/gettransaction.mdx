@@ -18,7 +18,7 @@ The [`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettra
 1.  **`transactionSignature`** (string, required): The base-58 encoded transaction signature you want to query.
 
 2.  **`options`** (object, optional): An optional configuration object that can include:
-    *   **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) (e.g., `"finalized"`, `"confirmed"`). If not provided, the node's default commitment is used (usually `"finalized"`).
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) (e.g., `"finalized"`, `"confirmed"`). If not provided, the node's default commitment is used (usually `"finalized"`).
     *   **`encoding`** (string, optional): The encoding for the `transaction` data. Common values:
         *   `"json"`: Returns the transaction data in a structured JSON format (but instructions might still be base64 encoded).
         *   `"jsonParsed"`: Returns the transaction data with program-specific instructions parsed into a human-readable JSON structure where possible. This is often the most useful encoding for analysis.

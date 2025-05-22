@@ -16,7 +16,7 @@ The [`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvo
 
 This method accepts an optional configuration object with the following fields:
 
-1.  **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If omitted, the node's default commitment is used.
+1.  **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If omitted, the node's default commitment is used.
 2.  **`votePubkey`** (string, optional): If provided, the results will be filtered to include only the specified validator vote account address (base-58 encoded).
 3.  **`keepUnstakedDelinquents`** (boolean, optional): Defaults to `false`. If set to `true`, the `delinquent` list will include validators with no activated stake. Otherwise, they are filtered out.
 4.  **`delinquentSlotDistance`** (u64, optional): Specifies how many slots a validator must be behind the tip of the ledger to be considered delinquent. If not specified, the node uses a default value.

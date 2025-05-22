@@ -23,7 +23,7 @@ This method is useful for services that manage delegated authority or need to di
     *   **`programId`** (string): The base-58 encoded public key of the Token Program that owns the accounts. This will typically be the standard SPL Token Program (`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`) or the Token-2022 Program (`TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxAPds`).
 
 3.  **`options`** (object, optional): An optional configuration object with the following common fields:
-    *   **`commitment`** (string, optional): Specifies the [commitment level](https://docs.solana.com/developing/clients/jsonrpc-api#configuring-state-commitment).
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels).
     *   **`encoding`** (string, optional): The encoding for account data. `"jsonParsed"` is highly recommended as it returns human-readable account information. Other options include `"base64"`, `"base64+zstd"`. Defaults to `"base64"` if not specified.
     *   **`dataSlice`** (object, optional): Allows you to retrieve only a specific slice of the account data. Contains `offset` (usize) and `length` (usize) fields. Only applicable for `base58`, `base64`, or `base64+zstd` encodings.
     *   **`minContextSlot`** (u64, optional): The minimum slot that the request can be evaluated at.
