@@ -1,0 +1,124 @@
+---
+title: "How to Use getLargestAccounts"
+sidebarTitle: "getLargestAccounts"
+description: "Learn getLargestAccounts use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getlargestaccounts) RPC method returns a list of the top 20 accounts on the Solana network, ranked by their lamport balance. This method can be useful for network analysis, understanding wealth distribution, or identifying significant holders of SOL.
+
+Note that the results from this method may be cached by the RPC node for up to two hours.
+
+## Common Use Cases
+
+*   **Network Health Monitoring:** Observe the concentration of SOL in the largest accounts.
+*   **Economic Analysis:** Study the distribution of wealth on the Solana network.
+*   **Identifying Whales:** Find accounts holding significant amounts of SOL.
+
+## Request Parameters
+
+This method can optionally take a configuration object with the following parameters:
+
+*   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use when querying the ledger. If not provided, the default commitment of the node is used.
+*   **`filter`** (string, optional): Filters the results by account type. Accepted values are:
+    *   `circulating`: Returns the largest accounts that are part of the circulating supply.
+    *   `nonCirculating`: Returns the largest accounts that are not part of the circulating supply (e.g., locked accounts, foundation accounts).
+    If omitted, all accounts are considered without this specific filter.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an `RpcResponse` object. The `value` field within this object is an array of up to 20 account objects, each containing:
+
+*   **`address`** (string): The base-58 encoded public key of the account.
+*   **`lamports`** (u64): The balance of the account in lamports.
+
+The response also includes a `context` object with the `slot` at which the information was retrieved.
+
+## Examples
+
+### 1. Get the Top 20 Largest Accounts (No Filter)
+
+This example fetches the top 20 largest accounts by lamport balance without any supply filter.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLargestAccounts"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function logLargestAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const largestAccounts = await connection.getLargestAccounts();
+    console.log(`Largest Accounts (Slot: ${largestAccounts.context.slot}):`);
+    largestAccounts.value.forEach((account, index) => {
+      console.log(
+        `  ${index + 1}. Address: ${account.address}, Balance: ${account.lamports / 10**9} SOL`
+      );
+    });
+    // For full raw details:
+    // console.log(JSON.stringify(largestAccounts, null, 2));
+  } catch (error) {
+    console.error('Error fetching largest accounts:', error);
+  }
+}
+
+logLargestAccounts();
+```
+</CodeGroup>
+
+### 2. Get the Top 20 Largest Circulating Accounts
+
+This example fetches the top 20 largest accounts that are considered part of the circulating supply.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLargestAccounts",
+    "params": [{ "filter": "circulating" }]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function logLargestCirculatingAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const largestAccounts = await connection.getLargestAccounts({ filter: 'circulating' });
+    console.log(`Largest Circulating Accounts (Slot: ${largestAccounts.context.slot}):`);
+    largestAccounts.value.forEach((account, index) => {
+      console.log(
+        `  ${index + 1}. Address: ${account.address}, Balance: ${account.lamports / 10**9} SOL`
+      );
+    });
+    // console.log(JSON.stringify(largestAccounts, null, 2));
+  } catch (error) {
+    console.error('Error fetching largest circulating accounts:', error);
+  }
+}
+
+logLargestCirculatingAccounts();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Cached Data:** The results can be cached by the RPC node for up to two hours. This means the data might not be real-time to the latest block.
+*   **Limited to Top 20:** This method only returns the top 20 accounts. For a more comprehensive analysis of wealth distribution, other data sources or methods might be needed.
+*   **Filter Behavior:** The `circulating` and `nonCirculating` filters depend on the RPC node's definition and data sources for these classifications.
+
+This guide provides the necessary information to use the `getLargestAccounts` RPC method for querying the largest SOL holders on the Solana network. 

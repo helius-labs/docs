@@ -1,0 +1,134 @@
+---
+title: "How to Use getBlock"
+sidebarTitle: "getBlock"
+description: "Learn getBlock use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time.
+
+## Common Use Cases
+
+*   **Inspecting Block Contents:** View all transactions included in a specific [block](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
+*   **Retrieving Block Hashes:** Get the blockhash for a given slot, its parent's blockhash, and its parent slot.
+*   **Checking Block Height and Time:** Find out a block's height (its sequence number) and its estimated production time.
+*   **Analyzing Transaction Details:** With appropriate parameters, you can get full transaction data, including metadata like fees, status, pre/post balances, and inner instructions.
+*   **Fetching Rewards:** Optionally include reward information for the block.
+
+## Parameters
+
+1.  `slot` (number, required): The slot number of the block to query (u64).
+
+2.  `config` (object, optional): A configuration object with the following fields:
+    *   `commitment` (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use. `processed` is not supported for this method. Defaults to `finalized`.
+    *   `encoding` (string, optional): The encoding for transaction data. Defaults to `json` if `transactionDetails` is `full` or `accounts`, otherwise `base64`.
+        *   `json`: Returns transactions and accounts data in JSON format (deprecated in favor of `jsonParsed`).
+        *   `jsonParsed`: Returns transactions and accounts data as parsed JSON. This is recommended as it includes all transaction account keys (including those from Address Lookup Tables).
+        *   `base58` (slow)
+        *   `base64`
+        *   `base64+zstd`
+    *   `transactionDetails` (string, optional): Specifies the level of transaction detail to return. Defaults to `full`.
+        *   `full`: Returns full transaction details, including transaction metadata.
+        *   `accounts`: Returns a list of accounts detailed in each transaction, but not the full transaction data or metadata.
+        *   `signatures`: Returns only the transaction signatures.
+        *   `none`: Returns no transaction details.
+    *   `rewards` (boolean, optional): Whether to include the rewards array in the response. Defaults to `false`.
+    *   `maxSupportedTransactionVersion` (number, optional): The maximum transaction version to return. If the block contains a transaction with a higher version, an error is returned. If omitted, only legacy transactions are returned, and a block with any versioned transaction will cause an error. Set to `0` to include versioned transactions that use Address Lookup Tables.
+
+## Response
+
+If the specified block is confirmed and found, the `result` field will be an object containing information about the block. If the block is not found or not confirmed, `result` will be `null`.
+
+Key fields in the block object include:
+
+*   `blockhash` (string): The base-58 encoded blockhash for this block.
+*   `previousBlockhash` (string): The base-58 encoded blockhash of the previous block. If the parent is not available (due to ledger cleanup), this might be the system program ID.
+*   `parentSlot` (number): The slot number of the parent block.
+*   `transactions` (array): An array of transaction objects included in the block. The structure of these objects depends on the `encoding` and `transactionDetails` parameters.
+    *   Each transaction object typically contains `meta` (metadata like fee, status, logs, pre/post balances) and `transaction` (the actual transaction data, including message and signatures).
+*   `rewards` (array, optional): An array of reward objects, present if `rewards: true` was specified. Each object details the `pubkey`, `lamports`, `postBalance`, `rewardType`, and potentially `commission`.
+*   `blockTime` (number | null): The estimated production time of the block as a Unix timestamp (seconds since epoch), or `null` if not available.
+*   `blockHeight` (number | null): The height of this block (number of blocks before it in the chain originating from slot 0), or `null` if not available.
+
+Refer to the official Solana RPC documentation for the complete and detailed structure of the transaction and meta objects within the response.
+
+## Example: Fetching Block Information
+
+Let's try to fetch information for an illustrative slot number on Devnet. 
+**Important:** Slot numbers are processed rapidly. The slot number used below (`250000000`) is a placeholder. You should replace it with a recent, confirmed slot that you know exists on your target network (e.g., Devnet or Mainnet) when you run the example. You can find recent slot numbers using a Solana block explorer.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+# Replace 250000000 with a valid, recent slot number on Devnet/Mainnet
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBlock",
+  "params": [
+    250000000, 
+    {
+      "encoding": "jsonParsed",
+      "transactionDetails": "full",
+      "rewards": true,
+      "maxSupportedTransactionVersion": 0
+    }
+  ]
+}'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlockDetails() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  
+  // Replace with a valid, recent slot number on your target network
+  const slotToQuery = 250000000; 
+
+  try {
+    const block = await connection.getBlock(slotToQuery, {
+      encoding: "jsonParsed",
+      transactionDetails: "full",
+      rewards: true,
+      maxSupportedTransactionVersion: 0 
+    });
+
+    if (block) {
+      console.log('Block Details:');
+      console.log(`   Slot: ${slotToQuery}`);
+      console.log(`   Blockhash: ${block.blockhash}`);
+      console.log(`   Previous Blockhash: ${block.previousBlockhash}`);
+      console.log(`   Parent Slot: ${block.parentSlot}`);
+      console.log(`   Block Height: ${block.blockHeight !== null ? block.blockHeight : 'N/A'}`);
+      console.log(`   Block Time: ${block.blockTime ? new Date(block.blockTime * 1000).toISOString() : 'N/A'}`);
+      console.log(`   Transactions Count: ${block.transactions.length}`);
+      // console.log('   Transactions:', JSON.stringify(block.transactions, null, 2)); // Full transaction details
+      // console.log('   Rewards:', JSON.stringify(block.rewards, null, 2)); // Reward details
+    } else {
+      console.log(`Block at slot ${slotToQuery} not found or not confirmed.`);
+    }
+  } catch (error) {
+    console.error(`Error fetching block ${slotToQuery}:`, error);
+  }
+}
+
+getBlockDetails();
+```
+</CodeGroup> 
+
+## Developer Tips
+
+*   **Slot vs. Block Height:** Remember that `getBlock` takes a `slot` number as input, not necessarily a block height. While slots are sequential, some slots might be skipped by leaders. The `blockHeight` field in the response indicates the actual number of blocks before this one.
+*   **`maxSupportedTransactionVersion` is Crucial:** To inspect blocks with versioned transactions (which are standard now and use Address Lookup Tables), you **must** set `maxSupportedTransactionVersion: 0` (or a higher version if a new standard emerges). Forgetting this will result in errors for most modern blocks.
+*   **Choosing `transactionDetails`:** 
+    *   `full` is needed for most detailed analysis but returns the most data.
+    *   `signatures` is useful if you only need to list transactions in a block.
+    *   `accounts` can be a middle ground if you need to see which accounts were involved without fetching all instruction data.
+    *   `none` is rare but could be used if you only care about block-level metadata like `blockhash` or `rewards`.
+*   **`jsonParsed` is Recommended for Encoding:** When requesting transaction details, `jsonParsed` provides the most developer-friendly output and correctly resolves accounts from Address Lookup Tables, which `json` (deprecated) does not.
+*   **Block Unavailability:** A `null` result means the block at that slot was not found. This could be because the slot was skipped, the block hasn't been confirmed to the level specified by your `commitment`, or the RPC node has pruned that historical block from its ledger (common for older slots).
+*   **Rewards Information:** Setting `rewards: true` is necessary to see the distribution of block rewards to the validator (and potentially stakers, depending on the reward type). This adds to the response size.
+*   **Understanding Block Structure:** For a deeper understanding of how blocks fit into Solana's architecture, see [Understanding Slots, Blocks, and Epochs on Solana](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). 

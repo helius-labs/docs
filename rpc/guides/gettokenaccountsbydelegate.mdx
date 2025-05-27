@@ -1,0 +1,201 @@
+---
+title: "How to Use getTokenAccountsByDelegate"
+sidebarTitle: "getTokenAccountsByDelegate"
+description: "Learn getTokenAccountsByDelegate use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getTokenAccountsByDelegate`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbydelegate) RPC method retrieves all SPL Token accounts that have approved a specific public key as a delegate. A delegate has authority to perform certain actions on the token account, such as transferring or burning tokens, up to the delegated amount.
+
+This method is useful for services that manage delegated authority or need to discover which token accounts a particular key can act on behalf of.
+
+## Common Use Cases
+
+*   **Listing Delegated Assets:** Displaying all token accounts for which a specific wallet or program has been granted delegate authority.
+*   **Automated Token Management:** Services that perform actions on behalf of users (e.g., automated market makers, staking protocols that manage tokenized rewards) can use this to find accounts they are authorized to interact with.
+*   **Auditing Delegations:** Reviewing which accounts have delegated authority to a particular address.
+*   **Revoking Delegations:** Identifying token accounts from which delegate authority needs to be revoked (though the revocation itself is a separate transaction).
+
+## Request Parameters
+
+1.  **`delegatePubkey`** (string, required): The base-58 encoded public key of the delegate account whose associated token accounts you want to find.
+
+2.  **`filter`** (object, required): A JSON object that **must** specify either `mint` or `programId` to filter the accounts:
+    *   **`mint`** (string): The base-58 encoded public key of a specific token mint. If provided, the query will only return token accounts of this particular token type that are delegated to `delegatePubkey`.
+    *   **`programId`** (string): The base-58 encoded public key of the Token Program that owns the accounts. This will typically be the standard SPL Token Program (`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`) or the Token-2022 Program (`TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxAPds`).
+
+3.  **`options`** (object, optional): An optional configuration object with the following common fields:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels).
+    *   **`encoding`** (string, optional): The encoding for account data. `"jsonParsed"` is highly recommended as it returns human-readable account information. Other options include `"base64"`, `"base64+zstd"`. Defaults to `"base64"` if not specified.
+    *   **`dataSlice`** (object, optional): Allows you to retrieve only a specific slice of the account data. Contains `offset` (usize) and `length` (usize) fields. Only applicable for `base58`, `base64`, or `base64+zstd` encodings.
+    *   **`minContextSlot`** (u64, optional): The minimum slot that the request can be evaluated at.
+
+## Response Structure
+
+The `result.value` field in the JSON-RPC response is an array of objects. Each object represents a token account that has `delegatePubkey` as its delegate and matches the `filter` criteria. Each object in the array has two fields:
+
+*   **`pubkey`** (string): The base-58 encoded public key of the token account itself.
+*   **`account`** (object): An object containing detailed information about the token account:
+    *   **`lamports`** (u64): The lamport balance of the token account (for rent exemption).
+    *   **`owner`** (string): The public key of the program that owns this account (e.g., the Token Program).
+    *   **`data`**: The account data. If `"jsonParsed"` encoding is used, this will be an object with a `program` field (e.g., `"spl-token"`) and a `parsed` field containing structured information:
+        *   **`parsed.info`**: An object with details like:
+            *   **`mint`** (string): The mint address of the token.
+            *   **`owner`** (string): The owner of the token account (not the delegate).
+            *   **`tokenAmount`** (object): The total balance of tokens in this account (`amount`, `decimals`, `uiAmount`, `uiAmountString`).
+            *   **`delegate`** (string): The public key of the delegate (should match the `delegatePubkey` from the request).
+            *   **`delegatedAmount`** (object): The amount of tokens the delegate is authorized to manage (`amount`, `decimals`, `uiAmount`, `uiAmountString`).
+            *   **`isNative`** (boolean): Indicates if the account holds wrapped SOL.
+            *   **`state`** (string): The state of the token account (e.g., `"initialized"`).
+        *   **`parsed.type`** (string): The type of the account (e.g., `"account"`).
+    *   **`executable`** (boolean): Whether the account is executable.
+    *   **`rentEpoch`** (u64): The epoch at which this account will next owe rent.
+    *   **`space`** (u64, if `jsonParsed` is not used): The length of the raw account data in bytes.
+
+**Example Response (with `jsonParsed` encoding):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 183458000
+    },
+    "value": [
+      {
+        "pubkey": "SomeTokenAccountPubkey1...",
+        "account": {
+          "data": {
+            "program": "spl-token",
+            "parsed": {
+              "info": {
+                "delegate": "DelegatePubkeyProvidedInRequest...",
+                "delegatedAmount": {
+                  "amount": "1000000000",
+                  "decimals": 9,
+                  "uiAmount": 1.0,
+                  "uiAmountString": "1.0"
+                },
+                "isNative": false,
+                "mint": "TokenMintPubkey...",
+                "owner": "ActualOwnerOfTheTokenAccount...",
+                "state": "initialized",
+                "tokenAmount": {
+                  "amount": "5000000000",
+                  "decimals": 9,
+                  "uiAmount": 5.0,
+                  "uiAmountString": "5.0"
+                }
+              },
+              "type": "account"
+            },
+            "space": 165
+          },
+          "executable": false,
+          "lamports": 2039280,
+          "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // SPL Token Program
+          "rentEpoch": 382
+        }
+      }
+      // ... potentially other token accounts delegated to the same delegate
+    ]
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Replace <DELEGATE_PUBKEY> and <TOKEN_MINT_PUBKEY> or <TOKEN_PROGRAM_ID>
+# Example using programId (SPL Token Program)
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenAccountsByDelegate",
+    "params": [
+      "<DELEGATE_PUBKEY>",
+      { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+      { "encoding": "jsonParsed" }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Example using a specific mint
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenAccountsByDelegate",
+    "params": [
+      "<DELEGATE_PUBKEY>",
+      { "mint": "<TOKEN_MINT_PUBKEY>" },
+      { "encoding": "jsonParsed", "commitment": "confirmed" }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function findDelegatedAccounts(delegateAddress, filter, encoding = 'jsonParsed') {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const delegatePubKey = new PublicKey(delegateAddress);
+
+  try {
+    let actualFilter;
+    if (filter.mint) {
+      actualFilter = { mint: new PublicKey(filter.mint) };
+    } else if (filter.programId) {
+      actualFilter = { programId: new PublicKey(filter.programId) };
+    } else {
+      console.error("Filter must contain either 'mint' or 'programId'");
+      return;
+    }
+
+    const accounts = await connection.getTokenAccountsByDelegate(
+      delegatePubKey,
+      actualFilter,
+      { encoding }
+    );
+
+    console.log(`Found ${accounts.value.length} token accounts delegated to ${delegateAddress}:`);
+    accounts.value.forEach(accInfo => {
+      console.log(`  Token Account: ${accInfo.pubkey.toBase58()}`);
+      if (encoding === 'jsonParsed' && accInfo.account.data.parsed) {
+        console.log(`    Mint: ${accInfo.account.data.parsed.info.mint}`);
+        console.log(`    Owner: ${accInfo.account.data.parsed.info.owner}`);
+        console.log(`    Delegated Amount: ${accInfo.account.data.parsed.info.delegatedAmount.uiAmountString}`);
+      }
+      // console.log(JSON.stringify(accInfo.account.data, null, 2)); // For full data
+    });
+
+  } catch (error) {
+    console.error(`Error fetching token accounts by delegate for ${delegateAddress}:`, error);
+  }
+}
+
+// Replace with an actual delegate public key
+const exampleDelegate = '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T'; 
+
+// Example 1: Find all SPL Token program accounts delegated to `exampleDelegate`
+findDelegatedAccounts(exampleDelegate, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' });
+
+// Example 2: Find accounts for a specific mint (e.g., USDC) delegated to `exampleDelegate`
+// const usdcMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+// findDelegatedAccounts(exampleDelegate, { mint: usdcMint });
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Filter Requirement:** You *must* provide either `mint` or `programId` in the filter parameter. You cannot query for all delegated accounts across all token types without one of these filters.
+*   **Encoding:** Using `"jsonParsed"` for the `encoding` option is highly recommended for easier data handling, as it decodes the binary account data into a structured JSON format.
+*   **Performance:** Querying with `programId` can be more resource-intensive than querying with `mint`, especially if the delegate has authority over many different token types. Some RPC providers may have stricter rate limits for this method.
+*   **Delegated Amount:** The `delegatedAmount` in the response indicates the maximum number of tokens the delegate is currently authorized to use. This can be less than the total `tokenAmount` in the account.
+*   **Revoking Delegation:** This method only retrieves information. To revoke a delegation, the owner of the token account must send a `Revoke` instruction to the SPL Token Program.
+
+This guide provides a comprehensive overview of using `getTokenAccountsByDelegate` to find SPL Token accounts based on their approved delegate. 

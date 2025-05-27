@@ -1,0 +1,112 @@
+---
+title: "How to Use getEpochInfo"
+sidebarTitle: "getEpochInfo"
+description: "Learn getEpochInfo use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getEpochInfo`](https://www.helius.dev/docs/api-reference/rpc/http/getepochinfo) RPC method returns information about the current epoch. This can be useful for understanding the current state of the network, how far into the current epoch the network has progressed, and when the next epoch might begin. To better understand how [epochs, slots, and blocks](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) work together on Solana, refer to our detailed article.
+
+## Common Use Cases
+
+*   **Monitoring Epoch Progress:** Track the current slot index within the epoch and the total slots in the epoch to estimate the time remaining.
+*   **Network State Analysis:** Get the current epoch number, the block height, and the number of transactions processed in the current epoch.
+*   **Synchronization Checks:** Verify if a node is reasonably synchronized with the network by comparing its epoch information.
+
+## Request Parameters
+
+The `getEpochInfo` method can optionally take a configuration object with the following parameters:
+
+*   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use when querying the ledger.
+    *   `finalized`: The node will query the most recent block confirmed by the supermajority of the cluster as having reached maximum lockout.
+    *   `confirmed`: The node will query the most recent block that has been voted on by a supermajority of the cluster.
+    *   `processed`: The node will query its most recent block. Note that the block may not be complete.
+    *   If not provided, the default commitment is `finalized`.
+*   **`minContextSlot`** (number, optional): The minimum slot at which the request can be evaluated. This can be used to ensure the response is from a recent enough state.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing the following fields:
+
+*   **`absoluteSlot`** (u64): The current absolute slot number.
+*   **`blockHeight`** (u64): The current block height.
+*   **`epoch`** (u64): The current epoch number.
+*   **`slotIndex`** (u64): The current slot relative to the start of the current epoch.
+*   **`slotsInEpoch`** (u64): The total number of slots in the current epoch.
+*   **`transactionCount`** (u64 | null): The total number of transactions processed in the current epoch. Can be `null` if the data is not available.
+
+## Examples
+
+### 1. Get Current Epoch Information (No Parameters)
+
+This example fetches information about the current epoch using default commitment.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getEpochInfo"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentEpochInfo() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const epochInfo = await connection.getEpochInfo();
+    console.log(JSON.stringify(epochInfo, null, 2));
+  } catch (error) {
+    console.error('Error fetching epoch information:', error);
+  }
+}
+
+getCurrentEpochInfo();
+```
+</CodeGroup>
+
+### 2. Get Current Epoch Information with 'confirmed' Commitment
+
+This example fetches epoch information using `confirmed` commitment.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getEpochInfo",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getConfirmedEpochInfo() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const epochInfo = await connection.getEpochInfo('confirmed'); // Or connection.getEpochInfo({ commitment: 'confirmed' });
+    console.log(JSON.stringify(epochInfo, null, 2));
+  } catch (error) {
+    console.error('Error fetching confirmed epoch information:', error);
+  }
+}
+
+getConfirmedEpochInfo();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Commitment Levels:** The choice of `commitment` can affect the timeliness and finality of the data. `processed` is the fastest but least safe, while `finalized` is the safest but may lag slightly. Learn more about [commitment levels](https://www.helius.dev/blog/solana-commitment-levels) for detailed information.
+*   **`transactionCount` Availability:** The `transactionCount` field might be `null` if the node doesn't have this information readily available or if it's not tracked for the specific commitment level.
+*   **Epoch Length:** The number of `slotsInEpoch` can vary. You can use `getEpochSchedule` to get more details about the epoch schedule.
+
+This guide provides the necessary information to use the `getEpochInfo` RPC method for retrieving details about the current epoch on the Solana network. 

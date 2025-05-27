@@ -1,0 +1,114 @@
+---
+title: "How to Use getBlockCommitment"
+sidebarTitle: "getBlockCommitment"
+description: "Learn getBlockCommitment use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getBlockCommitment`](https://www.helius.dev/docs/api-reference/rpc/http/getblockcommitment) RPC method provides information about the [commitment](https://www.helius.dev/blog/solana-commitment-levels) status of a specific block in the Solana ledger. This is useful for understanding how finalized a block is, based on the stake that has voted on it.
+
+## Common Use Cases
+
+*   **Assessing Block Finality:** Determine the level of consensus a block has achieved by examining the stake-weighted votes at different confirmation depths.
+*   **Understanding Cluster Health:** The `totalStake` provides insight into the total active stake in the cluster at the time the block was processed.
+*   **Advanced Confirmation Logic:** For applications requiring very specific guarantees about block finality beyond standard commitment levels (`confirmed`, `finalized`).
+
+## Parameters
+
+1.  `slot` (number, required): The slot number (u64) of the block for which to query commitment information.
+
+## Response
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   `commitment` (array of u64 integers | null):
+    *   An array of u64 integers, where each integer represents the amount of cluster stake (in lamports) that has voted on the block at a specific confirmation depth.
+    *   The array typically has 32 elements (representing depths 0 through `MAX_LOCKOUT_HISTORY`, which is 31).
+    *   Index `i` of the array shows the stake that has voted for the block, considering votes on the block itself and its descendants up to `i` levels deep.
+    *   If the block is not found or its commitment information is not available (e.g., it's too old and pruned from commitment tracking), this field will be `null`.
+*   `totalStake` (number):
+    *   The total active stake in the cluster (in lamports) at the slot this block was processed. This value is used to calculate the percentage of stake that has committed to the block.
+
+## Developer Tips
+
+*   **Interpreting the `commitment` Array:**
+    *   The `commitment` array shows the stake (in lamports) that has voted for the block at different confirmation depths. Higher values at deeper indices signify stronger finality.
+    *   A `null` `commitment` array often means the node doesn't have data for the slot, possibly because it's too old or was skipped.
+    *   You can gauge finality at depth `i` if `commitment[i] / totalStake >= 2/3` (supermajority).
+*   **Advanced Use Cases:** `getBlockCommitment` is for nuanced finality analysis. For most common scenarios, relying on standard commitment levels (`processed`, `confirmed`, or `finalized`) with other RPC methods (like `getTransaction` or `getBlock`) is simpler and sufficient.
+*   **Understanding Commitment:** To fully leverage `getBlockCommitment`, a solid understanding of Solana's commitment levels is essential. See [Solana Commitment Levels](https://www.helius.dev/blog/solana-commitment-levels) for detailed information.
+*   **Pruning:** Be aware that RPC nodes might prune old commitment information, leading to `null` results for older slots.
+
+## Example: Fetching Block Commitment Information
+
+Let's try to fetch commitment information for an illustrative slot number on Devnet. 
+**Important:** Slot numbers are processed rapidly. The slot number used below (`250000000`) is a placeholder. You should replace it with a recent, confirmed slot that you know exists on your target network (e.g., Devnet or Mainnet) when you run the example. You can find recent slot numbers using a Solana block explorer.
+
+**Note:** Replace `YOUR_API_KEY` with your actual Helius API key in the examples below.
+
+<CodeGroup>
+```bash curl
+# Replace 250000000 with a valid, recent slot number on Devnet/Mainnet
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBlockCommitment",
+  "params": [
+    250000000 
+  ]
+}'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlockCommitmentDetails() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  
+  // Replace with a valid, recent slot number on your target network
+  const slotToQuery = 250000000; 
+
+  try {
+    // Note: getBlockCommitment is not directly available in @solana/web3.js Connection object.
+    // You typically need to make a direct RPC call for this method.
+    // The example below shows how to construct and send such a raw request.
+    const response = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getBlockCommitment',
+        params: [slotToQuery],
+      }),
+    });
+    const result = await response.json();
+
+    if (result.error) {
+      console.error(`Error fetching block commitment for slot ${slotToQuery}:`, result.error.message);
+      return;
+    }
+
+    const blockCommitment = result.result;
+
+    if (blockCommitment) {
+      console.log(`Block Commitment for Slot ${slotToQuery}:`);
+      console.log(`   Total Stake (Lamports): ${blockCommitment.totalStake}`);
+      console.log(`   Commitment Array:`, blockCommitment.commitment ? blockCommitment.commitment : 'Not available/Unknown block');
+      // The commitment array shows lamports committed at different depths.
+      // A null commitment array usually means the block is not found or too old.
+      // A non-null array where later entries are higher indicates increasing finality.
+    } else {
+      console.log(`Block commitment data for slot ${slotToQuery} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error fetching block commitment for slot ${slotToQuery}:`, error);
+  }
+}
+
+getBlockCommitmentDetails();
+```
+</CodeGroup> 

@@ -1,0 +1,62 @@
+---
+title: "How to Use getGenesisHash"
+sidebarTitle: "getGenesisHash"
+description: "Learn getGenesisHash use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getGenesisHash`](https://www.helius.dev/docs/api-reference/rpc/http/getgenesishash) RPC method returns the genesis hash of the Solana cluster to which you are connected. The genesis hash is a unique identifier for a specific Solana network (e.g., Mainnet Beta, Devnet, Testnet, or a private cluster).
+
+## Common Use Cases
+
+*   **Network Verification:** Confirm that your application is connected to the intended Solana cluster (e.g., ensuring you are not accidentally interacting with Mainnet Beta when you intend to use Devnet).
+*   **Client Configuration:** Some tools or client-side applications might use the genesis hash to configure themselves for a specific network.
+*   **Cache Invalidation:** Use the genesis hash as part of a cache key to ensure that cached data is specific to a particular cluster, preventing data from one network from being mistakenly used on another.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be a string containing the base-58 encoded genesis hash.
+
+## Examples
+
+### 1. Get the Genesis Hash of the Connected Cluster
+
+This example fetches the genesis hash from the RPC endpoint.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getGenesisHash"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logGenesisHash() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const genesisHash = await connection.getGenesisHash();
+    console.log(`Genesis Hash: ${genesisHash}`);
+  } catch (error) {
+    console.error('Error fetching genesis hash:', error);
+  }
+}
+
+logGenesisHash();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Uniqueness:** Each Solana cluster (Mainnet Beta, Devnet, Testnet, and any private clusters) will have its own unique genesis hash.
+*   **Constant Value:** For a given cluster, the genesis hash is a constant value defined when the cluster was first initialized. It does not change over time.
+*   **Client-Side Verification:** It's a good practice for client applications to fetch the genesis hash and compare it against an expected value to prevent accidental operations on the wrong network, especially when dealing with sensitive operations or real funds.
+
+This guide shows how to use the `getGenesisHash` RPC method to retrieve the unique identifier for a Solana cluster. 

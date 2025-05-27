@@ -1,0 +1,195 @@
+---
+title: "How to Use getMultipleAccounts"
+sidebarTitle: "getMultipleAccounts"
+description: "Learn getMultipleAccounts use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getMultipleAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getmultipleaccounts) RPC method is a highly efficient way to fetch information for a list of Solana accounts simultaneously. Instead of making individual `getAccountInfo` requests for each account, `getMultipleAccounts` allows you to batch these requests, reducing network overhead and improving the responsiveness of your application.
+
+## Common Use Cases
+
+*   **Batch Loading Account Data:** When your application needs to display or process data from multiple known accounts (e.g., a user's token accounts, a list of on-chain program configurations).
+*   **Portfolio Trackers:** Fetching balances and states for numerous token accounts owned by a user.
+*   **Marketplace UIs:** Displaying details of multiple NFTs or listed items by fetching their account data in one go.
+*   **Improving dApp Performance:** Significantly reducing the number of RPC calls, leading to faster load times and a better user experience, especially when dealing with many accounts.
+
+## Request Parameters
+
+1.  **`pubkeys`** (`array` of `string`, required):
+    *   An array of base-58 encoded public key strings for the accounts you want to query.
+    *   Maximum of 100 public keys per request.
+    *   Example: `["So11111111111111111111111111111111111111112", "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]`
+
+2.  **`options`** (`object`, optional): A configuration object containing one or more of the following fields:
+    *   **`commitment`** (`string`): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`).
+    *   **`encoding`** (`string`): The encoding for the account data. Options include:
+        *   `"base64"` (default): Standard base64 encoding.
+        *   `"base58"`: Slower, but may be useful in some contexts.
+        *   `"base64+zstd"`: Base64 encoded zstd compressed data.
+        *   `"jsonParsed"`: If the account is owned by a program for which the RPC node has a parser (e.g., SPL Token Program, Stake Program), the `data` field will be a JSON object. This is very useful for structured data.
+    *   **`dataSlice`** (`object`): Allows you to fetch only a specific portion of the account data. This is useful for large accounts where you only need a small piece of information.
+        *   `offset` (`usize`): The offset in bytes from the start of the account data.
+        *   `length` (`usize`): The number of bytes to return from the offset.
+        *   *Note: `dataSlice` is only available for `base58`, `base64`, or `base64+zstd` encodings.*
+    *   **`minContextSlot`** (`u64`): The minimum slot that the request can be evaluated at.
+
+## Response Structure
+
+The JSON-RPC response object will have a `result` field containing:
+
+*   **`context`** (`object`):
+    *   `slot` (`u64`): The slot at which the information was retrieved.
+    *   `apiVersion` (`string`, optional): The API version of the node.
+*   **`value`** (`array`):
+    *   An array where each element corresponds to the public key at the same index in the request's `pubkeys` array.
+    *   Each element will either be:
+        *   `null`: If the account at the specified public key does not exist or an error occurred for that specific account.
+        *   An **Account Object** with the following fields:
+            *   `lamports` (`u64`): The number of lamports owned by the account.
+            *   `owner` (`string`): The base-58 encoded public key of the program that owns the account.
+            *   `data` (`array` or `object`): The account data. If `encoding` is `jsonParsed` and a parser exists, this will be a JSON object. Otherwise, it's typically an array `["encoded_string", "encoding_format"]` (e.g., `["SGVsbG8=", "base64"]`).
+            *   `executable` (`boolean`): Whether the account contains a program (is executable).
+            *   `rentEpoch` (`u64`): The next epoch at which this account will owe rent.
+            *   `space` (`u64`): The data length of the account in bytes.
+
+## Examples
+
+### 1. Fetch Basic Info for Two Accounts
+
+This example fetches data for two accounts: the SOL Llama (an NFT) and the Serum Dex Program v3.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# SOL Llama Mint: Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F
+# Serum Dex Program v3: 9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMultipleAccounts",
+    "params": [
+      [
+        "Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F",
+        "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
+      ]
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchMultipleAccountInfo() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const accountPubkeys = [
+    new PublicKey('Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F'), // SOL Llama
+    new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin')  // Serum Dex Program v3
+  ];
+
+  try {
+    const accountsInfo = await connection.getMultipleAccountsInfo(accountPubkeys);
+    
+    accountsInfo.forEach((account, index) => {
+      console.log(`--- Account ${index + 1} (${accountPubkeys[index].toBase58()}) ---`);
+      if (account) {
+        console.log(`  Owner: ${account.owner.toBase58()}`);
+        console.log(`  Lamports: ${account.lamports}`);
+        console.log(`  Executable: ${account.executable}`);
+        console.log(`  Data length: ${account.data.length}`);
+        // For brevity, not logging full data buffer
+      } else {
+        console.log("  Account not found or error fetching.");
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching multiple accounts:', error);
+  }
+}
+
+fetchMultipleAccountInfo();
+```
+</CodeGroup>
+
+### 2. Fetch Parsed Token Account Data
+
+This example fetches data for two SPL Token accounts and requests `jsonParsed` encoding to get structured data.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Example USDC Token Account 1: GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p
+# Example USDT Token Account 2: HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMultipleAccounts",
+    "params": [
+      [
+        "GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p",
+        "HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m"
+      ],
+      {
+        "encoding": "jsonParsed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchParsedTokenAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const tokenAccountPubkeys = [
+    new PublicKey('GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p'), // Example USDC account
+    new PublicKey('HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m')  // Example USDT account
+  ];
+
+  try {
+    const accountsInfo = await connection.getMultipleAccountsInfo(tokenAccountPubkeys, 'confirmed'); // Can also pass commitment here
+    // Note: @solana/web3.js's getMultipleAccountsInfo automatically requests jsonParsed if the node supports it for token accounts.
+    // For explicit control with raw RPC, you use the options object as in the cURL example.
+
+    accountsInfo.forEach((account, index) => {
+      console.log(`--- Token Account ${index + 1} (${tokenAccountPubkeys[index].toBase58()}) ---`);
+      if (account && account.data && typeof account.data !== 'string') { // Check if data is parsed
+        // The actual structure of account.data depends on the program (e.g., SPL Token)
+        // For SPL Token accounts, you'd typically find parsed data in account.data.parsed.info
+        const parsedInfo = (account.data as any).parsed?.info;
+        if (parsedInfo) {
+            console.log(`  Mint: ${parsedInfo.mint}`);
+            console.log(`  Owner: ${parsedInfo.owner}`);
+            console.log(`  Amount: ${parsedInfo.tokenAmount.uiAmountString} (decimals: ${parsedInfo.tokenAmount.decimals})`);
+        } else {
+            console.log("  Account data is not in the expected parsed format or is not a token account.");
+            // console.log("Raw data:", account.data.toString('base64')); // if buffer
+        }
+      } else if (account) {
+        console.log("  Account found, but data is not parsed or is a string (binary data).");
+        // console.log("  Raw data:", account.data.toString()); // if string
+      } else {
+        console.log("  Account not found or error fetching.");
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching parsed token accounts:', error);
+  }
+}
+
+fetchParsedTokenAccounts();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Maximum 100 Accounts:** You can request a maximum of 100 accounts per call.
+*   **Atomicity:** The request is not atomic in the sense that if one account lookup fails, others might still succeed. Check each element in the `value` array for `null`.
+*   **`jsonParsed` Convenience:** Using `jsonParsed` encoding is highly recommended when dealing with common account types like SPL Token accounts, as it saves you from manual deserialization.
+*   **`dataSlice` for Large Accounts:** For very large accounts (e.g., some program state accounts), use `dataSlice` to fetch only the necessary bytes to avoid excessive data transfer.
+*   **Error Handling:** Be prepared to handle `null` entries in the response `value` array, indicating that an account was not found or could not be fetched.
+
+By leveraging `getMultipleAccounts`, you can build more performant and scalable Solana applications. 

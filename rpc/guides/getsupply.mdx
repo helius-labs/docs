@@ -1,0 +1,151 @@
+---
+title: "How to Use getSupply"
+sidebarTitle: "getSupply"
+description: "Learn getSupply use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getSupply`](https://www.helius.dev/docs/api-reference/rpc/http/getsupply) RPC method provides information about the current supply of SOL on the Solana network. It details the total supply, circulating supply, non-circulating supply, and can optionally list non-circulating accounts.
+
+## Common Use Cases
+
+*   **Understanding SOL Tokenomics:** Get a snapshot of the current distribution of SOL.
+*   **Economic Analysis:** Track changes in supply metrics over time.
+*   **Displaying Network Statistics:** Provide users with up-to-date information on SOL supply in dashboards or explorers.
+*   **Inflation Monitoring:** Although `getInflationRate` and `getInflationGovernor` provide more direct inflation data, `getSupply` can offer a broader context.
+
+## Request Parameters
+
+The `getSupply` method accepts an optional configuration object with the following fields:
+
+1.  **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query. If omitted, the default commitment of the RPC node is used.
+2.  **`excludeNonCirculatingAccountsList`** (boolean, optional): If set to `true`, the `nonCirculatingAccounts` array will be excluded from the response. Defaults to `false`. This can be useful to reduce response size if the list of individual non-circulating accounts is not needed.
+
+**Example Configuration:**
+
+```json
+{
+  "commitment": "finalized",
+  "excludeNonCirculatingAccountsList": true
+}
+```
+
+## Response Structure
+
+The response is a JSON object with the following fields:
+
+*   **`value`**: An object containing the supply information:
+    *   **`total`** (u64): The total SOL supply in lamports.
+    *   **`circulating`** (u64): The circulating SOL supply in lamports.
+    *   **`nonCirculating`** (u64): The non-circulating SOL supply in lamports.
+    *   **`nonCirculatingAccounts`** (array of strings, optional): An array of public keys (as base58 encoded strings) of accounts holding non-circulating SOL. This field is omitted if `excludeNonCirculatingAccountsList` was set to `true` in the request.
+*   **`context`**: An object containing:
+    *   **`slot`** (u64): The slot at which the information was retrieved.
+
+**Example Response (with `excludeNonCirculatingAccountsList: false`):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 169890374
+    },
+    "value": {
+      "circulating": 423105827585008800,
+      "nonCirculating": 123456789012345678, // Example value
+      "nonCirculatingAccounts": [
+        "Stake11111111111111111111111111111111111111",
+        "Vote11111111111111111111111111111111111111",
+        // ... other non-circulating accounts
+      ],
+      "total": 546562616597354478
+    }
+  },
+  "id": 1
+}
+```
+
+**Example Response (with `excludeNonCirculatingAccountsList: true`):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 169890380
+    },
+    "value": {
+      "circulating": 423105830000000000,
+      "nonCirculating": 123456780000000000, // Example value
+      "total": 546562610000000000
+      // nonCirculatingAccounts field is absent
+    }
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Basic Request:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply"}' \
+  <YOUR_RPC_URL>
+
+# Request with excludeNonCirculatingAccountsList:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply", "params": [{"excludeNonCirculatingAccountsList": true}]}' \
+  <YOUR_RPC_URL>
+
+# Request with commitment:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply", "params": [{"commitment": "confirmed", "excludeNonCirculatingAccountsList": false}]}' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getNetworkSupply() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const supplyInfo = await connection.getSupply();
+    console.log('Supply Information:', supplyInfo.value);
+    console.log('Total SOL:', supplyInfo.value.total / 1_000_000_000); // Convert lamports to SOL
+    console.log('Circulating SOL:', supplyInfo.value.circulating / 1_000_000_000);
+    console.log('Non-Circulating SOL:', supplyInfo.value.nonCirculating / 1_000_000_000);
+
+    if (supplyInfo.value.nonCirculatingAccounts) {
+      console.log('Non-circulating accounts count:', supplyInfo.value.nonCirculatingAccounts.length);
+    }
+
+    // Example with options
+    const supplyInfoWithoutAccountsList = await connection.getSupply({
+      commitment: 'finalized',
+      excludeNonCirculatingAccountsList: true,
+    });
+    console.log('\nSupply Information (excluding non-circulating accounts list):');
+    console.log('Total SOL:', supplyInfoWithoutAccountsList.value.total / 1_000_000_000);
+    console.log('Circulating SOL:', supplyInfoWithoutAccountsList.value.circulating / 1_000_000_000);
+
+  } catch (error) {
+    console.error('Error getting supply information:', error);
+  }
+}
+
+getNetworkSupply();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Lamports vs. SOL:** The amounts are returned in lamports. Remember to divide by `1,000,000,000` (1 SOL = 10^9 lamports) to convert to SOL.
+*   **Data Freshness:** The data reflects the state at the slot indicated in the `context` object and based on the commitment level used.
+*   **`excludeNonCirculatingAccountsList`:** Use this option if you only need the aggregate supply numbers to optimize the response size and processing time, especially if the list of non-circulating accounts is very long.
+*   **Dynamic Values:** The supply figures can change frequently due to token issuance (inflation) and burning mechanisms.
+
+This guide should help you effectively use the `getSupply` RPC method to query Solana's supply data. 

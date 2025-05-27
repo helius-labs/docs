@@ -1,0 +1,71 @@
+---
+title: "How to Use getEpochSchedule"
+sidebarTitle: "getEpochSchedule"
+description: "Learn getEpochSchedule use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getEpochSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getepochschedule) RPC method returns the [epoch](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) schedule information from the cluster's genesis configuration. This data defines how epochs are structured, including their length and how the leader schedule is determined relative to an epoch's start.
+
+Understanding the epoch schedule is crucial for applications that need to align with network events, predict epoch boundaries, or understand the leader rotation mechanism.
+
+## Common Use Cases
+
+*   **Predicting Epoch Boundaries:** Determine the number of slots in an epoch to estimate when the current epoch will end and the next will begin.
+*   **Leader Schedule Calculation:** Understand the `leaderScheduleSlotOffset` to know how far in advance leader schedules are generated for an upcoming epoch.
+*   **Analyzing Network Initialization:** Observe `warmup`, `firstNormalEpoch`, and `firstNormalSlot` to understand the initial ramp-up phase of the cluster's epoch lengths if applicable.
+*   **Building Network Monitoring Tools:** Use this information to display epoch timing and progression accurately.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing the following fields:
+
+*   **`slotsPerEpoch`** (u64): The maximum number of slots in each epoch (after the warmup period, if any).
+*   **`leaderScheduleSlotOffset`** (u64): The number of slots before the start of an epoch for which the leader schedule for that epoch is generated.
+*   **`warmup`** (boolean): A boolean indicating whether the cluster has a warmup period where epochs start shorter and gradually increase in length.
+*   **`firstNormalEpoch`** (u64): The first epoch number that has the full `slotsPerEpoch` length. This is relevant if `warmup` is true.
+*   **`firstNormalSlot`** (u64): The slot index of the first slot in the `firstNormalEpoch`. This is relevant if `warmup` is true.
+
+## Examples
+
+### 1. Get the Epoch Schedule for the Cluster
+
+This example fetches the epoch schedule.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getEpochSchedule"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getClusterEpochSchedule() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const epochSchedule = await connection.getEpochSchedule();
+    console.log(JSON.stringify(epochSchedule, null, 2));
+  } catch (error) {
+    console.error('Error fetching epoch schedule:', error);
+  }
+}
+
+getClusterEpochSchedule();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Static Information:** The epoch schedule is determined by the genesis configuration of the cluster and generally does not change unless there is a significant network upgrade or a new cluster launch with different parameters.
+*   **Mainnet vs. Testnet/Devnet:** The epoch schedule, particularly `slotsPerEpoch` and warmup parameters, can differ significantly between Mainnet Beta, Testnet, and Devnet. Always query the specific cluster you are interested in.
+*   **Warmup Period:** If `warmup` is `true`, epochs before `firstNormalEpoch` will have fewer slots than `slotsPerEpoch`. The exact calculation for warmup epoch lengths is `2^N * MINIMUM_SLOTS_PER_EPOCH` where N is the epoch number (starting from 0) up until `firstNormalEpoch` is reached. The `MINIMUM_SLOTS_PER_EPOCH` is typically 32.
+
+This guide provides the necessary information to use the `getEpochSchedule` RPC method to understand the fundamental timing and structure of epochs within a Solana cluster. 

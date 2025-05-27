@@ -1,0 +1,125 @@
+---
+title: "How to Use getHealth"
+sidebarTitle: "getHealth"
+description: "Learn getHealth use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getHealth`](https://www.helius.dev/docs/api-reference/rpc/http/gethealth) endpoint is used to check the current health status of a Solana RPC node. A healthy node is generally considered to be one that is operational and reasonably synchronized with the rest of the cluster (specifically, within a certain slot distance of the latest cluster confirmed slot, known as `HEALTH_CHECK_SLOT_DISTANCE`).
+
+This endpoint is crucial for monitoring node health, especially for applications or infrastructure that rely on the availability and reliability of an RPC node.
+
+## How it Works
+
+Unlike most other RPC methods that use a JSON-RPC POST request, the `getHealth` check is often implemented as a simple HTTP `GET` request to the `/health` path of the RPC endpoint (e.g., `https://mainnet.helius-rpc.com/?api-key=<api-key>/health`).
+
+However, some RPC providers might also expose it via the standard JSON-RPC POST mechanism with the method `getHealth`.
+
+## Common Use Cases
+
+*   **Node Monitoring:** Regularly check the health of RPC nodes to ensure they are operational and synchronized.
+*   **Load Balancing:** Use health checks to determine if a node should receive traffic in a load-balanced setup.
+*   **Failover Systems:** Trigger failover to a backup node if a primary node becomes unhealthy.
+*   **Debugging Connectivity:** Quickly ascertain if an RPC node is responsive.
+
+## Request Parameters
+
+This method (whether as a GET request or a JSON-RPC call) does not typically take any parameters.
+
+## Response Structure
+
+*   **For HTTP GET `/health`:**
+    *   **`200 OK` with body `"ok"`**: The node is healthy.
+    *   **`200 OK` with body `"behind {distance}"`**: The node is behind the cluster by `{distance}` slots but still considered operational by some definitions.
+    *   **`200 OK` with body `"unknown"`**: The node cannot determine its health status relative to the cluster.
+    *   **`503 Service Unavailable` (or other error codes)**: The node is unhealthy or unreachable.
+
+*   **For JSON-RPC `getHealth` POST:**
+    *   **`result`**: `"ok"` if the node is healthy.
+    *   It might return an error object or other string values (like `"behind"` or `"unknown"`) if unhealthy, though the exact error response for an unhealthy node can be unstable or vary between providers.
+
+## Examples
+
+### 1. Check Node Health using cURL (HTTP GET)
+
+This is the most common way to check the health endpoint directly.
+
+```bash cURL (HTTP GET)
+curl https://mainnet.helius-rpc.com/?api-key=<api-key>/health
+```
+
+**Expected output (for a healthy node):**
+```text
+ok
+```
+
+### 2. Check Node Health using JSON-RPC (POST with cURL)
+
+Some providers might support this.
+
+<CodeGroup>
+```bash cURL (JSON-RPC POST)
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getHealth"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js Connection.getHealth())
+// Note: @solana/web3.js doesn't have a direct `connection.getHealth()` that mirrors the JSON-RPC spec for `getHealth` 
+// as of recent versions. It typically relies on other methods to infer health or you would use a direct HTTP client.
+// However, if your RPC provider wraps `/health` as a JSON-RPC method `getHealth`, you could call it like any other.
+
+// The most straightforward way in JS is to use a generic HTTP client for the /health endpoint:
+async function checkNodeHealth(rpcEndpoint) {
+  try {
+    // Append /health to the base RPC URL
+    const healthEndpoint = new URL('/health', rpcEndpoint).toString();
+    const response = await fetch(healthEndpoint);
+    const healthStatus = await response.text();
+
+    if (response.ok) {
+      console.log(`Node at ${rpcEndpoint} is healthy. Status: ${healthStatus}`);
+      if (healthStatus !== 'ok') {
+        console.warn(`Node reports: ${healthStatus}`);
+      }
+    } else {
+      console.error(`Node at ${rpcEndpoint} is unhealthy or request failed. HTTP Status: ${response.status}, Body: ${healthStatus}`);
+    }
+    return healthStatus;
+  } catch (error) {
+    console.error(`Error checking node health for ${rpcEndpoint}:`, error);
+    return 'error';
+  }
+}
+
+// Example usage:
+checkNodeHealth('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+checkNodeHealth('https://devnet.helius-rpc.com/?api-key=<api-key>');
+
+// If your specific RPC provider supports `getHealth` as a JSON-RPC method via @solana/web3.js connection:
+const { Connection } = require('@solana/web3.js');
+async function checkRpcHealthViaPost(rpcUrl) {
+    const connection = new Connection(rpcUrl);
+    try {
+        const health = await connection.rpcRequest('getHealth', []);
+        console.log(`getHealth via JSON-RPC for ${rpcUrl}:`, health);
+    } catch (error) {
+        console.error(`Error calling getHealth via JSON-RPC for ${rpcUrl}:`, error.message);
+    }
+}
+
+// checkRpcHealthViaPost('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **HTTP GET vs. JSON-RPC POST:** Prioritize using the HTTP `GET /health` endpoint if available, as it's the standard way defined by Solana nodes. JSON-RPC POST for `getHealth` might be a provider-specific wrapper.
+*   **Definition of Healthy:** "Healthy" generally means the node is responsive and not too far behind the cluster's tip. The exact slot difference (`HEALTH_CHECK_SLOT_DISTANCE`) can be configured on the node.
+*   **Interpreting `"behind"` or `"unknown"`:** If you receive `"behind {distance}"` or `"unknown"`, the node is operational but may not be fully caught up or able to ascertain its status relative to the cluster. Depending on your application's requirements, you might treat these states differently.
+*   **Provider Differences:** The exact behavior and response codes/bodies for an unhealthy node might vary slightly between RPC providers.
+
+This guide provides the necessary information to use the `getHealth` endpoint for monitoring the status of a Solana RPC node. 

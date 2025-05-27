@@ -1,0 +1,72 @@
+---
+title: "How to Use minimumLedgerSlot"
+sidebarTitle: "minimumLedgerSlot"
+description: "Learn minimumLedgerSlot use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`minimumLedgerSlot`](https://www.helius.dev/docs/api-reference/rpc/http/minimumledgerslot) RPC method returns the lowest (oldest) slot that the queried RPC node has information about in its ledger. This is useful for understanding the historical data retention of a particular node.
+
+## Common Use Cases
+
+*   **Determining Historical Data Availability:** Before attempting to query very old historical data (e.g., old blocks or transactions), you can use this method to check if the node is likely to have that data. If you need data from a slot lower than the `minimumLedgerSlot`, you may need to find an archival node.
+*   **Node Pruning Awareness:** Understanding that RPC nodes (especially non-archival ones) might prune old ledger data. This value indicates the current lower bound of their stored history.
+*   **Synchronizing Historical Data Fetchers:** If you are building a service that ingests historical Solana data, this can help you understand the starting point of available data on a given node.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field in the JSON-RPC response is a single `u64` number representing the minimum ledger slot available on the node.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 123456789,
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "minimumLedgerSlot"
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getMinLedgerSlot() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const minSlot = await connection.getMinimumLedgerSlot();
+    console.log(`Minimum ledger slot available on the node: ${minSlot}`);
+  } catch (error) {
+    console.error('Error fetching minimum ledger slot:', error);
+  }
+}
+
+getMinLedgerSlot();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Node Specific:** The returned `minimumLedgerSlot` is specific to the RPC node you are querying. Different nodes can have different ledger retention policies and thus different minimum slots.
+*   **Dynamic Value:** This value can increase over time as the node prunes older parts of its ledger to save space. It will not decrease.
+*   **Not All History:** This does not mean the node has *all* blocks between this slot and the current tip. It only indicates the lowest slot for which it *might* have data. Gaps can still exist, especially on non-archival nodes.
+*   **Archival Nodes:** For access to the complete history of the blockchain from genesis, you would typically need to query an archival node, which aims to store all ledger data.
+
+This guide helps you understand and use the `minimumLedgerSlot` RPC method to ascertain the extent of historical data stored by a Solana RPC node. 

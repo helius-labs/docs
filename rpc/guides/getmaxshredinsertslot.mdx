@@ -1,0 +1,67 @@
+---
+title: "How to Use getMaxShredInsertSlot"
+sidebarTitle: "getMaxShredInsertSlot"
+description: "Learn getMaxShredInsertSlot use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getMaxShredInsertSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getmaxshredinsertslot) RPC method returns the highest slot number for which the queried RPC node has successfully received and processed (inserted) shreds. Shreds are the constituent parts of Solana blocks, propagated via [Turbine](https://www.helius.dev/blog/turbine-block-propagation-on-solana). This value provides insight into how current the node is with the network's block production from the perspective of data ingestion.
+
+Understanding this metric is useful for assessing a node's ability to keep up with the rest of the network.
+
+## Common Use Cases
+
+*   **Node Synchronization Status:** Determine how up-to-date a specific node is by comparing its `maxShredInsertSlot` with the cluster's latest slot. A significant lag can indicate that the node is falling behind in processing incoming block data.
+*   **Performance Monitoring:** Track this value over time to monitor a node's shred processing performance. Consistent or growing discrepancies relative to other nodes or the network tip might signal performance bottlenecks or connectivity problems.
+*   **Identifying Ingestion Issues:** If a node reports a `maxShredInsertSlot` that isn't advancing or is far behind other nodes, it could point to issues with its shred intake process, potentially related to network connectivity or local processing capacity.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be a `u64` (unsigned 64-bit integer) representing the maximum slot for which the node has inserted shreds.
+
+## Examples
+
+### 1. Get the Maximum Shred Insert Slot
+
+This example fetches the maximum slot for which shreds have been inserted by the connected node.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMaxShredInsertSlot"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMaxShredInsertSlot() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const maxShredInsertSlot = await connection.getMaxShredInsertSlot();
+    console.log(`Maximum Slot for Shred Insertion: ${maxShredInsertSlot}`);
+  } catch (error) {
+    console.error('Error fetching maximum shred insert slot:', error);
+  }
+}
+
+fetchMaxShredInsertSlot();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Node-Specific Value:** The `maxShredInsertSlot` is particular to the RPC node being queried. Different nodes can have varying values at the same moment due to differences in network latency and processing speeds.
+*   **Indicator of Ingestion, Not Finality:** This slot reflects the progress of shred *ingestion* by the node. It is not a measure of block finality. A slot might have its shreds inserted on one node but not yet be confirmed or finalized by the broader cluster. Use methods like `getSlot` with `finalized` commitment for finality checks.
+*   **Relationship with `maxRetransmitSlot`:** Typically, `maxShredInsertSlot` will be less than or equal to `maxRetransmitSlot`. A node first sees shreds via retransmit and then processes and inserts them.
+*   **Constantly Updating:** As the network produces new blocks and the node processes incoming shreds, this value will continuously increase.
+
+By using `getMaxShredInsertSlot`, you can gain valuable insights into a Solana node's progress in receiving and processing block data, which is essential for monitoring its health and synchronization with the network. 

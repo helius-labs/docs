@@ -1,0 +1,135 @@
+---
+title: "How to Use getLeaderSchedule"
+sidebarTitle: "getLeaderSchedule"
+description: "Learn getLeaderSchedule use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getLeaderSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getleaderschedule) RPC method returns the assignment of block production leadership to validators for a specific epoch. Understanding the leader schedule can be useful for network analysis, predicting which validator will produce blocks at certain times, or for tools that interact with specific leaders.
+
+## Common Use Cases
+
+*   **Network Monitoring:** Observe the distribution of leader slots among validators in an epoch.
+*   **Transaction Routing (Advanced):** Some advanced applications might try to route transactions to the current or upcoming leader, though this is generally handled by the network and RPC nodes.
+*   **Validator Performance Analysis:** Correlate the leader schedule with actual block production to assess validator uptime and performance.
+*   **Understanding Epoch Progression:** See which validators are responsible for producing blocks throughout an epoch.
+
+## Request Parameters
+
+The method can take up to two optional parameters:
+
+1.  **`slot`** (u64, optional): A slot number. If provided, the leader schedule for the epoch containing this slot will be fetched. If `null` or omitted, the leader schedule for the current epoch is fetched.
+2.  **`config`** (object, optional): A configuration object that can contain:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels). If not provided, the node's default commitment is used.
+    *   **`identity`** (string, optional): A base-58 encoded public key of a validator. If provided, the returned schedule will only include slots assigned to this specific validator.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be:
+
+*   `null`: If the epoch corresponding to the requested `slot` (or current epoch if no slot is provided) is not found or its leader schedule is not available (e.g., for a future, uncalculated epoch).
+*   An **object**: If a schedule is found. This object is a map where:
+    *   Each **key** is the base-58 encoded public key (identity) of a validator.
+    *   The corresponding **value** is an array of numbers. Each number is a slot index *relative to the start of the epoch* for which that validator is the leader.
+
+For example, if an epoch starts at slot `1000` and a validator has `[0, 1, 5]` in its schedule, it means that validator is the leader for slots `1000`, `1001`, and `1005`.
+
+## Examples
+
+### 1. Get Leader Schedule for the Current Epoch
+
+This example fetches the complete leader schedule for the current epoch.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLeaderSchedule"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchCurrentLeaderSchedule() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const leaderSchedule = await connection.getLeaderSchedule(); // Fetches for current epoch by default
+    if (leaderSchedule) {
+      console.log('Leader Schedule for Current Epoch:');
+      for (const [validatorIdentity, slots] of Object.entries(leaderSchedule)) {
+        console.log(`  Validator: ${validatorIdentity}`);
+        console.log(`    Slots (relative to epoch start): ${slots.join(', ')}`);
+      }
+    } else {
+      console.log('Leader schedule for the current epoch not found or not yet available.');
+    }
+    // console.log(JSON.stringify(leaderSchedule, null, 2));
+  } catch (error) {
+    console.error('Error fetching leader schedule:', error);
+  }
+}
+
+fetchCurrentLeaderSchedule();
+```
+</CodeGroup>
+
+### 2. Get Leader Schedule for a Specific Validator in a Specific Epoch (by Slot)
+
+This example fetches the leader schedule for a given validator identity for the epoch containing slot `200000`.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace VALIDATOR_PUBKEY with an actual validator identity public key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLeaderSchedule",
+    "params": [
+      200000,
+      { "identity": "VALIDATOR_PUBKEY" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+// Replace VALIDATOR_PUBKEY with an actual validator identity public key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchValidatorEpochSchedule() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const targetSlot = 200000;
+  const validatorIdentity = 'VALIDATOR_PUBKEY'; // e.g., 'Vote111111111111111111111111111111111111111'
+
+  try {
+    const leaderSchedule = await connection.getLeaderSchedule(targetSlot, { identity: validatorIdentity });
+    if (leaderSchedule && leaderSchedule[validatorIdentity]) {
+      console.log(`Leader Schedule for Validator ${validatorIdentity} in epoch of slot ${targetSlot}:`);
+      console.log(`  Slots (relative to epoch start): ${leaderSchedule[validatorIdentity].join(', ')}`);
+    } else {
+      console.log(`No leader slots found for validator ${validatorIdentity} in epoch of slot ${targetSlot}, or schedule not available.`);
+    }
+    // console.log(JSON.stringify(leaderSchedule, null, 2));
+  } catch (error) {
+    console.error('Error fetching validator leader schedule:', error);
+  }
+}
+
+fetchValidatorEpochSchedule();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Epoch Boundaries:** The leader schedule is fixed for an entire epoch. You can use `getEpochInfo` to find the start and end slots of an epoch.
+*   **Future Epochs:** Requesting the schedule for an epoch far in the future might return `null` if the network hasn't calculated it yet.
+*   **Relative Slot Indices:** Remember that the slot numbers in the response are relative to the first slot of the *requested* epoch, not absolute slot numbers on the blockchain.
+*   **Large Response:** For a full epoch schedule without an identity filter, the response can be large, listing all validators and their assigned slots.
+
+This guide provides the necessary information to use `getLeaderSchedule` to query block producer assignments for any given epoch on the Solana network. 

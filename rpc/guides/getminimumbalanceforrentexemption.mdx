@@ -1,0 +1,116 @@
+---
+title: "How to Use getMinimumBalanceForRentExemption"
+sidebarTitle: "getMinimumBalanceForRentExemption"
+description: "Learn getMinimumBalanceForRentExemption use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getMinimumBalanceForRentExemption`](https://www.helius.dev/docs/api-reference/rpc/http/getminimumbalanceforrentexemption) RPC method allows you to calculate this minimum lamport balance required for an account of a specific data size to become rent-exempt.
+
+In Solana, accounts must maintain a minimum balance to cover storage costs over time, a concept known as rent. Accounts holding a balance equivalent to two years of rent payments are considered "rent-exempt" and do not have their balances depleted by [rent](https://www.helius.dev/blog/solana-executive-overview).
+
+## Common Use Cases
+
+*   **Account Creation:** Before creating a new account (e.g., for a new token account, program-derived address, or custom data storage), use this method to determine the necessary lamports to allocate to make it rent-exempt from the start. This prevents the account from being garbage-collected if its balance falls too low.
+*   **Dynamic Account Sizing:** If your application deals with accounts that can grow in data size, you can use this method to periodically check if additional lamports are needed to maintain rent exemption.
+*   **Cost Estimation:** Estimate the SOL cost associated with deploying programs or creating data accounts of various sizes.
+*   **Wallet and SDK Integration:** Wallets and SDKs use this to ensure they fund new accounts appropriately.
+
+## Request Parameters
+
+1.  **`dataLength`** (`usize`, required): The length of the account's data in bytes. This is the primary factor determining the rent-exempt minimum.
+    *   Example: `165` (for a standard SPL Token account).
+
+2.  **`commitment`** (`object`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query. If omitted, the default commitment of the RPC node is used.
+    *   Fields:
+        *   `commitment` (string): e.g., `"finalized"`, `"confirmed"`, or `"processed"`.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be a `u64` (unsigned 64-bit integer) representing the minimum number of lamports required for an account with the specified `dataLength` to be rent-exempt.
+
+## Examples
+
+### 1. Get Rent Exemption for a Standard Token Account (165 bytes)
+
+This example queries the minimum balance needed for a typical SPL Token account (which has a data size of 165 bytes) to be rent-exempt.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMinimumBalanceForRentExemption",
+    "params": [
+      165
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMinimumBalanceForRentExemption() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const dataLength = 165; // Data length for a typical SPL token account
+
+  try {
+    const lamports = await connection.getMinimumBalanceForRentExemption(dataLength);
+    console.log(`Minimum lamports for rent exemption (data length ${dataLength} bytes): ${lamports} SOL: (${lamports / 1_000_000_000})`);
+  } catch (error) {
+    console.error(`Error fetching minimum balance for rent exemption for data length ${dataLength}:`, error);
+  }
+}
+
+fetchMinimumBalanceForRentExemption();
+```
+</CodeGroup>
+
+### 2. Get Rent Exemption for a Zero-Byte Account
+
+This shows the base rent exemption for an account with no data, often the absolute minimum for any account.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMinimumBalanceForRentExemption",
+    "params": [
+      0
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMinimumBalanceForZeroByteAccount() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const dataLength = 0;
+
+  try {
+    const lamports = await connection.getMinimumBalanceForRentExemption(dataLength);
+    console.log(`Minimum lamports for rent exemption (data length ${dataLength} bytes): ${lamports} SOL: (${lamports / 1_000_000_000})`);
+  } catch (error) {
+    console.error(`Error fetching minimum balance for rent exemption for data length ${dataLength}:`, error);
+  }
+}
+
+fetchMinimumBalanceForZeroByteAccount();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Rent Varies by Data Size:** The larger the account's data, the higher the rent-exempt minimum will be.
+*   **Network Parameter:** The underlying cost of rent (lamports per byte-year) is a network parameter that can theoretically change via a cluster vote, though this is rare. The `getMinimumBalanceForRentExemption` method will always return the current value based on the cluster's state.
+*   **Lamports vs. SOL:** The response is in lamports. Remember that 1 SOL = 1,000,000,000 lamports.
+*   **Essential for Longevity:** Ensuring accounts are rent-exempt is crucial for the long-term persistence of data on the Solana blockchain.
+
+This guide helps you understand and use the `getMinimumBalanceForRentExemption` RPC method to manage account rent effectively in your Solana applications. 

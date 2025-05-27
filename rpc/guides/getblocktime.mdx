@@ -1,0 +1,80 @@
+---
+title: "How to Use getBlockTime"
+sidebarTitle: "getBlockTime"
+description: "Learn getBlockTime use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getBlockTime`](https://www.helius.dev/docs/api-reference/rpc/http/getblocktime) RPC method provides the estimated production time of a specified block, identified by its slot number. The time is returned as a Unix timestamp (seconds since the Unix epoch).
+
+This method is useful when you need to correlate block production with real-world time.
+
+## Common Use Cases
+
+*   **Timestamping Events:** Determine when a particular block was produced to timestamp on-chain events.
+*   **Analyzing Block Production Intervals:** Calculate the time difference between blocks (though for more detailed analysis, other methods might be combined).
+*   **Correlating Off-Chain Data:** Align off-chain events or data with on-chain activity by matching block production times.
+
+## Request Parameters
+
+The `getBlockTime` method takes a single parameter:
+
+1.  **`slot`** (u64, required): The slot number of the block for which to retrieve the estimated production time.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be either:
+
+*   **`timestamp`** (i64): The estimated production time as a Unix timestamp (seconds since the Unix epoch).
+*   **`null`**: If the timestamp is not available for the specified block (e.g., the block is very old and the data has been pruned, or the block was skipped and has no associated timestamp).
+
+## Examples
+
+### 1. Get the Estimated Time of a Specific Block
+
+This example fetches the estimated production time for a specific slot. Remember to replace `SLOT_NUMBER_TO_QUERY` with an actual, recent, and confirmed slot on the network you are targeting (e.g., Mainnet Beta or Devnet).
+
+<CodeGroup>
+```bash cURL
+# Replace SLOT_NUMBER_TO_QUERY with a valid slot, e.g., a recent one from an explorer
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlockTime",
+    "params": [
+      SLOT_NUMBER_TO_QUERY 
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getSpecificBlockTime(slotToQuery) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blockTime = await connection.getBlockTime(slotToQuery);
+    if (blockTime !== null) {
+      console.log(`Estimated time for slot ${slotToQuery}: ${new Date(blockTime * 1000).toISOString()} (Unix: ${blockTime})`);
+    } else {
+      console.log(`Timestamp not available for slot ${slotToQuery}.`);
+    }
+  } catch (error) {
+    console.error('Error fetching block time:', error);
+  }
+}
+
+// Example usage: Replace with a recent, valid slot number from Mainnet Beta
+// You can find recent slots on Solana explorers like Solscan or SolanaFM
+const slotToQuery = 300000000; // Replace with an actual slot number
+getSpecificBlockTime(slotToQuery);
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Timestamp Availability:** Timestamps might not be available for all blocks, especially very old ones or slots that were skipped. In such cases, the method returns `null`.
+*   **Estimation:** The time is an *estimate*. It's derived from stake-weighted mean of Vote timestamps from validators. While generally accurate, it's not a guaranteed, cryptographically secure timestamp for every single block in the same way a blockhash is.
+*   **Node Dependence:** The availability and precision might slightly vary depending on the RPC node queried, especially for very recent (not yet finalized) blocks.
+
+This guide explains how to use `getBlockTime` to retrieve the estimated production timestamp for any given block on the Solana network. 

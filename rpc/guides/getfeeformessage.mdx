@@ -1,0 +1,113 @@
+---
+title: "How to Use getFeeForMessage"
+sidebarTitle: "getFeeForMessage"
+description: "Learn getFeeForMessage use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getFeeForMessage`](https://www.helius.dev/docs/api-reference/rpc/http/getfeeformessage) RPC method allows you to estimate the fee the network will charge for processing a given transaction message. This is useful for understanding [transaction costs](https://www.helius.dev/blog/solana-fees-in-theory-and-practice) before they are submitted to the network.
+
+**Version Note:** This method is available in `solana-core` v1.9 or newer. For older versions, consider using `getFees`.
+
+## Common Use Cases
+
+*   **Fee Estimation:** Determine the likely transaction fee (in lamports) for a specific message.
+*   **Cost Optimization:** Analyze fees for different transaction structures or at different times.
+*   **User Interface Display:** Show users an estimated transaction cost before they sign and send a transaction.
+
+## Request Parameters
+
+1.  **`message`** (string, required): The transaction message, base64 encoded. You can obtain this by compiling a transaction.
+2.  **`config`** (object, optional): A configuration object with the following fields:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use. Defaults to `finalized`.
+    *   **`minContextSlot`** (number, optional): The minimum slot at which the request can be evaluated.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an object with the following structure:
+
+*   **`context`** (object):
+    *   **`slot`** (u64): The slot at which the fee was evaluated.
+*   **`value`** (u64 | null): The estimated fee in lamports. This can be `null` if the fee cannot be determined (e.g., if the blockhash used in the message is too old or invalid).
+
+## Examples
+
+### 1. Estimate Fee for a Simple Transfer Message
+
+This example demonstrates how to construct a simple transfer, compile its message, and then fetch the estimated fee.
+
+<CodeGroup>
+```bash cURL
+# First, you need a base64 encoded message. 
+# This typically involves creating a transaction, compiling its message, 
+# and then base64 encoding the serialized message.
+# The example message below is illustrative.
+# Replace "MESSAGE_BASE64_ENCODED" with your actual encoded message.
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getFeeForMessage",
+    "params": [
+      "MESSAGE_BASE64_ENCODED", // Replace with your actual base64 encoded message
+      { "commitment": "processed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, Keypair, SystemProgram, Transaction, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+
+async function estimateTransactionFee() {
+  const connection = new Connection('https://devnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const fromPublicKey = Keypair.generate().publicKey;
+    const toPublicKey = Keypair.generate().publicKey;
+
+    let transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: fromPublicKey,
+        toPubkey: toPublicKey,
+        lamports: 1000,
+      })
+    );
+
+    transaction.feePayer = fromPublicKey;
+    const { blockhash } = await connection.getLatestBlockhash('confirmed');
+    transaction.recentBlockhash = blockhash;
+
+    const message = transaction.compileMessage();
+    const messageBase64 = message.serialize().toString('base64');
+
+    console.log(`Compiled Message (Base64): ${messageBase64}`);
+
+    const feeResult = await connection.getFeeForMessage(message, 'confirmed');
+
+    if (feeResult && feeResult.value !== null) {
+      console.log(`Estimated Fee: ${feeResult.value} lamports`);
+    } else {
+      console.log('Could not estimate fee. The value was null.');
+      console.log('This might happen if the blockhash is too old or the message is invalid.');
+    }
+
+  } catch (error) {
+    console.error('Error estimating transaction fee:', error);
+    if (error.message.includes('failed to get recent blockhash')) {
+        console.error('Ensure your RPC endpoint is responsive or try a different commitment level for getLatestBlockhash.');
+    }
+  }
+}
+
+estimateTransactionFee();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Message Construction:** The key to using `getFeeForMessage` is to correctly construct and serialize the transaction `Message`. This involves setting the fee payer, instructions, and a recent blockhash.
+*   **Recent Blockhash:** The message must be constructed with a recent blockhash. If the blockhash is too old, the `value` in the response might be `null`.
+*   **Fee vs. Priority Fee:** This method returns the base network fee. It does not include any additional priority fees you might add to a transaction to increase its likelihood of being processed quickly during times of network congestion. Use `getRecentPrioritizationFees` to estimate [priority fees](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics).
+*   **Lamports:** The fee is returned in lamports (1 SOL = 1,000,000,000 lamports).
+*   **Null Value:** A `null` value for the fee can indicate issues with the message (e.g., invalid blockhash, malformed message) or that the node cannot calculate a fee for it at the given commitment level or slot.
+
+This guide provides the necessary steps to utilize the `getFeeForMessage` RPC method for estimating transaction fees on the Solana network. 

@@ -1,0 +1,76 @@
+---
+title: "How to Use getHighestSnapshotSlot"
+sidebarTitle: "getHighestSnapshotSlot"
+description: "Learn getHighestSnapshotSlot use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getHighestSnapshotSlot`](https://www.helius.dev/docs/api-reference/rpc/http/gethighestsnapshotslot) RPC method returns information about the highest slot for which the queried Solana node has ledger snapshots. This includes both the latest full snapshot slot and, if available, the latest incremental snapshot slot that is based on that full snapshot.
+
+Snapshots are crucial for nodes to quickly sync with the network and for ledger maintenance.
+
+**Version Note:** This method is available in `solana-core` v1.9 or newer. For older versions (v1.8 and below), use `getSnapshotSlot`.
+
+## Common Use Cases
+
+*   **Node Monitoring:** Determine how up-to-date a node's snapshots are.
+*   **Understanding Node State:** Get insights into a node's ledger retention and snapshotting process.
+*   **Debugging Sync Issues:** Help diagnose if a node is falling behind in generating or retrieving snapshots.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object with the following fields:
+
+*   **`full`** (u64): The slot number of the highest full snapshot available on the node.
+*   **`incremental`** (u64 | null): The slot number of the highest incremental snapshot that builds upon the `full` snapshot. This can be `null` if no incremental snapshot is available for the latest full snapshot or if incremental snapshots are not enabled/generated.
+
+If the node does not have any snapshots, the behavior might vary (e.g., an error or specific null-like values, depending on the RPC provider's implementation).
+
+## Examples
+
+### 1. Get the Highest Snapshot Slot Information
+
+This example fetches the highest snapshot slot details from the RPC endpoint.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getHighestSnapshotSlot"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logHighestSnapshotSlot() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const snapshotSlotInfo = await connection.getHighestSnapshotSlot();
+    console.log('Highest Snapshot Slot Information:');
+    console.log(`  Full Snapshot Slot: ${snapshotSlotInfo.full}`);
+    console.log(`  Incremental Snapshot Slot: ${snapshotSlotInfo.incremental !== null ? snapshotSlotInfo.incremental : 'N/A'}`);
+  } catch (error) {
+    console.error('Error fetching highest snapshot slot:', error);
+  }
+}
+
+logHighestSnapshotSlot();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Node Specific:** The snapshot information is specific to the node being queried. Different nodes in the cluster might have different highest snapshot slots depending on their configuration and operational status.
+*   **Snapshotting Frequency:** Nodes create snapshots at configured intervals. The highest snapshot slot will advance as new snapshots are generated.
+*   **Full vs. Incremental Snapshots:**
+    *   A **full snapshot** contains all ledger state up to a certain slot.
+    *   An **incremental snapshot** contains only the changes since a previous (usually full) snapshot, making them smaller and faster to create and restore from, assuming the base full snapshot is available.
+*   **Availability:** This method is available on `solana-core` versions 1.9 and newer. Ensure your node or RPC provider supports this version if you intend to use it.
+
+This guide explains how to use the `getHighestSnapshotSlot` RPC method to retrieve information about the latest snapshots available on a Solana node. 
