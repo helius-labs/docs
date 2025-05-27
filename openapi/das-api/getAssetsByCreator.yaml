@@ -188,57 +188,134 @@ paths:
                                                             type: object
                                                             description: The current ownership details for this Solana digital asset, including owner address and delegation status.
                 '400':
-                    description: Invalid request.
+                    description: Bad Request. The server could not understand the request due to invalid syntax.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
-
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32602
+                                            message:
+                                                type: string
+                                                example: "Invalid request parameters."
+                                    id:
+                                        type: string
+                                        example: "1"
                 '401':
-                    description: Unauthorized request.
+                    description: Unauthorized. The client must authenticate itself to get the requested response.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32001
+                                            message:
+                                                type: string
+                                                example: "Authentication failed. Missing or invalid API key."
+                                    id:
+                                        type: string
+                                        example: "1"
                 '403':
-                    description: Request was forbidden.
+                    description: Forbidden. The client does not have access rights to the content.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32003
+                                            message:
+                                                type: string
+                                                example: "You do not have permission to access this resource."
+                                    id:
+                                        type: string
+                                        example: "1"
                 '404':
-                    description: The specified resource was not found.
+                    description: Not Found. The server can not find the requested resource.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32004
+                                            message:
+                                                type: string
+                                                example: "No assets found for the specified creator."
+                                    id:
+                                        type: string
+                                        example: "1"
                 '429':
-                    description: Exceeded rate limit..
+                    description: Too Many Requests. The user has sent too many requests in a given amount of time.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32029
+                                            message:
+                                                type: string
+                                                example: "Rate limit exceeded. Please try again later."
+                                    id:
+                                        type: string
+                                        example: "1"
                 '500':
-                    description: The server encountered an unexpected condition that prevented it from fulfilling the request.
+                    description: Internal Server Error. The server has encountered a situation it doesn't know how to handle.
                     content:
                         application/json:
                             schema:
                                 type: object
                                 properties:
-                                    error:
+                                    jsonrpc:
                                         type: string
+                                        example: "2.0"
+                                    error:
+                                        type: object
+                                        properties:
+                                            code:
+                                                type: integer
+                                                example: -32000
+                                            message:
+                                                type: string
+                                                example: "An unexpected error occurred on the server."
+                                    id:
+                                        type: string
+                                        example: "1"
