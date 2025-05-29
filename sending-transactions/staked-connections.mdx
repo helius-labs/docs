@@ -3,6 +3,18 @@ title: 'Staked Connections'
 description: 'Use Helius Staked Connections for optimal transaction delivery on Solana'
 ---
 
+<Note>
+**Staked Transactions Are the New Default**
+
+Transactions sent through Helius now automatically use staked connections, providing the highest transaction landing rates for optimal speed and reliability. No code changes are required.
+
+**What changed:**
+- `sendTransaction` uses staked connections by default
+- Staked connection pricing decreased from 50 to 10 credits
+- The staked endpoint (`staked.helius-rpc.com`) has been deprecated - use the regular endpoint instead
+- To use unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com` - note that unstaked connections may not be reliable during network congestion
+</Note>
+
 ## What are Staked Connections?
 
 Staked Connections are a premium feature from Helius that provide a direct path to Solana validators through staked RPC nodes. These connections significantly improve transaction confirmation times and success rates by bypassing traditional transaction propagation mechanisms.
@@ -19,37 +31,33 @@ When you send a transaction through a staked connection:
 Helius' staked connections guarantee 100% transaction delivery with minimal confirmation times when used correctly.
 </Note>
 
-## Staked Connection Options
+## Connection Options
 
-Helius offers two ways to access staked connections:
+### Default Staked Connections (Recommended)
 
-### 1. Shared Staked Endpoint (Default)
-
-This option allows you to use staked connections through the standard Helius RPC endpoint when certain criteria are met.
-
-- **Requirements:**
-  - Priority fees meet or exceed the `recommended` value provided by the Priority Fee API
-  - Set `maxRetries` to 0 in your transaction send options
+All transactions sent through the standard Helius RPC endpoint now automatically use staked connections.
 
 - **Endpoint:** `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
-- **Cost:** 1 credit per request
-- **Usage metrics:** Displayed as `sendTransactionWithStake` in your dashboard
-
-- **Tips:**
-  - Check if you're getting staked connections by logging the `X-Helius-ConnectionType` response header
-  - The header value will be either `regular` or `staked`
-
-### 2. Dedicated Staked Endpoint
-
-This premium option is recommended for traders or applications that need guaranteed access to staked connections, especially during market congestion.
-
+- **Cost:** 10 credits per request
 - **Benefits:**
-  - Guaranteed access to staked connections regardless of network conditions
-  - Transactions sent over an optimized network across Asia, Europe, and North America
-  - Minimizes latency and confirmation times
+  - Highest transaction landing rates
+  - Optimized for speed and reliability
+  - No code changes required
 
-- **Endpoint:** `https://staked.helius-rpc.com?api-key=YOUR_API_KEY`
-- **Cost:** 50 credits per request
+### Unstaked Connections (Legacy)
+
+For applications that specifically need unstaked connections, you can use the dedicated unstaked endpoint.
+
+- **Endpoint:** `https://unstaked.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Cost:** 1 credit per request
+- **Limitations:**
+  - Not reliable during network congestion
+  - Lower transaction success rates
+  - Higher confirmation times
+
+<Warning>
+The dedicated staked endpoint (`staked.helius-rpc.com`) has been deprecated. Please migrate to using the regular endpoint (`mainnet.helius-rpc.com`) which now provides staked connections by default.
+</Warning>
 
 ## Optimizing for Staked Connections
 
@@ -66,49 +74,37 @@ To get the most out of staked connections, we recommend these additional optimiz
 
 ## Using Staked Connections
 
-Staked connections are automatically used when:
+Staked connections are now automatically used for all transactions sent through the standard Helius endpoint. No special configuration is required.
 
-1. You send transactions via Smart Transactions with appropriate priority fees
-2. You send transactions directly to the staked endpoint
-3. You meet the requirements for the shared staked connection (correct priority fee + maxRetries=0)
-
-### Example: Direct Usage with Web3.js
+### Example: Standard Usage with Web3.js
 
 ```javascript
 import { Connection, Keypair, SystemProgram } from '@solana/web3.js';
 
-// Initialize connection to Helius staked endpoint
-const connection = new Connection('https://staked.helius-rpc.com?api-key=YOUR_API_KEY');
+// Initialize connection to Helius endpoint (now uses staked connections by default)
+const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
 
 // Create and sign transaction
 // ...
 
-// Send with recommended settings
+// Send transaction (automatically uses staked connection)
 const signature = await connection.sendRawTransaction(serializedTransaction, {
   skipPreflight: true,
   maxRetries: 0
 });
 ```
 
-### Example: Checking Connection Type
+### Example: Using Unstaked Connections (if needed)
 
 ```javascript
-// Using fetch directly to access headers
-const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    id: '1',
-    method: 'sendTransaction',
-    params: [
-      serializedTransaction,
-      { skipPreflight: true, maxRetries: 0 }
-    ]
-  })
-});
+import { Connection } from '@solana/web3.js';
 
-// Check if using staked connection
-const connectionType = response.headers.get('X-Helius-ConnectionType');
-console.log(`Using ${connectionType} connection`); // Will show "staked" or "regular"
+// Initialize connection to unstaked endpoint (1 credit per request)
+const connection = new Connection('https://unstaked.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+// Send transaction using unstaked connection
+const signature = await connection.sendRawTransaction(serializedTransaction, {
+  skipPreflight: true,
+  maxRetries: 0
+});
 ```
