@@ -228,7 +228,7 @@ paths:
                         space: 0
                     id: 1
         400:
-          description: Invalid request.
+          description: Bad Request - Invalid request parameters or malformed request.
           content:
             application/json:
               schema:
@@ -240,7 +240,7 @@ paths:
                   message: "Invalid params"
                 id: "1"
         401:
-          description: Unauthorized, invalid API key.
+          description: Unauthorized - Invalid or missing API key.
           content:
             application/json:
               schema:
@@ -251,8 +251,20 @@ paths:
                   code: -32001
                   message: "Unauthorized"
                 id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
         500:
-          description: Server error.
+          description: Internal Server Error - An error occurred on the server.
           content:
             application/json:
               schema:
@@ -262,4 +274,28 @@ paths:
                 error:
                   code: -32603
                   message: "Internal error"
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
                 id: "1"
