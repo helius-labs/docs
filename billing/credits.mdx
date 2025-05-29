@@ -25,8 +25,20 @@ Most standard RPC calls cost **1 credit** per call, with these exceptions:
   - [`getBlockTime`](/api-reference/rpc/http/getblocktime)
 
 - **Transaction Submission**
-  - Via [https://mainnet.helius-rpc.com](https://mainnet.helius-rpc.com): 1 credit
-  - Via [https://staked.helius-rpc.com](https://staked.helius-rpc.com): 50 credits
+  - Via [https://mainnet.helius-rpc.com](https://mainnet.helius-rpc.com): 10 credits (staked connections - default)
+  - Via [https://unstaked.helius-rpc.com](https://unstaked.helius-rpc.com): 1 credit (unstaked connections)
+
+<Note>
+**Staked Transactions Are the New Default**
+
+Transactions sent through Helius now automatically use staked connections, providing the highest transaction landing rates for optimal speed and reliability. No code changes are required.
+
+**What changed:**
+- `sendTransaction` uses staked connections by default
+- Staked connection pricing decreased from 50 to 10 credits
+- The staked endpoint (`staked.helius-rpc.com`) has been deprecated - use the regular endpoint instead
+- To use unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com` - note that unstaked connections may not be reliable during network congestion
+</Note>
 
 - **Priority Fee API**: 1 credit
 
