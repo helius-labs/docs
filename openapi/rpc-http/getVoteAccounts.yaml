@@ -18,6 +18,22 @@ components:
       in: query
       name: api-key
       description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum: ["2.0"]
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+        id:
+          type: string
 paths:
   /:
     post:
@@ -220,7 +236,37 @@ paths:
                       delinquent: []
         400:
           description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
         401:
           description: Unauthorized, invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
         500:
           description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"

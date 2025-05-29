@@ -18,6 +18,31 @@ components:
       in: query
       name: api-key
       description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum:
+            - "2.0"
+          description: The JSON-RPC protocol version.
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: Error code.
+              example: -32602
+            message:
+              type: string
+              description: Error message.
+              example: "Invalid params"
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
 paths:
   /:
     post:
@@ -217,31 +242,34 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Invalid request"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
         401:
           description: Unauthorized, invalid API key.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Unauthorized"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
         500:
           description: Server error.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Internal Server Error"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
