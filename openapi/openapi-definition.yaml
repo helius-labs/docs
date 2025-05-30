@@ -70,6 +70,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -120,6 +124,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -166,6 +174,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -216,6 +228,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -270,6 +286,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -324,6 +344,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -369,6 +393,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -407,6 +435,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -445,6 +477,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -488,6 +524,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -539,6 +579,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -590,6 +634,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -641,6 +689,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -692,6 +744,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -744,6 +800,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -951,6 +1011,30 @@ components:
             error:
               code: -32603
               message: "Internal error"
+            id: "1"
+    503-ServiceUnavailable:
+      description: The service is temporarily unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32002
+              message: "Service unavailable"
+            id: "1"
+    504-GatewayTimeout:
+      description: The request timed out.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32003
+              message: "Gateway timeout"
             id: "1"
 
 
