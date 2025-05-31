@@ -62,6 +62,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -93,6 +97,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Webhook'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: POST
         type: http_proxy
@@ -131,6 +147,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Webhook'
+        400:
+          $ref: '#/components/responses/400-BadRequest'
+        401:
+          $ref: '#/components/responses/401-Unauthorized'
+        403:
+          $ref: '#/components/responses/403-Forbidden'
+        404:
+          $ref: '#/components/responses/404-NotFound'
+        429:
+          $ref: '#/components/responses/429-TooManyRequests'
+        500:
+          $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: GET
         type: http_proxy
@@ -177,6 +209,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: PUT
         type: http_proxy
@@ -213,6 +249,10 @@ paths:
           $ref: '#/components/responses/429-TooManyRequests'
         500:
           $ref: '#/components/responses/500-InternalServerError'
+        503:
+          $ref: '#/components/responses/503-ServiceUnavailable'
+        504:
+          $ref: '#/components/responses/504-GatewayTimeout'
       x-amazon-apigateway-integration:
         httpMethod: DELETE
         type: http_proxy
@@ -345,55 +385,97 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32602
+              message: "Invalid params"
+            id: "1"
     401-Unauthorized:
       description: Unauthorized request.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32001
+              message: "Unauthorized"
+            id: "1"
     403-Forbidden:
           description: Request was forbidden.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Forbidden"
+                id: "1"
     404-NotFound:
       description: The specified resource was not found.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32601
+              message: "Method not found"
+            id: "1"
     429-TooManyRequests:
       description: Exceeded rate limit.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32005
+              message: "Rate limit exceeded"
+            id: "1"
     500-InternalServerError:
       description: The server encountered an unexpected condition that prevented it from fulfilling the request.
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32603
+              message: "Internal error"
+            id: "1"
+    503-ServiceUnavailable:
+      description: The service is temporarily unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32002
+              message: "Service unavailable"
+            id: "1"
+    504-GatewayTimeout:
+      description: The request timed out.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32003
+              message: "Gateway timeout"
+            id: "1"
 
 
   #-------------------------------
@@ -2397,7 +2479,32 @@ components:
       - INVALID_ACCOUNT
       - INVALID_PUBKEY
 
-   
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
 
 ## API gateway response customization
 x-amazon-apigateway-gateway-responses:

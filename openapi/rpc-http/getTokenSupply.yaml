@@ -18,6 +18,33 @@ components:
       in: query
       name: api-key
       description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
 paths:
   /:
     post:
@@ -152,35 +179,74 @@ paths:
                         uiAmount: 1000
                         uiAmountString: "1000"
         400:
-          description: Invalid request.
+          description: Bad Request - Invalid request parameters or malformed request.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Invalid params"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
         401:
-          description: Unauthorized, invalid API key.
+          description: Unauthorized - Invalid or missing API key.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Unauthorized"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
         500:
-          description: Server error.
+          description: Internal Server Error - An error occurred on the server.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Error message describing the issue.
-                    example: "Internal Server Error"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                id: "1"
