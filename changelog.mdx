@@ -1,0 +1,56 @@
+---
+title: "Changelog"
+description: "Stay up-to-date with the latest Helius updates, new features, improvements, and changes to our APIs and services."
+sidebarTitle: "Changelog"
+---
+
+# Changelog
+
+Stay informed about the latest updates, new features, improvements, and changes to Helius APIs and services. We're constantly working to improve your developer experience and provide you with the best Solana infrastructure.
+
+<Note>
+Want to stay updated? Join our [Discord community](https://discord.com/invite/6GXdee3gBj) for real-time announcements or follow us on [Twitter](https://twitter.com/heliuslabs) for the latest updates.
+</Note>
+
+---
+
+## [2024-01-15] - Staked Transactions Are the New Default
+
+### Changed
+- **Staked Connections Default**: Transactions sent through Helius now automatically use staked connections by default, providing you with the highest transaction landing rates and optimizing for speed and reliability. No code changes required.
+
+- **Pricing Update**: Staked connection pricing decreased from 50 to 10 credits per transaction, making it more cost-effective to use our premium transaction infrastructure.
+
+### Deprecated  
+- **Staked Endpoint**: The dedicated staked endpoint (`staked.helius-rpc.com`) is being phased out in favor of the regular endpoint which now uses staked connections by default. You can continue using the staked endpoint for now, but we recommend switching to the regular endpoint (`mainnet.helius-rpc.com`) for the best experience.
+
+### Alternative Options
+- **Unstaked Connections**: To continue using unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com`. Please note that unstaked connections may not be reliable during periods of network congestion.
+
+<Info>
+This change was [previously announced on Discord](https://discord.com/invite/6GXdee3gBj). The `sendTransaction` method now uses staked connections automatically, ensuring optimal transaction performance without any code modifications.
+</Info>
+
+<CardGroup cols={2}>
+  <Card
+    title="Smart Transactions Guide"
+    icon="paper-plane"
+    href="/sending-transactions/smart-transactions"
+  >
+    Learn more about our transaction optimization features
+  </Card>
+  <Card
+    title="Staked Connections"
+    icon="link"
+    href="/sending-transactions/staked-connections"
+  >
+    Understanding staked vs unstaked connections
+  </Card>
+</CardGroup>
+
+---
+
+
+<Note>
+Have questions about any of these changes? Contact our support team at [support@helius.xyz](mailto:support@helius.xyz) or reach out in our [Discord community](https://discord.com/invite/6GXdee3gBj).
+</Note> 
