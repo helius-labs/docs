@@ -4,7 +4,9 @@ description: "Stay up-to-date with the latest Helius updates, new features, impr
 sidebarTitle: "Changelog"
 ---
 
-We're constantly working to improve your developer experience and provide you with the best Solana infrastructure.
+# Changelog
+
+Stay informed about the latest updates, new features, improvements, and changes to Helius APIs and services. We're constantly working to improve your developer experience and provide you with the best Solana infrastructure.
 
 <Note>
 Want to stay updated? Join our [Discord community](https://discord.com/invite/6GXdee3gBj) for real-time announcements or follow us on [X](https://x.com/heliuslabs) for the latest updates.
@@ -12,48 +14,74 @@ Want to stay updated? Join our [Discord community](https://discord.com/invite/6G
 
 ---
 
-## May 2024
+<Update label="May 2024">
+  ## Staked Transactions Are the New Default
 
-<Update label="2024-05-29" description="Staked Transactions Default" tags={["API", "Pricing", "Infrastructure"]}>
+  **What's Changed:**
+  - **Staked Connections Default**: Transactions sent through Helius now automatically use staked connections by default, providing you with the highest transaction landing rates and optimizing for speed and reliability. No code changes required.
+  - **Pricing Update**: Staked connection pricing decreased from 50 to 10 credits per transaction, making it more cost-effective to use our premium transaction infrastructure.
 
-### Staked Connections Are the New Default
+  **Endpoint Changes:**
+  - **Staked Endpoint**: The dedicated staked endpoint (`staked.helius-rpc.com`) is being phased out in favor of the regular endpoint which now uses staked connections by default. You can continue using the staked endpoint for now, but we recommend switching to the regular endpoint (`mainnet.helius-rpc.com`) for the best experience.
 
-**What's Changed:**
-- **Staked Connections Default**: Transactions sent through Helius now automatically use staked connections by default, providing you with the highest transaction landing rates and optimizing for speed and reliability. No code changes required.
+  **Alternative Options:**
+  - **Unstaked Connections**: To continue using unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com`. Please note that unstaked connections may not be reliable during periods of network congestion.
 
-- **Pricing Update**: Staked connection pricing decreased from 50 to 10 credits per transaction, making it more cost-effective to use our premium transaction infrastructure.
+  <CardGroup cols={2}>
+    <Card
+      title="Smart Transactions Guide"
+      icon="paper-plane"
+      href="/sending-transactions/smart-transactions"
+    >
+      Learn more about our transaction optimization features
+    </Card>
+    <Card
+      title="Staked Connections"
+      icon="link"
+      href="/sending-transactions/staked-connections"
+    >
+      Understanding staked vs unstaked connections
+    </Card>
+  </CardGroup>
+</Update>
 
-**Endpoint Changes:**
-- **Staked Endpoint**: The dedicated staked endpoint (`staked.helius-rpc.com`) is being phased out in favor of the regular endpoint which now uses staked connections by default. You can continue using the staked endpoint for now, but we recommend switching to the regular endpoint (`mainnet.helius-rpc.com`) for the best experience.
+<Update label="April 2024">
+  ## Massive RPC Performance Improvements
 
-**Alternative Options:**
-- **Unstaked Connections**: To continue using unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com`. Please note that unstaked connections may not be reliable during periods of network congestion.
+  **Big news:** We've reduced latency on all Solana account-based RPC calls by up to 95%! 
 
-<Info>
-This change was [previously announced on Discord](https://discord.com/invite/6GXdee3gBj). The `sendTransaction` method now uses staked connections automatically, ensuring optimal transaction performance without any code modifications.
-</Info>
+  **p95 improvements:**
+  - [`getProgramAccounts`](/rpc/guides/getprogramaccounts) — 95% faster
+  - [`getAccountInfo`](/rpc/guides/getaccountinfo), [`getMultipleAccounts`](/rpc/guides/getmultipleaccounts), [`getBalance`](/rpc/guides/getbalance), [`getSlot`](/rpc/guides/getslot) — 60% faster  
+  - [`getTokenAccountsByOwner`](/rpc/guides/gettokenaccountsbyowner) — 50% faster
 
-<CardGroup cols={2}>
-  <Card
-    title="Smart Transactions Guide"
-    icon="paper-plane"
-    href="/sending-transactions/smart-transactions"
-  >
-    Learn more about our transaction optimization features
-  </Card>
-  <Card
-    title="Staked Connections"
-    icon="link"
-    href="/sending-transactions/staked-connections"
-  >
-    Understanding staked vs unstaked connections
-  </Card>
-</CardGroup>
+  **Steps to use it:** Nothing! If you use a shared and paid Helius subscription (i.e., not dedicated nodes), you get automatic access.
 
+  **What this means for you:**
+  - **Faster dApp loading times**: Account data fetches nearly instantly
+  - **Better user experience**: Reduced waiting times for balance checks and token account queries
+  - **More efficient development**: Faster iteration cycles when building and testing
+  - **Improved scalability**: Handle more concurrent requests with the same infrastructure
+
+  <CardGroup cols={2}>
+    <Card
+      title="RPC Optimization Techniques"
+      icon="rocket"
+      href="/rpc/optimization-techniques"
+    >
+      Learn how to optimize your RPC usage
+    </Card>
+    <Card
+      title="All RPC Methods"
+      icon="server"
+      href="/rpc/quickstart"
+    >
+      Explore all available RPC endpoints
+    </Card>
+  </CardGroup>
 </Update>
 
 ---
-
 
 <Note>
 Have questions about any of these changes? Contact our support team at [support@helius.xyz](mailto:support@helius.xyz) or reach out in our [Discord community](https://discord.com/invite/6GXdee3gBj).
