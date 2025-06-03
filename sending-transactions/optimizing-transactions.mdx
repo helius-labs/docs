@@ -1,10 +1,10 @@
 ---
-title: 'Optimizing Transactions'
-description: 'Optimize your transactions to minimize confirmation latency and maximize delivery rates'
+title: "Optimizing Transactions"
+description: "Optimize your transactions to minimize confirmation latency and maximize delivery rates"
 ---
 
 <Note>
-Helius' staked connections guarantee 100% transaction delivery with minimal confirmation times.
+  Helius' staked connections guarantee 100% transaction delivery with minimal confirmation times.
 </Note>
 
 ## Summary
@@ -13,18 +13,18 @@ We recommend the following best practices to help you land transactions:
 
 - Use commitment "processed" or "confirmed" to fetch the [latest blockhash](/rpc/guides/getlatestblockhash)
 - Add [priority fees](/sending-transactions/priority-fees) and [calculate them dynamically](/priority-fee-api)
-- Optimize [compute unit](/rpc/guides/getfeeformessage) (CU) usage
+- Optimize compute unit (CU) usage
 - Set maxRetries to 0 and implement robust retry logic
 - Send with skipPreflight set to true (optional)
 
 <Tip>
-Want to go deeper? We cover all fundamentals in this [blog post](https://www.helius.dev/blog/solana-transaction-optimization).
+  Want to go deeper? We cover all fundamentals in this [blog post](https://www.helius.dev/blog/solana-transaction-optimization).
 </Tip>
 
 ## Recommended Optimizations for Traders
 
 <Info>
-The following optimizations are recommended for latency-sensitive traders. You must already be applying the best practices for sending transactions mentioned above.
+  The following optimizations are recommended for latency-sensitive traders. You must already be applying the best practices for sending transactions mentioned above.
 </Info>
 
 - Send transactions from Eastern US or Western Europe
@@ -35,16 +35,17 @@ The following optimizations are recommended for latency-sensitive traders. You m
 - Only one warming thread is required per region. Any more will have zero benefit
 
 <Note>
-The benefits will only be noticeable to experienced traders. We recommend the [Sending Smart Transactions](/sending-transactions/smart-transactions) section instead for app developers.
+  The benefits will only be noticeable to experienced traders. We recommend the [Sending Smart Transactions](/sending-transactions/smart-transactions) section instead for app developers.
 </Note>
 
 ## Sending Smart Transactions
 
-Both the Helius [Node.js](/sdks) and [Rust](/sdks) SDKs can send smart transactions. This new method builds and sends an optimized transaction while handling its confirmation status. Users can configure the [transaction's send options](/rpc/guides/sendtransaction), such as whether the transaction should skip preflight checks.
+Both the Helius [Node.js](/sdks) and [Rust](/sdks) SDKs can send smart transactions. This new method builds and sends an optimized transaction while handling its confirmation status. Users can configure the transaction's send options, such as whether the transaction should skip preflight checks.
 
 At the most basic level, users must supply their keypair and the instructions they wish to execute, and we handle the rest.
 
 We:
+
 - Fetch the latest blockhash
 - Build the initial transaction
 - Simulate the initial transaction to fetch the compute units consumed
@@ -56,7 +57,7 @@ We:
 - Return the transaction signature if successful
 
 <Note>
-Requiring the recommended value (or higher) for our staked connections ensures that Helius sends high-quality transactions and that we won't be rate-limited by validators.
+  Requiring the recommended value (or higher) for our staked connections ensures that Helius sends high-quality transactions and that we won't be rate-limited by validators.
 </Note>
 
 This method is designed to be the easiest way to build, send, and land a transaction on Solana.
@@ -65,7 +66,7 @@ Note that by using the Helius recommended fee, transactions sent by Helius users
 
 ### Node.js SDK
 
-The sendSmartTransaction method is available in our [Helius Node.js SDK](/sdks) for [versions >= 1.3.2](https://www.npmjs.com/package/helius-sdk). To update to a more recent version of the SDK, run `npm update helius-sdk`.
+The sendSmartTransaction method is available in our [Helius Node.js SDK](/sdks) for [versions \>= 1.3.2](https://www.npmjs.com/package/helius-sdk). To update to a more recent version of the SDK, run `npm update helius-sdk`.
 
 The following example transfers SOL to an account of your choice. It leverages sendSmartTransaction to send an optimized transaction that does not skip preflight checks:
 
@@ -97,7 +98,7 @@ console.log(`Successful transfer: ${transactionSignature}`);
 
 ### Rust SDK
 
-The send_smart_transaction method is available in our [Rust SDK](/sdks) for [versions >= 0.1.5](https://crates.io/crates/helius). To update to a more recent version of the SDK, run `cargo update helius`.
+The send_smart_transaction method is available in our [Rust SDK](/sdks) for [versions \>= 0.1.5](https://crates.io/crates/helius). To update to a more recent version of the SDK, run `cargo update helius`.
 
 The following example transfers 0.01 SOL to an account of your choice. It leverages send_smart_transaction to send an optimized transaction that skips preflight checks and retries twice, if necessary:
 
@@ -153,7 +154,7 @@ async fn main() {
 ## Sending Transactions Without the SDK
 
 <Info>
-We recommend sending smart transactions with one of our SDKs but the same functionality can be achieved without using one. Both the [Node.js SDK](/sdks) and [Rust SDK](/sdks) are open-source, so the underlying code for the send smart transaction functionality can be viewed anytime.
+  We recommend sending smart transactions with one of our SDKs but the same functionality can be achieved without using one. Both the [Node.js SDK](/sdks) and [Rust SDK](/sdks) are open-source, so the underlying code for the send smart transaction functionality can be viewed anytime.
 </Info>
 
 ### Prepare and Build the Initial Transaction
@@ -273,13 +274,13 @@ This step is almost a repeat of the first step. However, the array of initial in
 Now, send the transaction.
 
 <Note>
-It doesn't matter if you send with or without preflight checks or change any other send options — the transaction will be routed through our staked connections.
+  It doesn't matter if you send with or without preflight checks or change any other send options — the transaction will be routed through our staked connections.
 </Note>
 
 ### Polling the Transaction's Status and Rebroadcasting
 
 <Warning>
-While staked connections will forward a transaction directly to the leader, it is still possible for the transaction to be dropped in the Banking Stage. It is recommended that users employ their own rebroadcasting logic rather than rely on the RPC to retry the transaction for them.
+  While staked connections will forward a transaction directly to the leader, it is still possible for the transaction to be dropped in the Banking Stage. It is recommended that users employ their own rebroadcasting logic rather than rely on the RPC to retry the transaction for them.
 </Warning>
 
 The sendTransaction RPC method has a maxRetries parameter that can be set to override the RPC's default retry logic, giving developers more control over the retry process. It is a common pattern to fetch the current blockhash via getLatestBlockhash, store the lastValidBlockHeight, and retry the transaction until the blockhash expires. It is crucial to only re-sign a transaction when the blockhash is no longer valid, or else it is possible for both transactions to be accepted by the network.
@@ -350,4 +351,4 @@ async pollTransactionConfirmation(txtSig: TransactionSignature): Promise<Transac
       }, interval);
    });
 }
-``` 
+```
