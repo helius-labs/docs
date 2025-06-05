@@ -44,7 +44,7 @@ const connection = new GeyserConnection(
 
 // After: Using LaserStream (just change endpoint and token)
 const connection = new GeyserConnection(
-  "laserstream-endpoint.helius.xyz",
+  "https://laserstream-mainnet-ewr.helius-rpc.com", // Choose your closest region
   { token: "your-helius-api-key" }
 );
 ```
@@ -59,7 +59,7 @@ import { subscribe, CommitmentLevel, LaserstreamConfig } from 'helius-laserstrea
 
 const config = {
   apiKey: "your-helius-api-key",
-  endpoint: "laserstream-endpoint.helius.xyz"
+  endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com" // Choose your closest region
 };
 
 // The SDK automatically handles:
@@ -109,6 +109,27 @@ LaserStream supports sophisticated filtering options:
 - **Auto-scaling**: Backend resources scale to match demand
 - **Efficient Routing**: Requests automatically routed to the most responsive node
 
+## Endpoints & Regions
+
+LaserStream is available in multiple regions worldwide for optimal performance. Choose the endpoint closest to your application's location:
+
+| Region | Location | Endpoint |
+|--------|----------|----------|
+| **ewr** | New York, US (East Coast) | `https://laserstream-mainnet-ewr.helius-rpc.com` |
+| **pitt** | Pittsburgh, US (Central) | `https://laserstream-mainnet-pitt.helius-rpc.com` |
+| **slc** | Salt Lake City, US (West Coast) | `https://laserstream-mainnet-slc.helius-rpc.com` |
+| **ams** | Amsterdam, Europe | `https://laserstream-mainnet-ams.helius-rpc.com` |
+| **fra** | Frankfurt, Europe | `https://laserstream-mainnet-fra.helius-rpc.com` |
+| **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
+
+<Note>
+**Choosing Your Region**: Select the endpoint geographically closest to your application server to minimize latency. For example, if your server is in Frankfurt, use `https://laserstream-mainnet-fra.helius-rpc.com`.
+</Note>
+
+## Authentication
+
+LaserStream uses your Helius API key for authentication. You can obtain your API key from the [Helius Dashboard](https://dashboard.helius.dev/). Your API key serves as both your authentication token and grants access to LaserStream's enhanced features.
+
 ## Getting Started
 
 <Card title="gRPC" icon="bolt" href="/laserstream/grpc">
@@ -123,14 +144,12 @@ For applications that need to catch up on historical data or implement fault-tol
 
 ## When to Use LaserStream vs. Other Solana Streaming Options
 
-| Feature | LaserStream | Standard Solana RPC | Yellowstone gRPC |
+| Feature | LaserStream | Standard Solana WebSocket | Yellowstone gRPC |
 |---------|-------------|---------------------|------------------|
 | **Historical replay** | ✅ Up to 3000 slots (approx. 20 minutes) | ❌ Not available | ❌ Limited |
-| **Auto-reconnect** | ✅ Built-in | ❌ Manual implementation | ❌ Manual implementation |
+| **Auto-reconnect** | ✅ Built-in with SDK | ❌ Manual implementation | ❌ Manual implementation |
 | **Multi-node failover** | ✅ Automatic | ❌ Manual implementation | ❌ Manual implementation |
-| **WebSocket support** | 🔜 Coming soon | ✅ Standard | ❌ Not available |
 | **gRPC support** | ✅ Enhanced | ❌ Not available | ✅ Standard |
-| **Setup complexity** | Low | High | Medium |
 | **Infrastructure management** | None (fully managed) | High | Medium |
 
 ## Next Steps
