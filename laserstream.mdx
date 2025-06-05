@@ -76,10 +76,9 @@ await subscribe(config, subscriptionRequest, handleData, handleError);
 
 The [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) automatically handles dropped connections, network issues, and data gaps. When a reconnection occurs, the SDK automatically:
 
-- Reestablishes the connection with minimal delay
-- Requests any data that was missed during the disconnection period
+- Reconnects with minimal delay
+- Re-streams any data that was missed during the downtime
 - Continues streaming without intervention
-- Implements exponential backoff for unstable connections
 
 ### Multi-Protocol Support
 
