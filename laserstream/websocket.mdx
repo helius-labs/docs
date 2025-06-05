@@ -8,7 +8,7 @@ description: Highly configurable real-time data streams.
 
 ### Overview
 
-Laserstream offers **Enhanced WebSockets** (distinct from standard Solana WebSockets), delivering **faster response times** and **additional filters**. Current methods:
+LaserStream offers **Enhanced WebSockets** (distinct from standard Solana WebSockets), delivering **faster response times** and **additional filters**. Current methods:
 
 * `transactionSubscribe`
 * `accountSubscribe`
@@ -50,7 +50,7 @@ Create an **`index.js`** file:
 
 const WebSocket = require('ws');
 
-// 1. Use the Laserstream Enhanced WebSockets endpoint (Mainnet example):
+// 1. Use the LaserStream Enhanced WebSockets endpoint (Mainnet example):
 const WS_URL = `laserstream-ws-url`;
 
 const ws = new WebSocket(WS_URL);
@@ -486,4 +486,4 @@ ws.on('close', function close() {
 
 ### Disclaimer: Atlas Enhanced WebSockets
 
-Atlas Enhanced WebSockets will be **powered by Laserstream under the hood**. This means you can continue using the same Atlas endpoints, and you'll still have access to Laserstream's advanced capabilities—such as **`fromSlot`** replay—without needing to migrate. If you're already on Atlas, **no changes** are required; if you prefer the dedicated Laserstream endpoints, you can use those as well.
+Atlas Enhanced WebSockets will be **powered by LaserStream under the hood**. This means you can continue using the same Atlas endpoints, and you'll still have access to LaserStream's advanced capabilities—such as **`fromSlot`** replay—without needing to migrate. If you're already on Atlas, **no changes** are required; if you prefer the dedicated LaserStream endpoints, you can use those as well.
