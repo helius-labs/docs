@@ -1,0 +1,75 @@
+---
+title: 'Overview of Sending Transactions'
+description: 'Understand the different strategies and pathways for sending transactions on Solana to ensure reliable and timely execution.'
+---
+
+## How Transactions are Sent on Solana
+
+Sending a transaction on Solana involves more than just crafting a set of instructions and sending it to the network. To ensure your transaction is processed quickly and reliably, it's important to understand the different pathways it can take and the factors that influence its journey to a block leader.
+
+There are three primary ways to send a transaction on Solana:
+
+<CardGroup cols={3}>
+  <Card title="RPC Servers" icon="server">
+    Recommended for most developers. Send transactions through a provider like Helius for reliable delivery.
+  </Card>
+  <Card title="Jito Bundles" icon="box">
+    An alternative pathway that involves paying a tip to get included in a Jito block.
+  </Card>
+  <Card title="Direct to Leader (TPU)" icon="bolt">
+    An advanced method for latency-sensitive applications that carries a higher risk of being flagged for spam.
+  </Card>
+</CardGroup>
+
+For 99.99% of developers, sending transactions via a high-quality RPC provider like Helius is the most effective and straightforward approach.
+
+### 1. RPC Servers: The Standard Pathway
+
+The most common way to send a transaction is through an RPC provider's [`sendTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/sendtransaction) endpoint. This is the default method for most application developers who are not hyper-focused on millisecond-level latency.
+
+When you send a transaction to an RPC server, it forwards your transaction to the current and upcoming block leaders on your behalf. However, not all RPC connections are equal.
+
+#### Staked vs. Unstaked Connections
+
+- **Unstaked Connections**: These are standard connections. During times of network congestion, transactions sent through unstaked connections may be dropped before they reach the leader, as there is no guarantee of delivery.
+- **Staked Connections**: These connections provide a priority lane directly to the block leader. By using a staked connection, your transaction is sent to a validator that has a stake-weighted quality of service. This significantly increases the likelihood of your transaction being processed and minimizes delivery failure.
+
+<Info>
+  **Helius provides the highest-staked public RPC on Solana.** When you send a transaction through our `sendTransaction` endpoint, it is automatically routed through our staked connections, giving you the best chance of landing your transaction quickly.
+</Info>
+
+### 2. Jito Bundles: An Alternative Pathway
+
+Jito operates a separate, dedicated pathway for transactions. By sending a transaction in a "bundle" to Jito's block engine, you can participate in an off-chain auction. If you include a tip, your bundle will be included in a block if Jito's validator becomes the leader.
+
+This can be an effective way to land important transactions, but it comes with trade-offs:
+- **Additional Cost**: You will need to pay an additional tip to have your bundle considered.
+- **Rate Limits**: High-volume users may need to contact Jito directly to request a rate limit increase.
+
+### 3. Direct to Leader (TPU): The Advanced Pathway
+
+For extremely latency-sensitive use cases, it's possible to bypass RPC servers and send transactions directly to a leader's Transaction Processing Unit (TPU) port.
+
+<Warning>
+  This is a highly advanced technique that carries risks. If you send too many transactions or abuse this pathway, you can be flagged for spam and blocked by the leader.
+</Warning>
+
+### The Best Strategy for Most Developers
+
+For the vast majority of applications, a simple and effective strategy is to send your transaction to both the standard RPC pathway and the Jito pathway simultaneously.
+
+```typescript
+// Pseudocode
+Promise.any([
+  sendToHeliusRPC(transaction),
+  sendToJito(transaction)
+]);
+```
+
+This parallel approach covers the two main highways to a block leader, maximizing your chances of inclusion without the complexities and risks of going directly to the TPU.
+
+### The Evolving Landscape
+
+The Solana ecosystem is constantly evolving. Some block leaders may run custom validator clients that reserve blockspace for their own users, or have off-chain agreements that can affect transaction processing. These can sometimes lead to increased latency even if you follow best practices.
+
+The Solana community and core engineers are actively working to improve the transaction sending experience and address these challenges in the coming weeks and months. 
