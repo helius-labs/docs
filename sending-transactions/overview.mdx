@@ -1,0 +1,53 @@
+---
+title: "Overview"
+description: "Learn how to reliably send and confirm transactions on Solana using Helius."
+---
+
+Sending transactions is a fundamental part of interacting with the Solana blockchain. Whether you're transferring assets, minting an NFT, or calling a smart contract, a robust transaction-sending strategy is crucial for any application.
+
+Helius provides powerful infrastructure and tools to ensure your transactions are submitted optimally, confirmed quickly, and delivered with the highest reliability.
+
+## Two Paths for Sending Transactions
+
+We offer two primary pathways for sending transactions, each designed for different needs.
+
+<CardGroup>
+  <Card
+    title="Send with the Helius SDK"
+    icon="bolt"
+    href="/sending-transactions/send-with-sdk"
+  >
+    The easiest way to get started. Our SDKs provide a `sendSmartTransaction`
+    method that handles optimization and sending automatically.
+  </Card>
+  <Card
+    title="Send Transactions Manually"
+    icon="code"
+    href="/sending-transactions/send-manually"
+  >
+    For production systems that require maximum control and custom logic. Build a
+    robust, custom sending pipeline from the ground up.
+  </Card>
+</CardGroup>
+
+## Key Concepts for Reliable Transactions
+
+Regardless of the method you choose, understanding these concepts is key to success on Solana.
+
+    <Card
+    title="Optimizing Transactions"
+    icon="rocket"
+    href="/sending-transactions/optimizing-transactions"
+  >
+    Learn best practices for setting priority fees and compute units to maximize your transaction's chances of landing quickly.
+  </Card>
+
+## Staked vs. Unstaked Connections
+
+Helius offers both staked and unstaked connections for sending transactions.
+
+- **Staked Connections (Recommended)**: When you send transactions through our staked RPC endpoints (available on paid plans), your transactions are routed directly to the current and upcoming block leaders. This provides a priority lane, bypassing the public mempool and offering near-guaranteed delivery. Using the Helius Priority Fee API ensures you pay the optimal fee required by the leader.
+
+- **Unstaked Connections**: On our free plan, transactions are sent through high-performance, but unstaked, RPC nodes. They are subject to the same network congestion and mempool competition as any other public transaction.
+
+For any production application, using **staked connections is the single most effective way to ensure reliable transaction delivery.**
