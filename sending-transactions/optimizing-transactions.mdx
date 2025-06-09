@@ -27,11 +27,11 @@ We recommend the following best practices to help you land transactions:
   The following optimizations are recommended for latency-sensitive traders. You must already be applying the best practices for sending transactions mentioned above.
 </Info>
 
-- Send transactions from Eastern US or Western Europe
-- Choose Frankfurt or Pittsburg if you want to co-locate with Helius transaction-sending servers
-- Avoid sending regions far away from the validator network (e.g. LATAM or South Africa)
-- Warm the Helius regional caches to minimize tail latency
-- Send a [getHealth](/rpc/guides/gethealth) call every second using the same endpoint & API key you use for sending transactions
+- Your client server (the machine you use to send transactions from) should be located in Eastern US or Western Europe.
+- Choose Frankfurt or Pittsburgh if you want to co-locate with Helius transaction-sending servers.
+- Avoid sending from regions far away from the validator network (e.g., LATAM or South Africa).
+- Warm the Helius regional caches to minimize tail latency.
+- Send a [getHealth](/rpc/guides/gethealth) call every second using the same endpoint & API key you use for sending transactions.
 - Only one warming thread is required per region. Any more will have zero benefit
 
 <Note>
