@@ -46,8 +46,8 @@ Regardless of the method you choose, understanding these concepts is key to succ
 
 Helius offers both staked and unstaked connections for sending transactions.
 
-- **Staked Connections (Recommended)**: When you send transactions through our staked RPC endpoints (available on paid plans), your transactions are routed directly to the current and upcoming block leaders. This provides a priority lane, bypassing the public mempool and offering near-guaranteed delivery. Using the Helius Priority Fee API ensures you pay the optimal fee required by the leader.
+- **Staked Connections (Recommended)**: When you send transactions through our staked RPC endpoints (available on paid plans), your transactions are routed directly to the current and upcoming block leaders. This provides a priority lane, bypassing the public transaction processing queue and offering near-guaranteed delivery. Using the Helius [Priority Fee API](/priority-fee-api) ensures you pay the optimal fee required by the leader.
 
-- **Unstaked Connections**: On our free plan, transactions are sent through high-performance, but unstaked, RPC nodes. They are subject to the same network congestion and mempool competition as any other public transaction.
+- **Unstaked Connections**: On our free plan, transactions are sent through high-performance, but unstaked, RPC nodes. They are subject to the same network congestion and competition for leader processing as any other public transaction.
 
 For any production application, using **staked connections is the single most effective way to ensure reliable transaction delivery.**
