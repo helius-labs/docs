@@ -17,11 +17,13 @@ Dedicated Nodes can be ordered directly from the [developer portal](https://dash
 
 ### Node Type
 
-The type of node you choose depends on your specific project requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
+The type of node you choose depends on your gRPC streaming requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your streaming workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
 
-If you plan to make resource-intensive calls (e.g., [`getProgramAccounts`](/api-reference/rpc/http/getprogramaccounts), [`getTokenLargestAccounts`](/api-reference/rpc/http/gettokenlargestaccounts), [`getTokenAccountsByDelegate`](/api-reference/rpc/http/gettokenaccountsbydelegate), [`getTokenAccountsByOwner`](/api-reference/rpc/http/gettokenaccountsbyowner), [`getLargestAccounts`](/api-reference/rpc/http/getlargestaccounts)), the AMD EPYC 7543p and AMD EPYC 9254 offer similar performance, but the EPYC 9254 is newer and more efficient.
+**For gRPC streaming applications** (primary use case), any of the three node types will perform well. The AMD EPYC 7543p and AMD EPYC 9254 offer higher performance for intensive streaming workloads, while the AMD EPYC 7443p is suitable for lighter streaming requirements.
 
-The AMD EPYC 7443p is better if your workload does not require resource-intensive calls.
+<Warning>
+**Important**: While `getProgramAccounts` is supported, dedicated nodes are not optimized for these calls. Heavy usage can impact node performance or even cause node failure. Use your shared plan for `getProgramAccounts` queries as it has a custom indexer that makes these calls much faster and more reliable.
+</Warning>
 
 <Frame caption="Choose your dedicated node's type and location">
   <img
@@ -53,20 +55,19 @@ Dedicated nodes **cannot** send Jito Bundles on their own. To send Jito Bundles,
 To simplify this process, our SDK provides an easy method called [Send Jito Bundle](https://github.com/helius-labs/helius-sdk/tree/main?tab=readme-ov-file#sendJitoBundle).
 </Note>
 
-### Geyser Plugin (Optional)
+### Geyser Plugin (Recommended)
 
-Add optional features like the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin, which supports [streaming](/grpc) of slots, blocks, transactions, and account updates.
+**We strongly recommend adding the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin**, which is the primary use case for dedicated nodes. It provides high-performance [gRPC streaming](/grpc) of slots, blocks, transactions, and account updates.
 
-<Frame caption="Select the Yellowstone gRPC Geyser Plugin (Optional)">
+<Frame caption="Select the Yellowstone gRPC Geyser Plugin (Recommended)">
   <img
     src="/images/dedicated-nodes-geyser-plugin.png"
-    alt="Select the Yellowstone gRPC Geyser Plugin (Optional)"
+    alt="Select the Yellowstone gRPC Geyser Plugin (Recommended)"
   />
 </Frame>
 
 <Note>
-  We recommend running Geyser and RPC operations on separate nodes for optimal
-  performance.
+**Best Practice**: Dedicated nodes are optimized for gRPC streaming. Use your shared plan for transaction submission, archival queries, and complex RPC operations.
 </Note>
 
 ### Payment Options
@@ -85,9 +86,13 @@ Once you have your Dedicated Node set up and ready (status: **Succeeded**), you 
 
 ## Connecting to your dedicated node
 
-### RPC and Websocket
+### gRPC Streaming (Primary Use Case)
 
-Each dedicated node comes with an RPC URL that you can use like in the example below.
+**Dedicated nodes are optimized for gRPC streaming via the Yellowstone Geyser Plugin.** This is the primary and recommended way to use your dedicated node.
+
+### Basic RPC and Websocket (Limited Functionality)
+
+Each dedicated node also provides basic RPC functionality, but with limitations. **For production applications, combine dedicated nodes with a shared plan.**
 
 Here we are using Solana web3.js to call [`getSlot`](/api-reference/rpc/http/getslot) using our dedicated node:
 
@@ -124,6 +129,15 @@ ws.onmessage = (event) => {
     console.log(JSON.parse(event.data));
 };
 ```
+
+<Warning>
+**Remember**: The above RPC examples are for basic functionality only. Dedicated nodes limitations:
+- `sendTransaction` supported but not optimized - most transactions will not land (use your shared plan for reliable transaction submission)
+- No archival data queries (use your shared plan)  
+- `getProgramAccounts` supported but not optimized - heavy usage can impact performance or cause node failure (use your shared plan for reliability)
+
+**Primary use case**: Use the gRPC streaming setup below for optimal performance.
+</Warning>
 
 ### Set up your Geyser Plugin
 
