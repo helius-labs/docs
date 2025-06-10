@@ -1,16 +1,12 @@
 ---
 title: LaserStream
 sidebarTitle: Overview
-description: Highly configurable real-time data streams for Solana.
+description: Highly configurable low-latency data streams for Solana.
 ---
-
-<Note>
-**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
-</Note>
 
 ## What is LaserStream?
 
-LaserStream is a next-generation streaming service **purpose-built for developers who need reliable, real-time Solana data**. It delivers on-chain events (transactions, slots, blocks, accounts, and more) directly to your application with industry-leading reliability, performance, and flexibility. Similar to our gRPC offerings, LaserStream nodes tap directly into Solana leaders to receive shreds as they're produced, delivering ultra-low latency data to your application.
+LaserStream is a next-generation streaming service **purpose-built for developers who need reliable, low-latency Solana data**. It delivers on-chain events (transactions, slots, blocks, accounts, and more) directly to your application with industry-leading reliability, performance, and flexibility. Similar to our gRPC offerings, LaserStream nodes tap directly into Solana leaders to receive shreds as they're produced, delivering ultra-low latency data to your application.
 
 Unlike standard Solana RPC nodes, LaserStream is specifically designed for streaming use cases, offering features not available in conventional node setups:
 
@@ -48,7 +44,7 @@ const connection = new GeyserConnection(
 
 // After: Using LaserStream (just change endpoint and token)
 const connection = new GeyserConnection(
-  "laserstream-endpoint.helius.xyz",
+  "https://laserstream-mainnet-ewr.helius-rpc.com", // Choose your closest region
   { token: "your-helius-api-key" }
 );
 ```
@@ -63,7 +59,7 @@ import { subscribe, CommitmentLevel, LaserstreamConfig } from 'helius-laserstrea
 
 const config = {
   apiKey: "your-helius-api-key",
-  endpoint: "laserstream-endpoint.helius.xyz"
+  endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com" // Choose your closest region
 };
 
 // The SDK automatically handles:
@@ -80,10 +76,9 @@ await subscribe(config, subscriptionRequest, handleData, handleError);
 
 The [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) automatically handles dropped connections, network issues, and data gaps. When a reconnection occurs, the SDK automatically:
 
-- Reestablishes the connection with minimal delay
-- Requests any data that was missed during the disconnection period
+- Reconnects with minimal delay
+- Re-streams any data that was missed during the downtime
 - Continues streaming without intervention
-- Implements exponential backoff for unstable connections
 
 ### Multi-Protocol Support
 
@@ -113,6 +108,42 @@ LaserStream supports sophisticated filtering options:
 - **Auto-scaling**: Backend resources scale to match demand
 - **Efficient Routing**: Requests automatically routed to the most responsive node
 
+## Endpoints & Regions
+
+LaserStream is available in multiple regions worldwide for optimal performance. Choose the endpoint closest to your application's location:
+
+### Mainnet Endpoints
+
+| Region | Location | Endpoint |
+|--------|----------|----------|
+| **ewr** | New York, US (East Coast) | `https://laserstream-mainnet-ewr.helius-rpc.com` |
+| **pitt** | Pittsburgh, US (Central) | `https://laserstream-mainnet-pitt.helius-rpc.com` |
+| **slc** | Salt Lake City, US (West Coast) | `https://laserstream-mainnet-slc.helius-rpc.com` |
+| **ams** | Amsterdam, Europe | `https://laserstream-mainnet-ams.helius-rpc.com` |
+| **fra** | Frankfurt, Europe | `https://laserstream-mainnet-fra.helius-rpc.com` |
+| **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
+| **sgp** | Singapore, Asia | `https://laserstream-mainnet-sgp.helius-rpc.com` |
+
+### Devnet Endpoint
+
+| Network | Location | Endpoint |
+|---------|----------|----------|
+| **Devnet** | New York, US (East Coast) | `https://laserstream-devnet-ewr.helius-rpc.com` |
+
+<Note>
+**Choosing Your Network & Region**: 
+- For **production applications**, use a mainnet endpoint closest to your server location. For example, if your server is in Frankfurt, use `https://laserstream-mainnet-fra.helius-rpc.com`.
+- For **development and testing**, use the devnet endpoint: `https://laserstream-devnet-ewr.helius-rpc.com`.
+</Note>
+
+## Authentication & Availability
+
+LaserStream uses your Helius API key for authentication. You can obtain your API key from the [Helius Dashboard](https://dashboard.helius.dev/). Your API key serves as both your authentication token and grants access to LaserStream's enhanced features.
+
+<Note>
+**Plan Requirement**: LaserStream is currently available for **Professional plan** subscribers. To access LaserStream, please ensure your Helius account is on a Professional plan. You can upgrade your plan in the [Helius Dashboard](https://dashboard.helius.dev/).
+</Note>
+
 ## Getting Started
 
 <Card title="gRPC" icon="bolt" href="/laserstream/grpc">
@@ -127,14 +158,12 @@ For applications that need to catch up on historical data or implement fault-tol
 
 ## When to Use LaserStream vs. Other Solana Streaming Options
 
-| Feature | LaserStream | Standard Solana RPC | Yellowstone gRPC |
+| Feature | LaserStream | Standard Solana WebSocket | Yellowstone gRPC |
 |---------|-------------|---------------------|------------------|
 | **Historical replay** | ✅ Up to 3000 slots (approx. 20 minutes) | ❌ Not available | ❌ Limited |
-| **Auto-reconnect** | ✅ Built-in | ❌ Manual implementation | ❌ Manual implementation |
+| **Auto-reconnect** | ✅ Built-in with SDK | ❌ Manual implementation | ❌ Manual implementation |
 | **Multi-node failover** | ✅ Automatic | ❌ Manual implementation | ❌ Manual implementation |
-| **WebSocket support** | 🔜 Coming soon | ✅ Standard | ❌ Not available |
 | **gRPC support** | ✅ Enhanced | ❌ Not available | ✅ Standard |
-| **Setup complexity** | Low | High | Medium |
 | **Infrastructure management** | None (fully managed) | High | Medium |
 
 ## Next Steps

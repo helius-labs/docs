@@ -4,9 +4,7 @@ sidebarTitle: "Historical Replay"
 description: "Replay historical data with LaserStream's fromSlot parameter"
 ---
 
-<Note>
-**Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
-</Note>
+
 
 ## Overview
 
@@ -62,51 +60,6 @@ const subscriptionRequest: SubscribeRequest = {
 };
 ```
 
-### With WebSockets
-
-For transaction subscribe:
-
-```javascript
-const request = {
-  jsonrpc: "2.0",
-  id: 1,
-  method: "transactionSubscribe",
-  params: [
-    {
-      vote: false,
-      failed: false,
-      accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]
-    },
-    {
-      commitment: "confirmed",
-      encoding: "jsonParsed",
-      transactionDetails: "full",
-      showRewards: false,
-      maxSupportedTransactionVersion: 0,
-      fromSlot: 224339000 // Specify the starting slot for historical replay
-    }
-  ]
-};
-```
-
-For account subscribe:
-
-```javascript
-const request = {
-  jsonrpc: "2.0",
-  id: 420,
-  method: "accountSubscribe",
-  params: [
-    "SysvarC1ock11111111111111111111111111111111",
-    {
-      encoding: "jsonParsed",
-      commitment: "finalized",
-      fromSlot: 224339000 // Specify the starting slot for historical replay
-    }
-  ]
-};
-```
-
 ## Limitations
 
 - **Replay Window**: Currently, you can replay data from up to 3000 slots in the past (approximately 20 minutes of blockchain activity).
@@ -146,7 +99,7 @@ async function main() {
 
   const config: LaserstreamConfig = {
     apiKey: 'YOUR_API_KEY', // Replace with your key
-    endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+    endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
   };
 
   // The subscribe function handles connection, reconnection, and replay automatically

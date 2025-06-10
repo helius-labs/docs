@@ -1,18 +1,44 @@
 ---
 title: "LaserStream gRPC"
 sidebarTitle: "gRPC"
-description: "Highly configurable real-time data streams using gRPC."
+description: "Highly configurable low-latency data streams using gRPC."
 ---
 
-<warning>
-  **Laserstream is currently in private beta** and not yet publicly available. Access is limited, and some features may still be under development.
-</warning>
+
 
 ## Overview
 
-Laserstream's gRPC offering builds on a Yellowstone-based interface and enhances it with features like historical replay, multi-node failover, and a fully managed environment. You can connect either directly with `@yellowstone-grpc` or use the higher-level **Helius Laserstream client** for added benefits (auto-reconnect, subscription management, error handling, etc.).
+LaserStream's gRPC offering builds on a Yellowstone-based interface and enhances it with features like historical replay, multi-node failover, and a fully managed environment. You can connect either directly with `@yellowstone-grpc` or use the higher-level **[Helius LaserStream SDK](https://github.com/helius-labs/laserstream-sdk)** for added benefits (auto-reconnect, subscription management, error handling, etc.).
 
 <Divider />
+
+## Endpoints & Regions
+
+LaserStream is available in multiple regions worldwide. Choose the endpoint closest to your application for optimal performance:
+
+### Mainnet Endpoints
+
+| Region | Location | Endpoint |
+|--------|----------|----------|
+| **ewr** | New York, US (East Coast) | `https://laserstream-mainnet-ewr.helius-rpc.com` |
+| **pitt** | Pittsburgh, US (Central) | `https://laserstream-mainnet-pitt.helius-rpc.com` |
+| **slc** | Salt Lake City, US (West Coast) | `https://laserstream-mainnet-slc.helius-rpc.com` |
+| **ams** | Amsterdam, Europe | `https://laserstream-mainnet-ams.helius-rpc.com` |
+| **fra** | Frankfurt, Europe | `https://laserstream-mainnet-fra.helius-rpc.com` |
+| **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
+| **sgp** | Singapore, Asia | `https://laserstream-mainnet-sgp.helius-rpc.com` |
+
+### Devnet Endpoint
+
+| Network | Location | Endpoint |
+|---------|----------|----------|
+| **Devnet** | New York, US (East Coast) | `https://laserstream-devnet-ewr.helius-rpc.com` |
+
+<Tip>
+**Network & Region Selection**: 
+- For **production applications**, choose the mainnet endpoint closest to your server for best performance. For example, if deploying in Europe, use either the Amsterdam (`ams`) or Frankfurt (`fra`) endpoint.
+- For **development and testing**, use the devnet endpoint: `https://laserstream-devnet-ewr.helius-rpc.com`.
+</Tip>
 
 ## Quickstart
 
@@ -32,7 +58,11 @@ Laserstream's gRPC offering builds on a Yellowstone-based interface and enhances
     ```
   </Step>
   <Step title="Obtain Your API Key">
-    Generate a key from the [Helius Dashboard](https://dashboard.helius.dev/).
+    Generate a key from the [Helius Dashboard](https://dashboard.helius.dev/). This key will serve as your authentication token for LaserStream.
+    
+    <Note>
+    **Professional Plan Required**: LaserStream requires a Professional plan. Ensure your Helius account is upgraded to access LaserStream features.
+    </Note>
   </Step>
   <Step title="Create a Subscription Script">
     Create **`index.ts`** with the following:
@@ -64,10 +94,10 @@ Laserstream's gRPC offering builds on a Yellowstone-based interface and enhances
         // Note: Currently, you can only replay data from up to 3000 slots in the past.
       };
     
-    // Replace the values below with your actual Laserstream API key and endpoint
+    // Replace the values below with your actual LaserStream API key and endpoint
     const config: LaserstreamConfig = {
       apiKey: 'YOUR_API_KEY', // Replace with your key from https://dashboard.helius.dev/
-      endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint from https://dashboard.helius.dev/
+      endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
     }
     
       await subscribe(config, subscriptionRequest, async (data) => {
@@ -82,15 +112,26 @@ Laserstream's gRPC offering builds on a Yellowstone-based interface and enhances
     main().catch(console.error);
     ```
   </Step>
-  <Step title="Replace Your Endpoint and API Key">
-    In `index.ts`, update the `config` object with the actual `apiKey` and `endpoint` from your Helius Dashboard:
+  <Step title="Replace Your API Key and Choose Your Region">
+    In `index.ts`, update the `config` object with:
+    1. Your actual API key from the [Helius Dashboard](https://dashboard.helius.dev/)
+    2. The LaserStream endpoint closest to your server location
 
     ```typescript
     const config: LaserstreamConfig = {
-      apiKey: 'YOUR_ACTUAL_API_KEY', // Replace with your key
-      endpoint: 'YOUR_ACTUAL_ENDPOINT', // Replace with your endpoint
+      apiKey: 'YOUR_ACTUAL_API_KEY', // Replace with your key from Helius Dashboard
+      endpoint: 'https://laserstream-mainnet-fra.helius-rpc.com', // Example: Frankfurt mainnet
+      // For devnet: endpoint: 'https://laserstream-devnet-ewr.helius-rpc.com'
     }
     ```
+
+    **Network & Region Selection Examples:**
+    - **For Production (Mainnet)**:
+      - Europe: Use `fra` (Frankfurt) or `ams` (Amsterdam)
+      - US East: Use `ewr` (New York)
+      - US West: Use `slc` (Salt Lake City)
+      - Asia: Use `tyo` (Tokyo) or `sgp` (Singapore)
+    - **For Development (Devnet)**: Use `https://laserstream-devnet-ewr.helius-rpc.com`
   </Step>
   <Step title="Run and View Results">
     ```bash
@@ -145,7 +186,7 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
     By default, slots are sent for all commitment levels. With this filter, you can choose to receive only the selected commitment level.
   </ParamField>
   <ParamField type="boolean">
-    Enables the subscription to receive updates for changes within a slot, not just at the beginning of new slots. This is useful for more granular, real-time slot data.
+    Enables the subscription to receive updates for changes within a slot, not just at the beginning of new slots. This is useful for more granular, low-latency slot data.
   </ParamField>
   ```typescript
   slots: {
@@ -295,7 +336,7 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
 
 <Divider />
 
-## Code Examples
+## Code Examples (LaserStream SDK)
 
 <Tabs>
   <Tab title="Slot Updates">
@@ -318,18 +359,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
       }
     
     
-     const config: LaserstreamConfig = {
+          const config: LaserstreamConfig = {
         apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
       }
-    
+
       await subscribe(config, subscriptionRequest, async (data) => {
         console.log(data);
       }, async (error) => {
         console.error(error);
       });
     }
-    
+
     main().catch(console.error);
     ```
   </Tab>
@@ -357,18 +398,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
         };
     
     
-     const config: LaserstreamConfig = {
+          const config: LaserstreamConfig = {
         apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
       }
-    
+
       await subscribe(config, subscribeRequest, async (data) => {
         console.log(data);
       }, async (error) => {
         console.error(error);
       });
     }
-    
+
     main().catch(console.error);
     ```
   </Tab>
@@ -397,18 +438,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
         accountsDataSlice: [],
       };
     
-     const config: LaserstreamConfig = {
+          const config: LaserstreamConfig = {
         apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
       }
-    
+
       await subscribe(config, subscriptionRequest, async (data) => {
         console.log(data);
       }, async (error) => {
         console.error(error);
       });
     }
-    
+
     main().catch(console.error);
     ```
   </Tab>
@@ -468,18 +509,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
         };
     
     
-        const config: LaserstreamConfig = {
+                const config: LaserstreamConfig = {
             apiKey: 'YOUR_API_KEY', // Replace with your key
-            endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
         }
-    
+
         await subscribe(config, subscriptionRequest, async (data) => {
             console.log(data);
         }, async (error) => {
             console.error(error);
         });
     }
-    
+
     main().catch(console.error);
     ```
   </Tab>
@@ -505,7 +546,7 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
     
         const config: LaserstreamConfig = {
             apiKey: 'YOUR_API_KEY', // Replace with your key
-            endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
         }
     
         await subscribe(config, subscriptionRequest, async (data) => {
