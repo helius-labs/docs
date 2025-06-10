@@ -16,6 +16,8 @@ LaserStream's gRPC offering builds on a Yellowstone-based interface and enhances
 
 LaserStream is available in multiple regions worldwide. Choose the endpoint closest to your application for optimal performance:
 
+### Mainnet Endpoints
+
 | Region | Location | Endpoint |
 |--------|----------|----------|
 | **ewr** | New York, US (East Coast) | `https://laserstream-mainnet-ewr.helius-rpc.com` |
@@ -26,8 +28,16 @@ LaserStream is available in multiple regions worldwide. Choose the endpoint clos
 | **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
 | **sgp** | Singapore, Asia | `https://laserstream-mainnet-sgp.helius-rpc.com` |
 
+### Devnet Endpoint
+
+| Network | Location | Endpoint |
+|---------|----------|----------|
+| **Devnet** | New York, US (East Coast) | `https://laserstream-devnet-ewr.helius-rpc.com` |
+
 <Tip>
-**Region Selection**: For best performance, choose the region closest to your server. For example, if deploying in Europe, use either the Amsterdam (`ams`) or Frankfurt (`fra`) endpoint.
+**Network & Region Selection**: 
+- For **production applications**, choose the mainnet endpoint closest to your server for best performance. For example, if deploying in Europe, use either the Amsterdam (`ams`) or Frankfurt (`fra`) endpoint.
+- For **development and testing**, use the devnet endpoint: `https://laserstream-devnet-ewr.helius-rpc.com`.
 </Tip>
 
 ## Quickstart
@@ -110,15 +120,18 @@ LaserStream is available in multiple regions worldwide. Choose the endpoint clos
     ```typescript
     const config: LaserstreamConfig = {
       apiKey: 'YOUR_ACTUAL_API_KEY', // Replace with your key from Helius Dashboard
-      endpoint: 'https://laserstream-mainnet-fra.helius-rpc.com', // Example: Frankfurt region
+      endpoint: 'https://laserstream-mainnet-fra.helius-rpc.com', // Example: Frankfurt mainnet
+      // For devnet: endpoint: 'https://laserstream-devnet-ewr.helius-rpc.com'
     }
     ```
 
-    **Region Selection Examples:**
-    - If your server is in Europe: Use `fra` (Frankfurt) or `ams` (Amsterdam)
-    - If your server is in US East: Use `ewr` (New York)
-    - If your server is in US West: Use `slc` (Salt Lake City)
-    - If your server is in Asia: Use `tyo` (Tokyo) or `sgp` (Singapore)
+    **Network & Region Selection Examples:**
+    - **For Production (Mainnet)**:
+      - Europe: Use `fra` (Frankfurt) or `ams` (Amsterdam)
+      - US East: Use `ewr` (New York)
+      - US West: Use `slc` (Salt Lake City)
+      - Asia: Use `tyo` (Tokyo) or `sgp` (Singapore)
+    - **For Development (Devnet)**: Use `https://laserstream-devnet-ewr.helius-rpc.com`
   </Step>
   <Step title="Run and View Results">
     ```bash
