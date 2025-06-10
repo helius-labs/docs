@@ -344,33 +344,32 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
     import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
     
     async function main() {
-      const subscriptionRequest: SubscribeRequest = {
-        transactions: {},
-        commitment: CommitmentLevel.CONFIRMED,
-        accounts: {},
-        slots: {
-          slot: { filterByCommitment: true },
-        },
-        transactionsStatus: {},
-        blocks: {},
-        blocksMeta: {},
-        entry: {},
-        accountsDataSlice: [],
-      }
+        const subscriptionRequest: SubscribeRequest = {
+            transactions: {},
+            commitment: CommitmentLevel.CONFIRMED,
+            accounts: {},
+            slots: {
+                slot: { filterByCommitment: true },
+            },
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {},
+            accountsDataSlice: [],
+        };
     
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
     
-          const config: LaserstreamConfig = {
-        apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
-      }
-
-      await subscribe(config, subscriptionRequest, async (data) => {
-        console.log(data);
-      }, async (error) => {
-        console.error(error);
-      });
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
     }
-
+    
     main().catch(console.error);
     ```
   </Tab>
@@ -379,7 +378,7 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
     import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
     
     async function main() {
-        const subscribeRequest: SubscribeRequest = {
+        const subscriptionRequest: SubscribeRequest = {
             accounts: {
                 accountSubscribe: {
                     account: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint account
@@ -397,19 +396,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
             entry: {}
         };
     
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
     
-          const config: LaserstreamConfig = {
-        apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
-      }
-
-      await subscribe(config, subscribeRequest, async (data) => {
-        console.log(data);
-      }, async (error) => {
-        console.error(error);
-      });
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
     }
-
+    
     main().catch(console.error);
     ```
   </Tab>
@@ -418,38 +416,38 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
     import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
     
     async function main() {
-      const subscriptionRequest: SubscribeRequest = {
-        transactions: {
-          client: {
-            accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
-            accountExclude: [],
-            accountRequired: [],
-            vote: false,
-            failed: false
-          }
-        },
-        commitment: CommitmentLevel.CONFIRMED,
-        accounts: {},
-        slots: {},
-        transactionsStatus: {},
-        blocks: {},
-        blocksMeta: {},
-        entry: {},
-        accountsDataSlice: [],
-      };
+        const subscriptionRequest: SubscribeRequest = {
+            transactions: {
+                client: {
+                    accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+                    accountExclude: [],
+                    accountRequired: [],
+                    vote: false,
+                    failed: false
+                }
+            },
+            commitment: CommitmentLevel.CONFIRMED,
+            accounts: {},
+            slots: {},
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {},
+            accountsDataSlice: [],
+        };
     
-          const config: LaserstreamConfig = {
-        apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
-      }
-
-      await subscribe(config, subscriptionRequest, async (data) => {
-        console.log(data);
-      }, async (error) => {
-        console.error(error);
-      });
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
     }
-
+    
     main().catch(console.error);
     ```
   </Tab>
@@ -474,16 +472,16 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
             commitment: CommitmentLevel.CONFIRMED,
         };
     
-     const config: LaserstreamConfig = {
-        apiKey: 'YOUR_API_KEY', // Replace with your key
-        endpoint: 'YOUR_ENDPOINT', // Replace with your endpoint
-      }
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
     
-      await subscribe(config, subscriptionRequest, async (data) => {
-        console.log(data);
-      }, async (error) => {
-        console.error(error);
-      });
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
     }
     
     main().catch(console.error);
@@ -508,19 +506,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
             commitment: CommitmentLevel.CONFIRMED,
         };
     
-    
-                const config: LaserstreamConfig = {
+        const config: LaserstreamConfig = {
             apiKey: 'YOUR_API_KEY', // Replace with your key
             endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
         }
-
+    
         await subscribe(config, subscriptionRequest, async (data) => {
             console.log(data);
         }, async (error) => {
             console.error(error);
         });
     }
-
+    
     main().catch(console.error);
     ```
   </Tab>
@@ -542,7 +539,6 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
             transactionsStatus: {},
             commitment: CommitmentLevel.CONFIRMED,
         };
-    
     
         const config: LaserstreamConfig = {
             apiKey: 'YOUR_API_KEY', // Replace with your key
