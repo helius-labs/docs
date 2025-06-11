@@ -1,5 +1,6 @@
 ---
 title: "Helius Credit Costs"
+sidebarTitle: 'Credit Costs'
 description: "Understanding how credits work across different RPC calls and APIs."
 ---
 
@@ -42,10 +43,55 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
     <tr>
       <td><strong>LaserStream gRPC</strong></td>
       <td>3</td>
-      <td>Per 0.1MB of data</td>
+      <td>Per 0.1MB of data - see examples below</td>
     </tr>
   </tbody>
 </table>
+
+#### LaserStream Examples
+
+LaserStream costs **3 credits per 0.1MB** of data. Here are some real-world usage examples to help estimate your monthly costs:
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="300">Stream Type</th>
+      <th width="150">Data Rate</th>
+      <th width="180">Monthly Credits</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>All Accounts</strong></td>
+      <td>70MB/s</td>
+      <td>~5.4B credits</td>
+      <td>Complete blockchain state monitoring</td>
+    </tr>
+    <tr>
+      <td><strong>Blocks</strong></td>
+      <td>8.5MB/s</td>
+      <td>~660M credits</td>
+      <td>Block-by-block transaction processing</td>
+    </tr>
+    <tr>
+      <td><strong>Raydium Transactions</strong></td>
+      <td>Variable</td>
+      <td>~272M credits</td>
+      <td>DEX trading activity monitoring</td>
+    </tr>
+    <tr>
+      <td><strong>All Token Accounts</strong></td>
+      <td>6KB/s</td>
+      <td>~450K credits</td>
+      <td>Token balance tracking</td>
+    </tr>
+  </tbody>
+</table>
+
+<Note>
+**Estimation Note**: These are rough estimates based on typical network activity. Actual usage may vary depending on network congestion, specific filters, and time periods.
+</Note>
 
 ### Transaction Submission (`sendTransaction`)
 
@@ -210,4 +256,3 @@ Track your credit consumption in the [Helius Dashboard](https://dashboard.helius
 - **Usage Analytics**: Historical consumption patterns
 - **Alerts**: Notifications when balances fall below thresholds
 - **Detailed Logs**: Per-API call credit consumption
-
