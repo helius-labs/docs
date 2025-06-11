@@ -1,169 +1,213 @@
 ---
-title: "Credits and Prepaid Credits"
+title: "Helius Credit Costs"
 description: "Understanding how credits work across different RPC calls and APIs."
 ---
 
 ## What Are Credits?
 
-Credits are the measurement unit for API usage on Helius. Each API call consumes a specific number of credits based on its complexity and resource requirements. Your subscription plan includes a set number of credits per month, and you can add more if needed.
-
-## Credit Costs By Service
-
-### Standard RPC Calls
-
-Most standard RPC calls cost **1 credit** per call, with these exceptions:
-
-- **Higher Complexity Calls**
-  - [`getProgramAccounts`](/api-reference/rpc/http/getprogramaccounts): 10 credits
-
-- **Archival Calls** (10 credits each)
-  - [`getTransaction`](/api-reference/rpc/http/gettransaction)
-  - [`getBlock`](/api-reference/rpc/http/getblock)
-  - [`getBlocks`](/api-reference/rpc/http/getblocks)
-  - [`getInflationReward`](/api-reference/rpc/http/getinflationreward)
-  - [`getSignaturesForAddress`](/api-reference/rpc/http/getsignaturesforaddress)
-  - [`getBlockTime`](/api-reference/rpc/http/getblocktime)
-
-- **Transaction Submission**
-  - Via [https://mainnet.helius-rpc.com](https://mainnet.helius-rpc.com): 10 credits (staked connections - default)
-  - Via [https://unstaked.helius-rpc.com](https://unstaked.helius-rpc.com): 1 credit (unstaked connections)
+Credits are the measurement unit for API usage on Helius. Each API call consumes a specific number of credits based on its complexity and resource requirements. Your subscription plan includes a set number of credits per month, and you can purchase additional credits as needed.
 
 <Note>
-**Staked Transactions Are the New Default**
-
-Transactions sent through Helius now automatically use staked connections, providing the highest transaction landing rates for optimal speed and reliability. No code changes are required.
-
-**What changed:**
-- `sendTransaction` uses staked connections by default
-- Staked connection pricing decreased from 50 to 10 credits
-- The staked endpoint (`staked.helius-rpc.com`) has been deprecated - use the regular endpoint instead
-- To use unstaked connections (1 credit per call), use `https://unstaked.helius-rpc.com` - note that unstaked connections may not be reliable during network congestion
+**Credit Usage Priority**: The system automatically uses your monthly subscription credits first, then draws from any prepaid credits, and finally triggers autoscaling if enabled.
 </Note>
 
-- **Priority Fee API**: 1 credit
+## Credit Costs
 
-### LaserStream
+### Standard Services
 
-- **LaserStream gRPC**: 3 credits per 0.1MB of data
+<table>
+  <thead align="left">
+    <tr>
+      <th width="300">Service</th>
+      <th width="120">Credits</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Standard RPC Calls</strong></td>
+      <td>1</td>
+      <td>All RPC calls except those listed separately</td>
+    </tr>
+    <tr>
+      <td><code>getProgramAccounts</code></td>
+      <td>10</td>
+      <td>Higher complexity call</td>
+    </tr>
+    <tr>
+      <td><strong>Priority Fee API</strong></td>
+      <td>1</td>
+      <td>Fee estimation</td>
+    </tr>
+    <tr>
+      <td><strong>LaserStream gRPC</strong></td>
+      <td>3</td>
+      <td>Per 0.1MB of data</td>
+    </tr>
+  </tbody>
+</table>
+
+### Transaction Submission (`sendTransaction`)
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="300">Method</th>
+      <th width="120">Credits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Staked Connections</strong> (Default)</td>
+      <td>10</td>
+      <td>Via <code>mainnet.helius-rpc.com</code> - highest reliability</td>
+    </tr>
+    <tr>
+      <td><strong>Unstaked Connections</strong></td>
+      <td>1</td>
+      <td>Via <code>unstaked.helius-rpc.com</code> - may be unreliable during congestion</td>
+    </tr>
+  </tbody>
+</table>
+
+<Note>
+**Staked Transactions Are Now Default**
+
+All transactions via `mainnet.helius-rpc.com` now use staked connections automatically, providing the highest transaction success rates. No code changes are required. The dedicated staked endpoint has been deprecated.
+</Note>
+
+### Archival & Historical Data
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="300">API Call</th>
+      <th width="120">Credits</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td>10</td>
+      <td>Historical transaction data</td>
+    </tr>
+    <tr>
+      <td><code>getBlock</code></td>
+      <td>10</td>
+      <td>Block information</td>
+    </tr>
+    <tr>
+      <td><code>getBlocks</code></td>
+      <td>10</td>
+      <td>Multiple blocks</td>
+    </tr>
+    <tr>
+      <td><code>getInflationReward</code></td>
+      <td>10</td>
+      <td>Staking rewards</td>
+    </tr>
+    <tr>
+      <td><code>getSignaturesForAddress</code></td>
+      <td>10</td>
+      <td>Address transaction history</td>
+    </tr>
+    <tr>
+      <td><code>getBlockTime</code></td>
+      <td>10</td>
+      <td>Block timestamp</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Digital Asset Standard (DAS) API
 
-All DAS calls cost **10 credits** each:
+All DAS API calls cost **10 credits** each:
 
-- [`getAsset`](/api-reference/das/getasset)
-- [`getAssetProof`](/api-reference/das/getassetproof)
-- [`getAssetsByOwner`](/api-reference/das/getassetsbyowner)
-- [`getAssetsByAuthority`](/api-reference/das/getassetsbyauthority)
-- [`getAssetsByCreator`](/api-reference/das/getassetsbycreator)
-- [`getAssetsByGroup`](/api-reference/das/getassetsbygroup)
-- [`searchAssets`](/api-reference/das/searchassets)
-- [`getSignaturesForAsset`](/api-reference/das/getsignaturesforasset)
-- [`getTokenAccounts`](/api-reference/das/gettokenaccounts)
-- [`getNFTEditions`](/api-reference/das/getnfteditions)
+<CardGroup cols={2}>
+  <Card title="Asset Information">
+    - `getAsset`
+    - `getAssetProof`
+    - `getNFTEditions`
+  </Card>
+  <Card title="Asset Discovery">
+    - `getAssetsByOwner`
+    - `getAssetsByAuthority`
+    - `getAssetsByCreator`
+    - `getAssetsByGroup`
+    - `searchAssets`
+  </Card>
+  <Card title="Transaction History">
+    - `getSignaturesForAsset`
+  </Card>
+  <Card title="Account Information">
+    - `getTokenAccounts`
+  </Card>
+</CardGroup>
 
-### ZK Compression API
+### Advanced Services
 
-- **Standard ZK Compression Calls**: 10 credits
-- [`getValidityProofs`](/api-reference/zk-compression/getvalidityproof): 100 credits (due to higher computation)
+<table>
+  <thead align="left">
+    <tr>
+      <th width="300">Service</th>
+      <th width="120">Credits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>ZK Compression API</strong></td>
+      <td>10</td>
+      <td>Standard compression calls</td>
+    </tr>
+    <tr>
+      <td><code>getValidityProofs</code></td>
+      <td>100</td>
+      <td>Higher computation required</td>
+    </tr>
+    <tr>
+      <td><strong>Enhanced Transactions API</strong></td>
+      <td>100</td>
+      <td>Enhanced transaction parsing</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Event Delivery</strong></td>
+      <td>1</td>
+      <td>Per event push</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Management API</strong></td>
+      <td>100</td>
+      <td>Create, update, delete webhooks</td>
+    </tr>
+  </tbody>
+</table>
 
-### Webhooks
+## Getting Additional Credits
 
-- **Webhook Event Delivery**: 1 credit per event push
-- **Webhook Management via [API](/api-reference/webhooks/update-webhook)**: 100 credits
+When you need more credits beyond your monthly allocation, you have two flexible options:
 
-### Enhanced Transactions API
+<CardGroup cols={2}>
+  <Card title="Pay with Crypto" icon="credit-card" href="/billing/pay-with-crypto">
+    Purchase prepaid credits with USDC that never expire. Perfect for crypto users and variable workloads.
+  </Card>
+  <Card title="Autoscaling" icon="arrow-trend-up" href="/billing/autoscaling">
+    Automatically add credits as needed with card billing. Ideal for handling unexpected traffic spikes without interruption.
+  </Card>
+</CardGroup>
 
-- **Enhanced Transactions API**: 100 credits per call
+<Note>
+**Credit Usage Priority**: The system automatically uses your monthly subscription credits first, then draws from any prepaid credits, and finally triggers autoscaling if enabled.
+</Note>
 
-## Adding More Credits
+## Monitoring Your Usage
 
-If you run out of credits during your billing cycle, you have two options:
+Track your credit consumption in the [Helius Dashboard](https://dashboard.helius.dev/):
 
-### Crypto Payment Plans
-Purchase prepaid credits directly from your [Helius Dashboard](https://dashboard.helius.dev/):
-- Credits activate immediately and never expire
-- Available by clicking the **Buy More Credits** button
-
-### Card Payment Plans
-Enable autoscaling in your Project Settings:
-- Automatically adds credits as needed
-- Set limits to control spending
-
-## Prepaid Credits
-
-Prepaid credits are a flexible way to manage your Helius API usage beyond your monthly subscription limits. Unlike monthly subscription credits that refresh each billing cycle, prepaid credits never expire and can be used at any time.
-
-### Key Benefits
-
-- **No Expiration**: Prepaid credits never expire, giving you complete flexibility in how and when you use them
-- **Immediate Availability**: Credits are available for use immediately after purchase
-- **Cost Effective**: Purchase in bulk for the best rates
-- **Usage Priority**: The system automatically uses your monthly subscription credits before drawing from prepaid credits
-- **Rollover**: Maintain unused prepaid credits across billing cycles
-- **Budget Control**: Perfect for projects with variable usage patterns or one-time high-volume needs
-
-### How to Purchase Prepaid Credits
-
-You can purchase prepaid credits directly from your [Helius Dashboard](https://dashboard.helius.dev/):
-
-1. Log in to your Helius Dashboard
-2. Navigate to your billing section
-3. Click the **Buy More Credits** button
-4. Select your desired credit amount
-5. Complete the purchase using cryptocurrency
-
-Once purchased, prepaid credits activate immediately and will be visible in your dashboard.
-
-### Pricing
-
-| Plan Type    | Price per Million Additional Credits |
-| ------------ | ------------------------------------ |
-| Developer    | $5 per million                       |
-| Business     | $5 per million                       |
-| Professional | $4 per million                       |
-
-### Usage and Management
-
-#### Credit Usage Order
-
-The Helius platform automatically manages your credit usage in the following order:
-
-1. Monthly subscription credits are used first
-2. Once monthly credits are depleted, the system draws from your prepaid credits balance
-3. If autoscaling is enabled, that will activate after both your monthly and prepaid credits are consumed
-
-#### Monitoring Your Balance
-
-You can monitor your prepaid credit balance at any time in the Helius Dashboard:
-
-- View your current prepaid credit balance
-- Track historical usage patterns
-- Receive notifications when your balance falls below a certain threshold
-
-### When to Consider Prepaid Credits
-
-Prepaid credits are ideal for:
-
-- Projects with unpredictable or variable API usage
-- Handling occasional traffic spikes without enabling autoscaling
-- One-time high-volume processing needs
-- Testing new features before committing to a higher subscription tier
-- Cost optimization for projects with fluctuating usage patterns
-
-### Prepaid Credits vs. Autoscaling
-
-While both options provide flexibility beyond your monthly credit limits, they serve different purposes:
-
-**Prepaid Credits:**
-- Pay upfront for credits that never expire
-- Better for planned usage increases or projects with predictable patterns
-- One-time purchase with no recurring charges
-
-**Autoscaling:**
-- Credits are automatically added as needed
-- Better for handling unexpected traffic spikes
-- Billed to your card payment method
-- Can set limits to control spending
-
-Many users find that a combination of both strategies offers the most flexibility and cost control.
+- **Real-time Balance**: Current credit levels across all types
+- **Usage Analytics**: Historical consumption patterns
+- **Alerts**: Notifications when balances fall below thresholds
+- **Detailed Logs**: Per-API call credit consumption
 
