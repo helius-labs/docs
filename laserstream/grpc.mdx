@@ -10,6 +10,10 @@ description: "Highly configurable low-latency data streams using gRPC."
 
 LaserStream's gRPC offering builds on a Yellowstone-based interface and enhances it with features like historical replay, multi-node failover, and a fully managed environment. You can connect either directly with `@yellowstone-grpc` or use the higher-level **[Helius LaserStream SDK](https://github.com/helius-labs/laserstream-sdk)** for added benefits (auto-reconnect, subscription management, error handling, etc.).
 
+<Warning>
+**Performance Notice**: If you experience any lag or performance issues with your LaserStream connection, please refer to the [Troubleshooting section](#troubleshooting-%2F-faq) for common causes and solutions related to client performance and network optimization.
+</Warning>
+
 <Divider />
 
 ## Endpoints & Regions
@@ -560,6 +564,18 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
 <Divider />
 
 ## Troubleshooting / FAQ
+
+<Accordion title="Q: I'm experiencing lag or slow performance with my LaserStream connection. What could be causing this?">
+  **A:** Performance issues with LaserStream connections are typically caused by:
+  
+  - **High message volume**: The JavaScript client may lag behind when processing too many messages or consuming too much bandwidth. Consider filtering your subscriptions more narrowly to reduce message volume.
+  
+  - **Limited local bandwidth**: Heavy subscriptions can overwhelm clients with limited network bandwidth. Monitor your network usage and consider upgrading your connection or reducing subscription scope.
+  
+  - **Geographic distance**: Running subscriptions against servers that are geographically far away can cause performance issues. TCP packets may get dropped on long routes, and you're limited by the slowest intermediate network path. **Solution**: Choose the LaserStream endpoint closest to your server location from our available regions (see [Endpoints & Regions](#mainnet-endpoints) above).
+  
+  - **Client-side processing bottlenecks**: Ensure your message processing logic is optimized and doesn't block the main thread for extended periods.
+</Accordion>
 
 <Accordion title="Q: I'm getting connection errors. What should I check?">
   **A:** Verify your API key and endpoint are correct and that your network allows outbound gRPC connections to the specified endpoint. Check the [Helius status page](https://helius.statuspage.io/) for any ongoing incidents.
