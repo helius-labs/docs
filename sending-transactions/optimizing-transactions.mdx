@@ -179,7 +179,7 @@ versionedTransaction.sign([fromKeypair]);
 
 ### Optimize the Transaction's Compute Unit (CU) Usage
 
-To optimize the transaction's compute unit (CU) usage, we can use the [simulateTransaction](/rpc/guides/simulatetransaction) RPC method to simulate the transaction. Simulating the transaction will return the amount of CUs used, so we can use this value to set our compute limit accordingly.
+To optimize the transaction's compute unit (CU) usage, we can use the [simulateTransaction](/api-reference/rpc/http/simulatetransaction) RPC method to simulate the transaction. Simulating the transaction will return the amount of CUs used, so we can use this value to set our compute limit accordingly.
 
 It's recommended to use a test transaction with the desired instructions first, plus an instruction that sets the compute limit to 1.4m CUs. This is done to ensure the transaction simulation succeeds.
 
