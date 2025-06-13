@@ -28,7 +28,7 @@ Unlike standard Solana RPC nodes, LaserStream is specifically designed for strea
 ## Easy Migration
 
 <Note>
-**Drop-in Replacement**: LaserStream is designed as a seamless drop-in replacement for your existing gRPC setup. Simply change your endpoint and API token, and your application will work with LaserStream immediately.
+**Drop-in Replacement**: LaserStream is designed as a seamless drop-in replacement for your existing gRPC setup. Since LaserStream uses the industry-standard gRPC protocol (an open source framework), it's fully compatible with existing Yellowstone gRPC implementations. Simply change your endpoint and API token, and your application will work with LaserStream immediately - no proprietary protocols or vendor lock-in.
 </Note>
 
 ### Using Existing gRPC Code
@@ -82,11 +82,11 @@ The [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) automatica
 
 ### Multi-Protocol Support
 
-LaserStream is designed with multi-protocol support in mind:
+LaserStream is designed with multi-protocol support in mind, all built on open standards:
 
 | Protocol | Status | Best For | Features | Implementation |
 | --- | --- | --- | --- | --- |
-| **gRPC** | ✅ Available | Backend services, high-throughput applications | Highest performance, binary protocol, bi-directional streaming | Via LaserStream SDK or Yellowstone |
+| **gRPC** | ✅ Available | Backend services, high-throughput applications | Highest performance, binary protocol, bi-directional streaming. Uses open source gRPC standard (no vendor lock-in) | Via LaserStream SDK or Yellowstone |
 | **WebSocket** | 🔜 Coming soon | Frontend applications, browser clients | JSON-based, widely supported in browsers, familiar for web developers | Standard WebSocket clients (e.g., `ws` library) |
 
 <Note>
