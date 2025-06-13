@@ -1,0 +1,315 @@
+---
+title: "Fast Transaction Sending"
+sidebarTitle: "Send Fast"
+description: "Send transactions with optimized routing and reduced latency using Helius Fast Transaction endpoints."
+"og:description": "Learn how to use Helius Fast Transaction endpoints for high-speed transaction submission with global routing and trader-optimized features."
+---
+
+## Overview
+
+Helius Fast Transaction Sending is a specialized service designed for high-frequency traders and applications requiring ultra-low latency transaction submission. This service provides geographically distributed endpoints with optimized routing to ensure your transactions reach the Solana network as quickly as possible.
+
+**Key Features:**
+- **Global Distribution**: Multiple geographic endpoints for optimal routing
+- **No Credit Usage**: Available on all plans without consuming API credits
+- **High Throughput**: Default 5 TPS with option to increase via support ticket
+- **Trader Optimized**: Designed specifically for MEV and arbitrage strategies
+
+## Endpoints
+
+Fast Transaction endpoints are available in multiple regions for optimal latency:
+
+```
+http://slc-sender.helius-rpc.com/fast      # Salt Lake City
+http://ewr-sender.helius-rpc.com/fast      # Newark
+http://pitt-sender.helius-rpc.com/fast     # Pittsburgh  
+http://fra-sender.helius-rpc.com/fast      # Frankfurt
+http://ams-sender.helius-rpc.com/fast      # Amsterdam
+http://sg-sender.helius-rpc.com/fast       # Singapore
+http://tyo-sender.helius-rpc.com/fast      # Tokyo
+```
+
+<Note>
+These endpoints only support HTTP connections. Choose the endpoint closest to your infrastructure for optimal performance.
+</Note>
+
+## Usage
+
+The Fast Transaction endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance.
+
+### Basic Request Format
+
+```typescript
+{
+  "id": "unique-request-id",
+  "jsonrpc": "2.0", 
+  "method": "sendTransaction",
+  "params": [
+    "BASE64_ENCODED_TRANSACTION",
+    {
+      "encoding": "base64",
+      "skipPreflight": true,
+      "maxRetries": 0
+    }
+  ]
+}
+```
+
+### Example Request
+
+```typescript
+const fastTxRequest = {
+  "id": "fast-tx-001",
+  "jsonrpc": "2.0",
+  "method": "sendTransaction", 
+  "params": [
+    "Aepy90MOqqnCrgztISjAiAOB3felQfc215Clromy84m9+oDFv2xBvAwZiJ2g9zBbOKIhkt6et3UmM20LysOXhwcBAAEDQMhfjKm6ws5Qc/X5gY4TBMO13/gplaz5YOJh3yzoo9QzVosRMbVrjnhRrsnM0Lisfb9/n7GsWXB/EHWDqA5sDQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaLhvkd1Ocez3Od33XqvMlZEoU8VamWwcuPvI+4EeNAMCAgIAAAwCAAAAECcAAAAAAAACAgABDAIAAABAQg8AAAAAAA==",
+    {
+      "encoding": "base64",
+      "skipPreflight": true,
+      "maxRetries": 0
+    }
+  ]
+};
+
+// Send to nearest endpoint
+const response = await fetch('http://slc-sender.helius-rpc.com/fast', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(fastTxRequest)
+});
+
+const result = await response.json();
+console.log('Transaction signature:', result.result);
+```
+
+## Requirements
+
+### 1. Skip Preflight (Mandatory)
+
+The `skipPreflight` parameter **must** be set to `true`. This endpoint is optimized for traders who prioritize speed over transaction validation.
+
+```typescript
+{
+  "skipPreflight": true  // Required: must be true
+}
+```
+
+<Warning>
+Since preflight checks are skipped, ensure your transactions are properly constructed and funded before submission. Invalid transactions will be rejected by the network after submission.
+</Warning>
+
+### 2. Minimum Tip Requirement
+
+All transactions must include a SOL transfer with a **minimum tip of 0.001 SOL** to one of the designated tip accounts:
+
+```typescript
+const TIP_ACCOUNTS = [
+  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+];
+```
+
+## Complete Implementation Example
+
+Here's a full example showing how to construct and send a fast transaction with proper tipping:
+
+```typescript
+import { 
+  Connection, 
+  Transaction, 
+  SystemProgram, 
+  PublicKey,
+  Keypair,
+  LAMPORTS_PER_SOL
+} from '@solana/web3.js';
+
+async function sendFastTransaction() {
+  // Your transaction logic here
+  const senderKeypair = Keypair.fromSecretKey(/* your secret key */);
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+  
+  // Get recent blockhash
+  const { blockhash } = await connection.getLatestBlockhash();
+  
+  // Create transaction with your main logic
+  const transaction = new Transaction();
+  
+  // Add your main transaction instructions here
+  // transaction.add(yourMainInstruction);
+  
+  // Add required tip (minimum 0.001 SOL)
+  const tipAccount = new PublicKey("4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE");
+  const tipAmount = 0.001 * LAMPORTS_PER_SOL; // 0.001 SOL minimum
+  
+  transaction.add(
+    SystemProgram.transfer({
+      fromPubkey: senderKeypair.publicKey,
+      toPubkey: tipAccount,
+      lamports: tipAmount,
+    })
+  );
+  
+  // Set recent blockhash and sign
+  transaction.recentBlockhash = blockhash;
+  transaction.sign(senderKeypair);
+  
+  // Serialize transaction
+  const serializedTx = transaction.serialize().toString('base64');
+  
+  // Send via Fast Transaction endpoint
+  const fastTxRequest = {
+    "id": Date.now().toString(),
+    "jsonrpc": "2.0",
+    "method": "sendTransaction",
+    "params": [
+      serializedTx,
+      {
+        "encoding": "base64",
+        "skipPreflight": true,
+        "maxRetries": 0
+      }
+    ]
+  };
+  
+  // Choose optimal endpoint based on your location
+  const endpoint = 'http://slc-sender.helius-rpc.com/fast';
+  
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fastTxRequest)
+    });
+    
+    const result = await response.json();
+    
+    if (result.error) {
+      console.error('Transaction failed:', result.error);
+      return null;
+    }
+    
+    console.log('Transaction sent successfully:', result.result);
+    return result.result; // Transaction signature
+    
+  } catch (error) {
+    console.error('Request failed:', error);
+    return null;
+  }
+}
+```
+
+## Rate Limits and Scaling
+
+- **Default Rate Limit**: 5 transactions per second
+- **Scaling**: Contact Helius support to increase your rate limit
+- **No Credit Usage**: Fast transactions don't consume API credits from your plan
+
+<Tip>
+For higher throughput requirements, create a support ticket with your expected TPS and use case details.
+</Tip>
+
+## Best Practices
+
+### Endpoint Selection
+Choose the endpoint closest to your infrastructure:
+- **US West**: Use `slc-sender` (Salt Lake City)  
+- **US East**: Use `ewr-sender` (Newark) or `pitt-sender` (Pittsburgh)
+- **Europe**: Use `fra-sender` (Frankfurt) or `ams-sender` (Amsterdam)
+- **Asia**: Use `sg-sender` (Singapore) or `tyo-sender` (Tokyo)
+
+### Transaction Construction
+1. **Minimize Transaction Size**: Smaller transactions propagate faster
+2. **Optimal Tip Amount**: Use slightly above minimum (0.001 SOL) for better prioritization
+3. **Recent Blockhash**: Always use the most recent blockhash possible
+4. **Proper Signing**: Ensure all required signatures are present
+
+### Error Handling
+```typescript
+async function handleFastTransaction(serializedTx: string) {
+  const endpoints = [
+    'http://slc-sender.helius-rpc.com/fast',
+    'http://ewr-sender.helius-rpc.com/fast', // Fallback
+  ];
+  
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: Date.now().toString(),
+          jsonrpc: "2.0",
+          method: "sendTransaction",
+          params: [serializedTx, { 
+            encoding: "base64", 
+            skipPreflight: true, 
+            maxRetries: 0 
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.error) {
+        return result.result;
+      }
+      
+      console.warn(`Endpoint ${endpoint} failed:`, result.error);
+      
+    } catch (error) {
+      console.warn(`Endpoint ${endpoint} unreachable:`, error);
+      continue; // Try next endpoint
+    }
+  }
+  
+  throw new Error('All Fast Transaction endpoints failed');
+}
+```
+
+## Monitoring and Confirmation
+
+Since fast transactions skip preflight checks, implement proper monitoring:
+
+```typescript
+async function monitorTransaction(signature: string) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+  
+  // Wait for confirmation
+  const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+  
+  if (confirmation.value.err) {
+    console.error('Transaction failed:', confirmation.value.err);
+    return false;
+  }
+  
+  console.log('Transaction confirmed:', signature);
+  return true;
+}
+
+// Usage
+const signature = await sendFastTransaction();
+if (signature) {
+  await monitorTransaction(signature);
+}
+```
+
+## Support and Scaling
+
+For production deployments requiring higher throughput:
+
+1. **Create Support Ticket**: Include your expected TPS and use case
+2. **Provide Metrics**: Share your current transaction patterns  
+3. **Geographic Requirements**: Specify which regions you need priority access
+
+Contact support through the [Helius Dashboard](https://dashboard.helius.dev) or join our [Discord community](https://discord.com/invite/6GXdee3gBj). 
