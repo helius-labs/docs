@@ -7,11 +7,11 @@ description: "Ultra-low latency transaction submission with dual routing to vali
 
 ## Overview
 
-Helius Sender is a specialized service for ultra-low latency transaction submission. It optimizes transaction latency by sending to both Solana validators and Jito infrastructure simultaneously, providing multiple pathways for your transactions to be included in blocks.
+Helius Sender is a specialized service for ultra-low latency transaction submission. It optimizes transaction latency by sending to both Solana validators and [Jito](https://docs.jito.wtf/) simultaneously, providing multiple pathways for your transactions to be included in blocks.
 
 <CardGroup cols={2}>
   <Card title="Dual Routing" icon="route">
-    Sends to both validators and Jito infrastructure for optimal speed
+    Sends to both validators and Jito for optimal speed
   </Card>
   <Card title="Global Endpoints" icon="globe">
     Multiple geographic locations for minimal latency
@@ -20,7 +20,7 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
     Available on all plans without consuming API credits
   </Card>
   <Card title="High Throughput" icon="gauge-high">
-    Default 5 TPS, scalable via support ticket
+    Default 1 TPS, scalable via support ticket
   </Card>
 </CardGroup>
 
@@ -46,14 +46,14 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 ### 2. Minimum Tip Requirement
 
-All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito infrastructure simultaneously.
+All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito simultaneously.
 
 #### Why Tips Are Required
 
 Tips serve multiple purposes in Sender's dual routing system:
 
 1. **Transaction Prioritization**: Tips signal to validators that your transaction should be prioritized over others in the mempool
-2. **Jito Infrastructure Access**: Jito infrastructure uses tips to determine transaction priority in their block building processes  
+2. **Jito Access**: Jito uses tips to determine transaction priority in their block building processes  
 3. **Network Efficiency**: Tips help reduce spam and ensure only serious transactions use the fast routing service
 4. **Validator Incentives**: Tips compensate validators for processing your transaction with higher priority
 
@@ -61,7 +61,7 @@ Tips serve multiple purposes in Sender's dual routing system:
 
 When you include a tip in your transaction:
 - **Regular Validators**: See the tip as a priority fee signal and are more likely to include your transaction in their blocks
-- **Jito Infrastructure**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
+- **Jito**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
 - **Dual Benefit**: Since Sender sends to both systems simultaneously, your tipped transaction has multiple pathways to be included quickly
 
 #### Tip Amount Guidelines
@@ -143,150 +143,355 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
 The `BASE64_ENCODED_TRANSACTION` above must contain a SOL transfer instruction with a minimum 0.001 SOL tip to one of the designated tip accounts. Without this tip, your transaction will be rejected.
 </Warning>
 
-### Complete Implementation Example
+### Simple Example
 
 ```typescript
 import { 
   Connection, 
-  Transaction, 
+  TransactionMessage,
+  VersionedTransaction,
   SystemProgram, 
   PublicKey,
   Keypair,
   LAMPORTS_PER_SOL,
   ComputeBudgetProgram
 } from '@solana/web3.js';
+import bs58 from 'bs58';
 
-async function sendWithSender() {
-  const senderKeypair = Keypair.fromSecretKey(/* your secret key */);
+const PRIV_B58 = 'Your Private Key';
+const RECIPIENT = 'Random Recipient';
+const HELIUS_API_KEY = 'Your API Key';
+const TIP_ACCOUNTS = [
+  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+];
+
+async function sendWithSender(
+  keypair: Keypair, 
+  recipientAddress: string
+): Promise<string> {
+  const connection = new Connection(
+    `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+  );
+  
+  const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
+  
+  // Build transaction with tip transfer and transfer to recipient
+  const transaction = new VersionedTransaction(
+    new TransactionMessage({
+      instructions: [
+        ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
+        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
+        SystemProgram.transfer({
+          fromPubkey: keypair.publicKey,
+          toPubkey: new PublicKey(recipientAddress),
+          lamports: 0.001 * LAMPORTS_PER_SOL,
+        }),
+        SystemProgram.transfer({
+          fromPubkey: keypair.publicKey,
+          toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+          lamports: 0.001 * LAMPORTS_PER_SOL,
+        })
+      ],
+      payerKey: keypair.publicKey,
+      recentBlockhash: blockhash,
+    }).compileToV0Message()
+  );
+
+  // Sign transaction
+  transaction.sign([keypair]);
+  console.log('Sending transaction...');
+  
+  const signature = await connection.sendTransaction(transaction, { 
+    skipPreflight: true 
+  });
+  console.log('Transaction sent:', signature);
+  
+  // Confirmation check
+  for (let i = 0; i < 30; i++) {
+    const status = await connection.getSignatureStatuses([signature]);
+    console.log('Status:', status?.value[0]?.confirmationStatus || 'pending');
+    
+    if (status?.value[0]?.confirmationStatus === "confirmed") {
+      console.log('Transaction confirmed!');
+      return signature;
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
+  console.log('Transaction may have succeeded but confirmation timed out');
+  return signature;
+}
+
+// Send transaction
+sendWithSender(Keypair.fromSecretKey(bs58.decode(PRIV_B58)), RECIPIENT);
+```
+
+<Accordion title="Advanced Example with Optimizations">
+
+```typescript
+import { 
+  Connection, 
+  TransactionMessage,
+  VersionedTransaction,
+  SystemProgram, 
+  PublicKey,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  ComputeBudgetProgram,
+  TransactionInstruction
+} from '@solana/web3.js';
+import bs58 from 'bs58';
+
+const TIP_ACCOUNTS = [
+  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+];
+
+async function sendWithSender(
+  keypair: Keypair, 
+  instructions: TransactionInstruction[]
+): Promise<string> {
   const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
   
-  // 1. Get recent blockhash with proper commitment
-  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+  // Validate user hasn't included compute budget instructions
+  const hasComputeBudget = instructions.some(ix => 
+    ix.programId.equals(ComputeBudgetProgram.programId)
+  );
+  if (hasComputeBudget) {
+    throw new Error('Do not include compute budget instructions - they are added automatically');
+  }
   
-  // 2. Create transaction with your main instructions
-  const transaction = new Transaction();
+  // Create copy of instructions to avoid modifying the original array
+  const allInstructions = [...instructions];
   
-  // Add your main transaction instructions here
-  // transaction.add(yourMainInstruction);
-  
-  // 3. Add required tip (minimum 0.001 SOL)
-  const tipAccount = new PublicKey("4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE");
-  const tipAmount = 0.001 * LAMPORTS_PER_SOL;
-  
-  transaction.add(
+  // Add required tip to random tip account (minimum 0.001 SOL for Sender)
+  const tipAccount = new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]);
+  allInstructions.push(
     SystemProgram.transfer({
-      fromPubkey: senderKeypair.publicKey,
+      fromPubkey: keypair.publicKey,
       toPubkey: tipAccount,
-      lamports: tipAmount,
+      lamports: 0.001 * LAMPORTS_PER_SOL,
     })
   );
   
-  // 4. Optimize compute units (optional but recommended)
-  transaction.add(
-    ComputeBudgetProgram.setComputeUnitLimit({ units: 300_000 }) // Adjust based on your needs
+  // Get recent blockhash with context (Helius best practice)
+  const { value: blockhashInfo } = await connection.getLatestBlockhashAndContext('confirmed');
+  const { blockhash, lastValidBlockHeight } = blockhashInfo;
+  
+  // Simulate transaction to get compute units
+  const testInstructions = [
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }),
+    ...allInstructions,
+  ];
+
+  const testTransaction = new VersionedTransaction(
+    new TransactionMessage({
+      instructions: testInstructions,
+      payerKey: keypair.publicKey,
+      recentBlockhash: blockhash,
+    }).compileToV0Message()
+  );
+  testTransaction.sign([keypair]);
+
+  const simulation = await connection.simulateTransaction(testTransaction, {
+    replaceRecentBlockhash: true,
+    sigVerify: false,
+  });
+
+  if (!simulation.value.unitsConsumed) {
+    throw new Error('Simulation failed to return compute units');
+  }
+
+  // Set compute unit limit with minimum 1000 CUs and 10% margin (Helius best practice)
+  const units = simulation.value.unitsConsumed;
+  const computeUnits = units < 1000 ? 1000 : Math.ceil(units * 1.1);
+  
+  // Get dynamic priority fee from Helius Priority Fee API
+  const priorityFee = await getPriorityFee(
+    connection, 
+    allInstructions, 
+    keypair.publicKey, 
+    blockhash
   );
   
-  // 5. Set recent blockhash and sign
-  transaction.recentBlockhash = blockhash;
-  transaction.sign(senderKeypair);
-  
-  // 6. Serialize transaction
-  const serializedTx = transaction.serialize().toString('base64');
-  
-  // 7. Send via Sender endpoint
-  const senderRequest = {
-    "id": Date.now().toString(),
-    "jsonrpc": "2.0",
-    "method": "sendTransaction",
-    "params": [
-      serializedTx,
-      {
-        "encoding": "base64",
-        "skipPreflight": true,       // Required
-        "maxRetries": 0              // Implement your own retry logic
-      }
-    ]
-  };
-  
-  // Choose optimal endpoint based on your location
-  const endpoint = 'http://slc-sender.helius-rpc.com/fast';
-  
+  // Add compute budget instructions at the BEGINNING (must be first)
+  allInstructions.unshift(
+    ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee })
+  );
+  allInstructions.unshift(
+    ComputeBudgetProgram.setComputeUnitLimit({ units: computeUnits })
+  );
+
+  // Build final optimized transaction
+  const transaction = new VersionedTransaction(
+    new TransactionMessage({
+      instructions: allInstructions,
+      payerKey: keypair.publicKey,
+      recentBlockhash: blockhash,
+    }).compileToV0Message()
+  );
+  transaction.sign([keypair]);
+
+  // Send via Sender endpoint with retry logic
+  return await sendWithRetry(transaction, connection, lastValidBlockHeight);
+}
+
+async function getPriorityFee(
+  connection: Connection, 
+  instructions: TransactionInstruction[], 
+  payerKey: PublicKey, 
+  blockhash: string
+): Promise<number> {
   try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(senderRequest)
+    const tempTx = new VersionedTransaction(
+      new TransactionMessage({
+        instructions,
+        payerKey,
+        recentBlockhash: blockhash,
+      }).compileToV0Message()
+    );
+    
+    const response = await fetch(connection.rpcEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [{
+          transaction: bs58.encode(tempTx.serialize()),
+          options: { recommended: true },
+        }],   
+      }),
     });
     
-    const result = await response.json();
-    
-    if (result.error) {
-      console.error('Transaction failed:', result.error);
-      return null;
-    }
-    
-    console.log('Transaction sent successfully:', result.result);
-    
-    // 8. Monitor confirmation
-    await monitorTransaction(result.result, connection, lastValidBlockHeight);
-    
-    return result.result;
-    
-  } catch (error) {
-    console.error('Request failed:', error);
-    return null;
+    const data = await response.json();
+    return data.result?.priorityFeeEstimate ? 
+      Math.ceil(data.result.priorityFeeEstimate * 1.2) : 50_000;
+  } catch {
+    return 50_000; // Fallback fee
   }
 }
 
-// Proper confirmation monitoring
-async function monitorTransaction(
-  signature: string, 
-  connection: Connection, 
+async function sendWithRetry(
+  transaction: VersionedTransaction,
+  connection: Connection,
   lastValidBlockHeight: number
-) {
-  let blockHeight = await connection.getBlockHeight();
+): Promise<string> {
+  const maxRetries = 3;
+  const endpoint = 'http://slc-sender.helius-rpc.com/fast';
   
-  while (blockHeight < lastValidBlockHeight) {
-    const confirmation = await connection.confirmTransaction({
-      signature,
-      blockhash: transaction.recentBlockhash,
-      lastValidBlockHeight
-    }, 'confirmed');
-    
-    if (confirmation.value.err) {
-      throw new Error(`Transaction failed: ${confirmation.value.err}`);
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Check blockhash validity
+      const currentHeight = await connection.getBlockHeight('confirmed');
+      if (currentHeight > lastValidBlockHeight) {
+        throw new Error('Blockhash expired');
+      }
+      
+      // Send transaction via Sender endpoint
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: Date.now().toString(),
+          method: "sendTransaction",
+          params: [
+            Buffer.from(transaction.serialize()).toString('base64'),
+            {
+              encoding: "base64",
+              skipPreflight: true,    // Required for Sender
+              maxRetries: 0           // Implement your own retry logic
+            }
+          ]
+        })
+      });
+      
+      const result = await response.json();
+      if (result.error) throw new Error(result.error.message);
+      
+      console.log(`Transaction sent: ${result.result}`);
+      return await confirmTransaction(result.result, connection);
+      
+    } catch (error) {
+      console.warn(`Attempt ${attempt + 1} failed:`, error);
+      if (attempt === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
-    
-    if (confirmation.value.confirmationStatus === 'confirmed') {
-      console.log('Transaction confirmed:', signature);
-      return true;
-    }
-    
-    // Wait before checking again
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    blockHeight = await connection.getBlockHeight();
   }
   
-  throw new Error('Transaction expired');
+  throw new Error('All retry attempts failed');
 }
+
+async function confirmTransaction(
+  signature: string, 
+  connection: Connection
+): Promise<string> {
+  const timeout = 15000;
+  const interval = 3000;
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < timeout) {
+    try {
+      const status = await connection.getSignatureStatuses([signature]);
+      if (status?.value[0]?.confirmationStatus === "confirmed") {
+        return signature;
+      }
+    } catch (error) {
+      console.warn('Status check failed:', error);
+    }
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  
+  throw new Error(`Transaction confirmation timeout: ${signature}`);
+}
+
+// Example usage following standard Helius docs pattern
+export async function exampleUsage() {
+  const keypair = Keypair.fromSecretKey(new Uint8Array([/* your secret key */]));
+  
+  // 1. Prepare your transaction instructions (USER ADDS THEIR INSTRUCTIONS HERE)
+  const instructions: TransactionInstruction[] = [
+    SystemProgram.transfer({
+      fromPubkey: keypair.publicKey,
+      toPubkey: new PublicKey("RECIPIENT_ADDRESS"),
+      lamports: 0.1 * LAMPORTS_PER_SOL,
+    }),
+    // Add more instructions as needed
+  ];
+  
+  // 2. Send with Sender (automatically adds tip + optimizations)
+  try {
+    const signature = await sendWithSender(keypair, instructions);
+    console.log(`Successful transaction: ${signature}`);
+  } catch (error) {
+    console.error('Transaction failed:', error);
+  }
+}
+
+export { sendWithSender };
 ```
 
-### Dynamic Tip Amounts
-
-```typescript
-// Adjust tip based on network conditions
-const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
-  const tipAmounts = {
-    'low': 0.001,      // Minimum required
-    'medium': 0.002,   // Better priority
-    'high': 0.005      // Maximum priority
-  };
-  return tipAmounts[networkCongestion] * LAMPORTS_PER_SOL;
-};
-
-// Usage
-const tipAmount = getTipAmount('medium');
-```
+</Accordion>
 
 
 
@@ -310,7 +515,7 @@ For optimal latency, consider co-locating with Helius servers in Frankfurt or Pi
 
 ## Rate Limits and Scaling
 
-- **Default Rate Limit**: 5 transactions per second
+- **Default Rate Limit**: 1 transaction per second
 - **No Credit Usage**: Sender transactions don't consume API credits from your plan
 
 ## Support and Scaling
@@ -318,7 +523,6 @@ For optimal latency, consider co-locating with Helius servers in Frankfurt or Pi
 For production deployments requiring higher throughput:
 
 1. **Create Support Ticket**: Include your expected TPS and use case details
-2. **Provide Metrics**: Share your current transaction patterns  
-3. **Geographic Requirements**: Specify which regions you need priority access
+2. **Provide Metrics**: Share your current transaction patterns
 
 Contact support through the [Helius Dashboard](https://dashboard.helius.dev) or join our [Discord community](https://discord.com/invite/6GXdee3gBj). 
