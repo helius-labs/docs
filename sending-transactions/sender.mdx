@@ -1,23 +1,25 @@
 ---
-title: "Fast Transaction Sending"
-sidebarTitle: "Send Fast"
-description: "Send transactions with optimized routing and reduced latency using Helius Fast Transaction endpoints."
-"og:description": "Learn how to use Helius Fast Transaction endpoints for high-speed transaction submission with global routing and trader-optimized features."
+title: "Sender"
+sidebarTitle: "Sender"
+description: "Send transactions with optimized routing and reduced latency using Helius Sender endpoints."
+"og:description": "Learn how to use Helius Sender endpoints for high-speed transaction submission with global routing and trader-optimized features."
 ---
 
 ## Overview
 
-Helius Fast Transaction Sending is a specialized service designed for high-frequency traders and applications requiring ultra-low latency transaction submission. This service provides geographically distributed endpoints with optimized routing to ensure your transactions reach the Solana network as quickly as possible.
+Helius Sender is a specialized service designed for high-frequency traders and applications requiring ultra-low latency transaction submission. This service provides geographically distributed endpoints with optimized routing to ensure your transactions reach the Solana network as quickly as possible.
+
+Sender optimizes transaction latency by sending to both Solana validators and Jito's infrastructure simultaneously, providing multiple pathways for your transactions to be included in blocks.
 
 **Key Features:**
-- **Global Distribution**: Multiple geographic endpoints for optimal routing
+- **Dual Routing**: Sends to both validators and Jito infrastructure for optimal speed
+- **Global Distribution**: Multiple geographic endpoints for optimal routing  
 - **No Credit Usage**: Available on all plans without consuming API credits
 - **High Throughput**: Default 5 TPS with option to increase via support ticket
-- **Trader Optimized**: Designed specifically for MEV and arbitrage strategies
 
 ## Endpoints
 
-Fast Transaction endpoints are available in multiple regions for optimal latency:
+Sender endpoints are available in multiple regions for optimal latency:
 
 ```
 http://slc-sender.helius-rpc.com/fast      # Salt Lake City
@@ -30,12 +32,12 @@ http://tyo-sender.helius-rpc.com/fast      # Tokyo
 ```
 
 <Note>
-These endpoints only support HTTP connections. Choose the endpoint closest to your infrastructure for optimal performance.
+These endpoints only support HTTP connections (not HTTPS). Choose the endpoint closest to your infrastructure for optimal performance.
 </Note>
 
 ## Usage
 
-The Fast Transaction endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance.
+The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance.
 
 ### Basic Request Format
 
@@ -58,8 +60,8 @@ The Fast Transaction endpoint uses the same `sendTransaction` method as standard
 ### Example Request
 
 ```typescript
-const fastTxRequest = {
-  "id": "fast-tx-001",
+const senderRequest = {
+  "id": "sender-001",
   "jsonrpc": "2.0",
   "method": "sendTransaction", 
   "params": [
@@ -78,7 +80,7 @@ const response = await fetch('http://slc-sender.helius-rpc.com/fast', {
   headers: {
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify(fastTxRequest)
+  body: JSON.stringify(senderRequest)
 });
 
 const result = await response.json();
@@ -103,7 +105,29 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 ### 2. Minimum Tip Requirement
 
-All transactions must include a SOL transfer with a **minimum tip of 0.001 SOL** to one of the designated tip accounts:
+All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito infrastructure simultaneously.
+
+#### Why Tips Are Required
+
+Tips serve multiple purposes in Sender's dual routing system:
+
+1. **Transaction Prioritization**: Tips signal to validators that your transaction should be prioritized over others in the mempool
+2. **Jito Infrastructure Access**: Jito infrastructure uses tips to determine transaction priority in their block building processes  
+3. **Network Efficiency**: Tips help reduce spam and ensure only serious transactions use the fast routing service
+4. **Validator Incentives**: Tips compensate validators for processing your transaction with higher priority
+
+#### How Tips Work
+
+When you include a tip in your transaction:
+- **Regular Validators**: See the tip as a priority fee signal and are more likely to include your transaction in their blocks
+- **Jito Infrastructure**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
+- **Dual Benefit**: Since Sender sends to both systems simultaneously, your tipped transaction has multiple pathways to be included quickly
+
+#### Tip Amount Guidelines
+
+- **Minimum**: 0.001 SOL (required for Sender to accept your transaction)
+- **Recommended**: Slightly above minimum (0.0015-0.002 SOL) for better prioritization during network congestion
+- **High Priority**: During peak congestion, consider 0.005+ SOL for maximum priority
 
 ```typescript
 const TIP_ACCOUNTS = [
@@ -118,11 +142,25 @@ const TIP_ACCOUNTS = [
   "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
   "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
 ];
+
+// Example: Dynamic tip based on network conditions
+const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
+  switch (networkCongestion) {
+    case 'low': return 0.001;      // Minimum required
+    case 'medium': return 0.002;   // Better priority
+    case 'high': return 0.005;     // Maximum priority
+    default: return 0.001;
+  }
+};
 ```
+
+<Note>
+**Important**: The tip is a separate SOL transfer instruction that must be added to your transaction. It's not a priority fee in the traditional Solana sense, but rather a direct payment that enables access to Sender's dual routing system.
+</Note>
 
 ## Complete Implementation Example
 
-Here's a full example showing how to construct and send a fast transaction with proper tipping:
+Here's a full example showing how to construct and send a transaction with Sender including proper tipping:
 
 ```typescript
 import { 
@@ -134,7 +172,7 @@ import {
   LAMPORTS_PER_SOL
 } from '@solana/web3.js';
 
-async function sendFastTransaction() {
+async function sendWithSender() {
   // Your transaction logic here
   const senderKeypair = Keypair.fromSecretKey(/* your secret key */);
   const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
@@ -167,8 +205,8 @@ async function sendFastTransaction() {
   // Serialize transaction
   const serializedTx = transaction.serialize().toString('base64');
   
-  // Send via Fast Transaction endpoint
-  const fastTxRequest = {
+  // Send via Sender endpoint
+  const senderRequest = {
     "id": Date.now().toString(),
     "jsonrpc": "2.0",
     "method": "sendTransaction",
@@ -189,7 +227,7 @@ async function sendFastTransaction() {
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(fastTxRequest)
+      body: JSON.stringify(senderRequest)
     });
     
     const result = await response.json();
@@ -212,12 +250,7 @@ async function sendFastTransaction() {
 ## Rate Limits and Scaling
 
 - **Default Rate Limit**: 5 transactions per second
-- **Scaling**: Contact Helius support to increase your rate limit
-- **No Credit Usage**: Fast transactions don't consume API credits from your plan
-
-<Tip>
-For higher throughput requirements, create a support ticket with your expected TPS and use case details.
-</Tip>
+- **No Credit Usage**: Sender transactions don't consume API credits from your plan
 
 ## Best Practices
 
@@ -236,7 +269,7 @@ Choose the endpoint closest to your infrastructure:
 
 ### Error Handling
 ```typescript
-async function handleFastTransaction(serializedTx: string) {
+async function handleSenderTransaction(serializedTx: string) {
   const endpoints = [
     'http://slc-sender.helius-rpc.com/fast',
     'http://ewr-sender.helius-rpc.com/fast', // Fallback
@@ -273,13 +306,13 @@ async function handleFastTransaction(serializedTx: string) {
     }
   }
   
-  throw new Error('All Fast Transaction endpoints failed');
+  throw new Error('All Sender endpoints failed');
 }
 ```
 
 ## Monitoring and Confirmation
 
-Since fast transactions skip preflight checks, implement proper monitoring:
+Since Sender transactions skip preflight checks, implement proper monitoring:
 
 ```typescript
 async function monitorTransaction(signature: string) {
@@ -298,7 +331,7 @@ async function monitorTransaction(signature: string) {
 }
 
 // Usage
-const signature = await sendFastTransaction();
+const signature = await sendWithSender();
 if (signature) {
   await monitorTransaction(signature);
 }
