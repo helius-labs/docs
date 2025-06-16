@@ -7,15 +7,97 @@ description: "Ultra-low latency transaction submission with dual routing to vali
 
 ## Overview
 
-Helius Sender is a specialized service designed for high-frequency traders and applications requiring ultra-low latency transaction submission. This service provides geographically distributed endpoints with optimized routing to ensure your transactions reach the Solana network as quickly as possible.
+Helius Sender is a specialized service for ultra-low latency transaction submission. It optimizes transaction latency by sending to both Solana validators and Jito infrastructure simultaneously, providing multiple pathways for your transactions to be included in blocks.
 
-Sender optimizes transaction latency by sending to both Solana validators and Jito's infrastructure simultaneously, providing multiple pathways for your transactions to be included in blocks.
+<CardGroup cols={2}>
+  <Card title="Dual Routing" icon="route">
+    Sends to both validators and Jito infrastructure for optimal speed
+  </Card>
+  <Card title="Global Endpoints" icon="globe">
+    Multiple geographic locations for minimal latency
+  </Card>
+  <Card title="No Credits" icon="coins">
+    Available on all plans without consuming API credits
+  </Card>
+  <Card title="High Throughput" icon="gauge-high">
+    Default 5 TPS, scalable via support ticket
+  </Card>
+</CardGroup>
 
-**Key Features:**
-- **Dual Routing**: Sends to both validators and Jito infrastructure for optimal speed
-- **Global Distribution**: Multiple geographic endpoints for optimal routing  
-- **No Credit Usage**: Available on all plans without consuming API credits
-- **High Throughput**: Default 5 TPS with option to increase via support ticket
+## Requirements
+
+<Warning>
+**Mandatory Requirements**: All transactions must include a minimum 0.001 SOL tip and skip preflight checks.
+</Warning>
+
+### 1. Skip Preflight (Mandatory)
+
+The `skipPreflight` parameter **must** be set to `true`. Sender is optimized for traders who prioritize speed over transaction validation.
+
+```typescript
+{
+  "skipPreflight": true  // Required: must be true
+}
+```
+
+<Warning>
+Since preflight checks are skipped, ensure your transactions are properly constructed and funded before submission. Invalid transactions will be rejected by the network after submission.
+</Warning>
+
+### 2. Minimum Tip Requirement
+
+All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito infrastructure simultaneously.
+
+#### Why Tips Are Required
+
+Tips serve multiple purposes in Sender's dual routing system:
+
+1. **Transaction Prioritization**: Tips signal to validators that your transaction should be prioritized over others in the mempool
+2. **Jito Infrastructure Access**: Jito infrastructure uses tips to determine transaction priority in their block building processes  
+3. **Network Efficiency**: Tips help reduce spam and ensure only serious transactions use the fast routing service
+4. **Validator Incentives**: Tips compensate validators for processing your transaction with higher priority
+
+#### How Tips Work
+
+When you include a tip in your transaction:
+- **Regular Validators**: See the tip as a priority fee signal and are more likely to include your transaction in their blocks
+- **Jito Infrastructure**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
+- **Dual Benefit**: Since Sender sends to both systems simultaneously, your tipped transaction has multiple pathways to be included quickly
+
+#### Tip Amount Guidelines
+
+- **Minimum**: 0.001 SOL (required for Sender to accept your transaction)
+- **Recommended**: Slightly above minimum (0.0015-0.002 SOL) for better prioritization during network congestion
+- **High Priority**: During peak congestion, consider 0.005+ SOL for maximum priority
+
+```typescript
+const TIP_ACCOUNTS = [
+  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+];
+
+// Example: Dynamic tip based on network conditions
+const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
+  switch (networkCongestion) {
+    case 'low': return 0.001;      // Minimum required
+    case 'medium': return 0.002;   // Better priority
+    case 'high': return 0.005;     // Maximum priority
+    default: return 0.001;
+  }
+};
+```
+
+<Note>
+**Important**: The tip is a separate SOL transfer instruction that must be added to your transaction. It's not a priority fee in the traditional Solana sense, but rather a direct payment that enables access to Sender's dual routing system.
+</Note>
 
 ## Endpoints
 
@@ -61,108 +143,7 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
 The `BASE64_ENCODED_TRANSACTION` above must contain a SOL transfer instruction with a minimum 0.001 SOL tip to one of the designated tip accounts. Without this tip, your transaction will be rejected.
 </Warning>
 
-### Example Request
-
-```typescript
-const senderRequest = {
-  "id": "sender-001",
-  "jsonrpc": "2.0",
-  "method": "sendTransaction", 
-  "params": [
-    "Aepy90MOqqnCrgztISjAiAOB3felQfc215Clromy84m9+oDFv2xBvAwZiJ2g9zBbOKIhkt6et3UmM20LysOXhwcBAAEDQMhfjKm6ws5Qc/X5gY4TBMO13/gplaz5YOJh3yzoo9QzVosRMbVrjnhRrsnM0Lisfb9/n7GsWXB/EHWDqA5sDQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaLhvkd1Ocez3Od33XqvMlZEoU8VamWwcuPvI+4EeNAMCAgIAAAwCAAAAECcAAAAAAAACAgABDAIAAABAQg8AAAAAAA==",
-    {
-      "encoding": "base64",
-      "skipPreflight": true,
-      "maxRetries": 0
-    }
-  ]
-};
-
-// Send to nearest endpoint
-const response = await fetch('http://slc-sender.helius-rpc.com/fast', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(senderRequest)
-});
-
-const result = await response.json();
-console.log('Transaction signature:', result.result);
-```
-
-## Requirements
-
-### 1. Skip Preflight (Mandatory)
-
-The `skipPreflight` parameter **must** be set to `true`. This endpoint is optimized for traders who prioritize speed over transaction validation.
-
-```typescript
-{
-  "skipPreflight": true  // Required: must be true
-}
-```
-
-<Warning>
-Since preflight checks are skipped, ensure your transactions are properly constructed and funded before submission. Invalid transactions will be rejected by the network after submission.
-</Warning>
-
-### 2. Minimum Tip Requirement
-
-All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito infrastructure simultaneously.
-
-#### Why Tips Are Required
-
-Tips serve multiple purposes in Sender's dual routing system:
-
-1. **Jito Infrastructure Access**: Jito infrastructure uses tips to determine transaction priority in their block building processes  
-2. **Network Efficiency**: Tips help reduce spam and ensure only serious transactions use the fast routing service
-3. **Validator Incentives**: Tips compensate validators for processing your transaction with higher priority
-
-#### How Tips Work
-
-When you include a tip in your transaction:
-- **Jito Infrastructure**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
-- **Dual Benefit**: Since Sender sends to both systems simultaneously, your tipped transaction has multiple pathways to be included quickly
-
-#### Tip Amount Guidelines
-
-- **Minimum**: 0.001 SOL (required for Sender to accept your transaction)
-- **Recommended**: Slightly above minimum (0.0015-0.002 SOL) for better prioritization during network congestion
-- **High Priority**: During peak congestion, consider 0.005+ SOL for maximum priority
-
-```typescript
-const TIP_ACCOUNTS = [
-  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
-  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
-  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
-  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
-  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
-  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
-  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
-  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
-  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
-  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
-];
-
-// Example: Dynamic tip based on network conditions
-const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
-  switch (networkCongestion) {
-    case 'low': return 0.001;      // Minimum required
-    case 'medium': return 0.002;   // Better priority
-    case 'high': return 0.005;     // Maximum priority
-    default: return 0.001;
-  }
-};
-```
-
-<Note>
-**Important**: The tip is a separate SOL transfer instruction that must be added to your transaction. It's not a priority fee in the traditional Solana sense, but rather a direct payment that enables access to Sender's dual routing system.
-</Note>
-
-## Complete Implementation Example
-
-Here's a full example showing how to construct and send a transaction with Sender including proper tipping:
+### Complete Implementation Example
 
 ```typescript
 import { 
@@ -171,26 +152,26 @@ import {
   SystemProgram, 
   PublicKey,
   Keypair,
-  LAMPORTS_PER_SOL
+  LAMPORTS_PER_SOL,
+  ComputeBudgetProgram
 } from '@solana/web3.js';
 
 async function sendWithSender() {
-  // Your transaction logic here
   const senderKeypair = Keypair.fromSecretKey(/* your secret key */);
   const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
   
-  // Get recent blockhash
-  const { blockhash } = await connection.getLatestBlockhash();
+  // 1. Get recent blockhash with proper commitment
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
   
-  // Create transaction with your main logic
+  // 2. Create transaction with your main instructions
   const transaction = new Transaction();
   
   // Add your main transaction instructions here
   // transaction.add(yourMainInstruction);
   
-  // Add required tip (minimum 0.001 SOL)
+  // 3. Add required tip (minimum 0.001 SOL)
   const tipAccount = new PublicKey("4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE");
-  const tipAmount = 0.001 * LAMPORTS_PER_SOL; // 0.001 SOL minimum
+  const tipAmount = 0.001 * LAMPORTS_PER_SOL;
   
   transaction.add(
     SystemProgram.transfer({
@@ -200,14 +181,19 @@ async function sendWithSender() {
     })
   );
   
-  // Set recent blockhash and sign
+  // 4. Optimize compute units (optional but recommended)
+  transaction.add(
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 300_000 }) // Adjust based on your needs
+  );
+  
+  // 5. Set recent blockhash and sign
   transaction.recentBlockhash = blockhash;
   transaction.sign(senderKeypair);
   
-  // Serialize transaction
+  // 6. Serialize transaction
   const serializedTx = transaction.serialize().toString('base64');
   
-  // Send via Sender endpoint
+  // 7. Send via Sender endpoint
   const senderRequest = {
     "id": Date.now().toString(),
     "jsonrpc": "2.0",
@@ -216,8 +202,8 @@ async function sendWithSender() {
       serializedTx,
       {
         "encoding": "base64",
-        "skipPreflight": true,
-        "maxRetries": 0
+        "skipPreflight": true,       // Required
+        "maxRetries": 0              // Implement your own retry logic
       }
     ]
   };
@@ -240,110 +226,98 @@ async function sendWithSender() {
     }
     
     console.log('Transaction sent successfully:', result.result);
-    return result.result; // Transaction signature
+    
+    // 8. Monitor confirmation
+    await monitorTransaction(result.result, connection, lastValidBlockHeight);
+    
+    return result.result;
     
   } catch (error) {
     console.error('Request failed:', error);
     return null;
   }
 }
+
+// Proper confirmation monitoring
+async function monitorTransaction(
+  signature: string, 
+  connection: Connection, 
+  lastValidBlockHeight: number
+) {
+  let blockHeight = await connection.getBlockHeight();
+  
+  while (blockHeight < lastValidBlockHeight) {
+    const confirmation = await connection.confirmTransaction({
+      signature,
+      blockhash: transaction.recentBlockhash,
+      lastValidBlockHeight
+    }, 'confirmed');
+    
+    if (confirmation.value.err) {
+      throw new Error(`Transaction failed: ${confirmation.value.err}`);
+    }
+    
+    if (confirmation.value.confirmationStatus === 'confirmed') {
+      console.log('Transaction confirmed:', signature);
+      return true;
+    }
+    
+    // Wait before checking again
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    blockHeight = await connection.getBlockHeight();
+  }
+  
+  throw new Error('Transaction expired');
+}
 ```
+
+### Dynamic Tip Amounts
+
+```typescript
+// Adjust tip based on network conditions
+const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
+  const tipAmounts = {
+    'low': 0.001,      // Minimum required
+    'medium': 0.002,   // Better priority
+    'high': 0.005      // Maximum priority
+  };
+  return tipAmounts[networkCongestion] * LAMPORTS_PER_SOL;
+};
+
+// Usage
+const tipAmount = getTipAmount('medium');
+```
+
+
+
+## Best Practices
+
+### Endpoint Selection
+Choose the endpoint closest to your infrastructure:
+- **US West**: `slc-sender` (Salt Lake City)  
+- **US East**: `ewr-sender` (Newark) or `pitt-sender` (Pittsburgh)
+- **Europe**: `fra-sender` (Frankfurt) or `ams-sender` (Amsterdam)
+- **Asia**: `sg-sender` (Singapore) or `tyo-sender` (Tokyo)
+
+For optimal latency, consider co-locating with Helius servers in Frankfurt or Pittsburgh.
+
+### Transaction Setup
+- Use `skipPreflight: true` and `maxRetries: 0`
+- Include minimum 0.001 SOL tip to designated accounts
+- Fetch blockhash with `'confirmed'` commitment
+- Implement your own retry logic
+- Set appropriate compute unit limits
 
 ## Rate Limits and Scaling
 
 - **Default Rate Limit**: 5 transactions per second
 - **No Credit Usage**: Sender transactions don't consume API credits from your plan
 
-## Best Practices
-
-### Endpoint Selection
-Choose the endpoint closest to your infrastructure:
-- **US West**: Use `slc-sender` (Salt Lake City)  
-- **US East**: Use `ewr-sender` (Newark) or `pitt-sender` (Pittsburgh)
-- **Europe**: Use `fra-sender` (Frankfurt) or `ams-sender` (Amsterdam)
-- **Asia**: Use `sg-sender` (Singapore) or `tyo-sender` (Tokyo)
-
-### Transaction Construction
-1. **Minimize Transaction Size**: Smaller transactions propagate faster
-2. **Optimal Tip Amount**: Use slightly above minimum (0.001 SOL) for better prioritization
-3. **Recent Blockhash**: Always use the most recent blockhash possible
-4. **Proper Signing**: Ensure all required signatures are present
-
-### Error Handling
-```typescript
-async function handleSenderTransaction(serializedTx: string) {
-  const endpoints = [
-    'http://slc-sender.helius-rpc.com/fast',
-    'http://ewr-sender.helius-rpc.com/fast', // Fallback
-  ];
-  
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: Date.now().toString(),
-          jsonrpc: "2.0",
-          method: "sendTransaction",
-          params: [serializedTx, { 
-            encoding: "base64", 
-            skipPreflight: true, 
-            maxRetries: 0 
-          }]
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (!result.error) {
-        return result.result;
-      }
-      
-      console.warn(`Endpoint ${endpoint} failed:`, result.error);
-      
-    } catch (error) {
-      console.warn(`Endpoint ${endpoint} unreachable:`, error);
-      continue; // Try next endpoint
-    }
-  }
-  
-  throw new Error('All Sender endpoints failed');
-}
-```
-
-## Monitoring and Confirmation
-
-Since Sender transactions skip preflight checks, implement proper monitoring:
-
-```typescript
-async function monitorTransaction(signature: string) {
-  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
-  
-  // Wait for confirmation
-  const confirmation = await connection.confirmTransaction(signature, 'confirmed');
-  
-  if (confirmation.value.err) {
-    console.error('Transaction failed:', confirmation.value.err);
-    return false;
-  }
-  
-  console.log('Transaction confirmed:', signature);
-  return true;
-}
-
-// Usage
-const signature = await sendWithSender();
-if (signature) {
-  await monitorTransaction(signature);
-}
-```
-
 ## Support and Scaling
 
 For production deployments requiring higher throughput:
 
-1. **Create Support Ticket**: Include your expected TPS and use case
+1. **Create Support Ticket**: Include your expected TPS and use case details
 2. **Provide Metrics**: Share your current transaction patterns  
 3. **Geographic Requirements**: Specify which regions you need priority access
 
