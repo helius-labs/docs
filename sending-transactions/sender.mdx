@@ -1,8 +1,8 @@
 ---
 title: "Sender"
-sidebarTitle: "Sender"
-description: "Send transactions with optimized routing and reduced latency using Helius Sender endpoints."
-"og:description": "Learn how to use Helius Sender endpoints for high-speed transaction submission with global routing and trader-optimized features."
+sidebarTitle: "Helius Sender"
+description: "Ultra-low latency transaction submission with dual routing to validators and Jito infrastructure. No credits consumed, global endpoints, optimized for high-frequency trading."
+"og:description": "Learn how to use Helius Sender for ultra-low latency transaction submission with dual routing, no credit usage, and global endpoints optimized for traders."
 ---
 
 ## Overview
@@ -37,7 +37,7 @@ These endpoints only support HTTP connections (not HTTPS). Choose the endpoint c
 
 ## Usage
 
-The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance.
+The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance. **All transactions must include a minimum 0.001 SOL tip and skip preflight checks.**
 
 ### Basic Request Format
 
@@ -47,15 +47,19 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
   "jsonrpc": "2.0", 
   "method": "sendTransaction",
   "params": [
-    "BASE64_ENCODED_TRANSACTION",
+    "BASE64_ENCODED_TRANSACTION", // Must include 0.001 SOL tip instruction
     {
       "encoding": "base64",
-      "skipPreflight": true,
+      "skipPreflight": true,       // Required: must be true
       "maxRetries": 0
     }
   ]
 }
 ```
+
+<Warning>
+The `BASE64_ENCODED_TRANSACTION` above must contain a SOL transfer instruction with a minimum 0.001 SOL tip to one of the designated tip accounts. Without this tip, your transaction will be rejected.
+</Warning>
 
 ### Example Request
 
