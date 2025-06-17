@@ -236,7 +236,11 @@ async function sendWithSender(
 sendWithSender(Keypair.fromSecretKey(bs58.decode(PRIV_B58)), RECIPIENT);
 ```
 
-<Accordion title="Advanced Example with Optimizations">
+### Advanced Example with Dynamic Optimization
+
+The advanced example improves on the simple version with dynamic Jito tips (75th percentile), automatic compute unit calculation, dynamic priority fees, and retry logic.
+
+<Accordion title="Advanced Example with Dynamic Optimization">
 
 ```typescript
 import { 
@@ -265,6 +269,25 @@ const TIP_ACCOUNTS = [
   "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
 ];
 
+async function getDynamicTipAmount(): Promise<number> {
+  try {
+    const response = await fetch('https://bundles.jito.wtf/api/v1/bundles/tip_floor');
+    const data = await response.json();
+    
+    if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
+      const tip75th = data[0].landed_tips_75th_percentile;
+      // Use 75th percentile but minimum 0.001 SOL
+      return Math.max(tip75th, 0.001);
+    }
+    
+    // Fallback if API fails or data is invalid
+    return 0.001;
+  } catch (error) {
+    console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
+    return 0.001; // Fallback to minimum
+  }
+}
+
 async function sendWithSender(
   keypair: Keypair, 
   instructions: TransactionInstruction[]
@@ -282,13 +305,17 @@ async function sendWithSender(
   // Create copy of instructions to avoid modifying the original array
   const allInstructions = [...instructions];
   
-  // Add required tip to random tip account (minimum 0.001 SOL for Sender)
+  // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+  const tipAmountSOL = await getDynamicTipAmount();
   const tipAccount = new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]);
+  
+  console.log(`Using dynamic tip amount: ${tipAmountSOL} SOL`);
+  
   allInstructions.push(
     SystemProgram.transfer({
       fromPubkey: keypair.publicKey,
       toPubkey: tipAccount,
-      lamports: 0.001 * LAMPORTS_PER_SOL,
+      lamports: tipAmountSOL * LAMPORTS_PER_SOL,
     })
   );
   
