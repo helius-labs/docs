@@ -27,7 +27,7 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include Jito tips (minimum 0.001 SOL) and skip preflight checks.
+**Mandatory Requirements**: All transactions must include Jito tips (minimum 0.001 SOL), priority fees, and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -70,31 +70,7 @@ All transactions submitted through Sender **must include both Jito tips and prio
 - **Standard**: 0.001-0.005 SOL depending on network activity
 - **High Priority**: 0.01+ SOL during peak congestion
 
-**Priority Fee Recommendations**:
-- **Low Congestion**: 10,000-50,000 microLamports per CU
-- **Medium Congestion**: 50,000-200,000 microLamports per CU  
-- **High Congestion**: 200,000+ microLamports per CU
-
-Need a dynamic estimate instead of hard-coding numbers? Check out the [Helius Priority Fee API](/priority-fee) for real-time recommendations.
-
-```typescript
-const TIP_ACCOUNTS = [
-  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
-  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
-  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
-  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
-  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
-  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
-  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
-  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
-  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
-  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
-];
-```
-
-<Note>
-**Important**: Jito tips are separate SOL transfer instructions, while priority fees are set via `ComputeBudgetProgram.setComputeUnitPrice`. Both are required for Sender's dual routing system; tips for Jito auction access and priority fees to boost validator prioritization.
-</Note>
+**Priority Fees**: Use the [Helius Priority Fee API](/priority-fee) for real-time fee recommendations.
 
 ## Endpoints
 
