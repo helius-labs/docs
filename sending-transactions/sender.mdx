@@ -48,16 +48,26 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 All transactions submitted through Sender **must include both Jito tips and priority fees**:
 
-- **Jito Tips**: Minimum 0.001 SOL transfer to designated tip accounts (required for Jito auction)
+- **Jito Tips**: Minimum 0.001 SOL transfer to a designated tip account (required for Jito auction)
+
+<Accordion title="Designated Jito Tip Accounts (mainnet-beta)">
+```text
+4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE
+D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ
+9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta
+5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn
+2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD
+2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ
+wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
+3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT
+4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey
+4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or
+```
+</Accordion>
+
 - **Priority Fees**: Compute unit pricing via `ComputeBudgetProgram.setComputeUnitPrice` to prioritize your transaction in the validator queue
 
 #### Why Both Are Required
-
-**Jito Tips**: Required for participation in Jito's auction mechanism—see the [tip guidelines](https://docs.jito.wtf/lowlatencytxnsend/#tips) for details.
-
-**Priority Fees**: Increase your transaction's priority in Solana's scheduling. While not strictly required by the protocol, they significantly speed up confirmation during network congestion.
-
-#### How Tips and Priority Fees Work
 
 - **Jito Tips**: Enable access to Jito's MEV infrastructure and auction-based transaction inclusion.
 - **Priority Fees**: Signal to validators your willingness to pay for priority processing through Solana's native prioritization system.
@@ -65,10 +75,7 @@ All transactions submitted through Sender **must include both Jito tips and prio
 
 #### Tip and Priority Fee Guidelines
 
-**Jito Tips** (see [tip recommendations](https://docs.jito.wtf/lowlatencytxnsend/#tips)):
-- **Minimum**: 0.001 SOL (required for auction participation)
-- **Standard**: 0.001-0.005 SOL depending on network activity
-- **High Priority**: 0.01+ SOL during peak congestion
+**Jito Tips**: Minimum 0.001 SOL is mandatory for auction participation. For current best-practice tip sizing, see the [Jito tip guidelines](https://docs.jito.wtf/lowlatencytxnsend/#tips).
 
 **Priority Fees**: Use the [Helius Priority Fee API](/priority-fee) for real-time fee recommendations.
 
