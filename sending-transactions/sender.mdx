@@ -27,7 +27,7 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include a minimum 0.001 SOL tip and skip preflight checks.
+**Mandatory Requirements**: All transactions must include Jito tips (minimum 0.001 SOL) and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -44,31 +44,38 @@ The `skipPreflight` parameter **must** be set to `true`. Sender is optimized for
 Since preflight checks are skipped, ensure your transactions are properly constructed and funded before submission. Invalid transactions will be rejected by the network after submission.
 </Warning>
 
-### 2. Minimum Tip Requirement
+### 2. Tips and Priority Fees Required
 
-All transactions submitted through Sender **must include a SOL transfer with a minimum tip of 0.001 SOL** to one of the designated tip accounts. This requirement exists because Sender routes your transactions through both regular Solana validators and Jito simultaneously.
+All transactions submitted through Sender **must include both Jito tips and priority fees**:
 
-#### Why Tips Are Required
+- **Jito Tips**: Minimum 0.001 SOL transfer to designated tip accounts (required for Jito auction)
+- **Priority Fees**: Compute unit pricing via `ComputeBudgetProgram.setComputeUnitPrice` to prioritize your transaction in the validator queue
 
-Tips serve multiple purposes in Sender's dual routing system:
+#### Why Both Are Required
 
-1. **Transaction Prioritization**: Tips signal to validators that your transaction should be prioritized over others in the mempool
-2. **Jito Access**: Jito uses tips to determine transaction priority in their block building processes  
-3. **Network Efficiency**: Tips help reduce spam and ensure only serious transactions use the fast routing service
-4. **Validator Incentives**: Tips compensate validators for processing your transaction with higher priority
+**Jito Tips**: Required for participation in Jito's auction mechanism—see the [tip guidelines](https://docs.jito.wtf/lowlatencytxnsend/#tips) for details.
 
-#### How Tips Work
+**Priority Fees**: Increase your transaction's priority in Solana's scheduling. While not strictly required by the protocol, they significantly speed up confirmation during network congestion.
 
-When you include a tip in your transaction:
-- **Regular Validators**: See the tip as a priority fee signal and are more likely to include your transaction in their blocks
-- **Jito**: Uses tips in their auction mechanism to determine which transactions get priority placement in blocks
-- **Dual Benefit**: Since Sender sends to both systems simultaneously, your tipped transaction has multiple pathways to be included quickly
+#### How Tips and Priority Fees Work
 
-#### Tip Amount Guidelines
+- **Jito Tips**: Enable access to Jito's MEV infrastructure and auction-based transaction inclusion.
+- **Priority Fees**: Signal to validators your willingness to pay for priority processing through Solana's native prioritization system.
+- **Dual Benefit**: Tips give you access to Jito's MEV auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability.
 
-- **Minimum**: 0.001 SOL (required for Sender to accept your transaction)
-- **Recommended**: Slightly above minimum (0.0015-0.002 SOL) for better prioritization during network congestion
-- **High Priority**: During peak congestion, consider 0.005+ SOL for maximum priority
+#### Tip and Priority Fee Guidelines
+
+**Jito Tips** (see [tip recommendations](https://docs.jito.wtf/lowlatencytxnsend/#tips)):
+- **Minimum**: 0.001 SOL (required for auction participation)
+- **Standard**: 0.001-0.005 SOL depending on network activity
+- **High Priority**: 0.01+ SOL during peak congestion
+
+**Priority Fee Recommendations**:
+- **Low Congestion**: 10,000-50,000 microLamports per CU
+- **Medium Congestion**: 50,000-200,000 microLamports per CU  
+- **High Congestion**: 200,000+ microLamports per CU
+
+Need a dynamic estimate instead of hard-coding numbers? Check out the [Helius Priority Fee API](/priority-fee) for real-time recommendations.
 
 ```typescript
 const TIP_ACCOUNTS = [
@@ -83,20 +90,10 @@ const TIP_ACCOUNTS = [
   "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
   "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
 ];
-
-// Example: Dynamic tip based on network conditions
-const getTipAmount = (networkCongestion: 'low' | 'medium' | 'high') => {
-  switch (networkCongestion) {
-    case 'low': return 0.001;      // Minimum required
-    case 'medium': return 0.002;   // Better priority
-    case 'high': return 0.005;     // Maximum priority
-    default: return 0.001;
-  }
-};
 ```
 
 <Note>
-**Important**: The tip is a separate SOL transfer instruction that must be added to your transaction. It's not a priority fee in the traditional Solana sense, but rather a direct payment that enables access to Sender's dual routing system.
+**Important**: Jito tips are separate SOL transfer instructions, while priority fees are set via `ComputeBudgetProgram.setComputeUnitPrice`. Both are required for Sender's dual routing system; tips for Jito auction access and priority fees to boost validator prioritization.
 </Note>
 
 ## Endpoints
@@ -119,7 +116,7 @@ These endpoints only support HTTP connections (not HTTPS). Choose the endpoint c
 
 ## Usage
 
-The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance. **All transactions must include a minimum 0.001 SOL tip and skip preflight checks.**
+The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance. **All transactions must include both Jito tips (minimum 0.001 SOL) and priority fees, plus skip preflight checks.**
 
 ### Basic Request Format
 
@@ -129,7 +126,7 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
   "jsonrpc": "2.0", 
   "method": "sendTransaction",
   "params": [
-    "BASE64_ENCODED_TRANSACTION", // Must include 0.001 SOL tip instruction
+    "BASE64_ENCODED_TRANSACTION", // Must include both tip and priority fee instructions
     {
       "encoding": "base64",
       "skipPreflight": true,       // Required: must be true
@@ -140,7 +137,7 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
 ```
 
 <Warning>
-The `BASE64_ENCODED_TRANSACTION` above must contain a SOL transfer instruction with a minimum 0.001 SOL tip to one of the designated tip accounts. Without this tip, your transaction will be rejected.
+The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruction with minimum 0.001 SOL tip to designated tip accounts AND a compute unit price instruction. Without both requirements, your transaction will be rejected.
 </Warning>
 
 ### Simple Example
@@ -208,11 +205,31 @@ async function sendWithSender(
 
   // Sign transaction
   transaction.sign([keypair]);
-  console.log('Sending transaction...');
-  
-  const signature = await connection.sendTransaction(transaction, { 
-    skipPreflight: true 
+  console.log('Sending transaction via Sender endpoint...');
+
+  const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast'; // choose the region closest to your servers
+  const response = await fetch(SENDER_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: Date.now().toString(),
+      method: 'sendTransaction',
+      params: [
+        Buffer.from(transaction.serialize()).toString('base64'),
+        {
+          encoding: 'base64',
+          skipPreflight: true, // Required for Sender
+          maxRetries: 0
+        }
+      ]
+    })
   });
+  const json = await response.json();
+  if (json.error) {
+    throw new Error(json.error.message);
+  }
+  const signature = json.result;
   console.log('Transaction sent:', signature);
   
   // Confirmation check
@@ -498,19 +515,21 @@ export { sendWithSender };
 ## Best Practices
 
 ### Endpoint Selection
-Choose the endpoint closest to your infrastructure:
-- **US West**: `slc-sender` (Salt Lake City)  
-- **US East**: `ewr-sender` (Newark) or `pitt-sender` (Pittsburgh)
-- **Europe**: `fra-sender` (Frankfurt) or `ams-sender` (Amsterdam)
-- **Asia**: `sg-sender` (Singapore) or `tyo-sender` (Tokyo)
+- **Salt Lake City**: `slc-sender.helius-rpc.com/fast`
+- **Newark**: `ewr-sender.helius-rpc.com/fast`
+- **Pittsburgh**: `pitt-sender.helius-rpc.com/fast`
+- **Frankfurt**: `fra-sender.helius-rpc.com/fast`
+- **Amsterdam**: `ams-sender.helius-rpc.com/fast`
+- **Singapore**: `sg-sender.helius-rpc.com/fast`
+- **Tokyo**: `tyo-sender.helius-rpc.com/fast`
 
 For optimal latency, consider co-locating with Helius servers in Frankfurt or Pittsburgh.
 
 ### Transaction Setup
 - Use `skipPreflight: true` and `maxRetries: 0`
+- Implement your own retry logic
 - Include minimum 0.001 SOL tip to designated accounts
 - Fetch blockhash with `'confirmed'` commitment
-- Implement your own retry logic
 - Set appropriate compute unit limits
 
 ## Rate Limits and Scaling
