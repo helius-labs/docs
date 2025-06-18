@@ -1,9 +1,9 @@
 ---
 title: "How to Get Devnet SOL"
-description: "Sign in to your Helius account and visit our Solana devnet faucet to get free devnet SOL for testing your Solana programs."
+description: "Sign in to your Helius account and visit our Solana Devnet faucet to get free Devnet SOL for testing your Solana programs."
 ---
 
-Solana devnet is a testing environment that replicates the mainnet for developers to test their applications without using real SOL. Devnet SOL is used for testing transactions, deploying programs, and experimenting with dApps before going live on mainnet.
+Solana Devnet is a testing environment that replicates Solana Mainnet Beta for developers to test their applications without using real SOL. Devnet SOL is used for testing transactions, deploying programs, and experimenting with on-chain apps before going live on Solana Mainnet Beta.
 
 ## How to Get Devnet SOL from the CLI
 
@@ -11,8 +11,8 @@ Solana devnet is a testing environment that replicates the mainnet for developer
 
 To use the CLI method, ensure you have:
 
-- **Solana CLI**: [Install the Solana CLI tools](https://solana.com/docs/intro/installation#install-the-solana-cli)
-- **Helius Devnet RPC Endpoint**: Your Helius devnet RPC URL from your dashboard
+- **Solana CLI**: [install the Solana CLI tools](https://solana.com/docs/intro/installation#install-the-solana-cli)
+- **Helius Devnet RPC Endpoint**: get your [Devnet RPC URL](https://dashboard.helius.dev/endpoints) from your dashboard
 
 ### Step 1: Check your default keypair
 
@@ -30,7 +30,7 @@ solana-keygen new
 
 ### Step 2: Set your CLI config to use the Helius Devnet RPC endpoint
 
-Configure your Solana CLI to use your Helius devnet endpoint:
+Configure your Solana CLI to use your Helius Devnet RPC URL:
 
 ```bash
 solana config set --url https://devnet.helius-rpc.com/?api-key=<your-api-key>
@@ -42,9 +42,9 @@ Verify your configuration:
 solana config get
 ```
 
-### Step 3: Request Devnet SOL Airdrop
+### Step 3: Request a Devnet SOL airdrop
 
-Request an airdrop of devnet SOL to your wallet:
+Request an airdrop of Devnet SOL to your wallet:
 
 ```bash
 solana airdrop 0.5
@@ -52,7 +52,7 @@ solana airdrop 0.5
 
 ### Step 4: Check your balance
 
-Verify that the devnet SOL was successfully added to your wallet:
+Verify that the Devnet SOL was successfully added to your wallet:
 
 ```bash
 solana balance
@@ -60,38 +60,40 @@ solana balance
 
 ## How to Get Devnet SOL from the UI
 
-### Step 1: Log into your dashboard
+### Step 1: Log in to your dashboard
 
-Navigate to [Helius Dashboard](https://dashboard.helius.dev) and sign in to your Helius account.
+Sign in to your [Helius Dashboard](https://dashboard.helius.dev).
 
 ### Step 2: Go to the Devnet Faucet page
 
-In your dashboard navigation, click on "Devnet Faucet" to access the [devnet faucet](https://dashboard.helius.dev/faucet) page.
+In the sidebar navigation menu, click "Faucet" to access the [Devnet faucet](https://dashboard.helius.dev/faucet) page.
 
 <Frame>
-  <img src="/images/helius-devnet-faucet.png" alt="Devnet faucet location in dashboard navigation" />
+  ![Devnet faucet location in dashboard navigation](/images/helius-devnet-faucet.png)
 </Frame>
 
-### Step 3: Enter Your Solana Address
+### Step 3: Enter your Solana address
 
 Enter your Solana wallet address in the provided field. You can get your wallet address from your Solana CLI using `solana address` or copy it from your wallet application.
 
 ### Step 4: Request Devnet SOL
 
-Click "Airdrop 1 SOL" to receive your devnet tokens.
+Click "Airdrop 1 SOL" to receive your Devnet tokens.
+
 ### Step 5: Verify the transaction
 
-Once the request is processed, you'll see a confirmation message with the transaction signature. You can verify the transaction on a Solana explorer or check your wallet balance.
+Once your request is processed, you'll see a confirmation message with the transaction signature. You can verify the transaction on a [Solana explorer](https://orb.helius.dev/) or check your wallet balance.
 
 ## Conclusion
 
-Getting devnet SOL is essential for testing your Solana applications safely before deploying to mainnet. You can obtain devnet SOL through either the Solana CLI or the convenient Helius dashboard faucet, with daily limits based on your account tier.
+Getting Devnet SOL is essential for testing your Solana applications safely before deploying to mainnet. You can obtain Devnet SOL through either the Solana CLI or the Solana Devnet faucet in your dashboard, with daily limits based on your account tier.
 
 ### Next Steps
 
-Now that you've connected to Helius RPC nodes, you can:
+Continue learning about Solana development with these guides and references:
 
-- Explore [RPC optimization techniques](/rpc/optimization-techniques)
-- Learn about [Dedicated Nodes](/dedicated-nodes) for high-performance applications
-- Check out our [API Reference](/api-reference) for all available RPC methods
-- Understand [pricing and rate limits](/billing/plans-and-rate-limits) for your Helius plan 
+- [Maximize RPC performance](/rpc/optimization-techniques)
+- Land transactions using [Sender](/sending-transactions/sender)
+- Stream real-time data using [LaserStream](/laserstream)
+- Explore and test [API Reference](/api-reference) for all RPC methods
+- Understand [pricing and rate limits](/billing/plans-and-rate-limits) for your Helius plan
