@@ -19,36 +19,42 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
 <table>
   <thead align="left">
     <tr>
-      <th width="300">Service</th>
-      <th width="120">Credits</th>
-      <th>Notes</th>
+      <th width="320">Service</th>
+      <th width="80">Credits</th>
+      <th>Description</th>
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td colspan="3"><strong>🟢 Basic Services (1 Credit)</strong></td>
+    </tr>
     <tr>
       <td><strong>Standard RPC Calls</strong></td>
       <td>1</td>
       <td>All RPC calls except those listed separately</td>
     </tr>
     <tr>
-      <td><code>getProgramAccounts</code></td>
-      <td>10</td>
-      <td>Higher complexity call</td>
-    </tr>
-    <tr>
       <td><strong>Priority Fee API</strong></td>
       <td>1</td>
-      <td>Fee estimation</td>
+      <td>Fee estimation and optimization</td>
     </tr>
     <tr>
-      <td><strong>Sender</strong></td>
-      <td>0</td>
-      <td>Ultra-low latency transaction submission - no credits consumed</td>
+      <td><strong>Webhook Event Delivery</strong></td>
+      <td>1</td>
+      <td>Per event push notification</td>
+    </tr>
+    <tr>
+      <td colspan="3"><strong>🟡 Medium Complexity Services (3-10 Credits)</strong></td>
     </tr>
     <tr>
       <td><strong>LaserStream gRPC</strong></td>
       <td>3</td>
       <td>Per 0.1MB of data. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB)</td>
+    </tr>
+    <tr>
+      <td><code>getProgramAccounts</code></td>
+      <td>10</td>
+      <td>Higher complexity RPC call</td>
     </tr>
     <tr>
       <td><strong>Archival Calls</strong></td>
@@ -61,14 +67,12 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
       <td>Standard compression calls</td>
     </tr>
     <tr>
-      <td><strong>Enhanced Transactions API</strong></td>
-      <td>100</td>
-      <td>Enhanced transaction parsing</td>
+      <td colspan="3"><strong>🔴 High Complexity Services (100 Credits)</strong></td>
     </tr>
     <tr>
-      <td><strong>Webhook Event Delivery</strong></td>
-      <td>1</td>
-      <td>Per event push</td>
+      <td><strong>Enhanced Transactions API</strong></td>
+      <td>100</td>
+      <td>Enhanced transaction parsing and analysis</td>
     </tr>
     <tr>
       <td><strong>Webhook Management API</strong></td>
@@ -78,7 +82,15 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
     <tr>
       <td><code>getValidityProofs</code></td>
       <td>100</td>
-      <td>Higher computation required</td>
+      <td>Higher computation required for ZK proofs</td>
+    </tr>
+    <tr>
+      <td colspan="3"><strong>🆓 Free Services (0 Credits)</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Sender</strong></td>
+      <td>0</td>
+      <td>Ultra-low latency transaction submission - no credits consumed</td>
     </tr>
   </tbody>
 </table>
