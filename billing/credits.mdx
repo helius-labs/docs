@@ -17,67 +17,67 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
 ### Standard Services
 
 <table>
-  <thead align="left">
+  <thead>
     <tr>
-      <th width="300">Service</th>
-      <th width="120">Credits</th>
+      <th style={{width: '320px'}}>Service</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
       <th>Notes</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><strong>Standard RPC Calls</strong></td>
-      <td>1</td>
-      <td>All RPC calls except those listed separately</td>
-    </tr>
-    <tr>
-      <td><code>getProgramAccounts</code></td>
-      <td>10</td>
-      <td>Higher complexity call</td>
-    </tr>
-    <tr>
-      <td><strong>Priority Fee API</strong></td>
-      <td>1</td>
-      <td>Fee estimation</td>
-    </tr>
-    <tr>
       <td><strong>Sender</strong></td>
-      <td>0</td>
+      <td style={{textAlign: 'center'}}>0</td>
       <td>Ultra-low latency transaction submission - no credits consumed</td>
     </tr>
     <tr>
+      <td><strong>Standard RPC Calls</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>All RPC calls except those listed separately</td>
+    </tr>
+    <tr>
+      <td><strong>Priority Fee API</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Fee estimation</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Event Delivery</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Per event push</td>
+    </tr>
+    <tr>
       <td><strong>LaserStream gRPC</strong></td>
-      <td>3</td>
+      <td style={{textAlign: 'center'}}>3</td>
       <td>Per 0.1MB of data. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB)</td>
     </tr>
     <tr>
+      <td><strong>getProgramAccounts</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Higher complexity call</td>
+    </tr>
+    <tr>
       <td><strong>Archival Calls</strong></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Historical data queries (blocks, transactions, etc.)</td>
     </tr>
     <tr>
       <td><strong>ZK Compression API</strong></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Standard compression calls</td>
     </tr>
     <tr>
       <td><strong>Enhanced Transactions API</strong></td>
-      <td>100</td>
+      <td style={{textAlign: 'center'}}>100</td>
       <td>Enhanced transaction parsing</td>
     </tr>
     <tr>
-      <td><strong>Webhook Event Delivery</strong></td>
-      <td>1</td>
-      <td>Per event push</td>
-    </tr>
-    <tr>
       <td><strong>Webhook Management API</strong></td>
-      <td>100</td>
+      <td style={{textAlign: 'center'}}>100</td>
       <td>Create, update, delete webhooks</td>
     </tr>
     <tr>
-      <td><code>getValidityProofs</code></td>
-      <td>100</td>
+      <td><strong>getValidityProofs</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
       <td>Higher computation required</td>
     </tr>
   </tbody>
@@ -86,23 +86,23 @@ Credits are the measurement unit for API usage on Helius. Each API call consumes
 ### Transaction Submission (`sendTransaction`)
 
 <table>
-  <thead align="left">
+  <thead>
     <tr>
-      <th width="300">Method</th>
-      <th width="120">Credits</th>
+      <th style={{width: '320px'}}>Method</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
       <th>Description</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><strong>Staked Connections</strong> (Default)</td>
-      <td>10</td>
-      <td>Via <code>mainnet.helius-rpc.com</code> - highest reliability</td>
+      <td><strong>Unstaked Connections</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Via <code>unstaked.helius-rpc.com</code> - may be unreliable during congestion</td>
     </tr>
     <tr>
-      <td><strong>Unstaked Connections</strong></td>
-      <td>1</td>
-      <td>Via <code>unstaked.helius-rpc.com</code> - may be unreliable during congestion</td>
+      <td><strong>Staked Connections</strong> (Default)</td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Via <code>mainnet.helius-rpc.com</code> - highest reliability</td>
     </tr>
   </tbody>
 </table>
@@ -116,43 +116,43 @@ All transactions via `mainnet.helius-rpc.com` now use staked connections automat
 ### Archival & Historical Data
 
 <table>
-  <thead align="left">
+  <thead>
     <tr>
-      <th width="300">API Call</th>
-      <th width="120">Credits</th>
+      <th style={{width: '320px'}}>API Call</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
       <th>Purpose</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><code>getTransaction</code></td>
-      <td>10</td>
-      <td>Historical transaction data</td>
-    </tr>
-    <tr>
       <td><code>getBlock</code></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Block information</td>
     </tr>
     <tr>
       <td><code>getBlocks</code></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Multiple blocks</td>
     </tr>
     <tr>
+      <td><code>getBlockTime</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Block timestamp</td>
+    </tr>
+    <tr>
       <td><code>getInflationReward</code></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Staking rewards</td>
     </tr>
     <tr>
       <td><code>getSignaturesForAddress</code></td>
-      <td>10</td>
+      <td style={{textAlign: 'center'}}>10</td>
       <td>Address transaction history</td>
     </tr>
     <tr>
-      <td><code>getBlockTime</code></td>
-      <td>10</td>
-      <td>Block timestamp</td>
+      <td><code>getTransaction</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Historical transaction data</td>
     </tr>
   </tbody>
 </table>
