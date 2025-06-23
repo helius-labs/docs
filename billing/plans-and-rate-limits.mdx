@@ -1,17 +1,20 @@
 ---
-title: "Plans & Rate Limits"
-description: "Flexible pricing for all your needs. Switch plans or cancel at anytime. Start in under 5 seconds."
+title: "Plans, Rate Limits & Credits"
+description: "Solana RPC API pricing plans with flexible rate limits and credit-based billing. Global infrastructure across 11+ locations. Free tier available for developers."
 ---
 
-## Standard Plans
+
+## Choose Your Plan
 
 Access a RPC node fleet across Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver, Dublin, London, Amsterdam, Frankfurt, Singapore, and Tokyo, automatically routing requests to the nearest node.
 
-Each plan has a set amount of credits and rate limits for different calls.
+Each plan includes credits and rate limits tailored for different use cases - from individual developers to enterprise applications.
 
-<Card title="Understand Credit Costs" icon="calculator" href="/billing/credits">
+<Card title="Understand Credit Costs" icon="calculator" href="#credit-costs">
   See detailed credit costs for all API calls, services, and data streaming to estimate your usage and choose the right plan.
 </Card>
+
+## Standard Plans
 
 <table>
   <thead align="left">
@@ -78,11 +81,42 @@ Each plan has a set amount of credits and rate limits for different calls.
 
 \* If you are on a legacy (old) plan, please refer to the '[Legacy Plan Limits](#legacy-deprecated-plan-limits)' section below for applicable details.
 
-\* See rate limit exceptions below.
+### Plan Recommendations
 
-**Sender Rate Limits:** Default 1 TPS across all plans. Contact support to increase your Sender rate limit based on your use case requirements.
+<CardGroup cols={2}>
+  <Card title="Free Plan" icon="play">
+    **Best for:** Testing and prototyping
+    - Perfect for initial integration
+    - Educational projects
+    - Low-volume applications
+  </Card>
+  <Card title="Developer Plan" icon="code">
+    **Best for:** Individual developers and small projects
+    - Personal applications
+    - Side projects
+    - Early-stage startups
+  </Card>
+  <Card title="Business Plan" icon="building">
+    **Best for:** Growing applications and teams
+    - Production applications
+    - Medium-scale projects
+    - Enhanced WebSocket features
+  </Card>
+  <Card title="Professional Plan" icon="rocket">
+    **Best for:** High-performance applications
+    - Large-scale production systems
+    - Advanced LaserStream gRPC access
+    - Direct team support
+  </Card>
+</CardGroup>
 
-### Rate Limit Exceptions \*
+## Understanding Rate Limits
+
+Rate limits control how many requests you can make per second to prevent system overload and ensure fair usage. When you exceed a rate limit, you'll receive an HTTP 429 response and should wait before retrying.
+
+### Rate Limit Exceptions
+
+Some endpoints have different limits due to their computational requirements:
 
 <table>
   <thead align="left">
@@ -95,6 +129,15 @@ Each plan has a set amount of credits and rate limits for different calls.
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>
+        <code>Sender</code>
+      </td>
+      <td>1 call/sec</td>
+      <td>1 call/sec</td>
+      <td>1 call/sec</td>
+      <td>1 call/sec</td>
+    </tr>
     <tr>
       <td>
         <code>sendTransaction</code>
@@ -116,7 +159,13 @@ Each plan has a set amount of credits and rate limits for different calls.
   </tbody>
 </table>
 
-### Photon Limits
+<Note>
+**Need Higher Sender Limits?** Contact support to discuss custom rate limits based on your specific use case requirements.
+</Note>
+
+### Specialized Service Limits
+
+#### Photon (ZK Compression) Limits
 
 <table>
   <thead align="left">
@@ -148,7 +197,7 @@ Each plan has a set amount of credits and rate limits for different calls.
   </tbody>
 </table>
 
-### LaserStream Limits
+#### LaserStream (gRPC) Limits
 
 <table>
   <thead align="left">
@@ -178,30 +227,249 @@ Each plan has a set amount of credits and rate limits for different calls.
   </tbody>
 </table>
 
-### Features
-
-- [RPC calls](/solana-rpc-nodes)
-- [Webhooks](/webhooks)
-- [Standard WebSockets](/rpc/websocket)
-- [Enhanced WebSockets](/enhanced-websockets) (beta) — available for Business and Professional plans only
-- [LaserStream](/laserstream) — gRPC streaming with historical replay, available for Professional plans only
-- [Sender](/sending-transactions/sender) — ultra-low latency transaction submission, available on all plans
-- [DAS APIs](/api-reference/das)
-- [Enhanced Transactions API](/enhanced-transactions)
-- [Priority Fee API](/priority-fee-api)
-- [ZK Compression](/zk-compression/introduction)
-- [Staked Connections](/sending-transactions/staked-connections) for `sendTransaction`
-
 ## Enterprise Plans
 
-Enterprise plans are ideal for large teams that need personalized rate limits and more credits than the professional plan offers. Enterprise customers receive discounted pricing for high credit volumes and longer commitments. You can choose your support level with service level agreements (SLAs), uptime guarantees, usage alerts, and direct access to our engineering team to help you optimize your setup.
+Enterprise plans provide custom solutions for organizations with high-volume requirements or specific compliance needs.
+
+**Enterprise Benefits:**
+- **Custom Rate Limits** - Tailored to your application's needs
+- **Volume Discounts** - Reduced pricing for high credit usage
+- **SLA Guarantees** - Uptime commitments and performance guarantees
+- **Direct Engineering Support** - Access to our technical team
+- **Usage Analytics** - Advanced monitoring and alerting
+- **Priority Support** - Dedicated support channels
 
 <Note>
-  To explore Enterprise plans, [contact our sales
-  team](https://form.typeform.com/to/KiacmxpZ).
+  Ready for Enterprise? [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss custom solutions.
 </Note>
 
+## Understanding Credits
+
+Credits are Helius's usage measurement system. Each API call consumes credits based on its computational complexity and resource requirements. Your monthly plan includes a credit allocation, with options to purchase additional credits as needed.
+
+### How Credits Work
+
+<CardGroup cols={3}>
+  <Card title="Monthly Allocation" icon="calendar">
+    Your plan includes a set number of credits that reset monthly
+  </Card>
+  <Card title="Usage Priority" icon="arrow-down">
+    Monthly credits → Prepaid credits → Autoscaling (if enabled)
+  </Card>
+  <Card title="Flexible Billing" icon="credit-card">
+    Only pay for additional credits when you need them
+  </Card>
+</CardGroup>
+
+<Note>
+**Credit Usage Priority**: The system automatically uses your monthly subscription credits first, then draws from any prepaid credits, and finally triggers autoscaling if enabled.
+</Note>
+
+## Credit Costs Reference
+
+Understanding credit costs helps you estimate usage and choose the right plan. Costs vary based on the computational resources required for each operation.
+
+### Standard Services
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '320px'}}>Service</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Standard RPC Calls</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>All RPC calls except those listed separately</td>
+    </tr>
+    <tr>
+      <td><strong>Priority Fee API</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Fee estimation</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Event Delivery</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Per event push</td>
+    </tr>
+    <tr>
+      <td><strong>LaserStream gRPC</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>Per 0.1MB of data. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB)</td>
+    </tr>
+    <tr>
+      <td><strong>getProgramAccounts</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Higher complexity call</td>
+    </tr>
+    <tr>
+      <td><strong>Archival Calls</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Historical data queries (blocks, transactions, etc.)</td>
+    </tr>
+    <tr>
+      <td><strong>ZK Compression API</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Standard compression calls</td>
+    </tr>
+    <tr>
+      <td><strong>Enhanced Transactions API</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Enhanced transaction parsing</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Management API</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Create, update, delete webhooks</td>
+    </tr>
+    <tr>
+      <td><strong>getValidityProofs</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Higher computation required</td>
+    </tr>
+  </tbody>
+</table>
+
+### Transaction Submission Options
+
+Choose your transaction submission method based on reliability needs:
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '320px'}}>Method</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Sender</strong></td>
+      <td style={{textAlign: 'center'}}>0</td>
+      <td>Ultra-low latency transaction submission - no credits consumed</td>
+    </tr>
+    <tr>
+      <td><strong>Unstaked Connections</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Via <code>unstaked.helius-rpc.com</code> - may be unreliable during congestion</td>
+    </tr>
+    <tr>
+      <td><strong>Staked Connections</strong> (Default)</td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Via <code>mainnet.helius-rpc.com</code> - highest reliability</td>
+    </tr>
+  </tbody>
+</table>
+
+<Note>
+**Staked Transactions Are Now Default**
+
+All transactions via `mainnet.helius-rpc.com` now use staked connections automatically, providing the highest transaction success rates. No code changes are required. The dedicated staked endpoint has been deprecated.
+</Note>
+
+### Archival & Historical Data
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '320px'}}>API Call</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getBlock</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Block information</td>
+    </tr>
+    <tr>
+      <td><code>getBlocks</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Multiple blocks</td>
+    </tr>
+    <tr>
+      <td><code>getBlockTime</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Block timestamp</td>
+    </tr>
+    <tr>
+      <td><code>getInflationReward</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Staking rewards</td>
+    </tr>
+    <tr>
+      <td><code>getSignaturesForAddress</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Address transaction history</td>
+    </tr>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Historical transaction data</td>
+    </tr>
+  </tbody>
+</table>
+
+### Digital Asset Standard (DAS) API
+
+All DAS API calls cost **10 credits** each:
+
+<CardGroup cols={2}>
+  <Card title="Asset Information">
+    - `getAsset`
+    - `getAssetProof`
+    - `getNFTEditions`
+  </Card>
+  <Card title="Asset Discovery">
+    - `getAssetsByOwner`
+    - `getAssetsByAuthority`
+    - `getAssetsByCreator`
+    - `getAssetsByGroup`
+    - `searchAssets`
+  </Card>
+  <Card title="Transaction History">
+    - `getSignaturesForAsset`
+  </Card>
+  <Card title="Account Information">
+    - `getTokenAccounts`
+  </Card>
+</CardGroup>
+
+## Managing Your Usage
+
+### Getting Additional Credits
+
+When you need more credits beyond your monthly allocation:
+
+<CardGroup cols={1}>
+  <Card title="Autoscaling" icon="arrow-trend-up" href="/billing/autoscaling">
+    Automatically add credits as needed. Ideal for handling unexpected traffic spikes and ensuring uninterrupted service.
+  </Card>
+</CardGroup>
+
+<Note>
+**Credit Usage Priority**: The system automatically uses your monthly subscription credits first, then draws from any prepaid credits, and finally triggers autoscaling if enabled.
+</Note>
+
+### Monitoring Your Usage
+
+Track your credit consumption and optimize usage with the [Helius Dashboard](https://dashboard.helius.dev/):
+
+- **Real-time Balance**: Current credit levels across all types
+- **Usage Analytics**: Historical consumption patterns and trends
+- **Smart Alerts**: Notifications when balances fall below custom thresholds
+- **Detailed Logs**: Per-API call credit consumption for optimization
+- **Usage Forecasting**: Predict future needs based on current patterns
+
 ## Legacy (Deprecated) Plan Limits
+
+<Warning>
+The limits below apply to deprecated V3 plans. These plans are no longer available for new users. For current plans, refer to the [Standard Plans](#standard-plans) section above.
+</Warning>
 
 <table>
   <thead align="left">
@@ -226,10 +494,10 @@ Enterprise plans are ideal for large teams that need personalized rate limits an
       <td>500 RPC requests/s*</td>
     </tr>
     <tr>
-      <td>2 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>10 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>50 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>100 API requests/s (DAS &#x26; Enhanced)</td>
+      <td>2 API requests/s (DAS & Enhanced)</td>
+      <td>10 API requests/s (DAS & Enhanced)</td>
+      <td>50 API requests/s (DAS & Enhanced)</td>
+      <td>100 API requests/s (DAS & Enhanced)</td>
     </tr>
     <tr>
       <td>1 API Key</td>
@@ -262,10 +530,4 @@ Enterprise plans are ideal for large teams that need personalized rate limits an
       <td>100 sendTransaction call per second</td>
     </tr>
   </tbody>
-</table>
-
-<Warning>
-  The limits in the table above apply to deprecated V3 plans. These plans are no
-  longer available for new users. For details on available plans, please refer
-  to the '[Pricing & Rate Limits](#standard-plans)' section above.
-</Warning> 
+</table> 
