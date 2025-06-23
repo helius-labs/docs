@@ -1,0 +1,141 @@
+---
+title: "LaserStream vs Dedicated Nodes: Choosing the Right gRPC Solution"
+sidebarTitle: "LaserStream vs Dedicated Nodes"
+description: "Compare LaserStream and Dedicated Nodes to choose the best gRPC streaming solution for your needs"
+---
+
+## Overview
+
+Both LaserStream and Dedicated Nodes provide gRPC streaming capabilities, but they serve different use cases. This guide helps you choose the right solution based on your specific requirements.
+
+## Quick Recommendation
+
+**LaserStream is the recommended choice for virtually all streaming use cases** due to its superior performance, enhanced reliability, managed infrastructure, and advanced features like historical replay and auto-reconnection. Dedicated nodes are only beneficial when you need isolated credits and rate limits.
+
+## Detailed Comparison
+
+| Feature | LaserStream | Dedicated Nodes |
+|---------|-------------|-----------------|
+| **Performance** | ✅ **Superior streaming performance** | ⚠️ **Can fail under high load** |
+| **Reliability** | ✅ **Multi-node redundancy** | ❌ **Single point of failure** |
+| **Historical Replay** | ✅ **Up to 3000 slots** (~20 minutes) | ❌ **Not available** |
+| **Auto-Reconnection** | ✅ **Built-in with SDK** | ❌ **Manual implementation required** |
+| **Rate Limits** | ⚠️ **Shared rate limits** | ✅ **Isolated rate limits** |
+| **Credit Isolation** | ⚠️ **Shared credits** | ✅ **Dedicated credit pool** |
+| **sendTransaction** | ✅ **Optimized landing rates** | ❌ **Poor landing rates** |
+| **Archival Data Access** | ✅ **Available via shared plan** | ❌ **Not available** |
+| **Platform Features** | ✅ **APIs, webhooks included** | ❌ **Requires separate shared plan** |
+| **Geographic Distribution** | ✅ **Multiple regions worldwide** | ⚠️ **Single location** |
+
+## When to Choose LaserStream
+
+**LaserStream is the best choice for virtually all streaming applications:**
+
+- **High-Performance Trading**: Real-time data feeds with superior performance and reliability
+- **Production Applications**: Mission-critical systems that need guaranteed uptime
+- **Portfolio Tracking**: Account monitoring, balance updates, transaction history
+- **DeFi Analytics**: Protocol monitoring, yield farming data, liquidity tracking  
+- **NFT Applications**: Collection monitoring, marketplace data, trait analysis
+- **Enterprise Solutions**: Professional applications requiring managed infrastructure
+- **Development & Testing**: Rapid prototyping and development without infrastructure setup
+
+**Key Advantages:**
+- **Superior Performance**: Optimized infrastructure delivers better streaming performance
+- **Maximum Reliability**: Multi-node redundancy eliminates single points of failure
+- **Zero Downtime**: No risk of node failure under high load
+- **Historical Replay**: Never miss data even after disconnections
+- **Enhanced SDK**: Professional-grade connection management and error handling
+
+## When to Choose Dedicated Nodes
+
+**Dedicated Nodes have very limited use cases and are only suitable for:**
+
+- **Credit Pool Isolation**: When you need completely separate credit usage tracking
+- **Rate Limit Isolation**: When you need your own isolated rate limit pools
+
+**Important Limitations:**
+- **Performance Risk**: Nodes can fail or become unresponsive under high load
+- **Single Point of Failure**: No redundancy - if the node goes down, you will expreience increased latency
+- **Higher Cost**: Significantly more expensive than LaserStream
+- **Limited Features**: Requires separate shared plan for full platform functionality
+
+## Cost Considerations
+
+### LaserStream
+- **Professional Plan**: $999/month base cost
+- **Pay-as-you-use**: Additional costs based on data usage
+
+### Dedicated Nodes
+- **Node Cost**: $2,300+/month depending on specifications
+- **Shared Plan Required**: Additional cost for full platform functionality
+
+## Technical Requirements
+
+### LaserStream
+```typescript
+// Simple integration with enhanced features
+import { subscribe, LaserstreamConfig } from 'helius-laserstream';
+
+const config: LaserstreamConfig = {
+  apiKey: 'your-api-key',
+  endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com'
+};
+
+// Automatic reconnection and historical replay
+await subscribe(config, subscriptionRequest, handleData, handleError);
+```
+
+### Dedicated Nodes
+```typescript
+// Manual connection management required
+import { Client } from '@yellowstone-grpc/client';
+
+const client = new Client(endpoint, undefined, {
+  'grpc.keepalive_time_ms': 30000,
+  // Custom connection settings...
+});
+
+// Manual reconnection logic needed
+client.on('error', (error) => {
+  // Implement your own reconnection strategy
+});
+```
+
+## Migration Path
+
+**Moving from Dedicated Nodes**: LaserStream is designed as a drop-in replacement. Simply change your endpoint and API key to migrate.
+
+## Decision Framework
+
+Ask yourself these questions:
+
+1. **Do you need the best streaming performance?** → **LaserStream**
+2. **Do you want guaranteed uptime and reliability?** → **LaserStream**  
+3. **Do you want to focus on your application, not infrastructure management?** → **LaserStream**
+4. **Do you need historical replay?** → **LaserStream**
+5. **Do you specifically need isolated credit pools and rate limits?** → Consider Dedicated Nodes (but weigh the significant downsides)
+
+## Getting Started
+
+### Start with LaserStream
+<Card title="LaserStream Documentation" href="/laserstream" icon="bolt">
+  Get started with LaserStream's enhanced gRPC streaming
+</Card>
+
+### Consider Dedicated Nodes
+<Card title="Dedicated Nodes" href="/dedicated-nodes" icon="server">
+  Learn about dedicated node options and specifications
+</Card>
+
+## Need Help Deciding?
+
+If you're still unsure which option is best for your use case:
+
+- **Join our Discord**: Get real-time help from our community and team
+- **Start with LaserStream**: Most users find it meets their needs perfectly
+
+<CardGroup cols={1}>
+  <Card title="Discord Community" href="https://discord.com/invite/6GXdee3gBj" icon="discord">
+    Get help from our community and engineers
+  </Card>
+</CardGroup> 
