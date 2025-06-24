@@ -12,20 +12,28 @@ Both LaserStream and Dedicated Nodes provide gRPC streaming capabilities, but th
 
 **LaserStream is the recommended choice for virtually all streaming use cases** due to its superior performance, enhanced reliability, managed infrastructure, and advanced features like historical replay and auto-reconnection. Dedicated nodes are only beneficial when you need isolated credits and rate limits.
 
-## Detailed Comparison
+## gRPC Streaming Comparison
 
-| Feature | LaserStream (Pro Plan) | Dedicated Nodes |
+| Feature | LaserStream | Dedicated Nodes |
 |---------|-------------|-----------------|
 | **Performance** | ✅ **Superior streaming performance** | ⚠️ **Can fail under high load** |
 | **Reliability** | ✅ **Multi-node redundancy** | ❌ **Single point of failure** |
 | **Historical Replay** | ✅ **Up to 3000 slots** (~20 minutes) | ❌ **Not available** |
 | **Auto-Reconnection** | ✅ **Built-in with SDK** | ❌ **Manual implementation required** |
+| **Network Support** | ✅ **Mainnet + Devnet** | ⚠️ **Single network (mainnet OR devnet)** |
+| **Geographic Distribution** | ✅ **Multiple regions worldwide** | ⚠️ **Single location** |
+
+## Pro Plan Features Included with LaserStream
+
+LaserStream comes with a Pro plan subscription that includes additional platform benefits:
+
+| Feature | LaserStream (Pro Plan) | Dedicated Nodes |
+|---------|-------------|-----------------|
 | **Rate Limits** | ⚠️ **Shared rate limits** | ✅ **Isolated rate limits** |
 | **Credit Isolation** | ⚠️ **Shared credits** | ✅ **Dedicated credit pool** |
 | **sendTransaction** | ✅ **Optimized landing rates** | ❌ **Poor landing rates** |
 | **Archival Data Access** | ✅ **Available via shared plan** | ❌ **Not available** |
 | **Platform Features** | ✅ **APIs, webhooks included** | ❌ **Requires separate shared plan** |
-| **Geographic Distribution** | ✅ **Multiple regions worldwide** | ⚠️ **Single location** |
 
 ## When to Choose LaserStream (Pro Plan)
 
