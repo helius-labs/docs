@@ -145,7 +145,7 @@ Your plan determines your base rate limits:
 Some endpoints have special restrictions due to their computational requirements:
 
 <Tabs>
-  <Tab title="Transaction Submission">
+  <Tab title="Transactions">
     <table>
       <thead align="left">
         <tr>
@@ -170,6 +170,13 @@ Some endpoints have special restrictions due to their computational requirements
           <td>5/sec</td>
           <td>50/sec</td>
           <td>100/sec</td>
+        </tr>
+        <tr>
+          <td><code>simulateBundle</code></td>
+          <td>10/sec</td>
+          <td>50/sec</td>
+          <td>200/sec</td>
+          <td>500/sec</td>
         </tr>
       </tbody>
     </table>
@@ -294,6 +301,11 @@ Some endpoints have special restrictions due to their computational requirements
       <td><strong>Standard RPC Calls</strong></td>
       <td style={{textAlign: 'center'}}>1</td>
       <td>Most RPC endpoints</td>
+    </tr>
+    <tr>
+      <td><strong>simulateBundle</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Bundle simulation</td>
     </tr>
     <tr>
       <td><strong>Priority Fee API</strong></td>
