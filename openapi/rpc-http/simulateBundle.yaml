@@ -89,83 +89,85 @@ paths:
                 params:
                   type: array
                   description: Parameters for simulating a JITO bundle.
-                  default: [{"encodedTransactions": ["AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="]}]
                   items:
-                    type: object
-                    description: Bundle simulation configuration object.
-                    required:
-                      - encodedTransactions
-                    properties:
-                      encodedTransactions:
-                        type: array
-                        description: Array of one or more base64-encoded, serialized transactions for simulation.
-                        items:
-                          type: string
-                          description: Base64-encoded serialized transaction.
-                          example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
-                      simulationBank:
-                        type: string
-                        description: Optional bank to run the simulation against.
-                        example: "SimulationBank123"
-                      skipSigVerify:
-                        type: boolean
-                        description: Whether to skip signature verification before simulation.
-                        example: false
-                      replaceRecentBlockhash:
-                        type: boolean
-                        description: Whether to replace the simulated transaction's recent blockhash with the latest blockhash.
-                        example: false
-                      accounts:
-                        type: object
-                        description: Configuration for account data to return.
+                    oneOf:
+                      - type: object
+                        description: Bundle simulation configuration object.
+                        required:
+                          - encodedTransactions
                         properties:
-                          addresses:
+                          encodedTransactions:
                             type: array
-                            description: Array of accounts to return, as base-58 encoded strings.
+                            description: Array of one or more base64-encoded, serialized transactions for simulation.
                             items:
                               type: string
-                              example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-                          encoding:
+                              description: Base64-encoded serialized transaction.
+                              example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
+                          simulationBank:
                             type: string
-                            description: Encoding format for account data.
-                            enum:
-                              - base58
-                              - base64
-                              - base64+zstd
-                              - jsonParsed
-                            example: base64
-                      preExecutionAccountsConfigs:
-                        type: array
-                        description: Specifies account state configuration before execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            accountIndex:
-                              type: integer
-                              description: Index of the account in the transaction.
-                              example: 0
-                            addresses:
-                              type: array
-                              description: List of account addresses to monitor before execution.
-                              items:
+                            description: Optional bank to run the simulation against.
+                            example: "SimulationBank123"
+                          skipSigVerify:
+                            type: boolean
+                            description: Whether to skip signature verification before simulation. skipSigVerify and replaceRecentBlockhash must be included in the payload for this parameter to work properly.
+                            example: false
+                          replaceRecentBlockhash:
+                            type: boolean
+                            description: Whether to replace the simulated transaction's recent blockhash with the latest blockhash. skipSigVerify and replaceRecentBlockhash must be included in the payload for this parameter to work properly.
+                            example: false
+                          accounts:
+                            type: object
+                            description: The accounts configuration object.
+                            properties:
+                              addresses:
+                                type: array
+                                description: Array of accounts to return, as base-58 encoded strings.
+                                items:
+                                  type: string
+                                  example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                              encoding:
                                 type: string
-                                example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-                      postExecutionAccountsConfigs:
-                        type: array
-                        description: Specifies account state configuration after execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            accountIndex:
-                              type: integer
-                              description: Index of the account in the transaction.
-                              example: 0
-                            addresses:
-                              type: array
-                              description: List of account addresses to monitor after execution.
-                              items:
-                                type: string
-                                example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                                description: The encoding format for account data. It can be one of base58 (slow), base64, base64+zstd or jsonParsed.
+                                enum:
+                                  - base58
+                                  - base64
+                                  - base64+zstd
+                                  - jsonParsed
+                                example: base64
+                          preExecutionAccountsConfigs:
+                            type: array
+                            description: Specifies account state configuration before execution. Each entry corresponds to a transaction in encodedTransactions.
+                            items:
+                              type: ["object", "null"]
+                              description: Configuration for a specific transaction, or null.
+                              properties:
+                                accountIndex:
+                                  type: integer
+                                  description: The index of the account in the transaction you want to pre-configure.
+                                  example: 0
+                                addresses:
+                                  type: array
+                                  description: A list of account addresses to monitor before execution.
+                                  items:
+                                    type: string
+                                    example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                          postExecutionAccountsConfigs:
+                            type: array
+                            description: Specifies account state configuration after execution. Each entry corresponds to a transaction in encodedTransactions.
+                            items:
+                              type: ["object", "null"]
+                              description: Configuration for a specific transaction, or null.
+                              properties:
+                                accountIndex:
+                                  type: integer
+                                  description: The index of the account in the transaction you want to configure.
+                                  example: 0
+                                addresses:
+                                  type: array
+                                  description: A list of account addresses to monitor after execution.
+                                  items:
+                                    type: string
+                                    example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
             example:
               jsonrpc: "2.0"
               id: "1"
@@ -173,6 +175,21 @@ paths:
               params:
                 - encodedTransactions:
                     - "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
+                  simulationBank: "SimulationBank123"
+                  skipSigVerify: false
+                  replaceRecentBlockhash: false
+                  accounts:
+                    addresses:
+                      - "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                    encoding: "base64"
+                  preExecutionAccountsConfigs:
+                    - accountIndex: 0
+                      addresses:
+                        - "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                  postExecutionAccountsConfigs:
+                    - accountIndex: 0
+                      addresses:
+                        - "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
       responses:
         200:
           description: Successfully simulated the bundle.
@@ -193,97 +210,99 @@ paths:
                     example: "1"
                   result:
                     type: object
-                    description: Result of the simulated bundle.
+                    description: Result of the simulated bundle. Null if the account doesn't exist otherwise RpcResponse JSON object.
                     properties:
                       context:
                         type: object
-                        description: Context of the simulation response.
+                        description: An object that contains metadata about the current state of the Solana network at the time the request was processed.
                         properties:
                           apiVersion:
                             type: string
-                            description: The API version.
+                            description: The version number.
                             example: "1.17.0"
                           slot:
                             type: integer
-                            description: Slot in which the data was processed.
+                            description: The current slot in the Solana cluster during which the transactions are processed and new blocks are added to the blockchain.
                             example: 245678901
                       err:
-                        type: ["object", "null"]
-                        description: Error if the bundle failed, null if successful.
+                        type: ["string", "null"]
+                        description: Error code if the transaction failed or null if the transaction succeeds.
                         example: null
                       logs:
                         type: ["array", "null"]
-                        description: Array of log messages from transaction execution.
+                        description: An array of log messages the transaction instructions output during execution, null if simulation failed before the transaction was able to execute (for example due to an invalid blockhash or signature verification failure).
                         items:
                           type: string
                           example: "Program 11111111111111111111111111111111 invoke [1]"
                       preExecutionAccounts:
                         type: ["array", "null"]
-                        description: Account states before bundle execution.
+                        description: A list of accounts to return the pre transaction execution state for. The length of the array must be equal to the number transactions in the bundle.
                         items:
                           type: ["object", "null"]
+                          description: Returns null if the account doesn't exist or if err is not null, otherwise, a JSON object containing account details.
                           properties:
                             lamports:
                               type: integer
-                              description: Number of lamports assigned to this account.
+                              description: The number of lamports assigned to this account as u64 (64-bit unsigned integer).
                               example: 5000000000
                             owner:
                               type: string
-                              description: Base-58 encoded Pubkey of the program this account is assigned to.
+                              description: The base-58 encoded Pubkey of the program this account has been assigned to.
                               example: "11111111111111111111111111111111"
                             data:
                               type: string
-                              description: Data associated with the account.
+                              description: The data associated with the account, either as encoded binary data or JSON format {'program': 'state'}, depending on encoding parameter.
                               example: ""
                             executable:
                               type: boolean
-                              description: Whether the account contains a program.
+                              description: A boolean indicating if the account contains a program (and is strictly read-only).
                               example: false
                             rentEpoch:
                               type: integer
-                              description: Epoch at which this account will next owe rent.
+                              description: The epoch at which this account will next owe rent, as u64 (64-bit unsigned integer).
                               example: 372
                       postExecutionAccounts:
                         type: ["array", "null"]
-                        description: Account states after bundle execution.
+                        description: A list of accounts to return the post transaction execution state for. The length of the array must be equal to the number transactions in the bundle.
                         items:
                           type: ["object", "null"]
+                          description: Returns null if the account doesn't exist or if err is not null, otherwise, a JSON object containing account details.
                           properties:
                             lamports:
                               type: integer
-                              description: Number of lamports assigned to this account.
+                              description: The number of lamports assigned to this account as u64 (64-bit unsigned integer).
                               example: 4998000000
                             owner:
                               type: string
-                              description: Base-58 encoded Pubkey of the program this account is assigned to.
+                              description: The base-58 encoded Pubkey of the program this account has been assigned to.
                               example: "11111111111111111111111111111111"
                             data:
                               type: string
-                              description: Data associated with the account.
+                              description: The data associated with the account, either as encoded binary data or JSON format {'program': 'state'}, depending on encoding parameter.
                               example: ""
                             executable:
                               type: boolean
-                              description: Whether the account contains a program.
+                              description: A boolean indicating if the account contains a program (and is strictly read-only).
                               example: false
                             rentEpoch:
                               type: integer
-                              description: Epoch at which this account will next owe rent.
+                              description: The epoch at which this account will next owe rent, as u64 (64-bit unsigned integer).
                               example: 372
                       unitsConsumed:
                         type: integer
-                        description: Number of compute budget units consumed during processing.
+                        description: The number of compute budget units consumed during the processing of this transaction.
                         example: 150000
                       returnData:
                         type: ["object", "null"]
-                        description: Most recent return data generated by an instruction.
+                        description: The most-recent return data generated by an instruction in the transaction.
                         properties:
                           programId:
                             type: string
-                            description: Program that generated the return data.
+                            description: The program that generated the return data, as base-58 encoded Pubkey.
                             example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                           data:
                             type: string
-                            description: Return data as base-64 encoded binary data.
+                            description: The return data itself, as base-64 encoded binary data.
                             example: "BQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
               example:
                 jsonrpc: "2.0"
