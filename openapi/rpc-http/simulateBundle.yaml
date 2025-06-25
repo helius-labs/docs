@@ -1,0 +1,388 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  description: JITO Bundle Simulation API for testing and validating bundle execution before submission to the Solana network via JITO validators.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: simulateBundle
+      operationId: simulateBundle
+      description: |
+        Simulate a JITO bundle without executing it on the blockchain. This method allows developers
+        to test bundle execution, verify transaction behavior within bundles, estimate compute unit
+        consumption, detect errors, and preview account state changes before and after bundle execution.
+        Exclusively available for JITO-Solana validators and essential for MEV strategy development
+        and bundle optimization.
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  enum:
+                    - "simulateBundle"
+                  description: The name of the RPC method to invoke.
+                  example: "simulateBundle"
+                  default: "simulateBundle"
+                params:
+                  type: array
+                  description: Parameters for simulating a JITO bundle.
+                  default: [{"encodedTransactions": ["AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="]}]
+                  items:
+                    type: object
+                    description: Bundle simulation configuration object.
+                    required:
+                      - encodedTransactions
+                    properties:
+                      encodedTransactions:
+                        type: array
+                        description: Array of one or more base64-encoded, serialized transactions for simulation.
+                        items:
+                          type: string
+                          description: Base64-encoded serialized transaction.
+                          example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
+                      simulationBank:
+                        type: string
+                        description: Optional bank to run the simulation against.
+                        example: "SimulationBank123"
+                      skipSigVerify:
+                        type: boolean
+                        description: Whether to skip signature verification before simulation.
+                        example: false
+                      replaceRecentBlockhash:
+                        type: boolean
+                        description: Whether to replace the simulated transaction's recent blockhash with the latest blockhash.
+                        example: false
+                      accounts:
+                        type: object
+                        description: Configuration for account data to return.
+                        properties:
+                          addresses:
+                            type: array
+                            description: Array of accounts to return, as base-58 encoded strings.
+                            items:
+                              type: string
+                              example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                          encoding:
+                            type: string
+                            description: Encoding format for account data.
+                            enum:
+                              - base58
+                              - base64
+                              - base64+zstd
+                              - jsonParsed
+                            example: base64
+                      preExecutionAccountsConfigs:
+                        type: array
+                        description: Specifies account state configuration before execution.
+                        items:
+                          type: ["object", "null"]
+                          properties:
+                            accountIndex:
+                              type: integer
+                              description: Index of the account in the transaction.
+                              example: 0
+                            addresses:
+                              type: array
+                              description: List of account addresses to monitor before execution.
+                              items:
+                                type: string
+                                example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                      postExecutionAccountsConfigs:
+                        type: array
+                        description: Specifies account state configuration after execution.
+                        items:
+                          type: ["object", "null"]
+                          properties:
+                            accountIndex:
+                              type: integer
+                              description: Index of the account in the transaction.
+                              example: 0
+                            addresses:
+                              type: array
+                              description: List of account addresses to monitor after execution.
+                              items:
+                                type: string
+                                example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "simulateBundle"
+              params:
+                - encodedTransactions:
+                    - "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq7zz4DinMNN0pJ1JtLdqIJPUw3YrGCzYAMHBsgN27lcgB6H2WQvFgyZuJYHa46puOQo9yQ8CVQbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCp20C7Wj2aiuk5TReAXo+VTVg8QTHjs0UjNMMKCvpzZ+ABAgEBARU="
+      responses:
+        200:
+          description: Successfully simulated the bundle.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Result of the simulated bundle.
+                    properties:
+                      context:
+                        type: object
+                        description: Context of the simulation response.
+                        properties:
+                          apiVersion:
+                            type: string
+                            description: The API version.
+                            example: "1.17.0"
+                          slot:
+                            type: integer
+                            description: Slot in which the data was processed.
+                            example: 245678901
+                      err:
+                        type: ["object", "null"]
+                        description: Error if the bundle failed, null if successful.
+                        example: null
+                      logs:
+                        type: ["array", "null"]
+                        description: Array of log messages from transaction execution.
+                        items:
+                          type: string
+                          example: "Program 11111111111111111111111111111111 invoke [1]"
+                      preExecutionAccounts:
+                        type: ["array", "null"]
+                        description: Account states before bundle execution.
+                        items:
+                          type: ["object", "null"]
+                          properties:
+                            lamports:
+                              type: integer
+                              description: Number of lamports assigned to this account.
+                              example: 5000000000
+                            owner:
+                              type: string
+                              description: Base-58 encoded Pubkey of the program this account is assigned to.
+                              example: "11111111111111111111111111111111"
+                            data:
+                              type: string
+                              description: Data associated with the account.
+                              example: ""
+                            executable:
+                              type: boolean
+                              description: Whether the account contains a program.
+                              example: false
+                            rentEpoch:
+                              type: integer
+                              description: Epoch at which this account will next owe rent.
+                              example: 372
+                      postExecutionAccounts:
+                        type: ["array", "null"]
+                        description: Account states after bundle execution.
+                        items:
+                          type: ["object", "null"]
+                          properties:
+                            lamports:
+                              type: integer
+                              description: Number of lamports assigned to this account.
+                              example: 4998000000
+                            owner:
+                              type: string
+                              description: Base-58 encoded Pubkey of the program this account is assigned to.
+                              example: "11111111111111111111111111111111"
+                            data:
+                              type: string
+                              description: Data associated with the account.
+                              example: ""
+                            executable:
+                              type: boolean
+                              description: Whether the account contains a program.
+                              example: false
+                            rentEpoch:
+                              type: integer
+                              description: Epoch at which this account will next owe rent.
+                              example: 372
+                      unitsConsumed:
+                        type: integer
+                        description: Number of compute budget units consumed during processing.
+                        example: 150000
+                      returnData:
+                        type: ["object", "null"]
+                        description: Most recent return data generated by an instruction.
+                        properties:
+                          programId:
+                            type: string
+                            description: Program that generated the return data.
+                            example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                          data:
+                            type: string
+                            description: Return data as base-64 encoded binary data.
+                            example: "BQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  context:
+                    apiVersion: "1.17.0"
+                    slot: 245678901
+                  err: null
+                  logs:
+                    - "Program 11111111111111111111111111111111 invoke [1]"
+                    - "Program 11111111111111111111111111111111 success"
+                    - "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [1]"
+                    - "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success"
+                  preExecutionAccounts:
+                    - lamports: 5000000000
+                      owner: "11111111111111111111111111111111"
+                      data: ""
+                      executable: false
+                      rentEpoch: 372
+                  postExecutionAccounts:
+                    - lamports: 4998000000
+                      owner: "11111111111111111111111111111111"
+                      data: ""
+                      executable: false
+                      rentEpoch: 372
+                  unitsConsumed: 150000
+                  returnData:
+                    programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    data: "BQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+        400:
+          description: Bad Request - Invalid request parameters or malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        401:
+          description: Unauthorized - Invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        500:
+          description: Internal Server Error - An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                id: "1" 
