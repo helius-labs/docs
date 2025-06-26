@@ -570,13 +570,22 @@ Next, you'll need to specify the filters for the data you want to subscribe to, 
 <Accordion title="Q: I'm experiencing lag or slow performance with my LaserStream connection. What could be causing this?">
   **A:** Performance issues with LaserStream connections are typically caused by:
   
-  - **High message volume**: The JavaScript client may lag behind when processing too many messages or consuming too much bandwidth. Consider filtering your subscriptions more narrowly to reduce message volume.
+  - **Javascript Client Slowness**: The JavaScript client may lag behind when processing too many messages or consuming too much bandwidth. Consider filtering your subscriptions more narrowly to reduce message volume or using another language.
   
   - **Limited local bandwidth**: Heavy subscriptions can overwhelm clients with limited network bandwidth. Monitor your network usage and consider upgrading your connection or reducing subscription scope.
   
   - **Geographic distance**: Running subscriptions against servers that are geographically far away can cause performance issues. TCP packets may get dropped on long routes, and you're limited by the slowest intermediate network path. **Solution**: Choose the LaserStream endpoint closest to your server location from our available regions (see [Endpoints & Regions](#mainnet-endpoints) above).
   
   - **Client-side processing bottlenecks**: Ensure your message processing logic is optimized and doesn't block the main thread for extended periods.
+
+
+**Debugging Client Lag**: To help you debug client, we built a tool to test for the max bandwidth from your node to a Laserstream gRPC server. To use it run:
+```
+cargo install helius-laserstream-bandwidth
+helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_KEY
+```
+
+The output returns the max network capacity between your server and the Laserstream server. At a minimum, you need 10MB/s to subscribe to all transaction data and 80MB/s to subscribe to all account data. We recommend having at least 2x the required capacity for optimal performance. 
 </Accordion>
 
 <Accordion title="Q: I'm getting connection errors. What should I check?">
