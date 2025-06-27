@@ -1,0 +1,250 @@
+---
+title: 'Helius RPC Overview'
+sidebarTitle: 'Overview'
+description: 'Get up and running with Helius Solana RPC nodes in under 5 minutes'
+---
+
+<CardGroup cols={2}>
+  <Card title="Start Building Now" icon="rocket" href="#getting-your-rpc-url">
+    Get your RPC endpoint and make your first request
+  </Card>
+  <Card title="Browse RPC Methods" icon="book-open" href="/rpc/guides/overview">
+    Explore practical guides for all Solana RPC methods
+  </Card>
+</CardGroup>
+
+---
+
+## Why Developers Choose Helius RPC
+
+<CardGroup cols={3}>
+  <Card title="99.9% Uptime" icon="shield-check">
+    Enterprise-grade reliability with automatic failover and multi-node redundancy
+  </Card>
+  <Card title="<100ms Latency" icon="bolt">
+    Global infrastructure optimized for speed with multiple regions worldwide
+  </Card>
+  <Card title="24/7 Support" icon="headset">
+    Expert engineering support and active Discord community
+  </Card>
+</CardGroup>
+
+<Note>
+**What are Solana RPC nodes?** They're your application's gateway to the Solana blockchain, providing essential infrastructure for reading data, writing transactions, real-time updates, and network queries. Every Solana application relies on RPC nodes to function.
+</Note>
+
+---
+
+## Getting Your RPC URL
+
+<Steps>
+  <Step title="Go to Dashboard">
+    Navigate to [dashboard.helius.dev](https://dashboard.helius.dev) and sign up or log in
+  </Step>
+  <Step title="Create a Plan">
+    Choose a plan that fits your needs - free tier available to get started
+  </Step>
+  <Step title="Go to Endpoints Section">
+    Navigate to the Endpoints section in your dashboard
+  </Step>
+  <Step title="Copy Your Endpoint">
+    Copy your RPC endpoint URL for the network you want to use (mainnet or devnet)
+  </Step>
+</Steps>
+
+## Test Your Connection
+
+Choose your preferred language to test your RPC connection:
+
+<Tabs>
+  <Tab title="JavaScript/TypeScript">
+    ```javascript
+    import { Connection } from '@solana/web3.js';
+    
+    // Your Helius RPC URL from dashboard
+    const rpcUrl = 'YOUR_HELIUS_RPC_URL';
+    const connection = new Connection(rpcUrl);
+    
+    // Test the connection
+    const testConnection = async () => {
+      try {
+        const version = await connection.getVersion();
+        const slot = await connection.getSlot();
+        
+        console.log('Connection successful!');
+        console.log(`Solana version: ${version['solana-core']}`);
+        console.log(`Current slot: ${slot}`);
+      } catch (error) {
+        console.error('Connection failed:', error);
+      }
+    };
+    
+    testConnection();
+    ```
+  </Tab>
+  
+  <Tab title="Python">
+    ```python
+    from solana.rpc.api import Client
+    
+    # Your Helius RPC URL from dashboard
+    rpc_url = 'YOUR_HELIUS_RPC_URL'
+    client = Client(rpc_url)
+    
+    # Test the connection
+    try:
+        version = client.get_version()
+        slot = client.get_slot()
+        
+        print('Connection successful!')
+        print(f'Solana version: {version.value}')
+        print(f'Current slot: {slot.value}')
+    except Exception as e:
+        print(f'Connection failed: {e}')
+    ```
+  </Tab>
+  
+  <Tab title="Rust">
+    ```rust
+    use solana_client::rpc_client::RpcClient;
+    use solana_sdk::commitment_config::CommitmentConfig;
+    
+    #[tokio::main]
+    async fn main() -> Result<(), Box<dyn std::error::Error>> {
+        // Your Helius RPC URL from dashboard
+        let rpc_url = "YOUR_HELIUS_RPC_URL";
+        
+        let client = RpcClient::new_with_commitment(
+            rpc_url.to_string(),
+            CommitmentConfig::confirmed(),
+        );
+        
+        // Test the connection
+        match client.get_version() {
+            Ok(version) => {
+                println!("Connection successful!");
+                println!("Solana version: {:?}", version.solana_core);
+                
+                let slot = client.get_slot()?;
+                println!("Current slot: {}", slot);
+            }
+            Err(err) => println!("Connection failed: {}", err),
+        }
+        
+        Ok(())
+    }
+    ```
+  </Tab>
+  
+  <Tab title="cURL">
+    ```bash
+    curl -X POST "YOUR_HELIUS_RPC_URL" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getVersion"
+      }' | jq
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Choose Your RPC Solution
+
+### Regular RPC Nodes (Recommended)
+
+<Card title="Best for 99% of Applications" icon="star">
+  **Superior performance, reliability, and features at cost-effective pricing**
+  
+  - **Superior Performance**: Multi-node redundancy with optimized infrastructure
+  - **Maximum Reliability**: No single points of failure, automatic failover  
+  - **Complete API Coverage**: All Solana RPC methods plus enhanced APIs
+  - **Global Infrastructure**: Multiple regions for optimal latency
+  - **Enhanced Features**: DAS API, Priority Fee API, Enhanced Transactions included
+  - **Starting at $0**: Generous free tier, pay only for what you use
+</Card>
+
+### Dedicated RPC Nodes (Limited Use Cases)
+
+<Card title="Only for Unlimited Credits/Rate Limits" icon="server">
+  **Consider only if you specifically need unlimited credits and rate limits**
+  
+  **When to Consider:**
+  - Require unlimited credits
+  - Require unlimited rate limits
+  
+  **Important Trade-offs:**
+  - Performance risk: Can become slow under high load
+  - Higher cost: $2,300+/month plus requires shared plan
+  - Limited features: Missing advanced APIs
+</Card>
+
+<Card title="Learn More About Dedicated Nodes" icon="server" href="/dedicated-nodes">
+  Explore dedicated options (only if you need unlimited credits/rates)
+</Card>
+
+---
+
+## Use Case Recommendations
+
+<Tabs>
+  <Tab title="DeFi Applications">
+    **Real-time Trading & AMM Data**
+    - Monitor account changes for price updates
+    - Track swap transactions and liquidity changes
+    - Submit time-sensitive arbitrage transactions
+    
+    **Recommended:** Regular RPC Plan
+  </Tab>
+  
+  <Tab title="NFT Marketplaces">
+    **Collection Monitoring & Sales Tracking**
+    - Query NFT metadata and ownership
+    - Monitor marketplace program accounts
+    - Track sales and listing events
+    
+    **Recommended:** Regular RPC Plan 
+  </Tab>
+  
+  <Tab title="Wallets & Explorers">
+    **Account Management & Transaction History**
+    - Fetch account balances and token holdings
+    - Display transaction history with parsed data
+    - Submit user transactions reliably
+    
+    **Recommended:** Regular RPC Plan
+  </Tab>
+  
+  <Tab title="Analytics Platforms">
+    **Data Collection & Processing**
+    - Bulk account and transaction queries
+    - Historical data analysis
+    - Real-time blockchain monitoring
+    
+    **Recommended:** Regular RPC Plan
+  </Tab>
+</Tabs>
+
+---
+
+## What's Next?
+
+<CardGroup cols={3}>
+  <Card title="Optimize Performance" icon="rocket" href="/rpc/optimization-techniques">
+    Learn advanced techniques to maximize RPC performance and minimize costs
+  </Card>
+  <Card title="Real-time Data" icon="wifi" href="/data-streaming">
+    Set up streams for live blockchain events
+  </Card>
+  <Card title="View Pricing" icon="credit-card" href="/billing/plans-and-rate-limits">
+    Compare plans and understand rate limits for your needs
+  </Card>
+</CardGroup>
+
+<Card title="Ready to Build Something Amazing?" icon="code">
+  **You now have everything needed to start building on Solana with Helius RPC**
+  
+  Check out our [complete API reference](/api-reference) for detailed method documentation, or join our [Discord community](https://discord.gg/aXjCcEDN) to connect with other developers and get support from our team.
+</Card> 
