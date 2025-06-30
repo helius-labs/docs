@@ -24,10 +24,16 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
   </Card>
 </CardGroup>
 
+## Routing Options
+
+**Default Dual Routing:** Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
+
+**SWQOS-Only Alternative:** For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. This routes exclusively through SWQOS infrastructure with a lower 0.0005 SOL minimum tip requirement. Best for high-frequency strategies where tip costs accumulate.
+
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include Jito tips (minimum 0.001 SOL), priority fees, and skip preflight checks.
+**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.0005 SOL for SWQOS-only), priority fees, and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -46,9 +52,9 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 ### 2. Tips and Priority Fees Required
 
-All transactions submitted through Sender **must include both Jito tips and priority fees**:
+All transactions submitted through Sender **must include both tips and priority fees**:
 
-- **Jito Tips**: Minimum 0.001 SOL transfer to a designated tip account (required for Jito auction)
+- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.0005 SOL for SWQOS-only)
 
 <Accordion title="Designated Tip Accounts (mainnet-beta)">
 ```text
@@ -69,9 +75,9 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 #### Why Both Are Required
 
-- **Jito Tips**: Enable access to Jito's MEV infrastructure and auction-based transaction inclusion.
-- **Priority Fees**: Signal to validators your willingness to pay for priority processing through Solana's native prioritization system.
-- **Dual Benefit**: Tips give you access to Jito's MEV auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability.
+- **Tips**: Enable access to Jito's MEV infrastructure and auction-based transaction inclusion
+- **Priority Fees**: Signal to validators your willingness to pay for priority processing through Solana's native prioritization system
+- **Dual Benefit**: Tips give you access to Jito's MEV auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability
 
 #### Tip and Priority Fee Guidelines
 
@@ -99,7 +105,7 @@ These endpoints only support HTTP connections (not HTTPS). Choose the endpoint c
 
 ## Usage
 
-The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance. **All transactions must include both Jito tips (minimum 0.001 SOL) and priority fees, plus skip preflight checks.**
+The Sender endpoint uses the same `sendTransaction` method as standard RPC endpoints but with specific requirements for optimal performance. **All transactions must include both tips and priority fees, plus skip preflight checks.**
 
 ### Basic Request Format
 
@@ -120,7 +126,7 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
 ```
 
 <Warning>
-The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruction with minimum 0.001 SOL tip to designated tip accounts AND a compute unit price instruction. Without both requirements, your transaction will be rejected.
+The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruction with minimum tip to designated tip accounts AND a compute unit price instruction. Without both requirements, your transaction will be rejected.
 </Warning>
 
 ### Simple Example
@@ -520,8 +526,6 @@ export { sendWithSender };
 
 </Accordion>
 
-
-
 ## Best Practices
 
 ### Endpoint Selection
@@ -554,4 +558,4 @@ For production deployments requiring higher throughput:
 1. **Create a Support Ticket**: Include your expected TPS and use case details
 2. **Provide Metrics**: Share your current transaction patterns
 
-Contact support through the [Helius Dashboard](https://dashboard.helius.dev) or join our [Discord community](https://discord.com/invite/6GXdee3gBj). 
+Contact support through the [Helius Dashboard](https://dashboard.helius.dev) or join our [Discord community](https://discord.com/invite/6GXdee3gBj).
