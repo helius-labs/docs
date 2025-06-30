@@ -1,252 +1,595 @@
 ---
-title: Getting Started with Yellowstone gRPC(Geyser Plugin)
+title: Yellowstone gRPC Quickstart
 sidebarTitle: Quickstart
-description: >-
-  A comprehensive setup guide for connecting to Solana's real-time data stream
-  using Yellowstone gRPC.
+description: Complete setup guide for streaming real-time Solana data with Yellowstone gRPC - from installation to your first working stream.
 ---
 
-## Introduction
+## What You'll Build
 
-With Dedicated Node, you can leverage the powerful Yellowstone gRPC interface to receive real-time updates about on-chain events. The Geyser plugin provides a high-performance, low-latency stream of Solana blockchain data.
-
-<Info>
-  Yellowstone gRPC provides real-time data streams with high throughput and low latency, making it ideal for applications that need immediate access to on-chain events.
-</Info>
-
-## What is gRPC and Why Use It?
-
-gRPC (Google Remote Procedure Call) is a modern, high-performance framework that enables client and server applications to communicate transparently. For Solana blockchain data streaming, gRPC offers several key advantages:
-
-<Card title="Key Advantages" icon="stars">
-  1. **Language Agnostic**: Using Protocol Buffers (protobuf), gRPC allows you to write clients in multiple programming languages while maintaining type safety and consistency.
-  
-  2. **Binary Protocol**: Unlike JSON-based REST APIs, gRPC uses a binary protocol that is more efficient in terms of bandwidth and parsing overhead.
-  
-  3. **Bi-directional Streaming**: gRPC supports bi-directional streaming, perfect for receiving continuous updates about blockchain events.
-  
-  4. **Type Safety**: The protobuf schema ensures type safety across all supported languages.
-</Card>
-
-## Getting Started
-
-Your Helius Dedicated Node exposes the Yellowstone gRPC interface on port 2053. The service provides various subscription options for different types of blockchain data:
-
-<AccordionGroup>
-  <Accordion title="Account updates" icon="user">
-    Subscribe to changes in account data, including balance changes, data modifications, ownership changes, and creation/deletion events.
-  </Accordion>
-  <Accordion title="Slot updates" icon="clock">
-    Receive notifications about new slots, confirmed slots, finalized slots, and parent slot relationships.
-  </Accordion>
-  <Accordion title="Transaction information" icon="exchange">
-    Stream transactions to receive updates about transaction signatures, status, success/failure information, and account involvement.
-  </Accordion>
-  <Accordion title="Block data" icon="cube">
-    Access comprehensive block information including metadata, included transactions, account updates, and entry information.
-  </Accordion>
-  <Accordion title="Entry data" icon="code">
-    Track low-level entry information including entry indexes, transaction counts, and entry hashes.
-  </Accordion>
-</AccordionGroup>
-
-### Installation & Project Setup
-
-Before diving into specific examples in the following sections, let's set up our development environment for each supported language:
-
-<Tabs>
-  <Tab title="TypeScript/JavaScript">
-    1. Create a new project:
-
-    ```bash
-    mkdir ts-yellowstone-client
-    cd ts-yellowstone-client
-    npm init -y
-    ```
-
-    2. Install dependencies:
-
-    ```bash
-    npm install @triton-one/yellowstone-grpc bs58
-    npm install typescript ts-node @types/node --save-dev
-    ```
-
-    3. Create TypeScript configuration:
-
-    ```bash
-    npx tsc --init
-    ```
-  </Tab>
-  <Tab title="Rust">
-    1. Create a new project:
-
-    ```bash
-    cargo new rust-yellowstone-client
-    cd rust-yellowstone-client
-    ```
-
-    2. Add to `Cargo.toml`:
-
-    ```toml
-    [dependencies]
-    yellowstone-grpc-client = "1.13.0"
-    yellowstone-grpc-proto = "1.13.0"
-    tokio = { version = "1.0", features = ["full"] }
-    anyhow = "1.0"
-    futures = "0.3"
-    tonic = "0.10"
-    tonic-health = "0.10"
-    hex = "0.4"
-    solana-sdk = "1.17"
-    log = "0.4"
-    ```
-  </Tab>
-  <Tab title="Go">
-    1. Create a new project:
-
-    ```bash
-    mkdir go-yellowstone-client
-    cd go-yellowstone-client
-    ```
-
-    2. Initialize Go module:
-
-    ```bash
-    go mod init go-yellowstone-client
-    ```
-
-    3. Create project structure:
-
-    ```bash
-    mkdir -p cmd/client
-    touch cmd/client/main.go
-    ```
-
-    4. Install required dependencies:
-
-    ```bash
-    go get github.com/mr-tron/base58@v1.2.0
-    go get github.com/rpcpool/yellowstone-grpc/examples/golang@latest
-    go get google.golang.org/grpc@v1.67.1
-    ```
-
-    5. Your `go.mod` should look similar to this:
-
-    ```go
-    module go-yellowstone-client
-
-    go 1.21
-
-    require (
-        github.com/mr-tron/base58 v1.2.0
-        github.com/rpcpool/yellowstone-grpc/examples/golang v0.0.0-20250206164228-b9f96ae944bb
-        google.golang.org/grpc v1.67.1
-    )
-
-    require (
-        golang.org/x/net v0.28.0 // indirect
-        golang.org/x/sys v0.24.0 // indirect
-        golang.org/x/text v0.17.0 // indirect
-        google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142 // indirect
-        google.golang.org/protobuf v1.35.1 // indirect
-    )
-    ```
-  </Tab>
-</Tabs>
-
-<Note>
-  These setups provide the foundation for the examples in the following sections. Each subsequent guide will build upon this basic setup to demonstrate specific monitoring capabilities.
-</Note>
-
-## Available Subscriptions
-
-The Yellowstone gRPC interface allows you to subscribe to various types of data:
-
-### 1. Account Updates
-
-<Card title="Account Updates" icon="user">
-  Subscribe to changes in [account data](/grpc/account-monitoring), including:
-
-  * Account balance changes
-  * Data modifications
-  * Ownership changes
-  * Creation/deletion events
-</Card>
-
-### 2. Slot Updates
-
-<Card title="Slot Updates" icon="clock">
-  [Monitor slots](/grpc/slot-and-block-monitoring) to receive notifications about:
-
-  * New slots
-  * Confirmed slots
-  * Finalized slots
-  * Parent slot relationships
-</Card>
-
-### 3. Transaction Information
-
-<Card title="Transaction Information" icon="exchange">
-  [Stream transactions](/grpc/transaction-monitoring) to receive updates about:
-
-  * Transaction signatures
-  * Transaction status
-  * Success/failure information
-  * Account involvement
-</Card>
-
-### 4. Block Data
-
-<Card title="Block Data" icon="cube">
-  Access comprehensive [block information](/grpc/slot-and-block-monitoring):
-
-  * Block metadata
-  * Included transactions
-  * Account updates
-  * Entry information
-</Card>
-
-### 5. Entry Data
-
-<Card title="Entry Data" icon="code">
-  Track low-level [entry information](/grpc/entry-monitoring):
-
-  * Entry indexes
-  * Transaction counts
-  * Entry hashes
-</Card>
-
-### Commitment Levels
-
-<Accordion title="Commitment Levels" defaultOpen={true}>
-  Yellowstone gRPC supports three commitment levels:
-
-  * <Tip>**PROCESSED**: Fastest, but may include unconfirmed data</Tip>
-  * <Info>**CONFIRMED**: Balance between speed and finality</Info>
-  * <Check>**FINALIZED**: Highest level of finality</Check>
-
-  Choose the appropriate commitment level based on your application's requirements for data finality versus latency.
-</Accordion>
-
-### Next Steps
-
-Continue to the following sections to learn about the core subscription types in Yellowstone gRPC:
+By the end of this guide, you'll have a working gRPC stream that monitors Solana account updates in real-time with automatic reconnection and error handling.
 
 <Steps>
-  <Step title="Account Monitoring">
-    Monitor account updates and changes
+  <Step title="Choose Your Access Method">
+    Select how you want to access Yellowstone gRPC:
+    
+    <CardGroup cols={2}>
+      <Card title="LaserStream" icon="rocket">
+        **Recommended for most users**
+        
+        - Multi-tenant, highly available
+        - Automatic failover and backfill
+        - Quick setup with API key
+        - Professional plan required
+        
+        [Get LaserStream Access →](/laserstream/)
+      </Card>
+      <Card title="Dedicated Nodes" icon="server">
+        **For high-volume or custom needs**
+        
+        - Exclusive gRPC endpoint  
+        - Guaranteed resources
+        
+        [Get Dedicated Node →](/dedicated-nodes/)
+      </Card>
+    </CardGroup>
   </Step>
-  <Step title="Transaction Monitoring">
-    Track transactions and their status
+
+  <Step title="Set Up Your Environment">
+    Create a new project and install dependencies:
+
+    <Tabs>
+      <Tab title="TypeScript/JavaScript">
+        ```bash
+        mkdir solana-grpc-stream
+        cd solana-grpc-stream
+        npm init -y
+        npm install @triton-one/yellowstone-grpc bs58
+        npm install typescript ts-node @types/node --save-dev
+        npx tsc --init
+        ```
+      </Tab>
+      
+      <Tab title="Rust">
+        ```bash
+        cargo new solana-grpc-stream
+        cd solana-grpc-stream
+        ```
+        
+        Add to `Cargo.toml`:
+        ```toml
+        [dependencies]
+        yellowstone-grpc-client = "1.13.0"
+        yellowstone-grpc-proto = "1.13.0"
+        tokio = { version = "1.0", features = ["full"] }
+        anyhow = "1.0"
+        futures = "0.3"
+        tonic = "0.10"
+        ```
+      </Tab>
+      
+      <Tab title="Go">
+        ```bash
+        mkdir solana-grpc-stream
+        cd solana-grpc-stream
+        go mod init solana-grpc-stream
+        go get github.com/rpcpool/yellowstone-grpc/examples/golang@latest
+        go get google.golang.org/grpc@v1.67.1
+        ```
+      </Tab>
+    </Tabs>
   </Step>
-  <Step title="Slot and Block Monitoring">
-    Monitor slots, blocks, and their metadata
+
+  <Step title="Get Your Credentials">
+    Obtain your gRPC endpoint and authentication:
+
+    <Tabs>
+      <Tab title="LaserStream">
+        1. Sign up for a Professional plan at [dashboard.helius.dev](https://dashboard.helius.dev)
+        2. Get your API key from the dashboard
+        3. Choose your regional endpoint:
+        
+        **Mainnet Endpoints:**
+        - US East: `https://laserstream-mainnet-ewr.helius-rpc.com`
+        - US West: `https://laserstream-mainnet-slc.helius-rpc.com`
+        - Europe: `https://laserstream-mainnet-fra.helius-rpc.com`
+        - Asia: `https://laserstream-mainnet-tyo.helius-rpc.com`
+        
+        **Devnet:** `https://laserstream-devnet-ewr.helius-rpc.com`
+      </Tab>
+      
+      <Tab title="Dedicated Nodes">
+        1. Order a dedicated node from [dashboard.helius.dev](https://dashboard.helius.dev/dedicated-nodes)
+        2. Once provisioned, you'll receive:
+           - Your gRPC endpoint (typically `your-node.rpc.helius.dev:2053`)
+           - Your authentication token
+      </Tab>
+    </Tabs>
   </Step>
-  <Step title="Entry Monitoring">
-    Track low-level block entries and execution
+
+  <Step title="Create Your First Stream">
+    Create a robust stream manager with the following complete example:
+
+    <Tabs>
+      <Tab title="TypeScript">
+        Create `stream-manager.ts`:
+        
+        ```typescript
+        import Client, { CommitmentLevel, SubscribeRequest } from "@triton-one/yellowstone-grpc";
+        import * as bs58 from 'bs58';
+
+        export class StreamManager {
+          private client: Client;
+          private stream: any;
+          private isConnected = false;
+          private reconnectAttempts = 0;
+          private readonly maxReconnectAttempts = 10;
+          private readonly baseReconnectDelay = 1000; // 1 second
+
+          constructor(
+            private endpoint: string,
+            private apiKey: string,
+            private onData: (data: any) => void,
+            private onError?: (error: any) => void
+          ) {
+            this.client = new Client(endpoint, apiKey, {
+              "grpc.max_receive_message_length": 64 * 1024 * 1024
+            });
+          }
+
+          async connect(subscribeRequest: SubscribeRequest): Promise<void> {
+            try {
+              console.log(`Connecting to ${this.endpoint}...`);
+              this.stream = await this.client.subscribe();
+              this.isConnected = true;
+              this.reconnectAttempts = 0;
+
+              // Set up event handlers
+              this.stream.on("data", this.handleData.bind(this));
+              this.stream.on("error", this.handleStreamError.bind(this));
+              this.stream.on("end", () => this.handleDisconnect(subscribeRequest));
+              this.stream.on("close", () => this.handleDisconnect(subscribeRequest));
+
+              // Send subscription request
+              await this.writeRequest(subscribeRequest);
+              
+              // Start keepalive
+              this.startKeepalive();
+              
+              console.log("✅ Connected and subscribed successfully");
+            } catch (error) {
+              console.error("Connection failed:", error);
+              await this.reconnect(subscribeRequest);
+            }
+          }
+
+          private async writeRequest(request: SubscribeRequest): Promise<void> {
+            return new Promise((resolve, reject) => {
+              this.stream.write(request, (err: any) => {
+                if (err) reject(err);
+                else resolve();
+              });
+            });
+          }
+
+          private handleData(data: any): void {
+            try {
+              // Convert buffers to readable format
+              const processedData = this.processBuffers(data);
+              this.onData(processedData);
+            } catch (error) {
+              console.error("Error processing data:", error);
+            }
+          }
+
+          private processBuffers(obj: any): any {
+            if (!obj) return obj;
+            
+            if (Buffer.isBuffer(obj) || obj instanceof Uint8Array) {
+              return bs58.default.encode(obj);
+            }
+            
+            if (Array.isArray(obj)) {
+              return obj.map(item => this.processBuffers(item));
+            }
+            
+            if (typeof obj === 'object') {
+              return Object.fromEntries(
+                Object.entries(obj).map(([k, v]) => [k, this.processBuffers(v)])
+              );
+            }
+            
+            return obj;
+          }
+
+          private handleStreamError(error: any): void {
+            console.error("Stream error:", error);
+            this.isConnected = false;
+            if (this.onError) this.onError(error);
+          }
+
+          private async handleDisconnect(subscribeRequest: SubscribeRequest): Promise<void> {
+            if (this.isConnected) {
+              console.log("Stream disconnected, attempting to reconnect...");
+              this.isConnected = false;
+              await this.reconnect(subscribeRequest);
+            }
+          }
+
+          private async reconnect(subscribeRequest: SubscribeRequest): Promise<void> {
+            if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+              console.error("Max reconnection attempts reached. Giving up.");
+              return;
+            }
+
+            this.reconnectAttempts++;
+            const delay = this.baseReconnectDelay * Math.pow(2, Math.min(this.reconnectAttempts - 1, 5));
+            
+            console.log(`Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms...`);
+            
+            setTimeout(() => {
+              this.connect(subscribeRequest).catch(console.error);
+            }, delay);
+          }
+
+          private startKeepalive(): void {
+            setInterval(() => {
+              if (this.isConnected) {
+                const pingRequest: SubscribeRequest = {
+                  ping: { id: Date.now() },
+                  accounts: {},
+                  accountsDataSlice: [],
+                  transactions: {},
+                  slots: {},
+                  blocks: {},
+                  blocksMeta: {},
+                  entry: {},
+                  transactionsStatus: {}
+                };
+                
+                this.writeRequest(pingRequest).catch(console.error);
+              }
+            }, 30000); // 30 seconds
+          }
+
+          disconnect(): void {
+            if (this.stream) {
+              this.stream.end();
+            }
+            this.client.close();
+            this.isConnected = false;
+          }
+        }
+        ```
+
+        Create `main.ts`:
+        
+        ```typescript
+        import { StreamManager } from './stream-manager';
+        import { CommitmentLevel, SubscribeRequest } from "@triton-one/yellowstone-grpc";
+
+        // Configuration
+        const ENDPOINT = "your-grpc-endpoint"; // LaserStream or Dedicated Node endpoint
+        const API_KEY = "your-api-key";
+
+        // USDC Token Mint for example
+        const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+        async function main() {
+          const streamManager = new StreamManager(
+            ENDPOINT,
+            API_KEY,
+            handleAccountUpdate,
+            handleError
+          );
+
+          // Subscribe to USDC mint account updates
+          const subscribeRequest: SubscribeRequest = {
+            accounts: {
+              accountSubscribe: {
+                account: [USDC_MINT],
+                owner: [],
+                filters: []
+              }
+            },
+            accountsDataSlice: [],
+            commitment: CommitmentLevel.CONFIRMED,
+            slots: {},
+            transactions: {},
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {}
+          };
+
+          console.log("🚀 Starting USDC mint account monitoring...");
+          await streamManager.connect(subscribeRequest);
+
+          // Handle graceful shutdown
+          process.on('SIGINT', () => {
+            console.log('\n🛑 Shutting down...');
+            streamManager.disconnect();
+            process.exit(0);
+          });
+        }
+
+        function handleAccountUpdate(data: any): void {
+          if (data.account) {
+            const account = data.account.account;
+            console.log('\n📊 Account Update:');
+            console.log(`  Account: ${account.pubkey}`);
+            console.log(`  Owner: ${account.owner}`);
+            console.log(`  Lamports: ${account.lamports}`);
+            console.log(`  Data Length: ${account.data?.length || 0} bytes`);
+            console.log(`  Slot: ${data.account.slot}`);
+            console.log(`  Timestamp: ${new Date().toISOString()}`);
+          }
+          
+          if (data.pong) {
+            console.log(`💓 Keepalive pong received (id: ${data.pong.id})`);
+          }
+        }
+
+        function handleError(error: any): void {
+          console.error('❌ Stream error:', error.message);
+        }
+
+        main().catch(console.error);
+        ```
+        
+        Run your stream:
+        ```bash
+        npx ts-node main.ts
+        ```
+      </Tab>
+      
+      <Tab title="Rust">
+        Create `src/main.rs`:
+        
+        ```rust
+        use yellowstone_grpc_client::GeyserGrpcClient;
+        use yellowstone_grpc_proto::prelude::*;
+        use futures::StreamExt;
+        use std::collections::HashMap;
+        use tokio::time::{sleep, Duration};
+
+        #[tokio::main]
+        async fn main() -> anyhow::Result<()> {
+            let endpoint = "your-grpc-endpoint"; // Replace with your endpoint
+            let token = Some("your-api-key".to_string()); // Replace with your API key
+            
+            let mut client = GeyserGrpcClient::connect(endpoint, token, None).await?;
+            
+            // USDC mint account
+            let usdc_mint = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+            
+            let mut accounts = HashMap::new();
+            accounts.insert(
+                "usdc_mint".to_string(),
+                SubscribeRequestFilterAccounts {
+                    account: vec![usdc_mint.to_string()],
+                    owner: vec![],
+                    filters: vec![],
+                }
+            );
+            
+            let mut stream = client.subscribe_once(
+                accounts,
+                HashMap::new(), // slots
+                HashMap::new(), // transactions
+                HashMap::new(), // blocks
+                HashMap::new(), // blocks_meta
+                None, // commitment
+                HashMap::new(), // accounts_data_slice
+                Some(CommitmentLevel::Confirmed),
+                HashMap::new(), // entry
+            ).await?;
+
+            println!("🚀 Connected! Monitoring USDC mint account...");
+            
+            while let Some(message) = stream.next().await {
+                match message {
+                    Ok(msg) => {
+                        if let Some(account) = msg.update_oneof {
+                            match account {
+                                subscribe_update::UpdateOneof::Account(account_update) => {
+                                    println!("\n📊 Account Update:");
+                                    println!("  Account: {}", account_update.account.as_ref()
+                                        .map(|a| &a.pubkey).unwrap_or(&"N/A".to_string()));
+                                    println!("  Lamports: {}", account_update.account.as_ref()
+                                        .map(|a| a.lamports).unwrap_or(0));
+                                    println!("  Slot: {}", account_update.slot);
+                                }
+                                _ => {} // Handle other update types as needed
+                            }
+                        }
+                    }
+                    Err(error) => {
+                        eprintln!("❌ Stream error: {}", error);
+                        sleep(Duration::from_secs(1)).await;
+                    }
+                }
+            }
+            
+            Ok(())
+        }
+        ```
+        
+        Run your stream:
+        ```bash
+        cargo run
+        ```
+      </Tab>
+      
+      <Tab title="Go">
+        Create `main.go`:
+        
+        ```go
+        package main
+
+        import (
+            "context"
+            "fmt"
+            "log"
+            "time"
+
+            "github.com/rpcpool/yellowstone-grpc/examples/golang/pkg/grpc"
+            pb "github.com/rpcpool/yellowstone-grpc/examples/golang/pkg/proto"
+            "google.golang.org/grpc/metadata"
+        )
+
+        func main() {
+            endpoint := "your-grpc-endpoint" // Replace with your endpoint
+            apiKey := "your-api-key"         // Replace with your API key
+            
+            client, err := grpc.NewGrpcConnection(context.Background(), endpoint)
+            if err != nil {
+                log.Fatalf("Failed to connect: %v", err)
+            }
+            defer client.Close()
+            
+            // Add authentication
+            ctx := metadata.AppendToOutgoingContext(context.Background(), "x-token", apiKey)
+            
+            // USDC mint account
+            usdcMint := "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+            
+            stream, err := client.Subscribe(ctx)
+            if err != nil {
+                log.Fatalf("Failed to subscribe: %v", err)
+            }
+            
+            // Send subscription request
+            request := &pb.SubscribeRequest{
+                Accounts: map[string]*pb.SubscribeRequestFilterAccounts{
+                    "usdc_mint": {
+                        Account: []string{usdcMint},
+                        Owner:   []string{},
+                        Filters: []*pb.SubscribeRequestFilterAccountsFilter{},
+                    },
+                },
+                Commitment: pb.CommitmentLevel_CONFIRMED,
+            }
+            
+            if err := stream.Send(request); err != nil {
+                log.Fatalf("Failed to send request: %v", err)
+            }
+            
+            fmt.Println("🚀 Connected! Monitoring USDC mint account...")
+            
+            for {
+                response, err := stream.Recv()
+                if err != nil {
+                    log.Printf("❌ Stream error: %v", err)
+                    time.Sleep(time.Second)
+                    continue
+                }
+                
+                if account := response.GetAccount(); account != nil {
+                    fmt.Printf("\n📊 Account Update:\n")
+                    fmt.Printf("  Account: %s\n", account.Account.Pubkey)
+                    fmt.Printf("  Lamports: %d\n", account.Account.Lamports)
+                    fmt.Printf("  Slot: %d\n", account.Slot)
+                    fmt.Printf("  Timestamp: %s\n", time.Now().Format(time.RFC3339))
+                }
+            }
+        }
+        ```
+        
+        Run your stream:
+        ```bash
+        go run main.go
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Test Your Stream">
+    Run your application and verify it's working:
+
+    1. **Start your stream** using the command for your language
+    2. **Look for connection confirmation** in the console
+    3. **Wait for account updates** - you should see periodic updates to the USDC mint account
+    4. **Test reconnection** by temporarily disconnecting your internet
+    5. **Verify keepalive** by watching for pong messages every 30 seconds
+
+    **Expected output:**
+    ```
+    🚀 Connected! Monitoring USDC mint account...
+    ✅ Connected and subscribed successfully
+    💓 Keepalive pong received (id: 1703123456789)
+    
+    📊 Account Update:
+      Account: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+      Owner: TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb
+      Lamports: 1461600
+      Data Length: 82 bytes
+      Slot: 275123456
+      Timestamp: 2024-01-15T10:30:45.123Z
+    ```
   </Step>
 </Steps>
 
-<Warning>
-  Each guide includes complete working examples in TypeScript, Rust, and Go, along with advanced filtering patterns and best practices.
-</Warning>
+## What's Next?
+
+Now that you have a working gRPC stream, explore these monitoring guides:
+
+<CardGroup cols={2}>
+  <Card title="Account Monitoring" icon="user" href="/grpc/account-monitoring">
+    Advanced account filtering and data slicing techniques
+  </Card>
+  <Card title="Transaction Monitoring" icon="receipt" href="/grpc/transaction-monitoring">
+    Stream transactions with program filtering and execution details
+  </Card>
+  <Card title="Slot & Block Monitoring" icon="cube" href="/grpc/slot-and-block-monitoring">
+    Monitor network consensus and block production
+  </Card>
+  <Card title="Stream Pump AMM Data" icon="chart-line" href="/grpc/stream-pump-amm-data">
+    Real-world example: monitor DeFi protocol data
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<Accordion title="Connection Issues">
+  **Symptoms:** Connection timeouts, authentication errors
+  
+  **Solutions:**
+  - Verify your endpoint URL and API key
+  - Check if your plan includes gRPC access
+  - Ensure you're using the correct port (typically 2053 for Dedicated Nodes)
+  - For LaserStream, make sure you have a Professional plan
+</Accordion>
+
+<Accordion title="No Data Received">
+  **Symptoms:** Stream connects but no account updates appear
+  
+  **Solutions:**
+  - USDC mint updates are infrequent - try monitoring a more active account
+  - Check your commitment level (try `PROCESSED` for more frequent updates)
+  - Verify your account filter configuration
+  - Monitor a token account instead of the mint for more activity
+</Accordion>
+
+<Accordion title="Stream Disconnections">
+  **Symptoms:** Frequent disconnections, reconnection loops
+  
+  **Solutions:**
+  - Implement exponential backoff (included in examples above)
+  - Check network stability
+  - Ensure keepalive pings are working (every 30 seconds)
+  - Monitor server-side rate limits
+</Accordion>
+
+## Best Practices
+
+<Note>
+**Production Readiness Checklist:**
+
+- ✅ Implement exponential backoff for reconnections
+- ✅ Use keepalive pings every 30 seconds
+- ✅ Handle all stream events (data, error, end, close)
+- ✅ Process data asynchronously to avoid blocking
+- ✅ Monitor connection health and alert on failures
+- ✅ Use appropriate commitment levels for your use case
+- ✅ Filter data as specifically as possible to reduce bandwidth
+</Note>
