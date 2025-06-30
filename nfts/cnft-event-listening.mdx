@@ -35,9 +35,15 @@ Receiving these updates in **real time** helps you keep your interface or data l
 
 ### 3. Event Listening Methods
 
-Helius offers **three major** ways to listen for cNFT events. Below is a recap of each approach.
+Helius offers **three major** ways to listen for cNFT events:
 
-#### 3.1 WebSockets (Standard & Enhanced)
+* **Standard WebSockets**: Simple persistent connection for basic program monitoring
+* **Enhanced WebSockets**: Advanced filtering with better transaction targeting
+* **gRPC (Yellowstone)**: Maximum performance and flexibility via LaserStream or Dedicated Nodes
+
+Choose based on your needs: Standard WebSockets for simplicity, Enhanced WebSockets for better filtering, or gRPC for enterprise-scale applications with the highest performance.
+
+#### 3.1 Standard WebSockets
 
 [**Standard WebSockets**](/rpc/websocket)
 
@@ -86,10 +92,13 @@ ws.on('close', () => {
 });
 ```
 
-[**Enhanced WebSockets**](/laserstream/websocket)
+#### 3.2 Enhanced WebSockets
+
+[**Enhanced WebSockets**](/enhanced-websockets)
 
 * **Enhanced** WebSocket with advanced filters (`accountInclude`, `accountRequired`, etc.).
 * **Reduces parsing overhead** because you only receive transactions relevant to your addresses.
+* **Real-time filtering** ensures you only get the transactions you care about.
 
 ```js
 const WebSocket = require('ws');
@@ -126,7 +135,7 @@ ws.on('message', (rawData) => {
 
 ***
 
-#### 3.2 Webhooks
+#### 3.3 Webhooks
 
 [**Webhooks**](/webhooks) let Helius notify your server via HTTP POST whenever an on-chain event occurs. Ideal if you **don't want** a persistent connection.
 
@@ -151,12 +160,14 @@ curl -X POST \
 
 ***
 
-#### 3.3 gRPC (Yellowstone)
+#### 3.4 gRPC (Yellowstone)
 
-[**gRPC**](/grpc) is the most flexible and high-performance event listening solution, available on [**Dedicated Nodes**](/dedicated-nodes).
+[**gRPC**](/grpc) is the most flexible and high-performance event listening solution, available through [**LaserStream**](/laserstream) or [**Dedicated Nodes**](/dedicated-nodes).
 
 * **Advanced filtering** (memcmp, owners, accounts, etc.).
 * **Enterprise-level** throughput for large-scale apps.
+* **LaserStream**: Multi-tenant gRPC service with automatic failover and historical replay.
+* **Dedicated Nodes**: Exclusive gRPC endpoint with guaranteed resource isolation.
 
 **Example** (TypeScript with reconnection logic shortened):
 
@@ -168,7 +179,8 @@ class GrpcStreamManager {
 }
 
 async function monitorCNFTTree() {
-  const manager = new GrpcStreamManager("your-node-url:2053", "x-token");
+  // Use LaserStream endpoint or your Dedicated Node endpoint
+  const manager = new GrpcStreamManager("your-grpc-endpoint", "your-api-key");
 
   const subscribeReq: SubscribeRequest = {
     commitment: CommitmentLevel.CONFIRMED,
@@ -384,6 +396,6 @@ Look for instructions referencing the **cNFT** program or the **Merkle tree**. I
 * **Pagination**: For addresses with a lot of activity, you may need to iterate with `before` or `until` to get older data.
 * **Verification**: For extra security, you can verify Merkle proofs to confirm a cNFT leaf is valid under the on-chain root.
 * **Indexing**: If you're building a large-scale solution, consider storing parsed cNFT events in your own database for quick queries.
-* **Performance**: For high-volume event listening, a **Dedicated Node + gRPC** approach offers top performance and advanced filters.
+* **Performance**: For high-volume event listening, **gRPC** (via LaserStream or Dedicated Nodes) offers top performance and advanced filters.
 
 **Happy building!**

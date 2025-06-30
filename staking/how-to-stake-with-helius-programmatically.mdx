@@ -1,300 +1,479 @@
 ---
-title: How to Stake With Helius Programmatically
-description: >-
-  Learn how to stake SOL on Solana using the Helius Node.js SDK with clean,
-  programmatic flows
+title: How to Stake SOL Programmatically
+description: Build seamless staking experiences for your users with the Helius SDK - from setup to withdrawal in just a few lines of code.
 ---
 
-Welcome, Solana builder 👋 You are about to give your users a single-click staking flow while keeping full programmatic control in your codebase. The Helius Node.js SDK already wraps every low-level detail, so your job is mostly to decide **when** to call each helper and **who** signs the resulting transaction
+<Info>
+**Zero-Commission Validator**: Stake with the Helius validator and keep 100% of your staking rewards with our 0% commission rate.
+</Info>
 
-This guide starts with general information about staking on Solana, then shows how to install the SDK, and finally walks through the full staking lifecycle with practical examples
+## Quick Overview
 
-***
+The Helius SDK provides simple methods to handle the complete SOL staking lifecycle programmatically. Perfect for building staking interfaces, DeFi protocols, or automated staking strategies.
 
-## 1. Staking on Solana
-
-* **Stake account**\
-  A special account that locks up SOL. The SOL inside is **delegated** to a validator of your choice. You can have as many stake accounts as you like and each one points at exactly one validator
-* **Rewards**\
-  The validator earns rewards for producing blocks. Those rewards flow back into every stake account that selected that validator. When you use the Helius validator the commission rate is 0 %, so users keep everything
-* **Life-cycle**\
-  1 ) _Create and delegate_\
-  2 ) _Cool down_ (optional deactivation)\
-  3 ) _Withdraw_ or _re-delegate_\
-  \
-  The helper methods map to these exact lifecycle phases
-
-***
-
-## 2. One-time Setup
-
-<CodeGroup>
-```bash
-# Install only what is required
-npm i helius-sdk @solana/web3.js bs58
-```
-
-```ts
-// helius.ts
-import { Helius } from 'helius-sdk';
-
-// Replace with the API key you see in the Helius dashboard
-export const helius = new Helius('YOUR_API_KEY');
-
-/*
-   The SDK creates its own Connection that targets mainnet-beta
-*/
-```
-</CodeGroup>
-
-From this point on, every snippet will assume you imported this `helius` instance and that you hold a funded `Keypair` called `payer`.
-
-***
-
-## 3. Method Reference with Example Calls
-
-### createStakeTransaction
-Builds a serialized, unsigned transaction that creates a new stake account, and delegates it to the Helius validator
-
-**Example call:**
-```ts
-await helius.rpc.createStakeTransaction(owner, 1.5)
-```
-
-**Return value:**
-```json
-{'{ serializedTx, stakeAccountPubkey }'}
-```
-
-
-### getStakeInstructions
-The same as **createStakeTransaction**, except it _only_ returns the `TransactionInstruction[]`. This is useful inside browser wallets that construct their own transaction object, or pairing with the SDK's [smart transactions](/sending-transactions/smart-transactions)
-
-**Example call:**
-```ts
-await helius.rpc.getStakeInstructions(owner, 1.5)
-```
-
-**Return value:**
-```json
-{'{ instructions, stakeAccount }'}
-```
-
-
-### createUnstakeTransaction
-Builds a serialized, unsigned transaction that sends a `Deactivate` instruction to an existing stake account
-
-**Example call:**
-```ts
-await helius.rpc.createUnstakeTransaction(owner, stakeAcc)
-```
-
-**Return value:**
-```json
-serializedTx
-```
-
-
-### getUnstakeInstruction
-Single `Deactivate` instruction with no wrapper transaction
-
-**Example call:**
-```ts
-helius.rpc.getUnstakeInstruction(owner, stakeAcc)
-```
-
-**Return value:**
-```json
-TransactionInstruction
-```
-
-
-### getWithdrawableAmount
-Returns the number of lamports that can be withdrawn right now from a given stake account. Pass `true` to include the rent-exempt minimum into the withdrawable amount
-
-**Example call:**
-```ts
-await helius.rpc.getWithdrawableAmount(stakeAcc, true)
-```
-
-**Return value:**
-```json
-number
-```
-
-
-### createWithdrawTransaction
-Builds a serialized, unsigned transaction that moves lamports out of a stake account into any destination address. Works only after the cooldown period has ended
-
-**Example call:**
-```ts
-await helius.rpc.createWithdrawTransaction(owner, stakeAcc, dest, amount)
-```
-
-**Return value:**
-```json
-serializedTx
-```
-
-
-### getWithdrawInstruction
-Stand-alone withdraw instruction
-
-**Example call:**
-```ts
-helius.rpc.getWithdrawInstruction(owner, stakeAcc, dest, amount)
-```
-
-**Return value:**
-```json
-TransactionInstruction
-```
-
-
-### getHeliusStakeAccounts
-Returns all stake accounts that are currently delegated to the Helius validator for a given wallet
-
-**Example call:**
-```ts
-await helius.rpc.getHeliusStakeAccounts(wallet)
-```
-
-**Return value:**
-```json
-ParsedAccountData[]
-```
-
-
-***
-
-## 4. Quickstart: Stake in Three Simple Steps
-
-```ts
-import { Transaction } from '@solana/web3.js';
-import bs58 from 'bs58';
-
-/* 1. Build the unsigned transaction */
-const { serializedTx, stakeAccountPubkey } =
-  await helius.rpc.createStakeTransaction(payer.publicKey, 1.5); // amount in SOL, rent added automatically
-
-/* 2. Sign with the fee payer */
-const tx = Transaction.from(bs58.decode(serializedTx));
-tx.partialSign(payer);          // the new stake account is already signed by the SDK
-
-/* 3. Broadcast */
-const sig = await helius.connection.sendRawTransaction(tx.serialize());
-console.log(`Staked 1.5 SOL. Track it at https://orb.helius.dev/tx/${sig}`);
-```
-
-***
-
-## 5. Full Lifecycle Cookbook
-
-### 5.1 Fetch every stake account that delegates to Helius for a given wallet
-
-```ts
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-
-const accounts = await helius.rpc.getHeliusStakeAccounts(payer.publicKey.toBase58());
-
-accounts.forEach(acc => {
-  const d = (acc.account.data as any).parsed.info.stake.delegation;
-  console.log(
-    `${acc.pubkey.toBase58()} holds ${d.stake / LAMPORTS_PER_SOL} SOL (activated in epoch ${d.activationEpoch})`
-  );
-});
-```
-
-### 5.2 Deactivate (begin cooldown)
-
-```ts
-const blob = await helius.rpc.createUnstakeTransaction(payer.publicKey, stakeAccountPubkey);
-
-const tx = Transaction.from(bs58.decode(blob));
-tx.partialSign(payer);
-
-await helius.connection.sendRawTransaction(tx.serialize());
-console.log('Deactivation requested. The stake becomes withdrawable at the end of the current epoch.');
-```
-
-### 5.3 Check how many lamports can be withdrawn
-
-```ts
-const lamportsNow   = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey);
-const lamportsTotal = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey, true);
-
-console.log(`Available right now: ${lamportsNow}. Full balance: ${lamportsTotal}.`);
-```
-
-### 5.4 Withdraw part, or all, of the balance
-
-```ts
-const instruction = helius.rpc.getWithdrawInstruction(
-  payer.publicKey,
-  stakeAccountPubkey,
-  destinationPubkey,
-  lamportsTotal        // withdraw everything; use a smaller number for partial
-);
-
-const sig = await helius.rpc.sendSmartTransaction([instruction], [payer]);
-console.log(`Withdrawal sent. Track it at https://orb.helius.dev/tx/${sig}`);
-```
-
-***
-
-## 6. Power User Patterns
-
-<Accordion title="Browser-only Staking">
-Call `getStakeInstructions`, feed the returned instructions into the wallet adapter, and let the wallet build and sign the transaction
-</Accordion>
-
-<Accordion title="Batching">
-Loop over wallets, call `createStakeTransaction` for each, and send the blobs in parallel. Respect your rate limit
-</Accordion>
-
-<Accordion title="Smart Transactions">
-Use `getStakeInstructions`, `getUnstakeInstruction`, and `getWithdrawInstruction` with our [smart transactions](/sending-transactions/smart-transactions) to ensure your staking transactions are well-optimized and land as fast as possible
-</Accordion>
-
-***
-
-## 7. Common Pitfalls
-
-- **Epoch timing**\
-A Solana epoch lasts roughly two days. If you deactivate halfway through epoch 600, the stake stays locked until epoch 601 begins
-
-- **Rent exempt minimum**\
-The stake account will be closed if you withdraw the _full_ balance, including rent. If you withdraw less than the rent-exempt threshold, the account will remain open
-
-- **Hardware wallets**\
-Users see two prompts: one signature for the new stake account (already signed within the blob) and one for the fee payer. Make sure your UX explains this
-
-***
-
-## 8. One-page Cheat Sheet
-
-```ts
-// Stake SOL to Helius validator
-await helius.rpc.createStakeTransaction(owner, amountInSol);
-
-// Deactivate stake account
-await helius.rpc.createUnstakeTransaction(owner, stakeAccount);
-
-// Withdraw SOL (after cooldown)
-helius.rpc.getWithdrawInstruction(owner, stakeAccount, destination, lamports);
-```
-
-***
-
-### Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Helius SDK" icon="github" href="https://github.com/helius-labs/helius-sdk">
-    Full reference documentation for the Helius SDK
+<CardGroup cols={3}>
+  <Card title="Create & Delegate" icon="plus">
+    Set up new stake accounts and delegate to validators in one transaction
   </Card>
-  <Card title="Discord" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
-    Join our developer chat for support and questions
+  <Card title="Monitor & Manage" icon="chart-line">
+    Track rewards, check status, and manage existing stake accounts
+  </Card>
+  <Card title="Withdraw & Redeem" icon="money-bill">
+    Deactivate stakes and withdraw SOL after cooldown periods
   </Card>
 </CardGroup>
 
-Happy building and happy earning!
+## Installation & Setup
+
+<CodeGroup>
+```bash npm
+npm install helius-sdk @solana/web3.js bs58
+```
+
+```bash yarn  
+yarn add helius-sdk @solana/web3.js bs58
+```
+
+```bash pnpm
+pnpm add helius-sdk @solana/web3.js bs58
+```
+</CodeGroup>
+
+<CodeGroup>
+```typescript Setup
+import { Helius } from 'helius-sdk';
+import { Keypair, Transaction } from '@solana/web3.js';
+import bs58 from 'bs58';
+
+// Initialize Helius client
+const helius = new Helius('YOUR_API_KEY');
+
+// Your wallet keypair (load from your secure storage)
+const payer = Keypair.fromSecretKey(/* your secret key */);
+```
+</CodeGroup>
+
+## Staking Basics
+
+<AccordionGroup>
+  <Accordion title="How Solana Staking Works">
+    **Stake Account**: A special account that locks SOL and delegates it to a validator. Each stake account points to exactly one validator.
+    
+    **Rewards**: Validators earn rewards for securing the network. These rewards are distributed to all stake accounts delegated to that validator.
+    
+    **Lifecycle**: Create → Delegate → Earn Rewards → Deactivate → Withdraw
+  </Accordion>
+  
+  <Accordion title="Why Choose Helius Validator">
+    - **0% Commission**: Keep 100% of your staking rewards
+    - **High Performance**: Reliable block production and minimal downtime  
+    - **Easy Integration**: Optimized for the Helius SDK with built-in helpers
+  </Accordion>
+  
+  <Accordion title="Timing & Epochs">
+    - **Activation**: Stakes become active at the start of the next epoch (~2 days)
+    - **Deactivation**: Takes effect at the end of the current epoch
+    - **Cooldown**: Deactivated stakes can be withdrawn immediately after epoch end
+  </Accordion>
+</AccordionGroup>
+
+## Getting Started
+
+<Tabs>
+  <Tab title="Quick Start">
+    Stake SOL in just 3 lines of code:
+
+    ```typescript
+    // 1. Create the staking transaction
+    const { serializedTx, stakeAccountPubkey } = 
+      await helius.rpc.createStakeTransaction(payer.publicKey, 1.5);
+
+    // 2. Sign and send
+    const tx = Transaction.from(bs58.decode(serializedTx));
+    tx.partialSign(payer);
+    const signature = await helius.connection.sendRawTransaction(tx.serialize());
+
+    console.log(`Staked! Transaction: ${signature}`);
+    console.log(`Stake Account: ${stakeAccountPubkey}`);
+    ```
+    
+    <Info>
+    The SDK automatically handles rent calculation and stake account creation. The `1.5` parameter is the amount in SOL you want to stake.
+    </Info>
+  </Tab>
+  
+  <Tab title="Complete Example">
+    Full staking implementation with error handling:
+
+    ```typescript
+    async function stakeSOL(amountInSol: number) {
+      try {
+        // Create staking transaction
+        const { serializedTx, stakeAccountPubkey } = 
+          await helius.rpc.createStakeTransaction(payer.publicKey, amountInSol);
+        
+        // Deserialize and sign transaction
+        const transaction = Transaction.from(bs58.decode(serializedTx));
+        transaction.partialSign(payer);
+        
+        // Send transaction
+        const signature = await helius.connection.sendRawTransaction(
+          transaction.serialize(),
+          { 
+            skipPreflight: false,
+            preflightCommitment: 'confirmed'
+          }
+        );
+        
+        // Wait for confirmation
+        await helius.connection.confirmTransaction(signature, 'confirmed');
+        
+        return {
+          signature,
+          stakeAccount: stakeAccountPubkey,
+          amount: amountInSol
+        };
+        
+      } catch (error) {
+        console.error('Staking failed:', error);
+        throw error;
+      }
+    }
+
+    // Usage
+    const result = await stakeSOL(2.5);
+    console.log(`Successfully staked ${result.amount} SOL`);
+    ```
+  </Tab>
+</Tabs>
+
+## SDK Methods Reference
+
+<AccordionGroup>
+  <Accordion title="createStakeTransaction(owner, amount)">
+    Creates a complete staking transaction that can be signed and sent.
+    
+    **Parameters:**
+    - `owner` (PublicKey): The wallet that will own the stake account
+    - `amount` (number): Amount of SOL to stake
+    
+    **Returns:**
+    ```typescript
+    {
+      serializedTx: string,        // Base58 encoded transaction
+      stakeAccountPubkey: string   // New stake account address
+    }
+    ```
+    
+    **Example:**
+    ```typescript
+    const result = await helius.rpc.createStakeTransaction(
+      payer.publicKey, 
+      1.5  // 1.5 SOL
+    );
+    ```
+  </Accordion>
+  
+  <Accordion title="getStakeInstructions(owner, amount)">
+    Returns just the instructions for staking (useful for custom transaction building).
+    
+    **Returns:**
+    ```typescript
+    {
+      instructions: TransactionInstruction[],
+      stakeAccount: Keypair
+    }
+    ```
+    
+    **Example:**
+    ```typescript
+    const { instructions } = await helius.rpc.getStakeInstructions(
+      payer.publicKey, 
+      1.5
+    );
+    
+    // Use with Smart Transactions
+    const signature = await helius.rpc.sendSmartTransaction(
+      instructions, 
+      [payer]
+    );
+    ```
+  </Accordion>
+  
+  <Accordion title="getHeliusStakeAccounts(wallet)">
+    Retrieves all stake accounts delegated to the Helius validator for a wallet.
+    
+    **Example:**
+    ```typescript
+    const accounts = await helius.rpc.getHeliusStakeAccounts(
+      payer.publicKey.toBase58()
+    );
+    
+    accounts.forEach(account => {
+      const delegation = account.account.data.parsed.info.stake.delegation;
+      console.log(`Account: ${account.pubkey}`);
+      console.log(`Stake: ${delegation.stake / LAMPORTS_PER_SOL} SOL`);
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="createUnstakeTransaction(owner, stakeAccount)">
+    Creates a transaction to deactivate (begin unstaking) a stake account.
+    
+    **Example:**
+    ```typescript
+    const tx = await helius.rpc.createUnstakeTransaction(
+      payer.publicKey,
+      stakeAccountPubkey
+    );
+    
+    const transaction = Transaction.from(bs58.decode(tx));
+    transaction.partialSign(payer);
+    await helius.connection.sendRawTransaction(transaction.serialize());
+    ```
+  </Accordion>
+  
+  <Accordion title="getWithdrawableAmount(stakeAccount, includeRent?)">
+    Check how much SOL can be withdrawn from a deactivated stake account.
+    
+    **Parameters:**
+    - `includeRent` (boolean): Whether to include rent-exempt amount
+    
+    **Example:**
+    ```typescript
+    const available = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey);
+    const total = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey, true);
+    
+    console.log(`Available now: ${available / LAMPORTS_PER_SOL} SOL`);
+    console.log(`Total balance: ${total / LAMPORTS_PER_SOL} SOL`);
+    ```
+  </Accordion>
+  
+  <Accordion title="createWithdrawTransaction(owner, stakeAccount, destination, amount)">
+    Creates a transaction to withdraw SOL from a deactivated stake account.
+    
+    **Example:**
+    ```typescript
+    const tx = await helius.rpc.createWithdrawTransaction(
+      payer.publicKey,
+      stakeAccountPubkey,
+      destinationPubkey,
+      withdrawAmount  // in lamports
+    );
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Complete Staking Workflow
+
+<Steps>
+  <Step title="Create and Delegate">
+    ```typescript
+    // Stake 2 SOL to Helius validator
+    const { serializedTx, stakeAccountPubkey } = 
+      await helius.rpc.createStakeTransaction(payer.publicKey, 2.0);
+    
+    const tx = Transaction.from(bs58.decode(serializedTx));
+    tx.partialSign(payer);
+    
+    const signature = await helius.connection.sendRawTransaction(tx.serialize());
+    console.log(`Stake created: ${stakeAccountPubkey}`);
+    ```
+  </Step>
+  
+  <Step title="Monitor Your Stakes">
+    ```typescript
+    // Get all your Helius stake accounts
+    const accounts = await helius.rpc.getHeliusStakeAccounts(
+      payer.publicKey.toBase58()
+    );
+    
+    console.log(`You have ${accounts.length} active stake accounts`);
+    
+    accounts.forEach((account, index) => {
+      const info = account.account.data.parsed.info;
+      const delegation = info.stake.delegation;
+      
+      console.log(`Stake ${index + 1}:`);
+      console.log(`  Amount: ${delegation.stake / LAMPORTS_PER_SOL} SOL`);
+      console.log(`  Activated: Epoch ${delegation.activationEpoch}`);
+      console.log(`  Status: ${info.meta.lockup.unixTimestamp === 0 ? 'Active' : 'Locked'}`);
+    });
+    ```
+  </Step>
+  
+  <Step title="Deactivate (Start Unstaking)">
+    ```typescript
+    // Begin the unstaking process
+    const unstakeTx = await helius.rpc.createUnstakeTransaction(
+      payer.publicKey,
+      stakeAccountPubkey
+    );
+    
+    const tx = Transaction.from(bs58.decode(unstakeTx));
+    tx.partialSign(payer);
+    
+    await helius.connection.sendRawTransaction(tx.serialize());
+    console.log('Deactivation started. Will be withdrawable next epoch.');
+    ```
+  </Step>
+  
+  <Step title="Withdraw SOL">
+    ```typescript
+    // Check withdrawable amount
+    const withdrawable = await helius.rpc.getWithdrawableAmount(
+      stakeAccountPubkey, 
+      true  // include rent
+    );
+    
+    if (withdrawable > 0) {
+      // Create withdrawal instruction
+      const withdrawInstruction = helius.rpc.getWithdrawInstruction(
+        payer.publicKey,
+        stakeAccountPubkey,
+        payer.publicKey,  // withdraw to same wallet
+        withdrawable
+      );
+      
+      // Send using Smart Transactions for better reliability
+      const signature = await helius.rpc.sendSmartTransaction(
+        [withdrawInstruction], 
+        [payer]
+      );
+      
+      console.log(`Withdrawn ${withdrawable / LAMPORTS_PER_SOL} SOL`);
+    }
+    ```
+  </Step>
+</Steps>
+
+## Advanced Patterns
+
+<Tabs>
+  <Tab title="Browser Integration">
+    For browser applications using wallet adapters:
+
+    ```typescript
+    // Get instructions instead of full transaction
+    const { instructions, stakeAccount } = await helius.rpc.getStakeInstructions(
+      wallet.publicKey,
+      stakeAmount
+    );
+    
+    // Let the wallet handle transaction building and signing
+    const transaction = new Transaction().add(...instructions);
+    
+    // Sign with wallet adapter
+    const signature = await wallet.sendTransaction(transaction, connection);
+    
+    console.log(`Stake account: ${stakeAccount.publicKey.toBase58()}`);
+    ```
+  </Tab>
+  
+  <Tab title="Batch Operations">
+    Stake for multiple wallets efficiently:
+
+    ```typescript
+    async function batchStake(wallets: Keypair[], amount: number) {
+      const promises = wallets.map(async (wallet) => {
+        try {
+          const { serializedTx, stakeAccountPubkey } = 
+            await helius.rpc.createStakeTransaction(wallet.publicKey, amount);
+          
+          const tx = Transaction.from(bs58.decode(serializedTx));
+          tx.partialSign(wallet);
+          
+          return helius.connection.sendRawTransaction(tx.serialize());
+        } catch (error) {
+          console.error(`Failed to stake for ${wallet.publicKey.toBase58()}:`, error);
+          return null;
+        }
+      });
+      
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      
+      console.log(`Successfully staked for ${successful}/${wallets.length} wallets`);
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Smart Transactions">
+    Use Smart Transactions for better reliability and optimization:
+
+    ```typescript
+    // Get individual instructions
+    const { instructions } = await helius.rpc.getStakeInstructions(
+      payer.publicKey,
+      2.5
+    );
+    
+    // Send with Smart Transaction features:
+    // - Automatic priority fee optimization
+    // - Retry logic with backoff
+    // - Better error handling
+    const signature = await helius.rpc.sendSmartTransaction(
+      instructions,
+      [payer],
+      {
+        skipPreflight: false,
+        maxRetries: 3
+      }
+    );
+    
+    console.log(`Smart transaction sent: ${signature}`);
+    ```
+  </Tab>
+</Tabs>
+
+## Important Notes
+
+<Warning>
+**Epoch Timing**: Solana epochs last ~2 days. Stakes activate at the next epoch start, and deactivation takes effect at the current epoch end.
+</Warning>
+
+<Note>
+**Rent Considerations**: Stake accounts need rent-exempt reserves (~0.00228 SOL). Withdrawing the full balance closes the account.
+</Note>
+
+<Tip>
+**Hardware Wallets**: Users will see two signature prompts - one for the stake account (pre-signed) and one for the fee payer. Design your UX accordingly.
+</Tip>
+
+## Quick Reference
+
+Need a quick reminder? Here are the essential methods:
+
+```typescript
+// Stake SOL
+await helius.rpc.createStakeTransaction(owner, amountInSol);
+
+// Check your stakes  
+await helius.rpc.getHeliusStakeAccounts(ownerAddress);
+
+// Start unstaking
+await helius.rpc.createUnstakeTransaction(owner, stakeAccount);
+
+// Check withdrawable amount
+await helius.rpc.getWithdrawableAmount(stakeAccount, includeRent);
+
+// Withdraw SOL
+helius.rpc.getWithdrawInstruction(owner, stakeAccount, destination, amount);
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Helius SDK Documentation" icon="code" href="https://github.com/helius-labs/helius-sdk">
+    Complete SDK reference with all available methods
+  </Card>
+  <Card title="Smart Transactions" icon="bolt" href="/sending-transactions/smart-transactions">
+    Optimize your transactions with priority fees and retry logic
+  </Card>
+  <Card title="Join Discord" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Get help from our developer community
+  </Card>
+  <Card title="Validator Dashboard" icon="chart-bar" href="https://www.validators.app/validators/EKgWgpJY5BtX7TeJfhKbqcJT7gzLKFFtj7cjX1XY6CxA">
+    Monitor Helius validator performance and rewards
+  </Card>
+</CardGroup>
