@@ -1,30 +1,277 @@
 ---
 title: 'Authentication'
-description: 'Learn how to authenticate your Helius API requests'
+description: 'Learn how to authenticate your Helius API requests securely and efficiently'
 ---
 
-Helius API uses API keys to authenticate requests. Every API request must include your API key as a query string parameter (`api-key=YOUR_API_KEY`) to verify your identity and permissions.
+# Authentication
 
-## Getting an API Key
+Helius API uses API keys to authenticate requests. Every API request must include your API key to verify your identity and permissions.
 
-1. Create an account on the [Helius Dashboard](https://dashboard.helius.dev)
-2. Navigate to the **API Keys** section 
-3. Click **Create New API Key** and provide a descriptive name for your project
+<Warning>
+Your API key is sensitive information that grants access to your Helius account. Never expose it in client-side code, public repositories, or browser-accessible areas.
+</Warning>
+
+## Getting Started
+
+### 1. Create Your API Key
+
+<Steps>
+  <Step title="Sign up or log in">
+    Create an account on the [Helius Dashboard](https://dashboard.helius.dev) or log in to your existing account.
+  </Step>
+  <Step title="Navigate to API Keys">
+    Go to the **API Keys** section in your dashboard sidebar.
+  </Step>
+  <Step title="Generate a new key">
+    Click **Create New API Key** and provide a descriptive name for your project (e.g., "Production App", "Development Environment").
+  </Step>
+  <Step title="Copy and secure your key">
+    Copy your API key immediately and store it securely. You won't be able to see it again once you navigate away.
+  </Step>
+</Steps>
+
+### 2. Using Your API Key
+
+Include your API key as a query parameter in all requests:
+
+<CodeGroup>
+```bash cURL
+curl "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getAccountInfo","params":["ACCOUNT_ADDRESS"]}'
+```
+
+```javascript JavaScript
+const url = `https://mainnet.helius-rpc.com/?api-key=${YOUR_API_KEY}`;
+const response = await fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getAccountInfo',
+    params: ['ACCOUNT_ADDRESS']
+  })
+});
+```
+
+```python Python
+import requests
+
+url = f"https://mainnet.helius-rpc.com/?api-key={YOUR_API_KEY}"
+payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAccountInfo",
+    "params": ["ACCOUNT_ADDRESS"]
+}
+response = requests.post(url, json=payload)
+```
+</CodeGroup>
 
 ## Security Best Practices
 
-- **Never expose your API key** in client-side code, public repositories, or browser-accessible areas
-- Store your API key securely using environment variables or secret management services
-- Set up IP restrictions for your API keys when available in the dashboard
-- Monitor your API usage in the [Helius Dashboard](https://dashboard.helius.dev) to detect unusual patterns
-- Consider using different API keys for development and production environments
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="shield-check">
+    Store your API key in environment variables, not in your source code.
+    ```bash
+    export HELIUS_API_KEY="your-api-key-here"
+    ```
+  </Card>
+  <Card title="IP Restrictions" icon="globe">
+    Set up IP restrictions for your API keys in the dashboard to limit access to specific IP addresses or ranges.
+  </Card>
+  <Card title="Separate Keys" icon="key">
+    Use different API keys for development, staging, and production environments to isolate usage and improve security.
+  </Card>
+  <Card title="Monitor Usage" icon="chart-line">
+    Regularly check your API usage in the dashboard to detect unusual patterns or potential security issues.
+  </Card>
+</CardGroup>
 
-## Rate Limits
+### Secret Management
 
-API key usage is subject to rate limits based on your subscription plan. Monitor your usage in the Helius Dashboard to ensure you stay within your allocated limits.
+<Tabs>
+  <Tab title="Node.js">
+    ```javascript
+    // Use environment variables
+    const apiKey = process.env.HELIUS_API_KEY;
+    
+    // Or use a secrets manager
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+    const client = new SecretManagerServiceClient();
+    
+    async function getApiKey() {
+      const [version] = await client.accessSecretVersion({
+        name: 'projects/PROJECT_ID/secrets/helius-api-key/versions/latest',
+      });
+      return version.payload.data.toString();
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import os
+    from dotenv import load_dotenv
+    
+    # Load environment variables
+    load_dotenv()
+    api_key = os.getenv('HELIUS_API_KEY')
+    
+    # Or use AWS Secrets Manager
+    import boto3
+    
+    def get_secret():
+        client = boto3.client('secretsmanager')
+        response = client.get_secret_value(SecretId='helius-api-key')
+        return response['SecretString']
+    ```
+  </Tab>
+  <Tab title="Docker">
+    ```dockerfile
+    # In your Dockerfile
+    ENV HELIUS_API_KEY=""
+    
+    # Or use Docker secrets
+    RUN --mount=type=secret,id=helius_key \
+        cat /run/secrets/helius_key > /app/api_key.txt
+    ```
+  </Tab>
+</Tabs>
+
+## Rate Limits & Usage
+
+<Note>
+Rate limits vary by subscription plan. Monitor your usage in the [Helius Dashboard](https://dashboard.helius.dev) to ensure you stay within your allocated limits.
+</Note>
+
+### Understanding Rate Limits
+
+- **Requests per second**: Based on your subscription tier
+- **Monthly request quota**: Total requests allowed per billing cycle
+- **Burst allowance**: Short-term spikes above your base rate limit
+
+### Rate Limit Headers
+
+Helius includes rate limit information in response headers:
+
+```http
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+### Handling Rate Limits
+
+<CodeGroup>
+```javascript JavaScript
+async function makeRequest(url, data) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      console.log(`Rate limited. Retry after ${retryAfter} seconds`);
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      return makeRequest(url, data); // Retry
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
+}
+```
+
+```python Python
+import time
+import requests
+
+def make_request(url, data):
+    try:
+        response = requests.post(url, json=data)
+        
+        if response.status_code == 429:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            print(f"Rate limited. Waiting {retry_after} seconds...")
+            time.sleep(retry_after)
+            return make_request(url, data)  # Retry
+        
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        raise
+```
+</CodeGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Invalid API Key Error">
+    **Symptoms**: 401 Unauthorized or "Invalid API Key" errors
+    
+    **Solutions**:
+    - Verify your API key is correct and hasn't been regenerated
+    - Check that you're including the API key as a query parameter: `?api-key=YOUR_KEY`
+    - Ensure there are no extra spaces or characters in your API key
+    - Confirm your API key hasn't expired or been revoked
+  </Accordion>
+  
+  <Accordion title="Rate Limit Exceeded">
+    **Symptoms**: 429 Too Many Requests errors
+    
+    **Solutions**:
+    - Check your current usage in the dashboard
+    - Implement exponential backoff in your retry logic
+    - Consider upgrading your plan for higher limits
+    - Optimize your requests to reduce unnecessary calls
+  </Accordion>
+  
+  <Accordion title="Forbidden Access">
+    **Symptoms**: 403 Forbidden errors
+    
+    **Solutions**:
+    - Verify IP restrictions aren't blocking your requests
+    - Check that your subscription includes access to the endpoint
+    - Ensure your API key has the necessary permissions
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+    Start making your first API calls with Helius
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference">
+    Explore all available endpoints and methods
+  </Card>
+  <Card title="Rate Limits & Billing" icon="credit-card" href="/billing/plans-and-rate-limits">
+    Understand pricing and upgrade options
+  </Card>
+  <Card title="Dashboard" icon="chart-line" href="https://dashboard.helius.dev">
+    Monitor your API usage and manage keys
+  </Card>
+</CardGroup>
 
 ## Support
 
-If you encounter authentication issues or have questions about API keys, contact support or join our communities:
-- [Discord](https://discord.com/invite/6GXdee3gBj)
-- [Telegram](https://t.me/helius_help) 
+Need help with authentication or have questions about API keys?
+
+<CardGroup cols={2}>
+  <Card title="Discord Community" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Join our Discord for real-time help and community support
+  </Card>
+  <Card title="Email Support" icon="envelope" href="mailto:support@helius.xyz">
+    Contact our support team directly
+  </Card>
+</CardGroup> 
