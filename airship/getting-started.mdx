@@ -1,0 +1,278 @@
+---
+title: "Getting Started with Helius AirShip"
+description: "Learn how to use Helius AirShip for cost-effective token airdrops using ZK compression"
+---
+
+<Info>
+**Helius AirShip** is an open-source tool that makes token airdrops simple, affordable, and accessible. Whether you're distributing to Saga Chapter 2 holders, NFT/cNFT holders, SPL token holders, or using a CSV file, AirShip streamlines the process and dramatically reduces costs through ZK compression.
+</Info>
+
+## What is AirShip?
+
+AirShip is a comprehensive airdrop solution that leverages ZK compression to make large-scale token distribution affordable on Solana. Instead of creating individual token accounts for each recipient (which costs ~0.002 SOL each), AirShip uses ZK compression to bundle recipient data into a single Merkle root, reducing costs by over 95%.
+
+<Note>
+For a detailed explanation of airdrop costs and how ZK compression works, read our comprehensive guide: [The Cheapest Way to Airdrop Solana Tokens](https://www.helius.dev/blog/solana-airdrop)
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Web Version" icon="globe" href="#using-the-web-version">
+    Perfect for small airdrops, up to 200,000 recipients
+  </Card>
+  <Card title="CLI Version" icon="terminal" href="#using-the-cli-version">
+    For advanced users needing larger-scale distribution
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Simplified Airdrops" icon="paper-plane">
+    Easy token airdrops for all, no technical skills needed
+  </Card>
+  <Card title="ZK Compression" icon="compress">
+    Cut costs on large airdrops by reducing account usage
+  </Card>
+  <Card title="Multiple Recipients" icon="users">
+    Support for NFT holders, token holders, CSV files, and more
+  </Card>
+  <Card title="Cost Effective" icon="dollar-sign">
+    Reduce airdrop costs by over 95% compared to traditional methods
+  </Card>
+</CardGroup>
+
+## Cost Comparison
+
+<Tip>
+The savings from ZK compression become even more significant as you scale to larger recipient lists.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Traditional Airdrop" icon="x" color="#ef4444">
+    **10,000 recipients**: 20 SOL ($4,800)
+  </Card>
+  <Card title="ZK Compressed Airdrop" icon="check" color="#10b981">
+    **10,000 recipients**: 0.01 SOL ($2.40)
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Solana Wallet" icon="wallet">
+    A wallet that holds the tokens you want to distribute
+  </Card>
+  <Card title="SOL for Fees" icon="coins">
+    Enough SOL to cover minimal transaction fees
+  </Card>
+  <Card title="Recipient List" icon="list">
+    CSV file, NFT holders, or token holders
+  </Card>
+  <Card title="RPC Endpoint" icon="server">
+    Supports ZK compression and DAS API ([get one free](https://www.helius.dev))
+  </Card>
+</CardGroup>
+
+## Using the Web Version
+
+<Info>
+The web version is perfect for smaller airdrops and users who prefer a graphical interface.
+</Info>
+
+<Steps>
+  <Step title="Access AirShip">
+    Visit the [AirShip website](https://airship.helius.dev) and click "Create New Airdrop."
+  </Step>
+  
+  <Step title="Configure Your Wallet">
+    1. Enter your private key and RPC URL
+    2. Use an RPC like `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+    <Warning>
+    Use a temporary wallet created specifically for this airdrop task. The private key is only used for signing transactions and isn't stored or shared anywhere.
+    </Warning>
+  </Step>
+  
+  <Step title="Select Recipients">
+    Choose from several options:
+    
+    <CardGroup cols={2}>
+      <Card title="NFT Holders" icon="image">
+        Select specific NFT collections
+      </Card>
+      <Card title="Token Holders" icon="coins">
+        Target holders of specific SPL tokens
+      </Card>
+      <Card title="Saga Holders" icon="mobile">
+        Distribute to Saga Chapter 2 holders
+      </Card>
+      <Card title="CSV Upload" icon="file-csv">
+        Upload your own list of recipients
+      </Card>
+    </CardGroup>
+  </Step>
+  
+  <Step title="Set Token Amount">
+    Specify either:
+    - A fixed number of tokens per recipient
+    - A percentage of your total token supply to distribute
+  </Step>
+  
+  <Step title="Review and Confirm">
+    Carefully review the airdrop summary:
+    - Total recipients
+    - Token amount per recipient
+    - Estimated transaction fees
+    - Total cost
+
+    Once confirmed, AirShip will handle the batch sending and ZK proofs automatically.
+  </Step>
+</Steps>
+
+## Using the CLI Version
+
+<Info>
+The CLI version is better for larger airdrops and users who prefer command-line tools.
+</Info>
+
+### Installation
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install -g helius-airship
+    ```
+  </Tab>
+  <Tab title="Build from Source">
+    ```bash
+    git clone https://github.com/helius-labs/airship.git
+    cd airship
+    pnpm install && pnpm build
+    cd packages/cli
+    pnpm link --global
+    ```
+  </Tab>
+</Tabs>
+
+### Usage
+
+<CodeGroup>
+```bash Basic Command
+helius-airship \
+  --keypair /path/to/your/airdrop_wallet.json \
+  --url "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"
+```
+
+```bash With Help
+helius-airship --help
+```
+</CodeGroup>
+
+<Note>
+Replace `/path/to/your/airdrop_wallet.json` with the path to your Solana filesystem wallet and `YOUR_API_KEY` with your Helius API key.
+</Note>
+
+### Interactive Setup
+
+<Steps>
+  <Step title="Select Recipient Type">
+    Choose from NFT holders, token holders, CSV, etc.
+  </Step>
+  <Step title="Specify Token Amounts">
+    Set the amount to distribute per recipient
+  </Step>
+  <Step title="Confirm Details">
+    Review the airdrop configuration
+  </Step>
+  <Step title="Execute Transactions">
+    AirShip will handle the batch processing
+  </Step>
+</Steps>
+
+## Requirements
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js">
+    Node.js >= v20.9.0
+    
+    pnpm >= v9.13.2 (for building from source)
+  </Card>
+  <Card title="Solana Wallet" icon="wallet">
+    A valid filesystem wallet that:
+    - Holds the tokens to distribute
+    - Has SOL for transaction fees
+    - Owns the token being distributed
+  </Card>
+  <Card title="RPC Endpoint" icon="server">
+    Must support:
+    - ZK Compression
+    - Digital Asset Standard (DAS) API
+    
+    [Get one free at Helius Dashboard](https://www.dashbord.helius.dev)
+  </Card>
+</CardGroup>
+
+<Note>
+If you don't have a filesystem wallet, visit the [Solana documentation](https://docs.solana.com/cli/install-solana-cli-tools) for details on creating one.
+</Note>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Test First" icon="flask">
+    Always test with a small batch before running large airdrops
+  </Card>
+  <Card title="Use Dedicated Wallets" icon="shield">
+    Create a separate wallet specifically for airdrops
+  </Card>
+  <Card title="Backup Data" icon="download">
+    Save your recipient lists and transaction signatures
+  </Card>
+  <Card title="Verify Recipients" icon="check-double">
+    Double-check your recipient addresses before executing
+  </Card>
+</CardGroup>
+
+
+### Getting Help
+
+<CardGroup cols={3}>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/helius-labs/airship">
+    Check for issues and updates
+  </Card>
+  <Card title="Discord Support" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Join the community
+  </Card>
+  <Card title="Documentation" icon="book" href="/zk-compression/introduction">
+    Review ZK compression docs
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<Steps>
+  <Step title="Verify Distribution">
+    Check successful distribution using block explorers
+  </Step>
+  <Step title="Monitor Balances">
+    Keep track of recipient token balances
+  </Step>
+  <Step title="Explore More Features">
+    Check out other [compression features](/nfts/nft-compression)
+  </Step>
+</Steps>
+
+<Tip>
+AirShip makes token distribution accessible and affordable, enabling you to reward your community without breaking the bank. The combination of ZK compression and an intuitive interface removes the technical barriers that previously made large-scale airdrops costly and complex.
+</Tip>
+
+## Additional Resources
+
+<CardGroup cols={2}>
+  <Card title="Blog: Cheapest Way to Airdrop" icon="newspaper" href="https://www.helius.dev/blog/solana-airdrop">
+    Comprehensive guide to airdrop costs and ZK compression
+  </Card>
+  <Card title="AirShip Calculator" icon="calculator" href="https://airship.helius.dev">
+    Calculate your airdrop costs before you start
+  </Card>
+</CardGroup> 
