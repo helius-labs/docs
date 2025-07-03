@@ -111,4 +111,18 @@ async function getBlockCommitmentDetails() {
 
 getBlockCommitmentDetails();
 ```
+
+```typescript Kit
+import { createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const slot_number = BigInt(5);
+
+let blockCommitment = await rpc.getBlockCommitment(slot_number).send();
+
+console.log("block commitment:", blockCommitment);
+```
+
 </CodeGroup> 

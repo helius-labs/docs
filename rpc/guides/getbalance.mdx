@@ -76,6 +76,42 @@ async function checkBalance() {
 
 checkBalance();
 ```
+
+```typescript Kit
+import { address, createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const publicKey = address("83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri");
+const balance = await rpc.getBalance(publicKey).send();
+
+console.log("Account Balance:", balance);
+```
+
+```rust Rust
+use anyhow::Result;
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::{
+    commitment_config::CommitmentConfig, native_token::LAMPORTS_PER_SOL, pubkey::Pubkey,
+};
+use std::str::FromStr;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed(),
+    );
+
+    let pubkey = Pubkey::from_str("83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri")?;
+    let balance = client.get_balance(&pubkey).await?;
+
+    println!("{:#?} SOL", balance / LAMPORTS_PER_SOL);
+
+    Ok(())
+}
+```
 </CodeGroup> 
 
 ## Developer Tips
