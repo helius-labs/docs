@@ -1,91 +1,187 @@
 ---
-title: "Quickstart"
-description: "Make your first API call using Helius in just a few steps."
+title: "Build Your First Solana App with Helius"
+sidebarTitle: "Build Your First App"
+description: "Learn the fundamentals of building on Solana by creating your first application using Helius APIs. From setup to deployment in minutes."
 ---
 
 import { Quickstart } from "/snippets/quickstart.mdx";
 
+Ready to build on Solana? This guide will walk you through creating your first application using Helius APIs. You'll learn how to fetch NFT data, understand the response structure, and see how easy it is to build powerful applications with our infrastructure.
+
 <Steps titleSize="h2"> 
-  <Step title="Sign up for a Free Helius Account">
-    Head over to the [Helius Dashboard](https://dashboard.helius.dev/dashboard) and create your free account.
+  <Step title="Create Your Free Helius Account">
+    Start by creating your free account at the [Helius Dashboard](https://dashboard.helius.dev/dashboard). Your free tier includes 100,000 API calls per month; perfect for getting started and building prototypes.
   </Step>
-  <Step title="Grab Your API Key">
-    Go to the [API Keys](https://dashboard.helius.dev/api-keys) section of your dashboard and copy your key.
+  <Step title="Get Your API Key">
+    Navigate to the [API Keys](https://dashboard.helius.dev/api-keys) section and copy your key. This key gives you access to all Helius APIs, including RPC nodes, DAS API, and enhanced transaction data.
   </Step>
   <Step title="Make Your First API Call">
-    Paste your API key into the input field and click the button to fetch a random NFT from the owner address `86xCn…o2MMY` using the [getAssetsByOwner](/api-reference/das/getassetsbyowner) method.
+    Let's start with a practical example: fetching NFTs from a wallet. We'll use the [getAssetsByOwner](/api-reference/das/getassetsbyowner) method to query assets owned by `86xCn…o2MMY` (Anatoly Yakovenko's wallet, co-founder of Solana).
+    
     <Quickstart />
+    
+    **What's happening here?** The DAS API allows you to query compressed and standard NFTs with a single call. Notice how the response includes metadata, image URLs, and ownership information - all the data you need to build rich user experiences.
   </Step>
-  <Step title="Success!">
-    Success! You've fetched a random NFT owned by the address `86xCn…o2MMY` which is the wallet address of [Anatoly Yakovenko](https://x.com/aeyakovenko), one of the founders of Solana.
+  <Step title="Understanding the Response">
+    Great! You've successfully fetched NFT data. The response includes:
+    - **Asset ID**: Unique identifier for each NFT
+    - **Metadata**: Name, symbol, description, and attributes
+    - **Content**: Image URLs and file information
+    - **Ownership**: Current owner and authority information
+    - **Compression**: Whether the NFT is compressed (cheaper to mint)
   </Step>
 </Steps>
 
-## Now let's do it using code
+## Build It with Code
+
+Now let's implement this in a real application. We'll create a simple NFT portfolio viewer that you can expand upon.
 
 <Note>
-We'll use Node.js for this example. If you don't have it yet, you can download it [here](https://nodejs.org/en/download).
+We'll use Node.js for this example. Make sure you have it installed from [nodejs.org](https://nodejs.org/en/download).
 </Note>
 
 <Steps titleSize="h3">
-<Step title="Create a new file">
+<Step title="Set up your project">
 ```bash
-touch fetchRandomNFT.js
+mkdir solana-nft-viewer
+cd solana-nft-viewer
+npm init -y
+npm install node-fetch
 ```
 </Step>
-<Step title="Copy the following code into the file">
-```javascript fetchRandomNFT.js
-async function fetchRandomNFT() {
-  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: '1',
-      method: 'getAssetsByOwner',
-      params: {
-        ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY'
-      },
-    }),
-  })
+<Step title="Create the NFT portfolio viewer">
+```javascript nft-portfolio.js
+const fetch = require('node-fetch');
 
-  const data = await response.json()
-
-  if (data.error) {
-    console.error('Error fetching NFTs:', data.error.message)
-    return
+class NFTPortfolioViewer {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://mainnet.helius-rpc.com';
   }
-  if (data.result && data.result.items && data.result.items.length > 0) {
-    const randomIndex = Math.floor(Math.random() * data.result.items.length)
-    const selectedNft = data.result.items[randomIndex]
-    console.log(`Id: ${selectedNft.id}`)
-    console.log(`Name: ${selectedNft.content?.metadata?.name || 'Unnamed NFT'}`)
-    console.log(`Symbol: ${selectedNft.content?.metadata?.symbol || 'N/A'}`)
-    console.log(`Image: ${selectedNft.content.files[0].uri || 'No image available'}`)
+
+  async fetchNFTsByOwner(ownerAddress, limit = 10) {
+    try {
+      const response = await fetch(`${this.baseUrl}/?api-key=${this.apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress,
+            page: 1,
+            limit,
+            displayOptions: {
+              showFungible: false,
+              showNativeBalance: false,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+
+      return data.result;
+    } catch (error) {
+      console.error('Error fetching NFTs:', error.message);
+      throw error;
+    }
+  }
+
+  displayNFTPortfolio(nfts) {
+    console.log('\n🖼️  NFT Portfolio Summary');
+    console.log('========================');
+    console.log(`Total NFTs: ${nfts.total}`);
+    console.log(`Showing: ${nfts.items.length} items\n`);
+
+    nfts.items.forEach((nft, index) => {
+      console.log(`${index + 1}. ${nft.content?.metadata?.name || 'Unnamed NFT'}`);
+      console.log(`   Collection: ${nft.grouping?.[0]?.group_value || 'Individual'}`);
+      console.log(`   Compressed: ${nft.compression?.compressed ? 'Yes' : 'No'}`);
+      console.log(`   Image: ${nft.content?.files?.[0]?.uri || 'No image'}`);
+      console.log(`   ID: ${nft.id}\n`);
+    });
+  }
+
+  async getRandomNFT(ownerAddress) {
+    const portfolio = await this.fetchNFTsByOwner(ownerAddress, 50);
+    
+    if (portfolio.items.length === 0) {
+      console.log('No NFTs found for this address.');
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * portfolio.items.length);
+    return portfolio.items[randomIndex];
   }
 }
 
-fetchRandomNFT();
+// Usage example
+async function main() {
+  const viewer = new NFTPortfolioViewer('YOUR_API_KEY');
+  
+  // Anatoly's wallet address
+  const walletAddress = '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY';
+  
+  console.log('🚀 Fetching NFT portfolio...');
+  
+  try {
+    // Get full portfolio overview
+    const portfolio = await viewer.fetchNFTsByOwner(walletAddress);
+    viewer.displayNFTPortfolio(portfolio);
+    
+    // Get a random NFT for featured display
+    console.log('🎲 Featured Random NFT:');
+    console.log('=====================');
+    const randomNFT = await viewer.getRandomNFT(walletAddress);
+    
+    if (randomNFT) {
+      console.log(`Name: ${randomNFT.content?.metadata?.name}`);
+      console.log(`Description: ${randomNFT.content?.metadata?.description || 'No description'}`);
+      console.log(`Image: ${randomNFT.content?.files?.[0]?.uri}`);
+    }
+    
+  } catch (error) {
+    console.error('Failed to fetch NFT data:', error.message);
+  }
+}
+
+main();
 ```
 </Step>
-<Step title="Replace the API key">
-  Replace `YOUR_API_KEY` with your API key.
+<Step title="Add your API key">
+  Replace `YOUR_API_KEY` with your actual API key from the Helius dashboard.
 </Step>
-<Step title="Run the code">
+<Step title="Run your NFT portfolio viewer">
 ```bash
-node fetchRandomNFT.js
+node nft-portfolio.js
 ```
 </Step>
-<Step title="Success!">
-  Success! You should see the ID, name, symbol, and image of a random NFT owned by the address `86xCn…o2MMY` in your terminal.
+<Step title="Success! 🎉">
+  You've built your first Solana application! The output shows:
+  - Total NFT count in the wallet
+  - Individual NFT details including compression status
+  - Collection information
+  - A featured random NFT
+  
+  **What you've learned:**
+  - How to structure API calls to Helius
+  - Working with the DAS API response format
+  - Handling compressed vs standard NFTs
+  - Building reusable code for NFT operations
 </Step>
 </Steps>
 
-## Next Steps
+## Take It Further
 
-Explore more quickstarts to get the most out of Helius:
+Now that you understand the basics, explore these advanced features:
 
 <CardGroup cols={2}>
   <Card
@@ -93,15 +189,25 @@ Explore more quickstarts to get the most out of Helius:
     icon="paper-plane"
     href="sending-transactions/quickstart"
   >
-    Learn how to send transactions using Helius.
+    Learn transaction optimization, priority fees, and smart routing for reliable execution.
   </Card>
-  <Card title="Fetch Token Metadata" icon="images" href="/das/get-nfts">
-    Fetch token metadata using the DAS API.
+  <Card title="Advanced NFT Operations" icon="images" href="/das/get-nfts">
+    Search NFTs by traits, fetch collection stats, and work with token metadata at scale.
   </Card>
-  <Card title="Stream Real-Time Data" icon="bolt" href="/data-streaming/quickstart">
-    Stream live blockchain data with gRPC or WebSocket for low-latency updates.
+  <Card title="Real-Time Data Streaming" icon="bolt" href="/data-streaming/quickstart">
+    Stream live blockchain data with sub-second latency using gRPC or enhanced WebSockets.
   </Card>
-  <Card title="Listen to On-Chain Events" icon="bell" href="/webhooks">
-    Subscribe to on-chain activity using Webhooks.
+  <Card title="Automate with Webhooks" icon="bell" href="/webhooks">
+    Set up intelligent notifications for wallet activity, NFT sales, and custom on-chain events.
   </Card>
 </CardGroup>
+
+## What's Next?
+
+You've successfully built your first Solana application with Helius! Here are some ideas to expand your project:
+
+- **Add wallet connection**: Integrate with Phantom or Solflare wallets
+- **Build a UI**: Create a React/Vue frontend to display the portfolio
+- **Add filtering**: Search by collection, traits, or mint date
+- **Real-time updates**: Use WebSockets to show live portfolio changes
+- **Analytics**: Track portfolio value and NFT price history
