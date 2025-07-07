@@ -1,0 +1,447 @@
+---
+title: "Decoding and Parsing Transaction Data"
+sidebarTitle: "Decoding Transaction Data"
+description: "Learn how to decode and parse transaction data from Laserstream for better understanding of Solana transactions."
+---
+
+**Laserstream sends each transaction in two tidy halves: the *message* user signed (user proposal) and the *meta* the validator wrote back (its verdict).
+When you print the update raw those halves are buried in byte arrays, so the first job is simply to see them. We'll start a live subscription, stare at the untouched bytes, add decoders, and then walk the payload twice, first as the user, then as the validator; letting each field appear only when its neighbour needs it.**
+
+---
+
+## A live stream, no decoding
+
+Run the minimal client below. The filter flags drop vote and failed transactions, and the accountsInclude array limits results to activity that touches the Jupiter program ID.
+
+```ts
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+
+async function runTransactionSubscription() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-transactions": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (u: SubscribeUpdate) => console.log('💸 Transaction update', u),
+    console.error
+  );
+
+  console.log(`✅ stream id → ${stream.id}`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+runTransactionSubscription().catch(console.error);
+```
+
+Your console now shows a wrapper—`filters`, `createdAt` plus a `transaction` branch that hides two children:
+
+* `transaction.transaction.transaction` → the signed **message**
+* `transaction.transaction.meta` → the execution **meta**
+
+```json
+{
+ filters: [ 'Jupiter-transactions' ],
+  account: undefined,
+  transaction: {
+    transaction: {
+      signature: <Buffer 00 bf a0 e8 9f cc 84 0c a4 83 e3 97 cd b7 57 e2 2b bc 1d ca 8c a6 1b ce b5 57 d7 47 5e ec 1f 46 ae b2 2d 6a 12 cb 88 48 1d 07 bf f6 b2 d3 a8 0b c9 04 ... 14 more bytes>,
+      transaction: [Object],
+      meta: [Object],
+      index: '1177'
+    },
+    slot: '351704819'
+  },
+  transactionStatus: undefined,
+  block: undefined,
+  blockMeta: undefined,
+  entry: undefined,
+  ping: undefined,
+  pong: undefined,
+  createdAt: 2025-07-07T10:58:44.403Z
+}
+```
+
+Everything that looks like `Uint8Array` remains opaque for the moment.
+
+When you run the script with the decoding function, you'll see output like this:
+
+```json
+{
+  "signature": "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx",
+  "slot": "351709933",
+  "success": false,
+  "fee": "12500",
+  "computeUnits": "182564",
+  "accountKeys": [
+    "AF9KFSWQeKVxd3kVvFvysWXmATHyYzrN8zN8GtXn4qTF",
+    "G9VzXwhDPQ8KRbQAJN6TyGf2gWukYDAvmnXJhPZFev4f",
+    "ES9qPxWQVMRZkobJ9yr3U6XSrXzGNLJdSe6p6fS7b82T",
+    "J9EYHkAZKU8SsfJvt4pVYH4iCcfo4ECdXVkMtBfwZrEr",
+    "4mE1fyipHpVtych6rSNv2kudozMbJRWVmY9LUsMFW",
+    "6b1apH6Qx2hR4QbSieprXJ3YVaY4FaTA3ZBMziwVps4J",
+    "3b9FpAVtV5mvzHnwYujVpSxc7SMmB6tYgiSi4n1yiEMf",
+    "7bRK5tmG1EKxsfWfr7x4R2GBK9Q75PP3eVXN9YozcXQT",
+    "BqbP7EUdgaJPseNkLKZuziqKWvMiTrrgKtcWVgouGQiK",
+    "CvDL7FRf87wKBFPx9RqtgTEfKiDgricAidH983bDj1a",
+    "ComputeBudget111111111111111111111111111111",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    "So11111111111111111111111111111111111111112",
+    "11111111111111111111111111111111",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+    "A8C2M8HNJP1nDaTLuQgeXayTBmoAztMkGYrwiWhpCAii",
+    "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",
+    "DQGTVB1939V9VPMAwYtJrN8HXmwfg3KvnNUM3iw7dJDp",
+    "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
+    "GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR",
+    "8N3GDaZ2iwN65oxVatKTLPNooAVUJTbfiVJ1ahyqwjSk"
+  ],
+  "logMessages": [
+    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+    "Program ComputeBudget111111111111111111111111111111 success",
+    "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [1]",
+    "Program log: Create",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+    "Program log: Instruction: GetAccountDataSize",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
+    "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+    "Program 11111111111111111111111111111111 invoke [2]",
+    "Program 11111111111111111111111111111111 success",
+    "... (52 more log entries)"
+  ]
+}
+```
+
+---
+
+## Built-in decoding utilities
+
+Laserstream uses the standard Yellowstone gRPC protocol, which provides built-in transaction decoding utilities. Instead of manually implementing three separate decoders, we can use a single recursive function to convert all binary fields to human-readable format.
+
+```ts
+import bs58 from 'bs58';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+
+// Recursive function to convert all Buffer/Uint8Array fields to base58
+function convertBuffers(obj: any): any {
+  if (!obj) return obj;
+  if (Buffer.isBuffer(obj) || obj instanceof Uint8Array) {
+    return bs58.encode(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffers(item));
+  }
+  if (typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBuffers(value)])
+    );
+  }
+  return obj;
+}
+
+async function runTransactionSubscription() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-transactions": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (update: SubscribeUpdate) => {
+      if (update.transaction) {
+        // Convert all binary fields to human-readable format
+        const decodedTransaction = convertBuffers(update.transaction);
+        console.log('💸 Decoded transaction:', JSON.stringify(decodedTransaction, null, 2));
+        
+        // Or process specific fields
+        processTransaction(update.transaction);
+      }
+    },
+    console.error
+  );
+
+  console.log(`✅ stream id → ${stream.id}`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+
+function processTransaction(txUpdate: any) {
+  const tx = txUpdate.transaction;
+  const meta = tx.meta;
+  
+  console.log('Transaction Details:');
+  console.log('- Signature:', bs58.encode(tx.signature));
+  console.log('- Slot:', txUpdate.slot);
+  console.log('- Success:', meta.err === null);
+  console.log('- Fee:', meta.fee, 'lamports');
+  console.log('- Compute Units:', meta.computeUnitsConsumed);
+  
+  // Account keys are already available in the message
+  const message = tx.transaction.message;
+  if (message.accountKeys) {
+    console.log('- Account Keys:');
+    message.accountKeys.forEach((key: Uint8Array, index: number) => {
+      console.log(`  ${index}: ${bs58.encode(key)}`);
+    });
+  }
+  
+  // Log messages are already UTF-8 strings
+  if (meta.logMessages && meta.logMessages.length > 0) {
+    console.log('- Log Messages:');
+    meta.logMessages.forEach((log: string) => {
+      console.log(`  ${log}`);
+    });
+  }
+}
+
+runTransactionSubscription();
+```
+
+This approach leverages the built-in decoding while handling the binary fields that need manual conversion. The transaction structure is already parsed - you just need to convert the binary fields to human-readable format.
+
+---
+
+## Understanding the transaction structure
+
+Now that we can see the decoded data, let's explore the two main parts of every Laserstream transaction update. Remember from our initial example that each transaction contains two key objects:
+
+- `transaction.transaction.transaction` → the signed message (user's proposal)
+- `transaction.transaction.meta` → the execution metadata (validator's response)
+
+This two-part structure tells a complete story: what the user requested versus what actually happened. Let's examine each part in detail.
+
+---
+
+## The proposal: everything inside message
+
+The user creates a message that specifies *what*, *who* and *until when*. Here's how to decode each part:
+
+```json
+{
+  "header": {
+    "numRequiredSignatures": 1,
+    "numReadonlySignedAccounts": 0,
+    "numReadonlyUnsignedAccounts": 5
+  }
+}
+```
+
+**Transaction Header**
+`numRequiredSignatures` tells the validator how many signatures to verify, while the two `numReadonly*` values label accounts the runtime can treat as read-only, enabling parallel execution.
+
+```json
+{
+  "accountKeys": [
+    "7YttLkHDoNj9wyDur5pM1ejNaAvT9X4eqaYcHQqtj2G5",
+    "JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "So11111111111111111111111111111111111111112",
+    "11111111111111111111111111111111"
+  ]
+}
+```
+
+**Account Keys Dictionary**
+`accountKeys` is a plain list of public keys. Every later integer - `signatures[i]`, `programIdIndex`, each element in an instruction's `accounts` array - points back into this list, saving more than a kilobyte per message.
+
+```json
+{
+  "recentBlockhash": "8sGjRxJHLJVWqpHt5UdN8qxtLLdgcnLKBpFj9Qrn5PNF"
+}
+```
+
+**Protection Against Replay**
+`recentBlockhash` expires once it scrolls out of the last 150 block-hashes, roughly ninety seconds on mainnet.
+
+```json
+{
+  "addressTableLookups": [
+    {
+      "accountKey": "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+      "writableIndexes": [0, 1],
+      "readonlyIndexes": [2, 3, 4]
+    }
+  ],
+  "versioned": true
+}
+```
+
+**Address Table Lookups**
+If `versioned` is `true`, `addressTableLookups` appears with an on-chain table and two index lists. Lookup tables lift the hard cap on address count to dozens while keeping the packet under the 1,232-byte MTU.
+
+In a single sweep we now know:
+
+* who must sign
+* which program and accounts the call touches
+* the deadline for inclusion
+* any bonus keys fetched from tables
+
+That is every promise the user makes to the network.
+
+---
+
+## The outcome: everything inside meta
+
+Now let's examine the second half of the transaction structure: the `meta` object. While the message shows what the user proposed, the meta reveals what actually happened when the validator executed that proposal.
+
+The validator replies with facts: success or failure, cost, and side-effects.
+
+```json
+{
+  "err": null
+}
+```
+
+**Execution Result**
+`err` is `null` on success or a structured error code when any instruction fails.
+
+```json
+{
+  "fee": 5000,
+  "preBalances": [10875517572, 0, 207594496815, 0, 0, 0],
+  "postBalances": [10875512572, 1461600, 207594496815, 2001231920, 2039280, 15115600]
+}
+```
+
+**Transaction Costs and Balance Changes**
+`fee` shows the base cost - 5,000 lamports per signature - and the first key in `accountKeys` is the fee payer, so subtracting its pre- and post-balances proves the debit.
+
+```json
+{
+  "computeUnitsConsumed": 23432
+}
+```
+
+**Compute Usage**
+`computeUnitsConsumed` records exact workload; pairing it with a chosen micro-lamport price gives the priority fee.
+
+```json
+{
+  "innerInstructions": [
+    {
+      "index": 0,
+      "instructions": [
+        {
+          "programIdIndex": 2,
+          "accounts": [0, 1],
+          "data": "3Bxs4h24hBtQy9rw",
+          "stackHeight": 2
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Cross-Program Invocations**
+Each item in `innerInstructions` carries an `index` pointing back to its parent instruction, letting you trace every cross-program call like a stack trace.
+
+```json
+{
+  "logMessages": [
+    "Program JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB invoke [1]",
+    "Program log: Instruction: Swap",
+    "Program log: Transfer 1000000 lamports",
+    "Program JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB consumed 23432 of 200000 compute units",
+    "Program JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB success"
+  ]
+}
+```
+
+**Program Logs**
+`logMessages` is the flat UTF-8 diary the runtime captured; scanning it costs nothing because the strings were already produced on-chain.
+
+```json
+{
+  "preTokenBalances": [
+    {
+      "accountIndex": 3,
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "uiTokenAmount": {
+        "uiAmount": 1000.0,
+        "decimals": 6,
+        "amount": "1000000000",
+        "uiAmountString": "1000"
+      }
+    }
+  ],
+  "postTokenBalances": [
+    {
+      "accountIndex": 3,
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "uiTokenAmount": {
+        "uiAmount": 950.0,
+        "decimals": 6,
+        "amount": "950000000",
+        "uiAmountString": "950"
+      }
+    }
+  ]
+}
+```
+
+**Token Balance Changes**
+`preTokenBalances` and `postTokenBalances` list SPL-Token accounts with a ready-made `uiTokenAmount` so you avoid dividing by 10⁹ yourself.
+
+```json
+{
+  "returnData": {
+    "programId": "JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB",
+    "data": ["SGVsbG8gV29ybGQ=", "base64"]
+  }
+}
+```
+
+**Return Data**
+If a program calls `sol_set_return_data`, the runtime echoes that blob in `returnData`, saving an extra RPC fetch.
+
+```json
+{
+  "loadedWritableAddresses": [
+    "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+  ],
+  "loadedReadonlyAddresses": [
+    "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+    "GDDMwNyyx8uB6zrqwBFHjLLG3TBYk2F8Az4yrQC5RzMp"
+  ]
+}
+```
+
+**Resolved Lookup Tables**
+`loadedWritableAddresses` and `loadedReadonlyAddresses` confirm exactly which table keys were pulled in, closing the loop with the proposal.
+
+---
+
+## One mental model to remember
+
+Everything under `message` is what the user **asked for**; everything under `meta` is what the cluster **observed**.
+Read the payload in that order - proposal first, outcome second - and every parameter explains the next without overwhelming detail. Add or drop decoders as you like, and the same stream becomes a mint detector, fee profiler, or audit logger without ever leaving the Laserstream feed.
