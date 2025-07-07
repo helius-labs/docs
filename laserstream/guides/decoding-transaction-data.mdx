@@ -4,8 +4,14 @@ sidebarTitle: "Decoding Transaction Data"
 description: "Learn how to decode and parse transaction data from Laserstream for better understanding of Solana transactions."
 ---
 
-**Laserstream sends each transaction in two tidy halves: the *message* user signed (user proposal) and the *meta* the validator wrote back (its verdict).
-When you print the update raw those halves are buried in byte arrays, so the first job is simply to see them. We'll start a live subscription, stare at the untouched bytes, add decoders, and then walk the payload twice, first as the user, then as the validator; letting each field appear only when its neighbour needs it.**
+**When you receive transaction data from Laserstream, there are two important things to look for:**
+
+- **Message** → What the user wanted to do (their signed proposal)
+- **Meta** → What actually happened (the execution result)
+
+**The challenge:** Raw transaction data comes as binary byte arrays like `<Buffer 00 bf a0 e8...>` instead of readable addresses and signatures.
+
+**This guide shows you how to:** Decode that binary data into human-readable format, extract meaningful information, and understand the complete transaction story from proposal to execution.
 
 ---
 
@@ -13,7 +19,7 @@ When you print the update raw those halves are buried in byte arrays, so the fir
 
 Run the minimal client below. The filter flags drop vote and failed transactions, and the accountsInclude array limits results to activity that touches the Jupiter program ID.
 
-```ts
+```ts [expandable]
 import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
 
 async function runTransactionSubscription() {
@@ -77,63 +83,109 @@ Your console now shows a wrapper—`filters`, `createdAt` plus a `transaction` b
 
 Everything that looks like `Uint8Array` remains opaque for the moment.
 
-When you run the script with the decoding function, you'll see output like this:
+When you run the script with the decoding function, you'll see the actual nested structure with readable addresses:
 
-```json
+```json [expandable]
 {
-  "signature": "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx",
-  "slot": "351709933",
-  "success": false,
-  "fee": "12500",
-  "computeUnits": "182564",
-  "accountKeys": [
-    "AF9KFSWQeKVxd3kVvFvysWXmATHyYzrN8zN8GtXn4qTF",
-    "G9VzXwhDPQ8KRbQAJN6TyGf2gWukYDAvmnXJhPZFev4f",
-    "ES9qPxWQVMRZkobJ9yr3U6XSrXzGNLJdSe6p6fS7b82T",
-    "J9EYHkAZKU8SsfJvt4pVYH4iCcfo4ECdXVkMtBfwZrEr",
-    "4mE1fyipHpVtych6rSNv2kudozMbJRWVmY9LUsMFW",
-    "6b1apH6Qx2hR4QbSieprXJ3YVaY4FaTA3ZBMziwVps4J",
-    "3b9FpAVtV5mvzHnwYujVpSxc7SMmB6tYgiSi4n1yiEMf",
-    "7bRK5tmG1EKxsfWfr7x4R2GBK9Q75PP3eVXN9YozcXQT",
-    "BqbP7EUdgaJPseNkLKZuziqKWvMiTrrgKtcWVgouGQiK",
-    "CvDL7FRf87wKBFPx9RqtgTEfKiDgricAidH983bDj1a",
-    "ComputeBudget111111111111111111111111111111",
-    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-    "So11111111111111111111111111111111111111112",
-    "11111111111111111111111111111111",
-    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
-    "A8C2M8HNJP1nDaTLuQgeXayTBmoAztMkGYrwiWhpCAii",
-    "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",
-    "DQGTVB1939V9VPMAwYtJrN8HXmwfg3KvnNUM3iw7dJDp",
-    "7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ",
-    "GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR",
-    "8N3GDaZ2iwN65oxVatKTLPNooAVUJTbfiVJ1ahyqwjSk"
-  ],
-  "logMessages": [
-    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
-    "Program ComputeBudget111111111111111111111111111111 success",
-    "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [1]",
-    "Program log: Create",
-    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
-    "Program log: Instruction: GetAccountDataSize",
-    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
-    "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
-    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
-    "Program 11111111111111111111111111111111 invoke [2]",
-    "Program 11111111111111111111111111111111 success",
-    "... (52 more log entries)"
-  ]
+  "filters": ["Jupiter-transactions"],
+  "account": undefined,
+  "transaction": {
+    "transaction": {
+      "signature": "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx",
+      "transaction": {
+        "message": {
+          "header": {
+            "numRequiredSignatures": 1,
+            "numReadonlySignedAccounts": 0,
+            "numReadonlyUnsignedAccounts": 8
+          },
+          "accountKeys": [
+            "AF9KFSWQeKVxd3kVvFvysWXmATHyYzrN8zN8GtXn4qTF",
+            "G9VzXwhDPQ8KRbQAJN6TyGf2gWukYDAvmnXJhPZFev4f",
+            "ES9qPxWQVMRZkobJ9yr3U6XSrXzGNLJdSe6p6fS7b82T",
+            "JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB",
+            "ComputeBudget111111111111111111111111111111",
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "So11111111111111111111111111111111111111112",
+            "11111111111111111111111111111111",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          ],
+          "recentBlockhash": "8sGjRxJHLJVWqpHt5UdN8qxtLLdgcnLKBpFj9Qrn5PNF",
+          "instructions": [
+            {
+              "programIdIndex": 4,
+              "accounts": [],
+              "data": "3bjaAzoXPjbY"
+            },
+            {
+              "programIdIndex": 3,
+              "accounts": [0, 1, 2, 5, 6, 7, 8],
+              "data": "2L1xoA2KEqBgWfGt3fwFJK8k4FPJRJzYHRgH4R3xC8A7"
+            }
+          ]
+        },
+        "signatures": [
+          "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx"
+        ]
+      },
+      "meta": {
+        "err": null,
+        "fee": 12500,
+        "preBalances": [1075517572, 0, 207594496815, 0, 0, 0, 0, 0, 0],
+        "postBalances": [1075502572, 1461600, 207594496815, 2001231920, 2039280, 0, 0, 0, 0],
+        "innerInstructions": [
+          {
+            "index": 1,
+            "instructions": [
+              {
+                "programIdIndex": 5,
+                "accounts": [1, 2, 0],
+                "data": "3Bxs4h24hBtQy9rw"
+              }
+            ]
+          }
+        ],
+        "logMessages": [
+          "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+          "Program ComputeBudget111111111111111111111111111111 success",
+          "Program JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB invoke [1]",
+          "Program log: Instruction: Swap",
+          "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [2]",
+          "Program log: Create",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+          "Program log: Instruction: GetAccountDataSize",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
+          "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+          "Program JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB success"
+        ],
+        "preTokenBalances": [],
+        "postTokenBalances": [],
+        "computeUnitsConsumed": 182564
+      },
+      "index": "1177"
+    },
+    "slot": "351709933"
+  },
+  "transactionStatus": undefined,
+  "block": undefined,
+  "blockMeta": undefined,
+  "entry": undefined,
+  "ping": undefined,
+  "pong": undefined,
+  "createdAt": "2025-01-14T10:58:44.403Z"
 }
 ```
 
 ---
 
-## Built-in decoding utilities
+## Decoding the binary data
 
-Laserstream uses the standard Yellowstone gRPC protocol, which provides built-in transaction decoding utilities. Instead of manually implementing three separate decoders, we can use a single recursive function to convert all binary fields to human-readable format.
+**Why decode?** Raw Laserstream data contains signatures, account keys, and hashes as binary `Uint8Array` objects that are unreadable. You need to convert these to base58 strings to make sense of the transaction.
 
-```ts
+**The solution:** Laserstream uses Yellowstone gRPC, which provides built-in decoding utilities. Instead of writing separate decoders for each field type, we use one recursive function that converts all binary data to human-readable format.
+
+```ts [expandable]
 import bs58 from 'bs58';
 import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
 
@@ -270,7 +322,7 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 ```
 
 **Account Keys Dictionary**
-`accountKeys` is a plain list of public keys. Every later integer - `signatures[i]`, `programIdIndex`, each element in an instruction's `accounts` array - points back into this list, saving more than a kilobyte per message.
+`accountKeys` is a plain list of public keys that acts as a lookup table. Every later integer in the transaction - `programIdIndex`, each element in an instruction's `accounts` array - points back into this list by index, saving more than a kilobyte per message.
 
 ```json
 {
@@ -280,6 +332,41 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 
 **Protection Against Replay**
 `recentBlockhash` expires once it scrolls out of the last 150 block-hashes, roughly ninety seconds on mainnet.
+
+```json
+{
+  "instructions": [
+    {
+      "programIdIndex": 10,
+      "data": "HnkkG7"
+    },
+    {
+      "programIdIndex": 15,
+      "accounts": "3vtmrQMafzDoG2CBz1iqgXPTnC",
+      "data": "5jRcjdixRUDKQKUEt6oHJ747HCB3vWb5y"
+    }
+  ]
+}
+```
+
+**Instructions: The Actual Commands**
+Each instruction contains three key parts:
+- `programIdIndex`: Points to an address in the `accountKeys` array (e.g., index 10 = `ComputeBudget111111111111111111111111111111`)
+- `accounts`: A base58-encoded string representing which account indexes this instruction touches. Note: Due to the `convertBuffers` function, this appears as base58 but actually contains account indices (e.g., `"3vtmrQMafzDoG2CBz1iqgXPTnC"` decodes to indices [21, 19, 12, 17, 2, 6, 1, 22])
+- `data`: The actual instruction data encoded as base58
+
+This design means instead of repeating full 32-byte addresses, each instruction just references positions in the lookup table.
+
+```json
+{
+  "signatures": [
+    "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx"
+  ]
+}
+```
+
+**Signatures: Proof of Authorization**
+`signatures` contains the cryptographic signatures proving the required accounts authorized this transaction. The number of signatures must match `header.numRequiredSignatures`.
 
 ```json
 {
@@ -297,12 +384,37 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 **Address Table Lookups**
 If `versioned` is `true`, `addressTableLookups` appears with an on-chain table and two index lists. Lookup tables lift the hard cap on address count to dozens while keeping the packet under the 1,232-byte MTU.
 
+**How It All Connects: The Flow**
+
+Here's what happens from first principles:
+
+1. **Build the lookup table**: `accountKeys` lists all addresses this transaction will touch
+2. **Set the rules**: `header` specifies how many signatures are required and which accounts are read-only
+3. **Create the commands**: Each `instruction` points to:
+   - A program (via `programIdIndex` → `accountKeys[index]`)
+   - The accounts it needs (via `accounts` → multiple `accountKeys[index]` positions)
+   - The instruction data (encoded in `data`)
+4. **Add authorization**: `signatures` proves the required accounts approved this transaction
+5. **Set expiration**: `recentBlockhash` ensures this transaction can't be replayed later
+
+**Example walkthrough:**
+```
+accountKeys[15] = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+instruction.programIdIndex = 15
+→ This instruction calls the Pump.fun AMM program
+
+instruction.accounts = "3vtmrQMafzDoG2CBz1iqgXPTnC"
+→ This base58 string decodes to account indices: [21, 19, 12, 17, 2, 6, 1, 22]
+→ These indices map to: accountKeys[21], accountKeys[19], accountKeys[12], etc.
+→ Which gives us the actual account addresses this instruction needs
+```
+
 In a single sweep we now know:
 
-* who must sign
-* which program and accounts the call touches
-* the deadline for inclusion
-* any bonus keys fetched from tables
+* who must sign (`header.numRequiredSignatures`)
+* which programs and accounts each instruction touches (`programIdIndex` + `accounts`)
+* the deadline for inclusion (`recentBlockhash`)
+* any bonus keys fetched from tables (`addressTableLookups`)
 
 That is every promise the user makes to the network.
 
