@@ -32,6 +32,30 @@ When you expose API keys on the client side, malicious actors can discover and a
 Helius provides multiple layers of protection to secure your API keys:
 
 <Tabs>
+  <Tab title="RPC Proxy">
+    Deploy your own proxy for maximum security and control.
+
+    <Card title="Helius RPC Proxy" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
+      A simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare.
+    </Card>
+
+    ### Benefits of Using a Proxy
+
+    <CardGroup cols={2}>
+      <Card title="Complete Key Protection" icon="lock">
+        Your API key stays server-side, never exposed to clients
+      </Card>
+      <Card title="Custom Rate Limiting" icon="gauge">
+        Implement your own rate limiting and usage controls
+      </Card>
+      <Card title="Request Filtering" icon="filter">
+        Filter and validate requests before they reach Helius
+      </Card>
+      <Card title="Usage Analytics" icon="chart-line">
+        Monitor and analyze your API usage patterns
+      </Card>
+    </CardGroup>
+  </Tab>
   <Tab title="Access Control Rules">
     Configure precise access controls in your Helius dashboard to restrict API usage.
 
@@ -124,63 +148,6 @@ Helius provides multiple layers of protection to secure your API keys:
     <Note>
     **Perfect for**: Frontend applications, mobile apps, and any client-side code where you can't hide the API key.
     </Note>
-  </Tab>
-
-  <Tab title="RPC Proxy">
-    Deploy your own proxy for maximum security and control.
-
-    <Card title="Helius RPC Proxy" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
-      A simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare.
-    </Card>
-
-    ### Benefits of Using a Proxy
-
-    <CardGroup cols={2}>
-      <Card title="Complete Key Protection" icon="lock">
-        Your API key stays server-side, never exposed to clients
-      </Card>
-      <Card title="Custom Rate Limiting" icon="gauge">
-        Implement your own rate limiting and usage controls
-      </Card>
-      <Card title="Request Filtering" icon="filter">
-        Filter and validate requests before they reach Helius
-      </Card>
-      <Card title="Usage Analytics" icon="chart-line">
-        Monitor and analyze your API usage patterns
-      </Card>
-    </CardGroup>
-
-    ### Quick Deployment
-
-    <Steps>
-      <Step title="Clone the Repository">
-        ```bash
-        git clone https://github.com/helius-labs/helius-rpc-proxy.git
-        cd helius-rpc-proxy
-        ```
-      </Step>
-      <Step title="Configure Environment">
-        ```bash
-        # Set your Helius API key
-        export HELIUS_API_KEY="your-api-key-here"
-        
-        # Optional: Set custom rate limits
-        export RATE_LIMIT_PER_MINUTE=1000
-        ```
-      </Step>
-      <Step title="Deploy to Cloudflare">
-        ```bash
-        # One-click deployment
-        npm run deploy
-        ```
-      </Step>
-      <Step title="Use Your Proxy">
-        ```javascript
-        // Use your deployed proxy URL
-        const connection = new Connection('https://your-proxy.workers.dev');
-        ```
-      </Step>
-    </Steps>
   </Tab>
 </Tabs>
 
@@ -295,11 +262,5 @@ Helius provides multiple layers of protection to secure your API keys:
   </Card>
   <Card title="Support Team" icon="headset" href="/support">
     Contact our support team for security concerns
-  </Card>
-  <Card title="Security Best Practices" icon="shield-check" href="https://www.helius.dev/blog/security-best-practices">
-    Read our comprehensive security guide
-  </Card>
-  <Card title="Enterprise Solutions" icon="building" href="https://form.typeform.com/to/KiacmxpZ">
-    Discuss advanced security needs with our team
   </Card>
 </CardGroup>

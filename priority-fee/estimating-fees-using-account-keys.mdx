@@ -3,43 +3,136 @@ title: Estimating Priority Fees using Account Keys
 description: Guide for estimating priority fees using account keys with the Helius Priority Fee API
 ---
 
+<Info>
+**Advanced Method**: Get priority fee estimates using account keys for specialized use cases like pre-transaction analysis, batch operations, and account pattern research.
+</Info>
+
 ## Overview
 
-This guide demonstrates how to estimate priority fees using account keys with the Helius Priority Fee API. While using serialized transactions provides more accurate estimates, the account keys approach offers a simpler alternative when you need quick fee estimates or want to estimate fees before constructing the full transaction.
+The account keys method provides a simpler alternative to transaction serialization when you need quick fee estimates or want to estimate fees before constructing the complete transaction.
 
-<Callout type="warning">
-The account keys method is less accurate for read-only accounts. For the most accurate estimates, consider using the [serialized transaction method](/priority-fee/estimating-fees-using-serialized-transaction) when possible.
-</Callout>
+<CardGroup cols={2}>
+  <Card title="Advanced Use Cases" icon="key">
+    - Pre-transaction analysis
+    - Batch account operations  
+    - Market research and patterns
+    - Specialized architectures
+  </Card>
+  <Card title="Trade-offs" icon="scale-unbalanced-flip">
+    - Less accurate than serialized transactions
+    - No instruction-specific analysis
+    - Best for account-level patterns
+  </Card>
+</CardGroup>
+
+<Warning>
+**Recommendation**: For most applications, use the [serialized transaction method](/priority-fee/estimating-fees-using-serialized-transaction) instead. This account keys method is for specialized use cases where you need account-level analysis or pre-transaction planning.
+</Warning>
 
 ## When to Use Account Keys
 
-The account keys approach is useful in these scenarios:
+<Tabs>
+  <Tab title="Ideal Use Cases">
+    <CardGroup cols={2}>
+      <Card title="Pre-transaction Planning" icon="calendar">
+        Get fee estimates before constructing complete transactions
+      </Card>
+      <Card title="Simplified Integration" icon="puzzle-piece">
+        When your architecture makes transaction serialization difficult
+      </Card>
+      <Card title="Quick Market Analysis" icon="chart-line">
+        Analyze fee patterns for specific accounts without building transactions
+      </Card>
+      <Card title="Multi-account Analysis" icon="users">
+        Understand fee patterns across multiple accounts independently
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="Specialized Scenarios">
+    **Research & Analysis**: When studying fee patterns across different accounts and programs
+    
+    **Batch Operations**: When analyzing fee patterns across many accounts simultaneously
+    
+    **Pre-planning**: For cost estimation before building complex transaction workflows
+    
+    **Custom Architectures**: When system constraints prevent transaction serialization
+  </Tab>
+</Tabs>
 
-- **Pre-transaction planning**: When you need fee estimates before constructing the complete transaction
-- **Simplified integration**: When your app architecture makes it difficult to serialize transactions before estimating fees
-- **Quick market analysis**: When you want to analyze fee markets for specific accounts without building actual transactions
-- **Multi-account analysis**: When you need to understand fee patterns across multiple accounts independently
+## Quick Start
 
-## Implementation Steps
+<Steps>
+  <Step title="Identify Accounts">
+    Determine which accounts will be involved in your transaction
+  </Step>
+  <Step title="Call the API">
+    Make a request with the account keys and desired priority level
+  </Step>
+  <Step title="Apply the Fee">
+    Use the estimate to set priority fee in your transaction
+  </Step>
+</Steps>
 
-### 1. Identify Relevant Accounts
+### Basic Example
 
-Determine which accounts will be involved in your transaction:
+<CodeGroup>
 
-```javascript
-import { PublicKey } from "@solana/web3.js";
+```javascript JavaScript
+import { ComputeBudgetProgram } from "@solana/web3.js";
 
-// Example: accounts involved in your transaction
+// 1. Identify accounts involved in your transaction
 const accountKeys = [
-  "2CiBfRKcERi2GgYn83UaGo1wFaYHHrXGGfnDaa2hxdEA", // Token program
-  "FinesLuXpYnT9ENY55WXNdLJ5xzssrYMzwAcUXrDQBk9", // User wallet
-  "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"  // USDC mint
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+  "YOUR_WALLET_ADDRESS",                          // Your wallet
+  "RECIPIENT_ADDRESS"                             // Recipient
 ];
+
+// 2. Get priority fee estimate
+const priorityFee = await getPriorityFeeEstimate(connection, accountKeys, "Medium");
+
+// 3. Add to your transaction
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+  microLamports: priorityFee
+});
+transaction.add(priorityFeeIx);
 ```
 
-### 2. Call the Priority Fee API
+```python Python
+import requests
 
-Make a request to the Helius Priority Fee API with the account keys:
+# Get priority fee estimate
+def get_priority_fee_estimate(account_keys, priority_level="Medium"):
+    response = requests.post(
+        "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
+        json={
+            "jsonrpc": "2.0",
+            "id": "1",
+            "method": "getPriorityFeeEstimate",
+            "params": [{
+                "accountKeys": account_keys,
+                "options": {
+                    "priorityLevel": priority_level,
+                    "recommended": True
+                }
+            }]
+        }
+    )
+    return response.json()["result"]["priorityFeeEstimate"]
+
+# Usage
+accounts = ["ACCOUNT_1", "ACCOUNT_2", "ACCOUNT_3"]
+fee = get_priority_fee_estimate(accounts, "High")
+print(f"Priority fee: {fee} micro-lamports")
+```
+
+</CodeGroup>
+
+## Implementation Guide
+
+### Core Function
+
+Here's a reusable function for getting priority fee estimates:
 
 ```javascript
 async function getPriorityFeeEstimate(connection, accountKeys, priorityLevel = "Medium") {
@@ -50,15 +143,13 @@ async function getPriorityFeeEstimate(connection, accountKeys, priorityLevel = "
       jsonrpc: "2.0",
       id: "1",
       method: "getPriorityFeeEstimate",
-      params: [
-        {
-          accountKeys: accountKeys,
-          options: { 
-            priorityLevel: priorityLevel,
-            recommended: true 
-          }
+      params: [{
+        accountKeys: accountKeys,
+        options: { 
+          priorityLevel: priorityLevel,
+          recommended: true 
         }
-      ]
+      }]
     })
   });
   
@@ -72,25 +163,9 @@ async function getPriorityFeeEstimate(connection, accountKeys, priorityLevel = "
 }
 ```
 
-### 3. Apply the Fee Estimate
+### Complete Example with Multiple Priority Levels
 
-After receiving the fee estimate, use it to set the priority fee in your transaction:
-
-```javascript
-// Get priority fee estimate
-const priorityFee = await getPriorityFeeEstimate(connection, accountKeys, "High");
-console.log(`Estimated priority fee: ${priorityFee} micro-lamports`);
-
-// Add priority fee instruction to your transaction
-const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
-  microLamports: priorityFee
-});
-transaction.add(priorityFeeIx);
-```
-
-## Complete Example
-
-Here's a complete example to fetch fee estimates for a set of account keys:
+<Accordion title="Expand to see full implementation">
 
 ```javascript
 const { 
@@ -103,63 +178,45 @@ const {
 // Initialize connection
 const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
 
-async function estimatePriorityFee() {
-  // Define the accounts involved in your transaction
+async function analyzeAccountPriorityFees() {
+  // Define accounts involved in your transaction
   const accountKeys = [
-    "2CiBfRKcERi2GgYn83UaGo1wFaYHHrXGGfnDaa2hxdEA",
-    "FinesLuXpYnT9ENY55WXNdLJ5xzssrYMzwAcUXrDQBk9",
-    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+    "YOUR_WALLET_ADDRESS",                          // Your wallet
+    "TOKEN_ACCOUNT_ADDRESS",                        // Token account
+    "RECIPIENT_ADDRESS"                             // Recipient
   ];
   
-  // Get priority fee estimate for different priority levels
-  const lowPriority = await getPriorityFeeEstimate(connection, accountKeys, "Low");
-  const mediumPriority = await getPriorityFeeEstimate(connection, accountKeys, "Medium");
-  const highPriority = await getPriorityFeeEstimate(connection, accountKeys, "High");
-  
-  console.log(`Low priority fee: ${lowPriority} micro-lamports`);
-  console.log(`Medium priority fee: ${mediumPriority} micro-lamports`);
-  console.log(`High priority fee: ${highPriority} micro-lamports`);
-  
-  // Get all priority levels at once
-  const allLevels = await getAllPriorityLevels(connection, accountKeys);
-  console.log("All priority levels:", allLevels);
-  
-  return {
-    low: lowPriority,
-    medium: mediumPriority,
-    high: highPriority,
-    allLevels
-  };
-}
-
-// Helper function to get priority fee estimate
-async function getPriorityFeeEstimate(connection, accountKeys, priorityLevel) {
-  const response = await fetch(connection.rpcEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "1",
-      method: "getPriorityFeeEstimate",
-      params: [
-        {
-          accountKeys: accountKeys,
-          options: { 
-            priorityLevel: priorityLevel,
-            recommended: true 
-          }
-        }
-      ]
-    })
-  });
-  
-  const result = await response.json();
-  
-  if (result.error) {
-    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  try {
+    // Get estimates for different priority levels
+    const [lowFee, mediumFee, highFee, veryHighFee] = await Promise.all([
+      getPriorityFeeEstimate(connection, accountKeys, "Low"),
+      getPriorityFeeEstimate(connection, accountKeys, "Medium"), 
+      getPriorityFeeEstimate(connection, accountKeys, "High"),
+      getPriorityFeeEstimate(connection, accountKeys, "VeryHigh")
+    ]);
+    
+    console.log("Priority Fee Estimates:");
+    console.log(`Low:      ${lowFee} micro-lamports`);
+    console.log(`Medium:   ${mediumFee} micro-lamports`);
+    console.log(`High:     ${highFee} micro-lamports`);
+    console.log(`VeryHigh: ${veryHighFee} micro-lamports`);
+    
+    // Get all levels at once for comparison
+    const allLevels = await getAllPriorityLevels(connection, accountKeys);
+    console.log("\nAll priority levels:", allLevels);
+    
+    return {
+      low: lowFee,
+      medium: mediumFee,
+      high: highFee,
+      veryHigh: veryHighFee,
+      allLevels
+    };
+  } catch (error) {
+    console.error("Error getting priority fees:", error);
+    throw error;
   }
-  
-  return result.result.priorityFeeEstimate;
 }
 
 // Helper function to get all priority levels
@@ -171,14 +228,12 @@ async function getAllPriorityLevels(connection, accountKeys) {
       jsonrpc: "2.0",
       id: "1",
       method: "getPriorityFeeEstimate",
-      params: [
-        {
-          accountKeys: accountKeys,
-          options: { 
-            includeAllPriorityFeeLevels: true
-          }
+      params: [{
+        accountKeys: accountKeys,
+        options: { 
+          includeAllPriorityFeeLevels: true
         }
-      ]
+      }]
     })
   });
   
@@ -191,147 +246,363 @@ async function getAllPriorityLevels(connection, accountKeys) {
   return result.result.priorityFeeLevels;
 }
 
-// Run the estimation
-estimatePriorityFee();
+// Run the analysis
+analyzeAccountPriorityFees();
 ```
 
-## Working with Different Account Types
+</Accordion>
 
-The fee estimates can vary significantly depending on account types and their activity:
+## Account Types & Strategies
 
-### Program Accounts
+<Tabs>
+  <Tab title="Program Accounts">
+    High-volume program accounts typically show higher priority fees due to competition.
 
-Program accounts typically have high transaction volumes and may show higher priority fees:
+    ```javascript
+    // Popular program accounts
+    const programAccounts = [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL", // Associated token program
+      "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  // Metaplex program
+    ];
 
-```javascript
-const programAccounts = [
-  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
-  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL", // Associated token account program
-  "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  // Metaplex program
-];
+    const programFees = await getPriorityFeeEstimate(connection, programAccounts, "Medium");
+    console.log(`Program account fees: ${programFees} micro-lamports`);
+    ```
 
-const programFees = await getPriorityFeeEstimate(connection, programAccounts, "Medium");
-```
+    <Note>
+    **Expected behavior**: Higher fees due to high transaction volume and competition.
+    </Note>
+  </Tab>
 
-### User Wallets
+  <Tab title="User Wallets">
+    Active user wallets may have different fee patterns based on their activity.
 
-Active user wallets may have different fee patterns:
+    ```javascript
+    // Active user wallets
+    const userWallets = [
+      "USER_WALLET_1", // Active trader
+      "USER_WALLET_2"  // Regular user
+    ];
 
-```javascript
-const userWallets = [
-  "FinesLuXpYnT9ENY55WXNdLJ5xzssrYMzwAcUXrDQBk9", // Active wallet
-  "3QuAYThZJBTyXkR8SfQBFug7vnZUhqUfXggHXsZSTQkT"  // Another wallet
-];
+    const walletFees = await getPriorityFeeEstimate(connection, userWallets, "Medium");
+    console.log(`User wallet fees: ${walletFees} micro-lamports`);
+    ```
 
-const walletFees = await getPriorityFeeEstimate(connection, userWallets, "Medium");
-```
+    <Tip>
+    **Pro tip**: Include both sender and recipient wallets for more accurate estimates.
+    </Tip>
+  </Tab>
 
-## Advanced Options
+  <Tab title="Token Accounts">
+    Specific token accounts can show varying patterns based on token popularity.
 
-### Empty Slot Evaluation
+    ```javascript
+    // Popular token accounts
+    const tokenAccounts = [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
+      "So11111111111111111111111111111111111111112",  // SOL mint
+      "YOUR_TOKEN_ACCOUNT"                            // Your specific token account
+    ];
 
-The `evaluateEmptySlotAsZero` option is particularly useful for account-based fee estimation:
+    const tokenFees = await getPriorityFeeEstimate(connection, tokenAccounts, "Medium");
+    ```
+  </Tab>
+</Tabs>
 
-```javascript
-async function getPriorityFeeWithEmptySlotHandling(connection, accountKeys, evaluateEmptyAsZero = true) {
-  const response = await fetch(connection.rpcEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "1",
-      method: "getPriorityFeeEstimate",
-      params: [
-        {
-          accountKeys: accountKeys,
-          options: { 
-            priorityLevel: "Medium",
-            recommended: true,
-            evaluateEmptySlotAsZero: evaluateEmptyAsZero
-          }
-        }
-      ]
-    })
-  });
+## Advanced Configuration Options
+
+<AccordionGroup>
+  <Accordion title="Empty Slot Evaluation">
+    The `evaluateEmptySlotAsZero` option is particularly useful for account-based estimates:
+
+    ```javascript
+    async function compareEmptySlotHandling(accountKeys) {
+      const withEmptyAsZero = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              priorityLevel: "Medium",
+              evaluateEmptySlotAsZero: true // Default: true
+            }
+          }]
+        })
+      });
+
+      const withoutEmptyAsZero = await fetch(connection.rpcEndpoint, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate", 
+          params: [{
+            accountKeys: accountKeys,
+            options: {
+              priorityLevel: "Medium",
+              evaluateEmptySlotAsZero: false
+            }
+          }]
+        })
+      });
+      
+      const result1 = await withEmptyAsZero.json();
+      const result2 = await withoutEmptyAsZero.json();
+      
+      console.log(`With empty as zero: ${result1.result.priorityFeeEstimate}`);
+      console.log(`Without empty as zero: ${result2.result.priorityFeeEstimate}`);
+    }
+    ```
+
+    <Note>
+    When `true` (default), slots with no transactions are treated as zero fees rather than excluded. This provides more balanced estimates for accounts with sparse activity.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Include Details">
+    Request detailed information about each account's fee patterns:
+
+    ```javascript
+    async function getDetailedFeeEstimate(connection, accountKeys) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              includeDetails: true,
+              priorityLevel: "Medium"
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      console.log("Detailed fee analysis:", result.result);
+      return result.result;
+    }
+    ```
+
+    This returns additional information about how fees were calculated for each account.
+  </Accordion>
+
+  <Accordion title="Custom Lookback Period">
+    Adjust the number of slots analyzed for fee estimation:
+
+    ```javascript
+    async function getCustomLookbackEstimate(accountKeys, lookbackSlots = 50) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              priorityLevel: "Medium",
+              lookbackSlots: lookbackSlots  // 1-150, default is 150
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      return result.result.priorityFeeEstimate;
+    }
+
+    // Compare different lookback periods
+    const shortTerm = await getCustomLookbackEstimate(accountKeys, 50);   // Recent trends
+    const longTerm = await getCustomLookbackEstimate(accountKeys, 150);   // Historical average
+
+    console.log(`Short-term estimate: ${shortTerm} micro-lamports`);
+    console.log(`Long-term estimate: ${longTerm} micro-lamports`);
+    ```
+
+    <Tip>
+    **Smaller lookback**: More recent, potentially volatile data
+    
+    **Larger lookback**: More stable, historical context
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices for Account Selection
+
+<CardGroup cols={1}>
+  <Card title="Include Writable Accounts" icon="pen-to-square">
+    **Priority**: Focus on accounts that will be modified
+    
+    ```javascript
+    const writableAccounts = [
+      "YOUR_WALLET",        // Paying fees
+      "TOKEN_ACCOUNT",      // Being modified  
+      "RECIPIENT_ACCOUNT"   // Receiving tokens
+    ];
+    ```
+  </Card>
   
-  const result = await response.json();
-  return result.result.priorityFeeEstimate;
-}
+  <Card title="Add Key Programs" icon="gear">
+    **Context**: Include relevant program accounts
+    
+    ```javascript
+    const programAccounts = [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+      "CUSTOM_PROGRAM_ID"                           // Your program
+    ];
+    ```
+  </Card>
+</CardGroup>
 
-// Compare results with different settings
-async function compareEmptySlotHandling(accountKeys) {
-  const withEmptyAsZero = await getPriorityFeeWithEmptySlotHandling(connection, accountKeys, true);
-  const withoutEmptyAsZero = await getPriorityFeeWithEmptySlotHandling(connection, accountKeys, false);
-  
-  console.log(`With empty slots as zero: ${withEmptyAsZero} micro-lamports`);
-  console.log(`Without empty slots as zero: ${withoutEmptyAsZero} micro-lamports`);
-  
-  return { withEmptyAsZero, withoutEmptyAsZero };
-}
-```
+## Error Handling & Fallbacks
 
-When `evaluateEmptySlotAsZero` is `true` (default), slots with no transactions for a particular account are treated as having zero fees, rather than being excluded from the calculation. This is especially helpful for accounts with sparse transaction history, providing more balanced fee estimates.
+<CodeGroup>
 
-### Including Details
+```javascript Robust Implementation
+class AccountBasedFeeEstimator {
+  constructor(connection) {
+    this.connection = connection;
+    this.fallbackFee = 10000; // 10k micro-lamports fallback
+  }
 
-You can request detailed information about each account's fee patterns:
-
-```javascript
-async function getDetailedFeeEstimate(connection, accountKeys) {
-  const response = await fetch(connection.rpcEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "1",
-      method: "getPriorityFeeEstimate",
-      params: [
-        {
-          accountKeys: accountKeys,
-          options: { 
-            includeDetails: true,
-            priorityLevel: "Medium"
-          }
-        }
-      ]
-    })
-  });
-  
-  const result = await response.json();
-  return result.result;
-}
-```
-
-### Custom Lookback Period
-
-Adjust the number of slots analyzed for fee estimation:
-
-```javascript
-const response = await fetch(connection.rpcEndpoint, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    jsonrpc: "2.0",
-    id: "1",
-    method: "getPriorityFeeEstimate",
-    params: [
-      {
-        accountKeys: accountKeys,
-        options: { 
-          priorityLevel: "Medium",
-          lookbackSlots: 50  // Default is 150, can be 1-150
-        }
+  async getEstimate(accountKeys, priorityLevel = "Medium") {
+    try {
+      // Primary attempt
+      const estimate = await this.getPrimaryEstimate(accountKeys, priorityLevel);
+      return estimate;
+    } catch (error) {
+      console.warn("Primary estimate failed:", error.message);
+      
+      // Fallback to different configuration
+      try {
+        return await this.getFallbackEstimate(accountKeys, priorityLevel);
+      } catch (fallbackError) {
+        console.warn("Fallback estimate failed:", fallbackError.message);
+        return this.fallbackFee;
       }
-    ]
-  })
-});
+    }
+  }
+
+  async getPrimaryEstimate(accountKeys, priorityLevel) {
+    const response = await fetch(this.connection.rpcEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [{
+          accountKeys: accountKeys,
+          options: { 
+            priorityLevel: priorityLevel,
+            recommended: true 
+          }
+        }]
+      })
+    });
+
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    
+    return result.result.priorityFeeEstimate;
+  }
+
+  async getFallbackEstimate(accountKeys, priorityLevel) {
+    // Try with fewer accounts or different settings
+    const coreAccounts = accountKeys.slice(0, 3); // Take first 3 accounts
+    
+    const response = await fetch(this.connection.rpcEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [{
+          accountKeys: coreAccounts,
+          options: { 
+            priorityLevel: "Medium", // Use medium as fallback
+            evaluateEmptySlotAsZero: true
+          }
+        }]
+      })
+    });
+
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    
+    return result.result.priorityFeeEstimate;
+  }
+}
+
+// Usage
+const estimator = new AccountBasedFeeEstimator(connection);
+const fee = await estimator.getEstimate(accountKeys, "High");
 ```
 
-A smaller lookback period provides more recent market data but may be less stable, while a larger lookback provides more historical context.
+```javascript Simple Error Handling
+async function safeGetPriorityFee(accountKeys, priorityLevel = "Medium") {
+  try {
+    return await getPriorityFeeEstimate(connection, accountKeys, priorityLevel);
+  } catch (error) {
+    console.warn(`Priority fee estimation failed: ${error.message}`);
+    
+    // Return reasonable fallback based on priority level
+    const fallbacks = {
+      "Low": 1000,
+      "Medium": 5000,
+      "High": 15000,
+      "VeryHigh": 50000
+    };
+    
+    return fallbacks[priorityLevel] || 5000;
+  }
+}
+```
 
+</CodeGroup>
+
+## Limitations & Considerations
+
+<Warning>
+**Account-based method limitations:**
+
+1. **Less accurate for read-only accounts** - The algorithm focuses on writable accounts
+2. **No instruction-specific analysis** - Can't consider specific operations
+3. **Account activity dependency** - Less accurate for inactive accounts
+4. **No transaction size consideration** - Doesn't account for transaction complexity
+</Warning>
+
+<Note>
+**When to upgrade to serialized transactions:**
+- Production applications requiring highest accuracy
+- Complex transactions with multiple instructions
+- When instruction-specific fee patterns matter
+- Performance-critical applications
+</Note>
 
 ## Related Resources
 
-- [Understanding Priority Fees](/sending-transactions/priority-fees)
-- [Priority Fee API Reference](/priority-fee-api)
-- [Estimating Fees using Serialized Transactions](/priority-fee/estimating-fees-using-serialized-transaction) 
+<CardGroup cols={2}>
+  <Card title="Serialized Transactions" icon="file-code" href="/priority-fee/estimating-fees-using-serialized-transaction">
+    More accurate method using full transaction serialization
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/priority-fee/getpriorityfeeestimate">
+    Complete API documentation and parameters
+  </Card>
+</CardGroup> 
