@@ -1,0 +1,132 @@
+---
+title: "How to Use requestAirdrop"
+sidebarTitle: "requestAirdrop"
+description: "Learn requestAirdrop use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`requestAirdrop`](https://www.helius.dev/docs/api-reference/rpc/http/requestairdrop) RPC method allows you to request an airdrop of SOL (lamports) to a specified account. This method is **exclusively for non-mainnet environments** like Devnet and Testnet, where it serves as a faucet to provide developers with free SOL for testing their applications.
+
+**Important: This method will not work on Mainnet Beta.**
+
+## Common Use Cases
+
+*   **Funding Test Wallets:** Obtaining SOL to pay for transaction fees and deploy programs on Devnet or Testnet.
+*   **Automated Testing:** Scripts can use `requestAirdrop` to ensure test accounts have sufficient SOL before running test suites.
+*   **Development & Experimentation:** Quickly acquiring SOL to interact with on-chain programs during development.
+
+## Request Parameters
+
+1.  **`pubkey`** (string, required): The public key of the account that will receive the airdropped lamports, provided as a base-58 encoded string.
+2.  **`lamports`** (u64, required): The amount of lamports to request. (1 SOL = 1,000,000,000 lamports).
+3.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to wait for when confirming the airdrop transaction (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If omitted, the node's default commitment for airdrops is used.
+
+## Response Structure
+
+The `result` field in the JSON-RPC response is a single string representing the transaction signature of the airdrop, base-58 encoded.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+  "id": 1
+}
+```
+
+This signature can then be used with `getTransaction` or a Solana explorer to track the status of the airdrop transaction.
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Request 1 SOL (1,000,000,000 lamports) to a Devnet address
+# Replace <YOUR_WALLET_ADDRESS> with an actual base-58 public key
+# Ensure you are targeting a Devnet RPC URL
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "requestAirdrop",
+    "params": [
+      "<YOUR_WALLET_ADDRESS>",
+      1000000000
+    ]
+  }' \
+  https://devnet.helius-rpc.com/?api-key=<api-key> 
+
+# Request 0.5 SOL with "confirmed" commitment
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "requestAirdrop",
+    "params": [
+      "<YOUR_WALLET_ADDRESS>",
+      500000000,
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }' \
+  https://devnet.helius-rpc.com/?api-key=<api-key>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+
+async function getAirdrop(walletAddress) {
+  // Connect to Devnet
+  const connection = new Connection('https://devnet.helius-rpc.com/?api-key=<api-key>', 'confirmed');
+  const publicKey = new PublicKey(walletAddress);
+
+  try {
+    console.log(`Requesting airdrop of 1 SOL to ${walletAddress} on Devnet...`);
+    
+    // Request an airdrop of 1 SOL
+    const airdropSignature = await connection.requestAirdrop(
+      publicKey,
+      LAMPORTS_PER_SOL // 1 SOL
+    );
+
+    console.log(`Airdrop requested. Transaction signature: ${airdropSignature}`);
+
+    // Confirm the transaction
+    // Note: The `confirmTransaction` method in web3.js has evolved.
+    // For newer versions, you might use `connection.confirmTransaction({ signature: airdropSignature, blockhash: latestBlockhash.blockhash, lastValidBlockHeight: latestBlockhash.lastValidBlockHeight }, 'confirmed');`
+    // For simplicity, we'll log the signature and you can check on an explorer.
+    // Or, more robustly, you can poll getSignatureStatuses.
+
+    await connection.confirmTransaction(airdropSignature);
+    console.log(`Airdrop successful for ${walletAddress}!`);
+
+    const balance = await connection.getBalance(publicKey);
+    console.log(`Current balance for ${walletAddress}: ${balance / LAMPORTS_PER_SOL} SOL`);
+
+  } catch (error) {
+    console.error(`Error requesting airdrop for ${walletAddress}:`, error);
+  }
+}
+
+// Replace with a Devnet wallet address you control
+const myDevnetWallet = 'REPLACE_WITH_YOUR_DEVNET_WALLET_ADDRESS'; 
+// Example: const myDevnetWallet = new Keypair().publicKey.toBase58(); // For a new temporary wallet
+
+if (myDevnetWallet === 'REPLACE_WITH_YOUR_DEVNET_WALLET_ADDRESS') {
+  console.warn("Please replace 'REPLACE_WITH_YOUR_DEVNET_WALLET_ADDRESS' with an actual Devnet wallet address to run the example.");
+} else {
+  // getAirdrop(myDevnetWallet);
+  console.log("Uncomment the line above and replace the placeholder to run the airdrop example.");
+}
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Network Specific:** This method is only functional on test networks (Devnet, Testnet) that have a faucet enabled. It will fail on Mainnet Beta.
+*   **Rate Limiting:** Airdrop faucets are often rate-limited to prevent abuse. If you make too many requests in a short period, you might receive errors.
+*   **Amount Limits:** There might be limits on the amount of SOL you can request per airdrop or per time period.
+*   **Confirmation:** After `requestAirdrop` returns a signature, the transaction still needs to be processed and confirmed by the network. You can use `confirmTransaction` (from `@solana/web3.js`) or poll `getSignatureStatuses` to wait for confirmation.
+
+This guide explains how to use `requestAirdrop` to fund your test accounts on Solana's development networks. 

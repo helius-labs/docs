@@ -1,8 +1,84 @@
 ---
 title: "Getting Started with Dedicated Nodes"
 sidebarTitle: "Getting Started"
-description: "Working with your Dedicated Node"
+description: "Setting up your Dedicated Node"
 ---
+
+## How to Order Dedicated Nodes
+
+Dedicated Nodes can be ordered directly from the [developer portal](https://dashboard.helius.dev/dedicated-nodes) on the Dedicated Nodes tab.
+
+<Frame caption="Order a dedicated node from your Helius dashboard">
+  <img
+    src="/images/dedicated-nodes-order.png"
+    alt="Order a dedicated node from your Helius dashboard"
+  />
+</Frame>
+
+### Node Type
+
+The type of node you choose depends on your gRPC streaming requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your streaming workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
+
+**For gRPC streaming applications** (primary use case), any of the three node types will perform well. The AMD EPYC 7543p and AMD EPYC 9254 offer higher performance for intensive streaming workloads, while the AMD EPYC 7443p is suitable for lighter streaming requirements.
+
+<Warning>
+**Important**: While `getProgramAccounts` is supported, dedicated nodes are not optimized for these calls. Heavy usage can impact node performance or even cause node failure. Use your shared plan for `getProgramAccounts` queries as it has a custom indexer that makes these calls much faster and more reliable.
+</Warning>
+
+<Frame caption="Choose your dedicated node's type and location">
+  <img
+    src="/images/dedicated-nodes-type-and-location.png"
+    alt="Choose your dedicated node's type and location"
+  />
+</Frame>
+
+### Node Location
+
+We offer nodes across multiple regions: in North America (Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver); in Europe (Dublin, London, Amsterdam, Frankfurt); and in Asia (Tokyo, Singapore) to ensure the best geographic coverage with the global Solana infrastructure.
+
+For optimal latency, choose a node closest to your server. Your node will be deployed within three hours of payment.
+
+### Node Client
+
+You can customize your node by selecting the client type — either Agave or Jito Labs (fork of Agave with an additional method `simulateBundle`)
+
+<Frame caption="Select your dedicated node's client type">
+  <img
+    src="/images/dedicated-nodes-client-type.png"
+    alt="Select your dedicated node's client type"
+  />
+</Frame>
+
+<Note>
+Dedicated nodes **cannot** send Jito Bundles on their own. To send Jito Bundles, you must use the Jito API, which handles packaging and sending the bundles through Jito's system.
+
+To simplify this process, our SDK provides an easy method called [Send Jito Bundle](https://github.com/helius-labs/helius-sdk/tree/main?tab=readme-ov-file#sendJitoBundle).
+</Note>
+
+### Geyser Plugin (Recommended)
+
+**We strongly recommend adding the [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser Plugin**, which is the primary use case for dedicated nodes. It provides high-performance [gRPC streaming](/grpc) of slots, blocks, transactions, and account updates.
+
+<Frame caption="Select the Yellowstone gRPC Geyser Plugin (Recommended)">
+  <img
+    src="/images/dedicated-nodes-geyser-plugin.png"
+    alt="Select the Yellowstone gRPC Geyser Plugin (Recommended)"
+  />
+</Frame>
+
+<Note>
+**Best Practice**: Dedicated nodes are optimized for gRPC streaming. Use your shared plan for transaction submission, archival queries, and complex RPC operations.
+</Note>
+
+### Payment Options
+
+You can pay via fiat or crypto (USDC). Once your payment goes through, your node will be deployed within 3 hours.
+
+For billing, fiat payments will receive a discount on the next month's bill for the number of days it took to provision the node. For crypto payments, the billing cycle starts once the node is delivered.
+
+### Demo
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KjgUzY_3dsQ?si=r3aKXpc_H6b7hnqE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Getting Started
 
@@ -10,9 +86,13 @@ Once you have your Dedicated Node set up and ready (status: **Succeeded**), you 
 
 ## Connecting to your dedicated node
 
-### RPC and Websocket
+### gRPC Streaming (Primary Use Case)
 
-Each dedicated node comes with an RPC URL that you can use like in the example below.
+**Dedicated nodes are optimized for gRPC streaming via the Yellowstone Geyser Plugin.** This is the primary and recommended way to use your dedicated node.
+
+### Basic RPC and Websocket (Limited Functionality)
+
+Each dedicated node also provides basic RPC functionality, but with limitations. **For production applications, combine dedicated nodes with a shared plan.**
 
 Here we are using Solana web3.js to call [`getSlot`](/api-reference/rpc/http/getslot) using our dedicated node:
 
@@ -49,6 +129,15 @@ ws.onmessage = (event) => {
     console.log(JSON.parse(event.data));
 };
 ```
+
+<Warning>
+**Remember**: The above RPC examples are for basic functionality only. Dedicated nodes limitations:
+- `sendTransaction` supported but not optimized - most transactions will not land (use your shared plan for reliable transaction submission)
+- No archival data queries (use your shared plan)  
+- `getProgramAccounts` supported but not optimized - heavy usage can impact performance or cause node failure (use your shared plan for reliability)
+
+**Primary use case**: Use the gRPC streaming setup below for optimal performance.
+</Warning>
 
 ### Set up your Geyser Plugin
 

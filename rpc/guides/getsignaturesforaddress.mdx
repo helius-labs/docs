@@ -1,0 +1,242 @@
+---
+title: "How to Use getSignaturesForAddress"
+sidebarTitle: "getSignaturesForAddress"
+description: "Learn getSignaturesForAddress use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
+
+## Common Use Cases
+
+*   **Account Transaction History:** Displaying the past transactions for a user's wallet. For more advanced parsing of transaction history, consider using Helius's [Enhanced Transactions API](https://www.helius.dev/docs/enhanced-transactions).
+*   **Activity Auditing:** Reviewing all transactions associated with a particular smart contract or account.
+*   **Specific Transaction Lookup:** Finding a specific transaction by iterating through an account's history if only the involved address is known.
+*   **Data Indexing:** Building a localized index of transactions for faster querying and analysis.
+
+## Request Parameters
+
+1.  **`address`** (`string`): (Required) The base-58 encoded public key of the account for which to retrieve transaction signatures.
+2.  **`options`** (`object`, optional): An optional configuration object with the following fields:
+    *   **`limit`** (`number`, optional): The maximum number of signatures to return. The default is 1000, and the maximum allowed is 1000.
+    *   **`before`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will start searching for transactions before this signature.
+    *   **`until`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will search for transactions until this signature is reached (exclusive).
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+    *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This is not a filter on historical transactions but sets the minimum slot for the node's context.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response is an array of signature information objects. Each object has the following structure:
+
+*   **`signature`** (`string`): The base-58 encoded transaction signature.
+*   **`slot`** (`u64`): The slot in which the transaction was processed.
+*   **`err`** (`object` | `null`): An error object if the transaction failed, or `null` if it succeeded.
+*   **`memo`** (`string` | `null`): The memo associated with the transaction, if any.
+*   **`blockTime`** (`i64` | `null`): The estimated production time of the block containing the transaction, as a Unix timestamp (seconds since epoch). `null` if not available.
+*   **`confirmationStatus`** (`string` | `null`): The confirmation status of the transaction (e.g., `processed`, `confirmed`, `finalized`). `null` if not available (e.g., for older Helius responses).
+
+## Examples
+
+### 1. Get the Latest Signatures for an Address
+
+This example fetches the most recent (up to 1000) transaction signatures for a given address.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace SYSTEM_PROGRAM_ID with the address you want to query
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignaturesForAddress",
+    "params": [
+      "11111111111111111111111111111111" 
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getLatestSignatures() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  // Replace with the public key you want to query
+  const address = new PublicKey('11111111111111111111111111111111'); 
+
+  try {
+    const signatures = await connection.getSignaturesForAddress(address);
+    if (signatures && signatures.length > 0) {
+      console.log(`Found ${signatures.length} signatures:`);
+      signatures.forEach((sigInfo, index) => {
+        console.log(`--- Signature ${index + 1} ---`);
+        console.log(`  Signature: ${sigInfo.signature}`);
+        console.log(`  Slot: ${sigInfo.slot}`);
+        console.log(`  Block Time: ${sigInfo.blockTime ? new Date(sigInfo.blockTime * 1000).toLocaleString() : 'N/A'}`);
+        console.log(`  Error: ${JSON.stringify(sigInfo.err)}`);
+        console.log(`  Memo: ${sigInfo.memo || 'N/A'}`);
+        console.log(`  Confirmation Status: ${sigInfo.confirmationStatus || 'N/A'}`);
+      });
+    } else {
+      console.log('No signatures found for this address.');
+    }
+  } catch (error) {
+    console.error('Error fetching signatures:', error);
+  }
+}
+
+getLatestSignatures();
+```
+</CodeGroup>
+
+### 2. Get Signatures with a Limit
+
+This example fetches a specified number of recent transaction signatures for an address.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace TARGET_ACCOUNT_ADDRESS with the address you want to query
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignaturesForAddress",
+    "params": [
+      "TARGET_ACCOUNT_ADDRESS",
+      {
+        "limit": 5 
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getLimitedSignatures() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  // Replace with the public key you want to query
+  const address = new PublicKey('Vote111111111111111111111111111111111111111'); 
+  const limit = 5;
+
+  try {
+    const signatures = await connection.getSignaturesForAddress(address, { limit });
+    console.log(`Fetched up to ${limit} signatures:`);
+    signatures.forEach((sigInfo, index) => {
+      console.log(`${index + 1}. Signature: ${sigInfo.signature}, Slot: ${sigInfo.slot}`);
+    });
+  } catch (error) {
+    console.error(`Error fetching limited signatures for ${address.toBase58()}:`, error);
+  }
+}
+
+getLimitedSignatures();
+```
+</CodeGroup>
+
+
+### 3. Paginating Through Transaction History
+
+This example demonstrates how to fetch transaction history in batches using the `before` parameter.
+
+<CodeGroup>
+```bash cURL
+# Initial request (get the latest 2)
+# Replace <api-key> with your Helius API key
+# Replace TARGET_ACCOUNT_ADDRESS with the address you want to query
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignaturesForAddress",
+    "params": [
+      "TARGET_ACCOUNT_ADDRESS",
+      { "limit": 2 }
+    ]
+  }'
+
+# Suppose the last signature from the above response was LAST_SIGNATURE_FROM_PREVIOUS_BATCH
+# Fetch the next 2 transactions before that one
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignaturesForAddress",
+    "params": [
+      "TARGET_ACCOUNT_ADDRESS",
+      { 
+        "limit": 2,
+        "before": "LAST_SIGNATURE_FROM_PREVIOUS_BATCH" 
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function paginateSignatures() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  // Replace with the public key you want to query - e.g. a known active address
+  const address = new PublicKey('Vote111111111111111111111111111111111111111'); 
+  const batchSize = 2;
+  let lastSignature = null;
+  let allSignatures = [];
+  const maxPages = 3; // Limit how many pages we fetch for this example
+
+  try {
+    for (let i = 0; i < maxPages; i++) {
+      console.log(`Fetching page ${i + 1}...`);
+      const options = { limit: batchSize };
+      if (lastSignature) {
+        options.before = lastSignature;
+      }
+
+      const signatures = await connection.getSignaturesForAddress(address, options);
+      
+      if (signatures.length === 0) {
+        console.log('No more signatures found.');
+        break;
+      }
+
+      signatures.forEach(sigInfo => {
+        allSignatures.push(sigInfo.signature);
+        console.log(`  Found: ${sigInfo.signature} in slot ${sigInfo.slot}`);
+      });
+      
+      lastSignature = signatures[signatures.length - 1]?.signature;
+
+      if (signatures.length < batchSize || !lastSignature) {
+         console.log('Fetched all available signatures or reached end of page.');
+         break;
+      }
+      // Optional: Add a small delay if making many sequential requests
+      // await new Promise(resolve => setTimeout(resolve, 200)); 
+    }
+    console.log(`
+Total signatures fetched (${allSignatures.length}):`);
+    allSignatures.forEach((sig, idx) => console.log(`${idx + 1}. ${sig}`));
+
+  } catch (error) {
+    console.error('Error paginating signatures:', error);
+  }
+}
+
+paginateSignatures();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Pagination:** To get a complete transaction history for an active account, you'll likely need to make multiple requests, using the `before` parameter with the last signature received in the previous batch and a `limit`.
+*   **Rate Limits:** Be mindful of RPC node rate limits when fetching extensive transaction histories.
+*   **Order:** Signatures are always returned from newest to oldest.
+*   **`limit` Parameter:** The `limit` parameter can be between 1 and 1000. If not specified, it defaults to 1000.
+*   **`until` Parameter:** This parameter can be used to stop fetching signatures if a known older signature is reached, which can be useful if you only need transactions up to a certain point.
+*   **`minContextSlot`:** This parameter does not filter historical transactions. It specifies the minimum slot the RPC node should use for its context when evaluating the request. If the node's state is older than this slot, it may return an error.
+*   **Transaction Details:** This method only returns signatures and basic information. To get full transaction details, you would use the `getTransaction` method with each signature.
+
+By using `getSignaturesForAddress` with its pagination options, you can effectively retrieve and manage transaction histories for any Solana address. 

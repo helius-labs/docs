@@ -6,88 +6,714 @@ description: >-
   NFTs on Solana.
 ---
 
+<Note>
+**Quick Reference**: The DAS API provides a unified interface for all Solana assets. Use `getAsset` for single assets, `getAssetsByOwner` for wallet holdings, `searchAssets` for filtered queries, and specialized methods for compressed NFTs.
+</Note>
+
 ## What is DAS?
 
-The Digital Asset Standard (DAS) API is an open-source specification and system that provides a unified interface for interacting with digital assets. The API supports fungible tokens, regular NFTs, and compressed NFTs. Some methods (e.g. "getAssetProof") are exclusively for compressed assets.
+The Digital Asset Standard (DAS) API is an open-source specification that provides a unified interface for interacting with all types of digital assets on Solana:
 
-## Endpoints
-
-Helius' API is fully compatible with the shared [OpenRPC specification](https://github.com/metaplex-foundation/digital-asset-standard-api/blob/main/specification/metaplex-das-api.json). The API is exposed via our standard RPC endpoints:
+- Regular NFTs (Non-Fungible Tokens)
+- Compressed NFTs (State Compression)
+- Fungible Tokens (including SPL Tokens and Token-2022)
+- Inscriptions and SPL-20 tokens (experimental)
 
 <CardGroup cols={2}>
-  <Card title="Mainnet">
-    `https://mainnet.helius-rpc.com`
+  <Card title="Mainnet Endpoint" icon="server">
+    `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
   </Card>
-  <Card title="Devnet">
-    `https://devnet.helius-rpc.com`
+  <Card title="Devnet Endpoint" icon="server">
+    `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
   </Card>
 </CardGroup>
 
-## **DAS API**
+<Tabs>
+  <Tab title="Key Features">
+    - Unified access to all Solana asset types
+    - Comprehensive metadata retrieval
+    - Off-chain data indexing (Arweave, IPFS)
+    - Merkle proof support for compressed assets
+    - Token price data for verified tokens
+    - Advanced filtering and search capabilities
+  </Tab>
+  <Tab title="Use Cases">
+    - NFT marketplaces and storefronts
+    - Wallet applications and portfolio trackers
+    - Token-gated applications
+    - Creator dashboards and analytics tools
+    - NFT collection explorers
+    - DeFi applications requiring token data
+  </Tab>
+</Tabs>
 
-The DAS endpoints enable users to query tokens and regular & compressed NFTs.
+## API Methods
 
-<CardGroup cols={2}>
-  <Card title="Get Asset" href="/api-reference/das/getasset">
-    Get an asset by its ID
+<CardGroup cols={3}>
+  <Card title="Single Asset" icon="cube" href="#fetching-individual-assets">
+    Get detailed data for specific assets
   </Card>
-  <Card title="Get Asset Batch" href="/api-reference/das/getassetbatch">
-    Get multiple assets by their IDs
+  <Card title="Asset Collections" icon="layer-group" href="#fetching-asset-collections">
+    Get assets by owner, creator, or collection
   </Card>
-  <Card title="Get Asset Proof" href="/api-reference/das/getassetproof">
-    Get Merkle proof for a compressed asset using its ID
-  </Card>
-  <Card title="Get Asset Proof Batch" href="/api-reference/das/getassetproofbatch">
-    Get multiple asset proofs using their IDs
-  </Card>
-  <Card title="Search Assets" href="/api-reference/das/searchassets">
-    Search for assets using a variety of parameters
-  </Card>
-  <Card title="Get Assets By Owner" href="/api-reference/das/getassetsbyowner">
-    Get a list of assets owned by an address
-  </Card>
-  <Card title="Get Assets By Authority" href="/api-reference/das/getassetsbyauthority">
-    Get a list of assets with a specific authority
-  </Card>
-  <Card title="Get Assets By Creator" href="/api-reference/das/getassetsbycreator">
-    Get a list of assets created by an address
-  </Card>
-  <Card title="Get Assets By Group" href="/api-reference/das/getassetsbygroup">
-    Get a list of assets by a group key and value
-  </Card>
-  <Card title="Get Signatures For Asset" href="/api-reference/das/getsignaturesforasset">
-    Get a list of transaction signatures related to a compressed asset
-  </Card>
-  <Card title="Get Token Accounts" href="/api-reference/das/gettokenaccounts">
-    Get information about all token accounts for a specific mint or an owner
-  </Card>
-  <Card title="Get NFT Editions" href="/api-reference/das/getnfteditions">
-    Get information about all the edition NFTs for a specific master NFT
+  <Card title="Advanced Queries" icon="magnifying-glass" href="#advanced-query-methods">
+    Search and filter assets with complex criteria
   </Card>
 </CardGroup>
 
-## Fungible Token Extension
+### Fetching Individual Assets
+
+These methods let you retrieve detailed information about specific assets by their IDs.
+
+<Tabs>
+  <Tab title="getAsset">
+    ```typescript
+    // Get a single asset by its ID
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAsset = async (id) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getAsset",
+          params: {
+            id: id,
+          },
+        }),
+      });
+      
+      const data = await response.json();
+      return data.result;
+    };
+    
+    // Example usage
+    getAsset("FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getasset">
+      View detailed documentation for getAsset
+    </Card>
+  </Tab>
+  <Tab title="getAssetBatch">
+    ```typescript
+    // Get multiple assets (up to 1,000) in a single request
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetBatch = async (ids) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetBatch',
+          params: {
+            ids: ids
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetBatch([
+      '81bxPqYCE8j34nQm7Rooqi8Vt3iMHLzgZJ71rUVbQQuz',
+      'CWHuz6GPjWYdwt7rTfRHKaorMwZP58Spyd7aqGK7xFbn'
+    ]);
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetbatch">
+      View detailed documentation for getAssetBatch
+    </Card>
+  </Tab>
+  <Tab title="getAssetProof">
+    ```typescript
+    // Get Merkle proof for a compressed asset
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetProof = async (id) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetProof',
+          params: {
+            id: id
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetProof("Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetproof">
+      View detailed documentation for getAssetProof
+    </Card>
+  </Tab>
+  <Tab title="getAssetProofBatch">
+    ```typescript
+    // Get Merkle proofs for multiple compressed assets
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetProofBatch = async (ids) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetProofBatch',
+          params: {
+            ids: ids
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetProofBatch([
+      '81bxPqYCE8j34nQm7Rooqi8Vt3iMHLzgZJ71rUVbQQuz',
+      'CWHuz6GPjWYdwt7rTfRHKaorMwZP58Spyd7aqGK7xFbn'
+    ]);
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetproofbatch">
+      View detailed documentation for getAssetProofBatch
+    </Card>
+  </Tab>
+</Tabs>
+
+### Fetching Asset Collections
+
+These methods allow you to retrieve assets based on ownership, creation, authority, or collection membership.
+
+<Note>
+  All pagination in DAS API methods starts at 1 (not 0).
+</Note>
+
+<Tabs>
+  <Tab title="By Owner">
+    ```typescript
+    // Get all assets owned by a wallet address
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByOwner = async (ownerAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress: ownerAddress,
+            page: 1,
+            limit: 1000,
+            displayOptions: {
+              showFungible: true, // Include SPL tokens
+              showNativeBalance: true, // Include SOL balance
+              showInscription: true, // Include inscription data
+            },
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByOwner("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbyowner">
+      View detailed documentation for getAssetsByOwner
+    </Card>
+  </Tab>
+  <Tab title="By Collection">
+    ```typescript
+    // Get all assets in a collection
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByGroup = async (collectionAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByGroup',
+          params: {
+            groupKey: 'collection',
+            groupValue: collectionAddress,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByGroup("J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbygroup">
+      View detailed documentation for getAssetsByGroup
+    </Card>
+  </Tab>
+  <Tab title="By Creator">
+    ```typescript
+    // Get all assets by a specific creator
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByCreator = async (creatorAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByCreator',
+          params: {
+            creatorAddress: creatorAddress,
+            onlyVerified: true,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByCreator("D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbycreator">
+      View detailed documentation for getAssetsByCreator
+    </Card>
+  </Tab>
+  <Tab title="By Authority">
+    ```typescript
+    // Get all assets with a specific authority
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByAuthority = async (authorityAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByAuthority',
+          params: {
+            authorityAddress: authorityAddress,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByAuthority("2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getassetsbyauthority">
+      View detailed documentation for getAssetsByAuthority
+    </Card>
+  </Tab>
+</Tabs>
+
+### Advanced Query Methods
+
+These methods allow for more specialized asset queries, including transaction history, NFT editions, and complex search filters.
+
+<Tabs>
+  <Tab title="searchAssets">
+    ```typescript
+    // Search for assets with flexible criteria
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const searchAssets = async (searchParams) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'searchAssets',
+          params: searchParams,
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example: Search for NFTs with specific traits
+    searchAssets({
+      ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+      grouping: ["collection", "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"],
+      traits: [
+        { trait_type: "Background", values: ["Blue"] }
+      ],
+      limit: 100
+    });
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/searchassets">
+      View detailed documentation for searchAssets
+    </Card>
+  </Tab>
+  <Tab title="getSignaturesForAsset">
+    ```typescript
+    // Get transaction history for a compressed asset
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getSignaturesForAsset = async (assetId) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getSignaturesForAsset',
+          params: {
+            id: assetId,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getSignaturesForAsset("FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getsignaturesforasset">
+      View detailed documentation for getSignaturesForAsset
+    </Card>
+  </Tab>
+  <Tab title="getNftEditions">
+    ```typescript
+    // Get all editions for a master NFT
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getNftEditions = async (masterMint) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getNftEditions",
+          params: {
+            mint: masterMint,
+            page: 1,
+            limit: 100
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getNftEditions("Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL");
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/getnfteditions">
+      View detailed documentation for getNftEditions
+    </Card>
+  </Tab>
+  <Tab title="getTokenAccounts">
+    ```typescript
+    // Get token accounts for a mint or owner
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getTokenAccounts = async (params) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getTokenAccounts",
+          params: params,
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example: Get all accounts holding a specific token
+    getTokenAccounts({
+      mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+      page: 1,
+      limit: 100
+    });
+    ```
+    <Card title="API Reference" horizontal icon="code" href="/api-reference/das/gettokenaccounts">
+      View detailed documentation for getTokenAccounts
+    </Card>
+  </Tab>
+</Tabs>
+
+## Working with Special Asset Types
+
+<CardGroup cols={2}>
+  <Card title="Fungible Tokens" icon="coins" href="#fungible-tokens">
+    Access SPL tokens and get price data
+  </Card>
+  <Card title="Compressed NFTs" icon="file-zipper" href="#compressed-nfts">
+    Work with state-compressed assets
+  </Card>
+  <Card title="Inscriptions" icon="file-signature" href="#inscriptions--spl-20">
+    Access inscription and SPL-20 data
+  </Card>
+  <Card title="Off-chain Data" icon="cloud" href="#off-chain-data">
+    Retrieve metadata from Arweave/IPFS
+  </Card>
+</CardGroup>
+
+### Fungible Tokens
 
 <Info>
-  Helius has extended the DAS API to support **all tokens**, including plain SPL tokens (without metadata) and Token22 (plus their extensions). [Fungible token support](/das/fungible-token-extension) is available through the [getAssetsByOwner](/api-reference/das/getassetsbyowner) and [searchAssets](/api-reference/das/searchassets) methods.
+  Helius has extended the DAS API to support **all tokens**, including plain SPL tokens (without metadata) and Token-2022 (plus their extensions). Fungible token support is available through the `getAssetsByOwner` and `searchAssets` methods.
 </Info>
 
-## Inscriptions & SPL-20
+```typescript
+// Get all tokens for a wallet including price data
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+const getTokensWithPrices = async (ownerAddress) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: ownerAddress,
+        displayOptions: {
+          showFungible: true,
+        },
+      },
+    }),
+  });
+
+  const { result } = await response.json();
+  
+  // Filter tokens that have price data
+  const tokensWithPrices = result.items.filter(
+    asset => asset.token_info?.price_info
+  );
+  
+  return tokensWithPrices;
+};
+
+// Example usage
+getTokensWithPrices("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+```
+
+### Compressed NFTs
+
+State-compressed NFTs (cNFTs) require special handling for operations like retrieving Merkle proofs and transaction history:
+
+```typescript
+// Common operations with compressed NFTs
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+// 1. Get a compressed NFT
+const getCompressedNft = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAsset',
+      params: { id },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+
+// 2. Get Merkle proof for verification
+const getProof = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetProof',
+      params: { id },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+
+// 3. Get transaction history
+const getTransactionHistory = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getSignaturesForAsset',
+      params: { 
+        id,
+        page: 1,
+        limit: 100
+      },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+```
+
+### Inscriptions & SPL-20
 
 <Tip>
-  You can optionally display inscription and SPL-20 token data with the `showInscription` flag. You can learn more about inscriptions and SPL-20 [here](https://x.com/nick_pennie/status/1727877242045542858). Please note that this is an experimental feature.
+  You can optionally display inscription and SPL-20 token data with the `showInscription` flag. This is an experimental feature.
 </Tip>
 
-<Warning>
-  The Helius API does not verify SPL-20 tokens. Trade at your own risk. Please use the [validator tool](https://www.spl20.io/) or join the [Libreplex Discord channel](https://discord.gg/kTRGwcXx) for more information.
-</Warning>
+```typescript
+// Get inscriptions for a wallet
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
 
-## Off-chain Indexing
+const getInscriptionsForWallet = async (ownerAddress) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: ownerAddress,
+        displayOptions: {
+          showInscription: true,
+        },
+      },
+    }),
+  });
+
+  const { result } = await response.json();
+  
+  // Filter results to only include assets with inscription data
+  const inscriptions = result.items.filter(
+    asset => asset.inscription
+  );
+  
+  return inscriptions;
+};
+
+// Example usage
+getInscriptionsForWallet("6GmTFg5SCs4zGfDEidUAJjS5pSrXEPwW8Rpfs3RHrbc5");
+```
+
+### Off-chain Data
 
 <Accordion title="Off-chain Data Retrieval">
-  Most NFT collections store additional metadata, such as attributes and image URLs, off-chain, typically on platforms like Arweave or IPFS. DAS enables you to retrieve this off-chain data alongside regular NFT data in a single API call by indexing all the off-chain information.
+  Most NFT collections store additional metadata (attributes, images, etc.) off-chain on platforms like Arweave or IPFS. The DAS API automatically indexes this off-chain data and provides it alongside on-chain data in a single API call.
 
   <Note>
-    Helius cannot detect off-chain data mutations. The off-chain data will only be updated once the NFT is seen by the system again (e.g. when the NFT is modified on-chain). If you need the off-chain data for a collection to be re-indexed, please reach out to Helius support.
+    Helius cannot detect off-chain data mutations. The off-chain data will only be updated once the NFT is seen by the system again (e.g., when the NFT is modified on-chain). If you need the off-chain data for a collection to be re-indexed, please reach out to Helius support.
   </Note>
 </Accordion>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Pagination" icon="arrows-split-up-and-left">
+    - Start at page 1 (not 0)
+    - Use reasonable limit values (100-1000)
+    - Implement robust pagination for large datasets
+  </Card>
+  <Card title="Error Handling" icon="shield-check">
+    - Always check for errors in responses
+    - Implement retries with exponential backoff
+    - Handle edge cases like invalid parameters
+  </Card>
+  <Card title="Performance" icon="bolt">
+    - Use batch methods when possible
+    - Cache responses when appropriate
+    - Avoid chaining multiple requests when one will do
+  </Card>
+  <Card title="Security" icon="lock">
+    - Never expose your API key in client-side code
+    - Use server-side functions to proxy API requests
+    - Set up appropriate CORS policies
+  </Card>
+</CardGroup>
+
+## Resources
+
+<CardGroup cols={3}>
+  <Card title="API References" icon="book-open" href="/api-reference/das">
+    Full API documentation for all DAS methods
+  </Card>
+  <Card title="GitHub Repository" icon="github" href="https://github.com/metaplex-foundation/digital-asset-standard-api">
+    DAS API open-source specification
+  </Card>
+  <Card title="Examples & SDKs" icon="code" href="/sdks">
+    Get started with client libraries and code samples
+  </Card>
+</CardGroup>

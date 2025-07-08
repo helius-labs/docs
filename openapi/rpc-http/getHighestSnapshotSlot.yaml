@@ -18,6 +18,33 @@ components:
       in: query
       name: api-key
       description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
   examples:
     getHighestSnapshotSlotRequest:
       value:
@@ -110,61 +137,75 @@ paths:
                         nullable: true
                         description: Highest Solana slot for which an incremental state delta snapshot is available, built on top of the full snapshot.
                         example: 110
-        500:
-          description: The node has no snapshot.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  jsonrpc:
-                    type: string
-                    description: The JSON-RPC protocol version.
-                    enum:
-                      - "2.0"
-                    example: "2.0"
-                  id:
-                    type: string
-                    description: Identifier matching the request.
-                    example: "1"
-                  error:
-                    type: object
-                    description: Details of the error when no snapshot is available.
-                    properties:
-                      code:
-                        type: integer
-                        description: Error code indicating the node has no snapshot data available for bootstrap operations.
-                        example: -32008
-                      message:
-                        type: string
-                        description: Error message indicating this node does not have snapshot archives available.
-                        example: "No snapshot"
         400:
-          description: Invalid request
+          description: Bad Request - Invalid request parameters or malformed request.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  jsonrpc:
-                    type: string
-                    description: The JSON-RPC protocol version.
-                    enum:
-                      - "2.0"
-                    example: "2.0"
-                  id:
-                    type: string
-                    description: Identifier matching the request.
-                    example: "1"
-                  error:
-                    type: object
-                    description: Details of the error when request is invalid.
-                    properties:
-                      code:
-                        type: integer
-                        description: Error code indicating the issue.
-                        example: -32600
-                      message:
-                        type: string
-                        description: Error message describing the issue.
-                        example: "Invalid request"
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        401:
+          description: Unauthorized - Invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        500:
+          description: Internal Server Error - An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                id: "1"

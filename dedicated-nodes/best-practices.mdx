@@ -6,14 +6,34 @@ description: "Optimize Performance and Maintain Node Health"
 
 ## Best Practices
 
+### Primary Use: gRPC Streaming
+
+**Dedicated nodes are optimized for gRPC streaming applications**. For the best experience:
+
+* **Use with Yellowstone Geyser Plugin**: This is the primary and recommended use case for dedicated nodes
+* **Combine with a shared plan**: For `sendTransaction`, archival data, and complex account queries, use your shared plan endpoints
+* **Focus on streaming**: Leverage dedicated nodes for real-time data streaming, monitoring, and analytics
+
 ### Managing Node Load
 
 While nodes don't have strict usage limits, they are bound by hardware constraints. A balanced workload helps maintain optimal performance and node liveliness.
 
-* Avoid mixing heavy account-based calls (e.g. [getProgramAccounts](/api-reference/rpc/http/getprogramaccounts), [getTokenAccountsByOwner](/api-reference/rpc/http/gettokenaccountsbyowner), etc.) with gRPC usage on the same node.
-  * It's best to move heavy account-based calls to a shared plan since we have a [**custom indexer**](https://x.com/heliuslabs/status/1864750969755422797) that makes those calls much faster.
-* Monitor your node's metrics to understand its performance based on response times, successful request %, and error counts.
+* **Use `getProgramAccounts` carefully**: While supported, dedicated nodes are not optimized for these calls - heavy usage can impact performance or cause node failure
+  * Use your shared plan for `getProgramAccounts` queries as we have a [**custom indexer**](https://x.com/heliuslabs/status/1864750969755422797) that makes those calls much faster and more reliable
+* **Poor transaction landing rates**: While `sendTransaction` is supported, it's not optimized - most transactions will not land; use your shared plan for reliable transaction submission
+* **No archival queries**: Historical data access should be done through your shared plan
+* Monitor your node's metrics to understand its performance based on response times, successful request %, and error counts
 * Consider distributing intensive workloads across multiple nodes in a dedicated fleet
+
+<Warning>
+**Remember**: Dedicated nodes limitations:
+- `sendTransaction` supported but not optimized - most transactions will not land
+- No archival data access  
+- `getProgramAccounts` supported but not optimized - heavy usage can impact performance or cause node failure
+- No platform APIs, webhooks, or staked connections
+
+Use your shared paid plan for these features.
+</Warning>
 
 <Note>
 If your team needs a cluster of multiple dedicated nodes, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). We will take in your requirements and configure a dedicated fleet for your team.

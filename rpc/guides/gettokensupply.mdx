@@ -1,0 +1,117 @@
+---
+title: "How to Use getTokenSupply"
+sidebarTitle: "getTokenSupply"
+description: "Learn getTokenSupply use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getTokenSupply`](https://www.helius.dev/docs/api-reference/rpc/http/gettokensupply) RPC method returns the total supply of a specific SPL Token mint. This is essential for understanding the overall quantity of a token that has been created.
+
+## Common Use Cases
+
+*   **Displaying Token Information:** Showing the total supply of a token on an explorer or in a wallet interface.
+*   **Tokenomics Analysis:** Understanding the maximum or current total issuance of a token.
+*   **Verification:** Checking the supply of a token as reported by the mint account itself.
+*   **Monitoring Supply Changes:** If a token is mintable, this can be used to track changes in its total supply over time (though for fungible tokens, the supply is usually fixed or managed by a minting authority).
+
+## Request Parameters
+
+1.  **`mintAddress`** (string, required): The base-58 encoded public key of the token mint whose total supply you want to query.
+
+2.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`).
+
+## Response Structure
+
+The `result.value` field in the JSON-RPC response is an object containing details about the token's supply:
+
+*   **`amount`** (string): The total supply of the token in its smallest denomination (raw amount), as a string. This value is not adjusted for decimals.
+*   **`decimals`** (u8): The number of decimal places defined for this token mint. This is crucial for converting the raw `amount` to a human-readable format.
+*   **`uiAmount`** (number | null): The total supply of the token as a floating-point number, adjusted for the token's `decimals`. This field might be null or less precise; `uiAmountString` is generally preferred for display.
+*   **`uiAmountString`** (string): The total supply of the token as a string, adjusted for the token's `decimals`. This is the most user-friendly representation of the total supply.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 123456789 },
+    "value": {
+      "amount": "1000000000000000", // e.g., 1,000,000,000 tokens with 6 decimals
+      "decimals": 6,
+      "uiAmount": 1000000000.0,
+      "uiAmountString": "1000000000.0"
+    }
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Replace <TOKEN_MINT_PUBKEY> with the actual mint address
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenSupply",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>"
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Example with commitment level
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenSupply",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>",
+      { "commitment": "confirmed" }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkTokenSupply(mintAddress) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const mintPublicKey = new PublicKey(mintAddress);
+
+  try {
+    const tokenSupply = await connection.getTokenSupply(mintPublicKey);
+    console.log(`Token Supply for Mint ${mintAddress}:`);
+    console.log(`  UI Amount: ${tokenSupply.value.uiAmountString}`);
+    console.log(`  Raw Amount: ${tokenSupply.value.amount}`);
+    console.log(`  Decimals: ${tokenSupply.value.decimals}`);
+    // For full details:
+    // console.log(JSON.stringify(tokenSupply, null, 2));
+  } catch (error) {
+    console.error(`Error fetching token supply for mint ${mintAddress}:`, error);
+  }
+}
+
+// Replace with the actual token mint public key you want to query
+const exampleTokenMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
+checkTokenSupply(exampleTokenMint);
+
+// Example with a different mint (e.g., Raydium)
+// const raydiumMint = '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R';
+// checkTokenSupply(raydiumMint);
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Immutable Supply (Usually):** For most SPL tokens, once minted, the total supply from the perspective of the mint account itself is fixed unless the mint has a specific minting authority that can create more tokens (or burn them, though burning typically happens from token accounts, not the mint's supply directly).
+*   **`decimals` is Key:** Always use the `decimals` field to correctly interpret the `amount` or `uiAmountString`.
+*   **Data Source:** This method queries the mint account directly for its supply information.
+
+This guide provides the necessary information to use the `getTokenSupply` RPC method effectively for querying SPL token supply on Solana. 

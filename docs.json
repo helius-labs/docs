@@ -25,12 +25,42 @@
   "appearance": {
     "default": "dark"
   },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "banner": {
+    "content": "🚀  New: LaserStream - Ultra-low latency data streaming is now available! [Learn More](/docs/laserstream)",
+    "dismissible": true
+  },
   "integrations": {
     "posthog": {
       "apiKey": "phc_H66gRNy1uok5uPmsul2kpbRynt6h9L74f5BlPJ4RMqE",
       "apiHost": "https://www.helius.dev/ingest"
     }
   },
+  "redirects": [
+    {
+      "source": "/sending-transactions/quickstart",
+      "destination": "/sending-transactions/overview"
+    },
+    {
+      "source": "/sending-transactions/priority-fees",
+      "destination": "/priority-fee-api"
+    },
+    {
+      "source": "/sending-transactions/smart-transactions",
+      "destination": "/sending-transactions/optimizing-transactions"
+    },
+    {
+      "source": "/sending-transactions/staked-connections",
+      "destination": "/sending-transactions/optimizing-transactions"
+    }
+  ],
   "errors": {
     "404": {
       "redirect": false
@@ -44,16 +74,10 @@
         "groups": [
           {
             "group": "Get Started",
-            "pages": ["index", "quickstart"]
-          },
-          {
-            "group": "Billing",
             "pages": [
-              "billing/plans-and-rate-limits",
-              "billing/credits",
-              "billing/prepaid-credits",
-              "billing/autoscaling",
-              "billing/pay-with-crypto"
+              "index",
+              "quickstart",
+              "billing/plans-and-rate-limits"
             ]
           },
           {
@@ -61,69 +85,84 @@
             "pages": [
               "solana-rpc-nodes",
               "rpc/quickstart",
+              "rpc/devnet-sol",
               "rpc/protect-your-keys",
-              "rpc/optimization-techniques"
-            ]
-          },
-          {
-            "group": "Dedicated Nodes",
-            "pages": [
-              "dedicated-nodes",
-              "dedicated-nodes/order-dedicated-node",
-              "dedicated-nodes/getting-started",
-              "dedicated-nodes/dashboard",
-              "dedicated-nodes/best-practices"
-            ]
-          },
-          {
-            "group": "Sending Transactions",
-            "pages": [
-              "sending-transactions",
-              "sending-transactions/quickstart",
-              "sending-transactions/smart-transactions",
-              "sending-transactions/staked-connections",
-              "sending-transactions/priority-fees",
+              "rpc/optimization-techniques",
               {
-                "group": "Priority Fee API",
+                "group": "RPC Guides",
                 "pages": [
-                  "priority-fee-api",
-                  "priority-fee/estimating-fees-using-serialized-transaction",
-                  "priority-fee/estimating-fees-using-account-keys",
-                  "priority-fee/best-practices"
+                  "rpc/guides/getaccountinfo",
+                  "rpc/guides/getbalance",
+                  "rpc/guides/getblock",
+                  "rpc/guides/getblockcommitment",
+                  "rpc/guides/getblockheight",
+                  "rpc/guides/getblockproduction",
+                  "rpc/guides/getblocks",
+                  "rpc/guides/getblockswithlimit",
+                  "rpc/guides/getblocktime",
+                  "rpc/guides/getclusternodes",
+                  "rpc/guides/getepochinfo",
+                  "rpc/guides/getepochschedule",
+                  "rpc/guides/getfeeformessage",
+                  "rpc/guides/getfirstavailableblock",
+                  "rpc/guides/getgenesishash",
+                  "rpc/guides/gethealth",
+                  "rpc/guides/gethighestsnapshotslot",
+                  "rpc/guides/getidentity",
+                  "rpc/guides/getinflationgovernor",
+                  "rpc/guides/getinflationrate",
+                  "rpc/guides/getinflationreward",
+                  "rpc/guides/getlargestaccounts",
+                  "rpc/guides/getlatestblockhash",
+                  "rpc/guides/getleaderschedule",
+                  "rpc/guides/getmaxretransmitslot",
+                  "rpc/guides/getmaxshredinsertslot",
+                  "rpc/guides/getminimumbalanceforrentexemption",
+                  "rpc/guides/getmultipleaccounts",
+                  "rpc/guides/getprogramaccounts",
+                  "rpc/guides/getrecentperformancesamples",
+                  "rpc/guides/getrecentprioritizationfees",
+                  "rpc/guides/getsignaturesforaddress",
+                  "rpc/guides/getsignaturestatuses",
+                  "rpc/guides/getslot",
+                  "rpc/guides/getslotleader",
+                  "rpc/guides/getslotleaders",
+                  "rpc/guides/getstakeminimumdelegation",
+                  "rpc/guides/getsupply",
+                  "rpc/guides/gettokenaccountbalance",
+                  "rpc/guides/gettokenaccountsbydelegate",
+                  "rpc/guides/gettokenaccountsbyowner",
+                  "rpc/guides/gettokenlargestaccounts",
+                  "rpc/guides/gettokensupply",
+                  "rpc/guides/gettransaction",
+                  "rpc/guides/gettransactioncount",
+                  "rpc/guides/getversion",
+                  "rpc/guides/getvoteaccounts",
+                  "rpc/guides/isblockhashvalid",
+                  "rpc/guides/minimumledgerslot",
+                  "rpc/guides/requestairdrop"
                 ]
               }
             ]
           },
           {
-            "group": "Getting Data",
-            "pages": [
-              "getting-data",
-              "rpc/http/get-accounts",
-              "rpc/http/get-program-accounts",
-              "rpc/http/get-transactions",
-              "das/get-nfts",
-              "das/get-tokens",
-              {
-                "group": "Digital Asset Standard (DAS)",
-                "pages": [
-                  "das-api",
-                  "das/fungible-token-extension",
-                  "das/pagination"
-                ]
-              },
-              "enhanced-transactions"
-            ]
-          },
-          {
-            "group": "Data Streaming",
+            "group": "Data Streaming & Event Listening",
             "pages": [
               "data-streaming",
               "data-streaming/quickstart",
               {
-                "group": "Standard Websockets",
+                "group": "LaserStream",
                 "pages": [
-                  "rpc/websocket",
-                  "rpc/websocket/stream-pump-amm-data"
+                  "laserstream",
+                  "laserstream/grpc",
+                  "laserstream/historical-replay",
+                  "laserstream/laserstream-vs-dedicated-nodes",
+                  {
+                    "group": "LaserStream Guides",
+                    "pages": [
+                      "laserstream/guides/decoding-transaction-data"
+                    ]
+                  }
                 ]
               },
               {
@@ -133,19 +172,6 @@
                   "enhanced-websockets/transaction-subscribe",
                   "enhanced-websockets/account-subscribe",
                   "enhanced-websockets/stream-pump-amm-data"
-                ]
-              },
-              {
-                "group": "LaserStream",
-                "pages": [
-                  "laserstream", 
-                  "laserstream/grpc",
-                  {
-                    "group": "LaserStream Guides",
-                    "pages": [
-                      "laserstream/guides/decoding-transaction-data"
-                    ]
-                  }
                 ]
               },
               {
@@ -159,14 +185,14 @@
                   "grpc/slot-and-block-monitoring",
                   "grpc/stream-pump-amm-data"
                 ]
-              }
-            ]
-          },
-          {
-            "group": "Event Listening",
-            "pages": [
-              "event-listening",
-              "event-listening/quickstart",
+              },
+              {
+                "group": "Standard Websockets",
+                "pages": [
+                  "rpc/websocket",
+                  "rpc/websocket/stream-pump-amm-data"
+                ]
+              },
               {
                 "group": "Webhooks",
                 "pages": [
@@ -179,18 +205,74 @@
             ]
           },
           {
+            "group": "How to Send Transactions",
+            "pages": [
+              "sending-transactions/overview",
+              "sending-transactions/send-manually",
+              "sending-transactions/sender",
+              "sending-transactions/optimizing-transactions",
+              {
+                "group": "Priority Fee API",
+                "pages": [
+                  "priority-fee-api",
+                  "priority-fee/estimating-fees-using-serialized-transaction",
+                  "priority-fee/estimating-fees-using-account-keys",
+                  "priority-fee/best-practices"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Getting Data Using Helius APIs",
+            "pages": [
+              "getting-data",
+              "das/get-nfts",
+              "das/search",
+              "enhanced-transactions",
+              {
+                "group": "Digital Asset Standard (DAS)",
+                "pages": [
+                  "das-api",
+                  "das/fungible-token-extension",
+                  "das/pagination"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Dedicated Nodes",
+            "pages": [
+              "dedicated-nodes",
+              "dedicated-nodes/getting-started",
+              "dedicated-nodes/best-practices"
+            ]
+          },
+          {
+            "group": "Compression",
+            "pages": [
+              "nfts/nft-compression",
+              "zk-compression/introduction"
+            ]
+          },
+          {
             "group": "Staking",
             "pages": [
               "staking/how-to-stake-with-helius-programmatically"
             ]
           },
           {
-            "group": "Compression",
-            "pages": ["nfts/nft-compression", "zk-compression/introduction"]
+            "group": "Billing",
+            "pages": [
+              "billing/autoscaling",
+              "billing/pay-with-crypto"
+            ]
           },
           {
             "group": "Resources",
-            "pages": ["sdks"]
+            "pages": [
+              "sdks",
+              "changelog"
+            ]
           }
         ]
       },
@@ -266,6 +348,7 @@
                   "api-reference/rpc/http/minimumledgerslot",
                   "api-reference/rpc/http/requestairdrop",
                   "api-reference/rpc/http/sendtransaction",
+                  "api-reference/rpc/http/simulatebundle",
                   "api-reference/rpc/http/simulatetransaction"
                 ]
               },
@@ -321,7 +404,9 @@
               {
                 "group": "Priority Fee",
                 "icon": "star",
-                "pages": ["api-reference/priority-fee/getpriorityfeeestimate"]
+                "pages": [
+                  "api-reference/priority-fee/getpriorityfeeestimate"
+                ]
               },
               {
                 "group": "Enhanced Transactions",
@@ -408,26 +493,38 @@
               {
                 "group": "Token Metadata",
                 "icon": "ban",
-                "pages": ["api-reference/token-metadata/querymetadatav1"]
+                "pages": [
+                  "api-reference/token-metadata/querymetadatav1"
+                ]
               },
               {
                 "group": "Mint",
                 "icon": "ban",
-                "pages": ["api-reference/mint/mintcompressednft"]
+                "pages": [
+                  "api-reference/mint/mintcompressednft"
+                ]
               }
+            ]
+          }
+        ]
+      },
+      {
+        "anchor": "Support",
+        "icon": "headset",
+        "groups": [
+          {
+            "group": "Support",
+            "pages": [
+              "support/contact-support",
+              "support/frequently-asked-questions",
+              "support/status-page"
             ]
           }
         ]
       }
     ],
     "global": {
-      "anchors": [
-        {
-          "anchor": "Support",
-          "href": "https://www.helius.dev/docs/support",
-          "icon": "headset"
-        }
-      ]
+      "anchors": []
     }
   },
   "logo": {
@@ -547,6 +644,10 @@
           {
             "label": "Media Kit",
             "href": "https://drive.google.com/drive/folders/1Kko7VCzcoDuQICiOAHZGXwZ-gB_xvUYj?usp=sharing"
+          },
+          {
+            "label": "Security",
+            "href": "https://security.helius.dev/"
           },
           {
             "label": "Privacy Policy",

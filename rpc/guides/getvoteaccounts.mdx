@@ -1,0 +1,154 @@
+---
+title: "How to Use getVoteAccounts"
+sidebarTitle: "getVoteAccounts"
+description: "Learn getVoteAccounts use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvoteaccounts) RPC method returns information about all voting accounts (validators) in the current bank. It distinguishes between `current` (active) and `delinquent` validators and provides details about their stake, voting activity, and identity.
+
+## Common Use Cases
+
+*   **Validator Monitoring:** Tracking the status, stake, and performance of validators on the network.
+*   **Staking Dashboards:** Displaying information about available validators for users looking to delegate their SOL.
+*   **Network Health Analysis:** Assessing the overall health and decentralization of the network by examining the distribution of stake and validator activity.
+*   **Identifying Delinquent Validators:** Finding validators that are not actively participating in consensus.
+
+## Request Parameters
+
+This method accepts an optional configuration object with the following fields:
+
+1.  **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If omitted, the node's default commitment is used.
+2.  **`votePubkey`** (string, optional): If provided, the results will be filtered to include only the specified validator vote account address (base-58 encoded).
+3.  **`keepUnstakedDelinquents`** (boolean, optional): Defaults to `false`. If set to `true`, the `delinquent` list will include validators with no activated stake. Otherwise, they are filtered out.
+4.  **`delinquentSlotDistance`** (u64, optional): Specifies how many slots a validator must be behind the tip of the ledger to be considered delinquent. If not specified, the node uses a default value.
+
+## Response Structure
+
+The `result` field in the JSON-RPC response is an object containing two arrays:
+
+*   **`current`**: An array of objects, where each object represents an active voting account with the following fields:
+    *   **`votePubkey`** (string): The vote account address (base-58 encoded).
+    *   **`nodePubkey`** (string): The identity public key of the validator node (base-58 encoded).
+    *   **`activatedStake`** (u64): The amount of stake, in lamports, delegated to this vote account and active in the current epoch.
+    *   **`epochVoteAccount`** (boolean): `true` if the vote account has been active at least once during the current epoch.
+    *   **`commission`** (number): The commission percentage (0-100) charged by the validator.
+    *   **`lastVote`** (u64): The most recent slot number this validator voted on.
+    *   **`rootSlot`** (u64): The last slot the node considered to be a root (a block that is fully confirmed and will not be rolled back).
+    *   **`epochCredits`** (array): An array of arrays, where each inner array contains `[epoch, credits_earned_in_epoch, previous_total_credits]`.
+*   **`delinquent`**: An array of objects, with the same structure as `current`, representing validators considered delinquent by the node.
+
+**Example Response Snippet:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "current": [
+      {
+        "commission": 10,
+        "epochCredits": [[300, 12345, 567890]],
+        "epochVoteAccount": true,
+        "lastVote": 180000500,
+        "nodePubkey": "NodePubkeyExample123...",
+        "rootSlot": 180000450,
+        "activatedStake": "50000000000000", // lamports
+        "votePubkey": "VoteAccountPubkeyExample123..."
+      }
+      // ... more current validators
+    ],
+    "delinquent": [
+      // ... delinquent validators, if any
+    ]
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Get all current and delinquent vote accounts:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts"
+  }' \
+  <YOUR_RPC_URL>
+
+# Get a specific vote account:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts",
+    "params": [
+      {
+        "votePubkey": "<SPECIFIC_VOTE_ACCOUNT_PUBKEY>"
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Get vote accounts with "confirmed" commitment and keep unstaked delinquents:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts",
+    "params": [
+      {
+        "commitment": "confirmed",
+        "keepUnstakedDelinquents": true
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function fetchVoteAccounts() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    // Get all vote accounts
+    const voteAccounts = await connection.getVoteAccounts();
+    console.log(`Found ${voteAccounts.current.length} current validators.`);
+    console.log(`Found ${voteAccounts.delinquent.length} delinquent validators.`);
+
+    if (voteAccounts.current.length > 0) {
+      console.log("\nFirst current validator details:");
+      console.log(`  Vote Pubkey: ${voteAccounts.current[0].votePubkey}`);
+      console.log(`  Node Pubkey: ${voteAccounts.current[0].nodePubkey}`);
+      console.log(`  Activated Stake: ${voteAccounts.current[0].activatedStake} lamports`);
+      console.log(`  Commission: ${voteAccounts.current[0].commission}%`);
+      console.log(`  Last Vote: ${voteAccounts.current[0].lastVote}`);
+      // console.log(JSON.stringify(voteAccounts.current[0], null, 2)); // For full details
+    }
+
+    // Get a specific vote account (replace with an actual vote account public key)
+    // const specificVotePubkey = 'SPECIFIC_VOTE_ACCOUNT_PUBKEY';
+    // const specificValidator = await connection.getVoteAccounts('confirmed', specificVotePubkey);
+    // console.log(`\nDetails for ${specificVotePubkey}:`, JSON.stringify(specificValidator, null, 2));
+
+  } catch (error) {
+    console.error('Error fetching vote accounts:', error);
+  }
+}
+
+fetchVoteAccounts();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Large Response:** This method can return a large amount of data, especially on networks with many validators like Mainnet Beta. Be mindful of response size and processing time.
+*   **Delinquency Definition:** The definition of "delinquent" can depend on the `delinquentSlotDistance` and the node's perspective. A validator might appear delinquent on one node but not another if their view of the ledger tip differs.
+*   **Stake Activation:** `activatedStake` reflects stake that is active in the current epoch. Stake takes time to activate and deactivate.
+*   **Epoch Credits:** `epochCredits` provides a history of a validator's performance in earning credits by voting.
+
+This guide covers the `getVoteAccounts` RPC method, enabling you to query and understand validator information on the Solana network. 

@@ -178,58 +178,127 @@ paths:
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32602
+                                    message: "Invalid params"
+                                id: "1"
                 401:
                     description: Unauthorized request.
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32001
+                                    message: "Unauthorized"
+                                id: "1"
                 403:
                     description: Request was forbidden.
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32003
+                                    message: "Forbidden"
+                                id: "1"
                 404:
                     description: The specified resource was not found.
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32601
+                                    message: "Method not found"
+                                id: "1"
                 429:
-                    description: Exceeded rate limit..
+                    description: Exceeded rate limit.
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32005
+                                    message: "Rate limit exceeded"
+                                id: "1"
                 500:
                     description: The server encountered an unexpected condition that prevented it from fulfilling the request.
                     content:
                         application/json:
                             schema:
-                                type: object
-                                properties:
-                                    error:
-                                        type: string
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32603
+                                    message: "Internal error"
+                                id: "1"
+                503:
+                    description: The service is temporarily unavailable.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32002
+                                    message: "Service unavailable"
+                                id: "1"
+                504:
+                    description: The request timed out.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                jsonrpc: "2.0"
+                                error:
+                                    code: -32003
+                                    message: "Gateway timeout"
+                                id: "1"
 components:
     securitySchemes:
         apiKey:
             type: apiKey
             in: query
             name: api-key
+    schemas:
+        ErrorResponse:
+            type: object
+            properties:
+                jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                        - "2.0"
+                    example: "2.0"
+                error:
+                    type: object
+                    properties:
+                        code:
+                            type: integer
+                            description: The error code.
+                            example: -32602
+                        message:
+                            type: string
+                            description: The error message.
+                        data:
+                            type: object
+                            description: Additional data about the error.
+                id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"

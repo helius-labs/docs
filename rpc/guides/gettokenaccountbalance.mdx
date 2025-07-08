@@ -1,0 +1,127 @@
+---
+title: "How to Use getTokenAccountBalance"
+sidebarTitle: "getTokenAccountBalance"
+description: "Learn getTokenAccountBalance use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getTokenAccountBalance`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountbalance) RPC method returns the token balance of a specific SPL Token account. This is essential for applications that need to display or verify the amount of a particular token held by a token account.
+
+## Common Use Cases
+
+*   **Displaying User Token Balances:** Showing users how much of a specific token they own in their wallet (associated token accounts).
+*   **Verifying Token Availability:** Checking if a token account has sufficient balance before attempting a transfer or other operation.
+*   **Portfolio Tracking:** Aggregating token balances for a user across different token accounts.
+*   **Smart Contract Interactions:** Smart contracts might query token balances as part of their logic (though on-chain programs typically access this data directly from account info).
+
+## Request Parameters
+
+1.  **Token Account Public Key** (string, required): The base-58 encoded public key of the SPL Token account you want to query.
+2.  **Configuration Object** (object, optional): An optional object that can contain the following field:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+
+## Response Structure
+
+The `result` field in the JSON-RPC response contains an object with a `context` and a `value` field. The `value` object holds the balance information:
+
+*   **`amount`** (string): The raw balance of the token account as a string. This is an integer representing the smallest unit of the token (e.g., if a token has 6 decimals, an amount of "1000000" means 1 token).
+*   **`decimals`** (u8): The number of decimal places defined for this token type (by its mint).
+*   **`uiAmount`** (number | null): The balance formatted as a floating-point number, taking into account the `decimals`. This field might be `null` or deprecated in some contexts in favor of `uiAmountString`.
+*   **`uiAmountString`** (string): The balance formatted as a string, taking into account the `decimals`. This is often preferred for display to avoid potential floating-point inaccuracies.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 183457201
+    },
+    "value": {
+      "amount": "500000000",
+      "decimals": 9,
+      "uiAmount": 0.5,
+      "uiAmountString": "0.5"
+    }
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Basic Request (replace <TOKEN_ACCOUNT_PUBKEY>):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenAccountBalance",
+    "params": [
+      "<TOKEN_ACCOUNT_PUBKEY>"
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Request with commitment (replace <TOKEN_ACCOUNT_PUBKEY>):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenAccountBalance",
+    "params": [
+      "<TOKEN_ACCOUNT_PUBKEY>",
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkTokenBalance(tokenAccountPublicKey) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  
+  try {
+    const tokenAccountPubKey = new PublicKey(tokenAccountPublicKey);
+    const balance = await connection.getTokenAccountBalance(tokenAccountPubKey);
+
+    if (!balance.value) {
+        console.log(`Could not find token account: ${tokenAccountPublicKey}`);
+        return;
+    }
+
+    console.log(`Token Account: ${tokenAccountPublicKey}`);
+    console.log(`Raw Amount: ${balance.value.amount}`);
+    console.log(`Decimals: ${balance.value.decimals}`);
+    console.log(`UI Amount (string): ${balance.value.uiAmountString}`);
+    // console.log(JSON.stringify(balance, null, 2)); // For full response details
+
+  } catch (error) {
+    console.error(`Error fetching token account balance for ${tokenAccountPublicKey}:`, error);
+  }
+}
+
+// Replace with an actual SPL Token Account Public Key
+const exampleTokenAccount = 'HHisAGTT6ADDd52jY1g65Akn3N2f4jSdQS2rTiyDEw5c'; // Example: An account holding some USDC on mainnet
+checkTokenBalance(exampleTokenAccount);
+
+// Example for a token account that might not exist or have 0 balance
+// const nonExistentAccount = '11111111111111111111111111111111'; 
+// checkTokenBalance(nonExistentAccount);
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Token Account vs. Mint Account vs. Owner Account:** Ensure you are providing the public key of the *SPL Token Account*, not the token's *mint address* or the *owner's wallet address*. You typically get token accounts for an owner using `getTokenAccountsByOwner`.
+*   **Decimals:** Always use the `decimals` field to correctly interpret the `amount`. The `uiAmountString` is generally safer for display than `uiAmount` to avoid floating-point precision issues.
+*   **Non-Existent Accounts:** If the provided public key does not correspond to an existing token account, the behavior might vary slightly by RPC provider or library, but often the `value` in the response will be `null` or an error will be thrown. The JavaScript example includes a basic check for `balance.value`.
+*   **Commitment Levels:** Using different commitment levels can affect how quickly you see balance changes, especially for very recent transactions. `finalized` is the safest but has the most latency.
+
+This guide should help you accurately retrieve and interpret SPL token balances using the `getTokenAccountBalance` method. 

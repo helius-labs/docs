@@ -1,6 +1,6 @@
 ---
 title: RPC WebSocket API
-sidebarTitle: RPC WebSocket
+sidebarTitle: Overview
 description: Stream real-time Solana data using standard WebSockets.
 ---
 
@@ -243,6 +243,135 @@ To stop receiving updates for any subscription:
 ```
 
 Replace the number in the params array with your actual subscription ID.
+
+## JavaScript Examples
+
+Here are complete Node.js examples showing how to use the WebSocket API with JavaScript.
+
+### Program Subscribe Example
+
+This example shows how to subscribe to all account changes for a specific program:
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "programSubscribe",
+        "params": [
+          "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+          {
+            "encoding": "jsonParsed"
+          }
+        ]
+      };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws); // Send a request once the WebSocket is open
+    startPing(ws); // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+### Signature Subscribe Example
+
+This example shows how to subscribe to a transaction signature to get notified when its status changes. This subscription is for a single notification - the server automatically cancels it after sending the `signatureNotification`:
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "signatureSubscribe",
+        "params": [
+          "2EBVM6cB8vAAD93Ktr6Vd8p67XPbQzCJX47MpReuiCXJAtcjaxpvWpcg9Ege1Nr5Tk3a2GFrByT7WPBjdsTycY9b",
+          {
+            "commitment": "finalized",
+            "enableReceivedNotification": false
+          }
+        ]
+      };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws); // Send a request once the WebSocket is open
+    startPing(ws); // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
 
 ## Error Handling
 

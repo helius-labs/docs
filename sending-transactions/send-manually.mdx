@@ -1,0 +1,216 @@
+---
+title: "Sending Transactions Manually"
+description: "The recommended, step-by-step guide for building a robust, production-grade transaction sending workflow on Solana."
+---
+
+Building your own transaction sending logic is the best way to ensure maximum performance, control, and reliability for your application. While the [Helius SDK](/sending-transactions/send-with-sdk) provides a convenient wrapper for getting started, understanding and implementing this manual workflow is highly recommended for production systems.
+
+This guide will walk you through the necessary steps to build your own solution.
+
+### The Manual Workflow
+
+Manually sending a transaction involves the following steps:
+
+<Steps>
+  <Step title="Build the Initial Transaction">
+    Assemble your instructions and sign the transaction so it can be simulated.
+  </Step>
+  <Step title="Optimize Compute Units">
+    Simulate the transaction to determine the precise CUs needed and add a small buffer.
+  </Step>
+  <Step title="Add Priority Fees">
+    Get a fee estimate from the Helius Priority Fee API and add it to your transaction.
+  </Step>
+  <Step title="Send and Re-broadcast">
+    Send the final transaction and implement a robust polling strategy to handle confirmation.
+  </Step>
+</Steps>
+
+<Info>
+  The Helius SDKs are open-source. You can view the underlying code for the `sendSmartTransaction` method in our [Node.js SDK](https://github.com/helius-labs/helius-sdk) and [Rust SDK](https://github.com/helius-labs/helius-rust-sdk) to see a production-grade implementation of this workflow.
+</Info>
+
+### 1. Build the Initial Transaction
+
+First, gather all the instructions you want to include in your transaction. Then, create a `Transaction` or `VersionedTransaction` object. You will also need to fetch a recent blockhash.
+
+This example prepares a versioned transaction. At this stage, you must also sign it so that it can be simulated in the next step.
+
+```typescript
+import {
+  Connection,
+  Keypair,
+  TransactionMessage,
+  VersionedTransaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
+
+const connection = new Connection("YOUR_RPC_URL");
+const fromKeypair = Keypair.generate(); // Assume this is funded
+const toPubkey = Keypair.generate().publicKey;
+
+// 1. Build your instructions
+const instructions = [
+  SystemProgram.transfer({
+    fromPubkey: fromKeypair.publicKey,
+    toPubkey: toPubkey,
+    lamports: 0.001 * LAMPORTS_PER_SOL,
+  }),
+];
+
+// 2. Get a recent blockhash
+const { blockhash } = await connection.getLatestBlockhash();
+
+// 3. Compile the transaction message
+const messageV0 = new TransactionMessage({
+  payerKey: fromKeypair.publicKey,
+  recentBlockhash: blockhash,
+  instructions,
+}).compileToV0Message();
+
+// 4. Create and sign the transaction
+const transaction = new VersionedTransaction(messageV0);
+transaction.sign([fromKeypair]);
+```
+
+### 2. Optimize Compute Unit (CU) Usage
+
+To avoid wasting fees or having your transaction fail, you should set the compute unit (CU) limit as precisely as possible. You can do this by simulating the transaction using the `simulateTransaction` RPC method.
+
+It's a best practice to first simulate with a high CU limit to ensure the simulation itself succeeds, and then use the `unitsConsumed` from the response to set your actual limit.
+
+```typescript
+import { ComputeBudgetProgram } from "@solana/web3.js";
+
+// Create a test transaction with a high compute limit to ensure simulation succeeds
+const testInstructions = [
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }),
+    ...instructions, // Your original instructions
+];
+const testMessage = new TransactionMessage({
+    payerKey: fromKeypair.publicKey,
+    recentBlockhash: blockhash,
+    instructions: testInstructions,
+}).compileToV0Message();
+const testTransaction = new VersionedTransaction(testMessage);
+testTransaction.sign([fromKeypair]);
+
+
+// Simulate the transaction to get the exact CUs consumed
+const { value: simulationResult } = await connection.simulateTransaction(testTransaction);
+
+if (!simulationResult.unitsConsumed) {
+  throw new Error("Simulation failed to return unitsConsumed");
+}
+
+// Add a 10% buffer to the CU estimate
+const computeUnitLimit = Math.ceil(simulationResult.unitsConsumed * 1.1);
+
+// Create the instruction to set the CU limit
+const setCuLimitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
+    units: computeUnitLimit,
+});
+```
+
+Now you have an instruction that sets the compute limit precisely. You will add this to your final transaction.
+
+### 3. Set the Right Priority Fee
+
+Next, determine the optimal priority fee to add to your transaction. Using the Helius [Priority Fee API](/priority-fee-api) is the best way to get a real-time estimate based on current network conditions.
+
+You'll need to call the `getPriorityFeeEstimate` RPC method. For the highest chance of inclusion via Helius's staked connections, use the `recommended: true` option.
+
+```typescript
+// The transaction needs to be serialized and base58 encoded
+const serializedTransaction = bs58.encode(transaction.serialize());
+
+const response = await fetch("YOUR_RPC_URL", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [
+            {
+                // Pass the serialized transaction
+                transaction: serializedTransaction, 
+                // Use 'recommended' for Helius's staked connections
+                options: { recommended: true },
+            },
+        ],   
+    }),
+});
+const data = await response.json();
+
+if (!data.result || !data.result.priorityFeeEstimate) {
+    throw new Error("Failed to get priority fee estimate");
+}
+
+const priorityFeeEstimate = data.result.priorityFeeEstimate;
+
+// Create the instruction to set the priority fee
+const setPriorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: priorityFeeEstimate,
+});
+```
+
+### 4. Build, Send, and Confirm
+
+Now, assemble the final transaction with the new compute budget instructions, send it, and implement a robust polling mechanism to confirm it has landed.
+
+<Warning>
+  Do not rely on the RPC provider's default retry logic (`maxRetries` in `sendTransaction`). While Helius's staked connections forward your transaction directly to the leader, it can still be dropped. You must implement your own rebroadcasting logic for reliable confirmation.
+</Warning>
+
+A common pattern is to re-send the same transaction periodically until the blockhash expires. **Only re-sign the transaction if you are also fetching a new blockhash.** Re-signing with the same blockhash can lead to duplicate transactions being confirmed.
+
+```typescript
+// 1. Add the new instructions to your original set
+const finalInstructions = [
+  setCuLimitInstruction,
+  setPriorityFeeInstruction,
+  ...instructions,
+];
+
+// 2. Re-build and re-sign the transaction with the final instructions
+const { blockhash: latestBlockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+const finalMessage = new TransactionMessage({
+  payerKey: fromKeypair.publicKey,
+  recentBlockhash: latestBlockhash,
+  instructions: finalInstructions,
+}).compileToV0Message();
+
+const finalTransaction = new VersionedTransaction(finalMessage);
+finalTransaction.sign([fromKeypair]);
+
+// 3. Send the transaction
+const signature = await connection.sendTransaction(finalTransaction, {
+  skipPreflight: true, // Optional: useful for bypassing client-side checks
+});
+
+// 4. Implement a polling loop to confirm the transaction
+let confirmed = false;
+while (!confirmed) {
+    const statuses = await connection.getSignatureStatuses([signature]);
+    const status = statuses && statuses.value && statuses.value[0];
+
+    if (status && (status.confirmationStatus === 'confirmed' || status.confirmationStatus === 'finalized')) {
+        console.log('Transaction confirmed!');
+        confirmed = true;
+    }
+
+    // Check if the blockhash has expired
+    const currentBlockHeight = await connection.getBlockHeight();
+    if (currentBlockHeight > lastValidBlockHeight) {
+        console.log('Blockhash expired, transaction failed.');
+        break;
+    }
+    
+    // Wait for a short period before polling again
+    await new Promise(resolve => setTimeout(resolve, 2000)); 
+}
+```
+This example provides a basic polling loop. A production-grade application would require more sophisticated logic, including handling different confirmation statuses and potential timeouts. 

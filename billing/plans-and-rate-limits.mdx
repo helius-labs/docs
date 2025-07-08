@@ -1,225 +1,531 @@
 ---
-title: "Plans & Rate Limits"
-description: "Flexible pricing for all your needs. Switch plans or cancel at anytime. Start in under 5 seconds."
+title: "Helius Rate Limits, Credits & Pricing Plans"
+sidebarTitle: "Rate Limits & Credits"
+description: "Complete guide to Helius Solana RPC API pricing, rate limits, and credit system."
 ---
 
-## Standard Plans
+<Info>
+Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver, Dublin, London, Amsterdam, Frankfurt, Singapore, and Tokyo**, with automatic routing to the nearest node.
+</Info>
 
-Access a RPC node fleet across New York, Pittsburgh, Ashburn, Chicago, Vancouver, Los Angeles, Singapore, Tokyo, Frankfurt, France, and the UK, automatically routing requests to the nearest node.
+## Quick Start
 
-Each plan has a set amount of credits and rate limits for different calls.
+<CardGroup cols={2}>
+  <Card title="Choose Your Plan" icon="credit-card" href="#pricing-plans">
+    Compare plans and find the right fit for your needs
+  </Card>
+  <Card title="Understand Credits" icon="calculator" href="#credit-system">
+    Learn how our credit-based billing system works
+  </Card>
+  <Card title="Rate Limits Guide" icon="gauge" href="#rate-limits">
+    Understand request limits and exceptions
+  </Card>
+  <Card title="Enterprise Solutions" icon="building" href="#enterprise">
+    Custom solutions for high-volume applications
+  </Card>
+</CardGroup>
 
-<table>
-  <thead align="left">
-    <tr>
-      <th width="189">Free</th>
-      <th width="176">Developer</th>
-      <th width="191">Business</th>
-      <th>Professional</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>\$0/mo</td>
-      <td>\$49/mo</td>
-      <td>\$499/mo</td>
-      <td>\$999/mo</td>
-    </tr>
-    <tr>
-      <td>1M Credits</td>
-      <td>10M Credits</td>
-      <td>100M Credits</td>
-      <td>200M Credits</td>
-    </tr>
-    <tr>
-      <td>10 RPC requests/s*</td>
-      <td>50 RPC requests/s*</td>
-      <td>200 RPC requests/s*</td>
-      <td>500 RPC requests/s*</td>
-    </tr>
-    <tr>
-      <td>2 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>10 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>50 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>100 API requests/s (DAS &#x26; Enhanced)</td>
-    </tr>
-    <tr>
-      <td>1 Webhook</td>
-      <td>5 Webhooks</td>
-      <td>25 Webhooks</td>
-      <td>50 Webhooks</td>
-    </tr>
-    <tr>
-      <td>Standard Websockets</td>
-      <td>Standard Websockets</td>
-      <td>Standard + Enhanced Websockets</td>
-      <td>Standard + Enhanced Websockets</td>
-    </tr>
-    <tr>
-      <td>Community support (Discord)</td>
-      <td>Chat Support (Developer Portal)</td>
-      <td>Priority Chat Support (Developer Portal)</td>
-      <td>Slack /Telegram Support</td>
-    </tr>
-  </tbody>
-</table>
+---
 
-\* If you are on a legacy (old) plan, please refer to the '[Legacy Plan Limits](#legacy-deprecated-plan-limits)' section below for applicable details.
-
-\* See rate limit exceptions below.
-
-### Rate Limit Exceptions \*
+## Pricing Plans
 
 <table>
   <thead align="left">
     <tr>
-      <th width="230">Type</th>
-      <th width="115">Free</th>
-      <th width="124">Developer</th>
-      <th width="128">Business</th>
-      <th>Professional</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>sendTransaction</code>
-      </td>
-      <td>1 call/sec</td>
-      <td>5 calls/sec</td>
-      <td>50 calls/sec</td>
-      <td>100 calls/sec</td>
-    </tr>
-    <tr>
-      <td>
-        <code>getProgramAccounts</code>
-      </td>
-      <td>5 calls/sec </td>
-      <td>25 calls/sec</td>
-      <td>50 calls/sec</td>
-      <td>75 calls/sec</td>
-    </tr>
-  </tbody>
-</table>
-
-### Photon Limits
-
-<table>
-  <thead align="left">
-    <tr>
-      <th width="167">Type</th>
+      <th width="160">Feature</th>
       <th width="140">Free</th>
-      <th width="147">Developer</th>
-      <th width="151">Business</th>
-      <th>Professional</th>
+      <th width="140">Developer</th>
+      <th width="140">Business</th>
+      <th width="140">Professional</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Photon</td>
-      <td>2 calls/sec</td>
-      <td>10 calls/sec</td>
-      <td>50 calls/sec</td>
-      <td>100 calls/sec</td>
+      <td><strong>Pricing</strong></td>
+      <td>\$0/month</td>
+      <td>\$49/month</td>
+      <td>\$499/month</td>
+      <td>\$999/month</td>
     </tr>
     <tr>
-      <td>
-        <code>getValidityProof</code>
-      </td>
-      <td>1 call/sec</td>
-      <td>5 call/sec</td>
-      <td>10 call/sec</td>
-      <td>20 call/sec</td>
+      <td><strong>Monthly Credits</strong></td>
+      <td>1M</td>
+      <td>10M</td>
+      <td>100M</td>
+      <td>200M</td>
+    </tr>
+    <tr>
+      <td><strong>RPC Rate Limit</strong></td>
+      <td>10 req/s</td>
+      <td>50 req/s</td>
+      <td>200 req/s</td>
+      <td>500 req/s</td>
+    </tr>
+    <tr>
+      <td><strong>DAS & Enhanced APIs</strong></td>
+      <td>2 req/s</td>
+      <td>10 req/s</td>
+      <td>50 req/s</td>
+      <td>100 req/s</td>
+    </tr>
+    <tr>
+      <td><strong>WebSockets</strong></td>
+      <td>Standard</td>
+      <td>Standard</td>
+      <td>Standard + Enhanced</td>
+      <td>Standard + Enhanced</td>
+    </tr>
+    <tr>
+      <td><strong>gRPC Access</strong></td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>LaserStream</td>
+    </tr>
+    <tr>
+      <td><strong>Support Level</strong></td>
+      <td>Community</td>
+      <td>Chat</td>
+      <td>Priority Chat</td>
+      <td>Slack/Telegram</td>
     </tr>
   </tbody>
 </table>
-
-### Features
-
-- [RPC calls](/solana-rpc-nodes)
-- [Webhooks](/webhooks)
-- [Standard WebSockets](/rpc/websocket)
-- [Enhanced WebSockets](/enhanced-websockets) (beta) — available for Business and Professional plans only
-- [DAS APIs](/api-reference/das)
-- [Enhanced Transactions API](/enhanced-transactions)
-- [Priority Fee API](/priority-fee-api)
-- [ZK Compression](/zk-compression/introduction)
-- [Staked Connections](/sending-transactions/staked-connections) for `sendTransaction`
-
-## Enterprise Plans
-
-Enterprise plans are ideal for large teams that need personalized rate limits and more credits than the professional plan offers. Enterprise customers receive discounted pricing for high credit volumes and longer commitments. You can choose your support level with service level agreements (SLAs), uptime guarantees, usage alerts, and direct access to our engineering team to help you optimize your setup.
 
 <Note>
-  To explore Enterprise plans, [contact our sales
-  team](https://form.typeform.com/to/KiacmxpZ).
+  If you're on a legacy plan, see the [Legacy Plan Details](#legacy-plans) section below.
 </Note>
 
-## Legacy (Deprecated) Plan Limits
+---
+
+## Rate Limits
+
+<Info>
+Rate limits control how many requests you can make per second. When exceeded, you'll receive an HTTP 429 response.
+</Info>
+
+### Standard Rate Limits
+
+Your plan determines your base rate limits:
 
 <table>
   <thead align="left">
     <tr>
-      <th width="189">Free V3</th>
-      <th width="181">Developer V3</th>
-      <th width="191">Business V3 </th>
-      <th>Performance V3</th>
+      <th width="200">Plan</th>
+      <th width="150">RPC Rate Limit</th>
+      <th width="200">DAS & Enhanced APIs</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>1M Credits</td>
-      <td>10M Credits</td>
-      <td>200M Credits</td>
-      <td>500M Credits</td>
+      <td><strong>Free</strong></td>
+      <td>10 requests/s</td>
+      <td>2 requests/s</td>
     </tr>
     <tr>
-      <td>10 RPC requests/s*</td>
-      <td>50 RPC requests/s*</td>
-      <td>150 RPC requests/s*</td>
-      <td>500 RPC requests/s*</td>
+      <td><strong>Developer</strong></td>
+      <td>50 requests/s</td>
+      <td>10 requests/s</td>
     </tr>
     <tr>
-      <td>2 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>10 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>50 API requests/s (DAS &#x26; Enhanced)</td>
-      <td>100 API requests/s (DAS &#x26; Enhanced)</td>
+      <td><strong>Business</strong></td>
+      <td>200 requests/s</td>
+      <td>50 requests/s</td>
     </tr>
     <tr>
-      <td>1 API Key</td>
-      <td>10 API Keys</td>
-      <td>15 API Keys</td>
-      <td>20 API Keys</td>
-    </tr>
-    <tr>
-      <td>1 Webhook</td>
-      <td>3 Webhooks</td>
-      <td>10 Webhooks</td>
-      <td>20 Webhooks</td>
-    </tr>
-    <tr>
-      <td>Community support (Discord)</td>
-      <td>Chat Support (Developer Portal)</td>
-      <td>Priority Chat Support (Developer Portal)</td>
-      <td>Slack /Telegram Support</td>
-    </tr>
-    <tr>
-      <td>5 gPA calls per second</td>
-      <td>25 gPA calls per second</td>
-      <td>50 gPA calls per second</td>
-      <td>75 gPA calls per second</td>
-    </tr>
-    <tr>
-      <td>1 sendTransaction call per second</td>
-      <td>10 sendTransaction call per second</td>
-      <td>50 sendTransaction call per second</td>
-      <td>100 sendTransaction call per second</td>
+      <td><strong>Professional</strong></td>
+      <td>500 requests/s</td>
+      <td>100 requests/s</td>
     </tr>
   </tbody>
 </table>
 
+### Special Endpoint Limits
+
+Some endpoints have special restrictions due to their computational requirements:
+
+<Tabs>
+  <Tab title="Transactions">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">Endpoint</th>
+          <th width="100">Free</th>
+          <th width="100">Developer</th>
+          <th width="100">Business</th>
+          <th width="100">Professional</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Sender</code></td>
+          <td>3/sec</td>
+          <td>3/sec</td>
+          <td>3/sec</td>
+          <td>3/sec</td>
+        </tr>
+        <tr>
+          <td><code>sendTransaction</code></td>
+          <td>1/sec</td>
+          <td>5/sec</td>
+          <td>50/sec</td>
+          <td>100/sec</td>
+        </tr>
+        <tr>
+          <td><code>simulateBundle</code></td>
+          <td>10/sec</td>
+          <td>50/sec</td>
+          <td>200/sec</td>
+          <td>500/sec</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+  <Tab title="High Complexity Calls">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">Endpoint</th>
+          <th width="100">Free</th>
+          <th width="100">Developer</th>
+          <th width="100">Business</th>
+          <th width="100">Professional</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>getProgramAccounts</code></td>
+          <td>5/sec</td>
+          <td>25/sec</td>
+          <td>50/sec</td>
+          <td>75/sec</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+  <Tab title="ZK Compression">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">Service</th>
+          <th width="100">Free</th>
+          <th width="100">Developer</th>
+          <th width="100">Business</th>
+          <th width="100">Professional</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Photon APIs</td>
+          <td>2/sec</td>
+          <td>10/sec</td>
+          <td>50/sec</td>
+          <td>100/sec</td>
+        </tr>
+        <tr>
+          <td><code>getValidityProof</code></td>
+          <td>1/sec</td>
+          <td>5/sec</td>
+          <td>10/sec</td>
+          <td>20/sec</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+  <Tab title="LaserStream">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">Resource</th>
+          <th width="100">Free</th>
+          <th width="100">Developer</th>
+          <th width="100">Business</th>
+          <th width="100">Professional</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Max Pubkeys</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>10M</td>
+        </tr>
+        <tr>
+          <td>Active Connections</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>100</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+</Tabs>
+
+<Note>
+**Need Higher Sender Limits?** Contact support to discuss custom rate limits based on your specific use case requirements.
+</Note>
+
+---
+
+## Credit System
+
+<CardGroup cols={3}>
+  <Card title="Monthly Allocation" icon="calendar">
+    Your plan includes credits that reset monthly
+  </Card>
+  <Card title="Usage Priority" icon="arrow-down">
+    Monthly → Prepaid → Autoscaling
+  </Card>
+  <Card title="Flexible Billing" icon="credit-card">
+    Pay for additional credits only when needed
+  </Card>
+</CardGroup>
+
+### Credit Costs
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>Service</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Standard RPC Calls</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Most RPC endpoints</td>
+    </tr>
+    <tr>
+      <td><strong>simulateBundle</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Bundle simulation</td>
+    </tr>
+    <tr>
+      <td><strong>Priority Fee API</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Fee estimation</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Events</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Per event delivery</td>
+    </tr>
+    <tr>
+      <td><strong>LaserStream gRPC</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>Per 0.1MB of data</td>
+    </tr>
+    <tr>
+      <td><strong>getProgramAccounts</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Complex queries</td>
+    </tr>
+    <tr>
+      <td><strong>ZK Compression API</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Standard compression calls</td>
+    </tr>
+    <tr>
+      <td><strong>DAS API</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>All DAS endpoints</td>
+    </tr>
+    <tr>
+      <td><strong>Enhanced Transactions</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Enhanced parsing</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook Management</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>CRUD operations</td>
+    </tr>
+    <tr>
+      <td><strong>getValidityProofs</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Complex computations</td>
+    </tr>
+  </tbody>
+</table>
+
+<Note>
+**LaserStream Data Metering**: Billing is based on **uncompressed** gRPC message size, not the compressed data your client receives. Typical sizes: Block (~4MB), Account (~373B), Transaction (~662B).
+</Note>
+
+<Tabs>
+
+  <Tab title="Transaction Submission">
+    <table>
+      <thead>
+        <tr>
+          <th style={{width: '300px'}}>Method</th>
+          <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sender</strong></td>
+          <td style={{textAlign: 'center'}}>0</td>
+          <td>Ultra-low latency submission</td>
+        </tr>
+        <tr>
+          <td><strong>Unstaked Connections</strong></td>
+          <td style={{textAlign: 'center'}}>1</td>
+          <td>May be unreliable during congestion</td>
+        </tr>
+        <tr>
+          <td><strong>Staked Connections</strong></td>
+          <td style={{textAlign: 'center'}}>10</td>
+          <td>Highest reliability (default)</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <Info>
+      **Staked Transactions Are Now Default**: All transactions via `mainnet.helius-rpc.com` automatically use staked connections for highest success rates.
+    </Info>
+  </Tab>
+
+     <Tab title="Historical Data">
+     All archival calls cost **10 credits** each:
+     
+     <CardGroup cols={2}>
+       <Card title="Block Data">
+         - `getBlock`
+         - `getBlocks`
+         - `getBlockTime`
+       </Card>
+       <Card title="Transaction History">
+         - `getTransaction`
+         - `getSignaturesForAddress`
+         - `getInflationReward`
+       </Card>
+     </CardGroup>
+   </Tab>
+
+   <Tab title="DAS API">
+     All DAS API calls cost **10 credits** each:
+     
+     <CardGroup cols={2}>
+       <Card title="Asset Information">
+         - `getAsset`
+         - `getAssetProof`
+         - `getAssetProofBatch`
+         - `getNftEditions`
+       </Card>
+       <Card title="Asset Discovery">
+         - `getAssetsByOwner`
+         - `getAssetsByAuthority`
+         - `getAssetsByCreator`
+         - `getAssetsByGroup`
+         - `searchAssets`
+         - `getAssetBatch`
+       </Card>
+       <Card title="Transaction History">
+         - `getSignaturesForAsset`
+       </Card>
+       <Card title="Account Information">
+         - `getTokenAccounts`
+       </Card>
+     </CardGroup>
+   </Tab>
+ </Tabs>
+
+---
+
+## Managing Your Usage
+
+<CardGroup cols={2}>
+  <Card title="Autoscaling" icon="arrow-trend-up" href="/billing/autoscaling">
+    Automatically add credits as needed for handling traffic spikes and ensuring uninterrupted service.
+  </Card>
+  <Card title="Helius Dashboard" icon="chart-line" href="https://dashboard.helius.dev/">
+    Monitor real-time usage, set alerts, and track consumption patterns with detailed analytics.
+  </Card>
+</CardGroup>
+
+
+---
+
+## Enterprise
+
+<Card title="Custom Solutions for High-Volume Applications" icon="building">
+  Enterprise plans provide tailored solutions for organizations with specific requirements.
+  
+  **Key Benefits:**
+  - Custom rate limits tailored to your needs
+  - Volume discounts for high credit usage
+  - SLA guarantees with uptime commitments
+  - Direct engineering support access
+  - Advanced usage analytics and monitoring
+  - Priority support channels
+  
+  Ready for Enterprise? [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss custom solutions.
+</Card>
+
+---
+
+## Legacy Plans
+
 <Warning>
-  The limits in the table above apply to deprecated V3 plans. These plans are no
-  longer available for new users. For details on available plans, please refer
-  to the '[Pricing & Rate Limits](#standard-plans)' section above.
-</Warning> 
+The limits below apply to deprecated V3 plans. These plans are no longer available for new users.
+</Warning>
+
+<Accordion title="Legacy V3 Plan Details">
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="189">Free V3</th>
+        <th width="181">Developer V3</th>
+        <th width="191">Business V3</th>
+        <th>Performance V3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1M Credits</td>
+        <td>10M Credits</td>
+        <td>200M Credits</td>
+        <td>500M Credits</td>
+      </tr>
+      <tr>
+        <td>10 RPC requests/s</td>
+        <td>50 RPC requests/s</td>
+        <td>150 RPC requests/s</td>
+        <td>500 RPC requests/s</td>
+      </tr>
+      <tr>
+        <td>2 API requests/s</td>
+        <td>10 API requests/s</td>
+        <td>50 API requests/s</td>
+        <td>100 API requests/s</td>
+      </tr>
+      <tr>
+        <td>1 API Key</td>
+        <td>10 API Keys</td>
+        <td>15 API Keys</td>
+        <td>20 API Keys</td>
+      </tr>
+      <tr>
+        <td>1 Webhook</td>
+        <td>3 Webhooks</td>
+        <td>10 Webhooks</td>
+        <td>20 Webhooks</td>
+      </tr>
+      <tr>
+        <td>Community support</td>
+        <td>Chat Support</td>
+        <td>Priority Chat Support</td>
+        <td>Slack/Telegram Support</td>
+      </tr>
+    </tbody>
+  </table>
+</Accordion> 

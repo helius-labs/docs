@@ -1,0 +1,80 @@
+---
+title: "How to Use getVersion"
+sidebarTitle: "getVersion"
+description: "Learn getVersion use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getVersion`](https://www.helius.dev/docs/api-reference/rpc/http/getversion) RPC method returns the current Solana software version running on the queried RPC node. This includes the `solana-core` version string and a `feature-set` identifier.
+
+This method is useful for verifying the version of a node you are interacting with or for diagnostic purposes.
+
+## Common Use Cases
+
+*   **Node Version Verification:** Confirming the software version of an RPC node, which can be important for compatibility or to understand available features.
+*   **Network Monitoring:** Tools might periodically check versions of various nodes to get a sense of software distribution across the network (though `getClusterNodes` provides a more comprehensive view for this).
+*   **Troubleshooting:** Knowing the node version can be crucial when diagnosing issues or unexpected behavior.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   **`solana-core`** (string): The version string of the Solana core software (e.g., "1.18.4").
+*   **`feature-set`** (u32): A numerical identifier for the set of features activated on the node.
+
+**Example Response:**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "solana-core": "1.18.4",
+    "feature-set": 3595898949
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVersion"
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getNodeVersion() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const versionInfo = await connection.getVersion();
+    console.log('Node Version Information:');
+    console.log(`  Solana Core: ${versionInfo['solana-core']}`);
+    console.log(`  Feature Set: ${versionInfo['feature-set']}`);
+  } catch (error) {
+    console.error('Error fetching node version:', error);
+  }
+}
+
+getNodeVersion();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Simplicity:** This is one of the simplest RPC calls, useful for a quick check of the node's software.
+*   **Node Specific:** The version returned is specific to the RPC node you are querying. Different nodes in the cluster might be running slightly different versions, especially during upgrade periods.
+
+This guide provides a clear overview of the `getVersion` RPC method, its use cases, and how to interpret its response.

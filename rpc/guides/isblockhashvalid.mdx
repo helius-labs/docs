@@ -1,0 +1,147 @@
+---
+title: "How to Use isBlockhashValid"
+sidebarTitle: "isBlockhashValid"
+description: "Learn isBlockhashValid use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`isBlockhashValid`](https://www.helius.dev/docs/api-reference/rpc/http/isblockhashvalid) RPC method checks whether a previously obtained blockhash is still considered valid by the network. Blockhashes have a limited lifetime (approximately 2 minutes, or 150 blocks), after which transactions referencing them will be rejected.
+
+This method is crucial for applications that hold onto blockhashes for some time before submitting a transaction, to ensure the transaction doesn't fail due to an expired blockhash.
+
+**Version Note:** This method is available in `solana-core` v1.9 and newer. For nodes running `solana-core` v1.8 or older, you should use `getFeeCalculatorForBlockhash` which, in addition to fee information, also implicitly indicates blockhash validity (it will error if the blockhash is too old).
+
+## Common Use Cases
+
+*   **Transaction Resubmission:** Before retrying a failed transaction, check if its original blockhash is still valid. If not, a new blockhash must be fetched.
+*   **Delayed Transaction Signing:** If a transaction is prepared but signed and submitted later, verify the blockhash validity just before submission.
+*   **Optimistic Transaction Processing:** Determine if a blockhash is likely to be accepted by the network if a transaction is sent immediately.
+
+## Request Parameters
+
+1.  **`blockhash`** (string, required): The blockhash to check, as a base-58 encoded string.
+2.  **`options`** (object, optional): An optional configuration object that can include:
+    *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query (e.g., `"finalized"`, `"confirmed"`, `"processed"`). If omitted, the node's default commitment is used.
+    *   **`minContextSlot`** (u64, optional): The minimum slot that the request can be evaluated at. This ensures the RPC node does not respond with a status from a slot older than the `minContextSlot`.
+
+## Response Structure
+
+The `result` field in the JSON-RPC response is an `RpcResponse` object containing:
+
+*   **`context`** (object): An object containing:
+    *   **`slot`** (u64): The slot at which the RPC node evaluated the blockhash validity.
+*   **`value`** (boolean): `true` if the blockhash is still valid, `false` otherwise.
+
+**Example Response (Valid Blockhash):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 180000500 },
+    "value": true
+  },
+  "id": 1
+}
+```
+
+**Example Response (Invalid/Expired Blockhash):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 180000800 },
+    "value": false
+  },
+  "id": 1
+}
+```
+
+## Code Examples
+
+<CodeGroup>
+```bash cURL
+# Check validity of a blockhash (replace <YOUR_BLOCKHASH>):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "isBlockhashValid",
+    "params": [
+      "<YOUR_BLOCKHASH>"
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Check with commitment and minContextSlot (replace <YOUR_BLOCKHASH>):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "isBlockhashValid",
+    "params": [
+      "<YOUR_BLOCKHASH>",
+      {
+        "commitment": "confirmed",
+        "minContextSlot": 170000000
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function checkBlockhash(blockhashToCheck) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    console.log(`Checking validity of blockhash: ${blockhashToCheck}`);
+    const result = await connection.isBlockhashValid(blockhashToCheck);
+    
+    console.log(`  Blockhash is valid: ${result.value}`);
+    console.log(`  Checked at slot: ${result.context.slot}`);
+
+    // Example with options
+    // const resultWithOptions = await connection.isBlockhashValid(
+    //   blockhashToCheck,
+    //   { commitment: 'confirmed', minContextSlot: result.context.slot - 100 }
+    // );
+    // console.log(`\nWith options - Valid: ${resultWithOptions.value}, Slot: ${resultWithOptions.context.slot}`);
+
+  } catch (error) {
+    console.error(`Error checking blockhash ${blockhashToCheck}:`, error);
+  }
+}
+
+// Example usage: First, get a recent blockhash
+async function getRecentBlockhashAndCheck() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const { blockhash } = await connection.getLatestBlockhash();
+    await checkBlockhash(blockhash); 
+    
+    // Example with a known old/invalid blockhash (will likely be false)
+    // This blockhash is just an example and will be invalid.
+    const oldBlockhash = 'J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW'; 
+    // await checkBlockhash(oldBlockhash);
+
+  } catch (error) {
+    console.error('Error in example execution:', error);
+  }
+}
+
+getRecentBlockhashAndCheck();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Blockhashes Expire:** Blockhashes are only valid for a limited time (around 150 slots, or roughly 1-2 minutes). Always fetch a fresh blockhash if you are unsure or if significant time has passed.
+*   **`minContextSlot` Usage:** Use `minContextSlot` to protect against querying a stale RPC node that might give an outdated "valid" response for a blockhash that is actually too old from the perspective of the rest of the cluster.
+*   **Alternative for Older Nodes:** For nodes running Solana versions prior to 1.9, use `getFeeCalculatorForBlockhash("<YOUR_BLOCKHASH>")`. If this method returns successfully, the blockhash is valid. If it errors (typically because the blockhash is not found or too old), then the blockhash is invalid.
+*   **Network Confirmation:** Even if `isBlockhashValid` returns `true`, a transaction is only finalized once it reaches the desired commitment level on the network after submission.
+
+This guide provides the necessary details to use the `isBlockhashValid` RPC method effectively when building Solana applications. 

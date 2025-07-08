@@ -1,0 +1,178 @@
+---
+title: "How to Use getBlockProduction"
+sidebarTitle: "getBlockProduction"
+description: "Learn getBlockProduction use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getBlockProduction`](https://www.helius.dev/docs/api-reference/rpc/http/getblockproduction) RPC method provides information about block production in the current epoch or a specified slot range. It can be used to retrieve data for all validators or for a specific validator identity. This is valuable for monitoring validator performance and understanding block production patterns on the network.
+
+## Common Use Cases
+
+*   **Monitoring Validator Performance:** Track the number of blocks produced and leader slots for a specific validator.
+*   **Analyzing Epoch Performance:** Get an overview of block production across all validators in the current or a past epoch.
+*   **Identifying Missed Slots:** See if validators are missing their assigned leader slots.
+*   **Network Health Checks:** Gather data on overall block production efficiency.
+
+## Request Parameters
+
+The `getBlockProduction` method accepts an optional configuration object with the following parameters:
+
+1.  **`commitment`** (string, optional): Specifies the commitment level to use for the query. If omitted, the default commitment of the node is used.
+2.  **`range`** (object, optional): Defines a slot range to query.
+    *   `firstSlot` (u64): The first slot to fetch block production information for (inclusive).
+    *   `lastSlot` (u64, optional): The last slot to fetch block production information for (inclusive). If omitted, the current epoch's block production up to the current slot will be returned.
+3.  **`identity`** (string, optional): A base58-encoded public key of a validator identity. If provided, the response will only include block production information for this specific validator. If omitted, information for all validators in the specified range (or current epoch) is returned.
+
+**Note:** At least one of `identity` or `range.firstSlot` must be provided. If `identity` is not provided, the `range` parameter is required.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing:
+
+*   `context` (object):
+    *   `slot` (u64): The slot at which the information was retrieved.
+*   `value` (object):
+    *   `byIdentity` (object): An object where keys are validator identity strings (base58-encoded public keys), and values are objects containing:
+        *   `leaderSlots` (u64): The number of leader slots assigned to this validator in the queried range/epoch.
+        *   `blocksProduced` (u64): The number of blocks produced by this validator in the queried range/epoch.
+    *   `range` (object):
+        *   `firstSlot` (u64): The first slot of the queried range.
+        *   `lastSlot` (u64): The last slot of the queried range.
+
+## Developer Tips
+
+*   **Understand Epoch Boundaries**: When querying by `identity` without a `range`, the data returned is for the current epoch up to the latest processed slot by the node. If you need data for a *full* past epoch for a specific validator, you'll need to determine the `firstSlot` and `lastSlot` for that epoch.
+*   **Node Data Availability**: The range of historical block production data can vary between RPC nodes. Very old slot ranges might not be available on all nodes.
+*   **Performance Monitoring**: `getBlockProduction` is key for building dashboards or alerts related to validator uptime and block production success rates.
+*   **Combining with `getLeaderSchedule`**: For deeper analysis, you can correlate `getBlockProduction` data with the output of `getLeaderSchedule` to see which specific leader slots were made or missed.
+*   **Identity vs. All Validators**: Querying without an `identity` can return a large amount of data, especially if no `range` or a wide `range` is specified. Be mindful of response sizes and processing requirements.
+
+## Examples
+
+### 1. Get Block Production for the Current Epoch (All Validators)
+
+This example fetches block production data for all validators in the current epoch.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlockProduction"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getEpochBlockProduction() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blockProduction = await connection.getBlockProduction();
+    console.log('Block Production for Current Epoch:', JSON.stringify(blockProduction, null, 2));
+    // Example: Accessing data for a specific validator (if present)
+    // const specificValidatorIdentity = " deaktivCQ2sV2KF1y7n4qX1xUFk6VXL79CdfjrmLdshs"; // Replace with actual identity
+    // if (blockProduction.value.byIdentity[specificValidatorIdentity]) {
+    //   console.log(\`Data for \${specificValidatorIdentity}:\`, blockProduction.value.byIdentity[specificValidatorIdentity]);
+    // }
+  } catch (error) {
+    console.error('Error fetching block production:', error);
+  }
+}
+
+getEpochBlockProduction();
+```
+</CodeGroup>
+
+### 2. Get Block Production for a Specific Validator in the Current Epoch
+
+This example fetches block production for a specific validator identity in the current epoch.
+
+<CodeGroup>
+```bash cURL
+# Replace YOUR_VALIDATOR_IDENTITY_PUBKEY with the actual validator's base58 public key.
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlockProduction",
+    "params": [
+      {
+        "identity": "YOUR_VALIDATOR_IDENTITY_PUBKEY"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getValidatorBlockProduction(validatorIdentity) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blockProduction = await connection.getBlockProduction({ identity: validatorIdentity });
+    console.log(\`Block Production for \${validatorIdentity}:\`, JSON.stringify(blockProduction, null, 2));
+  } catch (error) {
+    console.error(\`Error fetching block production for \${validatorIdentity}:\`, error);
+  }
+}
+
+// Replace with the validator identity you want to query
+const validatorIdentity = "So11111111111111111111111111111111111111112"; // Example: Solana Foundation
+getValidatorBlockProduction(validatorIdentity);
+```
+</CodeGroup>
+
+### 3. Get Block Production for a Specific Slot Range and Validator
+
+This example fetches block production data for a specific validator within a defined slot range.
+
+<CodeGroup>
+```bash cURL
+# Replace YOUR_VALIDATOR_IDENTITY_PUBKEY, START_SLOT, and END_SLOT.
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \\
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlockProduction",
+    "params": [
+      {
+        "identity": "YOUR_VALIDATOR_IDENTITY_PUBKEY",
+        "range": {
+          "firstSlot": START_SLOT, # e.g., 200000000
+          "lastSlot": END_SLOT    # e.g., 200010000
+        }
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blockProduction = await connection.getBlockProduction({
+      identity: validatorIdentity,
+      range: {
+        firstSlot: firstSlot,
+        lastSlot: lastSlot,
+      },
+    });
+    console.log(\`Block Production for \${validatorIdentity} in range \${firstSlot}-\${lastSlot}:\`, JSON.stringify(blockProduction, null, 2));
+  } catch (error) {
+    console.error(\`Error fetching block production for \${validatorIdentity} in range:\`, error);
+  }
+}
+
+// Replace with your desired parameters
+const validatorIdentity = "Beefy1So11111111111111111111111111111111111"; // Example validator
+const firstSlot = 200000000; // Example start slot
+const lastSlot = 200010000;   // Example end slot
+getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot);
+```
+</CodeGroup>
+
+This guide should give you a solid understanding of how to use the `getBlockProduction` RPC method to analyze block production on Solana. 

@@ -1,0 +1,65 @@
+---
+title: "How to Use getIdentity"
+sidebarTitle: "getIdentity"
+description: "Learn getIdentity use cases, code examples, request parameters, response structure, and tips."
+---
+
+The [`getIdentity`](https://www.helius.dev/docs/api-reference/rpc/http/getidentity) RPC method returns the public key (also known as the identity or node ID) of the specific Solana RPC node to which you are connected. Each node in the Solana network has a unique cryptographic keypair, and its public key serves as its identifier.
+
+## Common Use Cases
+
+*   **Node Identification:** Uniquely identify the RPC node you are communicating with, especially in distributed setups or when interacting with multiple RPC providers.
+*   **Network Analysis:** When combined with `getClusterNodes`, you can match the identity from `getIdentity` to a node in the cluster list to find more details about the specific node you are querying.
+*   **Debugging and Logging:** Log the identity of the node for debugging purposes or to track which node served a particular request.
+*   **Verification (Advanced):** In some specific scenarios, the node identity might be used in higher-level protocols or for verification purposes, though this is less common for typical dApp interactions.
+
+## Request Parameters
+
+This method does not take any parameters.
+
+## Response Structure
+
+The `result` field of the JSON-RPC response will be an object containing a single field:
+
+*   **`identity`** (string): The base-58 encoded public key of the RPC node.
+
+## Examples
+
+### 1. Get the Identity of the Connected RPC Node
+
+This example fetches the public key of the RPC node.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getIdentity"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logNodeIdentity() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const identityInfo = await connection.getIdentity();
+    console.log(`Node Identity (Public Key): ${identityInfo.identity}`);
+  } catch (error) {
+    console.error('Error fetching node identity:', error);
+  }
+}
+
+logNodeIdentity();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Node Specific:** The returned identity is unique to the specific RPC node instance you are connected to. If you connect to a different RPC endpoint (even if it's part of the same cluster or operated by the same provider but load-balanced), you might get a different identity.
+*   **Not for User Wallets:** The identity returned is for the RPC node itself, not for any user wallet or account on the Solana network.
+*   **Stability:** The identity of a given node is generally stable but could change if the node operator reconfigures or replaces the node's keypair.
+
+This guide demonstrates how to use the `getIdentity` RPC method to retrieve the unique public key of the Solana node you are interacting with.

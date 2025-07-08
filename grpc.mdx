@@ -1,278 +1,328 @@
 ---
-title: Yellowstone gRPC
+title: Yellowstone gRPC Streams
 sidebarTitle: Overview
-description: Highly configurable real-time data streams.
+description: Access highly configurable, real-time Solana data streams directly to your backend using gRPC.
 ---
 
-## What are gRPC streams?
+## Introduction to gRPC Streams
 
-Geyser or gRPC streams provide the fastest and most efficient way to stream Solana data directly to your backend. With gRPC, you can subscribe to blocks, slots, transactions, and account updates. It is highly configurable. You can filter or limit each subscription. It allows the client-server to create new subscriptions or cancel existing ones immediately.
+Yellowstone gRPC streams (often referred to as Geyser gRPC streams) offer a high-performance, efficient method for streaming real-time Solana blockchain data. By tapping directly into Solana leaders, our RPC nodes receive shreds as they are produced, delivering ultra-low latency data to your application.
 
-To learn more, please read the examples provided in the [source repo](https://github.com/rpcpool/yellowstone-grpc).
+With gRPC, you can subscribe to various data types, including:
+- Blocks
+- Slots
+- Transactions
+- Account Updates
+
+These subscriptions are highly configurable, allowing you to precisely filter and limit the data you receive. Client-server communication enables immediate creation or cancellation of subscriptions.
 
 <Note>
-gRPC is only available for dedicated nodes. You can provision a dedicated node directly from the [Dashboard](https://dashboard.helius.dev/dedicated-nodes). To learn more, please visit [dedicated-nodes](/dedicated-nodes/).
+Accessing Yellowstone gRPC stream capabilities is flexible, with options tailored to different needs:
+
+- **LaserStream:** Our highly available, multi-tenant gRPC service. LaserStream is designed for robust, real-time data delivery, leveraging a distributed architecture for enhanced durability. It's an excellent choice for most applications requiring reliable Solana data streams without managing infrastructure.
+
+- **Dedicated Nodes:** For users who require maximum control, custom configurations, guaranteed resource isolation, or have very high, specific throughput demands, a dedicated node provides an exclusive gRPC endpoint. This option offers deep customization and performance tuning capabilities.
+
+You can provision a dedicated node via the [Helius Dashboard](https://dashboard.helius.dev/dedicated-nodes). Learn more about [Dedicated Nodes](/dedicated-nodes/) or explore the [LaserStream documentation](/laserstream).
 </Note>
 
-## Subscribe Request
+For more in-depth examples and implementation details, please refer to the [Yellowstone gRPC source repository](https://github.com/rpcpool/yellowstone-grpc).
 
-In the subscribe request, you need to include the following:
+## Understanding the Subscribe Request
 
-`commitment`: Specifies the commitment level, which can be **processed**, **confirmed**, or **finalized**.
+To initiate a subscription, your request must include several key parameters. You will also specify filters to tailor the data stream to your needs.
 
-`accounts_data_slice`: An array of objects `{ offset: uint64, length: uint64 }` that allows you to receive only the required data slices from accounts.
+### Core Subscription Parameters
 
-`ping`: An optional boolean. Some cloud providers (e.g., Cloudflare) close idle streams. To keep the connection alive, set this to **true**. The server will respond with a Pong message every 15 seconds, avoiding the need to resend filters.
+These parameters are fundamental to any subscribe request:
 
-Next, you'll need to specify the filters for the data you want to subscribe to, such as accounts, blocks, slots, or transactions.
+<ParamField path="commitment" type="string" required>
+  Specifies the commitment level for the data. Valid options are:
+  - `processed`: The node has processed the transaction.
+  - `confirmed`: The transaction has been confirmed by the cluster.
+  - `finalized`: The transaction has been finalized by the cluster.
+</ParamField>
 
-<details>
+<ParamField path="accounts_data_slice" type="array" parent="accounts">
+  An array of objects, each specifying an `offset` (uint64) and `length` (uint64). This allows you to request only specific byte ranges from account data, optimizing data transfer.
+  ```json
+  [
+    { "offset": 0, "length": 100 },
+    { "offset": 200, "length": 50 }
+  ]
+  ```
+</ParamField>
 
-<summary>Slots</summary>
+<ParamField path="ping" type="boolean" optional>
+  Set to `true` to keep the gRPC connection alive, especially if you are behind a load balancer or proxy that might close idle streams (e.g., Cloudflare). When enabled, the server will send a Pong message every 15 seconds. This avoids the need to resend filters upon reconnection.
+</ParamField>
 
-`filter_by_commitment` — By default, slots are sent for all commitment levels. With this filter, you can choose to receive only the selected commitment level.
+### Data-Specific Filters
 
-</details>
+After setting the core parameters, you'll define filters for the specific types of data you wish to receive.
 
-<details>
+<Tabs>
+  <Tab title="Slots">
+    <ParamField path="filter_by_commitment" type="boolean" parent="slots.slot" default="false">
+      By default, slot updates are sent for all commitment levels. Set to `true` to receive slot updates only for the commitment level specified in the main `commitment` parameter.
+    </ParamField>
+  </Tab>
+  <Tab title="Accounts">
+    <ParamField path="account" type="array<string>" parent="accounts">
+      An array of account public keys. The stream will include updates for any account matching these public keys. (Logical OR)
+    </ParamField>
+    <ParamField path="owner" type="array<string>" parent="accounts">
+      An array of owner public keys. The stream will include updates for accounts owned by any of these public keys. (Logical OR)
+    </ParamField>
+    <ParamField path="filters" type="array<object>" parent="accounts">
+      An array of `dataSize` and/or `Memcmp` filters, similar to those used in the `getProgramAccounts` RPC method. Supported encodings for `Memcmp` are `bytes`, `base58`, and `base64`. (Logical AND within this array)
+      ```json
+      [
+        { "dataSize": 165 },
+        { "memcmp": { "offset": 0, "bytes": "your_base58_encoded_bytes" } }
+      ]
+      ```
+    </ParamField>
+    <Info>
+      If `account`, `owner`, and `filters` are all empty, all account updates will be broadcast. Otherwise, these top-level account filter fields operate as a logical AND. Values within the `account` and `owner` arrays act as a logical OR.
+    </Info>
+  </Tab>
+  <Tab title="Transactions">
+    <ParamField path="vote" type="boolean" parent="transactions.client">
+      Set to `true` to include vote transactions, `false` to exclude them.
+    </ParamField>
+    <ParamField path="failed" type="boolean" parent="transactions.client">
+      Set to `true` to include failed transactions, `false` to exclude them.
+    </ParamField>
+    <ParamField path="signature" type="string" parent="transactions.client">
+      Provide a transaction signature to receive updates only for that specific transaction.
+    </ParamField>
+    <ParamField path="account_include" type="array<string>" parent="transactions.client">
+      An array of account public keys. The stream will include transactions that involve *any* of these accounts. (Logical OR)
+    </ParamField>
+    <ParamField path="account_exclude" type="array<string>" parent="transactions.client">
+      An array of account public keys. The stream will exclude transactions that involve *any* of these accounts.
+    </ParamField>
+    <ParamField path="account_required" type="array<string>" parent="transactions.client">
+      An array of account public keys. The stream will include transactions that involve *all* of these accounts. (Logical AND)
+    </ParamField>
+    <Info>
+      If all transaction filter fields are empty, all transactions will be broadcast. Otherwise, these top-level transaction filter fields operate as a logical AND. Values within array fields (`account_include`, `account_exclude`, `account_required`) act as a logical OR.
+    </Info>
+  </Tab>
+  <Tab title="Blocks">
+    <ParamField path="account_include" type="array<string>" parent="blocks">
+      Filters transactions and accounts within the block that involve any account from the provided list. (Logical OR)
+    </ParamField>
+    <ParamField path="include_transactions" type="boolean" parent="blocks">
+      Set to `true` to include all transactions within the block.
+    </ParamField>
+    <ParamField path="include_accounts" type="boolean" parent="blocks">
+      Set to `true` to include all account updates within the block.
+    </ParamField>
+    <ParamField path="include_entries" type="boolean" parent="blocks">
+      Set to `true` to include all entries within the block.
+    </ParamField>
+  </Tab>
+  <Tab title="Blocks Meta">
+    This stream provides metadata about blocks, excluding full transaction, account, and entry details.
+    Currently, no specific filters are available for block metadata; all block metadata messages are broadcast by default.
+  </Tab>
+  <Tab title="Entries">
+    This stream provides entry data.
+    Currently, no specific filters are available for entries; all entries are broadcast by default.
+  </Tab>
+</Tabs>
 
-<summary>Accounts</summary>
+## Code Examples
 
-`account` : Matches any public key from the provided array.
+The following examples demonstrate how to subscribe to gRPC streams using TypeScript.
 
-`owner` : The account owner's public key. Matches any public key from the provided array.
+<Note>
+The `GRPC_URL` and `X_TOKEN` in these examples are placeholders. Replace them with your actual dedicated node endpoint and API token.
+</Note>
 
-`filters` : Similar to the filters in [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts). This is an array of `dataSize` and/or `Memcmp` filters. Supported encoding includes `bytes`, `base58`, and `base64`.
-
-If all fields are empty, all accounts are broadcasted. Otherwise:
-
-* Fields operate as a logical **AND**.
-* Values within arrays act as a logical **OR** (except within filters, which operate as a logical **AND**)
-
-</details>
-
-<details>
-
-<summary>Transaction</summary>
-
-`vote`: Enable or disable the broadcast of vote transactions.
-
-`failed` : Enable or disable the broadcast of failed transactions.
-
-`signature`: Broadcast only transactions matching the specified signature.
-
-`account_include`: Filter transactions that involve any account from the provided list.
-
-`account_exclude`: Exclude transactions that involve any account from the provided list (opposite of `account_include`).
-
-`account_required`: Filter transactions that involve all accounts from the provided list (all accounts must be used).
-
-If all fields are left empty, all transactions are broadcasted. Otherwise:
-
-* Fields operate as a logical **AND**.
-* Values within arrays are treated as a logical **OR**.
-
-</details>
-
-<details>
-
-<summary>Block</summary>
-
-`account_include`: Filters transactions and accounts that involve any account from the provided list.
-
-`include_transactions`: Includes all transactions in the broadcast.
-
-`include_accounts`: Includes all account updates in the broadcast.
-
-`include_entries`: Includes all entries in the broadcast.
-
-</details>
-
-<details>
-
-<summary>Blocks Meta</summary>
-
-This functions similarly to Blocks but excludes transactions, accounts, and entries. Currently, no filters are available for block metadata—all messages are broadcasted by default.
-
-</details>
-
-<details>
-
-<summary><strong>Entries</strong></summary>
-
-Currently, there are no filters available for entries; all entries are broadcasted.
-
-</details>
-
-## Examples
-
-<details>
-
-<summary>Typescript Slot Subscription </summary>
-
-The following code examples subscribe to slot updates and include a ping to the gRPC server to keep the connection alive.
-
-```javascript
+<CodeGroup>
+```javascript "Slot Subscription (TypeScript)"
 import Client, {
   CommitmentLevel,
   SubscribeRequest,
-  SubscribeRequestFilterAccountsFilter,
 } from "@triton-one/yellowstone-grpc";
 
-const GRPC_URL = "add-geyser-url";
-const X_TOKEN = "add-x-token";
-const PING_INTERVAL_MS = 30_000; // 30s
+const GRPC_URL = "your-geyser-grpc-endpoint";
+const X_TOKEN = "your-api-token";
+const PING_INTERVAL_MS = 30_000; // 30 seconds
 
 async function main() {
-  // Open connection.
+  // 1. Open Connection
   const client = new Client(GRPC_URL, X_TOKEN, {
     "grpc.max_receive_message_length": 64 * 1024 * 1024, // 64MiB
   });
 
-  // Subscribe for events
+  // 2. Subscribe to Events
   const stream = await client.subscribe();
 
-  // Create `error` / `end` handler
+  // 3. Handle Stream Closure and Errors
   const streamClosed = new Promise<void>((resolve, reject) => {
     stream.on("error", (error) => {
+      console.error("Stream error:", error);
       reject(error);
-      stream.end();
+      stream.end(); // Ensure stream is closed on error
     });
     stream.on("end", () => {
+      console.log("Stream ended.");
       resolve();
     });
     stream.on("close", () => {
+      console.log("Stream closed.");
       resolve();
     });
   });
 
-  // Handle updates
+  // 4. Handle Incoming Data
   stream.on("data", (data) => {
-    let ts = new Date();
-    if (data.filters[0] == "slot") {
+    const ts = new Date().toUTCString();
+    if (data.slot) { // Check if it's a slot update
       console.log(
-        `${ts.toUTCString()}: Received slot update: ${data.slot.slot}`
+        `${ts}: Received slot update: ${data.slot.slot}, Commitment: ${data.slot.status}`
       );
     } else if (data.pong) {
-      console.log(`${ts.toUTCString()}: Processed ping response!`);
+      console.log(`${ts}: Received pong (ping response id: ${data.pong.id})`);
+    } else {
+      // console.log(`${ts}: Received other data:`, data); // For debugging other message types
     }
   });
 
-  // Example subscribe request.
-  // Listen to all slot updates.
+  // 5. Define Slot Subscription Request
   const slotRequest: SubscribeRequest = {
     slots: {
-      slot: { filterByCommitment: true },
+      // No specific slot filter here, will receive all based on commitment.
+      // To filter by commitment on slot messages themselves:
+      // slot: { filterByCommitment: true },
     },
-    commitment: CommitmentLevel.CONFIRMED,
+    commitment: CommitmentLevel.CONFIRMED, // Requesting CONFIRMED slots
 
-    // Required, but unused arguments
+    // Other subscription types (set to empty objects if not used)
     accounts: {},
     accountsDataSlice: [],
     transactions: {},
-    transactionsStatus: {},
+    // transactionsStatus: {}, // Deprecated or handled by transaction filters
     blocks: {},
     blocksMeta: {},
     entry: {},
   };
 
-  // Send subscribe request
-  await new Promise<void>((resolve, reject) => {
-    stream.write(slotRequest, (err) => {
-      if (err === null || err === undefined) {
-        resolve();
-      } else {
-        reject(err);
-      }
+  // 6. Send Subscribe Request
+  try {
+    await new Promise<void>((resolve, reject) => {
+      stream.write(slotRequest, (err) => {
+        if (err) {
+          console.error("Failed to send slot subscription request:", err);
+          reject(err);
+        } else {
+          console.log("Slot subscription request sent successfully.");
+          resolve();
+        }
+      });
     });
-  }).catch((reason) => {
-    console.error(reason);
-    throw reason;
-  });
+  } catch (error) {
+    console.error("Error in sending slot subscription:", error);
+    client.close(); // Close client if initial subscription fails
+    return;
+  }
 
-  // Send pings every 5s to keep the connection open
+
+  // 7. Implement Ping to Keep Connection Alive
   const pingRequest: SubscribeRequest = {
-    ping: { id: 1 },
-    // Required, but unused arguments
+    ping: { id: Math.floor(Math.random() * 1000000) }, // Use a unique ID for pings
+    // All other filter fields must be present but can be empty
     accounts: {},
     accountsDataSlice: [],
     transactions: {},
-    transactionsStatus: {},
     blocks: {},
     blocksMeta: {},
     entry: {},
     slots: {},
   };
-  setInterval(async () => {
-    await new Promise<void>((resolve, reject) => {
-      stream.write(pingRequest, (err) => {
-        if (err === null || err === undefined) {
-          resolve();
-        } else {
-          reject(err);
-        }
+
+  const pingInterval = setInterval(async () => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        console.log(`${new Date().toUTCString()}: Sending ping (id: ${pingRequest.ping?.id})`);
+        stream.write(pingRequest, (err) => {
+          if (err) {
+            console.error("Failed to send ping:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
-    }).catch((reason) => {
-      console.error(reason);
-      throw reason;
-    });
+       // Update ping ID for next ping
+      pingRequest.ping = { id: Math.floor(Math.random() * 1000000) };
+    } catch (error) {
+      console.error("Error sending ping:", error);
+      // Consider logic to handle persistent ping failures (e.g., close stream, reconnect)
+    }
   }, PING_INTERVAL_MS);
 
-  await streamClosed;
+  // 8. Wait for Stream to Close
+  try {
+    await streamClosed;
+  } catch (error) {
+    console.error("Stream closed due to an error:", error);
+  } finally {
+    clearInterval(pingInterval); // Stop sending pings
+    client.close(); // Close the gRPC client
+    console.log("Client closed, ping interval cleared.");
+  }
 }
 
-main();
+main().catch(console.error);
 ```
-
-</details>
-
-<details>
-
-<summary>TypeScript Transaction Subscription with Parsed Data</summary>
-
-```typescript
+```typescript "Transaction Subscription with Parsed Data (TypeScript)"
 import Client, {
   CommitmentLevel,
   SubscribeRequest,
-  SubscribeRequestFilterAccountsFilter
+  // SubscribeRequestFilterAccountsFilter // Not directly used in this example's request
 } from "@triton-one/yellowstone-grpc";
 import bs58 from 'bs58';
 
-const GRPC_URL = "add-geyser-url";
-const X_TOKEN = "add-x-token";
-const PING_INTERVAL_MS = 30_000; // 30s
+const GRPC_URL = "your-geyser-grpc-endpoint"; // e.g., mainnet.rpc.helius.xyz:8080
+const X_TOKEN = "your-api-token";
+const PING_INTERVAL_MS = 30_000; // 30 seconds
 
-// Add this utility function to process the transaction object
-function convertBuffers(obj: any): any {
+// Utility function to convert Buffer objects in the transaction to base58 strings
+function convertBuffersToBs58(obj: any): any {
   if (obj === null || obj === undefined) {
     return obj;
   }
 
-  // Handle Buffer objects
+  // Handle Buffer objects (typical in older library versions or direct gRPC data)
   if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
     return bs58.encode(new Uint8Array(obj.data));
   }
 
-  // Handle arrays
-  if (Array.isArray(obj)) {
-    return obj.map(item => convertBuffers(item));
+  // Handle Uint8Array (more common with newer gRPC/protobuf versions)
+  if (obj instanceof Uint8Array) {
+    return bs58.encode(obj);
   }
 
-  // Handle objects
-  if (typeof obj === 'object') {
-    // Handle Uint8Array directly
-    if (obj instanceof Uint8Array) {
-      return bs58.encode(obj);
-    }
+  // Handle arrays recursively
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffersToBs58(item));
+  }
 
-    const converted: any = {};
+  // Handle objects recursively
+  if (typeof obj === 'object') {
+    const converted: { [key: string]: any } = {};
     for (const [key, value] of Object.entries(obj)) {
-      // Skip certain keys that shouldn't be converted
-      if (key === 'uiAmount' || key === 'decimals' || key === 'uiAmountString') {
-        converted[key] = value;
-      } else {
-        converted[key] = convertBuffers(value);
-      }
+      // Example: Skip conversion for known non-buffer fields if necessary
+      // if (key === 'uiAmount' || key === 'decimals' || key === 'uiAmountString') {
+      //   converted[key] = value;
+      // } else {
+      converted[key] = convertBuffersToBs58(value);
+      // }
     }
     return converted;
   }
@@ -281,176 +331,197 @@ function convertBuffers(obj: any): any {
 }
 
 async function main() {
-  // Open connection.
+  // 1. Open Connection
   const client = new Client(GRPC_URL, X_TOKEN, {
-    "grpc.max_receive_message_length": 1024 * 1024 * 1024, // 64MiB
+    "grpc.max_receive_message_length": 128 * 1024 * 1024, // Increased for potentially large transactions
   });
 
-  // Subscribe for events
+  // 2. Subscribe to Events
   const stream = await client.subscribe();
 
-  // Create `error` / `end` handler
+  // 3. Handle Stream Closure and Errors
   const streamClosed = new Promise<void>((resolve, reject) => {
     stream.on("error", (error) => {
+      console.error("Stream error:", error);
       reject(error);
       stream.end();
     });
     stream.on("end", () => {
+      console.log("Stream ended.");
       resolve();
     });
     stream.on("close", () => {
+      console.log("Stream closed.");
       resolve();
     });
   });
 
-  // Handle updates
+  // 4. Handle Incoming Data
   stream.on("data", (data) => {
-    let ts = new Date();
-    if (data) {
-
-      if(data.transaction) {
-        const tx = data.transaction;
-        // Convert the entire transaction object
-        const convertedTx = convertBuffers(tx);
-        // If you want to see the entire converted transaction:
-        console.log(`${ts.toUTCString()}: Received update: ${JSON.stringify(convertedTx)}`);
-      }
-
-      else {
-        console.log(`${ts.toUTCString()}: Received update: ${data}`);
-      }
-      stream.end();
+    const ts = new Date().toUTCString();
+    if (data.transaction) {
+      const originalTx = data.transaction;
+      // Convert the transaction object to make buffers readable
+      const readableTx = convertBuffersToBs58(originalTx);
+      console.log(`${ts}: Received transaction update: ${JSON.stringify(readableTx, null, 2)}`);
+      // For this example, we end the stream after one transaction. Remove if you want continuous streaming.
+      // stream.end(); 
     } else if (data.pong) {
-      console.log(`${ts.toUTCString()}: Processed ping response!`);
+      console.log(`${ts}: Received pong (ping response id: ${data.pong.id})`);
+    } else if (data.slot) {
+      console.log(`${ts}: Received slot update (in transaction stream): ${data.slot.slot}`);
     }
+    // Add handlers for other data types like block, entry, etc., if subscribed
   });
 
-  // Example subscribe request.
-const request: SubscribeRequest = {
-  commitment: CommitmentLevel.PROCESSED,
-  accountsDataSlice: [],
-  ping: undefined,
-  transactions: {
-    client: {
-      vote: false,
-      failed: false,
-      accountInclude: [
-        "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"
-      ],
-      accountExclude: [],
-      accountRequired: [],
-    },
-  },
-  // unused arguments
-  accounts: {},
-  slots: {},
-  transactionsStatus: {},
-  entry: {},
-  blocks: {},
-  blocksMeta: {},
-};
-
-  // Send subscribe request
-  await new Promise<void>((resolve, reject) => {
-    stream.write(request, (err: any) => {
-      if (err === null || err === undefined) {
-        resolve();
-      } else {
-        reject(err);
+  // 5. Define Transaction Subscription Request
+  const transactionRequest: SubscribeRequest = {
+    commitment: CommitmentLevel.PROCESSED, // Choose your desired commitment
+    transactions: {
+      // Note: The structure for filters can vary slightly based on the gRPC library version.
+      // This matches a common structure for yellowstone-grpc.
+      // Ensure your `SubscribeRequestTransactionFilter` aligns with your library.
+      filter: { // Often filters are nested under a 'filter' or 'client' object
+        vote: false,       // Exclude vote transactions
+        failed: false,     // Exclude failed transactions
+        accountInclude: [  // Only include transactions involving this account
+          "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8" // Example Helius owned program
+        ],
+        // accountExclude: [], // Optional: exclude specific accounts
+        // accountRequired: [], // Optional: require all listed accounts
       }
-    });
-  }).catch((reason) => {
-    console.error(reason);
-    throw reason;
-  });
+    },
+    // Other subscription types (set to empty objects if not used)
+    accounts: {},
+    accountsDataSlice: [],
+    slots: {},
+    // transactionsStatus: {}, // Usually handled by transaction filters
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+  };
 
-  // Send pings every 5s to keep the connection open
+  // 6. Send Subscribe Request
+  try {
+    await new Promise<void>((resolve, reject) => {
+      stream.write(transactionRequest, (err: any) => { // Explicitly type err if known
+        if (err) {
+          console.error("Failed to send transaction subscription request:", err);
+          reject(err);
+        } else {
+          console.log("Transaction subscription request sent successfully.");
+          resolve();
+        }
+      });
+    });
+  } catch (error) {
+     console.error("Error in sending transaction subscription:", error);
+    client.close();
+    return;
+  }
+
+  // 7. Implement Ping (same as slot example)
   const pingRequest: SubscribeRequest = {
-    // Required, but unused arguments
+    ping: { id: Math.floor(Math.random() * 1000000) },
     accounts: {},
     accountsDataSlice: [],
     transactions: {},
     blocks: {},
     blocksMeta: {},
-    slots: {},
-    transactionsStatus: {},
     entry: {},
+    slots: {},
   };
-  setInterval(async () => {
-    await new Promise<void>((resolve, reject) => {
-      stream.write(pingRequest, (err: null | undefined) => {
-        if (err === null || err === undefined) {
-          resolve();
-        } else {
-          reject(err);
-        }
+   const pingInterval = setInterval(async () => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        console.log(`${new Date().toUTCString()}: Sending ping (id: ${pingRequest.ping?.id})`);
+        stream.write(pingRequest, (err) => {
+          if (err) {
+            console.error("Failed to send ping:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
-    }).catch((reason) => {
-      console.error(reason);
-      throw reason;
-    });
+      pingRequest.ping = { id: Math.floor(Math.random() * 1000000) };
+    } catch (error) {
+      console.error("Error sending ping:", error);
+    }
   }, PING_INTERVAL_MS);
 
-  await streamClosed;
+
+  // 8. Wait for Stream to Close
+  try {
+    await streamClosed;
+  } catch (error) {
+    console.error("Stream closed due to an error:", error);
+  } finally {
+    clearInterval(pingInterval);
+    client.close();
+    console.log("Client closed, ping interval cleared.");
+  }
 }
 
-main();
-
+main().catch(console.error);
 ```
-
-</details>
-
-<details>
-
-<summary>Subscribe Requests with all filters</summary>
-
-It's possible to add limits for filters in the config. If `filters` field is omitted, then filters don't have any limits.
-
-```typescript
-"grpc": {
-   "filters": {
+```json "Filter Configuration Example (Advanced)"
+// This is an example of how filter limits can be configured on the server-side.
+// This is NOT part of the client subscribe request but a server configuration.
+{
+  "grpc": {
+    "filters": {
       "accounts": {
-         "max": 1,
-         "any": false,
-         "account_max": 10,
-         "account_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
-         "owner_max": 10,
-         "owner_reject": ["11111111111111111111111111111111"]
+        "max": 1, // Max active account subscriptions
+        "any": false, // If true, allows subscriptions without specific account/owner filters
+        "account_max": 10, // Max accounts in the 'account' array filter
+        "account_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"], // Reject subscriptions filtering for these accounts
+        "owner_max": 10, // Max accounts in the 'owner' array filter
+        "owner_reject": ["11111111111111111111111111111111"] // Reject subscriptions filtering for these owners
       },
       "slots": {
-         "max": 1
+        "max": 1 // Max active slot subscriptions
       },
       "transactions": {
-         "max": 1,
-         "any": false,
-         "account_include_max": 10,
-         "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
-         "account_exclude_max": 10,
-         "account_required_max": 10
+        "max": 1,
+        "any": false,
+        "account_include_max": 10,
+        "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        "account_exclude_max": 10,
+        "account_required_max": 10
       },
       "blocks": {
-         "max": 1,
-         "account_include_max": 10,
-         "account_include_any": false,
-         "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
-         "include_transactions": true,
-         "include_accounts" : false,
-         "include_entries" : false
+        "max": 1,
+        "account_include_max": 10,
+        "account_include_any": false,
+        "account_include_reject": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        "include_transactions": true, // Default for block 'include_transactions' if not specified by client
+        "include_accounts": false, // Default for block 'include_accounts'
+        "include_entries": false // Default for block 'include_entries'
       },
       "blocks_meta": {
-         "max": 1
+        "max": 1
       },
       "entry": {
-         "max": 1
+        "max": 1
       }
-   }
+    }
+  }
 }
 ```
+</CodeGroup>
 
-</details>
+## Additional Resources & Best Practices
 
-You can also refer to the examples in [Rust](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/rust) and [Go](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/golang).
+- **Language Examples:** You can find official examples for other languages in the Yellowstone gRPC repository:
+    - [Rust Examples](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/rust)
+    - [Go Examples](https://github.com/rpcpool/yellowstone-grpc/tree/master/examples/golang)
 
-<Note>
-gRPC is typically accessed behind a load-balancer or proxy, terminating an inactive connection after 10 minutes. The best solution is to ping the gRPC every N seconds or minutes.
-</Note>
+- **Connection Persistence:** gRPC connections, especially when routed through load balancers or proxies, may be terminated after a period of inactivity (often around 10 minutes).
+    <Info>
+    **Always implement a ping mechanism** in your client application (as shown in the examples) to send periodic messages to the gRPC server. This keeps the connection active and prevents unexpected termination.
+    </Info>
+
+- **Error Handling and Reconnection:** Robust applications should implement comprehensive error handling and reconnection logic. If a stream errors or closes unexpectedly, your application should attempt to re-establish the connection and re-subscribe to the necessary data feeds. Consider implementing exponential backoff for reconnection attempts.
+
+- **Resource Management:** Be mindful of the volume of data you are subscribing to. Use filters effectively to request only the data your application requires. Unnecessarily broad subscriptions can lead to high bandwidth usage and processing overhead on both the client and server.

@@ -23,7 +23,7 @@ Without RPC nodes, applications couldn't communicate with the Solana blockchain.
 
 At Helius, we are Solana natives. We've been here since the beginning, and unlike other providers, we focus exclusively on Solana and are dedicated to perfecting the Solana experience.
 
-We take pride in offering the most well-rounded RPC solution in the ecosystem, ranking in the top 1% for performance, pricing, and consistent uptime. With Helius, there are no surprises—just reliability you can count on.
+We take pride in offering the most well-rounded RPC solution in the ecosystem, ranking in the top 0.1% for performance, pricing, and consistent uptime. With Helius, there are no surprises—just reliability you can count on.
 
 Should you face any challenges, our best-in-class 24/7 support team is always here to help, ensuring you stay unblocked and moving forward.
 
@@ -48,14 +48,16 @@ RPC nodes are our standard offering that provides high-performance, reliable acc
 
 ### Dedicated Nodes
 
-Dedicated nodes provide a private, exclusive RPC environment for your project. These nodes are ideal for high-volume applications, projects requiring consistent performance guarantees, or teams with specific regulatory requirements.
+Dedicated nodes provide a private, exclusive environment optimized for gRPC streaming applications. These nodes are ideal for real-time data streaming, trading applications, and analytics that require ultra-low latency blockchain data feeds.
 
 **Key benefits:**
+- **Primary use case**: High-performance gRPC streaming via Yellowstone Geyser
 - Exclusive access with no resource competition
-- Predictable performance under all conditions
+- Ultra-low latency for real-time data feeds
 - Enhanced security and isolation
-- Customizable configurations
 - Predictable billing regardless of usage patterns
+
+**Important**: Dedicated nodes should be combined with a shared plan for full functionality, as they do not support archival data. While `sendTransaction` and `getProgramAccounts` are supported, they are not optimized - `sendTransaction` will cause most transactions to not land, and heavy `getProgramAccounts` usage can impact node performance or cause node failure.
 
 <Card title="Learn more about Dedicated Nodes" icon="arrow-right" href="/dedicated-nodes">
   Explore the benefits of Dedicated Nodes.
