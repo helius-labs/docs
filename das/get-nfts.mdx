@@ -47,7 +47,13 @@ const fetchTokenPriceData = async () => {
   
   // Calculate market cap
   if (data.result?.token_info?.price_info) {
-    const marketCap = data.result.token_info.price_info.price_per_token * data.result.token_info.supply;
+    const { price_per_token } = data.result.token_info.price_info;
+    const { supply, decimals } = data.result.token_info;
+    
+    // Adjust supply for decimals
+    const adjustedSupply = supply / Math.pow(10, decimals);
+    const marketCap = price_per_token * adjustedSupply;
+    
     console.log(`Market Cap: $${marketCap.toLocaleString()}`);
   }
   
@@ -80,13 +86,14 @@ The price data is available in the response under `token_info.price_info`:
 
 ### Calculating Market Cap
 
-To calculate a token's market cap, multiply its price by the total supply:
+To calculate a token's market cap, multiply its price by the adjusted supply (accounting for decimals):
 
 ```typescript
-const marketCap = pricePerToken * supply;
+const adjustedSupply = supply / Math.pow(10, decimals);
+const marketCap = pricePerToken * adjustedSupply;
 ```
 
-This calculation gives you the total market valuation of the token.
+This calculation gives you the total market valuation of the token by properly accounting for the token's decimal places.
 
 ## Working with NFTs and Digital Collectibles
 
