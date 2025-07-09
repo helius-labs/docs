@@ -1,57 +1,145 @@
 ---
-title: Data Streaming
-sidebarTitle: Overview
-description: Get real-time data from the Solana blockchain.
+title: "Solana Data Streaming"
+sidebarTitle: "Overview"
+description: "Stream real-time Solana blocks, account updates, transaction data, and blockchain events. LaserStream gRPC, Enhanced WebSockets, and Webhooks solutions."
 ---
 
-## Introduction
+## What is Data Streaming on Solana?
 
-Helius Data Streaming allows you to receive real-time data from the Solana blockchain, including transactions, accounts, logs, blocks, and more. Our streaming solutions are designed for reliability, low latency, and high throughput, making them perfect for applications that need up-to-the-second data.
+Data streaming allows applications to receive real-time updates from the Solana blockchain as events occur on-chain. Instead of repeatedly polling for updates, streaming establishes persistent connections that push data to your application instantly when transactions are processed, accounts change, or blocks are produced.
 
-## Available Streaming Options
+This is essential for applications that require up-to-the-second data such as:
 
-### Standard WebSockets
+- **Trading applications** monitoring price changes and liquidations
+- **DeFi protocols** tracking user interactions and state changes  
+- **NFT marketplaces** detecting sales, listings, and transfers
+- **Analytics platforms** collecting comprehensive blockchain metrics
+- **Wallets** showing real-time balance and transaction updates
 
-The simplest way to stream data from Solana, using the standard Solana WebSocket API. These are compatible with any Solana client that supports WebSockets.
-
-<Card title="WebSocket" href="/rpc/websocket">
-Standard Solana WebSocket methods with Helius reliability enhancements
-</Card>
-
-### LaserStream
-
-Our premium streaming solution with advanced features:
-
-<Card title="LaserStream" href="/laserstream">
-High-performance streaming with multiple protocols and historical replay
-</Card>
-
-LaserStream offers:
-
-- **Multiple Protocol Support**: gRPC, Enhanced WebSockets
-- **Historical Replay**: Never miss data even if your connection drops
-- **Enhanced Reliability**: Aggregates data from multiple nodes to ensure you stay synced
-- **Low Latency**: Optimized for minimal delay in data delivery
-
-#### LaserStream Protocol Options
+## Why Choose Helius for Data Streaming?
 
 <CardGroup cols={2}>
-  <Card title="gRPC" href="/laserstream/grpc">
-    High-performance binary protocol ideal for backend applications
+  <Card title="Ultra-Low Latency" icon="bolt">
+    Direct connections to Solana leaders ensure sub-second data delivery
   </Card>
-  <Card title="WebSocket (Coming Soon)" icon="clock">
-    Enhanced WebSockets with additional filtering options - currently in development
+  <Card title="Enterprise Reliability" icon="shield-check">
+    Multi-node redundancy and automatic failover for 99.9% uptime
+  </Card>
+  <Card title="Historical Replay" icon="clock-rotate-left">
+    Never miss data with automatic backfill capabilities
+  </Card>
+  <Card title="Global Infrastructure" icon="globe">
+    Endpoints in multiple regions for optimal performance worldwide
   </Card>
 </CardGroup>
 
-## Getting Started
+## Helius Streaming Solutions
 
-Ready to start streaming data? Check out our quickstart guide:
+We offer multiple streaming options to match your application's specific needs, from simple WebSocket connections to enterprise-grade streaming infrastructure.
 
-<Card title="Quickstart" href="/data-streaming/quickstart">
-Get up and running with Helius data streaming in minutes
+### LaserStream (Professional+)
+
+**Next-generation streaming with advanced features**
+
+<Card title="LaserStream" icon="rocket" href="/laserstream">
+  High-performance streaming with gRPC protocol, historical replay, and multi-node reliability
 </Card>
 
-## Need Help?
+**Key Features:**
+- **Historical Replay**: Automatically backfill up to 3000 slots (~20 minutes) of missed data
+- **Multi-Protocol Support**: gRPC available now, WebSockets coming soon
+- **Auto-Reconnection**: Built-in connection management with intelligent retry logic
+- **Global Endpoints**: Available in 7+ regions worldwide for optimal latency
+- **Drop-in Replacement**: Compatible with existing Yellowstone gRPC implementations
 
-Join our [Discord](https://discord.com/invite/6GXdee3gBj) or [Telegram](https://t.me/helius_help) communities for support and discussions about our data streaming solutions. 
+**Best For:** Backend services, high-throughput applications, mission-critical systems requiring guaranteed data delivery
+
+### Enhanced WebSockets (Business+)
+
+**High-performance WebSockets with advanced filtering**
+
+<Card title="Enhanced WebSockets" icon="signal-stream" href="/enhanced-websockets">
+  Faster WebSocket connections with enhanced account and transaction subscriptions
+</Card>
+
+**Key Features:**
+- **Faster Response Times**: Optimized for lower latency than standard WebSockets
+- **Enhanced Filtering**: Advanced subscription options for precise data targeting
+- **Account & Transaction Subscriptions**: Monitor specific accounts or transaction patterns
+- **Atlas Infrastructure**: Powered by our high-performance streaming backend
+
+**Best For:** Real-time frontend applications, moderate-volume backends, custom filtering requirements
+
+### Standard WebSockets
+
+**Solana-compatible WebSocket API with Helius reliability**
+
+<Card title="Standard WebSockets" icon="wifi" href="/rpc/websocket">
+  Standard Solana WebSocket methods enhanced with Helius infrastructure reliability
+</Card>
+
+**Key Features:**
+- **Full Compatibility**: Works with any Solana WebSocket client library
+- **Standard Methods**: All supported Solana subscription types (accounts, programs, logs, signatures, slots)
+- **Multiple Networks**: Available on mainnet and devnet
+- **Helius Reliability**: Enhanced uptime and performance over standard RPC nodes
+
+**Best For:** Existing applications, standard use cases, broad compatibility requirements
+
+### Webhooks
+
+**Event-driven notifications delivered to your endpoints**
+
+<Card title="Webhooks" icon="webhook" href="/webhooks">
+  Server-to-server event notifications for specific on-chain activities
+</Card>
+
+**Key Features:**
+- **Parsed Event Data**: Human-readable transaction data for sales, swaps, and more
+- **Multiple Types**: Enhanced, raw, and Discord webhook options
+- **Transaction Filtering**: Subscribe to specific event types and addresses
+- **Reliable Delivery**: Automatic retries and delivery confirmations
+
+**Best For:** Event-driven architectures, notification systems, integrations with external services
+
+
+
+
+## Getting Started
+
+<Steps>
+  <Step title="Choose Your Solution">
+    Select the streaming method that best fits your application requirements and infrastructure.
+  </Step>
+  <Step title="Get Your API Key">
+    Sign up at [dashboard.helius.dev](https://dashboard.helius.dev) and obtain your API key.
+  </Step>
+  <Step title="Follow the Quickstart">
+    Each solution has dedicated quickstart guides and code examples.
+  </Step>
+  <Step title="Monitor & Scale">
+    Use the Helius dashboard to monitor usage and scale your plan as needed.
+  </Step>
+</Steps>
+
+<Card title="Data Streaming Quickstart" icon="play" href="/data-streaming/quickstart">
+  Get up and running with your first streaming connection in minutes
+</Card>
+
+
+
+## Support & Community
+
+<CardGroup cols={3}>
+  <Card title="Documentation" icon="book-open" href="/api-reference">
+    Comprehensive API references and guides for all streaming methods
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Join thousands of developers building on Solana with Helius
+  </Card>
+  <Card title="Enterprise Support" icon="headset" href="/support">
+    Priority support channels for business and professional customers
+  </Card>
+</CardGroup>
+
+Ready to start streaming Solana data? Choose your preferred method above and dive into the documentation! 

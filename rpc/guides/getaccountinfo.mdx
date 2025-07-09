@@ -105,6 +105,39 @@ async function getAccountDetails() {
 
 getAccountDetails();
 ```
+
+```typescript Kit
+import { address, createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const publicKey = address("vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg");
+const accountInfo = await rpc.getAccountInfo(publicKey).send();
+
+console.log("Account Info:", accountInfo);
+```
+
+```rust Rust
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
+use anyhow::Result;
+use std::str::FromStr;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed()
+    );
+    let pubkey = Pubkey::from_str("vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg")?;
+    let account = client.get_account(&pubkey).await?;
+
+    println!("{:#?}", account);
+
+    Ok(())
+}
+```
 </CodeGroup> 
 
 ## Developer Tips

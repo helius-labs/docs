@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "palm",
+  "theme": "maple",
   "name": "Helius Docs",
   "colors": {
     "primary": "#E84125",
@@ -25,6 +25,10 @@
   "appearance": {
     "default": "dark"
   },
+  "banner": {
+    "content": "LaserStream and Sender are now live! Experience ultra-fast data streaming and optimized transaction sending. [Learn about LaserStream](/laserstream) | [Learn about Sender](/sending-transactions/sender)",
+    "dismissible": true
+  },
   "contextual": {
     "options": [
       "copy",
@@ -32,10 +36,6 @@
       "chatgpt",
       "claude"
     ]
-  },
-  "banner": {
-    "content": "🚀  New: LaserStream - Ultra-low latency data streaming is now available! [Learn More](/docs/laserstream)",
-    "dismissible": true
   },
   "integrations": {
     "posthog": {
@@ -83,14 +83,14 @@
           {
             "group": "Solana RPC Nodes",
             "pages": [
-              "solana-rpc-nodes",
-              "rpc/quickstart",
-              "rpc/devnet-sol",
+              "rpc/overview",
               "rpc/protect-your-keys",
+              "rpc/devnet-sol",
               "rpc/optimization-techniques",
               {
-                "group": "RPC Guides",
+                "group": "RPC Method Guides",
                 "pages": [
+                  "rpc/guides/overview",
                   "rpc/guides/getaccountinfo",
                   "rpc/guides/getbalance",
                   "rpc/guides/getblock",
@@ -166,24 +166,24 @@
                 ]
               },
               {
-                "group": "Enhanced Websockets (Beta)",
-                "pages": [
-                  "enhanced-websockets",
-                  "enhanced-websockets/transaction-subscribe",
-                  "enhanced-websockets/account-subscribe",
-                  "enhanced-websockets/stream-pump-amm-data"
-                ]
-              },
-              {
                 "group": "Yellowstone gRPC",
                 "pages": [
                   "grpc",
                   "grpc/quickstart",
                   "grpc/account-monitoring",
                   "grpc/transaction-monitoring",
-                  "grpc/entry-monitoring",
                   "grpc/slot-and-block-monitoring",
+                  "grpc/entry-monitoring",
                   "grpc/stream-pump-amm-data"
+                ]
+              },
+              {
+                "group": "Enhanced Websockets",
+                "pages": [
+                  "enhanced-websockets",
+                  "enhanced-websockets/transaction-subscribe",
+                  "enhanced-websockets/account-subscribe",
+                  "enhanced-websockets/stream-pump-amm-data"
                 ]
               },
               {
@@ -198,8 +198,7 @@
                 "pages": [
                   "webhooks",
                   "webhooks/transaction-types",
-                  "webhooks/faqs",
-                  "webhooks/cnft-event-listening"
+                  "webhooks/faqs"
                 ]
               }
             ]
@@ -216,8 +215,7 @@
                 "pages": [
                   "priority-fee-api",
                   "priority-fee/estimating-fees-using-serialized-transaction",
-                  "priority-fee/estimating-fees-using-account-keys",
-                  "priority-fee/best-practices"
+                  "priority-fee/estimating-fees-using-account-keys"
                 ]
               }
             ]
@@ -251,7 +249,15 @@
             "group": "Compression",
             "pages": [
               "nfts/nft-compression",
-              "zk-compression/introduction"
+              "nfts/cnft-event-listening",
+              "zk-compression/introduction",
+              {
+                "group": "Helius AirShip",
+                "pages": [
+                  "airship/overview",
+                  "airship/getting-started"
+                ]
+              }
             ]
           },
           {
@@ -271,6 +277,7 @@
             "group": "Resources",
             "pages": [
               "sdks",
+              "mcp",
               "changelog"
             ]
           }
@@ -508,6 +515,39 @@
           }
         ]
       },
+              {
+          "anchor": "FAQs",
+          "icon": "question",
+          "groups": [
+            {
+              "group": "Getting Started & Setup",
+              "pages": [
+                "support/frequently-asked-questions"
+              ]
+            },
+            {
+              "group": "Billing & Payments",
+              "pages": [
+                "billing/plans-and-rate-limits",
+                "billing/pay-with-crypto"
+              ]
+            },
+            {
+              "group": "APIs & Data Access",
+              "pages": [
+                "das/get-nfts",
+                "enhanced-transactions"
+              ]
+            },
+            {
+              "group": "Real-time Data & Streaming",
+              "pages": [
+                "webhooks/faqs",
+                "laserstream/grpc"
+              ]
+            }
+          ]
+        },
       {
         "anchor": "Support",
         "icon": "headset",
@@ -516,7 +556,6 @@
             "group": "Support",
             "pages": [
               "support/contact-support",
-              "support/frequently-asked-questions",
               "support/status-page"
             ]
           }
@@ -535,7 +574,7 @@
   "navbar": {
     "primary": {
       "type": "button",
-      "label": "Dashboard",
+      "label": "Start Building",
       "href": "https://dashboard.helius.dev"
     }
   },

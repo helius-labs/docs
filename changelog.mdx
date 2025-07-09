@@ -1,7 +1,7 @@
 ---
-title: "Changelog"
-description: "Stay up-to-date with the latest Helius updates, new features, improvements, and changes to our APIs and services."
-sidebarTitle: "Changelog"
+title: "Helius Changelog: Latest Updates & Features"
+sidebarTitle: "Helius Changelog"
+description: "Stay up-to-date with the latest Helius Solana API updates, new features, improvements, and changes. LaserStream, webhooks, RPC enhancements, and more."
 ---
 
 # Changelog
@@ -13,6 +13,112 @@ Want to stay updated? Join our [Discord community](https://discord.com/invite/6G
 </Note>
 
 ---
+
+<Update label="June 2024">
+  ## Transaction Sender Beta Launch
+
+  **June 30, 2024**
+
+  Our new transaction sender is now open to the public in beta with many more improvements to come.
+
+  **Key Features:**
+  - **Parallel Sending**: Simultaneous transmission to both Jito and Helius SWQOS, which has the highest stake on the network
+  - **7 Regional Endpoints**: Network optimized endpoints to reduce latency
+  - **Beta Access**: Available now through your dashboard
+
+  **To Access:**
+  Navigate to Dashboard → Sender (on the left sidebar)
+
+  <Note>
+  We'd love feedback to improve the sender as we're making active improvements every day.
+  </Note>
+
+  <CardGroup cols={2}>
+    <Card
+      title="Transaction Sender Guide"
+      icon="paper-plane"
+      href="/sending-transactions/sender"
+    >
+      Learn how to use the new transaction sender
+    </Card>
+    <Card
+      title="Sending Transactions Overview"
+      icon="server"
+      href="/sending-transactions/overview"
+    >
+      Explore all transaction sending options
+    </Card>
+  </CardGroup>
+
+  ## Jito Bundle Simulation Support
+
+  **June 25, 2024**
+
+  You can now use Helius RPCs for simulating Jito bundles, enabling you to test and validate your bundle transactions before submission.
+
+  **What's New:**
+  - **Bundle Simulation**: Test your Jito bundles using Helius infrastructure
+  - **Pre-submission Validation**: Catch potential issues before sending bundles to the network
+  - **Seamless Integration**: Works with existing Helius RPC endpoints
+
+  <CardGroup cols={2}>
+    <Card
+      title="Simulate Bundle API"
+      icon="code"
+      href="/api-reference/rpc/http/simulatebundle"
+    >
+      View the simulateBundle API documentation
+    </Card>
+    <Card
+      title="RPC Methods"
+      icon="server"
+      href="/rpc/overview"
+    >
+      Explore all available RPC methods
+    </Card>
+  </CardGroup>
+
+  ## LaserStream Public Release
+
+  **June 18, 2024**
+
+  Today, Solana gets a huge upgrade. We are finally releasing LaserStream — the fastest, most reliable way of streaming Solana blocks, transactions, and account data via gRPC.
+
+  **LaserStream Features:**
+  - **Optimized Shredstream**: Receive data before anyone else
+  - **Historical Replay & Persistence**: If you disconnect, start from the slot where you disconnected and never miss data
+  - **Extreme Redundancy**: Powered by many redundant node clusters so you never worry about downtime or your stream falling behind
+  - **Regional Endpoints**: Available in all major regions (Tokyo, Frankfurt, Newark, Pittsburgh, Salt Lake City, Amsterdam, Singapore) — no need to wait for node availability or buy an entire node
+  - **Massive Scale**: Listen up to 250,000 addresses per connection; up to 100 simultaneous connections
+  - **Ready-to-Go Client SDKs**: Optional SDKs available for easy integration
+  - **gRPC Compatible**: Works with existing gRPC code
+
+  **Getting Started:**
+  - Have a professional Helius plan
+  - Read the documentation
+  - Open your dashboard and click LaserStream
+
+  <Note>
+  LaserStream-powered WebSocket streaming coming soon!
+  </Note>
+
+  <CardGroup cols={2}>
+    <Card
+      title="LaserStream Documentation"
+      icon="bolt"
+      href="/laserstream"
+    >
+      Get started with LaserStream
+    </Card>
+    <Card
+      title="LaserStream gRPC Guide"
+      icon="code"
+      href="/laserstream/grpc"
+    >
+      Learn about LaserStream gRPC implementation
+    </Card>
+  </CardGroup>
+</Update>
 
 <Update label="May 2024">
   ## Staked Transactions Are the New Default

@@ -1,12 +1,8 @@
 ---
-title: "How to get Assets"
+title: "How to Get Solana Assets: NFTs, Tokens & Price Data"
 sidebarTitle: 'Get Assets'
-description: "Learn how to retrieve and query data for all Solana assets including NFTs and SPL tokens using Helius APIs"
+description: "Learn how to retrieve and query Solana NFTs, SPL tokens, and price data using Helius DAS APIs. Complete guide with code examples and best practices."
 ---
-
-<Note>
-**Quick Reference**: Use `getAsset` for single assets, `getAssetsByOwner` for wallet holdings, `searchAssets` for filtered queries, and access real-time price data for Jupiter verified tokens.
-</Note>
 
 The Helius Digital Asset Standard (DAS) API provides powerful tools for reading and querying both NFT and token data on Solana. This guide shows you how to work with different types of Solana assets effectively.
 
@@ -51,7 +47,13 @@ const fetchTokenPriceData = async () => {
   
   // Calculate market cap
   if (data.result?.token_info?.price_info) {
-    const marketCap = data.result.token_info.price_info.price_per_token * data.result.token_info.supply;
+    const { price_per_token } = data.result.token_info.price_info;
+    const { supply, decimals } = data.result.token_info;
+    
+    // Adjust supply for decimals
+    const adjustedSupply = supply / Math.pow(10, decimals);
+    const marketCap = price_per_token * adjustedSupply;
+    
     console.log(`Market Cap: $${marketCap.toLocaleString()}`);
   }
   
@@ -84,13 +86,14 @@ The price data is available in the response under `token_info.price_info`:
 
 ### Calculating Market Cap
 
-To calculate a token's market cap, multiply its price by the total supply:
+To calculate a token's market cap, multiply its price by the adjusted supply (accounting for decimals):
 
 ```typescript
-const marketCap = pricePerToken * supply;
+const adjustedSupply = supply / Math.pow(10, decimals);
+const marketCap = pricePerToken * adjustedSupply;
 ```
 
-This calculation gives you the total market valuation of the token.
+This calculation gives you the total market valuation of the token by properly accounting for the token's decimal places.
 
 ## Working with NFTs and Digital Collectibles
 
@@ -327,7 +330,7 @@ The DAS API offers several methods for working with NFTs and digital collectible
 <CardGroup cols={4}>
   <Card title="By Creator" icon="user" href="/api-reference/das/getassetsbycreator">API Reference</Card>
   <Card title="By Collection" icon="layer-group" href="/api-reference/das/getassetsbygroup">API Reference</Card>
-  <Card title="Transaction History" icon="history" href="/api-reference/das/getsignaturesforasset">API Reference</Card>
+  <Card title="Transaction History" icon="clock" href="/api-reference/das/getsignaturesforasset">API Reference</Card>
   <Card title="On-Chain Proof" icon="check-double" href="/api-reference/das/getassetproof">API Reference</Card>
 </CardGroup>
 

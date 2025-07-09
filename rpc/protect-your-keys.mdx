@@ -1,41 +1,266 @@
 ---
-title: "Protect Your Keys"
+title: "Protect Your Solana API Keys: Security Best Practices"
 sidebarTitle: "Protect Your Keys"
-description: "How to stop your Helius plans from being abused by malicious actors."
+description: "Secure your Helius Solana API keys from malicious actors. Access control rules, RPC proxy, and security best practices to prevent unauthorized usage and charges."
 ---
 
-A common problem when working with RPCs or APIs on the client side is your API keys leaking.
+<Warning>
+**API Key Security Alert**: Exposed API keys can lead to unauthorized usage, quota exhaustion, and unexpected charges. Always protect your keys in production applications.
+</Warning>
 
-Malicious actors can run up your [quota or rate limits](/billing/plans-and-rate-limits) if they get access to your keys.
+## Why Key Protection Matters
 
-Helius provides multiple options to protect your API keys:
+When you expose API keys on the client side, malicious actors can discover and abuse them, potentially:
 
-## RPC Access Control Rules
+<CardGroup cols={2}>
+  <Card title="Exhaust Your Quota" icon="gauge-high">
+    Malicious usage can quickly consume your API limits and cause service interruptions
+  </Card>
+  <Card title="Increase Your Bills" icon="credit-card">
+    Unauthorized requests can trigger auto-scaling charges or push you over plan limits
+  </Card>
+  <Card title="Compromise Security" icon="shield-exclamation">
+    Exposed keys can provide access to sensitive data and operations
+  </Card>
+  <Card title="Damage Performance" icon="triangle-exclamation">
+    High unauthorized usage can impact your application's performance
+  </Card>
+</CardGroup>
 
-You can configure access controls directly in your Helius dashboard to restrict who can use your endpoints:
+## Protection Methods
 
-<Frame caption="Configure RPC Access Control Rules in the Endpoints section of your dashboard.">
-  <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="Configure RPC Access Control Rules in the Endpoints section of your dashboard." />
-</Frame>
+Helius provides multiple layers of protection to secure your API keys:
 
-Available rule types:
+<Tabs>
+  <Tab title="RPC Proxy">
+    Deploy your own proxy for maximum security and control.
 
-- **Allowed Domains**: Restrict access for your RPCs to specific domains that you enter here.
-- **Allowed IPs**: Restrict access for your RPCs to specific IP addresses that you enter here.
-- **Allowed CIDRs**: Restrict access for your RPCs to specific CIDR-notation IP ranges that you enter here.
+    <Card title="Helius RPC Proxy" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
+      A simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare.
+    </Card>
 
-## Secure URL Option
+    ### Benefits of Using a Proxy
 
-This URL hides your API key and is limited to 5 tps per IP. This is ideal for using in frontend applications where you don't want to worry about leaking your API key.
+    <CardGroup cols={2}>
+      <Card title="Complete Key Protection" icon="lock">
+        Your API key stays server-side, never exposed to clients
+      </Card>
+      <Card title="Custom Rate Limiting" icon="gauge">
+        Implement your own rate limiting and usage controls
+      </Card>
+      <Card title="Request Filtering" icon="filter">
+        Filter and validate requests before they reach Helius
+      </Card>
+      <Card title="Usage Analytics" icon="chart-line">
+        Monitor and analyze your API usage patterns
+      </Card>
+    </CardGroup>
+  </Tab>
+  <Tab title="Access Control Rules">
+    Configure precise access controls in your Helius dashboard to restrict API usage.
 
-## Cloudflare RPC Proxy
+    <Frame caption="Configure RPC Access Control Rules in the Endpoints section of your dashboard.">
+      <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="Configure RPC Access Control Rules in the Endpoints section of your dashboard." />
+    </Frame>
 
-For more advanced protection, using a proxy is the recommended solution.
+    ### Available Rule Types
 
-We've setup a simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare:
+    <AccordionGroup>
+      <Accordion title="Allowed Domains">
+        Restrict access to specific domains - perfect for web applications.
 
-<Card title="RPC Proxy" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
-  A simple, open-source RPC proxy that you can deploy with 1-click to Cloudflare.
-</Card>
+        **Use cases:**
+        - Production websites (`yourdapp.com`)
+        - Development environments (`localhost:3000`)
+        - Staging environments (`staging.yourdapp.com`)
 
-This proxy acts as a secure intermediary between your application and the Helius RPC, keeping your API key protected server-side.
+        **Example configuration:**
+        ```
+        yourdapp.com
+        www.yourdapp.com
+        localhost:3000
+        ```
+      </Accordion>
+
+      <Accordion title="Allowed IPs">
+        Restrict access to specific IP addresses - ideal for server applications.
+
+        **Use cases:**
+        - Backend servers with static IPs
+        - CI/CD pipelines
+        - Specific development machines
+
+        **Example configuration:**
+        ```
+        192.168.1.100
+        203.0.113.1
+        198.51.100.42
+        ```
+      </Accordion>
+
+      <Accordion title="Allowed CIDRs">
+        Restrict access to IP ranges using CIDR notation - great for enterprise networks.
+
+        **Use cases:**
+        - Corporate networks
+        - Cloud provider IP ranges
+        - Private networks
+
+        **Example configuration:**
+        ```
+        192.168.0.0/16
+        10.0.0.0/8
+        172.16.0.0/12
+        ```
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+
+  <Tab title="Secure URL">
+    Use our secure URL for frontend applications without exposing your API key.
+
+    <Info>
+    **Rate Limited**: Secure URLs are limited to 5 transactions per second (TPS) per IP address, making them perfect for frontend applications.
+    </Info>
+
+    ### How to Use Secure URLs
+
+    <Steps>
+      <Step title="Get Your Secure URL">
+        Find your secure URL in the Helius dashboard under the Endpoints section
+      </Step>
+      <Step title="Replace Your Regular RPC URL">
+        Use the secure URL instead of your regular RPC URL with API key
+      </Step>
+      <Step title="No API Key Required">
+        The secure URL doesn't require an API key parameter
+      </Step>
+    </Steps>
+
+    ```javascript
+    // Instead of this (exposes API key):
+    const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+    // Use this (secure, no API key exposed):
+    const connection = new Connection('https://your-secure-url.helius-rpc.com');
+    ```
+
+    <Note>
+    **Perfect for**: Frontend applications, mobile apps, and any client-side code where you can't hide the API key.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+<CardGroup cols={1}>
+  <Card title="Environment Variables" icon="code">
+    Never hardcode API keys in your source code. Use environment variables instead.
+
+    ```javascript
+    // ❌ Don't do this
+    const apiKey = "your-api-key-here";
+
+    // ✅ Do this instead
+    const apiKey = process.env.HELIUS_API_KEY;
+    ```
+  </Card>
+
+  <Card title="Separate Keys for Different Environments" icon="layers">
+    Use different API keys for development, staging, and production environments.
+
+    ```javascript
+    const getApiKey = () => {
+      switch (process.env.NODE_ENV) {
+        case 'production':
+          return process.env.HELIUS_API_KEY_PROD;
+        case 'staging':
+          return process.env.HELIUS_API_KEY_STAGING;
+        default:
+          return process.env.HELIUS_API_KEY_DEV;
+      }
+    };
+    ```
+  </Card>
+
+  <Card title="Regular Key Rotation" icon="arrows-rotate">
+    Rotate your API keys regularly and immediately if you suspect they've been compromised.
+
+    <Steps>
+      <Step title="Generate New Key">
+        Create a new API key in your Helius dashboard
+      </Step>
+      <Step title="Update Applications">
+        Update all applications to use the new key
+      </Step>
+      <Step title="Test Thoroughly">
+        Ensure all services are working with the new key
+      </Step>
+      <Step title="Revoke Old Key">
+        Delete the old key from your dashboard
+      </Step>
+    </Steps>
+  </Card>
+
+  <Card title="Monitor Usage" icon="chart-line">
+    Regularly check your API usage in the Helius dashboard for unusual patterns.
+
+    **Red flags to watch for:**
+    - Sudden spikes in usage
+    - Requests from unexpected locations
+    - High error rates
+    - Usage during off-hours
+  </Card>
+</CardGroup>
+
+## Security Checklist
+
+<AccordionGroup>
+  <Accordion title="✅ Development Security">
+    - [ ] Use environment variables for API keys
+    - [ ] Never commit API keys to version control
+    - [ ] Use different keys for different environments
+    - [ ] Set up access control rules for development domains
+    - [ ] Use secure URLs for frontend development
+  </Accordion>
+
+  <Accordion title="✅ Production Security">
+    - [ ] Implement proper access control rules
+    - [ ] Use RPC proxy for maximum security
+    - [ ] Monitor API usage regularly
+    - [ ] Set up alerts for unusual usage patterns
+    - [ ] Rotate keys regularly
+    - [ ] Document your security procedures
+  </Accordion>
+
+  <Accordion title="✅ Emergency Response">
+    - [ ] Have a key rotation procedure ready
+    - [ ] Know how to quickly revoke compromised keys
+    - [ ] Monitor for security breaches
+    - [ ] Have contact information for Helius support
+    - [ ] Keep backups of your security configurations
+  </Accordion>
+</AccordionGroup>
+
+## Common Mistakes to Avoid
+
+<Warning>
+**Avoid these common security pitfalls:**
+
+1. **Hardcoding keys in frontend JavaScript** - Always use secure URLs or proxies
+2. **Committing keys to Git repositories** - Use environment variables and `.gitignore`
+3. **Using production keys for development** - Separate keys for different environments
+4. **Not setting access control rules** - Always configure domain/IP restrictions
+5. **Ignoring unusual usage patterns** - Monitor your dashboard regularly
+</Warning>
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Discord Community" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Get help from the community and Helius team
+  </Card>
+  <Card title="Support Team" icon="headset" href="/support">
+    Contact our support team for security concerns
+  </Card>
+</CardGroup>

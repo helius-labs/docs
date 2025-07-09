@@ -1,1016 +1,474 @@
 ---
-title: RPC Optimization Techniques
-sidebarTitle: Optimization Techniques
-description: In-depth technical insights into optimizing Solana RPC usage.
+title: "Solana RPC Optimization: Performance & Cost Best Practices"
+sidebarTitle: "Optimization Techniques"
+description: "Optimize Solana RPC performance, reduce costs, and improve reliability. Transaction optimization, data retrieval patterns, and best practices guide."
 ---
 
-> Optimizing RPC usage can significantly improve performance, reduce costs, and enhance user experience.
+Optimizing RPC usage can significantly improve performance, reduce costs, and enhance user experience. This guide covers proven techniques for efficient Solana RPC interactions.
 
-## Transaction Optimization Patterns
+## Quick Start
 
-Follow these best practices for optimizing Solana transaction sending and confirmation. For a detailed guide, visit [Helius Transaction Optimization Guide](/sending-transactions/staked-connections).
+<CardGroup cols={2}>
+  <Card title="Transaction Optimization" icon="bolt" href="#transaction-optimization">
+    Optimize compute units, priority fees, and transaction sending
+  </Card>
+  <Card title="Data Retrieval" icon="database" href="#data-retrieval-optimization">
+    Efficient patterns for fetching account and program data
+  </Card>
+  <Card title="Real-time Monitoring" icon="chart-line" href="#real-time-monitoring">
+    WebSocket subscriptions and streaming data optimization
+  </Card>
+  <Card title="Best Practices" icon="shield-check" href="#best-practices">
+    Performance guidelines and resource management
+  </Card>
+</CardGroup>
 
-### Optimize Compute Unit (CU) Usage
+## Transaction Optimization
 
-**Simulate CUs Used:** Test your transaction to determine CU usage. Example:
+### Compute Unit Management
 
-```js
-const rpcResponse = await connection.simulateTransaction(testTransaction, { replaceRecentBlockhash: true, sigVerify: false });
-const unitsConsumed = rpcResponse.value.unitsConsumed;
+**1. Simulate to determine actual usage:**
+
+```typescript
+const testTransaction = new VersionedTransaction(/* your transaction */);
+const simulation = await connection.simulateTransaction(testTransaction, {
+  replaceRecentBlockhash: true,
+  sigVerify: false
+});
+const unitsConsumed = simulation.value.unitsConsumed;
 ```
 
-**Set a CU Limit:** Add a margin (~10%) to the simulated value:
+**2. Set appropriate limits with margin:**
 
-```js
-const computeUnitIx = ComputeBudgetProgram.setComputeUnitLimit({ units: Math.ceil(unitsConsumed * 1.1) });
-instructions.push(computeUnitIx);
+```typescript
+const computeUnitLimit = Math.ceil(unitsConsumed * 1.1);
+const computeUnitIx = ComputeBudgetProgram.setComputeUnitLimit({ 
+  units: computeUnitLimit 
+});
+instructions.unshift(computeUnitIx); // Add at beginning
 ```
 
-### Serialize & Encode Transactions
+### Priority Fee Optimization
 
-Serialize and Base58 encode your transaction for APIs:
+**1. Get dynamic fee estimates:**
 
-```js
-const serializedTx = testTransaction.serialize();
-const encodedTx = bs58.encode(serializedTx);
+```typescript
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    method: 'getPriorityFeeEstimate',
+    params: [{
+      accountKeys: ['11111111111111111111111111111112'], // System Program
+      options: { recommended: true }
+    }]
+  })
+});
+const { priorityFeeEstimate } = await response.json().result;
 ```
 
-### Set Priority Fees
+**2. Apply the priority fee:**
 
-**Get Fee Estimate:** Fetch a recommended priority fee from Helius:
-
-```js
-const response = await fetch(HeliusURL, { method: "POST", body: JSON.stringify({ method: "getPriorityFeeEstimate", params: [...] }) });
-const priorityFee = (await response.json()).result.priorityFeeEstimate;
+```typescript
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ 
+  microLamports: priorityFeeEstimate 
+});
+instructions.unshift(priorityFeeIx);
 ```
 
-**Apply the Fee:**
-
-```js
-const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee });
-instructions.push(computeBudgetIx);
-```
-
-### Send & Confirm Transactions
-
-* Assemble, serialize, and send your transaction using `sendTransaction` or `sendRawTransaction`.
-* **Tip:** Set `skipPreflight: true` to reduce transaction time by ~100ms, but note the loss of pre-validation.
-
-### Monitor & Rebroadcast
-
-If a transaction isn't confirmed:
-
-<Steps>
-  <Step title="Check Status">
-    Use `getSignatureStatuses` to check its status.
-  </Step>
-  <Step title="Rebroadcast">
-    Rebroadcast until the blockhash expires.
-  </Step>
-</Steps>
-
-For a comprehensive breakdown, visit [our guide](/sending-transactions/staked-connections).
-
-## When to Use Jito Tips
-
-### Key Facts
-
-#### Bundles
-Groups of up to 5 transactions executed sequentially and atomically via Jito.
-
-#### Tips
-Incentives for block builders to execute bundles.
-
-#### Auctions
-Bundles compete via out-of-protocol auctions every 200ms based on tip amounts.
-
-#### Validators
-Only Jito-Solana client validators (currently >90% of stake) can process bundles.
-
-#### Prioritization
-Tips, compute efficiency, and account locking patterns determine bundle order.
-
-#### Use Cases
-Ideal for landing transactions at the top of a block.
-
-### Use Cases for Jito Tips
-
-#### MEV Opportunities
-Arbitrage trading, liquidation transactions, front-running protection, specific transaction ordering.
-
-#### Time-Critical DeFi Operations
-Token launches, high-volatility trades, NFT mints.
-
-#### High-Stakes Transactions
-Immediate settlement or time-sensitive interactions.
-
-### Examples of Jito Usage
-
-<Steps>
-  <Step title="Arbitrage Trading">
-    A trader identifies a price difference between two decentralized exchanges (DEXs). Using Jito tips ensures their arbitrage transaction is processed at the top of the block, securing profit before others can react.
-  </Step>
-  <Step title="NFT Minting">
-    During a high-demand mint, competition is fierce. Adding Jito tips guarantees priority placement in the block, increasing the chances of a successful mint.
-  </Step>
-  <Step title="Liquidation Transactions">
-    In lending protocols, liquidations can be time-critical. Jito tips allow the liquidator's transaction to execute ahead of others, ensuring timely liquidation and profit capture.
-  </Step>
-</Steps>
-
-### Best Practices for Jito Tips
+### Transaction Sending Best Practices
 
 <Tabs>
-  <Tab title="When to Use">
-    * **Use Tips for Priority**: Apply Jito tips only when transaction timing and order are critical.
-    * **Avoid Overusing Tips**: Routine actions like token transfers or minor interactions typically don't benefit from Jito tips.
-  </Tab>
-  <Tab title="Optimization">
-    * **Optimize for Efficiency**:
-      * Assess the urgency and value of the transaction.
-      * Ensure compute resources and account locking patterns are optimal to avoid unnecessary tip spending.
-    * **Monitor Network Conditions**: High congestion may necessitate higher tips to compete effectively.
-  </Tab>
-</Tabs>
-
-### Evaluation Checklist Before Using Jito Tips
-
-<CheckboxList>
-  - Is the transaction time-sensitive?
-  - Does the transaction require specific ordering in the block?
-  - Are the accounts being accessed under high contention (hot state)?
-  - What is the potential ROI compared to the cost of the tip?
-  - Are current network conditions favorable for using Jito?
-</CheckboxList>
-
-## JavaScript/TypeScript Optimization Tips for Solana
-
-### Lazy Loading
-
-Load components only when needed to reduce initial load time:
-
-```javascript
-if (condition) {
-  const module = await import("./heavyModule.js");
-  module.doSomething();
-}
-```
-
-### Optimized Loops
-
-Use `for` loops instead of `forEach` for better performance with large datasets:
-
-```javascript
-for (let i = 0; i < array.length; i++) {
-  process(array[i]);
-}
-```
-
-### Use `Map` or `Set` for Lookups
-
-For frequent lookups, `Map` and `Set` are faster than arrays:
-
-```javascript
-const map = new Map([ ["key", "value"] ]);
-const value = map.get("key");
-```
-
-### Prefer `const`
-
-`const` enables better optimizations than `var` or `let`:
-
-```javascript
-const counter = 0;
-```
-
-### Manage Memory
-
-Clear unused intervals or subscriptions to avoid leaks:
-
-```javascript
-const intervalId = setInterval(doSomething, 1000);
-clearInterval(intervalId);
-```
-
-### Batch or Debounce API Calls
-
-Minimize redundant RPC calls:
-
-```javascript
-let timeoutId;
-function debounce(func, delay) {
-  clearTimeout(timeoutId);
-  timeoutId = setTimeout(func, delay);
-}
-debounce(() => connection.getLatestBlockhash(), 300);
-```
-
-### Simplify Object Handling
-
-Avoid deep cloning of large objects; use shallow copies:
-
-```javascript
-const newObj = { ...originalObj };
-```
-
-### Optimize JSON Handling
-
-For large payloads, use libraries like `json-bigint`:
-
-```javascript
-import JSONbig from "json-bigint";
-const parsed = JSONbig.parse(largeJsonString);
-```
-
-> These optimizations provide better performance and scalability, reduced resource usage, and cleaner, maintainable code.
-
-## Data Transfer Optimizations
-
-<Tabs>
-  <Tab title="Base64 vs Base58">
-    ### Base64 Is Faster than Base58
-    
-    For serialized transaction data on Solana, Base64 is faster and more efficient than Base58. Base64 avoids complex calculations and is widely supported by Solana APIs.
-    
-    **Use Base64 Encoding:**
-    
+  <Tab title="Standard Approach">
     ```typescript
     // Serialize and encode
-    const serializedTx = testTransaction.serialize();
-    const encodedTx = encode(serializedTx);
-    
-    // Decode when needed
-    const decodedBytes = decode(encodedTx);
+    const serializedTx = transaction.serialize();
+    const signature = await connection.sendRawTransaction(serializedTx, {
+      skipPreflight: true, // Saves ~100ms
+      maxRetries: 0 // Handle retries manually
+    });
     ```
-    
-    **Why:**
-    
-    * Faster encoding/decoding
-    * Native support in APIs
-    * Ideal for performance-critical tasks
   </Tab>
   
-  <Tab title="Token Balance Lookup">
-    ### Efficient Token Balance Lookup
+  <Tab title="With Confirmation">
+    ```typescript
+    // Send and confirm with custom logic
+    const signature = await connection.sendRawTransaction(serializedTx);
     
-    <CodeGroup>
-      <CodeBlock title="Instead of">
-        ```ts
-        const accounts = await connection.getTokenAccountsByOwner(owner);
-        const balances = await Promise.all(
-          accounts.map(acc => connection.getTokenAccountBalance(acc.pubkey))
-        );
-        // ~500ms + (100ms * N accounts)
-        ```
-      </CodeBlock>
-      
-      <CodeBlock title="Optimal Approach">
-        ```ts
-        const accounts = await connection.getTokenAccountsByOwner(owner, {
-          encoding: "jsonParsed",
-          commitment: "confirmed"
-        });
-        const balances = accounts.value.map(acc => acc.account.data.parsed.info.tokenAmount);
-        // ~500ms total, 95% reduction in time for large wallets
-        ```
-      </CodeBlock>
-    </CodeGroup>
-    
-    By requesting `jsonParsed` data in a single RPC call, you eliminate the need for separate `getTokenAccountBalance` calls for each account. This drastically reduces both the round-trip overhead and the total data transferred (from ~2 KB per account to ~200 B).
-    
-    **Why:**
-    
-    * **Fewer RPC calls**: Collapses N calls into 1.
-    * **Less data**: Fetching parsed token data directly avoids redundant information.
-  </Tab>
-  
-  <Tab title="Program Account Selection">
-    ### Smart Program Account Selection
-    
-    <CodeGroup>
-      <CodeBlock title="Instead of">
-        ```ts
-        const accounts = await connection.getProgramAccounts(programId);
-        const filtered = accounts.filter(acc => 
-          acc.account.data.readUint8(0) === 1
-        );
-        // Downloads all account data (~1MB for 1000 accounts)
-        ```
-      </CodeBlock>
-      
-      <CodeBlock title="Optimal Approach">
-        ```ts
-        const accounts = await connection.getProgramAccounts(programId, {
-          filters: [
-            { dataSize: 100 }, // exact size match
-            { memcmp: { offset: 0, bytes: "01" }}
-          ],
-          dataSlice: { offset: 0, length: 100 }
-        });
-        // Downloads only filtered accounts (~100KB for the same dataset)
-        ```
-      </CodeBlock>
-    </CodeGroup>
-    
-    Using server-side filters (`dataSize` and `memcmp`) and slicing the data significantly reduces the volume of data your application processes locally.
-    
-    **Why:**
-    
-    * **Reduced data transfer**: Server-side filtering avoids downloading unneeded data.
-    * **Better performance**: Less CPU usage on the client, fewer bytes over the wire.
-  </Tab>
-  
-  <Tab title="Transaction History">
-    ### Better Transaction History Search
-    
-    <CodeGroup>
-      <CodeBlock title="Instead of">
-        ```ts
-        const sigs = await connection.getSignaturesForAddress(address, { limit: 1000 });
-        const txs = await Promise.all(
-          sigs.map(sig => connection.getTransaction(sig))
-        );
-        // ~1s + (200ms * 1000 txs) = ~200s
-        ```
-      </CodeBlock>
-      
-      <CodeBlock title="Optimal Approach">
-        ```ts
-        const sigs = await connection.getSignaturesForAddress(address, { limit: 1000 });
-        const txs = await connection.getTransactions(
-          sigs.map(s => s.signature),
-          { maxSupportedTransactionVersion: 0 }
-        );
-        // ~2s total, 99% reduction in time
-        ```
-      </CodeBlock>
-    </CodeGroup>
-    
-    By batching all signatures into a single `getTransactions` call, you drastically reduce total latency.
-    
-    **Why:**
-    
-    * **Fewer round trips**: One request instead of 1000.
-    * **Server-side optimization**: The RPC node handles bulk processing more efficiently than many small requests.
+    // Monitor confirmation
+    const confirmation = await connection.confirmTransaction({
+      signature,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+    });
+    ```
   </Tab>
 </Tabs>
 
-### Real-Time Data Monitoring
+
+## Data Retrieval Optimization
+
+### Efficient Account Queries
 
 <Tabs>
-  <Tab title="Account Monitoring">
-    <CodeGroup>
-      <CodeBlock title="Instead of">
-        ```ts
-        setInterval(async () => {
-          const info = await connection.getAccountInfo(pubkey);
-        }, 1000);
-        // 1 RPC call per second, high latency
-        ```
-      </CodeBlock>
-      
-      <CodeBlock title="Optimal Approach">
-        ```ts
-        const sub = connection.onAccountChange(
-          pubkey,
-          (account, context) => {
-            // Handle real-time updates here
-          },
-          "processed",
-          { encoding: "base64", dataSlice: { offset: 0, length: 100 }}
-        );
-        // Zero polling calls, 100-200ms latency
-        ```
-      </CodeBlock>
-    </CodeGroup>
-    
-    Using [WebSockets](/rpc/websocket/) (`onAccountChange`) pushes updates to your application in near-real time and eliminates repetitive polling.
-    
-    **Why:**
-    
-    * **Lower latency**: Changes are delivered as they happen, rather than on a fixed schedule.
-    * **Less network overhead**: You only receive data when it changes, rather than every second.
+  <Tab title="Single Account">
+    ```typescript
+    // Use dataSlice to reduce payload size
+    const accountInfo = await connection.getAccountInfo(pubkey, {
+      encoding: 'base64',
+      dataSlice: { offset: 0, length: 100 }, // Only get needed data
+      commitment: 'confirmed'
+    });
+    ```
   </Tab>
   
-  <Tab title="Block Info Streaming">
-    <CodeGroup>
-      <CodeBlock title="Instead of">
-        ```ts
-        let slot = await connection.getSlot();
-        while (true) {
-          const block = await connection.getBlock(slot);
-          slot++;
-        }
-        // 1 RPC call per block, high latency
-        ```
-      </CodeBlock>
-      
-      <CodeBlock title="Optimal Approach">
-        ```ts
-        connection.onSlotChange(async (slotInfo) => {
-          const block = await connection.getBlock(slotInfo.slot, {
-            maxSupportedTransactionVersion: 0,
-            transactionDetails: "signatures"
-          });
-          // Process block data
-        });
-        ```
-      </CodeBlock>
-    </CodeGroup>
-    
-    By subscribing to slot changes, your application gets block data in real time without constant polling.
-    
-    **Why:**
-    
-    * **Eliminates polling**: New data is pushed as soon as the RPC node observes a new block.
-    * **Finer control**: You can decide which transaction details to fetch (`signatures`, `full`, etc.).
+  <Tab title="Multiple Accounts">
+    ```typescript
+    // Batch multiple account queries
+    const accounts = await connection.getMultipleAccountsInfo([
+      pubkey1, pubkey2, pubkey3
+    ], {
+      encoding: 'base64',
+      commitment: 'confirmed'
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Program Accounts">
+    ```typescript
+    // Use filters to reduce data transfer
+    const accounts = await connection.getProgramAccounts(programId, {
+      filters: [
+        { dataSize: 165 }, // Token account size
+        { memcmp: { offset: 0, bytes: mintAddress }}
+      ],
+      encoding: 'jsonParsed'
+    });
+    ```
   </Tab>
 </Tabs>
 
-## Advanced Query Patterns
-
-### Token Holder Breakdown
+### Token Balance Lookups
 
 <CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const accounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID);
-    const holders = accounts.filter(acc => 
-      acc.account.data.parsed.info.mint === mintAddress
-    );
-    // Downloads all token accounts (~100MB+)
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const accounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
-      filters: [
-        { memcmp: { offset: 0, bytes: mintAddress }},
-        { dataSize: 165 } // Token account size
-      ],
-      encoding: "jsonParsed"
-    });
-    // Downloads only relevant accounts (~1MB)
-    ```
-  </CodeBlock>
+```typescript ❌ Inefficient
+// Don't do this - requires N+1 RPC calls
+const tokenAccounts = await connection.getTokenAccountsByOwner(owner, {
+  programId: TOKEN_PROGRAM_ID
+});
+const balances = await Promise.all(
+  tokenAccounts.value.map(acc => 
+    connection.getTokenAccountBalance(acc.pubkey)
+  )
+);
+// ~500ms + (100ms * N accounts)
+```
+
+```typescript ✅ Optimized
+// Single call with parsed data
+const tokenAccounts = await connection.getTokenAccountsByOwner(owner, {
+  programId: TOKEN_PROGRAM_ID
+}, { encoding: 'jsonParsed' });
+
+const balances = tokenAccounts.value.map(acc => ({
+  mint: acc.account.data.parsed.info.mint,
+  amount: acc.account.data.parsed.info.tokenAmount.uiAmount
+}));
+// ~500ms total - 95% reduction for large wallets
+```
 </CodeGroup>
 
-**Why:**
-
-* **Targeted queries**: Only fetch accounts for the specified mint.
-* **Significant bandwidth savings**: Up to a 99% reduction in data transfer.
-
-### Program State Analysis
+### Transaction History
 
 <CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const accounts = await connection.getProgramAccounts(programId);
-    const states = accounts.filter(acc => acc.account.data.length === STATE_SIZE);
-    // Downloads all accounts
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const accounts = await connection.getProgramAccounts(programId, {
-      filters: [
-        { dataSize: STATE_SIZE },
-        { memcmp: { offset: 0, bytes: STATE_DISCRIMINATOR }}
-      ],
-      dataSlice: { offset: 8, length: 32 }
-    });
-    // Downloads only state data (~90% reduction)
-    ```
-  </CodeBlock>
+```typescript ❌ Inefficient
+// Avoid sequential transaction fetching
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
+const transactions = await Promise.all(
+  signatures.map(sig => connection.getTransaction(sig.signature))
+);
+// ~1s + (200ms * 100 txs) = ~21s
+```
+
+```typescript ✅ Optimized
+// Use batch transaction fetching
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
+const transactions = await connection.getTransactions(
+  signatures.map(s => s.signature),
+  { maxSupportedTransactionVersion: 0 }
+);
+// ~2s total - 90% reduction
+```
 </CodeGroup>
 
-**Why:**
+## Real-time Monitoring
 
-* **Reduced data transfer**: Leverage the RPC node to filter by `dataSize` and `memcmp`.
-* **Faster client processing**: Only download essential fields via `dataSlice`.
-
-### Validator Performance Check
+### Account Subscriptions
 
 <CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const slots = await connection.getBlocks(start, end);
-    const leaders = await Promise.all(
-      slots.map(slot => connection.getSlotLeader(slot))
-    );
-    // N+1 RPC calls
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const production = await connection.getBlockProduction({
-      range: { firstSlot: start, lastSlot: end },
-      identity: validatorId
-    });
-    // Single RPC call with filtered data
-    ```
-  </CodeBlock>
+```typescript ❌ Polling
+// Avoid polling - wastes resources
+setInterval(async () => {
+  const accountInfo = await connection.getAccountInfo(pubkey);
+  // Process updates...
+}, 1000);
+```
+
+```typescript ✅ WebSocket
+// Use WebSocket subscriptions for real-time updates
+const subscriptionId = connection.onAccountChange(
+  pubkey,
+  (accountInfo, context) => {
+    // Handle real-time updates
+    console.log('Account updated:', accountInfo);
+  },
+  'confirmed',
+  { encoding: 'base64', dataSlice: { offset: 0, length: 100 }}
+);
+```
 </CodeGroup>
 
-**Why:**
+### Program Account Monitoring
 
-* **One request**: Retrieves aggregated block production stats in bulk.
-* **Fewer network calls**: Lowers overhead and speeds up data processing.
-
-### Account Updates Analysis
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const txs = await connection.getSignaturesForAddress(address);
-    const states = await Promise.all(
-      txs.map(async tx => {
-        const info = await connection.getAccountInfo(address, { slot: tx.slot });
-        return info;
-      })
-    );
-    // N+1 RPC calls, downloads full history
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const changes = await connection.onAccountChange(
-      address,
-      () => {
-        // Handle state changes in real time
-      },
-      "confirmed",
-      { encoding: "base64", dataSlice: { offset: 0, length: 32 }}
-    );
-    // Real-time updates with minimal data
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Streaming approach**: Capture state changes as they occur.
-* **Less data**: Only fetch slices of the account if you need partial info.
-
-## Memory Optimization Patterns
-
-### Large Data Processing
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const accounts = await connection.getProgramAccounts(programId);
-    const processed = accounts.map(acc => processAccount(acc));
-    // Loads all data into memory
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const accounts = await connection.getProgramAccounts(programId, {
-      dataSlice: { offset: 0, length: 32 },
-      filters: [
-        { dataSize: ACCOUNT_SIZE }
-      ]
-    });
-    
-    const chunks = chunk(accounts, 100);
-    for (const chunk of chunks) {
-      const details = await connection.getMultipleAccountsInfo(
-        chunk.map(acc => acc.pubkey)
-      );
-      // Process chunk
-    }
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-Chunking ensures that you only load manageable subsets of data at a time.
-
-**Why:**
-
-* **Prevents OOM**: Keeps memory usage in check by processing smaller batches.
-* **Improved throughput**: Parallel processing of chunks can speed up overall operation.
-
-### Transaction Analysis
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const txs = await connection.getSignaturesForAddress(address);
-    const graph = new Map();
-    for (const tx of txs) {
-      const details = await connection.getTransaction(tx.signature);
-      graph.set(tx.signature, details);
-    }
-    // Sequential processing, high memory usage
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const txs = await connection.getSignaturesForAddress(address);
-    const graph = new Map();
-    const chunks = chunk(txs, 25);
-    
-    for (const batch of chunks) {
-      const details = await connection.getTransactions(
-        batch.map(tx => tx.signature),
-        { maxSupportedTransactionVersion: 0 }
-      );
-      // Process each transaction in the batch
-      batch.forEach((tx, i) => {
-        if (details[i]) {
-          graph.set(tx.signature, details[i]);
-        }
-      });
-    }
-    // Parallel processing with chunking, 60% less memory
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Faster**: Batching transactions reduces overhead.
-* **Controlled memory usage**: Large sets are split into smaller requests.
-
-### Program Buffers
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const accounts = await connection.getProgramAccounts(BUFFER_PROGRAM_ID);
-    const buffers = new Map();
-    accounts.forEach(acc => {
-      buffers.set(acc.pubkey, acc.account.data);
-    });
-    // Loads all buffers into memory
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const accounts = await connection.getProgramAccounts(BUFFER_PROGRAM_ID, {
-      filters: [
-        { dataSize: 32 }, // Header only
-        { memcmp: { offset: 0, bytes: BUFFER_SEED }}
-      ]
-    });
-    const bufferMap = new Map();
-    accounts.forEach(acc => {
-      bufferMap.set(acc.pubkey, null);
-    });
-    
-    // Load buffers on-demand
-    const getBuffer = async (key) => {
-      if (!bufferMap.has(key)) return null;
-      if (!bufferMap.get(key)) {
-        const info = await connection.getAccountInfo(key);
-        bufferMap.set(key, info.data);
-      }
-      return bufferMap.get(key);
-    };
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Lazy loading**: Only fetch buffer contents when needed.
-* **90% reduction in initial memory usage**: You avoid loading all buffers at once.
-
-### Token Accounts
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const accounts = await connection.getProgramAccounts(TOKEN_PROGRAM_ID);
-    const balances = new Map();
-    accounts.forEach(acc => {
-      const { mint, owner, amount } = acc.account.data.parsed;
-      if (!balances.has(owner)) balances.set(owner, new Map());
-      balances.get(owner).set(mint, amount);
-    });
-    // Processes all token accounts
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const owners = new Set(/* known owners */);
-    const balances = new Map();
-    
-    for (const owner of owners) {
-      const accounts = await connection.getTokenAccountsByOwner(
-        owner,
-        { programId: TOKEN_PROGRAM_ID },
-        "confirmed"
-      );
-      
-      balances.set(
-        owner,
-        new Map(
-          accounts.value.map(acc => [
-            acc.account.data.parsed.info.mint,
-            acc.account.data.parsed.info.tokenAmount.amount
-          ])
-        )
-      );
-    }
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Targeted queries**: Only query token accounts for known owners.
-* **Less memory usage**: An 80% reduction compared to pulling every token account on chain.
-
-### Compressed NFTs
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const trees = await connection.getProgramAccounts(SPL_ACCOUNT_COMPRESSION_ID);
-    const leaves = await Promise.all(
-      trees.map(async tree => {
-        const canopy = await getConcurrentMerkleTreeAccountInfo(tree.pubkey);
-        return getLeafAssetId(canopy, 0, tree.pubkey);
-      })
-    );
-    // Processes all trees sequentially
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const trees = await connection.getProgramAccounts(SPL_ACCOUNT_COMPRESSION_ID, {
-      filters: [
-        { memcmp: { offset: 0, bytes: TREE_DISCRIMINATOR }},
-        { dataSize: CONCURRENT_MERKLE_TREE_HEADER_SIZE }
-      ]
-    });
-    
-    const leafPromises = trees.map(tree => {
-      const start = Date.now();
-      return getConcurrentMerkleTreeAccountInfo(tree.pubkey)
-        .then(canopy => {
-          if (Date.now() - start > 1000) return null; // Timeout for slow trees
-          return getLeafAssetId(canopy, 0, tree.pubkey);
-        })
-        .catch(() => null);
-    });
-    
-    const leaves = await Promise.all(leafPromises);
-    const validLeaves = leaves.filter(Boolean);
-    // Parallel processing with timeouts, 70% faster
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Parallel execution**: Processes multiple trees simultaneously.
-* **Timeouts**: Prevents tasks from blocking the entire flow.
-
-## Network Optimization Patterns
-
-### Smart Retry Logic
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const getWithRetry = async (signature) => {
-      for (let i = 0; i < 3; i++) {
-        try {
-          return await connection.getTransaction(signature);
-        } catch (e) {
-          await sleep(1000);
-        }
-      }
-    };
-    // Fixed retry pattern
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const getWithSmartRetry = async (signature) => {
-      const backoff = new ExponentialBackoff({
-        min: 100,
-        max: 5000,
-        factor: 2,
-        jitter: 0.2
-      });
-      
-      while (true) {
-        try {
-          const tx = await connection.getTransaction(signature);
-          if (!tx) {
-            if (backoff.attempts > 5) throw new Error("Transaction not found");
-            await backoff.delay();
-            continue;
-          }
-          return tx;
-        } catch (e) {
-          if (e.message.includes("429")) {
-            await backoff.delay();
-            continue;
-          }
-          throw e;
-        }
-      }
-    };
-    // Smart retries with 40% better success rate
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Adaptive backoff**: Dynamically extends wait time for repeated failures.
-* **Handles rate limits**: Checks for specific errors (e.g., "429 Too Many Requests").
-
-### WebSocket Optimization
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    const sub1 = connection.onAccountChange(acc1, () => {});
-    const sub2 = connection.onAccountChange(acc2, () => {});
-    const sub3 = connection.onAccountChange(acc3, () => {});
-    // Multiple WebSocket connections
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    class BatchSubscription {
-      private subs = new Map();
-      private batch: string[] = [];
-      private timer: NodeJS.Timeout | null = null;
-      
-      constructor(private connection: Connection) {}
-      
-      subscribe(address: string, callback: Function) {
-        this.batch.push(address);
-        this.subs.set(address, callback);
-        
-        if (this.timer) clearTimeout(this.timer);
-        this.timer = setTimeout(() => this.flush(), 100);
-      }
-      
-      private async flush() {
-        const addresses = [...this.batch];
-        this.batch = [];
-        
-        // Hypothetical batch subscription method
-        const sub = this.connection.onAccountChange(
-          addresses,
-          (account, context) => {
-            const callback = this.subs.get(context.key);
-            if (callback) callback(account, context);
-          }
-        );
-      }
-    }
-    
-    const batchSub = new BatchSubscription(connection);
-    batchSub.subscribe(acc1, () => {});
-    batchSub.subscribe(acc2, () => {});
-    batchSub.subscribe(acc3, () => {});
-    // Single WebSocket connection, 70% less overhead
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Fewer connections**: Consolidates multiple subscriptions into one.
-* **Lower overhead**: Reduces the complexity of maintaining many WebSocket channels.
-
-### Custom Data Feeds
-
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    connection.onProgramAccountChange(programId, () => {});
-    // Receives all account changes
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const filters = [
+```typescript
+// Monitor specific program accounts with filters
+connection.onProgramAccountChange(
+  programId,
+  (accountInfo, context) => {
+    // Handle program account changes
+  },
+  'confirmed',
+  {
+    filters: [
       { dataSize: 1024 },
       { memcmp: { offset: 0, bytes: ACCOUNT_DISCRIMINATOR }}
-    ];
-    
-    connection.onProgramAccountChange(
-      programId,
-      () => {
-        // Handle relevant changes
-      },
-      "confirmed",
-      {
-        filters,
-        encoding: "base64",
-        dataSlice: { offset: 0, length: 100 }
-      }
-    );
-    // Receives only relevant changes, 90% less data
-    ```
-  </CodeBlock>
-</CodeGroup>
-
-**Why:**
-
-* **Reduced bandwidth**: Filter out accounts you don't care about.
-* **Less processing**: Limits the data you must handle on each event.
+    ],
+    encoding: 'base64'
+  }
+);
+```
 
 ### Transaction Monitoring
 
-<CodeGroup>
-  <CodeBlock title="Instead of">
-    ```ts
-    setInterval(async () => {
-      const sigs = await connection.getSignaturesForAddress(address);
-      const newSigs = sigs.filter(sig => !processed.has(sig));
-      for (const sig of newSigs) {
-        const tx = await connection.getTransaction(sig);
-        // Process tx
+```typescript
+// Subscribe to transaction logs for real-time monitoring
+const ws = new WebSocket(`wss://mainnet.helius-rpc.com/?api-key=${API_KEY}`);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'logsSubscribe',
+    params: [
+      { mentions: [programId] },
+      { commitment: 'confirmed' }
+    ]
+  }));
+});
+
+ws.on('message', (data) => {
+  const message = JSON.parse(data);
+  if (message.params) {
+    const signature = message.params.result.value.signature;
+    // Process transaction signature
+  }
+});
+```
+
+## Advanced Patterns
+
+### Smart Retry Logic
+
+```typescript
+class RetryManager {
+  private backoff = new ExponentialBackoff({
+    min: 100,
+    max: 5000,
+    factor: 2,
+    jitter: 0.2
+  });
+
+  async executeWithRetry<T>(operation: () => Promise<T>): Promise<T> {
+    while (true) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (error.message.includes('429')) {
+          // Rate limit - wait and retry
+          await this.backoff.delay();
+          continue;
+        }
+        throw error;
       }
-    }, 1000);
-    // Polling with high overhead
-    ```
-  </CodeBlock>
-  
-  <CodeBlock title="Optimal Approach">
-    ```ts
-    const ws = new WebSocket(wsEndpoint);
-    const sub = {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "logsSubscribe",
-      params: [
-        { mentions: [address] },
-        { commitment: "confirmed" }
-      ]
-    };
+    }
+  }
+}
+```
+
+### Memory-Efficient Processing
+
+```typescript
+// Process large datasets in chunks
+function chunk<T>(array: T[], size: number): T[][] {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
+}
+
+// Process program accounts in batches
+const allAccounts = await connection.getProgramAccounts(programId, {
+  dataSlice: { offset: 0, length: 32 }
+});
+
+const chunks = chunk(allAccounts, 100);
+for (const batch of chunks) {
+  const detailedAccounts = await connection.getMultipleAccountsInfo(
+    batch.map(acc => acc.pubkey)
+  );
+  // Process batch...
+}
+```
+
+### Connection Pooling
+
+```typescript
+class ConnectionPool {
+  private connections: Connection[] = [];
+  private currentIndex = 0;
+
+  constructor(rpcUrls: string[]) {
+    this.connections = rpcUrls.map(url => new Connection(url));
+  }
+
+  getConnection(): Connection {
+    const connection = this.connections[this.currentIndex];
+    this.currentIndex = (this.currentIndex + 1) % this.connections.length;
+    return connection;
+  }
+}
+
+const pool = new ConnectionPool([
+  'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY',
+  'https://mainnet-backup.helius-rpc.com/?api-key=YOUR_API_KEY'
+]);
+```
+
+## Performance Monitoring
+
+### Track RPC Usage
+
+```typescript
+class RPCMonitor {
+  private metrics = {
+    calls: 0,
+    errors: 0,
+    totalLatency: 0
+  };
+
+  async monitoredCall<T>(operation: () => Promise<T>): Promise<T> {
+    const start = Date.now();
+    this.metrics.calls++;
     
-    ws.on("open", () => ws.send(JSON.stringify(sub)));
-    ws.on("message", async (data) => {
-      const msg = JSON.parse(data);
-      if (!msg.params?.result?.value?.signature) return;
-      
-      const sig = msg.params.result.value.signature;
-      const tx = await connection.getTransaction(sig);
-      // Process tx
-    });
-    // Real-time updates with 80% less overhead
-    ```
-  </CodeBlock>
-</CodeGroup>
+    try {
+      const result = await operation();
+      this.metrics.totalLatency += Date.now() - start;
+      return result;
+    } catch (error) {
+      this.metrics.errors++;
+      throw error;
+    }
+  }
 
-**Why:**
-
-* **Push-based**: Gets new signatures immediately via logs.
-* **Less duplication**: Eliminates repeated polling intervals.
+  getStats() {
+    return {
+      ...this.metrics,
+      averageLatency: this.metrics.totalLatency / this.metrics.calls,
+      errorRate: this.metrics.errors / this.metrics.calls
+    };
+  }
+}
+```
 
 ## Best Practices
 
-### Use Appropriate Commitment Levels
-* `processed` for WebSocket subscriptions.
-* `confirmed` for general queries.
-* `finalized` only when absolute certainty is required.
+### Commitment Levels
 
-### Implement Robust Error Handling
-* Use exponential backoff for retries.
-* Handle rate limit (HTTP 429) errors gracefully.
-* Validate responses to avoid processing incomplete or corrupted data.
+<Tabs>
+  <Tab title="processed">
+    - **Use for**: WebSocket subscriptions, real-time updates
+    - **Latency**: ~400ms
+    - **Reliability**: Good for most applications
+  </Tab>
+  
+  <Tab title="confirmed">
+    - **Use for**: General queries, account info
+    - **Latency**: ~1s
+    - **Reliability**: Recommended for most use cases
+  </Tab>
+  
+  <Tab title="finalized">
+    - **Use for**: Final settlement, irreversible operations
+    - **Latency**: ~32s
+    - **Reliability**: Maximum certainty
+  </Tab>
+</Tabs>
 
-### Optimize Data Transfer
-* Utilize `dataSlice` wherever possible to limit payload size.
-* Leverage server-side filtering (`memcmp` and `dataSize`).
-* Choose the most efficient encoding option (`base64`, `jsonParsed`, etc.).
+### Resource Management
 
-### Manage Resources
-* Batch operations to reduce overhead.
-* Cache results to avoid redundant lookups.
-* Bundle multiple instructions into a single transaction where applicable.
+<CheckboxList>
+  - Use `dataSlice` to limit payload sizes
+  - Implement server-side filtering with `memcmp` and `dataSize`
+  - Batch operations to reduce round trips
+  - Cache results to avoid redundant calls
+  - Close WebSocket subscriptions when done
+  - Implement circuit breakers for error handling
+</CheckboxList>
 
-### Monitor Performance
-* Track RPC usage and latency.
-* Monitor memory consumption for large dataset processing.
-* Log and analyze errors to detect bottlenecks.
+### Error Handling
 
-### Circuit Breakers & Throttling
-* Employ circuit breakers to halt or pause operations under excessive error rates.
-* Throttle requests to respect rate limits and ensure stable performance.
+```typescript
+// Implement robust error handling
+async function robustRPCCall<T>(operation: () => Promise<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (error.code === -32602) {
+      // Invalid params - fix request
+      throw new Error('Invalid RPC parameters');
+    } else if (error.code === -32005) {
+      // Node behind - retry with different node
+      throw new Error('Node synchronization issue');
+    } else if (error.message.includes('429')) {
+      // Rate limit - implement backoff
+      throw new Error('Rate limited');
+    }
+    throw error;
+  }
+}
+```
 
-> By following these techniques and best practices, you can significantly reduce operational costs, enhance real-time responsiveness, and scale more effectively on Solana.
+## Common Pitfalls to Avoid
+
+<Warning>
+  **Avoid these common mistakes:**
+  - Polling instead of using WebSocket subscriptions
+  - Fetching full account data when only partial data is needed
+  - Not using batch operations for multiple queries
+  - Ignoring rate limits and not implementing proper retry logic
+  - Using `finalized` commitment when `confirmed` is sufficient
+  - Not closing subscriptions, leading to memory leaks
+</Warning>
+
+## Summary
+
+By implementing these optimization techniques, you can achieve:
+
+- **60-90% reduction** in API call volume
+- **Significantly lower latency** for real-time operations  
+- **Reduced bandwidth usage** through targeted queries
+- **Better error resilience** with smart retry logic
+- **Lower operational costs** through efficient resource usage
+
+<Card title="Next Steps" icon="arrow-right">
+  Ready to implement these optimizations? Check out our [Transaction Optimization Guide](/sending-transactions/optimizing-transactions) for transaction-specific best practices.
+</Card>

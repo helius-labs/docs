@@ -1,0 +1,258 @@
+---
+title: "Solana RPC Method Guides: Complete Developer Reference"
+sidebarTitle: "Overview"
+description: "Practical guides for using Solana RPC methods effectively. Real-world examples, code samples, and best practices for blockchain development."
+---
+
+## Quick Navigation
+
+<CardGroup cols={2}>
+  <Card title="Account & Balance Methods" icon="wallet" href="#account-%26-balance-methods">
+    Query account information, balances, and token data
+  </Card>
+  <Card title="Transaction Methods" icon="arrow-right-arrow-left" href="#transaction-methods">
+    Send, simulate, and track transactions on Solana
+  </Card>
+  <Card title="Block & Slot Methods" icon="cube" href="#block-%26-slot-methods">
+    Access blockchain structure and timing information
+  </Card>
+  <Card title="Network & Cluster Methods" icon="globe" href="#network-%26-cluster-methods">
+    Monitor network health and validator information
+  </Card>
+</CardGroup>
+
+---
+
+## What Are RPC Method Guides?
+
+These practical guides show you **how to use specific Solana RPC methods** to solve common development challenges. Each guide includes:
+
+- **Real-world use cases** and when to use each method
+- **Complete code examples** in multiple languages
+- **Parameter explanations** with practical tips
+- **Response structure** breakdown
+- **Developer tips** for optimization and best practices
+
+Perfect for developers who want to understand not just *what* each RPC method does, but *how* to use it effectively in production applications.
+
+## Account & Balance Methods
+
+Essential methods for querying account data, balances, and token information.
+
+<CardGroup cols={3}>
+  <Card title="getAccountInfo" icon="info" href="/rpc/guides/getaccountinfo">
+    Get complete account details including balance, owner, and data
+  </Card>
+  <Card title="getBalance" icon="coins" href="/rpc/guides/getbalance">
+    Quick SOL balance lookup for any account
+  </Card>
+  <Card title="getMultipleAccounts" icon="layer-group" href="/rpc/guides/getmultipleaccounts">
+    Batch query multiple accounts efficiently
+  </Card>
+  <Card title="getProgramAccounts" icon="code" href="/rpc/guides/getprogramaccounts">
+    Find all accounts owned by a specific program
+  </Card>
+  <Card title="getLargestAccounts" icon="star" href="/rpc/guides/getlargestaccounts">
+    Get accounts with largest SOL balances
+  </Card>
+  <Card title="getSupply" icon="server" href="/rpc/guides/getsupply">
+    Get information about current supply
+  </Card>
+</CardGroup>
+
+### Token Account Methods
+
+<CardGroup cols={2}>
+  <Card title="getTokenAccountsByOwner" icon="wallet" href="/rpc/guides/gettokenaccountsbyowner">
+    Get all token accounts for a wallet
+  </Card>
+  <Card title="getTokenAccountsByDelegate" icon="user" href="/rpc/guides/gettokenaccountsbydelegate">
+    Query token accounts by delegate
+  </Card>
+  <Card title="getTokenAccountBalance" icon="wallet" href="/rpc/guides/gettokenaccountbalance">
+    Get balance of a specific token account
+  </Card>
+  <Card title="getTokenSupply" icon="coins" href="/rpc/guides/gettokensupply">
+    Query total supply of an SPL token
+  </Card>
+  <Card title="getTokenLargestAccounts" icon="star" href="/rpc/guides/gettokenlargestaccounts">
+    Find accounts with largest token holdings
+  </Card>
+</CardGroup>
+
+## Transaction Methods
+
+Methods for sending transactions, checking status, and retrieving transaction history.
+
+<CardGroup cols={3}>
+  <Card title="getTransaction" icon="receipt" href="/rpc/guides/gettransaction">
+    Get detailed information about a specific transaction
+  </Card>
+  <Card title="getSignatures" icon="list" href="/rpc/guides/getsignaturesforaddress">
+    Get transaction signatures for an account
+  </Card>
+  <Card title="getSignatureStatuses" icon="check" href="/rpc/guides/getsignaturestatuses">
+    Check confirmation status of transactions
+  </Card>
+  <Card title="getTransactionCount" icon="calculator" href="/rpc/guides/gettransactioncount">
+    Get total number of transactions processed
+  </Card>
+  <Card title="requestAirdrop" icon="gift" href="/rpc/guides/requestairdrop">
+    Request SOL airdrop on devnet/testnet
+  </Card>
+</CardGroup>
+
+### Transaction Fees & Simulation
+
+<CardGroup cols={3}>
+  <Card title="getPriorityFees" icon="coins" href="/rpc/guides/getrecentprioritizationfees">
+    Get recent priority fees for optimal pricing
+  </Card>
+  <Card title="getFeeForMessage" icon="calculator" href="/rpc/guides/getfeeformessage">
+    Calculate transaction fees before sending
+  </Card>
+</CardGroup>
+
+## Block & Slot Methods
+
+Access blockchain structure, timing, and historical data.
+
+<CardGroup cols={3}>
+  <Card title="getBlock" icon="cube" href="/rpc/guides/getblock">
+    Get complete block information including all transactions
+  </Card>
+  <Card title="getBlockHeight" icon="arrow-up" href="/rpc/guides/getblockheight">
+    Get current block height of the network
+  </Card>
+  <Card title="getSlot" icon="clock" href="/rpc/guides/getslot">
+    Get current slot number
+  </Card>
+  <Card title="getBlocks" icon="cubes" href="/rpc/guides/getblocks">
+    Get list of confirmed blocks in a range
+  </Card>
+  <Card title="getBlocksWithLimit" icon="list" href="/rpc/guides/getblockswithlimit">
+    Get limited number of confirmed blocks
+  </Card>
+  <Card title="getBlockTime" icon="clock" href="/rpc/guides/getblocktime">
+    Get estimated production time of a block
+  </Card>
+</CardGroup>
+
+### Blockhash & Slot Information
+
+<CardGroup cols={3}>
+  <Card title="getLatestBlockhash" icon="hashtag" href="/rpc/guides/getlatestblockhash">
+    Get most recent blockhash for transactions
+  </Card>
+  <Card title="isBlockhashValid" icon="check" href="/rpc/guides/isblockhashvalid">
+    Validate if a blockhash is still valid
+  </Card>
+  <Card title="getSlotLeader" icon="crown" href="/rpc/guides/getslotleader">
+    Get current slot leader
+  </Card>
+  <Card title="getSlotLeaders" icon="users" href="/rpc/guides/getslotleaders">
+    Get slot leaders for a range of slots
+  </Card>
+  <Card title="getLeaderSchedule" icon="calendar" href="/rpc/guides/getleaderschedule">
+    Get leader schedule for an epoch
+  </Card>
+</CardGroup>
+
+## Network & Cluster Methods
+
+Monitor network health, validator information, and cluster status.
+
+<CardGroup cols={3}>
+  <Card title="getHealth" icon="heart" href="/rpc/guides/gethealth">
+    Check RPC node health status
+  </Card>
+  <Card title="getVersion" icon="tag" href="/rpc/guides/getversion">
+    Get Solana software version information
+  </Card>
+  <Card title="getClusterNodes" icon="server" href="/rpc/guides/getclusternodes">
+    Get information about cluster validators
+  </Card>
+  <Card title="getVoteAccounts" icon="check" href="/rpc/guides/getvoteaccounts">
+    Get current and delinquent vote accounts
+  </Card>
+  <Card title="getEpochInfo" icon="calendar" href="/rpc/guides/getepochinfo">
+    Get information about the current epoch
+  </Card>
+  <Card title="getEpochSchedule" icon="calendar" href="/rpc/guides/getepochschedule">
+    Get epoch schedule information
+  </Card>
+</CardGroup>
+
+### Network Performance & Economics
+
+<CardGroup cols={3}>
+  <Card title="getPerformanceSamples" icon="server" href="/rpc/guides/getrecentperformancesamples">
+    Get recent network performance metrics
+  </Card>
+  <Card title="getInflationGovernor" icon="info" href="/rpc/guides/getinflationgovernor">
+    Get current inflation parameters
+  </Card>
+  <Card title="getInflationRate" icon="arrow-up" href="/rpc/guides/getinflationrate">
+    Get current inflation rate
+  </Card>
+  <Card title="getInflationReward" icon="coins" href="/rpc/guides/getinflationreward">
+    Calculate inflation rewards for accounts
+  </Card>
+  <Card title="getStakeDelegation" icon="handshake" href="/rpc/guides/getstakeminimumdelegation">
+    Get minimum stake delegation amount
+  </Card>
+</CardGroup>
+
+## Utility & System Methods
+
+Helper methods for system information, validation, and advanced queries.
+
+<CardGroup cols={3}>
+  <Card title="getRentExemption" icon="house" href="/rpc/guides/getminimumbalanceforrentexemption">
+    Calculate minimum balance for rent exemption
+  </Card>
+  <Card title="getGenesisHash" icon="fingerprint" href="/rpc/guides/getgenesishash">
+    Get genesis hash of the cluster
+  </Card>
+  <Card title="getIdentity" icon="user" href="/rpc/guides/getidentity">
+    Get identity public key of the RPC node
+  </Card>
+  <Card title="getFirstAvailableBlock" icon="play" href="/rpc/guides/getfirstavailableblock">
+    Get slot of first available block
+  </Card>
+  <Card title="getHighestSnapshotSlot" icon="arrow-up" href="/rpc/guides/gethighestsnapshotslot">
+    Get highest slot with a snapshot
+  </Card>
+  <Card title="minimumLedgerSlot" icon="database" href="/rpc/guides/minimumledgerslot">
+    Get minimum slot that node has ledger information
+  </Card>
+</CardGroup>
+
+### Advanced System Queries
+
+<CardGroup cols={3}>
+  <Card title="getMaxRetransmitSlot" icon="repeat" href="/rpc/guides/getmaxretransmitslot">
+    Get maximum slot seen from retransmit stage
+  </Card>
+  <Card title="getMaxShredInsertSlot" icon="layer-group" href="/rpc/guides/getmaxshredinsertslot">
+    Get maximum slot seen from shred insert
+  </Card>
+</CardGroup>
+
+## Related Resources
+
+<CardGroup cols={3}>
+  <Card title="RPC Optimization" icon="rocket" href="/rpc/optimization-techniques">
+    Learn advanced techniques for optimizing RPC performance
+  </Card>
+  <Card title="WebSocket Methods" icon="wifi" href="/rpc/websocket">
+    Explore real-time subscriptions and streaming data
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/rpc">
+    Complete technical reference for all RPC methods
+  </Card>
+</CardGroup>
+
+---
+
+**Need help with a specific RPC method?** Each guide includes practical examples and developer tips to get you started quickly. Browse the categories above or use the search to find exactly what you need. 

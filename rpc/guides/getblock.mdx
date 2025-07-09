@@ -117,6 +117,60 @@ async function getBlockDetails() {
 
 getBlockDetails();
 ```
+
+```typescript Kit
+import { createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const slot_number = BigInt(377261141);
+
+let block = await rpc
+  .getBlock(
+    slot_number,
+    {
+      commitment: "finalized",
+      encoding: "json",
+      transactionDetails: "full",
+      maxSupportedTransactionVersion: 0,
+      rewards: false,
+    },
+  )
+  .send();
+
+console.log("block:", block);
+```
+
+```rust Rust
+use anyhow::Result;
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::commitment_config::CommitmentConfig;
+use solana_transaction_status_client_types::{TransactionDetails, UiTransactionEncoding};
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed(),
+    );
+
+    let slot_number = 377261141;
+
+    let config = solana_client::rpc_config::RpcBlockConfig {
+        encoding: UiTransactionEncoding::Base58.into(),
+        transaction_details: TransactionDetails::Full.into(),
+        rewards: None,
+        commitment: CommitmentConfig::finalized().into(),
+        max_supported_transaction_version: Some(0),
+    };
+    let block = client.get_block_with_config(slot_number, config).await?;
+
+    println!("Block: {:#?}", block);
+
+    Ok(())
+}
+```
 </CodeGroup> 
 
 ## Developer Tips

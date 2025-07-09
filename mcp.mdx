@@ -1,0 +1,304 @@
+---
+title: "Helius MCP: AI-Powered Solana Development Documentation"
+sidebarTitle: Helius MCP
+description: "Connect AI tools directly to Helius Solana API documentation for intelligent code generation and contextual development assistance."
+---
+
+<Info>
+**AI-Native Development**: Use the Helius MCP server to give AI tools access to our documentation, enabling contextual code generation and intelligent assistance.
+</Info>
+
+## What is MCP?
+
+Model Context Protocol (MCP) is a standard that allows AI applications to access external documentation and data sources. Think of it as a bridge that lets AI tools like Claude, Cursor, and Windsurf read your documentation in real-time to provide better, more accurate assistance.
+
+<CardGroup cols={2}>
+  <Card title="Real-time Context" icon="bolt">
+    AI tools can query live documentation and API specifications for accurate, up-to-date information
+  </Card>
+  <Card title="Code Generation" icon="code">
+    AI generates working code examples using current API methods and best practices from our docs
+  </Card>
+  <Card title="Interactive Development" icon="robot">
+    Ask questions about Helius APIs and get contextual answers based on our documentation
+  </Card>
+  <Card title="Seamless Integration" icon="plug">
+    Works with popular AI-powered IDEs and development tools
+  </Card>
+</CardGroup>
+
+## How Helius MCP Works
+
+The Helius MCP server automatically provides AI tools with access to:
+
+- **Complete API Documentation**: All Helius API methods, parameters, and examples
+- **Code Examples**: Working implementations for common use cases  
+- **Best Practices**: Recommended patterns for using Helius services
+- **Real-time Updates**: Always current with the latest documentation changes
+
+<Note>
+**Automatic Generation**: Our MCP server is automatically generated from our documentation and API specifications, ensuring it's always up-to-date with the latest features and changes.
+</Note>
+
+## Getting Started
+
+<Steps>
+  <Step title="Install MCP Support">
+    First, make sure your AI tool supports MCP. Popular options include:
+    - **Cursor**: Built-in MCP support
+    - **Windsurf**: Native MCP integration  
+    - **Claude Desktop**: MCP server support
+    - **VS Code**: via MCP extensions
+  </Step>
+  
+  <Step title="Add Helius MCP Server">
+    Install the Helius MCP server in your development environment:
+
+    ```bash
+    npx mint-mcp add helius
+    ```
+
+    This automatically configures your MCP client to access Helius documentation for AI assistance.
+  </Step>
+  
+  <Step title="Start Using AI with Helius Context">
+    Open your AI-powered IDE and start asking questions about Helius APIs. The AI will automatically query our MCP server for accurate, contextual documentation to help generate code.
+  </Step>
+</Steps>
+
+## Quick Test
+
+Want to see it in action? Here's the fastest way to test the Helius MCP integration:
+
+<Tabs>
+  <Tab title="Cursor">
+    1. Open Cursor IDE
+    2. Open a terminal and run: `npx mint-mcp add helius`
+    3. Open Agent mode (Ctrl/Cmd + K)
+    4. Ask: "Write a Node.js script for sending transactions using Helius"
+    5. The AI will reference our documentation via MCP to generate accurate code
+    6. Watch as the AI generates working code using current Helius API patterns from our docs
+  </Tab>
+  
+  <Tab title="Windsurf">
+    1. Open Windsurf IDE
+    2. Run: `npx mint-mcp add helius` in terminal
+    3. Open the AI assistant
+    4. Ask: "Show me how to get NFT data using Helius DAS API"
+    5. The AI will reference our docs via MCP and generate code with proper imports and error handling
+  </Tab>
+  
+  <Tab title="Claude Desktop">
+    1. Install Claude Desktop
+    2. Run: `npx mint-mcp add helius`
+    3. Open Claude and ask: "Help me build a Solana transaction monitor with Helius"
+    4. Get contextual responses with working code examples based on our documentation
+  </Tab>
+</Tabs>
+
+## Use Cases
+
+<AccordionGroup>
+  <Accordion title="Rapid Prototyping">
+    **Scenario**: You need to quickly build a demo that fetches NFT data and displays it.
+    
+    **With MCP**: Ask your AI tool "Create a React component that fetches and displays NFTs for a wallet using Helius DAS API"
+    
+    **Result**: Get a complete component with proper error handling, loading states, and current API usage.
+  </Accordion>
+  
+  <Accordion title="API Integration">
+    **Scenario**: Integrating Helius websockets into your application.
+    
+    **With MCP**: "Show me how to set up Helius websockets for monitoring account changes"
+    
+    **Result**: Complete websocket setup code with proper connection handling and real-time updates.
+  </Accordion>
+  
+  <Accordion title="Documentation Generation">
+    **Scenario**: Need to document your Helius integration for your team.
+    
+    **With MCP**: "Generate documentation for our Helius RPC usage patterns"
+    
+    **Result**: Comprehensive docs with code examples and best practices.
+  </Accordion>
+  
+  <Accordion title="Debugging & Optimization">
+    **Scenario**: Your Helius API calls are failing or performing poorly.
+    
+    **With MCP**: "Help me optimize these Helius API calls and handle errors properly"
+    
+    **Result**: Improved code with proper error handling and performance optimizations.
+  </Accordion>
+</AccordionGroup>
+
+## Example Workflows
+
+### Building a Transaction Monitor
+
+```typescript
+// Ask your AI: "Create a transaction monitor using Helius websockets"
+// The AI will generate something like this with current API patterns:
+
+const WebSocket = require('ws');
+
+// Create WebSocket connection
+const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+ws.on('open', function open() {
+  console.log('WebSocket connected');
+  
+  // Subscribe to account changes
+  const request = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "accountSubscribe",
+    params: [
+      "YOUR_WALLET_ADDRESS",
+      {
+        encoding: "jsonParsed",
+        commitment: "confirmed"
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(request));
+});
+
+ws.on('message', function incoming(data) {
+  const message = JSON.parse(data.toString());
+  console.log('Account update:', message);
+});
+```
+
+### NFT Portfolio Tracker
+
+```typescript
+// Ask: "Build an NFT portfolio tracker using Helius DAS API"
+// Get working code with current method signatures:
+
+const getNFTPortfolio = async (walletAddress: string) => {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: walletAddress,
+        page: 1,
+        limit: 1000
+      },
+    }),
+  });
+  
+  const data = await response.json();
+  return data.result;
+};
+```
+
+## Advanced Features
+
+<Tabs>
+  <Tab title="Context-Aware Suggestions">
+    The MCP server provides documentation context so AI tools can make intelligent suggestions:
+    
+    - **API Method Selection**: AI recommends the most appropriate Helius API based on our docs
+    - **Error Handling**: AI suggests proper error handling patterns from our documentation
+    - **Performance Tips**: AI identifies optimization opportunities using our best practices
+  </Tab>
+  
+  <Tab title="Multi-API Orchestration">
+    Get help combining multiple Helius services:
+    
+    ```typescript
+    // Ask: "Combine RPC, DAS, and websocket APIs to build a complete NFT marketplace backend"
+    // The AI understands how these services work together from our documentation
+    ```
+  </Tab>
+  
+  <Tab title="Real-time Updates">
+    The MCP server stays current with our documentation for:
+    - New API endpoints and methods
+    - Updated parameter requirements  
+    - Latest SDK versions and features
+    - Current best practices and patterns
+  </Tab>
+</Tabs>
+
+## Supported AI Tools
+
+| Tool | Support Level | Setup Difficulty | Best For |
+|------|---------------|------------------|----------|
+| **Cursor** | ✅ Native | Easy | Full-stack development |
+| **Windsurf** | ✅ Native | Easy | AI-assisted coding |
+| **Claude Desktop** | ✅ Supported | Medium | Documentation and planning |
+| **VS Code** | ⚠️ Extension Required | Medium | Existing VS Code workflows |
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Be Specific" icon="bullseye">
+    Ask specific questions like "How do I paginate through NFT results?" rather than "Help with NFTs"
+  </Card>
+  <Card title="Include Context" icon="info">
+    Mention your tech stack: "Using Next.js and TypeScript, show me how to..."
+  </Card>
+  <Card title="Iterate Quickly" icon="arrow-right">
+    Use the generated code as a starting point and ask for modifications
+  </Card>
+  <Card title="Test Generated Code" icon="flask">
+    Always test AI-generated code in your development environment
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="MCP Server Not Found">
+    **Issue**: AI tool can't find the Helius MCP server
+    
+    **Solution**: 
+    1. Re-run `npx mint-mcp add helius`
+    2. Restart your AI tool
+    3. Check that MCP is enabled in your tool's settings
+  </Accordion>
+  
+  <Accordion title="Outdated Information">
+    **Issue**: AI is providing outdated API information
+    
+    **Solution**: 
+    1. The MCP server auto-updates, but you may need to refresh your AI session
+    2. Clear your AI tool's cache if available
+    3. Ask specifically for "the latest" information
+  </Accordion>
+  
+  <Accordion title="Generated Code Doesn't Work">
+    **Issue**: AI-generated code has errors or doesn't run
+    
+    **Solution**:
+    1. Share the error message with the AI for debugging
+    2. Ask for error handling improvements
+    3. Verify your API key and network connectivity
+  </Accordion>
+</AccordionGroup>
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="MCP Specification" icon="book" href="https://modelcontextprotocol.io/">
+    Learn about the Model Context Protocol standard
+  </Card>
+  <Card title="Helius APIs" icon="code" href="/api-reference">
+    Explore all available Helius APIs and endpoints
+  </Card>
+  <Card title="SDK Documentation" icon="code" href="/sdks">
+    Official SDKs for different programming languages
+  </Card>
+  <Card title="Join Discord" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Get help from our developer community
+  </Card>
+</CardGroup>
+
+Ready to supercharge your development workflow? Install the Helius MCP server and start building with AI assistance today! 

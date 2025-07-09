@@ -86,4 +86,35 @@ async function getCurrentBlockHeight() {
 
 getCurrentBlockHeight();
 ```
+
+```typescript Kit
+import { createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+let blockHeight = await rpc.getBlockHeight().send();
+
+console.log("block height:", blockHeight);
+```
+
+```rust Rust
+use anyhow::Result;
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::commitment_config::CommitmentConfig;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed(),
+    );
+
+    let block_height = client.get_block_height().await?;
+
+    println!("Block height: {:#?}", block_height);
+
+    Ok(())
+}
+```
 </CodeGroup> 
