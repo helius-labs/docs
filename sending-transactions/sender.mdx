@@ -89,6 +89,7 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 Sender endpoints are available in multiple regions for optimal latency:
 
+**Transaction Submission:**
 ```
 http://slc-sender.helius-rpc.com/fast      # Salt Lake City
 http://ewr-sender.helius-rpc.com/fast      # Newark
@@ -99,9 +100,53 @@ http://sg-sender.helius-rpc.com/fast       # Singapore
 http://tyo-sender.helius-rpc.com/fast      # Tokyo
 ```
 
+**Connection Warming:**
+```
+http://slc-sender.helius-rpc.com/ping      # Salt Lake City
+http://ewr-sender.helius-rpc.com/ping      # Newark
+http://lon-sender.helius-rpc.com/ping      # London  
+http://fra-sender.helius-rpc.com/ping      # Frankfurt
+http://ams-sender.helius-rpc.com/ping      # Amsterdam
+http://sg-sender.helius-rpc.com/ping       # Singapore
+http://tyo-sender.helius-rpc.com/ping      # Tokyo
+```
+
 <Note>
 These endpoints only support HTTP connections (not HTTPS). Choose the endpoint closest to your infrastructure for optimal performance.
 </Note>
+
+## Connection Warming
+
+For applications with long periods between transaction submissions, use the ping endpoint to maintain warm connections and reduce cold start latency.
+
+### Ping Endpoint Usage
+
+The ping endpoint accepts simple GET requests and returns a basic response to keep connections alive:
+
+```bash
+curl http://slc-sender.helius-rpc.com/ping
+```
+
+```typescript
+// Keep connection warm during idle periods
+async function warmConnection(endpoint: string) {
+  try {
+    const response = await fetch(`${endpoint}/ping`);
+    console.log('Connection warmed:', response.ok);
+  } catch (error) {
+    console.warn('Failed to warm connection:', error);
+  }
+}
+
+// Example: Warm connection every 30 seconds during idle periods
+setInterval(() => {
+  warmConnection('http://slc-sender.helius-rpc.com');
+}, 30000);
+```
+
+<Tip>
+Use connection warming when your application has gaps longer than 1 minute between transactions to maintain optimal submission latency.
+</Tip>
 
 ## Usage
 
@@ -129,9 +174,9 @@ The Sender endpoint uses the same `sendTransaction` method as standard RPC endpo
 The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruction with minimum tip to designated tip accounts AND a compute unit price instruction. Without both requirements, your transaction will be rejected.
 </Warning>
 
-### Simple Example
+### Simple Code Example
 
-```typescript
+```typescript [expandable]
 import { 
   Connection, 
   TransactionMessage,
@@ -246,9 +291,8 @@ sendWithSender(Keypair.fromSecretKey(bs58.decode(PRIV_B58)), RECIPIENT);
 
 The advanced example improves on the simple version with dynamic Jito tips (75th percentile), automatic compute unit calculation, dynamic priority fees, and retry logic.
 
-<Accordion title="Advanced Example with Dynamic Optimization">
 
-```typescript
+```typescript [expandable]
 import { 
   Connection, 
   TransactionMessage,
@@ -524,7 +568,6 @@ export async function exampleUsage() {
 export { sendWithSender };
 ```
 
-</Accordion>
 
 ## Best Practices
 
@@ -538,6 +581,11 @@ export { sendWithSender };
 - **Tokyo**: `tyo-sender.helius-rpc.com/fast`
 
 For optimal latency, consider co-locating with Helius servers in Frankfurt or London.
+
+### Connection Warming
+- Use the `/ping` endpoint during idle periods longer than 1 minute
+- Implement periodic ping calls (every 30-60 seconds) to maintain warm connections
+- Warm connections before high-frequency trading sessions begin
 
 ### Transaction Setup
 - Use `skipPreflight: true` and `maxRetries: 0`
