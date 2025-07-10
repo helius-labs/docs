@@ -32,10 +32,8 @@ This design makes account subscriptions powerful: you can watch for changes to s
 Let's start with a simple example that subscribes to changes in token accounts. This script will notify you whenever token balances change:
 
 ```ts [expandable]
-import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
 import * as bs58 from 'bs58';
-
-const credentials = require('../test-config');
 
 // Utility function to recursively convert Buffer objects to base58 strings
 function convertBuffersToBase58(obj: any): any {
@@ -278,10 +276,8 @@ Now let's see what these filtered updates actually contain. Let's create a USDC-
 The raw account updates contain binary data that we need to decode. Since Solana uses base58 encoding for addresses and signatures, we use the `bs58.encode()` function to convert binary Buffer objects to readable strings.
 
 ```ts [expandable]
-import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
 import * as bs58 from 'bs58';
-
-const credentials = require('../test-config');
 
 async function main() {
   console.log('USDC Account Monitor');

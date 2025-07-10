@@ -20,7 +20,7 @@ description: "Learn how to decode and parse transaction data from Laserstream fo
 Run the minimal client below. The filter flags drop vote and failed transactions, and the accountsInclude array limits results to activity that touches the Jupiter program ID.
 
 ```ts [expandable]
-import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
 
 async function runTransactionSubscription() {
   const config: LaserstreamConfig = {
@@ -187,7 +187,7 @@ When you run the script with the decoding function, you'll see the actual nested
 
 ```ts [expandable]
 import bs58 from 'bs58';
-import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
 
 // Recursive function to convert all Buffer/Uint8Array fields to base58
 function convertBuffers(obj: any): any {
