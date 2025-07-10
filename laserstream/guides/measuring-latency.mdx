@@ -1,0 +1,530 @@
+---
+title: "Measuring Latency"
+sidebarTitle: "Measuring Latency"
+description: "Learn how to properly measure and analyze latency for gRPC streams using various testing methods."
+---
+
+**⚠️ CRITICAL DISCLAIMER: Production Data Center Only**
+
+These latency tests are designed for **production data center environments only**. DO NOT run these tests on local machines or consumer internet connections. Local bandwidth cannot handle heavy Solana subscriptions and will produce meaningless results that don't reflect real-world performance.
+
+**⚠️ CO-LOCATION REQUIREMENT: Deploy Near Your LaserStream Endpoint**
+
+For meaningful latency measurements, you **must** co-locate your testing infrastructure in the same region as your chosen LaserStream endpoint. Network distance will dominate your measurements - testing from a different continent will show network latency, not LaserStream performance.
+
+---
+
+## Understanding latency in distributed blockchain systems
+
+When working with blockchain streaming services, latency measurement becomes complex because distributed systems don't have a universal clock. Unlike traditional systems where you can measure round-trip time to a single server, blockchain networks involve multiple validators, each receiving and processing the same transaction at different times.
+
+The fundamental challenge: **blockchains like Solana don't have a concept of absolute time**. Each validator node globally will receive the same transaction at different times, and confirmation depends on a percentage of the cluster reaching consensus. This makes deterministic latency measurement impossible in the traditional sense.
+
+
+
+## Commitment levels and latency priorities
+
+Solana offers three commitment levels, each with different latency characteristics:
+
+- **Processed**: Fastest, single validator confirmation (~400ms)
+- **Confirmed**: Medium, supermajority confirmation (~2-3 seconds)  
+- **Finalized**: Slowest, complete network finalization (~15-30 seconds)
+
+For latency-sensitive applications, **processed commitment** is typically the target. All tests in this guide use processed commitment level since most high-frequency use cases prioritize speed over absolute finality.
+
+## Three approaches to measuring latency
+
+### 1. Comparing parallel gRPC streams
+
+The most reliable method compares two independent streams to the same data source, measuring which receives identical events first.
+
+### 2. Local timestamp vs created_at comparison
+
+Measures the difference between when your system receives a message and the timestamp embedded in the message by the LaserStream service.
+
+**Important caveat:** This measurement has limitations since `created_at` only represents when the LaserStream node created the message internally. If LaserStream received data late for some reason, that upstream delay won't be captured by `created_at`, making this less accurate than Method 1 for measuring true end-to-end latency.
+
+### 3. Block timestamp analysis (not recommended)
+
+Compares local receipt time against Solana's block timestamp, but this method has significant limitations due to block timestamps only having second-level granularity while Solana produces blocks every 400ms.
+
+---
+
+## Setup requirements
+
+### Regional co-location
+
+For meaningful latency measurements, deploy your testing infrastructure in the same data center or region as your LaserStream endpoint. 
+
+**Available LaserStream regions:**
+- **ewr**: New York, US (East Coast) - `https://laserstream-mainnet-ewr.helius-rpc.com`
+- **pitt**: Pittsburgh, US (Central) - `https://laserstream-mainnet-pitt.helius-rpc.com`
+- **slc**: Salt Lake City, US (West Coast) - `https://laserstream-mainnet-slc.helius-rpc.com`
+- **ams**: Amsterdam, Europe - `https://laserstream-mainnet-ams.helius-rpc.com`
+- **fra**: Frankfurt, Europe - `https://laserstream-mainnet-fra.helius-rpc.com`
+- **tyo**: Tokyo, Asia - `https://laserstream-mainnet-tyo.helius-rpc.com`
+- **sgp**: Singapore, Asia - `https://laserstream-mainnet-sgp.helius-rpc.com`
+
+For devnet testing, use: `https://laserstream-devnet-ewr.helius-rpc.com`
+
+See the [LaserStream gRPC documentation](/laserstream/grpc) for complete setup instructions and endpoint selection guidelines.
+
+### Rust environment setup
+
+All measurement scripts use Rust with Cargo. Basic setup:
+
+```bash
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Setup project
+cargo new latency-testing
+cd latency-testing
+
+# Add dependencies to Cargo.toml
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+# Futures utilities for StreamExt, SinkExt
+futures = "0.3"
+# Environment variable loading
+dotenvy = "0.15"
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+# Yellowstone gRPC client and protocol
+yellowstone-grpc-client = "8.0.0"
+yellowstone-grpc-proto = "8.0.0"
+# For timestamp analysis
+prost-types = "0.12"
+```
+
+Create a `.env` file with your credentials:
+
+```bash
+YS_GRPC_URL=your-comparison-endpoint
+YS_API_KEY=your-comparison-api-key
+LS_GRPC_URL=your-laserstream-endpoint  
+LS_API_KEY=your-helius-api-key
+```
+
+Get your Helius API key from the [Helius Dashboard](https://dashboard.helius.dev/). LaserStream requires a Professional plan subscription.
+
+---
+
+## Method 1: Parallel stream comparison
+
+This script establishes two independent connections to different gRPC endpoints and measures which receives the same `BlockMeta` messages first. This approach eliminates clock synchronization issues by using relative timing.
+
+```rust [expandable]
+use std::collections::HashMap;
+use std::time::SystemTime;
+
+use dotenvy::dotenv;
+use futures::{StreamExt, SinkExt};
+use tokio::sync::mpsc;
+use tracing::{debug, error, info};
+
+use yellowstone_grpc_client::{ClientTlsConfig, GeyserGrpcClient};
+use yellowstone_grpc_proto::prelude::{
+    subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest, 
+    SubscribeRequestFilterBlocksMeta, SubscribeUpdate,
+};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum Source {
+    Yellowstone,
+    Laserstream,
+}
+
+#[derive(Default, Debug)]
+struct SlotTimings {
+    ys_recv_ms: Option<i128>,
+    ls_recv_ms: Option<i128>,
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let _ = dotenv();
+    tracing_subscriber::fmt().with_env_filter("info").init();
+
+    let ys_url = std::env::var("YS_GRPC_URL").expect("YS_GRPC_URL env variable not set");
+    let ls_url = std::env::var("LS_GRPC_URL").expect("LS_GRPC_URL env variable not set");
+    let ys_api_key = std::env::var("YS_API_KEY").ok();
+    let ls_api_key = std::env::var("LS_API_KEY").ok();
+
+    let commitment = CommitmentLevel::Processed;
+    info!(?commitment, "Starting latency comparison");
+
+    // Establish both clients
+    let mut ys_client = GeyserGrpcClient::build_from_shared(ys_url.clone())
+        .expect("invalid YS url")
+        .x_token(ys_api_key.clone())?
+        .tls_config(ClientTlsConfig::new().with_native_roots())?
+        .max_decoding_message_size(10 * 1024 * 1024)
+        .connect()
+        .await?;
+
+    let mut ls_client = GeyserGrpcClient::build_from_shared(ls_url.clone())
+        .expect("invalid LS url")
+        .x_token(ls_api_key.clone())?
+        .tls_config(ClientTlsConfig::new().with_native_roots())?
+        .max_decoding_message_size(10 * 1024 * 1024)
+        .connect()
+        .await?;
+
+    let (mut ys_tx, mut ys_rx) = ys_client.subscribe().await?;
+    let (mut ls_tx, mut ls_rx) = ls_client.subscribe().await?;
+    
+    let subscribe_request = SubscribeRequest {
+        blocks_meta: {
+            let mut m = HashMap::<String, SubscribeRequestFilterBlocksMeta>::new();
+            m.insert("all".to_string(), SubscribeRequestFilterBlocksMeta::default());
+            m
+        },
+        commitment: Some(commitment as i32),
+        ..Default::default()
+    };
+
+    ys_tx.send(subscribe_request.clone()).await?;
+    ls_tx.send(subscribe_request).await?;
+
+    let (agg_tx, mut agg_rx) = mpsc::unbounded_channel::<(Source, u64, i128)>();
+
+    // Spawn task for Yellowstone stream
+    {
+        let agg_tx = agg_tx.clone();
+        tokio::spawn(async move {
+            while let Some(update_res) = ys_rx.next().await {
+                match update_res {
+                    Ok(update) => handle_update(Source::Yellowstone, update, &agg_tx).await,
+                    Err(e) => {
+                        error!(target: "ys", "stream error: {:?}", e);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    // Spawn task for Laserstream stream
+    {
+        let agg_tx = agg_tx.clone();
+        tokio::spawn(async move {
+            while let Some(update_res) = ls_rx.next().await {
+                match update_res {
+                    Ok(update) => handle_update(Source::Laserstream, update, &agg_tx).await,
+                    Err(e) => {
+                        error!(target: "ls", "stream error: {:?}", e);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    // Aggregator – collect latencies per slot and print once we have both sources
+    let mut timings: HashMap<u64, SlotTimings> = HashMap::new();
+    let mut deltas: Vec<i128> = Vec::new();
+    let mut count = 0;
+
+    println!("slot,ys_recv_ms,ls_recv_ms,delta_ms");
+
+    while let Some((source, slot, latency_ms)) = agg_rx.recv().await {
+        let entry = timings.entry(slot).or_default();
+        match source {
+            Source::Yellowstone => entry.ys_recv_ms = Some(latency_ms),
+            Source::Laserstream => entry.ls_recv_ms = Some(latency_ms),
+        }
+
+        if let (Some(ys), Some(ls)) = (entry.ys_recv_ms, entry.ls_recv_ms) {
+            let delta = ys - ls; // positive => YS arrived later
+            println!("{slot},{ys},{ls},{delta}");
+            
+            deltas.push(delta);
+            count += 1;
+            
+            if count % 100 == 0 {
+                print_statistics(&deltas, count);
+            }
+            
+            timings.remove(&slot);
+        }
+    }
+
+    Ok(())
+}
+
+async fn handle_update(
+    source: Source,
+    update: SubscribeUpdate,
+    agg_tx: &mpsc::UnboundedSender<(Source, u64, i128)>,
+) {
+    if let Some(UpdateOneof::BlockMeta(block_meta)) = update.update_oneof {
+        let slot = block_meta.slot;
+        let recv_ms = system_time_to_millis(SystemTime::now());
+        debug!(?source, slot, recv_ms, "BlockMeta received");
+        let _ = agg_tx.send((source, slot, recv_ms));
+    }
+}
+
+fn print_statistics(deltas: &[i128], count: usize) {
+    if deltas.is_empty() {
+        return;
+    }
+    
+    let mut sorted_deltas = deltas.to_vec();
+    sorted_deltas.sort();
+    
+    let median = if sorted_deltas.len() % 2 == 0 {
+        let mid = sorted_deltas.len() / 2;
+        (sorted_deltas[mid - 1] + sorted_deltas[mid]) / 2
+    } else {
+        sorted_deltas[sorted_deltas.len() / 2]
+    };
+    
+    let min = *sorted_deltas.first().unwrap();
+    let max = *sorted_deltas.last().unwrap();
+    let sum: i128 = sorted_deltas.iter().sum();
+    let mean = sum / sorted_deltas.len() as i128;
+    
+    let p25_idx = (sorted_deltas.len() as f64 * 0.25) as usize;
+    let p75_idx = (sorted_deltas.len() as f64 * 0.75) as usize;
+    let p95_idx = (sorted_deltas.len() as f64 * 0.95) as usize;
+    
+    let p25 = sorted_deltas[p25_idx.min(sorted_deltas.len() - 1)];
+    let p75 = sorted_deltas[p75_idx.min(sorted_deltas.len() - 1)];
+    let p95 = sorted_deltas[p95_idx.min(sorted_deltas.len() - 1)];
+    
+    eprintln!("--- Statistics after {} slots ---", count);
+    eprintln!("Delta (YS - LS) in milliseconds:");
+    eprintln!("  Min: {}, Max: {}", min, max);
+    eprintln!("  Mean: {}, Median: {}", mean, median);
+    eprintln!("  P25: {}, P75: {}, P95: {}", p25, p75, p95);
+    eprintln!("  Positive deltas (YS slower): {}/{} ({:.1}%)", 
+              sorted_deltas.iter().filter(|&&x| x > 0).count(),
+              sorted_deltas.len(),
+              sorted_deltas.iter().filter(|&&x| x > 0).count() as f64 / sorted_deltas.len() as f64 * 100.0);
+    eprintln!("---");
+}
+
+fn system_time_to_millis(st: SystemTime) -> i128 {
+    st.duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i128
+}
+```
+
+**What this measures:** The relative performance difference between two streaming services. The delta shows which service delivers the same slot information first.
+
+**Key metrics:**
+- **Positive delta**: First service (YS) slower than second service (LS) - LaserStream is faster
+- **Negative delta**: First service (YS) faster than second service (LS) - LaserStream is slower  
+- **Mean/Median**: Average performance difference
+- **P95**: 95th percentile latency difference
+
+**Running the test:**
+```bash
+cargo run --bin latency-comparison
+```
+
+**Sample output:**
+```
+slot,ys_recv_ms,ls_recv_ms,delta_ms
+352416939,1752168399141,1752168399140,1
+352416940,1752168399526,1752168399512,14
+352416941,1752168399890,1752168399877,13
+```
+
+The output shows real-time latency differences and periodic statistics. A positive mean delta indicates the second service (LaserStream) consistently delivers data faster.
+
+---
+
+## Method 2: Created timestamp analysis
+
+This approach compares the `created_at` timestamp embedded in messages against your local system time when receiving them.
+
+```rust [expandable]
+use std::time::{Duration, SystemTime};
+use dotenvy::dotenv;
+use tracing::{debug, error, info};
+use yellowstone_grpc_proto::prost_types::Timestamp;
+use futures::StreamExt;
+use futures::SinkExt;
+use std::collections::HashMap;
+
+use yellowstone_grpc_client::{ClientTlsConfig, GeyserGrpcClient};
+use yellowstone_grpc_proto::prelude::{
+    subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
+    SubscribeRequestFilterTransactions, SubscribeUpdate,
+};
+
+const ACCOUNTS_INCLUDE: &[&str] = &["BB5dnY55FXS1e1NXqZDwCzgdYJdMCj3B92PU6Q5Fb6DT"];
+const COMMITMENT_LEVEL: &str = "processed";
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let _ = dotenv();
+    tracing_subscriber::fmt().with_env_filter("info").init();
+
+    let grpc_url = std::env::var("YS_GRPC_URL").expect("GRPC_URL env variable not set");
+    let api_key = std::env::var("YS_API_KEY").ok();
+
+    info!("Connecting to {} …", grpc_url);
+    debug!(accounts_include = ?ACCOUNTS_INCLUDE, "Subscribing with accountsInclude filter");
+
+    let mut client = GeyserGrpcClient::build_from_shared(grpc_url.clone())
+        .expect("invalid URL")
+        .x_token(api_key.clone())?
+        .tls_config(ClientTlsConfig::new().with_native_roots())?
+        .connect()
+        .await?;
+
+    let (mut subscribe_tx, mut subscribe_rx) = client.subscribe().await?;
+
+    let mut tx_filter_map = HashMap::new();
+    tx_filter_map.insert(
+        "latency".to_string(),
+        SubscribeRequestFilterTransactions {
+            account_include: ACCOUNTS_INCLUDE.iter().map(|s| s.to_string()).collect(),
+            vote: Some(false),
+            failed: Some(false),
+            ..Default::default()
+        },
+    );
+
+    subscribe_tx
+        .send(SubscribeRequest {
+            transactions: tx_filter_map,
+            commitment: Some(CommitmentLevel::Processed as i32),
+            ..Default::default()
+        })
+        .await?;
+
+    info!("Subscription established; waiting for messages …");
+
+    while let Some(update_res) = subscribe_rx.next().await {
+        let update: SubscribeUpdate = match update_res {
+            Ok(u) => u,
+            Err(e) => {
+                error!("Stream error: {:?}", e);
+                break;
+            }
+        };
+
+        if let Some(ts) = update.created_at {
+            let now = SystemTime::now();
+            let latency_ms = calculate_latency_ms(&ts);
+
+            let local_ms = system_time_to_millis(now);
+            let created_ms = timestamp_to_millis(&ts);
+
+            debug!(local_ms, created_ms, latency_ms, commitment_level = COMMITMENT_LEVEL, "Message timing");
+            println!(
+                "commitment_level={}, local_ms={}, created_ms={}, latency_ms={}",
+                COMMITMENT_LEVEL, local_ms, created_ms, latency_ms
+            );
+        } else {
+            if let Some(UpdateOneof::Ping(_)) = update.update_oneof {
+                debug!("ping received");
+            }
+        }
+    }
+    Ok(())
+}
+
+fn calculate_latency_ms(created_at: &Timestamp) -> i128 {
+    let now = SystemTime::now();
+    let created_at_systime = SystemTime::UNIX_EPOCH
+        + Duration::from_secs(created_at.seconds as u64)
+        + Duration::from_nanos(created_at.nanos as u64);
+
+    if now > created_at_systime {
+        now.duration_since(created_at_systime)
+            .unwrap()
+            .as_millis() as i128
+    } else {
+        -(created_at_systime
+            .duration_since(now)
+            .unwrap()
+            .as_millis() as i128)
+    }
+}
+
+fn system_time_to_millis(st: SystemTime) -> i128 {
+    st.duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i128
+}
+
+fn timestamp_to_millis(ts: &Timestamp) -> i128 {
+    (ts.seconds as i128 * 1000) + (ts.nanos as i128 / 1_000_000)
+}
+```
+
+**What this measures:** End-to-end latency from when the LaserStream service creates a message to when your application receives it.
+
+**Running the test:**
+```bash
+cargo run --bin timestamp-latency
+```
+
+**Sample output:**
+``` json [expandable]
+commitment_level=processed, local_ms=1752168998488, created_ms=1752168998290, latency_ms=3
+commitment_level=processed, local_ms=1752168998572, created_ms=1752168998392, latency_ms=2
+commitment_level=processed, local_ms=1752168998695, created_ms=1752168998523, latency_ms=4
+commitment_level=processed, local_ms=1752168998744, created_ms=1752168998571, latency_ms=1
+commitment_level=processed, local_ms=1752168998990, created_ms=1752168998825, latency_ms=5
+commitment_level=processed, local_ms=1752168999294, created_ms=1752168999091, latency_ms=2
+commitment_level=processed, local_ms=1752168999391, created_ms=1752168999220, latency_ms=3
+commitment_level=processed, local_ms=1752168999827, created_ms=1752168999650, latency_ms=4
+commitment_level=processed, local_ms=1752168999876, created_ms=1752168999700, latency_ms=0
+commitment_level=processed, local_ms=1752169000441, created_ms=1752169000219, latency_ms=2
+commitment_level=processed, local_ms=1752169000881, created_ms=1752169000226, latency_ms=5
+commitment_level=processed, local_ms=1752169000881, created_ms=1752169000227, latency_ms=4
+commitment_level=processed, local_ms=1752169000882, created_ms=1752169000481, latency_ms=1
+commitment_level=processed, local_ms=1752169000882, created_ms=1752169000481, latency_ms=1
+commitment_level=processed, local_ms=1752169000882, created_ms=1752169000500, latency_ms=3
+commitment_level=processed, local_ms=1752169001143, created_ms=1752169000940, latency_ms=2
+commitment_level=processed, local_ms=1752169001270, created_ms=1752169001106, latency_ms=4
+commitment_level=processed, local_ms=1752169002119, created_ms=1752169001911, latency_ms=3
+commitment_level=processed, local_ms=1752169002210, created_ms=1752169002030, latency_ms=2
+commitment_level=processed, local_ms=1752169002574, created_ms=1752169002390, latency_ms=5
+commitment_level=processed, local_ms=1752169002620, created_ms=1752169002436, latency_ms=4
+commitment_level=processed, local_ms=1752169002624, created_ms=1752169002454, latency_ms=1
+commitment_level=processed, local_ms=1752169003283, created_ms=1752169003112, latency_ms=3
+commitment_level=processed, local_ms=1752169003605, created_ms=1752169003434, latency_ms=2
+commitment_level=processed, local_ms=1752169003718, created_ms=1752169003537, latency_ms=4
+commitment_level=processed, local_ms=1752169003790, created_ms=1752169003627, latency_ms=0
+```
+
+This outputs the latency in milliseconds for each received message, showing the distribution of end-to-end delivery times.
+
+---
+
+## Method 3: Block timestamp comparison (not recommended)
+
+While it might seem logical to compare block timestamps against your local receipt time, this approach fundamentally fails for latency measurement due to a critical mismatch in precision. Solana produces blocks approximately every 400 milliseconds, creating roughly 2.5 blocks per second, but block timestamps only record time at second-level granularity.
+
+This creates an impossible situation: when multiple blocks are produced within the same second, they all appear to have identical timestamps despite being created hundreds of milliseconds apart. The precision you need for meaningful latency measurement simply doesn't exist in the block timestamp data.
+
+Even if you could work around the granularity issue, block timestamps reflect when validators agreed on block finalization, not when the underlying transaction data first became available. This adds another layer of uncertainty that makes the measurement less useful for understanding streaming latency.
+
+The fundamental problem is that you're trying to measure sub-second performance differences using timestamps that only change every second. This approach should be avoided entirely in favor of the previous two methods that provide the precision needed for actual latency analysis.
+
+---
+
+## Higher-level intuition
+
+**Think of latency measurement as answering three fundamental questions:**
+
+1. **"Who's faster?"** - Method 1 (parallel comparison) gives you the clearest answer by eliminating variables and directly comparing two streams receiving identical data.
+
+2. **"How fast am I getting data?"** - Method 2 (created_at analysis) shows your application's end-to-end experience, though it has limitations since it only measures from when LaserStream packaged the message.
+
+3. **"What should I avoid?"** - Method 3 (block timestamps) demonstrates why some approaches fail - blockchain timestamps lack the precision needed for meaningful latency measurement.
+
+**The key insight:** In distributed systems like blockchain networks, true latency measurement requires understanding what you can and cannot control. You can't measure absolute speed to a distributed network, but you can measure relative performance between different paths to the same data.
+
+**Practical takeaway:** Use Method 1 for infrastructure decisions, Method 2 for application monitoring, and deploy your testing infrastructure as close as possible to your chosen LaserStream region. Remember that latency measurement in production data centers reveals meaningful differences that local testing simply cannot capture. 
