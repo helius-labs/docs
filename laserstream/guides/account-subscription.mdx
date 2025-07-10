@@ -1,0 +1,439 @@
+---
+title: "Account Subscription and Updates"
+sidebarTitle: "Account Subscription"
+description: "Learn how to subscribe to account updates and efficiently track on-chain state changes using Laserstream."
+---
+
+When building applications that need to respond to on-chain changes, polling RPC endpoints for account updates is both inefficient and slow. Account subscriptions solve this by delivering real-time updates about account state changes directly to your application.
+
+This guide covers everything you need to know about account subscriptions: what they are, how they work, and how to optimize them for your specific use case.
+
+---
+
+## The account model context
+
+Skip this section if you're familiar with Solana accounts and their structure.
+
+Solana uses an account-based model where every piece of data lives in an account - a container that holds both data and metadata. Each account has:
+
+- **Data**: The actual bytes storing program state, token balances, or other information
+- **Owner**: The program that controls this account and can modify its data
+- **Lamports**: The account's SOL balance for rent exemption
+- **Executable**: Whether this account contains program code
+
+Programs are stateless - they don't store data internally. Instead, they create and manage separate accounts to store their state. When you interact with a program, you pass in the accounts it should read from or write to.
+
+This design makes account subscriptions powerful: you can watch for changes to specific accounts, all accounts owned by a program, or accounts matching certain criteria.
+
+---
+
+## Basic account subscription
+
+Let's start with a simple example that subscribes to changes in token accounts. This script will notify you whenever token balances change:
+
+```ts [expandable]
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import * as bs58 from 'bs58';
+
+const credentials = require('../test-config');
+
+// Utility function to recursively convert Buffer objects to base58 strings
+function convertBuffersToBase58(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (Buffer.isBuffer(obj)) {
+    return bs58.encode(obj);
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(convertBuffersToBase58);
+  }
+  
+  if (typeof obj === 'object') {
+    const result: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = convertBuffersToBase58(obj[key]);
+      }
+    }
+    return result;
+  }
+  
+  return obj;
+}
+
+async function main() {
+  console.log('🏦 Basic Account Subscription Example');
+
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-url',
+  };
+
+  const request = {
+    accounts: {
+      "token-accounts": {
+        account: [], // Specific account pubkeys (empty = all)
+        owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"], // Token program
+        filters: [
+          {
+            // Only token accounts (165 bytes)
+            datasize: 165
+          }
+        ]
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    transactions: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    async (update: SubscribeUpdate) => {
+      const readableUpdate = convertBuffersToBase58(update);
+      console.log('🏦 Account Update:', JSON.stringify(readableUpdate, null, 2));
+    },
+    async (err) => console.error('❌ Stream error:', err)
+  );
+
+  console.log(`✅ Account subscription started (id: ${stream.id})`);
+
+  process.on('SIGINT', () => {
+    console.log('\n🛑 Cancelling stream...');
+    stream.cancel();
+    process.exit(0);
+  });
+}
+
+main().catch(console.error);
+```
+
+When you run this basic subscription, you'll see real-time account updates streaming to your console:
+
+```
+🏦 Basic Account Subscription Example
+✅ Account subscription started (id: xyz789)
+
+🏦 Account Update: {
+  "filters": ["token-accounts"],
+  "account": {
+    "account": {
+      "pubkey": "BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF",
+      "lamports": "2039280",
+      "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "rentEpoch": "18446744073709551615",
+      "data": "2NUx6Xw9QkmgJCyYUP3d8TPsjJhUpSM7hcy9Fi1juGc6g9DrpPFyGyvBZzu9qiAjFtyEDbNiLHYFJsq1dD5Wxr4LPcF9Dqs4AJa15L1N92pfinnoKVfCsVCcybhV1iwkCCTMeMyxTRA4tqJm6MrLwgKG3HmmwVdhsEuXjSsGJFXGzgfgPHucVzBEgAqcpH9JPpoaQyis2MFwRJLjenxzkE8xJzWHv1Zk2T",
+      "writeVersion": "2697618495",
+      "txnSignature": "5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD"
+    },
+    "slot": "352366983"
+  },
+  "createdAt": "2025-07-10T11:56:22.027Z"
+}
+```
+
+**What just happened?** Our subscription worked perfectly! We asked Laserstream to notify us about token account changes, and it delivered an update about account `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF`. This account has:
+
+- **2,039,280 lamports** (~0.002 SOL balance - this is the rent-exempt amount for this token account)
+- **Owner program** `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` (this is the SPL Token program)
+- **Transaction signature** `5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD` showing which specific transaction caused this account to change
+- **Slot 352366983** indicating when this update occurred on the blockchain
+- **Data field** containing 165 bytes of account data encoded as base58
+
+### Understanding account filtering with datasize
+
+The data field is crucial - it contains the actual token account structure. Let's use this understanding for **smart account filtering**.
+
+#### Why use datasize filtering?
+
+To understand why we need filtering, let's first understand what token accounts actually are. **For every token a wallet holds, there's a separate account on-chain.** If your wallet holds 3 different tokens (USDC, BONK, and SOL), you actually have 1 wallet account (your main SOL account) plus 3 token accounts (one for each token type). Each token account is exactly 165 bytes and stores: which token it holds (mint address), who owns it (your wallet address), and how much of that token it contains (amount).
+
+The Token Program owns **millions of accounts** on Solana, but not all of them are what we think of as "token accounts" holding user balances. Here's what happens with and without filtering:
+
+**Without filtering - The flood:**
+```ts
+accounts: {
+  "all-token-program-accounts": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"] // ❌ Overwhelming!
+  }
+}
+```
+
+This subscribes to ALL accounts owned by the Token Program, which includes:
+- **Token accounts** (165 bytes) - User balances: millions of accounts
+- **Mint accounts** (82 bytes) - Token definitions: hundreds of thousands of accounts  
+- **Multisig accounts** (355 bytes) - Shared wallet controls: tens of thousands of accounts
+- **Associated Token Program accounts** (various sizes) - millions of accounts
+
+**Result:** Your application receives millions of account updates constantly, most of which you don't care about.
+
+**With smart filtering - Surgical precision:**
+```ts
+accounts: {
+  "token-accounts-only": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [{ datasize: 165 }] // ✅ Only standard token accounts
+  }
+}
+```
+
+This filters down to only the 165-byte accounts, which are specifically the user token balance accounts - exactly what you want for tracking token transfers, balance changes, and portfolio updates.
+
+**The difference:**
+- **Without filtering:** Millions of account updates (mint creations, multisig changes, etc.)
+- **With datasize filtering:** Only token balance changes
+
+That's a significant reduction in noise, focusing only on the accounts that actually represent user token holdings.
+
+#### Where does 165 bytes come from?
+
+This isn't magic - it comes from the [SPL Token program's account structure](https://github.com/solana-program/token/blob/d05d10807fe8cf157f6e1f024c708274c30c953a/program/src/state.rs#L87). Looking at the source code, we can see the `Account` struct defines exactly 165 bytes:
+
+```rust
+pub struct Account {
+    pub mint: Pubkey,                    // 32 bytes
+    pub owner: Pubkey,                   // 32 bytes  
+    pub amount: u64,                     // 8 bytes
+    pub delegate: COption<Pubkey>,       // 4 + 32 bytes
+    pub state: AccountState,             // 1 byte
+    pub is_native: COption<u64>,         // 4 + 8 bytes
+    pub delegated_amount: u64,           // 8 bytes
+    pub close_authority: COption<Pubkey> // 4 + 32 bytes
+}
+// Total: 32+32+8+36+1+12+8+36 = 165 bytes
+```
+
+This fixed size allows us to filter precisely for standard token accounts and exclude:
+- Mint accounts (82 bytes)
+- Multisig accounts (355 bytes) 
+- Associated token account program accounts
+- Other token-related accounts with different sizes
+
+For calculating account sizes in other programs, check out the [Anchor Space Reference](https://www.anchor-lang.com/docs/references/space) - it shows you how much space different data types take (Pubkey = 32 bytes, u64 = 8 bytes, etc.).
+
+#### Decoding the account structure
+
+Now that we understand why we filtered for 165 bytes, let's decode what's inside our example account:
+
+```
+Base58 data: 2NUx6Xw9QkmgJCyYUP3d8TPsjJhUpSM7hcy9Fi1juGc6g9...
+```
+
+The 165 bytes break down as:
+- **Bytes 0-31:** Mint address (which token this account holds)
+- **Bytes 32-63:** Owner address (who owns this token account)  
+- **Bytes 64-71:** Token amount (how many tokens are in the account)
+- **Bytes 72-164:** Additional metadata (delegate, state, close authority, etc.)
+
+This structured approach gives us surgical precision: we only receive updates for standard token accounts, not the noise from other account types.
+
+### Combining filters: datasize + memcmp for laser precision
+
+Now that we know the mint address lives at bytes 0-31, we can get even more specific. Let's say we only want to monitor USDC token accounts. We can combine our `datasize` filter with a `memcmp` filter to target the exact mint address:
+
+```ts
+const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+const request = {
+  accounts: {
+    "usdc-only": {
+      owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+      filters: [
+        { datasize: 165 },                    // Standard token accounts only
+        { 
+          memcmp: {
+            offset: 0,                         // Mint address starts at byte 0
+            base58: USDC_MINT                  // Match this specific mint
+          }
+        }
+      ]
+    }
+  },
+  // ... other config
+};
+```
+
+**Progressive filtering strategy:**
+1. **Owner filter:** "Give me accounts owned by Token Program" (millions of accounts)
+2. **Datasize filter:** "But only 165-byte standard token accounts" (hundreds of thousands)  
+3. **Memcmp filter:** "And only those holding USDC" (thousands)
+
+This progression from broad to specific is the key to efficient account monitoring. Each filter narrows down the result set, so you only receive the exact updates you care about.
+
+**Important:** All filters use AND logic - every condition must be met for an account update to trigger.
+
+### Reading USDC account updates: Who, How Much, Where?
+
+Now let's see what these filtered updates actually contain. Let's create a USDC-specific monitor that answers the key questions when a token account changes:
+
+- **Who** owns this token account?
+- **How much** USDC does it now contain?
+- **Where** (which specific account) changed?
+- **When** did this change happen?
+- **What transaction** caused the change?
+
+The raw account updates contain binary data that we need to decode. Since Solana uses base58 encoding for addresses and signatures, we use the `bs58.encode()` function to convert binary Buffer objects to readable strings.
+
+```ts [expandable]
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+import * as bs58 from 'bs58';
+
+const credentials = require('../test-config');
+
+async function main() {
+  console.log('USDC Account Monitor');
+
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-url',
+  };
+
+  const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+  const request = {
+    accounts: {
+      "usdc-accounts": {
+        account: [],
+        owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        filters: [
+          { datasize: 165 },                           // Standard token accounts
+          { memcmp: { offset: 0, base58: USDC_MINT } } // Only USDC
+        ]
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    transactions: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    async (update: SubscribeUpdate) => {
+      explainAccountUpdate(update);
+    },
+    async (err) => console.error('Stream error:', err)
+  );
+
+  console.log(`Account monitor started (id: ${stream.id})`);
+
+  process.on('SIGINT', () => {
+    console.log('\nCancelling stream...');
+    stream.cancel();
+    process.exit(0);
+  });
+}
+
+function explainAccountUpdate(update: SubscribeUpdate) {
+  if (!update.account) return;
+  
+  const account = update.account.account;
+  
+  // Decode the key addresses
+  const tokenAccountAddress = bs58.encode(account.pubkey);
+  const transactionSignature = account.txnSignature ? bs58.encode(account.txnSignature) : 'Unknown';
+  
+  // Extract and decode the token account data (165 bytes)
+  const walletOwner = bs58.encode(account.data.slice(32, 64));       // Bytes 32-63: Owner
+  const tokenAmount = account.data.readBigUInt64LE(64);              // Bytes 64-71: Amount
+  const usdcAmount = Number(tokenAmount) / 1_000_000;                // Convert to USDC (6 decimals)
+  
+  console.log(`Account: ${tokenAccountAddress}`);
+  console.log(`Owner: ${walletOwner}`);
+  console.log(`Balance: ${usdcAmount.toLocaleString()} USDC`);
+  console.log(`Slot: ${update.account.slot}`);
+  console.log(`Transaction: ${transactionSignature.slice(0, 8)}...`);
+  console.log('---');
+}
+
+main().catch(console.error);
+```
+
+When you run this USDC monitor, you'll see clean, structured output like this:
+
+```
+USDC Account Monitor
+Account monitor started (id: abc123)
+
+Account: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+Owner: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+Balance: 1,500 USDC
+Slot: 352154103
+Transaction: 5v8fy0eJ...
+---
+Account: BQy5rNRxLfcaK6554PMzsg4VJsFXzwGnAnayb8TZKgZX
+Owner: HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH
+Balance: 0 USDC
+Slot: 352154103
+Transaction: 5v8fy0eJ...
+---
+```
+
+Each block represents a USDC account that changed state. The first account now holds 1,500 USDC, while the second account has been emptied to 0 USDC. You get the current balance immediately after each transaction, along with which specific account changed and when.
+
+Account subscriptions show you the end result of what happened to each account, not the transaction details. If you need to understand the full transaction context (who sent to whom, fees, etc.), you'd need to fetch the full transaction using the signature shown.
+
+## Complete filtering reference
+
+Beyond the basic `owner`, `datasize`, and `memcmp` filters we've used, account subscriptions support additional filtering options to further narrow your results:
+
+### Specific account filtering
+
+Monitor exact accounts by their public keys:
+
+```ts
+accounts: {
+  "specific-accounts": {
+    account: [
+      "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+      "BQy5rNRxLfcaK6554PMzsg4VJsFXzwGnAnayb8TZKgZX"
+    ]
+  }
+}
+```
+
+This approach works well when you know exactly which accounts matter to your application - like monitoring your application's treasury accounts or specific user accounts.
+
+### Combined filtering strategies
+
+The power comes from combining multiple filter types. Here's the mental model:
+
+1. **Cast a wide net** with `owner` - "Give me all accounts managed by this program"
+2. **Filter by structure** with `datasize` - "But only accounts of this specific type"  
+3. **Target specific data** with `memcmp` - "And only those containing this specific information"
+4. **Monitor known accounts** with `account` - "Or just watch these exact accounts I care about"
+
+For example, monitoring high-value USDC accounts:
+
+```ts
+accounts: {
+  "high-value-usdc": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [
+      { datasize: 165 },                           // Token accounts only
+      { memcmp: { offset: 0, base58: USDC_MINT } } // USDC only
+      // Note: You'd implement balance filtering in your callback logic
+    ]
+  }
+}
+```
+
+The key insight is that each filter reduces the volume of updates you receive. Without filtering, you might get overwhelming amounts of account updates. With smart filtering, you get only the updates that matter to your specific use case.
+
+### Understanding the bigger picture
+
+Think of account subscriptions as watching a live feed of database changes. Solana's state is essentially a massive key-value store where each account is an entry. When programs execute, they modify these accounts. Your subscription lets you watch specific entries change in real-time.
+
+The filtering system works like database indexes - you're not just watching "all changes" but rather "changes to accounts that match these criteria." This makes it possible to build responsive applications that react immediately to relevant on-chain events without overwhelming your system with irrelevant data.
+
+## Applying this pattern to other programs
+
+The approach we've learned works for any Solana program. Here's the general pattern:
+
+1. **Research the account structure** - Check the program's source code or documentation
+2. **Start with owner filtering** - Target the program that manages the accounts  
+3. **Apply structural filters** - Use account size, data patterns, or other characteristics to narrow down to specific account types
+4. **Add targeted filters** - Focus on specific accounts, states, or data values that matter to your application
+
