@@ -284,8 +284,8 @@ This approach leverages the built-in decoding while handling the binary fields t
 
 Now that we can see the decoded data, let's explore the two main parts of every Laserstream transaction update. Remember from our initial example that each transaction contains two key objects:
 
-- `transaction.transaction.transaction` → the signed message (user's proposal)
-- `transaction.transaction.meta` → the execution metadata (validator's response)
+- **Message (Proposal)** → `transaction.transaction.transaction` → the signed message (user's proposal)
+- **Meta (Execution)** → `transaction.transaction.meta` → the execution metadata (validator's response)
 
 This two-part structure tells a complete story: what the user requested versus what actually happened. Let's examine each part in detail.
 
@@ -294,6 +294,8 @@ This two-part structure tells a complete story: what the user requested versus w
 ## The proposal: everything inside message
 
 The user creates a message that specifies *what*, *who* and *until when*. Here's how to decode each part:
+
+### Transaction Header
 
 ```json
 {
@@ -305,8 +307,9 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 }
 ```
 
-**Transaction Header**
 `numRequiredSignatures` tells the validator how many signatures to verify, while the two `numReadonly*` values label accounts the runtime can treat as read-only, enabling parallel execution.
+
+### Account Keys Dictionary
 
 ```json
 {
@@ -321,8 +324,9 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 }
 ```
 
-**Account Keys Dictionary**
 `accountKeys` is a plain list of public keys that acts as a lookup table. Every later integer in the transaction - `programIdIndex`, each element in an instruction's `accounts` array - points back into this list by index, saving more than a kilobyte per message.
+
+### Protection Against Replay
 
 ```json
 {
@@ -330,8 +334,9 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 }
 ```
 
-**Protection Against Replay**
 `recentBlockhash` expires once it scrolls out of the last 150 block-hashes, roughly ninety seconds on mainnet.
+
+### Instructions: The Actual Commands
 
 ```json
 {
@@ -349,13 +354,17 @@ The user creates a message that specifies *what*, *who* and *until when*. Here's
 }
 ```
 
-**Instructions: The Actual Commands**
 Each instruction contains three key parts:
-- `programIdIndex`: Points to an address in the `accountKeys` array (e.g., index 10 = `ComputeBudget111111111111111111111111111111`)
-- `accounts`: A base58-encoded string representing which account indexes this instruction touches. Note: Due to the `convertBuffers` function, this appears as base58 but actually contains account indices (e.g., `"3vtmrQMafzDoG2CBz1iqgXPTnC"` decodes to indices [21, 19, 12, 17, 2, 6, 1, 22])
-- `data`: The actual instruction data encoded as base58
+
+- **Program ID** (`programIdIndex`): Points to an address in the `accountKeys` array (e.g., index 10 = `ComputeBudget111111111111111111111111111111`)
+- **Accounts** (`accounts`): A base58-encoded string representing which account indexes this instruction touches
+- **Data** (`data`): The actual instruction data encoded as base58
+
+Due to the `convertBuffers` function, accounts appears as base58 but actually contains account indices (e.g., `"3vtmrQMafzDoG2CBz1iqgXPTnC"` decodes to indices [21, 19, 12, 17, 2, 6, 1, 22])
 
 This design means instead of repeating full 32-byte addresses, each instruction just references positions in the lookup table.
+
+### Signatures: Proof of Authorization
 
 ```json
 {
@@ -365,8 +374,9 @@ This design means instead of repeating full 32-byte addresses, each instruction 
 }
 ```
 
-**Signatures: Proof of Authorization**
 `signatures` contains the cryptographic signatures proving the required accounts authorized this transaction. The number of signatures must match `header.numRequiredSignatures`.
+
+### Address Table Lookups
 
 ```json
 {
@@ -381,10 +391,9 @@ This design means instead of repeating full 32-byte addresses, each instruction 
 }
 ```
 
-**Address Table Lookups**
 If `versioned` is `true`, `addressTableLookups` appears with an on-chain table and two index lists. Lookup tables lift the hard cap on address count to dozens while keeping the packet under the 1,232-byte MTU.
 
-**How It All Connects: The Flow**
+### How It All Connects: The Flow
 
 Here's what happens from first principles:
 
@@ -397,75 +406,61 @@ Here's what happens from first principles:
 4. **Add authorization**: `signatures` proves the required accounts approved this transaction
 5. **Set expiration**: `recentBlockhash` ensures this transaction can't be replayed later
 
-**Example walkthrough:**
-```
-accountKeys[15] = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
-instruction.programIdIndex = 15
-→ This instruction calls the Pump.fun AMM program
-
-instruction.accounts = "3vtmrQMafzDoG2CBz1iqgXPTnC"
-→ This base58 string decodes to account indices: [21, 19, 12, 17, 2, 6, 1, 22]
-→ These indices map to: accountKeys[21], accountKeys[19], accountKeys[12], etc.
-→ Which gives us the actual account addresses this instruction needs
-```
-
-In a single sweep we now know:
-
-* who must sign (`header.numRequiredSignatures`)
-* which programs and accounts each instruction touches (`programIdIndex` + `accounts`)
-* the deadline for inclusion (`recentBlockhash`)
-* any bonus keys fetched from tables (`addressTableLookups`)
-
-That is every promise the user makes to the network.
-
 ---
 
-## The outcome: everything inside meta
+## The execution: everything inside meta
 
-Now let's examine the second half of the transaction structure: the `meta` object. While the message shows what the user proposed, the meta reveals what actually happened when the validator executed that proposal.
+While the message shows what the user wanted to do, the meta shows what actually happened when validators executed the transaction.
 
-The validator replies with facts: success or failure, cost, and side-effects.
+### Basic execution information
 
+**Success/Failure**
 ```json
 {
-  "err": null
+  "err": null,
+  "fee": 12500
 }
 ```
 
-**Execution Result**
-`err` is `null` on success or a structured error code when any instruction fails.
+- `err: null` = success
+- `err: {...}` = failure with error details
+- `fee` = lamports charged for this transaction
 
+**Balance Changes**
 ```json
 {
-  "fee": 5000,
-  "preBalances": [10875517572, 0, 207594496815, 0, 0, 0],
-  "postBalances": [10875512572, 1461600, 207594496815, 2001231920, 2039280, 15115600]
+  "preBalances": [1075517572, 0, 207594496815, 0, 0, 0, 0, 0, 0],
+  "postBalances": [1075502572, 1461600, 207594496815, 2001231920, 2039280, 0, 0, 0, 0]
 }
 ```
 
-**Transaction Costs and Balance Changes**
-`fee` shows the base cost - 5,000 lamports per signature - and the first key in `accountKeys` is the fee payer, so subtracting its pre- and post-balances proves the debit.
-
-```json
-{
-  "computeUnitsConsumed": 23432
-}
-```
+Balance arrays correspond to the `accountKeys` array by index:
+- Account 0: Lost 15000 lamports (fee payment)
+- Account 1: Gained 1461600 lamports (new account created)
+- Account 3: Gained 2001231920 lamports (program account)
 
 **Compute Usage**
-`computeUnitsConsumed` records exact workload; pairing it with a chosen micro-lamport price gives the priority fee.
+```json
+{
+  "computeUnitsConsumed": 182564
+}
+```
 
+Shows how much compute budget was used (out of the requested amount).
+
+### Advanced execution details
+
+**Inner Instructions**
 ```json
 {
   "innerInstructions": [
     {
-      "index": 0,
+      "index": 1,
       "instructions": [
         {
-          "programIdIndex": 2,
-          "accounts": [0, 1],
-          "data": "3Bxs4h24hBtQy9rw",
-          "stackHeight": 2
+          "programIdIndex": 5,
+          "accounts": [1, 2, 0],
+          "data": "3Bxs4h24hBtQy9rw"
         }
       ]
     }
@@ -473,87 +468,304 @@ The validator replies with facts: success or failure, cost, and side-effects.
 }
 ```
 
-**Cross-Program Invocations**
-Each item in `innerInstructions` carries an `index` pointing back to its parent instruction, letting you trace every cross-program call like a stack trace.
+Inner instructions are additional instructions that programs called during execution. They're not part of the original transaction but were triggered by the main instructions.
 
+**Log Messages**
 ```json
 {
   "logMessages": [
+    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+    "Program ComputeBudget111111111111111111111111111111 success",
     "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
     "Program log: Instruction: Swap",
-    "Program log: Transfer 1000000 lamports",
-    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 consumed 23432 of 200000 compute units",
+    "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [2]",
+    "Program log: Create",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+    "Program log: Instruction: GetAccountDataSize",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
+    "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
     "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success"
   ]
 }
 ```
 
-**Program Logs**
-`logMessages` is the flat UTF-8 diary the runtime captured; scanning it costs nothing because the strings were already produced on-chain.
-
-```json
-{
-  "preTokenBalances": [
-    {
-      "accountIndex": 3,
-      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "uiTokenAmount": {
-        "uiAmount": 1000.0,
-        "decimals": 6,
-        "amount": "1000000000",
-        "uiAmountString": "1000"
-      }
-    }
-  ],
-  "postTokenBalances": [
-    {
-      "accountIndex": 3,
-      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "uiTokenAmount": {
-        "uiAmount": 950.0,
-        "decimals": 6,
-        "amount": "950000000",
-        "uiAmountString": "950"
-      }
-    }
-  ]
-}
-```
+Log messages provide a chronological trace of program execution, showing which programs were called and any custom log messages they output.
 
 **Token Balance Changes**
-`preTokenBalances` and `postTokenBalances` list SPL-Token accounts with a ready-made `uiTokenAmount` so you avoid dividing by 10⁹ yourself.
-
 ```json
 {
-  "returnData": {
-    "programId": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
-    "data": ["SGVsbG8gV29ybGQ=", "base64"]
-  }
-}
-```
-
-**Return Data**
-If a program calls `sol_set_return_data`, the runtime echoes that blob in `returnData`, saving an extra RPC fetch.
-
-```json
-{
-  "loadedWritableAddresses": [
-    "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-  ],
-  "loadedReadonlyAddresses": [
-    "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
-    "GDDMwNyyx8uB6zrqwBFHjLLG3TBYk2F8Az4yrQC5RzMp"
+  "preTokenBalances": [],
+  "postTokenBalances": [
+    {
+      "accountIndex": 1,
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "owner": "7YttLkHDoNj9wyDur5pM1ejNaAvT9X4eqaYcHQqtj2G5",
+      "uiTokenAmount": {
+        "amount": "1000000",
+        "decimals": 6,
+        "uiAmount": 1.0,
+        "uiAmountString": "1"
+      }
+    }
   ]
 }
 ```
 
-**Resolved Lookup Tables**
-`loadedWritableAddresses` and `loadedReadonlyAddresses` confirm exactly which table keys were pulled in, closing the loop with the proposal.
+Token balance changes show before/after states for SPL token accounts, including the human-readable amounts with proper decimal handling.
 
 ---
 
-## One mental model to remember
+## Practical decoding patterns
 
-Everything under `message` is what the user **asked for**; everything under `meta` is what the cluster **observed**.
-Read the payload in that order - proposal first, outcome second - and every parameter explains the next without overwhelming detail. Add or drop decoders as you like, and the same stream becomes a mint detector, fee profiler, or audit logger without ever leaving the Laserstream feed.
+Here are common patterns for extracting useful information from decoded transactions:
+
+```typescript
+// Transaction Success
+function isTransactionSuccessful(meta: any): boolean {
+  return meta.err === null;
+}
+
+function getTransactionFee(meta: any): number {
+  return meta.fee;
+}
+
+function getComputeUnitsUsed(meta: any): number {
+  return meta.computeUnitsConsumed;
+}
+
+// Balance Changes
+function getBalanceChanges(meta: any, accountKeys: string[]): Array<{account: string, change: number}> {
+  const changes = [];
+  
+  for (let i = 0; i < meta.preBalances.length; i++) {
+    const change = meta.postBalances[i] - meta.preBalances[i];
+    if (change !== 0) {
+      changes.push({
+        account: accountKeys[i],
+        change: change
+      });
+    }
+  }
+  
+  return changes;
+}
+
+// Program Calls
+function getInvokedPrograms(meta: any, accountKeys: string[]): string[] {
+  const programs = new Set<string>();
+  
+  meta.logMessages.forEach((log: string) => {
+    const match = log.match(/Program ([1-9A-HJ-NP-Za-km-z]{32,}) invoke/);
+    if (match) {
+      programs.add(match[1]);
+    }
+  });
+  
+  return Array.from(programs);
+}
+
+// Token Transfers
+function getTokenTransfers(meta: any): Array<{mint: string, from: string, to: string, amount: number}> {
+  const transfers = [];
+  
+  // Compare pre and post token balances
+  const preBalances = new Map();
+  const postBalances = new Map();
+  
+  meta.preTokenBalances.forEach((balance: any) => {
+    preBalances.set(balance.accountIndex, balance);
+  });
+  
+  meta.postTokenBalances.forEach((balance: any) => {
+    postBalances.set(balance.accountIndex, balance);
+  });
+  
+  // Find changes
+  for (const [accountIndex, postBalance] of postBalances) {
+    const preBalance = preBalances.get(accountIndex);
+    const preAmount = preBalance ? parseInt(preBalance.uiTokenAmount.amount) : 0;
+    const postAmount = parseInt(postBalance.uiTokenAmount.amount);
+    
+    if (preAmount !== postAmount) {
+      transfers.push({
+        mint: postBalance.mint,
+        account: postBalance.owner,
+        change: postAmount - preAmount,
+        decimals: postBalance.uiTokenAmount.decimals
+      });
+    }
+  }
+  
+  return transfers;
+}
+```
+
+---
+
+## Complete example: Jupiter swap decoder
+
+Here's a complete example that decodes Jupiter swap transactions and extracts meaningful information:
+
+```typescript [expandable]
+import bs58 from 'bs58';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+
+interface SwapInfo {
+  signature: string;
+  slot: number;
+  user: string;
+  inputMint: string;
+  outputMint: string;
+  inputAmount: number;
+  outputAmount: number;
+  fee: number;
+  success: boolean;
+}
+
+function convertBuffers(obj: any): any {
+  if (!obj) return obj;
+  if (Buffer.isBuffer(obj) || obj instanceof Uint8Array) {
+    return bs58.encode(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffers(item));
+  }
+  if (typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBuffers(value)])
+    );
+  }
+  return obj;
+}
+
+function decodeJupiterSwap(txUpdate: any): SwapInfo | null {
+  const tx = txUpdate.transaction;
+  const meta = tx.meta;
+  const message = tx.transaction.message;
+  
+  // Convert binary fields to readable format
+  const signature = bs58.encode(tx.signature);
+  const accountKeys = message.accountKeys.map((key: any) => bs58.encode(key));
+  
+  // Check if this is a Jupiter transaction
+  const jupiterProgram = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
+  if (!accountKeys.includes(jupiterProgram)) {
+    return null;
+  }
+  
+  // Extract user (first account is typically the fee payer/user)
+  const user = accountKeys[0];
+  
+  // Get token balance changes
+  const tokenChanges = getTokenTransfers(meta);
+  
+  // Find input (negative change) and output (positive change)
+  const inputChange = tokenChanges.find(change => change.change < 0);
+  const outputChange = tokenChanges.find(change => change.change > 0);
+  
+  if (!inputChange || !outputChange) {
+    return null;
+  }
+  
+  return {
+    signature,
+    slot: parseInt(txUpdate.slot),
+    user,
+    inputMint: inputChange.mint,
+    outputMint: outputChange.mint,
+    inputAmount: Math.abs(inputChange.change),
+    outputAmount: outputChange.change,
+    fee: meta.fee,
+    success: meta.err === null
+  };
+}
+
+function getTokenTransfers(meta: any): Array<{mint: string, change: number}> {
+  const transfers = [];
+  
+  const preBalances = new Map();
+  const postBalances = new Map();
+  
+  meta.preTokenBalances.forEach((balance: any) => {
+    preBalances.set(balance.accountIndex, balance);
+  });
+  
+  meta.postTokenBalances.forEach((balance: any) => {
+    postBalances.set(balance.accountIndex, balance);
+  });
+  
+  for (const [accountIndex, postBalance] of postBalances) {
+    const preBalance = preBalances.get(accountIndex);
+    const preAmount = preBalance ? parseInt(preBalance.uiTokenAmount.amount) : 0;
+    const postAmount = parseInt(postBalance.uiTokenAmount.amount);
+    
+    if (preAmount !== postAmount) {
+      transfers.push({
+        mint: postBalance.mint,
+        change: postAmount - preAmount
+      });
+    }
+  }
+  
+  return transfers;
+}
+
+async function runJupiterSwapMonitor() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-swaps": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (update: SubscribeUpdate) => {
+      if (update.transaction) {
+        const swapInfo = decodeJupiterSwap(update.transaction);
+        if (swapInfo) {
+          console.log('🔄 Jupiter Swap:');
+          console.log(`  User: ${swapInfo.user}`);
+          console.log(`  Input: ${swapInfo.inputAmount} of ${swapInfo.inputMint}`);
+          console.log(`  Output: ${swapInfo.outputAmount} of ${swapInfo.outputMint}`);
+          console.log(`  Fee: ${swapInfo.fee} lamports`);
+          console.log(`  Success: ${swapInfo.success}`);
+          console.log(`  Signature: ${swapInfo.signature}`);
+          console.log('---');
+        }
+      }
+    },
+    console.error
+  );
+
+  console.log(`✅ Jupiter swap monitor started (id: ${stream.id})`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+
+runJupiterSwapMonitor().catch(console.error);
+```
+
+This example shows how to combine message decoding with meta analysis to extract business-relevant information from complex DeFi transactions.
+
+---
+
+## Key takeaways
+
+- **Two-part structure**: Every transaction has a **message** (what was requested) and **meta** (what actually happened)
+- **Binary decoding**: Use `bs58.encode()` to convert binary fields to readable base58 strings
+- **Account key lookups**: Instructions reference accounts by index in the `accountKeys` array
+- **Balance tracking**: Compare `preBalances` and `postBalances` to see what changed
+
+The key to understanding Solana transactions is recognizing that they're designed for efficiency: instead of repeating addresses, they use lookup tables and indexes to minimize transaction size while maximizing information density.

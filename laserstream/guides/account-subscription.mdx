@@ -12,7 +12,9 @@ This guide covers everything you need to know about account subscriptions: what 
 
 ## The account model context
 
+<Info>
 Skip this section if you're familiar with Solana accounts and their structure.
+</Info>
 
 Solana uses an account-based model where every piece of data lives in an account - a container that holds both data and metadata. Each account has:
 
@@ -135,8 +137,9 @@ When you run this basic subscription, you'll see real-time account updates strea
 }
 ```
 
-**What just happened?** Our subscription worked perfectly! We asked Laserstream to notify us about token account changes, and it delivered an update about account `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF`. This account has:
+**What just happened?** Our subscription worked perfectly! We asked Laserstream to notify us about token account changes, and it delivered an update about account `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF`.
 
+This account has:
 - **2,039,280 lamports** (~0.002 SOL balance - this is the rent-exempt amount for this token account)
 - **Owner program** `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` (this is the SPL Token program)
 - **Transaction signature** `5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD` showing which specific transaction caused this account to change
@@ -168,7 +171,9 @@ This subscribes to ALL accounts owned by the Token Program, which includes:
 - **Multisig accounts** (355 bytes) - Shared wallet controls: tens of thousands of accounts
 - **Associated Token Program accounts** (various sizes) - millions of accounts
 
+<Warning>
 **Result:** Your application receives millions of account updates constantly, most of which you don't care about.
+</Warning>
 
 **With smart filtering - Surgical precision:**
 ```ts
