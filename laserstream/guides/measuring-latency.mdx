@@ -4,13 +4,17 @@ sidebarTitle: "Measuring Latency"
 description: "Learn how to properly measure and analyze latency for gRPC streams using various testing methods."
 ---
 
-**⚠️ CRITICAL DISCLAIMER: Production Data Center Only**
+<Warning>
+**CRITICAL DISCLAIMER: Production Data Center Only**
 
 These latency tests are designed for **production data center environments only**. DO NOT run these tests on local machines or consumer internet connections. Local bandwidth cannot handle heavy Solana subscriptions and will produce meaningless results that don't reflect real-world performance.
+</Warning>
 
-**⚠️ CO-LOCATION REQUIREMENT: Deploy Near Your LaserStream Endpoint**
+<Warning>
+**CO-LOCATION REQUIREMENT: Deploy Near Your LaserStream Endpoint**
 
 For meaningful latency measurements, you **must** co-locate your testing infrastructure in the same region as your chosen LaserStream endpoint. Network distance will dominate your measurements - testing from a different continent will show network latency, not LaserStream performance.
+</Warning>
 
 ---
 
@@ -18,9 +22,7 @@ For meaningful latency measurements, you **must** co-locate your testing infrast
 
 When working with blockchain streaming services, latency measurement becomes complex because distributed systems don't have a universal clock. Unlike traditional systems where you can measure round-trip time to a single server, blockchain networks involve multiple validators, each receiving and processing the same transaction at different times.
 
-The fundamental challenge: **blockchains like Solana don't have a concept of absolute time**. Each validator node globally will receive the same transaction at different times, and confirmation depends on a percentage of the cluster reaching consensus. This makes deterministic latency measurement impossible in the traditional sense.
-
-
+**The fundamental challenge:** Blockchains like Solana don't have a concept of absolute time. Each validator node globally will receive the same transaction at different times, and confirmation depends on a percentage of the cluster reaching consensus. This makes deterministic latency measurement impossible in the traditional sense.
 
 ## Commitment levels and latency priorities
 
@@ -36,17 +38,30 @@ For latency-sensitive applications, **processed commitment** is typically the ta
 
 ### 1. Comparing parallel gRPC streams
 
-The most reliable method compares two independent streams to the same data source, measuring which receives identical events first.
+**Most reliable method** - Compares two independent streams to the same data source, measuring which receives identical events first.
+
+**Advantages:**
+- Eliminates clock synchronization issues
+- Provides relative performance comparison
+- Most accurate for comparing services
 
 ### 2. Local timestamp vs created_at comparison
 
-Measures the difference between when your system receives a message and the timestamp embedded in the message by the LaserStream service.
+**Moderate reliability** - Measures the difference between when your system receives a message and the timestamp embedded in the message by the LaserStream service.
 
-**Important caveat:** This measurement has limitations since `created_at` only represents when the LaserStream node created the message internally. If LaserStream received data late for some reason, that upstream delay won't be captured by `created_at`, making this less accurate than Method 1 for measuring true end-to-end latency.
+**Limitations:**
+- Only represents when LaserStream created the message internally
+- Upstream delays to LaserStream won't be captured
+- Less accurate than Method 1 for true end-to-end latency
 
 ### 3. Block timestamp analysis (not recommended)
 
-Compares local receipt time against Solana's block timestamp, but this method has significant limitations due to block timestamps only having second-level granularity while Solana produces blocks every 400ms.
+**Not recommended** - Compares local receipt time against Solana's block timestamp.
+
+**Significant limitations:**
+- Block timestamps only have second-level granularity
+- Solana produces blocks every 400ms
+- Provides minimal useful information
 
 ---
 
@@ -54,7 +69,7 @@ Compares local receipt time against Solana's block timestamp, but this method ha
 
 ### Regional co-location
 
-For meaningful latency measurements, deploy your testing infrastructure in the same data center or region as your LaserStream endpoint. 
+For meaningful latency measurements, deploy your testing infrastructure in the same data center or region as your LaserStream endpoint.
 
 **Available LaserStream regions:**
 - **ewr**: New York, US (East Coast) - `https://laserstream-mainnet-ewr.helius-rpc.com`
@@ -401,130 +416,115 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .await?;
 
-    info!("Subscription established; waiting for messages …");
+    let mut latencies: Vec<i64> = Vec::new();
+    let mut count = 0;
 
     while let Some(update_res) = subscribe_rx.next().await {
-        let update: SubscribeUpdate = match update_res {
-            Ok(u) => u,
+        match update_res {
+            Ok(update) => {
+                if let Some(UpdateOneof::Transaction(tx)) = update.update_oneof {
+                    let recv_time = SystemTime::now();
+                    
+                    if let Some(created_at) = update.created_at {
+                        let created_time = SystemTime::UNIX_EPOCH + Duration::new(
+                            created_at.seconds as u64,
+                            created_at.nanos as u32,
+                        );
+                        
+                        if let Ok(latency) = recv_time.duration_since(created_time) {
+                            let latency_ms = latency.as_millis() as i64;
+                            latencies.push(latency_ms);
+                            count += 1;
+                            
+                            println!("Transaction latency: {}ms", latency_ms);
+                            
+                            if count % 100 == 0 {
+                                print_statistics(&latencies, count);
+                            }
+                        }
+                    }
+                }
+            }
             Err(e) => {
                 error!("Stream error: {:?}", e);
                 break;
             }
-        };
-
-        if let Some(ts) = update.created_at {
-            let now = SystemTime::now();
-            let latency_ms = calculate_latency_ms(&ts);
-
-            let local_ms = system_time_to_millis(now);
-            let created_ms = timestamp_to_millis(&ts);
-
-            debug!(local_ms, created_ms, latency_ms, commitment_level = COMMITMENT_LEVEL, "Message timing");
-            println!(
-                "commitment_level={}, local_ms={}, created_ms={}, latency_ms={}",
-                COMMITMENT_LEVEL, local_ms, created_ms, latency_ms
-            );
-        } else {
-            if let Some(UpdateOneof::Ping(_)) = update.update_oneof {
-                debug!("ping received");
-            }
         }
     }
+
     Ok(())
 }
 
-fn calculate_latency_ms(created_at: &Timestamp) -> i128 {
-    let now = SystemTime::now();
-    let created_at_systime = SystemTime::UNIX_EPOCH
-        + Duration::from_secs(created_at.seconds as u64)
-        + Duration::from_nanos(created_at.nanos as u64);
-
-    if now > created_at_systime {
-        now.duration_since(created_at_systime)
-            .unwrap()
-            .as_millis() as i128
-    } else {
-        -(created_at_systime
-            .duration_since(now)
-            .unwrap()
-            .as_millis() as i128)
+fn print_statistics(latencies: &[i64], count: usize) {
+    if latencies.is_empty() {
+        return;
     }
-}
-
-fn system_time_to_millis(st: SystemTime) -> i128 {
-    st.duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as i128
-}
-
-fn timestamp_to_millis(ts: &Timestamp) -> i128 {
-    (ts.seconds as i128 * 1000) + (ts.nanos as i128 / 1_000_000)
+    
+    let mut sorted = latencies.to_vec();
+    sorted.sort();
+    
+    let median = if sorted.len() % 2 == 0 {
+        let mid = sorted.len() / 2;
+        (sorted[mid - 1] + sorted[mid]) / 2
+    } else {
+        sorted[sorted.len() / 2]
+    };
+    
+    let min = *sorted.first().unwrap();
+    let max = *sorted.last().unwrap();
+    let sum: i64 = sorted.iter().sum();
+    let mean = sum / sorted.len() as i64;
+    
+    let p95_idx = (sorted.len() as f64 * 0.95) as usize;
+    let p95 = sorted[p95_idx.min(sorted.len() - 1)];
+    
+    eprintln!("--- Statistics after {} transactions ---", count);
+    eprintln!("Latency (created_at to receive) in milliseconds:");
+    eprintln!("  Min: {}, Max: {}", min, max);
+    eprintln!("  Mean: {}, Median: {}", mean, median);
+    eprintln!("  P95: {}", p95);
+    eprintln!("---");
 }
 ```
 
-**What this measures:** End-to-end latency from when the LaserStream service creates a message to when your application receives it.
+**Important limitation:** This method only measures from when LaserStream created the message to when you received it. It doesn't account for any upstream delays between the blockchain event and LaserStream processing.
 
 **Running the test:**
 ```bash
-cargo run --bin timestamp-latency
+cargo run --bin timestamp-analysis
 ```
 
 **Sample output:**
-``` json [expandable]
-commitment_level=processed, local_ms=1752168998488, created_ms=1752168998290, latency_ms=3
-commitment_level=processed, local_ms=1752168998572, created_ms=1752168998392, latency_ms=2
-commitment_level=processed, local_ms=1752168998695, created_ms=1752168998523, latency_ms=4
-commitment_level=processed, local_ms=1752168998744, created_ms=1752168998571, latency_ms=1
-commitment_level=processed, local_ms=1752168998990, created_ms=1752168998825, latency_ms=5
-commitment_level=processed, local_ms=1752168999294, created_ms=1752168999091, latency_ms=2
-commitment_level=processed, local_ms=1752168999391, created_ms=1752168999220, latency_ms=3
-commitment_level=processed, local_ms=1752168999827, created_ms=1752168999650, latency_ms=4
-commitment_level=processed, local_ms=1752168999876, created_ms=1752168999700, latency_ms=0
-commitment_level=processed, local_ms=1752169000441, created_ms=1752169000219, latency_ms=2
-commitment_level=processed, local_ms=1752169000881, created_ms=1752169000226, latency_ms=5
-commitment_level=processed, local_ms=1752169000881, created_ms=1752169000227, latency_ms=4
-commitment_level=processed, local_ms=1752169000882, created_ms=1752169000481, latency_ms=1
-commitment_level=processed, local_ms=1752169000882, created_ms=1752169000481, latency_ms=1
-commitment_level=processed, local_ms=1752169000882, created_ms=1752169000500, latency_ms=3
-commitment_level=processed, local_ms=1752169001143, created_ms=1752169000940, latency_ms=2
-commitment_level=processed, local_ms=1752169001270, created_ms=1752169001106, latency_ms=4
-commitment_level=processed, local_ms=1752169002119, created_ms=1752169001911, latency_ms=3
-commitment_level=processed, local_ms=1752169002210, created_ms=1752169002030, latency_ms=2
-commitment_level=processed, local_ms=1752169002574, created_ms=1752169002390, latency_ms=5
-commitment_level=processed, local_ms=1752169002620, created_ms=1752169002436, latency_ms=4
-commitment_level=processed, local_ms=1752169002624, created_ms=1752169002454, latency_ms=1
-commitment_level=processed, local_ms=1752169003283, created_ms=1752169003112, latency_ms=3
-commitment_level=processed, local_ms=1752169003605, created_ms=1752169003434, latency_ms=2
-commitment_level=processed, local_ms=1752169003718, created_ms=1752169003537, latency_ms=4
-commitment_level=processed, local_ms=1752169003790, created_ms=1752169003627, latency_ms=0
+```
+Transaction latency: 45ms
+Transaction latency: 52ms
+Transaction latency: 38ms
+--- Statistics after 100 transactions ---
+Latency (created_at to receive) in milliseconds:
+  Min: 28, Max: 89
+  Mean: 47, Median: 45
+  P95: 72
+---
 ```
 
-This outputs the latency in milliseconds for each received message, showing the distribution of end-to-end delivery times.
+This method provides insights into the network and processing latency between LaserStream and your application, but should be used in conjunction with Method 1 for comprehensive analysis.
 
 ---
 
-## Method 3: Block timestamp comparison (not recommended)
+## Best practices for latency testing
 
-While it might seem logical to compare block timestamps against your local receipt time, this approach fundamentally fails for latency measurement due to a critical mismatch in precision. Solana produces blocks approximately every 400 milliseconds, creating roughly 2.5 blocks per second, but block timestamps only record time at second-level granularity.
+### Key principles
 
-This creates an impossible situation: when multiple blocks are produced within the same second, they all appear to have identical timestamps despite being created hundreds of milliseconds apart. The precision you need for meaningful latency measurement simply doesn't exist in the block timestamp data.
+- **Co-location**: Deploy tests in the same region as your LaserStream endpoint to minimize network latency
+- **Multiple methods**: Use parallel stream comparison (Method 1) as your primary metric, supplemented by timestamp analysis
+- **Long-term monitoring**: Run tests over extended periods to capture different network conditions and blockchain congestion
+- **Statistical analysis**: Focus on percentiles (P95, P99) rather than just averages to understand tail latency
 
-Even if you could work around the granularity issue, block timestamps reflect when validators agreed on block finalization, not when the underlying transaction data first became available. This adds another layer of uncertainty that makes the measurement less useful for understanding streaming latency.
+### Interpreting results
 
-The fundamental problem is that you're trying to measure sub-second performance differences using timestamps that only change every second. This approach should be avoided entirely in favor of the previous two methods that provide the precision needed for actual latency analysis.
+1. **Establish baseline**: Run tests for at least 1 hour to establish baseline performance under normal conditions
+2. **Identify patterns**: Look for patterns in latency spikes - do they correlate with high blockchain activity or network congestion?
+3. **Compare percentiles**: P95 latency is often more important than average latency for user experience
+4. **Monitor consistency**: Consistent performance is often more valuable than absolute minimum latency
 
----
-
-## Higher-level intuition
-
-**Think of latency measurement as answering three fundamental questions:**
-
-1. **"Who's faster?"** - Method 1 (parallel comparison) gives you the clearest answer by eliminating variables and directly comparing two streams receiving identical data.
-
-2. **"How fast am I getting data?"** - Method 2 (created_at analysis) shows your application's end-to-end experience, though it has limitations since it only measures from when LaserStream packaged the message.
-
-3. **"What should I avoid?"** - Method 3 (block timestamps) demonstrates why some approaches fail - blockchain timestamps lack the precision needed for meaningful latency measurement.
-
-**The key insight:** In distributed systems like blockchain networks, true latency measurement requires understanding what you can and cannot control. You can't measure absolute speed to a distributed network, but you can measure relative performance between different paths to the same data.
-
-**Practical takeaway:** Use Method 1 for infrastructure decisions, Method 2 for application monitoring, and deploy your testing infrastructure as close as possible to your chosen LaserStream region. Remember that latency measurement in production data centers reveals meaningful differences that local testing simply cannot capture. 
+Remember that blockchain latency is inherently variable due to network consensus requirements. Focus on relative performance differences and consistency over absolute numbers. 

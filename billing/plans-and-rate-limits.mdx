@@ -331,7 +331,7 @@ Some endpoints have special restrictions due to their computational requirements
     <tr>
       <td><strong>Webhook Events</strong></td>
       <td style={{textAlign: 'center'}}>1</td>
-      <td>Per event delivery</td>
+      <td>Per event sent by Helius (regardless of endpoint response)</td>
     </tr>
     <tr>
       <td><strong>LaserStream gRPC</strong></td>
@@ -373,6 +373,8 @@ Some endpoints have special restrictions due to their computational requirements
 
 <Note>
 **LaserStream Data Metering**: Billing is based on **uncompressed** gRPC message size, not the compressed data your client receives. Typical sizes for updates: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
+
+**Webhook Billing**: You are charged 1 credit when Helius processes and sends a webhook event to your endpoint. This charge applies regardless of whether your endpoint successfully receives or processes the webhook.
 </Note>
 
 <Tabs>
