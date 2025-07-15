@@ -1,0 +1,207 @@
+---
+title: "LaserStream Clients"
+sidebarTitle: "Clients"
+description: "High-performance SDK for gRPC streaming with automatic replay and zero data loss"
+---
+
+## Automatic Replay on Disconnect
+
+LaserStream clients continuously track your streaming position by slot number. If a disconnection occurs - from network issues, server maintenance, or any other cause - the client automatically reconnects and resumes streaming from your last processed slot. You never lose data, never miss transactions, and never need to write reconnection logic.
+
+## JavaScript/TypeScript Client
+
+The [JavaScript client](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) uses native Rust bindings to achieve 1.3GB/s throughput – over 40x faster than Yellowstone gRPC JavaScript clients that max out at 30MB/s.
+
+<Warning>
+As Solana continues to scale, Yellowstone JavaScript clients will struggle to keep up. If Solana speeds up 3x, Yellowstone gRPC clients subscribing to all transactions or blocks will fail to match chain speed. LaserStream's performance headroom ensures your application scales with the network.
+</Warning>
+
+On high-bandwidth subscriptions, Yellowstone clients experience progressive delays that compound over time. LaserStream maintains consistent, low-latency streaming regardless of data volume.
+
+### Installation
+
+<CodeGroup>
+```bash npm
+npm install helius-laserstream
+```
+
+```bash yarn
+yarn add helius-laserstream
+```
+
+```bash pnpm
+pnpm add helius-laserstream
+```
+</CodeGroup>
+
+### Quick Start
+
+```typescript [expandable]
+import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream';
+
+async function streamTransactions() {
+  const config: LaserstreamConfig = {
+    apiKey: 'YOUR_API_KEY',
+    endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com',
+  };
+
+  const request: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'], // Jupiter Program
+        accountExclude: [],
+        accountRequired: [],
+        vote: false,
+        failed: false
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    accounts: {},
+    slots: {},
+    transactionsStatus: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    accountsDataSlice: []
+  };
+
+  // The SDK handles reconnection and replay automatically
+  await subscribe(config, request, 
+    async (data) => {
+      console.log('New transaction:', data);
+    }, 
+    async (error) => {
+      console.error('Error:', error);
+    }
+  );
+}
+
+streamTransactions().catch(console.error);
+```
+
+### Reliability Comparison
+
+| Feature | LaserStream | Yellowstone |
+|---------|------------|-------------|
+| Automatic Replay | ✅ Built-in | ❌ Manual implementation required |
+| Progressive Delays | ❌ None | ✅ On high bandwidth |
+| Data Loss Protection | ✅ Automatic | ❌ Application responsibility |
+| Reconnection | ✅ Seamless | ⚠️ Basic support |
+
+## Rust Client
+
+The [Rust client](https://github.com/helius-labs/laserstream-sdk/tree/main/rust) provides zero-copy deserialization and native performance for applications requiring maximum control.
+
+### Installation
+
+```toml
+[dependencies]
+helius-laserstream = "0.1"
+tokio = { version = "1", features = ["full"] }
+```
+
+### Quick Start
+
+```rust [expandable]
+use helius_laserstream::{subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest};
+use futures::StreamExt;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = LaserstreamConfig {
+        api_key: "YOUR_API_KEY".to_string(),
+        endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com".to_string(),
+    };
+
+    let request = SubscribeRequest {
+        transactions: Some(TransactionsFilter {
+            client: Some(TransactionFilter {
+                account_include: vec!["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4".to_string()],
+                vote: false,
+                failed: false,
+                ..Default::default()
+            }),
+        }),
+        commitment: CommitmentLevel::Confirmed,
+        ..Default::default()
+    };
+
+    let mut stream = subscribe(config, request).await?;
+
+    while let Some(result) = stream.next().await {
+        match result {
+            Ok(data) => println!("New transaction: {:?}", data),
+            Err(e) => eprintln!("Error: {:?}", e),
+        }
+    }
+
+    Ok(())
+}
+```
+
+## Go Client
+
+The [Go client](https://github.com/helius-labs/laserstream-sdk/tree/main/go) provides idiomatic Go interfaces.
+
+### Installation
+
+```bash
+go get github.com/helius-labs/laserstream-sdk/go
+```
+
+### Quick Start
+
+```go [expandable]
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+    
+    laserstream "github.com/helius-labs/laserstream-sdk/go"
+)
+
+func main() {
+    config := &laserstream.Config{
+        APIKey:   "YOUR_API_KEY",
+        Endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com",
+    }
+
+    request := &laserstream.SubscribeRequest{
+        Transactions: &laserstream.TransactionsFilter{
+            Client: &laserstream.TransactionFilter{
+                AccountInclude: []string{"JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"},
+                Vote:          false,
+                Failed:        false,
+            },
+        },
+        Commitment: laserstream.CommitmentConfirmed,
+    }
+
+    ctx := context.Background()
+    stream, err := laserstream.Subscribe(ctx, config, request)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for data := range stream {
+        if data.Error != nil {
+            log.Printf("Error: %v", data.Error)
+            continue
+        }
+        fmt.Printf("New transaction: %+v\n", data)
+    }
+}
+```
+
+## Why Migrate from Yellowstone to LaserStream
+
+Yellowstone clients face critical limitations that will only worsen as Solana scales:
+
+1. **Performance Bottleneck**: Yellowstone JavaScript clients max out at 30MB/s – insufficient for high-throughput applications
+2. **Progressive Delays**: Latency compounds over time on high-bandwidth subscriptions
+3. **Manual Replay**: You must implement your own reconnection and replay logic
+4. **Data Loss Risk**: Without built-in replay, network disruptions mean missed transactions
+
+**LaserStream solves these problems today**. With 40x better performance, automatic replay, and zero data loss guarantees, migrating to LaserStream ensures your application remains competitive as Solana evolves.
