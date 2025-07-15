@@ -13,7 +13,7 @@ LaserStream clients continuously track your streaming position by slot number. I
 The [JavaScript client](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) uses native Rust bindings to achieve 1.3GB/s throughput – over 40x faster than Yellowstone gRPC JavaScript clients that max out at 30MB/s.
 
 <Warning>
-As Solana continues to scale, Yellowstone JavaScript clients will struggle to keep up. If Solana speeds up 3x, Yellowstone gRPC clients subscribing to all transactions or blocks will fail to match chain speed. LaserStream's performance headroom ensures your application scales with the network.
+As Solana continues to scale, Yellowstone JavaScript client will struggle to keep up. If Solana speeds up 3x, Yellowstone gRPC clients subscribing to all transactions or blocks will fail to match chain speed. LaserSstream client's performance headroom ensures your application scales with the network.
 </Warning>
 
 On high-bandwidth subscriptions, Yellowstone clients experience progressive delays that compound over time. LaserStream maintains consistent, low-latency streaming regardless of data volume.
@@ -86,7 +86,7 @@ streamTransactions().catch(console.error);
 | Automatic Replay | ✅ Built-in | ❌ Manual implementation required |
 | Progressive Delays | ❌ None | ✅ On high bandwidth |
 | Data Loss Protection | ✅ Automatic | ❌ Application responsibility |
-| Reconnection | ✅ Seamless | ⚠️ Basic support |
+| Reconnection | ✅ Seamless | ❌ No built-in support |
 
 ## Rust Client
 
