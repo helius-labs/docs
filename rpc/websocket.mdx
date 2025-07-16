@@ -1,404 +1,863 @@
 ---
 title: "Solana WebSocket: Real-Time Blockchain Data Streaming"
 sidebarTitle: Overview
-description: "Stream real-time Solana blockchain data using standard WebSockets. Account subscriptions, program monitoring, and transaction updates with Helius reliability."
+description: "Master real-time Solana blockchain data streaming with WebSockets. Learn concepts, patterns, and production-ready implementations for account monitoring, transaction tracking, and DeFi applications."
 ---
 
-## Introduction
+## What Are WebSockets and Why Use Them?
 
-Helius provides a standard Solana WebSocket interface that allows you to receive real-time updates about accounts, programs, transactions, and blockchain state. Our WebSocket implementation follows the standard Solana WebSocket API, making it compatible with existing Solana clients and libraries, while benefiting from Helius's infrastructure for improved reliability.
+WebSockets provide a persistent, real-time connection between your application and the Solana blockchain. Unlike traditional HTTP requests where you repeatedly ask "has anything changed?", WebSockets let the blockchain notify you instantly when something happens.
 
-## Connection Setup
+<CardGroup cols={2}>
+  <Card title="Real-Time Updates" icon="bolt">
+    Get notified instantly when accounts change, transactions occur, or blocks are produced
+  </Card>
+  <Card title="Efficient Resource Usage" icon="leaf">
+    One persistent connection instead of polling hundreds of HTTP requests
+  </Card>
+  <Card title="Production Ready" icon="shield">
+    Built-in reconnection logic and error handling for reliable applications
+  </Card>
+  <Card title="Standard Protocol" icon="globe">
+    Uses Solana's official WebSocket API - compatible with all Solana tooling
+  </Card>
+</CardGroup>
 
-To connect to the Helius WebSocket endpoint, use the following URL format:
+## When to Use WebSockets vs HTTP
 
-```
-wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY
-```
+<Tabs>
+  <Tab title="Use WebSockets For">
+    - **Trading applications** that need instant price updates
+    - **Wallet applications** monitoring user account changes  
+    - **DeFi dashboards** tracking liquidity pool changes
+    - **NFT marketplaces** watching for new listings or sales
+    - **Analytics platforms** processing real-time transaction data
+  </Tab>
+  <Tab title="Use HTTP For">
+    - **One-time data fetches** like getting current balance
+    - **Historical data queries** like transaction history
+    - **Batch operations** like sending multiple transactions
+    - **Simple integrations** that don't need real-time updates
+    - **Rate-limited applications** with infrequent data needs
+  </Tab>
+</Tabs>
 
-Replace `YOUR_API_KEY` with your Helius API key. You can also use our other network endpoints:
+## Core Concepts
 
-- Mainnet: `wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY`
-- Devnet: `wss://devnet.helius-rpc.com?api-key=YOUR_API_KEY`
+### Subscription Types
 
-## Subscription Methods
+<AccordionGroup>
+  <Accordion title="Account Subscriptions" icon="user">
+    Monitor changes to specific accounts like wallet balances, token accounts, or program data.
+    
+    **Use cases:**
+    - Wallet balance tracking
+    - Token account monitoring  
+    - Smart contract state changes
+    - NFT ownership updates
+  </Accordion>
 
-Helius supports all standard Solana WebSocket subscription methods:
+  <Accordion title="Program Subscriptions" icon="code">
+    Watch all accounts owned by a specific program for any changes.
+    
+    **Use cases:**
+    - DEX trade monitoring
+    - DeFi protocol tracking
+    - NFT marketplace activity
+    - Gaming asset changes
+  </Accordion>
 
-### Account Subscriptions
+  <Accordion title="Transaction Subscriptions" icon="receipt">
+    Get notified when specific transactions are confirmed or when transactions mention certain accounts.
+    
+    **Use cases:**
+    - Payment confirmations
+    - Transaction status tracking
+    - Multi-signature approvals
+    - Contract execution monitoring
+  </Accordion>
 
-Subscribe to changes for a specific account:
+  <Accordion title="Slot Subscriptions" icon="clock">
+    Monitor blockchain progression and finality at the slot level.
+    
+    **Use cases:**
+    - Block explorer applications
+    - Network health monitoring
+    - Consensus tracking
+    - Performance analytics
+  </Accordion>
+</AccordionGroup>
 
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "accountSubscribe",
-  "params": [
-    "9PejEmViKHgUkVFWN57cNEZnFS4Qo6SzsLj5UPAXfDTF",
-    {
-      "encoding": "jsonParsed",
-      "commitment": "confirmed"
-    }
-  ]
-}
+### Commitment Levels
 
-// Response
-{
-  "jsonrpc": "2.0",
-  "result": 23784,
-  "id": 1
-}
+Understanding commitment levels is crucial for reliable applications:
 
-// Notification
-{
-  "jsonrpc": "2.0",
-  "method": "accountNotification",
-  "params": {
-    "result": {
-      "context": {
-        "slot": 5199307
-      },
-      "value": {
-        "data": ["base64-encoded-data", "base64"],
-        "executable": false,
-        "lamports": 1000000000,
-        "owner": "11111111111111111111111111111111",
-        "rentEpoch": 18
+<Tabs>
+  <Tab title="Processed">
+    **Fastest** - Transaction processed by a validator but not confirmed
+    - Latency: ~400ms
+    - Risk: Can be dropped or reordered
+    - Use for: Real-time UI updates (with caution)
+  </Tab>
+  
+  <Tab title="Confirmed">
+    **Balanced** - Majority of cluster has voted on the slot
+    - Latency: ~2-3 seconds  
+    - Risk: Low chance of being dropped
+    - Use for: Most applications
+  </Tab>
+  
+  <Tab title="Finalized">
+    **Safest** - Supermajority of cluster has voted on the slot
+    - Latency: ~15-30 seconds
+    - Risk: Extremely unlikely to be dropped
+    - Use for: Financial applications, high-value transactions
+  </Tab>
+</Tabs>
+
+<Info>
+**Want to learn more about commitment levels?** Read our comprehensive blog post: [Understanding Solana Commitment Levels](https://www.helius.dev/blog/solana-commitment-levels)
+</Info>
+
+## Implementing Robust Reconnection Logic
+
+WebSocket connections can disconnect for various reasons - network issues, server maintenance, or temporary outages. Production applications **must** implement reconnection logic to ensure reliability.
+
+### Why Disconnections Happen
+
+<AccordionGroup>
+  <Accordion title="Network Issues">
+    - Internet connectivity problems
+    - WiFi handoffs on mobile devices
+    - Corporate firewall timeouts
+    - ISP routing changes
+  </Accordion>
+  
+  <Accordion title="Server-Side Events">
+    - Planned maintenance windows
+    - Load balancer restarts
+    - RPC node updates
+    - Temporary overload protection
+  </Accordion>
+  
+  <Accordion title="Client-Side Issues">
+    - Browser tab backgrounding
+    - Mobile app suspension
+    - Computer sleep/hibernation
+    - Process crashes or restarts
+  </Accordion>
+</AccordionGroup>
+
+### Detecting Disconnections
+
+<Tabs>
+  <Tab title="JavaScript/Browser">
+    ```javascript [expandable]
+    class ConnectionMonitor {
+      constructor(ws) {
+        this.ws = ws;
+        this.pingInterval = null;
+        this.lastPong = Date.now();
+        this.isConnected = false;
+        
+        this.setupEventListeners();
+        this.startPingMonitoring();
       }
-    },
-    "subscription": 23784
+      
+      setupEventListeners() {
+        this.ws.onopen = () => {
+          console.log('Connected');
+          this.isConnected = true;
+          this.lastPong = Date.now();
+        };
+        
+        this.ws.onclose = (event) => {
+          console.log('Disconnected:', event.code, event.reason);
+          this.isConnected = false;
+          this.stopPingMonitoring();
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.isConnected = false;
+        };
+        
+        // Listen for pong responses (server acknowledgment)
+        this.ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.method === 'pong') {
+            this.lastPong = Date.now();
+          }
+          // Handle other messages...
+        };
+      }
+      
+      startPingMonitoring() {
+        this.pingInterval = setInterval(() => {
+          if (this.isConnected) {
+            // Send ping to check connection health
+            this.ws.send(JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'ping',
+              id: Date.now()
+            }));
+            
+            // Check if we received a pong recently
+            const timeSinceLastPong = Date.now() - this.lastPong;
+            if (timeSinceLastPong > 30000) { // 30 seconds timeout
+              console.warn('No pong received, connection may be stale');
+              this.ws.close();
+            }
+          }
+        }, 10000); // Ping every 10 seconds
+      }
+      
+      stopPingMonitoring() {
+        if (this.pingInterval) {
+          clearInterval(this.pingInterval);
+          this.pingInterval = null;
+        }
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Node.js">
+    ```javascript [expandable]
+    const WebSocket = require('ws');
+    
+    class NodeConnectionMonitor {
+      constructor(url) {
+        this.url = url;
+        this.ws = null;
+        this.pingInterval = null;
+        this.isAlive = false;
+      }
+      
+      connect() {
+        this.ws = new WebSocket(this.url);
+        
+        this.ws.on('open', () => {
+          console.log('Connected');
+          this.isAlive = true;
+          this.startHeartbeat();
+        });
+        
+        this.ws.on('close', () => {
+          console.log('Disconnected');
+          this.isAlive = false;
+          this.stopHeartbeat();
+        });
+        
+        this.ws.on('error', (error) => {
+          console.error('WebSocket error:', error);
+          this.isAlive = false;
+        });
+        
+        // Built-in ping/pong handling
+        this.ws.on('pong', () => {
+          this.isAlive = true;
+        });
+      }
+      
+      startHeartbeat() {
+        this.pingInterval = setInterval(() => {
+          if (!this.isAlive) {
+            console.log('Connection lost, terminating');
+            return this.ws.terminate();
+          }
+          
+          this.isAlive = false;
+          this.ws.ping();
+        }, 30000); // Ping every 30 seconds
+      }
+      
+      stopHeartbeat() {
+        if (this.pingInterval) {
+          clearInterval(this.pingInterval);
+          this.pingInterval = null;
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Reconnection Strategies
+
+<Tabs>
+  <Tab title="Exponential Backoff">
+    ```javascript [expandable]
+    class ExponentialBackoffReconnector {
+      constructor(url, maxRetries = 10) {
+        this.url = url;
+        this.maxRetries = maxRetries;
+        this.retryCount = 0;
+        this.baseDelay = 1000; // Start with 1 second
+        this.maxDelay = 30000; // Cap at 30 seconds
+        this.ws = null;
+        this.subscriptions = new Map();
+        this.isReconnecting = false;
+      }
+      
+      connect() {
+        if (this.isReconnecting) return;
+        
+        try {
+          this.ws = new WebSocket(this.url);
+          this.setupEventHandlers();
+        } catch (error) {
+          console.error('Failed to create WebSocket:', error);
+          this.scheduleReconnect();
+        }
+      }
+      
+      setupEventHandlers() {
+        this.ws.onopen = () => {
+          console.log('Connected successfully');
+          this.retryCount = 0; // Reset retry count on successful connection
+          this.isReconnecting = false;
+          this.resubscribeAll(); // Restore subscriptions
+        };
+        
+        this.ws.onclose = (event) => {
+          console.log('Connection closed:', event.code);
+          if (!this.isReconnecting) {
+            this.scheduleReconnect();
+          }
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+      }
+      
+      scheduleReconnect() {
+        if (this.retryCount >= this.maxRetries) {
+          console.error('Max retry attempts reached. Giving up.');
+          return;
+        }
+        
+        this.isReconnecting = true;
+        this.retryCount++;
+        
+        // Calculate delay with exponential backoff + jitter
+        const delay = Math.min(
+          this.baseDelay * Math.pow(2, this.retryCount - 1),
+          this.maxDelay
+        );
+        
+        // Add jitter to prevent thundering herd
+        const jitteredDelay = delay + (Math.random() * 1000);
+        
+        console.log(`Reconnecting in ${jitteredDelay}ms (attempt ${this.retryCount}/${this.maxRetries})`);
+        
+        setTimeout(() => {
+          this.connect();
+        }, jitteredDelay);
+      }
+      
+      subscribe(method, params, callback) {
+        const id = this.generateId();
+        this.subscriptions.set(id, { method, params, callback });
+        
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.sendSubscription(id, method, params);
+        }
+        
+        return id;
+      }
+      
+      resubscribeAll() {
+        console.log(`Restoring ${this.subscriptions.size} subscriptions`);
+        for (const [id, sub] of this.subscriptions) {
+          this.sendSubscription(id, sub.method, sub.params);
+        }
+      }
+      
+      sendSubscription(id, method, params) {
+        this.ws.send(JSON.stringify({
+          jsonrpc: '2.0',
+          id: id,
+          method: method,
+          params: params
+        }));
+      }
+      
+      generateId() {
+        return Date.now() + Math.random();
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Circuit Breaker Pattern">
+    ```javascript [expandable]
+    class CircuitBreakerWebSocket {
+      constructor(url, options = {}) {
+        this.url = url;
+        this.failureThreshold = options.failureThreshold || 5;
+        this.recoveryTimeout = options.recoveryTimeout || 60000;
+        this.checkInterval = options.checkInterval || 10000;
+        
+        this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+        this.failureCount = 0;
+        this.lastFailureTime = null;
+        this.ws = null;
+        this.subscriptions = new Map();
+      }
+      
+      connect() {
+        if (this.state === 'OPEN') {
+          if (Date.now() - this.lastFailureTime > this.recoveryTimeout) {
+            console.log('Circuit breaker moving to HALF_OPEN state');
+            this.state = 'HALF_OPEN';
+          } else {
+            console.log('Circuit breaker is OPEN, connection blocked');
+            return false;
+          }
+        }
+        
+        try {
+          this.ws = new WebSocket(this.url);
+          this.setupEventHandlers();
+          return true;
+        } catch (error) {
+          this.recordFailure();
+          return false;
+        }
+      }
+      
+      setupEventHandlers() {
+        this.ws.onopen = () => {
+          console.log('Connected - Circuit breaker CLOSED');
+          this.state = 'CLOSED';
+          this.failureCount = 0;
+          this.resubscribeAll();
+        };
+        
+        this.ws.onclose = () => {
+          this.recordFailure();
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.recordFailure();
+        };
+      }
+      
+      recordFailure() {
+        this.failureCount++;
+        this.lastFailureTime = Date.now();
+        
+        console.log(`Failure recorded: ${this.failureCount}/${this.failureThreshold}`);
+        
+        if (this.failureCount >= this.failureThreshold) {
+          console.log('Circuit breaker opened due to repeated failures');
+          this.state = 'OPEN';
+        }
+      }
+      
+      startHealthCheck() {
+        setInterval(() => {
+          if (this.state === 'OPEN' || 
+              (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
+            this.connect();
+          }
+        }, this.checkInterval);
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Production-Ready Implementation
+
+Here's a complete, production-ready WebSocket manager that handles all reconnection scenarios:
+
+```javascript [expandable]
+class SimpleWebSocketManager {
+  constructor(endpoint, apiKey) {
+    this.endpoint = endpoint;
+    this.apiKey = apiKey;
+    this.ws = null;
+    this.subscriptions = new Map();
+    this.isConnected = false;
+    this.retryCount = 0;
+    this.maxRetries = 5;
+  }
+
+  async connect() {
+    const wsUrl = `${this.endpoint}/?api-key=${this.apiKey}`;
+    this.ws = new WebSocket(wsUrl);
+    
+    this.ws.onopen = () => {
+      console.log('Connected');
+      this.isConnected = true;
+      this.retryCount = 0;
+      this.resubscribeAll();
+    };
+    
+    this.ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      // Handle subscription confirmations
+      if (data.result && typeof data.result === 'number') {
+        const subscription = Array.from(this.subscriptions.values())
+          .find(sub => sub.requestId === data.id);
+        if (subscription) subscription.subscriptionId = data.result;
+        return;
+      }
+      
+      // Handle notifications
+      if (data.method && data.params) {
+        const subscription = Array.from(this.subscriptions.values())
+          .find(sub => sub.subscriptionId === data.params.subscription);
+        if (subscription?.callback) subscription.callback(data.params.result);
+      }
+    };
+    
+    this.ws.onclose = () => {
+      console.log('Disconnected');
+      this.isConnected = false;
+      this.handleReconnect();
+    };
+  }
+
+  handleReconnect() {
+    if (this.retryCount < this.maxRetries) {
+      this.retryCount++;
+      const delay = 1000 * Math.pow(2, this.retryCount - 1);
+      console.log(`Reconnecting in ${delay}ms...`);
+      setTimeout(() => this.connect(), delay);
+    }
+  }
+
+  subscribe(method, params, callback) {
+    const requestId = Date.now();
+    const subscription = { requestId, method, params, callback, subscriptionId: null };
+    this.subscriptions.set(requestId, subscription);
+    
+    if (this.isConnected) {
+      this.ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        id: requestId,
+        method,
+        params
+      }));
+    }
+    
+    return requestId;
+  }
+
+  resubscribeAll() {
+    for (const [id, sub] of this.subscriptions) {
+      sub.subscriptionId = null;
+      this.ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        id,
+        method: sub.method,
+        params: sub.params
+      }));
+    }
+  }
+}
+
+// Usage
+const wsManager = new SimpleWebSocketManager(
+  'wss://mainnet.helius-rpc.com',
+  'your-api-key-here'
+);
+
+await wsManager.connect();
+
+// Subscribe to account changes
+wsManager.subscribe(
+  'accountSubscribe',
+  ['your-account-address-here', { commitment: 'confirmed' }],
+  (data) => console.log('Account updated:', data)
+);
+```
+
+### Best Practices for State Management
+
+<CardGroup cols={2}>
+  <Card title="Subscription Persistence" icon="bookmark">
+    **Always store subscription parameters** so they can be restored after reconnection. Never rely on the WebSocket staying connected permanently.
+  </Card>
+  <Card title="Graceful Degradation" icon="shield-check">
+    **Implement fallback mechanisms** like HTTP polling when WebSocket connections fail repeatedly or take too long to reconnect.
+  </Card>
+  <Card title="Connection Pooling" icon="layer-group">
+    **Use multiple connections** for high-throughput applications. Distribute subscriptions across connections to avoid hitting rate limits.
+  </Card>
+  <Card title="Monitoring & Alerting" icon="bell">
+    **Track connection metrics** and set up alerts for excessive disconnections or failed reconnection attempts in production.
+  </Card>
+</CardGroup>
+
+### Testing Reconnection Logic
+
+<Tabs>
+  <Tab title="Network Simulation">
+    ```javascript [expandable]
+    // Test disconnection scenarios
+    class NetworkSimulator {
+      constructor(wsManager) {
+        this.wsManager = wsManager;
+      }
+      
+      // Simulate network outage
+      simulateNetworkOutage(duration = 5000) {
+        console.log('Simulating network outage...');
+        
+        // Force close the connection
+        if (this.wsManager.ws) {
+          this.wsManager.ws.close(1006, 'Network outage simulation');
+        }
+        
+        // Block reconnection temporarily
+        const originalConnect = this.wsManager.connect.bind(this.wsManager);
+        this.wsManager.connect = () => {
+          console.log('Connection blocked during outage simulation');
+        };
+        
+        // Restore connection after duration
+        setTimeout(() => {
+          console.log('Network restored');
+          this.wsManager.connect = originalConnect;
+          this.wsManager.connect();
+        }, duration);
+      }
+      
+      // Simulate intermittent connectivity
+      simulateIntermittentConnectivity() {
+        setInterval(() => {
+          if (Math.random() < 0.1) { // 10% chance every 10 seconds
+            console.log('Simulating connection drop...');
+            this.wsManager.ws?.close(1006, 'Intermittent connectivity');
+          }
+        }, 10000);
+      }
+    }
+    
+    // Usage
+    const simulator = new NetworkSimulator(wsManager);
+    simulator.simulateNetworkOutage(10000); // 10 second outage
+    ```
+  </Tab>
+  
+  <Tab title="Automated Testing">
+    ```javascript [expandable]
+    // Jest test example
+    describe('WebSocket Reconnection', () => {
+      let wsManager;
+      
+      beforeEach(() => {
+        wsManager = new ProductionWebSocketManager({
+          endpoint: 'ws://localhost:8080',
+          apiKey: 'test-key'
+        });
+      });
+      
+      test('should reconnect after connection loss', async () => {
+        const reconnectPromise = new Promise((resolve) => {
+          wsManager.on('connected', resolve);
+        });
+        
+        await wsManager.connect();
+        
+        // Simulate connection loss
+        wsManager.ws.close(1006, 'Test disconnection');
+        
+        // Wait for reconnection
+        await reconnectPromise;
+        
+        expect(wsManager.connectionState).toBe('CONNECTED');
+        expect(wsManager.metrics.reconnections).toBeGreaterThan(0);
+      });
+      
+      test('should restore subscriptions after reconnection', async () => {
+        await wsManager.connect();
+        
+        const messages = [];
+        const subscriptionId = wsManager.subscribe(
+          'accountSubscribe',
+          ['test-account', {}],
+          (data) => messages.push(data)
+        );
+        
+        // Verify subscription exists
+        expect(wsManager.subscriptions.has(subscriptionId)).toBe(true);
+        
+        // Simulate disconnection and reconnection
+        wsManager.ws.close(1006, 'Test disconnection');
+        
+        await new Promise(resolve => wsManager.on('connected', resolve));
+        
+        // Verify subscription was restored
+        const subscription = wsManager.subscriptions.get(subscriptionId);
+        expect(subscription.pending).toBe(true); // Should be re-subscribing
+      });
+    });
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+**Critical for Production**: Implementing proper reconnection logic is not optional for production applications. WebSocket connections will disconnect - plan for it, test it, and monitor it in production.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Connection Failed">
+    **Symptoms**: WebSocket fails to connect initially
+    
+    **Solutions**:
+    - Verify your API key is correct and has sufficient credits
+    - Check the endpoint URL format: `wss://mainnet.helius-rpc.com?api-key=YOUR_KEY`
+    - Ensure your firewall allows WebSocket connections on port 443
+    - Test with a simple ping first to verify basic connectivity
+  </Accordion>
+
+  <Accordion title="Frequent Disconnections">
+    **Symptoms**: Connection drops every few minutes
+    
+    **Solutions**:
+    - Implement proper ping/pong heartbeat (shown in reconnection examples above)
+    - Check your network stability and corporate firewall settings
+    - Monitor your subscription count - too many can cause instability
+    - Verify you're handling the connection lifecycle properly
+  </Accordion>
+
+  <Accordion title="Missing Messages">
+    **Symptoms**: Not receiving expected subscription updates
+    
+    **Solutions**:
+    - Verify your subscription is confirmed (check the response)
+    - Ensure the account/program you're monitoring has actual activity
+    - Monitor your connection state - missed messages often indicate disconnections
+  </Accordion>
+
+  <Accordion title="High Latency">
+    **Symptoms**: Slow message delivery, delays in updates
+    
+    **Solutions**:
+    - Use "confirmed" instead of "finalized" commitment
+    - Reduce the number of active subscriptions
+    - Optimize your message processing logic
+    - Consider using multiple connections to distribute load
+    - Check your network connection quality
+  </Accordion>
+
+  <Accordion title="Memory Leaks">
+    **Symptoms**: Application memory usage grows over time
+    
+    **Solutions**:
+    - Implement proper subscription cleanup
+    - Remove event listeners when components unmount
+    - Clear message logs periodically
+    - Monitor subscription count and enforce limits
+    - Use weak references for callback functions where possible
+  </Accordion>
+</AccordionGroup>
+
+## Migration from Standard RPC
+
+If you're currently using HTTP polling, here's how to migrate to WebSockets:
+
+```javascript [expandable]
+// Old approach - HTTP polling
+class HTTPAccountMonitor {
+  constructor(connection, accountAddress) {
+    this.connection = connection;
+    this.accountAddress = accountAddress;
+    this.interval = null;
+    this.lastKnownBalance = null;
+  }
+
+  start() {
+    this.interval = setInterval(async () => {
+      try {
+        const accountInfo = await this.connection.getAccountInfo(
+          new PublicKey(this.accountAddress)
+        );
+        
+        const currentBalance = accountInfo?.lamports || 0;
+        
+        if (this.lastKnownBalance !== currentBalance) {
+          console.log(`Balance changed: ${currentBalance}`);
+          this.lastKnownBalance = currentBalance;
+        }
+      } catch (error) {
+        console.error('Failed to fetch account info:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+  }
+
+  stop() {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+}
+
+// New approach - WebSocket subscription
+class WebSocketAccountMonitor {
+  constructor(wsManager, accountAddress) {
+    this.wsManager = wsManager;
+    this.accountAddress = accountAddress;
+    this.subscriptionId = null;
+  }
+
+  start() {
+    this.subscriptionId = this.wsManager.subscribe(
+      'accountSubscribe',
+      [
+        this.accountAddress,
+        { encoding: 'jsonParsed', commitment: 'confirmed' }
+      ],
+      (data) => {
+        const currentBalance = data.value.lamports;
+        console.log(`Balance changed: ${currentBalance}`);
+        
+        // Handle the change immediately - no polling delay!
+      }
+    );
+  }
+
+  stop() {
+    if (this.subscriptionId) {
+      this.wsManager.unsubscribe(this.subscriptionId);
+      this.subscriptionId = null;
+    }
   }
 }
 ```
 
-[Learn more about accountSubscribe](/api-reference/rpc/websocket/accountsubscribe)
-
-### Program Subscriptions
-
-Subscribe to changes for all accounts owned by a program:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "programSubscribe",
-  "params": [
-    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    {
-      "encoding": "jsonParsed",
-      "commitment": "confirmed"
-    }
-  ]
-}
-
-// Response
-{
-  "jsonrpc": "2.0",
-  "result": 24040,
-  "id": 1
-}
-```
-
-[Learn more about programSubscribe](/api-reference/rpc/websocket/programsubscribe)
-
-### Logs Subscriptions
-
-Subscribe to transaction log messages:
-
-```javascript
-// Request - subscribe to all logs
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "logsSubscribe",
-  "params": [
-    "all",
-    {
-      "commitment": "confirmed"
-    }
-  ]
-}
-
-// Request - subscribe to specific program logs
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "logsSubscribe",
-  "params": [
-    {
-      "mentions": ["11111111111111111111111111111111"]
-    },
-    {
-      "commitment": "confirmed"
-    }
-  ]
-}
-```
-
-[Learn more about logsSubscribe](/api-reference/rpc/websocket/logssubscribe)
-
-### Signature Subscriptions
-
-Subscribe to transaction status updates:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "signatureSubscribe",
-  "params": [
-    "5UfDuA1mQcZeb7BZyWU5T6CvZsYqsRwBUHFyMeTzwcnn8S6W9vzVDjp3NgjV7qHJQvw5qQbbGvGxoULZKHGUdSmo",
-    {
-      "commitment": "confirmed"
-    }
-  ]
-}
-```
-
-[Learn more about signatureSubscribe](/api-reference/rpc/websocket/signaturesubscribe)
-
-### Slot Subscriptions
-
-Subscribe to new slots:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "slotSubscribe"
-}
-```
-
-[Learn more about slotSubscribe](/api-reference/rpc/websocket/slotsubscribe)
-
-### Slot Updates Subscriptions
-
-Subscribe to detailed information about slots:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "slotsUpdatesSubscribe"
-}
-```
-
-[Learn more about slotsUpdatesSubscribe](/api-reference/rpc/websocket/slotsupdatessubscribe)
-
-### Root Subscriptions
-
-Subscribe to new roots (finalized blocks):
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "rootSubscribe"
-}
-```
-
-[Learn more about rootSubscribe](/api-reference/rpc/websocket/rootsubscribe)
-
-### Vote Subscriptions
-
-Subscribe to vote activity:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "voteSubscribe"
-}
-```
-
-[Learn more about voteSubscribe](/api-reference/rpc/websocket/votesubscribe)
-
-## Unsubscribing
-
-To stop receiving updates for any subscription:
-
-```javascript
-// Request
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "unsubscribe",
-  "params": [23784]
-}
-
-// Response
-{
-  "jsonrpc": "2.0",
-  "result": true,
-  "id": 1
-}
-```
-
-Replace the number in the params array with your actual subscription ID.
-
-## JavaScript Examples
-
-Here are complete Node.js examples showing how to use the WebSocket API with JavaScript.
-
-### Program Subscribe Example
-
-This example shows how to subscribe to all account changes for a specific program:
-
-```javascript
-const WebSocket = require('ws');
-
-// Create a WebSocket connection
-const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=<api-key>');
-
-// Function to send a request to the WebSocket server
-function sendRequest(ws) {
-    const request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "programSubscribe",
-        "params": [
-          "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
-          {
-            "encoding": "jsonParsed"
-          }
-        ]
-      };
-    ws.send(JSON.stringify(request));
-}
-
-// Function to send a ping to the WebSocket server
-function startPing(ws) {
-    setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.ping();
-            console.log('Ping sent');
-        }
-    }, 30000); // Ping every 30 seconds
-}
-
-// Define WebSocket event handlers
-ws.on('open', function open() {
-    console.log('WebSocket is open');
-    sendRequest(ws); // Send a request once the WebSocket is open
-    startPing(ws); // Start sending pings
-});
-
-ws.on('message', function incoming(data) {
-    const messageStr = data.toString('utf8');
-    try {
-        const messageObj = JSON.parse(messageStr);
-        console.log('Received:', messageObj);
-    } catch (e) {
-        console.error('Failed to parse JSON:', e);
-    }
-});
-
-ws.on('error', function error(err) {
-    console.error('WebSocket error:', err);
-});
-
-ws.on('close', function close() {
-    console.log('WebSocket is closed');
-});
-```
-
-### Signature Subscribe Example
-
-This example shows how to subscribe to a transaction signature to get notified when its status changes. This subscription is for a single notification - the server automatically cancels it after sending the `signatureNotification`:
-
-```javascript
-const WebSocket = require('ws');
-
-// Create a WebSocket connection
-const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=<api-key>');
-
-// Function to send a request to the WebSocket server
-function sendRequest(ws) {
-    const request = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "signatureSubscribe",
-        "params": [
-          "2EBVM6cB8vAAD93Ktr6Vd8p67XPbQzCJX47MpReuiCXJAtcjaxpvWpcg9Ege1Nr5Tk3a2GFrByT7WPBjdsTycY9b",
-          {
-            "commitment": "finalized",
-            "enableReceivedNotification": false
-          }
-        ]
-      };
-    ws.send(JSON.stringify(request));
-}
-
-// Function to send a ping to the WebSocket server
-function startPing(ws) {
-    setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.ping();
-            console.log('Ping sent');
-        }
-    }, 30000); // Ping every 30 seconds
-}
-
-// Define WebSocket event handlers
-ws.on('open', function open() {
-    console.log('WebSocket is open');
-    sendRequest(ws); // Send a request once the WebSocket is open
-    startPing(ws); // Start sending pings
-});
-
-ws.on('message', function incoming(data) {
-    const messageStr = data.toString('utf8');
-    try {
-        const messageObj = JSON.parse(messageStr);
-        console.log('Received:', messageObj);
-    } catch (e) {
-        console.error('Failed to parse JSON:', e);
-    }
-});
-
-ws.on('error', function error(err) {
-    console.error('WebSocket error:', err);
-});
-
-ws.on('close', function close() {
-    console.log('WebSocket is closed');
-});
-```
-
-## Error Handling
-
-WebSocket errors follow the JSON-RPC 2.0 specification:
-
-```javascript
-{
-  "jsonrpc": "2.0",
-  "error": {
-    "code": -32602,
-    "message": "Invalid params"
-  },
-  "id": 1
-}
-```
-
-## Rate Limits
-
-Websockets are subject to rate limits based on your Helius plan. If you exceed these limits, connections may be dropped or throttled. For high-volume applications, consider upgrading to a higher tier plan or using [LaserStream](/laserstream) for enhanced capabilities.
-
-## Enhanced Capabilities with LaserStream
-
-For applications requiring more advanced streaming features, Helius offers [LaserStream](/laserstream), which provides:
-
-- Historical replay to catch up on missed data
-- Enhanced stability through multi-node aggregation
-- Multiple protocol options (gRPC, Enhanced WebSockets)
-- Higher throughput and lower latency
-
-Learn more about [LaserStream](/laserstream) for enterprise-grade data streaming capabilities. 
+## Enhanced Capabilities
+
+For applications requiring even more advanced features, consider [LaserStream](/laserstream):
+
+<CardGroup cols={2}>
+  <Card title="Historical Replay" icon="clock-rotate-left">
+    Catch up on missed data when your application was offline
+  </Card>
+  <Card title="Multi-Node Aggregation" icon="network-wired">
+    Enhanced reliability through data from multiple validator nodes
+  </Card>
+  <Card title="Higher Throughput" icon="gauge-high">
+    Handle more subscriptions and higher message rates
+  </Card>
+  <Card title="Enterprise Features" icon="building">
+    Advanced monitoring, analytics, and custom data pipelines
+  </Card>
+</CardGroup>
+
+<Note>
+**Ready to Get Started?** Check out our [WebSocket Quickstart Guide](/rpc/websocket/quickstart) for practical examples and step-by-step implementation guides.
+</Note>
+
+For questions or additional support, join our [Discord community](https://discord.gg/helius) where our team and community members are ready to help! 
