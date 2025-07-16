@@ -915,38 +915,6 @@ class ErrorHandlingWebSocket extends SolanaWebSocketManager {
 }
 ```
 
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Subscription Management" icon="list">
-    - Limit active subscriptions (max 100-200 per connection)
-    - Clean up unused subscriptions promptly
-    - Use filters to reduce unnecessary notifications
-    - Group related subscriptions on the same connection
-  </Card>
-  
-  <Card title="Reconnection Strategy" icon="rotate">
-    - Implement exponential backoff with jitter
-    - Set maximum reconnection attempts
-    - Maintain subscription state across reconnections
-    - Provide fallback to HTTP polling if needed
-  </Card>
-  
-  <Card title="Error Handling" icon="shield-check">
-    - Handle all WebSocket error types gracefully
-    - Implement rate limiting awareness
-    - Log errors for debugging and monitoring
-    - Provide user feedback for connection issues
-  </Card>
-  
-  <Card title="Performance" icon="bolt">
-    - Use appropriate commitment levels for your use case
-    - Batch subscription requests when possible
-    - Implement message filtering client-side
-    - Monitor memory usage and clean up regularly
-  </Card>
-</CardGroup>
-
 ## Next Steps
 
 <CardGroup cols={2}>

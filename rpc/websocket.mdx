@@ -1,7 +1,7 @@
 ---
 title: "Solana WebSocket: Real-Time Blockchain Data Streaming"
 sidebarTitle: Overview
-description: "Master real-time Solana blockchain data streaming with WebSockets. Learn concepts, patterns, and production-ready implementations for account monitoring, transaction tracking, and DeFi applications."
+description: "Stream real-time Solana blockchain data with WebSockets. Learn concepts, patterns, and production-ready implementations for account monitoring, transaction tracking, and DeFi applications."
 ---
 
 ## What Are WebSockets and Why Use Them?
@@ -460,131 +460,6 @@ WebSocket connections can disconnect for various reasons - network issues, serve
   </Tab>
 </Tabs>
 
-### Production-Ready Implementation
-
-Here's a complete, production-ready WebSocket manager that handles all reconnection scenarios:
-
-```javascript [expandable]
-class SimpleWebSocketManager {
-  constructor(endpoint, apiKey) {
-    this.endpoint = endpoint;
-    this.apiKey = apiKey;
-    this.ws = null;
-    this.subscriptions = new Map();
-    this.isConnected = false;
-    this.retryCount = 0;
-    this.maxRetries = 5;
-  }
-
-  async connect() {
-    const wsUrl = `${this.endpoint}/?api-key=${this.apiKey}`;
-    this.ws = new WebSocket(wsUrl);
-    
-    this.ws.onopen = () => {
-      console.log('Connected');
-      this.isConnected = true;
-      this.retryCount = 0;
-      this.resubscribeAll();
-    };
-    
-    this.ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      
-      // Handle subscription confirmations
-      if (data.result && typeof data.result === 'number') {
-        const subscription = Array.from(this.subscriptions.values())
-          .find(sub => sub.requestId === data.id);
-        if (subscription) subscription.subscriptionId = data.result;
-        return;
-      }
-      
-      // Handle notifications
-      if (data.method && data.params) {
-        const subscription = Array.from(this.subscriptions.values())
-          .find(sub => sub.subscriptionId === data.params.subscription);
-        if (subscription?.callback) subscription.callback(data.params.result);
-      }
-    };
-    
-    this.ws.onclose = () => {
-      console.log('Disconnected');
-      this.isConnected = false;
-      this.handleReconnect();
-    };
-  }
-
-  handleReconnect() {
-    if (this.retryCount < this.maxRetries) {
-      this.retryCount++;
-      const delay = 1000 * Math.pow(2, this.retryCount - 1);
-      console.log(`Reconnecting in ${delay}ms...`);
-      setTimeout(() => this.connect(), delay);
-    }
-  }
-
-  subscribe(method, params, callback) {
-    const requestId = Date.now();
-    const subscription = { requestId, method, params, callback, subscriptionId: null };
-    this.subscriptions.set(requestId, subscription);
-    
-    if (this.isConnected) {
-      this.ws.send(JSON.stringify({
-        jsonrpc: '2.0',
-        id: requestId,
-        method,
-        params
-      }));
-    }
-    
-    return requestId;
-  }
-
-  resubscribeAll() {
-    for (const [id, sub] of this.subscriptions) {
-      sub.subscriptionId = null;
-      this.ws.send(JSON.stringify({
-        jsonrpc: '2.0',
-        id,
-        method: sub.method,
-        params: sub.params
-      }));
-    }
-  }
-}
-
-// Usage
-const wsManager = new SimpleWebSocketManager(
-  'wss://mainnet.helius-rpc.com',
-  'your-api-key-here'
-);
-
-await wsManager.connect();
-
-// Subscribe to account changes
-wsManager.subscribe(
-  'accountSubscribe',
-  ['your-account-address-here', { commitment: 'confirmed' }],
-  (data) => console.log('Account updated:', data)
-);
-```
-
-### Best Practices for State Management
-
-<CardGroup cols={2}>
-  <Card title="Subscription Persistence" icon="bookmark">
-    **Always store subscription parameters** so they can be restored after reconnection. Never rely on the WebSocket staying connected permanently.
-  </Card>
-  <Card title="Graceful Degradation" icon="shield-check">
-    **Implement fallback mechanisms** like HTTP polling when WebSocket connections fail repeatedly or take too long to reconnect.
-  </Card>
-  <Card title="Connection Pooling" icon="layer-group">
-    **Use multiple connections** for high-throughput applications. Distribute subscriptions across connections to avoid hitting rate limits.
-  </Card>
-  <Card title="Monitoring & Alerting" icon="bell">
-    **Track connection metrics** and set up alerts for excessive disconnections or failed reconnection attempts in production.
-  </Card>
-</CardGroup>
-
 ### Testing Reconnection Logic
 
 <Tabs>
@@ -828,7 +703,7 @@ class WebSocketAccountMonitor {
 
 ## Enhanced Capabilities
 
-For applications requiring even more advanced features, consider [LaserStream](/laserstream):
+For applications requiring even more advanced features, consider using [LaserStream gRPC](/laserstream):
 
 <CardGroup cols={2}>
   <Card title="Historical Replay" icon="clock-rotate-left">
