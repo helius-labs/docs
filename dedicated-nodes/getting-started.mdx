@@ -17,9 +17,9 @@ Dedicated Nodes can be ordered directly from the [developer portal](https://dash
 
 ### Node Type
 
-The type of node you choose depends on your gRPC streaming requirements. Reviewing each node's CPU cores and RAM is important to determine which will best support your streaming workload. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
+The type of node you choose depends on your requirements. Since we don't impose any rate limits, your node's performance will rely entirely on its specifications.
 
-**For gRPC streaming applications** (primary use case), any of the three node types will perform well. The AMD EPYC 7543p and AMD EPYC 9254 offer higher performance for intensive streaming workloads, while the AMD EPYC 7443p is suitable for lighter streaming requirements.
+**For gRPC streaming applications** (primary use case), any node type will perform well.
 
 <Warning>
 **Important**: While `getProgramAccounts` is supported, dedicated nodes are not optimized for these calls. Heavy usage can impact node performance or even cause node failure. Use your shared plan for `getProgramAccounts` queries as it has a custom indexer that makes these calls much faster and more reliable.
@@ -89,6 +89,10 @@ Once you have your Dedicated Node set up and ready (status: **Succeeded**), you 
 ### gRPC Streaming (Primary Use Case)
 
 **Dedicated nodes are optimized for gRPC streaming via the Yellowstone Geyser Plugin.** This is the primary and recommended way to use your dedicated node.
+
+<Info>
+**Consider LaserStream for gRPC Streaming**: LaserStream offers superior performance, reliability, and advanced features like historical replay for gRPC streaming. It's recommended for 99% of streaming use cases. [Compare LaserStream vs Dedicated Nodes](/laserstream/laserstream-vs-dedicated-nodes) to choose the best solution for your needs.
+</Info>
 
 ### Basic RPC and Websocket (Limited Functionality)
 
