@@ -23,7 +23,7 @@ You must filter the query by either a specific token `mint` or a `programId` (e.
     *   **`mint`** (string): The base-58 encoded public key of a specific token mint. If provided, only token accounts for this mint owned by `ownerPubkey` will be returned.
     *   **`programId`** (string): The base-58 encoded public key of the Token Program that governs the accounts. Common values are:
         *   SPL Token Program: `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`
-        *   Token-2022 Program: `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxAPds`
+        *   Token-2022 Program: `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`
 
 3.  **`options`** (object, optional): An optional configuration object that can include:
     *   **`commitment`** (string, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels).
@@ -193,7 +193,7 @@ findOwnerTokenAccounts(exampleOwner, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWu
 // findOwnerTokenAccounts(exampleOwner, { mint: usdcMint });
 
 // Example 3: Find Token-2022 Program accounts owned by `exampleOwner`
-// findOwnerTokenAccounts(exampleOwner, { programId: 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxAPds' });
+// findOwnerTokenAccounts(exampleOwner, { programId: 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb' });
 ```
 </CodeGroup>
 
@@ -203,6 +203,6 @@ findOwnerTokenAccounts(exampleOwner, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWu
 *   **Associated Token Accounts:** This method will return all token accounts owned by the public key, including standard Associated Token Accounts (ATAs) and any other SPL token accounts they might own (e.g., from older wallet implementations or custom setups).
 *   **Encoding:** Using `"jsonParsed"` for the `encoding` option is highly recommended. It decodes the binary account data into a more usable JSON structure.
 *   **Performance:** If an owner has a very large number of token accounts (especially when filtering only by `programId`), the response can be large. Consider pagination if your RPC provider or library supports it, or if you anticipate very large result sets, though this method itself doesn't directly support pagination in its standard parameters.
-*   **Token-2022 (Token Extensions):** If you are working with tokens created using the Token-2022 program (which supports extensions like transfer fees, interest, etc.), ensure you use the correct `programId`: `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxAPds`.
+*   **Token-2022 (Token Extensions):** If you are working with tokens created using the Token-2022 program (which supports extensions like transfer fees, interest, etc.), ensure you use the correct `programId`: `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`.
 
 This guide provides a thorough understanding of the `getTokenAccountsByOwner` RPC method, enabling you to efficiently retrieve token account information for any Solana address. 
