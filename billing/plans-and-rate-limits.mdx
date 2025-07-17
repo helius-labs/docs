@@ -92,6 +92,10 @@ Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angel
   </tbody>
 </table>
 
+<Note>
+  If you're on a legacy plan, see the [Legacy Plan Details](#legacy-plans) section below.
+</Note>
+
 <CardGroup cols={2}>
   <Card
     title="Get Started Today"
@@ -109,9 +113,21 @@ Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angel
   </Card>
 </CardGroup>
 
-<Note>
-  If you're on a legacy plan, see the [Legacy Plan Details](#legacy-plans) section below.
-</Note>
+## Add-On Plans
+
+### LaserStream Plus
+
+<Card title="LaserStream 50TB Add-On" icon="bolt">
+  **$2,500/month** - Supercharge your Professional plan for ultra-high throughput streaming
+  
+  **How it works:**
+  - Professional plan: Pay **3 credits per 0.1MB** for all LaserStream usage
+  - Add-on provides **50 TB included bandwidth** each month  
+  - After your 50 TB runs out: Pay **1 credit per 0.1MB** (67% cheaper than Professional's 3 credits)
+  - All other Professional plan features included
+  
+  **Perfect for:** High-frequency trading bots, portfolio trackers, DEX aggregators, and real-time analytics platforms.
+</Card>
 
 ---
 
@@ -377,7 +393,10 @@ Some endpoints have special restrictions due to their computational requirements
 </table>
 
 <Note>
-**LaserStream Data Metering**: Billing is based on **uncompressed** gRPC message size, not the compressed data your client receives. Typical sizes for updates: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
+**LaserStream Billing Guide**: 
+- **Professional Plan**: Pay 3 credits per 0.1MB for all LaserStream usage (no included bandwidth).
+- **LaserStream Plus Add-on**: Includes 50 TB monthly bandwidth. After that, pay only 1 credit per 0.1MB (67% savings).
+- **Data Size**: Billing based on uncompressed gRPC message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
 
 **Webhook Billing**: You are charged 1 credit when Helius processes and sends a webhook event to your endpoint. This charge applies regardless of whether your endpoint successfully receives or processes the webhook.
 </Note>
