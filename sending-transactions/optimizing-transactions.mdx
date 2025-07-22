@@ -13,7 +13,7 @@ description: "Optimize Solana transactions to minimize confirmation latency and 
 We recommend the following best practices to help you land transactions:
 
 - Use commitment "processed" or "confirmed" to fetch the [latest blockhash](/rpc/guides/getlatestblockhash)
-- Add [priority fees](/sending-transactions/priority-fees) and [calculate them dynamically](/priority-fee-api)
+- Add [priority fees](/sending-transactions/optimizing-transactions#setting-the-right-priority-fee) and [calculate them dynamically](/priority-fee-api)
 - Optimize compute unit (CU) usage
 - Set maxRetries to 0 and implement robust retry logic
 - Send with skipPreflight set to true (optional)
@@ -36,7 +36,7 @@ We recommend the following best practices to help you land transactions:
 - Only one warming thread is required per region. Any more will have zero benefit
 
 <Note>
-  The benefits will only be noticeable to experienced traders. We recommend the [Sending Smart Transactions](/sending-transactions/smart-transactions) section instead for app developers.
+  The benefits will only be noticeable to experienced traders. We recommend the [Sending Smart Transactions](/sending-transactions/optimizing-transactions) section instead for app developers.
 </Note>
 
 ## Sending Smart Transactions
