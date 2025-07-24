@@ -212,6 +212,55 @@ findWalletTokenAccounts();
 ```
 </CodeGroup>
 
+## Advanced Filtering
+
+Optimize your queries with filters to reduce response size and improve performance:
+
+```typescript
+// Example filtering by memcmp (memory comparison)
+const response = await fetch(
+  "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getProgramAccounts",
+      params: [
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Solana Token Program
+        {
+          encoding: "jsonParsed",
+          filters: [
+            {
+              dataSize: 165, // Size of token account data
+            },
+            {
+              memcmp: {
+                offset: 32, // Location of owner address in the token account
+                bytes: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri",
+              },
+            },
+          ],
+        },
+      ],
+    }),
+  }
+);
+const data = await response.json();
+console.log("Filtered program accounts data:", data);
+```
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/rpc/http/getprogramaccounts">
+  getProgramAccounts
+</Card>
+
+### Filter Types
+
+- `memcmp`: Filter accounts that match a specific pattern at a given offset
+- `dataSize`: Filter accounts by their exact data size
+- Multiple filters: All conditions must be satisfied (logical AND)
+
 ## Developer Tips
 
 *   **Performance:** `getProgramAccounts` can be resource-intensive on RPC nodes, especially without filters or for programs with many accounts. Always use filters (`dataSize`, `memcmp`) and `dataSlice` where possible to reduce the query scope and response size.
