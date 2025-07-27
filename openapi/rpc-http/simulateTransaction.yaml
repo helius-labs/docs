@@ -184,23 +184,18 @@ paths:
                         type: object
                         description: Context of the simulation response.
                         properties:
+                          apiVersion:
+                            type: string
+                            description: The API version of the RPC node.
+                            example: "2.3.3"
                           slot:
                             type: integer
                             description: Slot in which the data was fetched.
-                            example: 218
+                            example: 393226680
                       value:
                         type: object
                         description: Details of the simulated transaction result.
                         properties:
-                          err:
-                            type: ["object", "null"]
-                            description: Error if the transaction failed, null if successful.
-                            example: null
-                          logs:
-                            type: ["array", "null"]
-                            items:
-                              type: string
-                              example: "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
                           accounts:
                             type: ["array", "null"]
                             items:
@@ -209,6 +204,40 @@ paths:
                               example:
                                 lamports: 5000
                                 owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                          err:
+                            type: ["object", "null"]
+                            description: Error if the transaction failed, null if successful.
+                            example: null
+                          innerInstructions:
+                            type: ["array", "null"]
+                            description: Inner instructions executed during the transaction.
+                            example: null
+                          loadedAccountsDataSize:
+                            type: ["integer", "null"]
+                            description: Total size in bytes of all account data loaded during simulation.
+                            example: 413
+                          logs:
+                            type: ["array", "null"]
+                            items:
+                              type: string
+                            description: Program execution logs from the transaction simulation.
+                            example: 
+                              - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb invoke [1]"
+                              - "Program log: Instruction: Transfer"
+                              - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb consumed 1714 of 200000 compute units"
+                              - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb success"
+                          replacementBlockhash:
+                            type: ["object", "null"]
+                            description: Replacement blockhash information when replaceRecentBlockhash is enabled.
+                            properties:
+                              blockhash:
+                                type: string
+                                description: The replacement blockhash.
+                                example: "6oFLsE7kmgJx9PjR4R63VRNtpAVJ648gCTr3nq5Hihit"
+                              lastValidBlockHeight:
+                                type: integer
+                                description: The last valid block height for the replacement blockhash.
+                                example: 381186895
                           returnData:
                             type: ["object", "null"]
                             properties:
@@ -219,26 +248,35 @@ paths:
                                 type: array
                                 items:
                                   type: string
-                                  example: "Kg=="
-                              computeUnitsConsumed:
-                                type: integer
-                                example: 2366
+                                example: ["Kg==", "base64"]
+                            description: Data returned by the transaction if any.
+                            example: null
+                          unitsConsumed:
+                            type: ["integer", "null"]
+                            description: Total compute units consumed during the simulation.
+                            example: 1714
               example:
                 jsonrpc: "2.0"
-                id: "1"
+                id: 1
                 result:
                   context:
-                    slot: 218
+                    apiVersion: "2.3.3"
+                    slot: 393226680
                   value:
-                    err: null
-                    logs:
-                      - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri invoke [1]"
-                      - "Program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri consumed 2366 of 1400000 compute units"
                     accounts: null
-                    returnData:
-                      programId: "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-                      data: ["Kg==", "base64"]
-                      computeUnitsConsumed: 2366
+                    err: null
+                    innerInstructions: null
+                    loadedAccountsDataSize: 413
+                    logs:
+                      - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb invoke [1]"
+                      - "Program log: Instruction: Transfer"
+                      - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb consumed 1714 of 200000 compute units"
+                      - "Program TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb success"
+                    replacementBlockhash:
+                      blockhash: "6oFLsE7kmgJx9PjR4R63VRNtpAVJ648gCTr3nq5Hihit"
+                      lastValidBlockHeight: 381186895
+                    returnData: null
+                    unitsConsumed: 1714
         400:
           description: Bad Request - Invalid request parameters or malformed request.
           content:
