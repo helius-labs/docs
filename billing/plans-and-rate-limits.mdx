@@ -4,10 +4,6 @@ sidebarTitle: "Pricing, Rate Limits & Credits"
 description: "Complete guide to Helius Solana API pricing with free tier. Transparent plans, rate limits, and credit system for developers and enterprise."
 ---
 
-<Info>
-Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver, Dublin, London, Amsterdam, Frankfurt, Singapore, and Tokyo**, with automatic routing to the nearest node.
-</Info>
-
 ## Quick Start
 
 <CardGroup cols={2}>
@@ -113,9 +109,7 @@ Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angel
   </Card>
 </CardGroup>
 
-## Add-On Plans
-
-### LaserStream Plus
+### LaserStream Plus Add-On
 
 <Card title="LaserStream 50TB Add-On" icon="bolt">
   **$2,500/month** - Supercharge your Professional plan for ultra-high throughput streaming
@@ -127,6 +121,22 @@ Access our RPC node fleet across **Pittsburgh, Newark, Salt Lake City, Los Angel
   - All other Professional plan features included
   
   **Perfect for:** High-frequency trading bots, portfolio trackers, DEX aggregators, and real-time analytics platforms.
+</Card>
+
+## Enterprise Plan
+
+<Card title="Custom Solutions for High-Volume Applications" icon="building">
+  Enterprise plans provide tailored solutions for organizations with specific requirements.
+  
+  **Key Benefits:**
+  - Custom rate limits tailored to your needs
+  - Volume discounts for high credit usage
+  - SLA guarantees with uptime commitments
+  - Direct engineering support access
+  - Advanced usage analytics and monitoring
+  - Priority support channels
+  
+  Ready for Enterprise? [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss custom solutions.
 </Card>
 
 ---
@@ -310,7 +320,7 @@ Some endpoints have special restrictions due to their computational requirements
   <Card title="Monthly Allocation" icon="calendar">
     Your plan includes credits that reset monthly
   </Card>
-  <Card title="Usage Priority" icon="arrow-down">
+  <Card title="Credits are consumed in this order:" icon="arrow-down">
     Monthly → Prepaid → Autoscaling
   </Card>
   <Card title="Flexible Billing" icon="credit-card">
@@ -347,7 +357,7 @@ Some endpoints have special restrictions due to their computational requirements
     <tr>
       <td><strong>Webhook Events</strong></td>
       <td style={{textAlign: 'center'}}>1</td>
-      <td>For each message pushed</td>
+      <td>Per event sent by Helius, regardless of successful or failed endpoint responses</td>
     </tr>
     <tr>
       <td><strong>LaserStream gRPC</strong></td>
@@ -397,8 +407,6 @@ Some endpoints have special restrictions due to their computational requirements
 - **Professional Plan**: Pay 3 credits per 0.1MB for all LaserStream usage (no included bandwidth).
 - **LaserStream Plus Add-on**: Includes 50 TB monthly bandwidth. After that, pay only 1 credit per 0.1MB (67% savings).
 - **Data Size**: Billing based on uncompressed gRPC message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
-
-**Webhook Billing**: You are charged 1 credit when Helius processes and sends a webhook event to your endpoint. This charge applies regardless of whether your endpoint successfully receives or processes the webhook.
 </Note>
 
 <Tabs>
@@ -486,7 +494,7 @@ Some endpoints have special restrictions due to their computational requirements
 ## Managing Your Usage
 
 <CardGroup cols={2}>
-  <Card title="Autoscaling" icon="arrow-trend-up" href="/billing/autoscaling">
+  <Card title="Configure Autoscaling" icon="arrow-trend-up" href="/billing/autoscaling">
     Automatically add credits as needed for handling traffic spikes and ensuring uninterrupted service.
   </Card>
   <Card title="Helius Dashboard" icon="chart-line" href="https://dashboard.helius.dev/">
@@ -494,24 +502,6 @@ Some endpoints have special restrictions due to their computational requirements
   </Card>
 </CardGroup>
 
-
----
-
-## Enterprise
-
-<Card title="Custom Solutions for High-Volume Applications" icon="building">
-  Enterprise plans provide tailored solutions for organizations with specific requirements.
-  
-  **Key Benefits:**
-  - Custom rate limits tailored to your needs
-  - Volume discounts for high credit usage
-  - SLA guarantees with uptime commitments
-  - Direct engineering support access
-  - Advanced usage analytics and monitoring
-  - Priority support channels
-  
-  Ready for Enterprise? [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss custom solutions.
-</Card>
 
 ---
 
