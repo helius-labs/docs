@@ -6,7 +6,7 @@ description: 'Helius provides multiple endpoint types to suit different applicat
 
 ## Solana RPC endpoints
 
-Standard, high-performance RPC endpoints providing full Solana API compatibility with enhanced reliability and throughput. These endpoints support all Solana JSON-RPC methods and now **use staked connections by default** for optimal transaction landing rates:
+Standard, high-performance RPC endpoints providing full Solana API compatibility with enhanced reliability and throughput. These endpoints support all Solana JSON-RPC methods and now **use staked connections by default** for all paid plans, providing optimal transaction landing rates:
 
 - **Mainnet**: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
 - **Devnet**: `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
@@ -14,7 +14,7 @@ Standard, high-performance RPC endpoints providing full Solana API compatibility
 <Note>
 **Staked Transactions Are the New Default**
 
-Transactions sent through Helius will automatically use staked connections, providing you with the highest transaction landing rates and ensuring your transactions are optimized for speed and reliability. No code changes required.
+Transactions sent through Helius will automatically use staked connections for all paid plans, providing you with the highest transaction landing rates and ensuring your transactions are optimized for speed and reliability. No code changes required.
 </Note>
 
 ## Secure RPC endpoints
@@ -27,23 +27,13 @@ These URLs are specifically masked and IP rate-limited at 5 TPS, making them saf
 ## Staked Connection endpoints (Deprecated)
 
 <Warning>
-**Deprecated**: The staked endpoint (`staked.helius-rpc.com`) has been deprecated. Use the regular endpoint instead (`mainnet.helius-rpc.com`) which now uses staked connections by default.
+**Deprecated**: The staked endpoint (`staked.helius-rpc.com`) has been deprecated. Use the regular endpoint instead (`mainnet.helius-rpc.com`) which now uses staked connections by default for all paid plans.
 </Warning>
 
-- **Cost**: 1 credit per `sendTransaction` request (reduced from 50 credits)
+- **Cost**: 1 credit per `sendTransaction` request (reduced from 10 credits)
 - **Automatic optimization**: All transactions are sent over optimized network infrastructure (Asia, Europe, and North America)
 - **Higher landing rates**: Guaranteed access to staked connections during market congestion
 - **No code changes required**: Existing applications automatically benefit from staked connections
-
-### Unstaked Connections
-
-If you need to use unstaked connections (1 credit per call), you can use:
-
-- **Mainnet**: `https://unstaked.helius-rpc.com/?api-key=YOUR_API_KEY`
-
-<Warning>
-Unstaked connections will not be reliable during periods of network congestion. We recommend using the default staked connections for production applications.
-</Warning>
 
 ## Solana Websocket Endpoints
 
