@@ -30,12 +30,13 @@ paths:
         - RPC
       summary: getSignaturesForAsset
       description: |
-        Retrieve a complete chronological history of all transactions involving a specific Solana NFT or token.
-        This transaction history API returns an ordered list of transaction signatures and operation types
-        that affected a particular digital asset on the Solana blockchain, enabling applications to track
+        Retrieve a complete chronological history of all transactions involving a specific compressed NFT (cNFT).
+        This specialized method returns an ordered list of transaction signatures and operation types
+        that affected a particular compressed digital asset on the Solana blockchain, enabling applications to track
         the full ownership history, creation events, transfers, listings, sales, and other operations.
-        Essential for marketplace provenance verification, wallet transaction history, and analytics 
-        platforms tracking the lifecycle of NFTs and tokens across the Solana ecosystem.
+        
+        **Note:** This method is specifically designed for compressed NFTs. For regular NFTs, use `getSignaturesForAddress` instead.
+        This specialized endpoint was added because the standard `getSignaturesForAddress` method doesn't work with compressed NFTs.
       operationId: rpc
       security:
         - ApiKeyQuery: []
