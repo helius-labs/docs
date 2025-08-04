@@ -1,0 +1,51 @@
+---
+title: "LaserStream FAQ"
+description: "Get answers to the most common questions about LaserStream including purchasing, troubleshooting, and subscription management"
+---
+
+## Purchasing LaserStream
+
+<Accordion title="How is LaserStream better than a dedicated gRPC node?">
+It spans seven regions, auto‑fails over with replay, and is a drop‑in replacement for Geyser. So you get higher throughput and resilience compared to dedicated nodes. For more info, check our [guide](https://www.helius.dev/docs/laserstream/laserstream-vs-dedicated-nodes).
+</Accordion>
+
+<Accordion title="What is the LaserStream 50 TB add‑on and how much does it cost?">
+For **$2,500 / month** on a Professional plan, you get 50 TB of unmetered data (no credits consumed). After that, additional data costs **2 credits per 0.1 MB**—a 33% discount versus the standard rate.
+</Accordion>
+
+## Troubleshooting LaserStream
+
+<Accordion title="I'm experiencing lag or slow performance with my LaserStream connection, what could be causing this?">
+• **Client‑side bottlenecks**: JavaScript clients can lag when overwhelmed. Narrow your filters or switch to a faster language.
+
+• **Limited local bandwidth**: Heavy subscriptions can saturate a slow link. Monitor network usage or upgrade your connection.
+
+• **Geographic distance**: Pick the region‑nearest LaserStream endpoint; long routes drop packets and add latency.
+
+• **Processing logic**: Avoid blocking the main thread; use async queues or workers.
+
+*Benchmark tip*:
+
+```bash
+cargo install helius-laserstream-bandwidth
+helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_KEY
+```
+</Accordion>
+
+<Accordion title="I'm getting connection errors, what should I check?">
+Verify your API key and endpoint, make sure outbound gRPC is allowed.
+</Accordion>
+
+<Accordion title="Why aren't my filters working as expected?">
+Confirm public keys and commitment levels, and review your `AND`/`OR` logic. Filters are evaluated as described in the docs.
+</Accordion>
+
+## Subscriptions & Filters
+
+<Accordion title="Can I subscribe to multiple data types in one request (e.g., accounts and transactions)?">
+Yes, add separate filter configs (such as `accounts` and `transactions`) in a single `SubscribeRequest`.
+</Accordion>
+
+<Accordion title="What are the practical filter limits?">
+Up to **10 million** account includes per stream, unlimited program filters, and **100 concurrent connections** per project.
+</Accordion>

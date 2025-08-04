@@ -1,0 +1,20 @@
+---
+title: "WebSockets FAQ"
+description: "Get answers to the most common questions about WebSockets including enhanced features, troubleshooting, and usage"
+---
+
+## Using WebSockets
+
+<Accordion title="How much faster are Enhanced WebSockets vs. Standard WebSockets?">
+Enhanced Websockets are, on average, 1.5x - 2x faster than standard websockets.
+</Accordion>
+
+<Accordion title="Why are Enhanced WebSockets disconnecting?">
+Implement reconnection and ping logic as shown in our [documentation](https://docs.helius.dev/data-streaming/enhanced-websockets-beta#transaction-subscribe-example), then add your functionalities on top.
+</Accordion>
+
+## Troubleshooting
+
+<Accordion title="Why do SWAP hooks miss some DEXes?">
+Enhanced parsers cover Jupiter, Pumpfun, Raydium, Meteora, etc. For full coverage choose `type: ANY` and self-decode.
+</Accordion>

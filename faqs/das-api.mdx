@@ -1,0 +1,24 @@
+---
+title: "DAS API FAQ"
+description: "Get answers to the most common questions about Digital Asset Standard API including asset data, price information, and API usage"
+---
+
+## Troubleshooting
+
+<Accordion title="Why does getAsset sometimes lack price?">
+We only show price data for Jupiter-verified tokens.
+</Accordion>
+
+## Using the API
+
+<Accordion title="Can I get price data for any token?">
+Price data is available only for Jupiter-verified tokens. Check whether `token_info.price_info` exists in the response.
+</Accordion>
+
+<Accordion title="How do I get all NFTs for a wallet?">
+Use `getAssetsByOwner` with the wallet address, and paginate if the wallet holds many assets.
+</Accordion>
+
+<Accordion title="What's the difference between getAsset and searchAssets?">
+`getAsset` retrieves one asset by mint address, while `searchAssets` lets you query multiple assets with filters.
+</Accordion>

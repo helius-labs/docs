@@ -1,0 +1,52 @@
+---
+title: "Webhooks FAQ"
+description: "Get answers to the most common questions about webhooks including management, network support, retries, and troubleshooting"
+---
+
+## Managing Webhooks
+
+<Accordion title="How many addresses can I input for one webhook?">
+Up to 100,000 using the [API](https://www.helius.dev/docs/api-reference/webhooks/create-webhook).
+</Accordion>
+
+<Accordion title="How can I verify that the webhook came from Helius?">
+Set an authorization header when creating or updating the webhook; Helius echoes it in every call.
+</Accordion>
+
+<Accordion title="What is the difference between 'raw' and 'enhanced' webhooks?">
+*Raw* returns chain JSON; *Enhanced* adds token transfers, protocol labels, and more.
+</Accordion>
+
+<Accordion title="When does the webhook send a notification?">
+Immediately after a matching transaction is confirmed.
+</Accordion>
+
+## Supported Networks
+
+<Accordion title="Are webhooks available on Devnet?">
+Yes—set `"network":"devnet"`.
+</Accordion>
+
+<Accordion title="Can I input 'localhost' for my webhook URL?">
+No—the URL must be publicly reachable over HTTPS.
+</Accordion>
+
+## Retries
+
+<Accordion title="What is the retry policy for webhooks?">
+Up to 3 retries with a 1-minute reset period.
+</Accordion>
+
+<Accordion title="Do webhooks post failed transactions?">
+Enhanced webhooks do not; raw webhooks do.
+</Accordion>
+
+## Troubleshooting Webhooks
+
+<Accordion title="Why is my webhook dropping data?">
+This issue may occur if your endpoint encounters an error, causing webhook retries that eventually lead to data being dropped. Check your logs in the [dashboard](https://dashboard.helius.dev/webhooks) to confirm, ensure sufficient client side logging is in place, and contact support if the problem persists.
+</Accordion>
+
+<Accordion title="Why aren't my webhooks working?">
+Ensure the selected type matches the transactions you are monitoring. Start with ANY type to identify if it's a general issue or a type mismatch. Use [webhook.site](http://webhook.site/) to test if the problem lies with your endpoint.
+</Accordion>
