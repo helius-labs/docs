@@ -18,7 +18,7 @@ The [`getSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getslot) RPC 
 This method takes an optional configuration object as its first parameter:
 
 1.  **`options`** (`object`, optional): An optional configuration object with the following fields:
-    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.xyz/blog/what-are-solana-commitment-levels) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
         *   `processed`: The node will query its most recent slot. Note that this slot may not be confirmed by the cluster yet and could potentially be skipped.
         *   `confirmed`: The node will query the most recent slot that has been voted on by a supermajority of the cluster.
         *   `finalized`: The node will query the most recent slot confirmed by the supermajority of the cluster as having reached maximum lockout (cannot be rolled back).
