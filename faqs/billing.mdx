@@ -29,6 +29,39 @@ Contact [Support](https://www.helius.dev/docs/support) and we'll handle the chan
 Manual payments aren't supported. You can, however, revoke the authorization right after each charge by setting the limit to 0 under **Manage Authorization Limit**.
 </Accordion>
 
+## Authorization Management
+
+<Accordion title="What does the authorization duration affect?">
+The authorization duration (in months) determines how much USDC you pre-authorize for automatic subscription payments:
+
+**Longer duration**: Higher authorization limit, fewer wallet interactions needed
+**Shorter duration**: Lower authorization limit, more control over payments
+
+The system calculates: Monthly cost × Duration = New authorization limit
+
+You can adjust this anytime, and payments will automatically be deducted from your authorized amount on billing days until the limit is reached.
+</Accordion>
+
+<Accordion title="How do I manage my authorization limits?">
+You can manage your authorization limit by clicking **Manage authorization limit** on the [billing](https://dashboard.helius.dev/billing) page. This allows you to:
+
+• Select the authorization duration (3, 6, or 12 months) using the radio buttons
+• See the calculated new limit based on your subscription cost and duration  
+• Update the limit by clicking **Update Limit**
+
+The authorization limit determines the maximum amount that can be automatically withdrawn from your wallet for subscription payments.
+</Accordion>
+
+<Accordion title="I have the wrong wallet connected when trying to manage authorization limits">
+If you see that the "Currently connected" wallet doesn't match the "Required payment wallet":
+
+1. Click **Switch Wallet** in the authorization management modal
+2. Disconnect your current wallet and connect the required payment wallet shown in the modal
+3. Once the correct wallet is connected, you'll be able to manage your authorization limits
+
+Each project's authorization limits can only be managed by the specific wallet that was used to set up payments for that project.
+</Accordion>
+
 ---
 
 ## Need More Help?
