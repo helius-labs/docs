@@ -23,6 +23,10 @@ The Helius Digital Asset Standard (DAS) API provides powerful tools for reading 
 
 ## Price Data for Jupiter Verified Tokens
 
+<Callout type="info">
+  Price data returned by `getAsset` is cached for up to 60 seconds and may be up to 60 seconds old.
+</Callout>
+
 ```typescript
 const fetchTokenPriceData = async () => {
   const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
