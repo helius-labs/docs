@@ -8,51 +8,11 @@ description: "Earn automatic SOL rebates via post-trade backruns and protect aga
 **MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, reducing harmful MEV attacks while letting you profit from arbitrage opportunities you create.
 </Info>
 
-## What Is Backrunning?
-
-Backrunning is a **beneficial form of arbitrage** that helps keep prices consistent across different exchanges. Unlike malicious MEV attacks, backrunning **improves the network** by correcting price imbalances created by large trades.
-
-### How It Actually Works
-
-<Tabs>
-  <Tab title="When Someone Buys BONK (Big Trade)">
-    **Price impact occurs**: The large buy pushes BONK's price up on that specific DEX (e.g., Raydium)
-
-    **Price discrepancy created**: BONK is now more expensive on Raydium than on other exchanges like Orca
-
-    **Backrun searcher's strategy**:
-    - Buy BONK cheaply on the exchange where price hasn't moved yet (Orca)
-    - Sell BONK at the higher price on the exchange where the big trade occurred (Raydium)
-    - Capture the price difference as profit (with Helius rebates you earn from this profit)
-
-    **Result**: Prices across all exchanges quickly balance out, benefiting everyone
-  </Tab>
-  
-  <Tab title="When Someone Sells BONK (Big Trade)">
-    **Price drops**: The large sell pushes BONK's price down on one DEX
-
-    **Arbitrage opportunity**: BONK is now cheaper on that exchange
-
-    **Searcher's response**:
-    - Buy BONK at the lower price on the affected exchange
-    - Sell BONK at the higher price on other exchanges where price hasn't adjusted yet
-    - Capture the price difference as profit (with Helius rebates you earn from this profit)
-
-    **Result**: The price difference disappears, minimizing price discrepancies across markets
-  </Tab>
-</Tabs>
-
-<Note>
-**Why This Helps Everyone**: Backrunning creates efficient price discovery and reduces slippage for future traders. Instead of letting this value go to random searchers, Helius lets you earn from the arbitrage opportunities your own trades create.
-</Note>
-
 ## What Are Backrun Rebates?
 
 Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Value) your transactions create. When your trade generates profitable arbitrage opportunities, searchers compete to backrun your transaction - and you get paid a portion of their profits in SOL.
 
-<Note>
-**No Impact on Execution**: Transaction inclusion is not impacted and user's execution will not get worse.
-</Note>
+
 
 <CardGroup cols={2}>
   <Card title="No Additional MEV Risk" icon="shield-check">
@@ -81,6 +41,16 @@ The rebate system operates through an order-flow auction that runs alongside you
     If the bundle lands on-chain, Helius automatically pays the agreed rebate directly to your specified address in SOL
   </Step>
 </Steps>
+
+### Understanding Backruns
+
+Backrunning is a beneficial form of arbitrage that helps keep prices consistent across different exchanges. Unlike malicious MEV attacks, backrunning improves the network by correcting price imbalances created by large trades.
+
+**Example**: When you buy BONK on Raydium, the price goes up on that exchange but stays the same on Orca. A searcher then buys BONK on Orca (cheaper) and sells on Raydium (higher price), capturing the difference as profit. With Helius rebates, you earn from this profit your trade created.
+
+<Tip>
+**No Impact on Execution**: Transaction inclusion is not impacted and user's execution will not get worse.
+</Tip>
 
 <Card title="How much can I earn?" icon="question">
   **You earn 50% of the MEV your trade creates**
