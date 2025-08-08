@@ -5,7 +5,7 @@ description: "Earn automatic SOL rebates when your transactions create arbitrage
 ---
 
 <Info>
-**Zero Risk, Pure Upside**: Your transaction executes first, always. Earn SOL rebates when searchers backrun your trades, with no additional risk or code changes required.
+**No Sandwiching or Frontrunning Risk**: Your transaction is never revealed publicly before execution and always executes first in the bundle. This system eliminates MEV attacks against you while letting you profit from the MEV you create. All bundle executions are verifiable on-chain.
 </Info>
 
 ## What Are Backrun Rebates?
@@ -17,7 +17,7 @@ Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Valu
     Earn SOL automatically every time your trade creates profitable arbitrage opportunities
   </Card>
   <Card title="Zero Risk" icon="shield-check">
-    Your transaction executes first - worst case is identical to trading without rebates
+    No sandwiching or frontrunning possible - your transaction executes first and is never revealed publicly beforehand
   </Card>
   <Card title="One Parameter" icon="code">
     Add `rebate-address` to your RPC URL - no code changes or contract modifications needed
@@ -33,7 +33,7 @@ The rebate system operates through an order-flow auction that runs alongside you
 
 <Steps titleSize="h3">
   <Step title="Opt In">
-    Add `?rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet
+    Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet
   </Step>
   <Step title="Auction Process">
     Helius forwards a copy of your signed transaction to our order-flow auction where searchers bid to backrun your trade
@@ -47,10 +47,9 @@ The rebate system operates through an order-flow auction that runs alongside you
 </Steps>
 
 <Card title="How much can I earn?" icon="question">
-  **Typical rebate range: 2-20 basis points of traded value**
+  **You earn 50% of the MEV your trade creates**
   
   - Larger trades with higher price impact generate more MEV and higher rebates
-  - Rebates are market-driven based on searcher competition
   - Payments are immediate - you receive SOL in the same block as execution
 </Card>
 
@@ -187,7 +186,7 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
 
 <CardGroup cols={2}>
   <Card title="Market-Driven Rebates" icon="chart-line">
-    **2-20 basis points** of traded value
+    **Competitive rebate rates**
     
     Higher price impact = more MEV = higher rebates
   </Card>
@@ -196,36 +195,26 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
     
     SOL rebates paid automatically when bundles land
   </Card>
-  <Card title="Zero Fees" icon="coins">
-    **100% of rebate to you**
-    
-    Helius takes no cut from your earnings
-  </Card>
-  <Card title="Transparent" icon="eye">
-    **On-chain & verifiable**
-    
-    All rebates visible on any Solana explorer
-  </Card>
 </CardGroup>
 
 <Tip>
 **Maximizing Rebates**: Larger trades with higher price impact typically generate more MEV opportunities and higher rebate percentages.
 </Tip>
 
-## Security & Safety
+## Security & Anti-MEV Protection
 
 <CardGroup cols={2}>
-  <Card title="No Frontrunning Risk" icon="shield-check">
-    Your transaction is never revealed publicly before execution - no frontrunning possible
+  <Card title="Zero MEV Attack Risk" icon="shield-check">
+    Your transaction is **never exposed publicly** before execution - no sandwiching or frontrunning possible
   </Card>
-  <Card title="Atomic Execution" icon="link">
-    Bundle execution is atomic - either both transactions succeed or both fail
+  <Card title="Guaranteed First Execution" icon="arrow-up">
+    Your transaction **always executes first** in the bundle at your intended price - searchers can only backrun, never frontrun
   </Card>
-  <Card title="Transaction Priority" icon="arrow-up">
-    Your transaction is always first in the bundle - guaranteed execution at your intended price
+  <Card title="Atomic Bundle Execution" icon="link">
+    Bundle execution is atomic - either both transactions succeed or both fail, ensuring no partial executions
   </Card>
-  <Card title="Transparent Payments" icon="magnifying-glass">
-    All rebates are on-chain and viewable on any Solana explorer
+  <Card title="Fully Verifiable On-Chain" icon="magnifying-glass">
+    All bundle compositions, execution order, and rebate payments are **verifiable on Solana explorers** - complete transparency
   </Card>
 </CardGroup>
 
@@ -255,16 +244,12 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
   </Step>
 </Steps>
 
-<Note>
-**Key Security Feature**: Your transaction is never revealed publicly before execution, preventing frontrunning or sandwich attacks.
-</Note>
-
 
 ## Frequently Asked Questions
 
 <AccordionGroup>
   <Accordion title="How much will I earn from rebates?">
-    Earnings depend on the arbitrage potential of your trades and auction competition. Typical rebates range from 2-20 basis points of traded value. Larger trades with higher price impact generally generate more MEV and higher rebates.
+    You earn 50% of the MEV your transaction creates. Earnings depend on the arbitrage potential of your trades - larger trades with higher price impact generally generate more MEV. The other 50% goes to Helius for providing the rebate infrastructure.
   </Accordion>
 
   <Accordion title="When do rebate payments arrive?">
@@ -272,7 +257,7 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
   </Accordion>
 
   <Accordion title="Is this completely safe?">
-    Yes. Your transaction always executes first in the bundle, ensuring you get your intended trade execution. The searcher can only profit from arbitrage after your transaction completes - they cannot frontrun or sandwich your trade.
+    Yes. Your transaction is never exposed publicly before execution and always executes first in the bundle, making frontrunning and sandwiching technically impossible. The searcher can only profit from arbitrage after your transaction completes. All bundle compositions and execution order are verifiable on-chain through any Solana explorer.
   </Accordion>
 
   <Accordion title="Can I use different rebate addresses for different transactions?">
@@ -284,7 +269,7 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
   </Accordion>
 
   <Accordion title="Are there any fees or costs?">
-    No. Helius takes no cut from your rebate earnings. You receive 100% of the searcher's winning bid. The only cost is your normal transaction fees.
+    There are no additional fees beyond normal transaction costs. The revenue model is a 50/50 split of MEV generated - you earn 50% of the MEV your trade creates, and Helius keeps 50% for providing the rebate infrastructure.
   </Accordion>
 
   <Accordion title="Which transaction types generate the most rebates?">
