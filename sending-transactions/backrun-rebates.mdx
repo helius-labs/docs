@@ -5,8 +5,45 @@ description: "Earn automatic SOL rebates when your transactions create arbitrage
 ---
 
 <Info>
-**No Sandwiching or Frontrunning Risk**: Your transaction is never revealed publicly before execution and always executes first in the bundle. This system eliminates MEV attacks against you while letting you profit from the MEV you create. All bundle executions are verifiable on-chain.
+**MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, reducing harmful MEV attacks while letting you profit from arbitrage opportunities you create.
 </Info>
+
+## What Is Backrunning?
+
+Backrunning is a **beneficial form of arbitrage** that helps keep prices consistent across different exchanges. Unlike malicious MEV attacks, backrunning actually **improves the network** by correcting price imbalances created by large trades.
+
+### How It Actually Works
+
+<Tabs>
+  <Tab title="When Someone Buys BONK (Big Trade)">
+    **Price impact occurs**: The large buy pushes BONK's price up on that specific DEX (e.g., Raydium)
+
+    **Price discrepancy created**: BONK is now more expensive on Raydium than on other exchanges like Orca
+
+    **Backrun bot's strategy**:
+    - Buy BONK cheaply on the exchange where price hasn't moved yet (Orca)
+    - Sell BONK at the higher price on the exchange where the big trade occurred (Raydium)
+    - Capture the price difference as profit
+
+    **Result**: Prices across all exchanges quickly balance out, benefiting everyone
+  </Tab>
+  
+  <Tab title="When Someone Sells BONK (Big Trade)">
+    **Price drops**: The large sell pushes BONK's price down on one DEX
+
+    **Arbitrage opportunity**: BONK is now cheaper on that exchange
+
+    **Bot's response**:
+    - Buy BONK at the lower price on the affected exchange
+    - Sell BONK at the higher price on other exchanges where price hasn't adjusted yet
+
+    **Result**: The price difference disappears, stabilizing the market
+  </Tab>
+</Tabs>
+
+<Note>
+**Why This Helps Everyone**: Backrunning creates efficient price discovery and reduces slippage for future traders. Instead of letting this value go to random bots, Helius lets you earn from the arbitrage opportunities your own trades create.
+</Note>
 
 ## What Are Backrun Rebates?
 
@@ -16,7 +53,7 @@ Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Valu
   <Card title="Passive Income" icon="coins">
     Earn SOL automatically every time your trade creates profitable arbitrage opportunities
   </Card>
-  <Card title="Zero Risk" icon="shield-check">
+  <Card title="No Additional MEV Risk" icon="shield-check">
     No sandwiching or frontrunning possible - your transaction executes first and is never revealed publicly beforehand
   </Card>
   <Card title="One Parameter" icon="code">
@@ -35,9 +72,9 @@ The rebate system operates through an order-flow auction that runs alongside you
   <Step title="Opt In">
     Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet
   </Step>
-  <Step title="Auction Process">
-    Helius forwards a copy of your signed transaction to our order-flow auction where searchers bid to backrun your trade
-  </Step>
+      <Step title="Auction Process">
+      Helius forwards an unsigned copy of your transaction to our order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
+    </Step>
   <Step title="Bundle Creation">
     The highest bidder wins and a bundle is created: **[your transaction, searcher transaction]**. Your transaction is always executed first
   </Step>
@@ -182,114 +219,48 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
 **Important**: Only single-transaction requests on **mainnet** qualify for rebates. Batch RPC calls and devnet transactions are automatically skipped.
 </Note>
 
-## Economics & Earnings
+## How Helius Protects You
+
+Your transaction is only shared with vetted searchers in a private auction. No other parties can see or modify your transaction before execution. Helius only permits searchers engaging in post-trade backruns.
 
 <CardGroup cols={2}>
-  <Card title="Market-Driven Rebates" icon="chart-line">
-    **Competitive rebate rates**
-    
-    Higher price impact = more MEV = higher rebates
+  <Card title="Private Auction Only" icon="shield-check">
+    Transaction shared with **pre-approved, KYC'd searchers** only
   </Card>
-  <Card title="Immediate Payments" icon="clock">
-    **Same block execution**
-    
-    SOL rebates paid automatically when bundles land
+  <Card title="Post-Trade Only" icon="user-check">
+    Helius only permits **post-trade backruns** - no frontrunning allowed
+  </Card>
+  <Card title="No Additional MEV Risk" icon="shield">
+    Your transaction executes first and is never exposed publicly
+  </Card>
+  <Card title="Fully Verifiable" icon="magnifying-glass">
+    All bundle activity visible **on-chain** for complete transparency
   </Card>
 </CardGroup>
 
-<Tip>
-**Maximizing Rebates**: Larger trades with higher price impact typically generate more MEV opportunities and higher rebate percentages.
-</Tip>
+## How Bundles Work
 
-## Security & Anti-MEV Protection
+Your transaction goes to a private auction with pre-approved, KYC'd searchers who can only engage in post-trade backruns. The winning searcher's transaction is bundled with yours - your transaction executes first, then theirs. If the bundle succeeds, you automatically receive your SOL rebate in the same block.
 
-<CardGroup cols={2}>
-  <Card title="Zero MEV Attack Risk" icon="shield-check">
-    Your transaction is **never exposed publicly** before execution - no sandwiching or frontrunning possible
-  </Card>
-  <Card title="Guaranteed First Execution" icon="arrow-up">
-    Your transaction **always executes first** in the bundle at your intended price - searchers can only backrun, never frontrun
-  </Card>
-  <Card title="Atomic Bundle Execution" icon="link">
-    Bundle execution is atomic - either both transactions succeed or both fail, ensuring no partial executions
-  </Card>
-  <Card title="Fully Verifiable On-Chain" icon="magnifying-glass">
-    All bundle compositions, execution order, and rebate payments are **verifiable on Solana explorers** - complete transparency
-  </Card>
-</CardGroup>
-
-### How Bundles Work
-
-<Steps titleSize="h4">
-  <Step title="Your Transaction Submitted">
-    You send your transaction with the `rebate-address` parameter to Helius
-  </Step>
-  <Step title="Auction Process">
-    Searchers compete by bidding on the right to backrun your transaction
-  </Step>
-  <Step title="Winner Selected">
-    The highest bidder wins and their transaction is bundled with yours
-  </Step>
-  <Step title="Bundle Creation">
-    A bundle is created: **[Your TX → Searcher TX]** - your transaction always executes first
-  </Step>
-  <Step title="Validator Submission">
-    The bundle is submitted to Solana validators for inclusion in a block
-  </Step>
-  <Step title="Atomic Execution">
-    Either both transactions succeed or both fail - no partial execution
-  </Step>
-  <Step title="Rebate Payment">
-    If successful, you automatically receive SOL rebate in the same block
-  </Step>
-</Steps>
-
-
-## Frequently Asked Questions
+## FAQ
 
 <AccordionGroup>
-  <Accordion title="How much will I earn from rebates?">
-    You earn 50% of the MEV your transaction creates. Earnings depend on the arbitrage potential of your trades - larger trades with higher price impact generally generate more MEV. The other 50% goes to Helius for providing the rebate infrastructure.
+  <Accordion title="What is MEV?">
+    MEV is Maximal Extractable Value. It's the profit validators can make by reordering transactions in blocks.
   </Accordion>
-
-  <Accordion title="When do rebate payments arrive?">
-    Rebates are paid automatically in the same block as transaction execution. If your transaction creates profitable arbitrage and a searcher's backrun is included in the bundle, you'll receive SOL immediately.
+  
+  <Accordion title="How much will I earn?">
+    You earn 50% of the MEV your transaction creates. Helius keeps 50% for providing the infrastructure.
   </Accordion>
-
-  <Accordion title="Is this completely safe?">
-    Yes. Your transaction is never exposed publicly before execution and always executes first in the bundle, making frontrunning and sandwiching technically impossible. The searcher can only profit from arbitrage after your transaction completes. All bundle compositions and execution order are verifiable on-chain through any Solana explorer.
+  
+  <Accordion title="When do I get paid?">
+    Rebates are paid automatically in SOL in the same block as your transaction.
   </Accordion>
-
-  <Accordion title="Can I use different rebate addresses for different transactions?">
-    Absolutely. Each transaction can specify a different rebate address. This allows for flexible earning strategies or using different addresses for tracking purposes.
-  </Accordion>
-
-  <Accordion title="What happens if no backrun opportunity exists?">
-    Your transaction executes normally as if rebates weren't enabled. There's no downside - worst case is identical to regular transaction processing.
-  </Accordion>
-
-  <Accordion title="Are there any fees or costs?">
-    There are no additional fees beyond normal transaction costs. The revenue model is a 50/50 split of MEV generated - you earn 50% of the MEV your trade creates, and Helius keeps 50% for providing the rebate infrastructure.
-  </Accordion>
-
-  <Accordion title="Which transaction types generate the most rebates?">
-    DEX swaps, large token transfers, NFT trades, and any transaction that creates arbitrage opportunities typically generate rebates. Larger trades with higher price impact tend to create more MEV.
-  </Accordion>
-
-  <Accordion title="Can I track my total rebate earnings?">
-    Yes. All rebates are on-chain SOL transfers to your specified address. You can track them via any Solana explorer.
+  
+  <Accordion title="Is this safe?">
+    Yes. Your transaction executes first in bundles and is never exposed publicly, making frontrunning impossible.
   </Accordion>
 </AccordionGroup>
-
-## Get Started Today
-
-<CardGroup cols={1}>
-  <Card title="Start Earning Rebates" icon="play">
-    Add `rebate-address=YOUR_SOL_ADDRESS` to your next `sendTransaction` call and start earning SOL from your trades automatically.
-    
-    **No registration required • No code changes • No additional risk**
-  </Card>
-</CardGroup>
 
 <CardGroup cols={2}>
   <Card
@@ -309,3 +280,4 @@ Ready to start earning rebates from your trades? Get started in under 5 minutes 
    subscribers and above.
   </Card>
 </CardGroup>
+
