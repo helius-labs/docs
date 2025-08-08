@@ -50,17 +50,11 @@ Backrunning is a **beneficial form of arbitrage** that helps keep prices consist
 Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Value) your transactions create. When your trade generates profitable arbitrage opportunities, searchers compete to backrun your transaction - and you get paid a portion of their profits in SOL.
 
 <CardGroup cols={2}>
-  <Card title="Passive Income" icon="coins">
-    Earn SOL automatically every time your trade creates profitable arbitrage opportunities
-  </Card>
   <Card title="No Additional MEV Risk" icon="shield-check">
     No sandwiching or frontrunning possible - your transaction executes first and is never revealed publicly beforehand
   </Card>
   <Card title="One Parameter" icon="code">
     Add `rebate-address` to your RPC URL - no code changes or contract modifications needed
-  </Card>
-  <Card title="Universal Compatibility" icon="globe">
-    Works with every Solana DEX, NFT marketplace, and DeFi protocol automatically
   </Card>
 </CardGroup>
 
@@ -238,15 +232,15 @@ Your transaction is only shared with vetted searchers in a private auction. No o
   </Card>
 </CardGroup>
 
-## How Bundles Work
-
-Your transaction goes to a private auction with pre-approved, KYC'd searchers who can only engage in post-trade backruns. The winning searcher's transaction is bundled with yours - your transaction executes first, then theirs. If the bundle succeeds, you automatically receive your SOL rebate in the same block.
-
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="What is MEV?">
     MEV is Maximal Extractable Value. It's the profit validators can make by reordering transactions in blocks.
+  </Accordion>
+  
+  <Accordion title="How do bundles work?">
+    Your transaction goes to a private auction with pre-approved, KYC'd searchers who can only engage in post-trade backruns. The winning searcher's transaction is bundled with yours - your transaction executes first, then theirs. If the bundle succeeds, you automatically receive your SOL rebate in the same block.
   </Accordion>
   
   <Accordion title="How much will I earn?">
@@ -261,6 +255,8 @@ Your transaction goes to a private auction with pre-approved, KYC'd searchers wh
     Yes. Your transaction executes first in bundles and is never exposed publicly, making frontrunning impossible.
   </Accordion>
 </AccordionGroup>
+
+Have questions or need help getting started? Reach out to our support team:
 
 <CardGroup cols={2}>
   <Card
