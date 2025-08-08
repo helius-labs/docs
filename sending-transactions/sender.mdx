@@ -24,11 +24,129 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
   </Card>
 </CardGroup>
 
+## Quick Start Guide
+
+Ready to submit your first ultra-low latency transaction? This guide will get you started with Helius Sender in minutes. The best part: **you don't need any paid plan or special access** - Sender is available to all users and doesn't consume API credits.
+
+<Steps titleSize="h3">
+  <Step title="Create Your Free Helius Account">
+    Start by creating your free account at the [Helius Dashboard](https://dashboard.helius.dev/dashboard). Sender is available on all plans, including the free tier, and doesn't consume any API credits.
+  </Step>
+  <Step title="Get Your API Key">
+    Navigate to the [API Keys](https://dashboard.helius.dev/api-keys) section and copy your key. You'll use this for getting blockhashes and transaction confirmation, while Sender handles the ultra-fast submission.
+  </Step>
+  <Step title="Send Your First Transaction">
+    Let's send a simple SOL transfer using Sender. This example includes all required components: tip, priority fee, and skipped preflight.
+    
+    ```typescript [expandable]
+    import { 
+      Connection, 
+      TransactionMessage,
+      VersionedTransaction,
+      SystemProgram, 
+      PublicKey,
+      Keypair,
+      LAMPORTS_PER_SOL,
+      ComputeBudgetProgram
+    } from '@solana/web3.js';
+    import bs58 from 'bs58';
+
+    const TIP_ACCOUNTS = [
+      "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+      "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+      "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta"
+      // ... more tip accounts available
+    ];
+
+    async function sendWithSender(
+      keypair: Keypair, 
+      recipientAddress: string
+    ): Promise<string> {
+      const connection = new Connection(
+        'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'
+      );
+      
+      const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
+      
+      // Build transaction with tip transfer and transfer to recipient
+      const transaction = new VersionedTransaction(
+        new TransactionMessage({
+          instructions: [
+            ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
+            ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
+            SystemProgram.transfer({
+              fromPubkey: keypair.publicKey,
+              toPubkey: new PublicKey(recipientAddress),
+              lamports: 0.001 * LAMPORTS_PER_SOL,
+            }),
+            SystemProgram.transfer({
+              fromPubkey: keypair.publicKey,
+              toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+              lamports: 0.001 * LAMPORTS_PER_SOL,
+            })
+          ],
+          payerKey: keypair.publicKey,
+          recentBlockhash: blockhash,
+        }).compileToV0Message()
+      );
+
+      transaction.sign([keypair]);
+      console.log('Sending transaction via Sender endpoint...');
+
+      const response = await fetch('http://slc-sender.helius-rpc.com/fast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: Date.now().toString(),
+          method: 'sendTransaction',
+          params: [
+            Buffer.from(transaction.serialize()).toString('base64'),
+            {
+              encoding: 'base64',
+              skipPreflight: true, // Required for Sender
+              maxRetries: 0
+            }
+          ]
+        })
+      });
+      
+      const json = await response.json();
+      if (json.error) {
+        throw new Error(json.error.message);
+      }
+      
+      console.log('Transaction sent:', json.result);
+      return json.result;
+    }
+
+    // Usage
+    const keypair = Keypair.fromSecretKey(bs58.decode('YOUR_PRIVATE_KEY'));
+    sendWithSender(keypair, 'RECIPIENT_ADDRESS');
+    ```
+  </Step>
+  <Step title="Success! Understanding What Happened">
+    You've successfully submitted a transaction via Sender! Here's what made it work:
+    - **No credits consumed**: Sender is free for all users
+    - **Dual routing**: Your transaction was sent to both validators and Jito simultaneously
+    - **Required tip**: The 0.001 SOL tip enables Jito's auction participation
+    - **Priority fee**: Signals validators your willingness to pay for priority processing
+    - **Skipped preflight**: Optimizes for speed over validation
+  </Step>
+</Steps>
+
+**What's Next?** The code above works, but you can optimize further with dynamic fees, automatic compute unit calculation, and retry logic. Check out the [Simple Code Example](#simple-code-example) and [Advanced Example with Dynamic Optimization](#advanced-example-with-dynamic-optimization) below for production-ready implementations with detailed explanations.
+
 ## Routing Options
 
-**Default Dual Routing:** Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
-
-**SWQOS-Only Alternative:** For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. This routes exclusively through SWQOS infrastructure with a lower 0.0005 SOL minimum tip requirement. Best for high-frequency strategies where tip costs accumulate.
+<CardGroup cols={2}>
+  <Card title="Default Dual Routing" icon="arrows-split-up-and-left">
+    Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
+  </Card>
+  <Card title="SWQOS-Only Alternative" icon="dollar-sign">
+    For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.0005 SOL minimum tip requirement.
+  </Card>
+</CardGroup>
 
 ## Requirements
 
@@ -75,9 +193,9 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 #### Why Both Are Required
 
-- **Tips**: Enable access to Jito's MEV infrastructure and auction-based transaction inclusion
+- **Tips**: Enable access to Jito's infrastructure and auction-based transaction inclusion
 - **Priority Fees**: Signal to validators your willingness to pay for priority processing through Solana's native prioritization system
-- **Dual Benefit**: Tips give you access to Jito's MEV auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability
+- **Dual Benefit**: Tips give you access to Jito's auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability
 
 #### Tip and Priority Fee Guidelines
 
@@ -89,27 +207,30 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 Sender endpoints are available in multiple regions for optimal latency:
 
-**Transaction Submission:**
-```
-http://slc-sender.helius-rpc.com/fast      # Salt Lake City
-http://ewr-sender.helius-rpc.com/fast      # Newark
-http://lon-sender.helius-rpc.com/fast      # London  
-http://fra-sender.helius-rpc.com/fast      # Frankfurt
-http://ams-sender.helius-rpc.com/fast      # Amsterdam
-http://sg-sender.helius-rpc.com/fast       # Singapore
-http://tyo-sender.helius-rpc.com/fast      # Tokyo
-```
-
-**Connection Warming:**
-```
-http://slc-sender.helius-rpc.com/ping      # Salt Lake City
-http://ewr-sender.helius-rpc.com/ping      # Newark
-http://lon-sender.helius-rpc.com/ping      # London  
-http://fra-sender.helius-rpc.com/ping      # Frankfurt
-http://ams-sender.helius-rpc.com/ping      # Amsterdam
-http://sg-sender.helius-rpc.com/ping       # Singapore
-http://tyo-sender.helius-rpc.com/ping      # Tokyo
-```
+<Tabs>
+  <Tab title="Transaction Submission">
+    ```
+    http://slc-sender.helius-rpc.com/fast      # Salt Lake City
+    http://ewr-sender.helius-rpc.com/fast      # Newark
+    http://lon-sender.helius-rpc.com/fast      # London  
+    http://fra-sender.helius-rpc.com/fast      # Frankfurt
+    http://ams-sender.helius-rpc.com/fast      # Amsterdam
+    http://sg-sender.helius-rpc.com/fast       # Singapore
+    http://tyo-sender.helius-rpc.com/fast      # Tokyo
+    ```
+  </Tab>
+  <Tab title="Connection Warming">
+    ```
+    http://slc-sender.helius-rpc.com/ping      # Salt Lake City
+    http://ewr-sender.helius-rpc.com/ping      # Newark
+    http://lon-sender.helius-rpc.com/ping      # London  
+    http://fra-sender.helius-rpc.com/ping      # Frankfurt
+    http://ams-sender.helius-rpc.com/ping      # Amsterdam
+    http://sg-sender.helius-rpc.com/ping       # Singapore
+    http://tyo-sender.helius-rpc.com/ping      # Tokyo
+    ```
+  </Tab>
+</Tabs>
 
 <Note>
 These endpoints only support HTTP connections (not HTTPS). Choose the endpoint closest to your infrastructure for optimal performance.
@@ -572,15 +693,7 @@ export { sendWithSender };
 ## Best Practices
 
 ### Endpoint Selection
-- **Salt Lake City**: `slc-sender.helius-rpc.com/fast`
-- **Newark**: `ewr-sender.helius-rpc.com/fast`
-- **London**: `lon-sender.helius-rpc.com/fast`
-- **Frankfurt**: `fra-sender.helius-rpc.com/fast`
-- **Amsterdam**: `ams-sender.helius-rpc.com/fast`
-- **Singapore**: `sg-sender.helius-rpc.com/fast`
-- **Tokyo**: `tyo-sender.helius-rpc.com/fast`
-
-For optimal latency, consider co-locating with Helius servers in Frankfurt or London.
+Choose the [endpoint](#endpoints) closest to your infrastructure for optimal performance. Frankfurt and London typically offer the best latency for most applications.
 
 ### Connection Warming
 - Use the `/ping` endpoint during idle periods longer than 1 minute
