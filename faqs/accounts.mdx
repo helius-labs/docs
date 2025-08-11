@@ -1,9 +1,13 @@
 ---
-title: "Accounts FAQ"
+title: "Accounts FAQs"
 description: "Get answers to the most common questions about Solana accounts, wallet management, and account-related operations"
 ---
 
 ## Account Management
+
+<Accordion title="How do I get my Project ID?">
+You can find your Project ID in the top left corner of the [**Helius Dashboard**](https://dashboard.helius.dev/project-settings).
+</Accordion>
 
 <Accordion title="What are my rate limits?">
 API usage follows Helius's standard rate-limiting. See the [**Plans & Rate limits**](https://www.helius.dev/docs/billing/plans-and-rate-limits) page for details.
@@ -15,6 +19,18 @@ A detailed list of calls and their credit costs is available [here](https://www.
 
 <Accordion title="What happens if I exceed my credit limit?">
 If you exceed your credit limit, you can enable autoscaling or purchase additional prepaid credits. Learn more on the [**Additional Credits**](https://www.helius.dev/docs/billing/autoscaling) page.
+</Accordion>
+
+## API Key Management
+
+<Accordion title="Why is my usage increasing when I haven't changed anything?">
+Your API key may have been compromised, or a webhook might be running in the background. To resolve this:
+
+1. Delete the current API key and create a new one.
+2. Check your webhooks from the dashboard and disable any that shouldn't be active.
+3. If the issue persists, contact support for assistance.
+
+To help prevent key leaks in the future, consider setting up a proxy as described in [this guide](https://www.helius.dev/docs/rpc/protect-your-keys).
 </Accordion>
 
 ---
