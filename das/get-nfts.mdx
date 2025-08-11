@@ -498,19 +498,6 @@ When working with the DAS API, keep these best practices in mind:
 4. **Respect rate limits** to avoid disruptions in your application
 5. **Verify Jupiter price data** is available before calculating market cap
 
-## FAQ
+## Questions?
 
-<AccordionGroup>
-  <Accordion title="How do I get all NFTs for a wallet?">
-    Use the `getAssetsByOwner` method with the wallet address. Be sure to implement pagination if the wallet might contain many assets.
-  </Accordion>
-  <Accordion title="Can I get price data for any token?">
-    Price data is only available for tokens that are verified on Jupiter. Check if `token_info.price_info` exists in the response.
-  </Accordion>
-  <Accordion title="How do I find the largest holders of a token?">
-    Use the `getTokenLargestAccounts` method with the token's mint address to retrieve a list of the largest holder accounts.
-  </Accordion>
-  <Accordion title="What's the difference between getAsset and searchAssets?">
-    `getAsset` retrieves data for a single asset by its mint address, while `searchAssets` allows you to query multiple assets using various filters.
-  </Accordion>
-</AccordionGroup>
+For frequently asked questions about the DAS API including asset data, price information, and API usage, visit our comprehensive [DAS API FAQ](/faqs/das-api).
