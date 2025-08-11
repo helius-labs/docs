@@ -5,7 +5,7 @@ description: "Earn automatic SOL rebates via post-trade backruns and protect aga
 ---
 
 <Info>
-**MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, reducing harmful MEV attacks while letting you profit from arbitrage opportunities you create.
+**MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, letting you profit from arbitrage opportunities you create.
 </Info>
 
 ## What Are Backrun Rebates?
@@ -16,7 +16,7 @@ Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Valu
 
 <CardGroup cols={2}>
   <Card title="No Additional MEV Risk" icon="shield-check">
-    No sandwiching or frontrunning possible - your transaction executes first and is never revealed publicly beforehand
+    Your transaction executes first in bundles and MEV is extracted after execution
   </Card>
   <Card title="One Parameter" icon="code">
     Add `rebate-address` to your RPC URL - no code changes or contract modifications needed
@@ -49,7 +49,7 @@ Backrunning is a beneficial form of arbitrage that helps keep prices consistent 
 **Example**: When you buy BONK on Raydium, the price goes up on that exchange but stays the same on Orca. A searcher then buys BONK on Orca (cheaper) and sells on Raydium (higher price), capturing the difference as profit. With Helius rebates, you earn from this profit your trade created.
 
 <Tip>
-**No Impact on Execution**: Transaction inclusion is not impacted and user's execution will not get worse.
+**Bundle Execution**: Your transaction always executes first in the bundle before any searcher transactions.
 </Tip>
 
 <Card title="How much can I earn?" icon="question">
@@ -200,7 +200,7 @@ Unlike other validators who could engage in malicious forms of MEV, your transac
     Helius only permits **post-trade backruns** - no frontrunning allowed
   </Card>
   <Card title="No Additional MEV Risk" icon="shield">
-    Your transaction executes first and is never exposed publicly
+    Your transaction executes first in bundles with vetted searchers only
   </Card>
   <Card title="Fully Verifiable" icon="magnifying-glass">
     All bundle activity visible **on-chain** for complete transparency
@@ -229,7 +229,7 @@ Unlike other validators who could engage in malicious forms of MEV, your transac
   </Accordion>
   
   <Accordion title="Is this safe?">
-    Yes. Your transaction executes first in bundles and is never exposed publicly, making frontrunning impossible.
+    Yes. Your transaction executes first in bundles with pre-approved searchers who can only perform post-trade backruns.
   </Accordion>
 </AccordionGroup>
 
