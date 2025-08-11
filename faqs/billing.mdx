@@ -1,47 +1,33 @@
 ---
 title: "Billing FAQs"
-description: "Get answers to the most common questions about billing including pricing plans, payment methods, account management, and enterprise solutions"
+description: "Get answers to the most common questions about billing including pricing plans, payment methods, upgrades, overages, and enterprise solutions"
 ---
 
-## Plan Management
+## Purchasing Plans
 
-<Accordion title="How do I upgrade my plan?">
-You can upgrade your plan anytime from the [**Helius Dashboard**](https://dashboard.helius.dev/billing).
+<Accordion title="What are the limitations of Helius's Free Plan?">
+The free plan includes limited credits and request rates suitable for development and testing. For production applications, consider a paid plan for higher limits, staked connections, and enhanced APIs. See our [pricing page](https://www.helius.dev/pricing) for detailed comparisons.
 </Accordion>
 
-<Accordion title="I paid for a plan, but it hasn't been updated yet in my dashboard.">
+<Accordion title="How can I pay for my subscription?">
+We accept both traditional payment methods (credit cards) and cryptocurrency (USDC on Solana). You can set up payment during plan selection or change payment methods in your [billing dashboard](https://dashboard.helius.dev/billing).
+</Accordion>
+
+<Accordion title="Why hasn't my paid plan appeared in my dashboard yet?">
 Updates may take up to an hour. If nothing changes after that, please reach out to [Support](https://www.helius.dev/docs/support).
 </Accordion>
 
-## Enterprise Plans
-
-<Accordion title="Do you offer enterprise pricing?">
-Yes! Enterprise plans include custom request limits, dedicated infrastructure, priority support, and custom billing terms. [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) for a personalized quote.
+<Accordion title="What if I'm subscribed to a plan, but my payment method fails?">
+If payment fails, you'll receive notifications and have a grace period to update your payment method. Your service may be temporarily downgraded to free tier limits until payment is resolved. Update payment details in your [billing dashboard](https://dashboard.helius.dev/billing).
 </Accordion>
 
-<Accordion title="Can I get a custom contract?">
-Enterprise customers can work with our team to create custom contracts with specific terms, SLAs, and pricing structures that meet your organization's needs.
+## Paying with Crypto
+
+<Accordion title="How can I change my payment method from credit card to crypto (or the other way around)?">
+Contact [Support](https://www.helius.dev/docs/support) and we'll help you transition.
 </Accordion>
 
-## Usage Monitoring
 
-<Accordion title="How do I view my usage and billing history?">
-Your usage statistics and billing history are available in the Helius Dashboard under the [Billing](https://dashboard.helius.dev/billing) and [Usage](https://dashboard.helius.dev/usage) section.
-</Accordion>
-
-## Refunds
-
-<Accordion title="My plan auto-renewed. Can I get a refund?">
-We're unable to offer refunds on automated subscription renewals if you've already used the service. This follows the standard practice on most platforms.
-</Accordion>
-
-## Payment Methods
-
-<Accordion title="I want to switch between fiat and crypto payments.">
-Contact [Support](https://www.helius.dev/docs/support) and we'll handle the change for you.
-</Accordion>
-
-## Crypto Payments
 
 <Accordion title="What does 'Authorize Automatic Withdrawals' mean?">
 • Helius pulls the required USDC from your Solana wallet at the start of each billing cycle.
@@ -51,41 +37,76 @@ Contact [Support](https://www.helius.dev/docs/support) and we'll handle the chan
 • You can revoke the authorization any time in your wallet or in [**Billing**](https://dashboard.helius.dev/billing) → **Manage Authorization Limit**.
 </Accordion>
 
-<Accordion title="How can I manually pay for my subscription instead of authorizing payments?">
-Manual payments aren't supported. You can, however, revoke the authorization right after each charge by setting the limit to 0 under **Manage Authorization Limit**.
+<Accordion title="How can I manually pay for my subscription instead of authorizing withdrawals?">
+Manual payments aren't supported. You can, however, revoke the authorization right after each charge by setting the limit to 0 under [**Manage Authorization Limit**](https://dashboard.helius.dev/billing).
 </Accordion>
 
-## Authorization Management
+## Upgrades
 
-<Accordion title="What does the authorization duration affect?">
-The authorization duration (in months) determines how much USDC you pre-authorize for automatic subscription payments:
-
-**Longer duration**: Higher authorization limit, fewer wallet interactions needed
-**Shorter duration**: Lower authorization limit, more control over payments
-
-The system calculates: Monthly cost × Duration = New authorization limit
-
-You can adjust this anytime, and payments will automatically be deducted from your authorized amount on billing days until the limit is reached.
+<Accordion title="How do I upgrade my plan?">
+You can upgrade your plan anytime from the [**Helius Dashboard**](https://dashboard.helius.dev/billing).
 </Accordion>
 
-<Accordion title="How do I manage my authorization limits?">
-You can manage your authorization limit by clicking **Manage authorization limit** on the [billing](https://dashboard.helius.dev/billing) page. This allows you to:
-
-• Select the authorization duration (3, 6, or 12 months) using the radio buttons
-• See the calculated new limit based on your subscription cost and duration  
-• Update the limit by clicking **Update Limit**
-
-The authorization limit determines the maximum amount that can be automatically withdrawn from your wallet for subscription payments.
+<Accordion title="Do you offer custom solutions?">
+Yes! We offer custom enterprise solutions with dedicated infrastructure, custom rate limits, and specialized support. [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) for personalized options.
 </Accordion>
 
-<Accordion title="I have the wrong wallet connected when trying to manage authorization limits">
-If you see that the "Currently connected" wallet doesn't match the "Required payment wallet":
+<Accordion title="How do I upgrade to an Enterprise plan?">
+Enterprise plans are custom-built for your needs. [Contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss your requirements and get a personalized quote.
+</Accordion>
 
-1. Click **Switch Wallet** in the authorization management modal
-2. Disconnect your current wallet and connect the required payment wallet shown in the modal
-3. Once the correct wallet is connected, you'll be able to manage your authorization limits
+<Accordion title="What does an Enterprise plan include?">
+Enterprise plans include custom request limits, dedicated infrastructure, priority support, custom billing terms, SLAs, and specialized features tailored to your organization's needs.
+</Accordion>
 
-Each project's authorization limits can only be managed by the specific wallet that was used to set up payments for that project.
+## Downgrades
+
+<Accordion title="How do I downgrade my plan?">
+You can downgrade your plan from the [billing dashboard](https://dashboard.helius.dev/billing).
+</Accordion>
+
+<Accordion title="If I downgrade my crypto subscription, when will it go into effect?">
+Crypto downgrades happen immediately. You'll receive a prorated credit as a discount on your next subscription billing cycle for the unused portion of your current plan.
+</Accordion>
+
+<Accordion title="How can I cancel my subscription?">
+You can cancel your subscription from the [billing dashboard](https://dashboard.helius.dev/billing). Your service will continue until the end of your current billing period, then revert to free tier limits.
+</Accordion>
+
+## Autscaling
+
+<Accordion title="How do I enable autoscaling?">
+Enable autoscaling in your [project settings](https://dashboard.helius.dev/settings) under the autoscaling section. This automatically purchases additional credits when you exceed your plan limits. See our [autoscaling guide](https://www.helius.dev/docs/billing/autoscaling) for details.
+</Accordion>
+
+<Accordion title="Why did I get an invoice for overages when I enabled autoscaling?">
+Autoscaling purchases additional credits when you exceed your plan limits, which appear as overages on your invoice. This is expected behavior - autoscaling prevents service interruption by automatically buying the credits you need.
+</Accordion>
+
+## Overages
+
+<Accordion title="What happens if I exceed my credit limit?">
+If you exceed your credit limit, you can enable autoscaling or purchase additional prepaid credits. Learn more on the [**Additional Credits**](https://www.helius.dev/docs/billing/autoscaling) page.
+</Accordion>
+
+<Accordion title="Why is my project consuming credits even though I'm not using any Helius endpoints?">
+Check for active webhooks, automated scripts, or background processes that might be making API calls. Review your [usage dashboard](https://dashboard.helius.dev/usage) to identify the source of credit consumption.
+</Accordion>
+
+<Accordion title="Why is my usage increasing when I haven't changed anything?">
+Your API key may have been compromised, or a webhook might be running in the background. To resolve this:
+
+1. Delete the current API key and create a new one.
+2. Check your webhooks from the dashboard and disable any that shouldn't be active.
+3. If the issue persists, contact support for assistance.
+
+To help prevent key leaks in the future, consider setting up a proxy as described in [this guide](https://www.helius.dev/docs/rpc/protect-your-keys).
+</Accordion>
+
+## Refunds
+
+<Accordion title="Can I get a refund if my plan was accidently auto-renewed?">
+We're unable to offer refunds on automated subscription renewals if you've already used the service. This follows the standard practice on most platforms.
 </Accordion>
 
 ---
@@ -108,4 +129,3 @@ Each project's authorization limits can only be managed by the specific wallet t
     Check real-time service availability and performance information.
   </Card>
 </CardGroup>
-

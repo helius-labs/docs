@@ -3,52 +3,74 @@ title: "Webhooks FAQs"
 description: "Get answers to the most common questions about webhooks including management, network support, retries, and troubleshooting"
 ---
 
-## Managing Webhooks
+## Credits and Rate Limits
 
-<Accordion title="How many addresses can I input for one webhook?">
-Up to 100,000 using the [API](https://www.helius.dev/docs/api-reference/webhooks/create-webhook).
+<Accordion title="How many addresses can I input for 1 webhook?">
+Up to 100,000 addresses using the [API](/api-reference/webhooks/create-webhook).
 </Accordion>
 
-<Accordion title="How can I verify that the webhook came from Helius?">
-Set an authorization header when creating or updating the webhook; Helius echoes it in every call.
+<Accordion title="Will I be charged credits if I change the webhook URL in the Helius dashboard after creating the webhook?">
+Yes, editing a webhook via the API or dashboard costs 100 credits per request. This applies to any modification including URL changes, adding/removing addresses, or updating transaction types.
 </Accordion>
 
-<Accordion title="What is the difference between 'raw' and 'enhanced' webhooks?">
-*Raw* returns chain JSON; *Enhanced* adds token transfers, protocol labels, and more.
+<Accordion title="How many credits does it cost to receive a webhook notification?">
+Each webhook event costs 1 credit when Helius processes and sends the event to your endpoint. You are charged regardless of whether your endpoint successfully processes the webhook or returns an error.
 </Accordion>
 
-<Accordion title="When does the webhook send a notification?">
-Immediately after a matching transaction is confirmed.
+<Accordion title="How much does it cost to create, edit, and delete webhooks?">
+All webhook management operations (create, edit, delete) cost 100 credits per request when performed via the API. This covers the processing required to update your webhook configurations.
 </Accordion>
 
 ## Supported Networks
 
-<Accordion title="Are webhooks available on Devnet?">
-Yes—set `"network":"devnet"`.
+<Accordion title="Are webhooks available on Solana Devnet?">
+Yes! Set `"network":"devnet"` when creating your webhook to monitor Devnet transactions and events.
 </Accordion>
 
 <Accordion title="Can I input 'localhost' for my webhook URL?">
-No—the URL must be publicly reachable over HTTPS.
+No—the URL must be publicly reachable over HTTPS. Helius cannot access local development servers via localhost URLs.
+</Accordion>
+
+## Using Webhooks
+
+<Accordion title="How can I verify that the webhook came from Helius?">
+Set an authorization header when creating or updating the webhook. Helius echoes this value in the `Authorization` header when sending data to your webhook endpoint, allowing you to verify the request's authenticity.
+</Accordion>
+
+<Accordion title="What is the difference between 'raw' and 'enhanced' webhooks?">
+**Raw webhooks** return regular Solana transaction data directly from the blockchain. When a transaction occurs for the monitored addresses, the raw transaction data is sent to your webhook URL.
+
+**Enhanced webhooks** provide Helius' interpreted transaction types. We parse over 100 types of Solana transactions (NFT listings, DeFi swaps, transfers, etc.) and abstract them into our own schema.
+
+Use raw webhooks if you want all transaction data without abstractions, or enhanced webhooks if you want built-in transaction type detection and parsing.
+</Accordion>
+
+<Accordion title="When does the Webhook send a notification?">
+Webhooks send notifications immediately after a matching transaction is confirmed on the blockchain.
 </Accordion>
 
 ## Retries
 
 <Accordion title="What is the retry policy for webhooks?">
-Up to 3 retries with a 1-minute reset period.
+Helius retries unacknowledged webhook events up to 3 times with a 1-minute interval between attempts. We also offer customizable retry policies for enterprise plans.
 </Accordion>
 
 <Accordion title="Do webhooks post failed transactions?">
-Enhanced webhooks do not; raw webhooks do.
+It depends on the webhook type. Enhanced webhooks do not send failed transactions, but raw webhooks do include both successful and failed transactions.
 </Accordion>
 
 ## Troubleshooting Webhooks
 
 <Accordion title="Why is my webhook dropping data?">
-This issue may occur if your endpoint encounters an error, causing webhook retries that eventually lead to data being dropped. Check your logs in the [dashboard](https://dashboard.helius.dev/webhooks) to confirm, ensure sufficient client side logging is in place, and contact [support](https://www.helius.dev/docs/support) if the problem persists.
+Data dropping typically occurs when your endpoint encounters an error, causing webhook retries that eventually fail and lead to data loss. Check your webhook logs in the [dashboard](https://dashboard.helius.dev/webhooks), ensure sufficient client-side logging is in place, and [contact support](/support/contact-support) if the problem persists.
 </Accordion>
 
 <Accordion title="Why aren't my webhooks working?">
-Ensure the selected type matches the transactions you are monitoring. Start with ANY type to identify if it's a general issue or a type mismatch. Use [webhook.site](http://webhook.site/) to test if the problem lies with your endpoint.
+Ensure the selected transaction type matches the transactions you're monitoring. Start with the "ANY" transaction type to identify if it's a general issue or a type mismatch. Use [webhook.site](http://webhook.site/) to test if the problem lies with your endpoint configuration.
+</Accordion>
+
+<Accordion title="Why does my webhook not send me all transactions of a certain type (such as TOKEN_MINT)?">
+The `TOKEN_MINT` webhook only triggers for specific programs like Candy Machine V1, and Solana Program Library. It doesn't cover all token minting events across the entire blockchain. For broader monitoring, consider using a more general account or program subscription via webhooks with "ANY" transaction type filtering.
 </Accordion>
 
 ---

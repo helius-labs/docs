@@ -1,34 +1,40 @@
 ---
 title: "RPC FAQs"
-description: "Get answers to the most common questions about Solana RPC nodes, methods, and configuration"
+description: "Get answers to the most common questions about Solana RPC nodes, methods, rate limits, and troubleshooting"
 ---
 
-## Authentication
+## Billing and Rate Limits
 
-<Accordion title="How do I authenticate RPC requests?">
-Add your Helius API key as the `?api-key=` query parameter.
+<Accordion title="Why do I get rate limited for getProgramAccounts below my plan's rate limit?">
+`getProgramAccounts` is a resource-intensive method that have an additional rate limiting beyond standard requests per second. Consider filtering parameters, or breaking large queries into smaller chunks to stay within [limits](/billing/plans-and-rate-limits#high-complexity-calls).
 </Accordion>
 
-## Sending Transactions
-
-<Accordion title="How do I send a transaction on Solana?">
-Check our [Sending Transactions Guide](https://www.helius.dev/docs/sending-transactions/overview) here for all the information.
+<Accordion title="Can I get a specific region for my RPC endpoint?">
+Helius automatically routes requests to the optimal region for performance. For specialized regional requirements or dedicated infrastructure, [contact our sales team](https://form.typeform.com/to/KiacmxpZ) to discuss enterprise options.
 </Accordion>
+
+## Troubleshooting RPCs
 
 <Accordion title="Why aren't my sendTransaction requests landing?">
-Call the **Priority Fee API**, optimize compute‑unit usage, and send the transaction with `skipPreflight: true`. See our [**Transaction Optimization Guide**](https://www.helius.dev/docs/sending-transactions/optimizing-transactions) for a step‑by‑step walkthrough.
+Call the **Priority Fee API**, optimize compute-unit usage, and send the transaction with `skipPreflight: true`. See our [**Transaction Optimization Guide**](https://www.helius.dev/docs/sending-transactions/optimizing-transactions) for a step-by-step walkthrough.
 </Accordion>
-
-## Data Access
-
-<Accordion title="How far back can I access historical data?">
-Standard RPC plans provide access to all historical Solana data. Dedicated nodes only maintain ~48 hours of history.
-</Accordion>
-
-## Troubleshooting
 
 <Accordion title="Why am I suddenly seeing 5xx errors?">
 Check our [status page](https://helius.statuspage.io/) for relevant updates. If there's no related incident, contact [support](https://www.helius.dev/docs/support).
+</Accordion>
+
+## Using RPCs
+
+<Accordion title="What is the best practice for getting the latest blockhash?">
+Use `getLatestBlockhash` with `"processed"` or `"confirmed"` commitment levels for the most recent blockhash. Always fetch a fresh blockhash before submitting transactions to ensure validity. See our [getLatestBlockhash guide](/rpc/guides/getlatestblockhash) for details.
+</Accordion>
+
+<Accordion title="What are staked connections?">
+Staked connections route your transactions directly to current and upcoming block leaders, bypassing public queues for near-guaranteed delivery. All paid plans automatically use staked connections by default - no code changes required. Learn more in our [transaction sending overview](/sending-transactions/overview#staked-vs-unstaked-connections).
+</Accordion>
+
+<Accordion title="How far back can I access historical data using standard RPC calls?">
+Standard RPC plans provide access to all historical Solana data. Dedicated nodes only maintain ~48 hours of history.
 </Accordion>
 
 ---

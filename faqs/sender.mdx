@@ -1,24 +1,30 @@
 ---
 title: "Sender FAQs"
-description: "Get answers to the most common questions about Helius Sender including how it works, configuration, and rate limits"
+description: "Get answers to the most common questions about Helius Sender including functionality, configuration, and rate limits"
 ---
 
-## About Sender
+## Using Sender
 
-<Accordion title="What is Sender and why is it faster?">
-Sender broadcasts transactions to Jito and SW-QoS validators in parallel. With seven regional endpoints, typical land-time is ≤ 1.5 slots.
+<Accordion title="What is Sender and why is it faster than other transaction sending services?">
+Sender is a specialized service for ultra-low latency transaction submission. It optimizes transaction latency by sending to both Solana validators and [Jito](https://docs.jito.wtf/) simultaneously, providing multiple pathways for your transactions to be included in blocks.
+
+With seven regional endpoints, typical land-time is ≤ 1.5 slots.
 </Accordion>
 
-## Setting Tips & Fees
-
-<Accordion title="How do I set tips & priority fees?">
-See the Sender documentation for [examples](https://www.helius.dev/docs/sending-transactions/sender#simple-code-example).
+<Accordion title="Can I get a higher Sender API limit than 6 transactions per second (TPS)?">
+Yes! While the standard limit is 6 TPS per region, you can request higher limits. [Contact support](/support/contact-support) to discuss custom rate limits based on your specific use case requirements. Higher limits are available for applications with demonstrated need for increased throughput.
 </Accordion>
 
-## Rate Limits
+<Accordion title="How do I set tips and priority fees with Sender?">
+All transactions sent through Sender must include both tips and priority fees for optimal performance:
 
-<Accordion title="Are there rate limits?">
-Yes—standard limits apply. Currently 6 TPS per region.
+**Tips**: Minimum 0.001 SOL is required for Jito auction participation. Tips enable access to Jito's MEV infrastructure and auction-based transaction inclusion.
+
+**Priority Fees**: Use `ComputeBudgetProgram.setComputeUnitPrice` to prioritize your transaction in the validator queue. Use the [Priority Fee API](/priority-fee-api) for real-time fee recommendations.
+
+**Why both are required**: Tips give you access to Jito's MEV auction, while priority fees improve your transaction's priority with validators—together they maximize inclusion probability.
+
+See the [Sender documentation](/sending-transactions/sender) for detailed code examples and implementation guidelines.
 </Accordion>
 
 ---
