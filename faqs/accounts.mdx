@@ -1,0 +1,65 @@
+---
+title: "Accounts FAQs"
+description: "Get answers to the most common questions about Solana accounts, project management, credits, rate limits, and testing resources"
+---
+
+## Managing Projects
+
+<Accordion title="How do I get my Project ID?">
+You can find your Project ID in the top left corner of the [**Helius Dashboard**](https://dashboard.helius.dev/project-settings).
+</Accordion>
+
+<Accordion title="In the Dashboard, how is 'Successful Requests' different from 'Successful Requests Including Batch'?">
+"Successful Requests" shows individual API calls, while "Successful Requests Including Batch" includes batch operations where multiple requests are processed together (like `getAssetBatch` or `getMultipleAccounts`). Batch operations count each individual request within the batch toward the total.
+</Accordion>
+
+## Credits
+
+<Accordion title="How many credits does each call cost?">
+A detailed list of calls and their credit costs is available [here](https://www.helius.dev/docs/billing/plans-and-rate-limits).
+</Accordion>
+
+<Accordion title="Do unused credits roll over to the next month?">
+No, unused credits do not roll over to the next billing cycle. Credits reset monthly based on your subscription plan. Consider enabling [autoscaling](https://www.helius.dev/docs/billing/autoscaling) if you frequently exceed your plan limits.
+</Accordion>
+
+## Rate Limits
+
+<Accordion title="What are my plans rate limits?">
+API usage follows Helius's standard rate-limiting. See the [**Plans & Rate limits**](https://www.helius.dev/docs/billing/plans-and-rate-limits) page for details.
+</Accordion>
+
+<Accordion title="Why do I get rate limited at a low rate even though I have a paid plan?">
+Rate limiting can occur due to several factors: exceeding your plan's requests per second limit, making requests from too many concurrent connections, or hitting method-specific limits. Check your [dashboard usage](https://dashboard.helius.dev/usage) and ensure you're distributing requests appropriately. See the [**Plans & Rate limits**](https://www.helius.dev/docs/billing/plans-and-rate-limits) page for rate limits.
+</Accordion>
+
+## Faucets
+
+<Accordion title="How do I get Devnet SOL?">
+Use the [Devnet faucet](https://dashboard.helius.dev/faucet) in your Helius Dashboard (requires a paid plan) or use the Solana CLI: `solana airdrop 1` while connected to your Helius Devnet endpoint. See our [Devnet SOL guide](/rpc/devnet-sol) for detailed instructions.
+</Accordion>
+
+<Accordion title="What is the maximum amount of Devnet SOL I can request per day?">
+The standard limit is typically 1 SOL per request with reasonable daily limits. If you need larger amounts for testing, [contact support](/support/contact-support) with details about your testing requirements.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

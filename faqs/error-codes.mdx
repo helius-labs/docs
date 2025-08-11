@@ -1,0 +1,47 @@
+---
+title: "Error Codes FAQs"
+description: "Get answers to the most common error codes and troubleshooting steps for Helius API requests"
+---
+
+## Common Error Codes
+
+<Accordion title="Why am I getting a 401 error?">
+401 errors indicate authentication issues. Check that your API key is correct, properly included in your request (as `?api-key=YOUR_API_KEY`), and that your account has access to the endpoint you're trying to use.
+</Accordion>
+
+<Accordion title="Why am I getting a 429 error?">
+429 errors mean you've exceeded your rate limits. Check your [plans and rate limits](https://www.helius.dev/docs/billing/plans-and-rate-limits) and consider upgrading your plan or implementing request throttling in your application.
+</Accordion>
+
+<Accordion title="Why am I getting a 500 error?">
+500 errors are internal server errors. Check our [status page](https://helius.statuspage.io/) for any ongoing incidents. If the issue persists, [contact support](https://www.helius.dev/docs/support) with your request details.
+</Accordion>
+
+<Accordion title="Why am I getting a 503 error?">
+503 errors indicate the service is temporarily unavailable, often due to high load or maintenance. Check our [status page](https://helius.statuspage.io/) for updates and try again after a brief delay.
+</Accordion>
+
+<Accordion title="Why am I getting a 504 error?">
+504 errors are gateway timeouts, typically caused by requests taking too long to process. Consider reducing the scope of your request, using pagination, or optimizing your query parameters.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

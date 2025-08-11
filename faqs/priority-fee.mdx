@@ -1,0 +1,57 @@
+---
+title: "Priority Fee API FAQs"
+description: "Get answers to the most common questions about Priority Fee API including transaction optimization, fee estimation, and improving landing rates"
+---
+
+## Using the Priority Fee API
+
+<Accordion title="How do I improve the landing rate for my transactions with low fees?">
+Use the [Priority Fee API](/priority-fee-api) to get optimal fee recommendations instead of guessing fees. Choose appropriate priority levels ("Medium" for most cases, "High" for time-sensitive operations) and follow transaction best practices.
+
+For paid plans, staked connections provide near-guaranteed delivery when combined with proper priority fees.
+
+See our [Transaction Optimization Guide](/sending-transactions/optimizing-transactions) for complete implementation details.
+</Accordion>
+
+<Accordion title="How do I send a transaction on Solana?">
+Helius provides three main approaches:
+
+1. **Smart Transactions** (Recommended) - Use our [SDKs](/sdks) for automatic optimization
+2. **Manual Optimization** - Build and optimize transactions yourself with full control  
+3. **Ultra-Low Latency** - Use [Helius Sender](/sending-transactions/sender) for high-frequency trading
+
+See our [Sending Transactions Overview](/sending-transactions/overview) to choose the right method and [Manual Transaction Sending](/sending-transactions/send-manually) for step-by-step implementation.
+</Accordion>
+
+<Accordion title="What priority level should I use for my transactions?">
+**Start with "Medium"** for most applications. Use "High" or "VeryHigh" for time-sensitive operations, and "Low" for cost-optimized non-urgent transactions.
+
+See the [Priority Fee API guide](/priority-fee-api) for detailed explanations of all six priority levels and when to use each.
+</Accordion>
+
+<Accordion title="How do I calculate the total cost of priority fees?">
+**Formula**: Total priority fee = Price per compute unit × Compute units consumed
+
+Use the [Priority Fee API](/priority-fee-api) to get real-time estimates for your specific transaction instead of manual calculations. The API accounts for current network conditions and transaction complexity.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

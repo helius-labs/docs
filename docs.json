@@ -35,7 +35,8 @@
       "view",
       "chatgpt",
       "claude",
-      "cursor"
+      "cursor",
+      "perplexity"
     ]
   },
   "integrations": {
@@ -184,8 +185,7 @@
                 "group": "Webhooks",
                 "pages": [
                   "webhooks",
-                  "webhooks/transaction-types",
-                  "webhooks/faqs"
+                  "webhooks/transaction-types"
                 ]
               }
             ]
@@ -276,15 +276,14 @@
         "anchor": "API Reference",
         "icon": "code",
         "groups": [
-          {
-            "group": "API Reference",
-            "pages": [
-              "api-reference",
-              "api-reference/authentication",
-              "api-reference/endpoints",
-              "api-reference/common-error-codes"
-            ]
-          },
+                      {
+              "group": "API Reference",
+              "pages": [
+                "api-reference",
+                "api-reference/authentication",
+                "api-reference/endpoints"
+              ]
+            },
           {
             "group": "Solana RPC APIs",
             "pages": [
@@ -504,35 +503,52 @@
           }
         ]
       },
-              {
-          "anchor": "FAQs",
-          "icon": "question",
-          "groups": [
+                    {
+        "anchor": "FAQs",
+        "icon": "question",
+        "groups": [
+          {
+            "group": "FAQs Overview",
+            "pages": [
+              "faqs"
+            ]
+          },
+          {
+            "group": "Account & Billing",
+            "pages": [
+              "faqs/accounts",
+              "faqs/billing"
+            ]
+          },
             {
-              "group": "Getting Started & Setup",
+              "group": "Infrastructure & Nodes",
               "pages": [
-                "support/frequently-asked-questions"
+                "faqs/rpc",
+                "faqs/dedicated-nodes",
+                "faqs/error-codes"
               ]
             },
             {
-              "group": "Billing & Payments",
+              "group": "Real-time Data Streaming",
               "pages": [
-                "billing/plans-and-rate-limits",
-                "billing/pay-with-crypto"
+                "faqs/websockets",
+                "faqs/laserstream",
+                "faqs/webhooks"
               ]
             },
             {
-              "group": "APIs & Data Access",
+              "group": "Transaction & Fee APIs",
               "pages": [
-                "das/get-nfts",
-                "enhanced-transactions"
+                "faqs/priority-fee",
+                "faqs/sender",
+                "faqs/enhanced-transactions"
               ]
             },
             {
-              "group": "Real-time Data & Streaming",
+              "group": "Data APIs",
               "pages": [
-                "webhooks/faqs",
-                "laserstream/grpc"
+                "faqs/das-api",
+                "faqs/zk-compression"
               ]
             }
           ]

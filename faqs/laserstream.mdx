@@ -1,0 +1,96 @@
+---
+title: "LaserStream FAQs"
+description: "Get answers to the most common questions about LaserStream including purchasing, usage, troubleshooting, and subscription management"
+---
+
+## Purchasing LaserStream
+
+<Accordion title="Why is LaserStream better than a dedicated gRPC node?">
+LaserStream spans seven regions, auto-fails over with replay, and is a drop-in replacement for Geyser. You get higher throughput and resilience compared to dedicated nodes. For more info, check our [comparison](https://www.helius.dev/docs/laserstream/laserstream-vs-dedicated-nodes).
+</Accordion>
+
+<Accordion title="What is the LaserStream 50 TB add-on and how much does it cost?">
+For **$2,500 / month** on a Professional plan, you get 50 TB of unmetered data (no credits consumed). After that, additional data costs **2 credits per 0.1 MB**—a 33% discount versus the standard rate.
+</Accordion>
+
+<Accordion title="What Solana data streaming product offers the lowest latency data streams?">
+LaserStream offers the lowest latency data streams available. It taps directly into Solana leaders to receive shreds as they're produced, with optimized shredstream capabilities that deliver data before anyone else. Multiple regional endpoints ensure minimal geographic latency.
+</Accordion>
+
+<Accordion title="Does Helius offer a shred streaming product like Jito's ShreadStream?">
+Yes! LaserStream includes optimized shredstream functionality. LaserStream features "Optimized Shredstream: Receive data before anyone else," providing similar capabilities to Jito's ShreadStream but with additional reliability and multi-region support.
+</Accordion>
+
+<Accordion title="What are LaserStream's practical filter limits?">
+Up to **10 million** account includes per stream, unlimited program filters, and **100 concurrent connections** per project.
+</Accordion>
+
+## Using LaserStream
+
+<Accordion title="Is LaserStream compatible with Yellowstone clients?">
+Yes! LaserStream gRPC is designed as a drop-in replacement for Yellowstone gRPC. Simply change your endpoint and API token, and your existing gRPC code will work with LaserStream immediately. LaserStream uses the open-source gRPC protocol.
+</Accordion>
+
+<Accordion title="Where do I find LaserStream bandwidth metrics?">
+You can find LaserStream bandwidth metrics on the [LaserStream](https://dashboard.helius.dev/laserstream) page in the Helius Dashboard.
+</Accordion>
+
+<Accordion title="Is it possible to get data earlier than the processed commitment level?">
+No, "processed" is already the fastest commitment level available on Solana (~400ms latency). It represents data processed by a single validator before network confirmation. LaserStream optimizes delivery of processed-level data through direct leader connections and shredstream technology.
+</Accordion>
+
+<Accordion title="Can I subscribe to multiple data types in one LaserStream request (e.g., accounts and transactions)?">
+Yes, you can subscribe to multiple data types in a single `SubscribeRequest`. Add separate filter configs (such as `accounts` and `transactions`) to receive both account updates and transaction data in one stream.
+</Accordion>
+
+## Troubleshooting LaserStream
+
+<Accordion title="Why is my LaserStream connection experiencing lag or slow performance?">
+• **Client-side bottlenecks**: JavaScript clients can lag when overwhelmed. Narrow your filters or switch to a faster language.
+
+• **Limited local bandwidth**: Heavy subscriptions can saturate a slow link. Monitor network usage or upgrade your connection.
+
+• **Geographic distance**: Pick the region-nearest LaserStream endpoint; long routes drop packets and add latency.
+
+• **Processing logic**: Avoid blocking the main thread; use async queues or workers.
+
+*Benchmark tip*:
+
+```bash
+cargo install helius-laserstream-bandwidth
+helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_KEY
+```
+</Accordion>
+
+<Accordion title="How do I check my LaserStream connection for errors?">
+Verify your x-token and endpoint, make sure outbound gRPC is allowed. Check your dashboard for connection status and review error logs in your application for authentication or network issues.
+</Accordion>
+
+<Accordion title="Why aren't my LaserStream filters working as expected?">
+Confirm public keys and commitment levels, and review your `AND`/`OR` logic. Filters are evaluated as described in the [docs](https://www.helius.dev/docs/laserstream/grpc#subscribe-request).
+</Accordion>
+
+<Accordion title="Why does LaserStream send an empty event every 15 seconds?">
+These are ping/heartbeat events that maintain connection health and prevent timeouts. They're part of the gRPC protocol's connection management. You can safely ignore these events or use them to monitor connection status in your application.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

@@ -1,0 +1,76 @@
+---
+title: "WebSockets FAQs"
+description: "Get answers to the most common questions about WebSockets including enhanced features, troubleshooting, and usage"
+---
+
+## Billing and Rate Limits
+
+<Accordion title="How many credits does WebSocket events consume?">
+WebSocket events do not consume credits. Both standard WebSockets and Enhanced WebSockets are included with your plan without additional credit costs.
+</Accordion>
+
+<Accordion title="How much faster are Enhanced Websockets vs. normal WebSockets?">
+Enhanced WebSockets are, on average, 1.5x - 2x faster than standard WebSockets. They provide faster response times through optimized infrastructure and direct access to Helius's streaming backend, making them ideal for high-performance applications requiring low-latency data.
+</Accordion>
+
+## Disconnects and Retries
+
+<Accordion title="Why are my Enhanced WebSockets connections disconnecting?">
+Enhanced WebSockets have a 10-minute inactivity timer that disconnects idle connections. To prevent disconnections:
+
+1. **Implement health checks**: Send pings every minute to keep connections alive
+2. **Add reconnection logic**: Automatically reconnect when disconnections occur
+3. **Use proper connection management**: Follow the patterns shown in our [Enhanced WebSockets documentation](/enhanced-websockets/transaction-subscribe)
+
+Implement reconnection and ping logic as shown in our documentation, then add your application logic on top of this foundation.
+</Accordion>
+
+## Using WebSockets
+
+<Accordion title="How do I subscribe to full transactions using WebSockets?">
+**For Enhanced WebSockets**, set `transactionDetails: "full"` in your subscription options:
+
+```javascript
+const subscriptionRequest = {
+  jsonrpc: "2.0",
+  id: 1,
+  method: "transactionSubscribe",
+  params: [
+    {
+      accountInclude: ["YOUR_ACCOUNT_ADDRESS"],
+      failed: false,
+      vote: false
+    },
+    {
+      commitment: "confirmed",
+      encoding: "jsonParsed",
+      transactionDetails: "full",  // Full transaction details
+      maxSupportedTransactionVersion: 0
+    }
+  ]
+};
+```
+
+**For Standard WebSockets**, use `logsSubscribe` or `signatureSubscribe` methods depending on your monitoring needs. See our [WebSocket guide](/rpc/websocket) for detailed examples of each subscription type.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

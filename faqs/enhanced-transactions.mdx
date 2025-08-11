@@ -1,0 +1,59 @@
+---
+title: "Enhanced Transactions FAQs"
+description: "Get answers to the most common questions about Enhanced Transactions API including usage, authentication, rate limits, and troubleshooting"
+---
+
+## Using Enhanced Transactions
+
+<Accordion title="What is the Enhanced Transactions API?">
+The [Enhanced Transactions API](/api-reference/enhanced-transactions/gettransactions) provides parsed transaction data in a human-readable format. It allows you to parse individual or multiple transactions, or fetch the complete historical transaction history for a specific address, transforming complex raw blockchain data into structured, readable information.
+</Accordion>
+
+<Accordion title="What types of transactions can be parsed with the Enhanced Transactions API?">
+Currently, the [Enhanced Transactions API](/api-reference/enhanced-transactions/gettransactions) only parses NFT, and SPL-related transactions. Do not rely on these parsers for non-NFT, and SPL transactions. See the [transaction types documentation](https://www.helius.dev/docs/webhooks/transaction-types) for the full list of supported types.
+</Accordion>
+
+<Accordion title="How do I authenticate Enhanced Transaction API requests?">
+Add your Helius API key as the `?api-key=YOUR_API_KEY` query parameter to all [Enhanced Transactions API](/api-reference/enhanced-transactions/gettransactions) requests.
+</Accordion>
+
+<Accordion title="What is the type for this transaction?">
+Transaction types are returned in the `type` field of the API response (e.g., `NFT_SALE`, `SWAP`, `TRANSFER`). You can also filter by transaction type using the `type` parameter in your API requests. See our [transaction types documentation](https://www.helius.dev/docs/webhooks/transaction-types) for all available types.
+</Accordion>
+
+<Accordion title="What is the difference between V1 and V2 for the Enhanced Transactions API?">
+Enhanced Transaction API V1 won't be updated while we are working on V2. V2 will introduce additional parsing capabilities and improvements. The current API is V1, and we recommend staying updated for V2 announcements.
+</Accordion>
+
+## Rate Limits
+
+<Accordion title="What are the rate limits for Enhanced Transactions?">
+[Enhanced Transactions API](/api-reference/enhanced-transactions/gettransactions) usage follows Helius's standard rate-limiting and pricing policies. See the [Plans & Rate limits](https://www.helius.dev/docs/billing/plans-and-rate-limits) page for specific limits based on your plan.
+</Accordion>
+
+## Troubleshooting Enhanced Transactions
+
+<Accordion title="Why don't I get all transactions for the Enhanced Transaction History call?">
+[Enhanced Transactions API](/api-reference/enhanced-transactions/gettransactions) only returns parsed transactions for supported types (NFT and SPL-related). Other transaction types are filtered out. Additionally, check your pagination parameters and ensure you're using the correct address format. Large transaction histories may require multiple paginated requests.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

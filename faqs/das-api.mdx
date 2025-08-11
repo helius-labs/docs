@@ -1,0 +1,65 @@
+---
+title: "DAS API FAQs"
+description: "Get answers to the most common questions about Digital Asset Standard API including asset data, price information, and troubleshooting"
+---
+
+## Using DAS API
+
+<Accordion title="Can I get price data for any token?">
+Price data is available only for Jupiter-verified tokens. Check whether `token_info.price_info` exists in the `getAsset` response.
+</Accordion>
+
+<Accordion title="How do I get all NFTs for a wallet?">
+Use `getAssetsByOwner` with the wallet address, and paginate if the wallet holds many assets.
+</Accordion>
+
+<Accordion title="What's the difference between getAsset and searchAssets?">
+`getAsset` retrieves one asset by mint address, while `searchAssets` lets you query multiple assets with filters.
+</Accordion>
+
+<Accordion title="How do I find the largest holders of a token?">
+Use the standard RPC method `getTokenLargestAccounts` with your token's mint address. This returns the top 20 holders sorted by balance. See our [getTokenLargestAccounts guide](/rpc/guides/gettokenlargestaccounts) for details.
+</Accordion>
+
+<Accordion title="How do I find all token holders of a specific mint?">
+Use `getProgramAccounts` filtered by the token program and mint address, or `getTokenAccountsByOwner` for specific owners. For comprehensive token holder analysis, combine with `getTokenLargestAccounts`.
+</Accordion>
+
+<Accordion title="How do I get the market capitalization of a token?">
+Multiply the token's circulating supply by its current price (from `getAsset`). Only Jupiter-verified tokens include price data in DAS API responses.
+</Accordion>
+
+<Accordion title="How to get updates on balance changes of all tokens owned by a wallet?">
+Subscribe to account changes using WebSockets or LaserStream, filtering for the wallet's token accounts. You can also use webhooks with account monitoring for real-time balance change notifications.
+</Accordion>
+
+## Troubleshooting DAS API
+
+<Accordion title="Why does getAsset sometimes lack price?">
+We only show price data for Jupiter-verified tokens.
+</Accordion>
+
+<Accordion title="Why does my TOKEN_MINT webhook not return all token mints?">
+TOKEN_MINT webhooks only capture specific token creation patterns and programs. Some tokens may be minted through custom programs or methods not covered by standard webhook filters. Consider using account monitoring or transaction filtering for comprehensive token tracking.
+</Accordion>
+
+---
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>

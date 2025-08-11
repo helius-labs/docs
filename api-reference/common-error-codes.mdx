@@ -1,82 +1,185 @@
 ---
-title: 'Common Error Codes'
-description: 'Learn about common RPC error messages and potential solutions'
+title: 'Error Codes FAQ'
+description: 'Troubleshoot HTTP error codes when using Helius RPC endpoints - identify and resolve the most common authentication, rate limiting, and server issues'
 ---
 
-When interacting with Helius RPC endpoints, you may encounter the following standard HTTP error codes that indicate the status of your requests:
-
 <AccordionGroup>
-<Accordion title="401 - Unauthorized">
-  <Warning>Invalid API key or restricted access due to Access Control Rules.</Warning>
+<Accordion title="Why am I getting a 401 error?">
   
-  #### How to fix it
+  ## What this means
+  <Warning>**401 Unauthorized** - Your request lacks valid authentication credentials.</Warning>
   
-  1. Verify your API key is correctly formatted
-  2. Check if your API key has the necessary permissions
-  3. Ensure you're including the API key in the query params
+  ## Common causes
+  - Invalid or missing API key
+  - API key included in the wrong location
+  - Access Control Rules blocking your request
+  - Expired or revoked API key
   
-  <Info>For more information on API authentication, see our [Authentication](/api-reference/authentication) page.</Info>
+  ## Solutions
+  
+  1. **Verify your API key format**
+     ```
+     https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY
+     ```
+  
+  2. **Check API key placement**
+     - Ensure the API key is in the query parameters
+     - Verify there are no extra spaces or characters
+  
+  3. **Review Access Control Rules**
+     - Check your [dashboard settings](https://dashboard.helius.dev/) for IP restrictions
+     - Ensure your domain is allowlisted if using browser requests
+  
+  <Info>For detailed authentication setup, see our [Authentication](/api-reference/authentication) guide.</Info>
 </Accordion>
 
-<Accordion title="429 - Too Many Requests">
- 
-  <Warning>
-    Exceeded Rate Limits.
-  </Warning>
+<Accordion title="Why am I getting a 429 error?">
   
-  #### How to fix it
+  ## What this means
+  <Warning>**429 Too Many Requests** - You've exceeded your plan's rate limits.</Warning>
   
-  1. Check the `Rate Limited Requests` graph in your [RPC metrics dashboard](https://dashboard.helius.dev/usage)
-  2. Optimize your code to reduce unnecessary API calls
-  3. Implement rate limiting in your application
-  4. Consider upgrading your plan for increased rate limits
+  ## Common causes
+  - Making requests faster than your plan allows
+  - Burst traffic exceeding instantaneous limits
+  - Multiple applications sharing the same API key
+  - Inefficient code making redundant requests
   
-  #### More information
+  ## Solutions
   
-  <Info>Review our [Plans & Rate Limits](/billing/plans-and-rate-limits) page for details on the limits for each plan.</Info>
+  1. **Monitor your usage**
+     - Check the `Rate Limited Requests` graph in your [dashboard](https://dashboard.helius.dev/usage)
+     - Review which endpoints are hitting limits
+  
+  2. **Optimize your requests**
+     - Cache responses when possible
+     - Batch multiple operations into single calls
+     - Remove unnecessary polling or duplicate requests
+  
+  3. **Implement rate limiting**
+     - Add delays between requests in your application
+     - Use exponential backoff for retries
+  
+  4. **Consider upgrading**
+     - Review [Plans & Rate Limits](/billing/plans-and-rate-limits) for higher tiers
+  
+  <Tip>Rate limits reset every minute, so temporary throttling usually resolves quickly.</Tip>
 </Accordion>
 
-<Accordion title="500 - Internal Server Error">
-  <Warning>
-    A server-side error occurred while processing your request.
-  </Warning>
+<Accordion title="Why am I getting a 500 error?">
   
-  ### How to fix it
+  ## What this means
+  <Warning>**500 Internal Server Error** - A server-side error occurred while processing your request.</Warning>
   
-  1. Check if your request payload is properly formatted
-  2. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
-  3. If the error persists, contact Helius support with details of your request
+  ## Common causes
+  - Malformed request payload
+  - Server experiencing temporary issues
+  - Invalid parameters causing server errors
+  - Network connectivity problems
   
-  <Note>Server errors are typically temporary and not related to your implementation.</Note>
+  ## Solutions
+  
+  1. **Validate your request**
+     - Ensure JSON payload is properly formatted
+     - Verify all required parameters are included
+     - Check parameter types match the API specification
+  
+  2. **Check service status**
+     - Visit the [Helius Status Page](https://helius.statuspage.io/) for ongoing issues
+     - Look for any reported outages or degraded performance
+  
+  3. **Implement retry logic**
+     - Wait a few seconds before retrying
+     - Use exponential backoff for multiple attempts
+  
+  4. **Get support**
+     - If errors persist, contact support with your request details
+     - Include the exact request payload and timestamp
+  
+  <Note>Server errors are typically temporary and usually resolve automatically.</Note>
 </Accordion>
 
-<Accordion title="503 - Service Unavailable">
-  <Warning>
-    The server is temporarily overloaded or undergoing maintenance.
-  </Warning>
+<Accordion title="Why am I getting a 503 error?">
   
-  ### How to fix it
+  ## What this means
+  <Warning>**503 Service Unavailable** - The server is temporarily overloaded or under maintenance.</Warning>
   
-  1. Implement exponential backoff for retries in your application
-  2. Wait for a few minutes before trying again
-  3. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
-  4. If the error persists, contact Helius support with details of your request
+  ## Common causes
+  - High traffic causing temporary overload
+  - Scheduled maintenance windows
+  - Server capacity limits reached
+  - Network infrastructure issues
   
-  <Tip>This error is usually temporary and resolves on its own as server load balances.</Tip>
+  ## Solutions
+  
+  1. **Wait and retry**
+     - Wait 30-60 seconds before trying again
+     - This error usually resolves as load balances
+  
+  2. **Implement smart retries**
+     - Use exponential backoff (start with 1s, then 2s, 4s, etc.)
+     - Set a maximum retry limit (3-5 attempts)
+     - Add jitter to avoid thundering herd effects
+  
+  3. **Check for maintenance**
+     - Review the [Helius Status Page](https://helius.statuspage.io/) for scheduled maintenance
+     - Plan around announced maintenance windows
+  
+  4. **Distribute load**
+     - If possible, spread requests over time
+     - Avoid burst patterns that can trigger overload protection
+  
+  <Tip>503 errors are designed to be temporary - the service automatically recovers as server load decreases.</Tip>
 </Accordion>
 
-<Accordion title="504 - Gateway Timeout">
-  <Warning>
-    The server did not receive a timely response while acting as a gateway or proxy.
-  </Warning>
+<Accordion title="Why am I getting a 504 error?">
   
-  ### How to fix it
+  ## What this means
+  <Warning>**504 Gateway Timeout** - The server didn't receive a response from upstream services within the timeout period.</Warning>
   
-  1. Check your network connection
-  2. Implement request timeouts in your client code
-  3. Check the [Helius Status Page](https://helius.statuspage.io/) for any ongoing issues
-  4. If the error persists, contact Helius support with details of your request
+  ## Common causes
+  - Network connectivity issues
+  - Complex operations exceeding timeout limits
+  - Slow blockchain responses during high network congestion
+  - Large data requests taking too long to process
   
-  <Note>This error often indicates network issues or that the server is processing a complex operation that exceeds the timeout limit.</Note>
+  ## Solutions
+  
+  1. **Check your connection**
+     - Verify your internet connection is stable
+     - Test with a simple request to rule out local issues
+  
+  2. **Optimize large requests**
+     - Break large batch requests into smaller chunks
+     - Use pagination for data-heavy queries
+     - Consider using WebSocket connections for real-time data
+  
+  3. **Implement timeouts**
+     - Set appropriate timeout values in your client code (30-60 seconds)
+     - Handle timeout errors gracefully with retries
+  
+  4. **Monitor service status**
+     - Check the [Helius Status Page](https://helius.statuspage.io/) for network issues
+     - Look for reports of high blockchain congestion
+  
+  <Note>Gateway timeouts often indicate network congestion or complex operations. Consider breaking large requests into smaller parts.</Note>
 </Accordion>
-</AccordionGroup> 
+</AccordionGroup>
+
+## Need More Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Contact Support"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    Get help from our team through Discord, chat, or email support.
+  </Card>
+  <Card
+    title="Status Page"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    Check real-time service availability and performance information.
+  </Card>
+</CardGroup>
