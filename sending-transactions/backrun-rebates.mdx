@@ -4,9 +4,9 @@ sidebarTitle: "Transaction Rebates"
 description: "Earn automatic SOL rebates via post-trade backruns with no additional risk of toxic MEV."
 ---
 
-<Info>
-**MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, letting you profit from arbitrage opportunities you create.
-</Info>
+<Note>
+**This is an optional feature.** Helius will never participate in backrun rebates without your explicit permission. You must opt in by adding the `rebate-address` parameter to your transaction requests.
+</Note>
 
 ## What Are Backrun Rebates?
 
@@ -29,7 +29,7 @@ The rebate system operates through an order-flow auction that runs alongside you
 
 <Steps titleSize="h3">
   <Step title="Opt In">
-    Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet
+    Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet. This feature is entirely optional - Helius only participates when you explicitly opt in.
   </Step>
       <Step title="Auction Process">
       Helius forwards an unsigned copy of your transaction to our order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
@@ -58,6 +58,10 @@ Backrunning is a beneficial form of arbitrage that helps keep prices consistent 
   - Larger trades with higher price impact generate more MEV and higher rebates
   - Payments are immediate - you receive SOL in the same block as execution
 </Card>
+
+<Info>
+**MEV Protection**: Your transaction executes first in bundles and MEV is extracted after execution, letting you profit from arbitrage opportunities you create.
+</Info>
 
 ## Quick Start Guide
 
