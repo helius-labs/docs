@@ -25,15 +25,15 @@ Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Valu
 
 ## How It Works
 
-The rebate system operates through an order-flow auction that runs alongside your normal transaction processing:
+The rebate system runs a private order-flow auction alongside the regular RPC flow. For each transaction, Helius forwards an unsigned copy to the auction while submitting the signed transaction through the normal RPC path. Because both paths happen in parallel, there's no extra latency and the auction is never exclusive.
 
 <Steps titleSize="h3">
   <Step title="Opt In">
     Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet. This feature is entirely optional - Helius only participates when you explicitly opt in.
   </Step>
-      <Step title="Auction Process">
-      Helius forwards an unsigned copy of your transaction to our order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
-    </Step>
+  <Step title="Auction Process">
+    While your transaction is processed through the standard RPC path, Helius also forwards an unsigned copy to our private order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
+  </Step>
   <Step title="Bundle Creation">
     The highest bidder wins and a bundle is created: **[your transaction, searcher transaction]**. Your transaction is always executed first
   </Step>
