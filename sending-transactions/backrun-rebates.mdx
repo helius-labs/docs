@@ -25,14 +25,14 @@ Helius Backrun Rebates let you earn a share of the MEV (Maximum Extractable Valu
 
 ## How It Works
 
-The rebate system operates through an order-flow auction that runs alongside your normal transaction processing:
+The rebate system operates through an order-flow auction that runs alongside your normal transaction processing. Helius submits your transaction to the regular RPC flow while simultaneously forwarding an unsigned copy to our private order-flow auction. This parallel path means there's no latency hit and your transaction is never exclusive to the auction:
 
 <Steps titleSize="h3">
   <Step title="Opt In">
     Add `rebate-address=<YOUR_SOL_ADDRESS>` query parameter to any `sendTransaction` call on mainnet. This feature is entirely optional - Helius only participates when you explicitly opt in.
   </Step>
       <Step title="Auction Process">
-      Helius forwards an unsigned copy of your transaction to our order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
+      While your transaction is processed through the standard RPC path, Helius also forwards an unsigned copy to our private order-flow auction where pre-approved, KYC'd searchers bid to backrun your trade
     </Step>
   <Step title="Bundle Creation">
     The highest bidder wins and a bundle is created: **[your transaction, searcher transaction]**. Your transaction is always executed first
@@ -40,9 +40,13 @@ The rebate system operates through an order-flow auction that runs alongside you
   <Step title="Automatic Payout">
     If the bundle lands on-chain, Helius automatically pays the agreed rebate directly to your specified address in SOL
   </Step>
-</Steps>
+  </Steps>
 
-### Understanding Backruns
+<Note>
+We always submit your transaction to both the regular RPC flow and the private auction. The auction is an additional path that doesn't add latency or exclusivity.
+</Note>
+
+  ### Understanding Backruns
 
 Backrunning is a beneficial form of arbitrage that helps keep prices consistent across different exchanges. Unlike malicious MEV attacks, backrunning improves the network by correcting price imbalances created by large trades.
 
