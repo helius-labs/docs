@@ -1,0 +1,111 @@
+---
+title: "Shred Delivery"
+sidebarTitle: "Overview"
+description: "Ultra-low latency Solana data streaming with raw shreds - the earliest possible on-chain signal"
+---
+
+<Info>
+**Beta Access Required**: Shred Delivery is currently in beta with manual provisioning. Access is limited and requires approval from the Helius team. [Request beta access](#request-beta-access) below.
+</Info>
+
+## What is Shred Delivery?
+
+Shred Delivery is Helius's **premier low-latency shred delivery service**, designed to provide you with the earliest possible access to Solana's raw transaction data. By delivering unprocessed shreds directly from the network, Shred Delivery offers a significant competitive edge for high-frequency trading (HFT), arbitrage strategies, and other latency-sensitive applications.
+
+<CardGroup cols={2}>
+  <Card title="Earliest Access" icon="clock">
+    Receive raw Solana shreds immediately as they are produced, providing the fastest insight into network activity.
+  </Card>
+  <Card title="Unprocessed Data" icon="gear">
+    Access data in its raw form, allowing for customized processing tailored to your specific trading strategies.
+  </Card>
+  <Card title="Validator Advantage" icon="star">
+    Helius operates the highest staked validator on Solana, receiving shreds fastest from the network.
+  </Card>
+  <Card title="Manual Provisioning" icon="shield">
+    Carefully provisioned access ensures optimal performance and dedicated support from the Helius team.
+  </Card>
+</CardGroup>
+
+## What Are Shreds?
+
+In Solana, transactions are broken down into smaller data packets called **"shreds"** to facilitate efficient and rapid propagation across the network. Each shred is a fragment of transaction data, optimized to fit within standard network packets, ensuring swift distribution and reconstruction into complete blocks by validators.
+
+
+
+This architecture is pivotal for maintaining Solana's high throughput and low latency, and Shred Delivery taps directly into this raw data stream before any processing occurs.
+
+<Card title="Deep Dive: Understanding Solana Shreds" icon="book-open" href="https://www.helius.dev/blog/solana-shreds">
+  Read our comprehensive blog post explaining how Solana's shred mechanism works and why it matters for trading
+</Card>
+
+## Shred Delivery vs. LaserStream
+
+While both Shred Delivery and LaserStream are flagship data streaming offerings from Helius, they serve distinct purposes in the trading technology stack:
+
+<CardGroup cols={2}>
+  <Card title="Shred Delivery" icon="bolt" color="#E84125">
+    **"First Look" at Transactions**
+    - Raw, unprocessed shred data
+    - Earliest possible on-chain signal
+    - Requires custom deshredding logic
+    - Manual provisioning only
+    - High-frequency traders & arbitrage strategies
+  </Card>
+  <Card title="LaserStream" icon="rocket" color="#00D4AA">
+    **Processed & Reliable Data**
+    - Commitment-level guarantees (processed, confirmed, finalized)
+    - Historical replay capabilities
+    - Developer-friendly SDKs
+    - Automatic reconnection
+    - Production applications & analytics
+  </Card>
+</CardGroup>
+
+**When to use each service:**
+
+- **Choose Shred Delivery** when you need the absolute fastest access to raw transaction data and have the technical capability to process unstructured shreds
+- **Choose LaserStream** when you need reliable, processed data with commitment guarantees and historical replay capabilities
+
+<Card title="LaserStream Documentation" icon="rocket" href="/laserstream">
+  Learn about LaserStream's processed data streaming with reliability features
+</Card>
+
+## The Helius Validator Advantage
+
+Helius operates **the highest staked validator on Solana**, giving us unmatched access to raw shreds through Solana's Turbine protocol. In Turbine, validators with higher stake weights receive priority in the data propagation tree, meaning block leaders send shreds to high-stake validators like Helius first.
+
+This stake-weighted propagation ensures we receive shreds at the earliest possible moment in the network's data flow. While other providers must wait for secondary propagation or rely on unstaked infrastructure, our validator position grants direct, prioritized access to the raw transaction data as it flows through the network.
+
+
+
+## Technical Requirements
+
+To effectively utilize Shred Delivery, your system should have:
+
+<CardGroup cols={2}>
+  <Card title="Deshredding Capability" icon="gear">
+    Custom logic to reconstruct complete transactions from raw shreds
+  </Card>
+  <Card title="Low-Latency Infrastructure" icon="server">
+    High-performance systems optimized for microsecond-level processing
+  </Card>
+  <Card title="Trading Logic Integration" icon="code">
+    Ability to act on unprocessed data with appropriate risk management
+  </Card>
+  <Card title="Network Optimization" icon="wifi">
+    Optimized network configuration for minimal processing delays
+  </Card>
+</CardGroup>
+
+<Warning>
+**Technical Expertise Required**: Shred Delivery provides raw, unprocessed data. Your team must have the technical capability to handle deshredding and implement appropriate processing logic.
+</Warning>
+
+## Request Beta Access
+
+Shred Delivery is currently in beta with limited access. To request access, please complete our beta access form where our team will review your requirements and reach out with next steps.
+
+<Card title="Request Beta Access" icon="rocket" href="https://form.typeform.com/to/aE6sUFRj?typeform-source=t.co" color="#E84125">
+  Submit your application for Shred Delivery beta access
+</Card>
