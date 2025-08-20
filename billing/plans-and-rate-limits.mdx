@@ -74,9 +74,9 @@ description: "Complete guide to Helius Solana API pricing with free tier. Transp
     <tr>
       <td><strong>gRPC Access</strong></td>
       <td>—</td>
-      <td>—</td>
-      <td>—</td>
-      <td>LaserStream</td>
+      <td>LaserStream (Devnet)</td>
+      <td>LaserStream (Devnet)</td>
+      <td>LaserStream (Devnet + Mainnet)</td>
     </tr>
     <tr>
       <td><strong>Support Level</strong></td>
@@ -325,17 +325,24 @@ Some endpoints have special restrictions due to their computational requirements
       </thead>
       <tbody>
         <tr>
+          <td>Networks</td>
+          <td>—</td>
+          <td>Devnet</td>
+          <td>Devnet</td>
+          <td>Devnet + Mainnet</td>
+        </tr>
+        <tr>
           <td>Max Pubkeys</td>
           <td>—</td>
-          <td>—</td>
-          <td>—</td>
+          <td>10M</td>
+          <td>10M</td>
           <td>10M</td>
         </tr>
         <tr>
           <td>Active Connections</td>
           <td>—</td>
-          <td>—</td>
-          <td>—</td>
+          <td>100</td>
+          <td>100</td>
           <td>100</td>
         </tr>
       </tbody>
@@ -390,7 +397,12 @@ Some endpoints have special restrictions due to their computational requirements
       <td>Per event sent by Helius, regardless of successful or failed endpoint responses</td>
     </tr>
     <tr>
-      <td><strong>LaserStream gRPC</strong></td>
+      <td><strong>LaserStream gRPC (Devnet)</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>Per 0.1 MB of streamed data (uncompressed)</td>
+    </tr>
+    <tr>
+      <td><strong>LaserStream gRPC (Mainnet)</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
       <td>Per 0.1 MB of streamed data (uncompressed)</td>
     </tr>
@@ -434,7 +446,8 @@ Some endpoints have special restrictions due to their computational requirements
 
 <Note>
 **LaserStream Billing Guide**: 
-- **Professional Plan**: Pay 3 credits per 0.1 MB for all LaserStream usage.
+- **Developer & Business Plans**: Pay 3 credits per 0.1 MB for all LaserStream devnet usage.
+- **Professional Plan**: Pay 3 credits per 0.1 MB for all LaserStream devnet and mainnet usage.
 - **LaserStream Plus Add-on**: Available in 50TB ($2,500), 100TB ($4,500), 150TB ($6,500), 200TB ($8,500), or 250TB ($10,500) tiers. After included data runs out, pay only 2 credits per 0.1 MB (33% savings).
 - **Data Size**: Billing based on uncompressed gRPC message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
 </Note>
@@ -582,6 +595,12 @@ The limits below apply to deprecated V3 plans. These plans are no longer availab
         <td>Chat Support</td>
         <td>Priority Chat Support</td>
         <td>Slack/Telegram Support</td>
+      </tr>
+      <tr>
+        <td>—</td>
+        <td>LaserStream (Devnet)</td>
+        <td>LaserStream (Devnet)</td>
+        <td>LaserStream (Devnet)</td>
       </tr>
     </tbody>
   </table>
