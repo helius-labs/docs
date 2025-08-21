@@ -14,7 +14,7 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
     Sends to both validators and Jito for optimal speed
   </Card>
   <Card title="Global Endpoints" icon="globe">
-    Multiple geographic locations for minimal latency
+    HTTPS endpoint auto-routes to nearest location for frontends, regional HTTP for backends
   </Card>
   <Card title="No Credits" icon="coins">
     Available on all plans without consuming API credits
@@ -205,10 +205,21 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 ## Endpoints
 
-Sender endpoints are available in multiple regions for optimal latency:
+Sender endpoints are available in multiple configurations depending on your use case:
 
 <Tabs>
-  <Tab title="Transaction Submission">
+  <Tab title="Frontend/Browser Applications">
+    **Recommended for frontend applications to avoid CORS issues:**
+    ```
+    https://sender.helius-rpc.com/fast         # Global HTTPS endpoint
+    ```
+    
+    <Note>
+    The HTTPS endpoint resolves CORS preflight failures that occur with browser-based applications when using the regional HTTP endpoints. This endpoint automatically routes to the nearest location for optimal performance. Use this for all frontend/browser implementations.
+    </Note>
+  </Tab>
+  <Tab title="Backend/Server Applications">
+    **Regional HTTP endpoints for optimal server-to-server latency:**
     ```
     http://slc-sender.helius-rpc.com/fast      # Salt Lake City
     http://ewr-sender.helius-rpc.com/fast      # Newark
@@ -218,8 +229,18 @@ Sender endpoints are available in multiple regions for optimal latency:
     http://sg-sender.helius-rpc.com/fast       # Singapore
     http://tyo-sender.helius-rpc.com/fast      # Tokyo
     ```
+    
+    <Note>
+    For backend/server applications, choose the regional HTTP endpoint closest to your infrastructure for optimal performance.
+    </Note>
   </Tab>
   <Tab title="Connection Warming">
+    **HTTPS (Frontend):**
+    ```
+    https://sender.helius-rpc.com/ping         # Global HTTPS ping (auto-routes to nearest location)
+    ```
+    
+    **HTTP (Backend):**
     ```
     http://slc-sender.helius-rpc.com/ping      # Salt Lake City
     http://ewr-sender.helius-rpc.com/ping      # Newark
@@ -232,10 +253,6 @@ Sender endpoints are available in multiple regions for optimal latency:
   </Tab>
 </Tabs>
 
-<Note>
-These endpoints only support HTTP connections (not HTTPS). Choose the endpoint closest to your infrastructure for optimal performance.
-</Note>
-
 ## Connection Warming
 
 For applications with long periods between transaction submissions, use the ping endpoint to maintain warm connections and reduce cold start latency.
@@ -245,6 +262,10 @@ For applications with long periods between transaction submissions, use the ping
 The ping endpoint accepts simple GET requests and returns a basic response to keep connections alive:
 
 ```bash
+# Frontend applications - use HTTPS (auto-routes to nearest location)
+curl https://sender.helius-rpc.com/ping
+
+# Backend applications - use regional HTTP
 curl http://slc-sender.helius-rpc.com/ping
 ```
 
@@ -259,7 +280,12 @@ async function warmConnection(endpoint: string) {
   }
 }
 
-// Example: Warm connection every 30 seconds during idle periods
+// Frontend applications - use HTTPS endpoint
+setInterval(() => {
+  warmConnection('https://sender.helius-rpc.com');
+}, 30000);
+
+// Backend/server applications - use regional HTTP endpoint
 setInterval(() => {
   warmConnection('http://slc-sender.helius-rpc.com');
 }, 30000);
@@ -362,7 +388,10 @@ async function sendWithSender(
   transaction.sign([keypair]);
   console.log('Sending transaction via Sender endpoint...');
 
-  const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast'; // choose the region closest to your servers
+  // Frontend: Use HTTPS endpoint to avoid CORS issues
+  const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast'; 
+  // Backend: Use regional HTTP endpoint closest to your servers
+  // const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast';
   const response = await fetch(SENDER_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -595,7 +624,10 @@ async function sendWithRetry(
   lastValidBlockHeight: number
 ): Promise<string> {
   const maxRetries = 3;
-  const endpoint = 'http://slc-sender.helius-rpc.com/fast';
+  // Frontend: Use HTTPS endpoint to avoid CORS issues
+  const endpoint = 'https://sender.helius-rpc.com/fast';
+  // Backend: Use regional HTTP endpoint closest to your servers
+  // const endpoint = 'http://slc-sender.helius-rpc.com/fast';
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -693,7 +725,8 @@ export { sendWithSender };
 ## Best Practices
 
 ### Endpoint Selection
-Choose the [endpoint](#endpoints) closest to your infrastructure for optimal performance. Frankfurt and London typically offer the best latency for most applications.
+- **Frontend Applications**: Use `https://sender.helius-rpc.com/fast` to avoid CORS preflight failures. This endpoint automatically routes to the nearest location for optimal performance.
+- **Backend Applications**: Choose the regional HTTP [endpoint](#endpoints) closest to your infrastructure for optimal performance
 
 ### Connection Warming
 - Use the `/ping` endpoint during idle periods longer than 1 minute
