@@ -1,0 +1,450 @@
+---
+title: "How to Use getTransactionsForAddress"
+sidebarTitle: "getTransactionsForAddress"
+description: "Learn how to use getTransactionsForAddress for advanced transaction history queries with filtering, sorting, and efficient pagination."
+---
+
+The [`getTransactionsForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/gettransactionsforaddress) RPC method is an enhanced alternative to `getSignaturesForAddress` that provides powerful filtering, sorting, and pagination capabilities for retrieving transaction history. This method addresses key limitations of the original API by supporting bidirectional sorting, advanced filtering, efficient keyset pagination, and the option to return full transaction details.
+
+## Key Advantages Over getSignaturesForAddress
+
+*   **Bidirectional Sorting:** Query transactions in ascending (from genesis forward) or descending (newest first) order
+*   **Advanced Filtering:** Filter by slot ranges, time periods, transaction status, and signatures
+*   **Efficient Pagination:** Use keyset pagination for faster queries and better performance
+*   **Full Transaction Details:** Optionally return complete transaction data without additional `getTransaction` calls
+*   **Status Filtering:** Easily exclude failed transactions or query only successful ones
+
+## Common Use Cases
+
+*   **Comprehensive Wallet History:** Build complete transaction timelines with filtering and sorting options
+*   **Analytics and Reporting:** Query specific time periods and transaction types for analysis
+*   **Audit Trails:** Retrieve successful transactions within specific date ranges
+*   **Data Indexing:** Efficiently paginate through large transaction histories for local indexing
+*   **Performance Optimization:** Reduce API calls by getting full transaction details in one request
+
+## Request Parameters
+
+1.  **`address`** (`string`): (Required) The base-58 encoded public key of the account for which to retrieve transaction history.
+2.  **`options`** (`object`, optional): Configuration object with the following fields:
+    *   **`transactionDetails`** (`string`, optional): Level of detail to return. Options are `"signatures"` (default) for basic signature info or `"full"` for complete transaction data.
+    *   **`sortOrder`** (`string`, optional): Sort order for results. Options are `"desc"` (default, newest first) or `"asc"` (oldest first).
+    *   **`limit`** (`number`, optional): Maximum number of transactions to return (1-1000). Default is 1000.
+    *   **`paginationKey`** (`string`, optional): Key from previous response to get the next page of results (format: "slot:position").
+    *   **`commitment`** (`string`, optional): Commitment level (`"finalized"`, `"confirmed"`, or `"processed"`). Default is `"confirmed"`.
+    *   **`encoding`** (`string`, optional): Encoding format when `transactionDetails="full"` (`"json"`, `"jsonParsed"`, `"base58"`, `"base64"`). Default is `"json"`.
+    *   **`maxSupportedTransactionVersion`** (`number`, optional): Maximum transaction version to return when `transactionDetails="full"`.
+    *   **`filters`** (`object`, optional): Advanced filtering options:
+        *   **`slot`**: Filter by slot number using comparison operators
+        *   **`blockTime`**: Filter by Unix timestamp using comparison operators
+        *   **`signature`**: Filter by signature using comparison operators
+        *   **`status`**: Filter by transaction status (`"succeeded"`, `"failed"`, `"all"`)
+
+### Filter Comparison Operators
+
+When using filters for `slot`, `blockTime`, or `signature`, you can use these comparison operators:
+
+*   **`gte`** (Greater Than or Equal): Include values greater than or equal to the specified value
+*   **`gt`** (Greater Than): Include values strictly greater than the specified value
+*   **`lte`** (Less Than or Equal): Include values less than or equal to the specified value
+*   **`lt`** (Less Than): Include values strictly less than the specified value
+*   **`eq`** (Equal): Include values exactly equal to the specified value
+
+**Examples:**
+*   `slot: { gte: 100 }` - Gets transactions from slot 100 onwards
+*   `blockTime: { lt: 1641081600 }` - Gets transactions before January 2, 2022
+*   `slot: { gte: 1000, lte: 2000 }` - Gets transactions between slots 1000 and 2000 (inclusive)
+
+## Response Structure
+
+The response contains a `result` object with:
+
+*   **`data`** (`array`): Array of transaction objects. Structure depends on `transactionDetails` parameter:
+    *   For `"signatures"`: Contains `signature`, `slot`, `err`, `memo`, `blockTime`, `confirmationStatus`
+    *   For `"full"`: Contains complete transaction data in the same format as `getTransaction`
+*   **`paginationKey`** (`string` | `null`): Key for retrieving the next page, or `null` if no more results
+
+## Examples
+
+### 1. Basic Transaction History
+
+Get the latest transaction signatures for an address.
+
+<CodeGroup>
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "limit": 10
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getBasicTransactionHistory() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+
+  try {
+    const response = await connection._rpcRequest('getTransactionsForAddress', [
+      address.toBase58(),
+      {
+        transactionDetails: 'signatures',
+        limit: 10
+      }
+    ]);
+
+    console.log(`Found ${response.result.data.length} transactions:`);
+    response.result.data.forEach((tx, index) => {
+      console.log(`${index + 1}. ${tx.signature} (Slot: ${tx.slot})`);
+    });
+    
+    if (response.result.paginationKey) {
+      console.log(`Pagination key for next page: ${response.result.paginationKey}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+getBasicTransactionHistory();
+```
+</CodeGroup>
+
+### 2. Filter by Transaction Status
+
+Get only successful transactions to avoid processing failed ones.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "filters": {
+          "status": "succeeded"
+        },
+        "limit": 20
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+async function getSuccessfulTransactions() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+
+  try {
+    const response = await connection._rpcRequest('getTransactionsForAddress', [
+      address.toBase58(),
+      {
+        transactionDetails: 'signatures',
+        filters: {
+          status: 'succeeded'
+        },
+        limit: 20
+      }
+    ]);
+
+    console.log(`Found ${response.result.data.length} successful transactions:`);
+    response.result.data.forEach(tx => {
+      console.log(`✓ ${tx.signature} - ${new Date(tx.blockTime * 1000).toLocaleString()}`);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+getSuccessfulTransactions();
+```
+</CodeGroup>
+
+### 3. Query Specific Time Range
+
+Get transactions between two specific timestamps.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "filters": {
+          "blockTime": {
+            "gte": 1640995200,
+            "lte": 1641081600
+          }
+        }
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+async function getTransactionsInTimeRange() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+  
+  // Time range: Jan 1, 2022 to Jan 2, 2022
+  const startTime = Math.floor(new Date('2022-01-01').getTime() / 1000);
+  const endTime = Math.floor(new Date('2022-01-02').getTime() / 1000);
+
+  try {
+    const response = await connection._rpcRequest('getTransactionsForAddress', [
+      address.toBase58(),
+      {
+        transactionDetails: 'signatures',
+        filters: {
+          blockTime: {
+            gte: startTime,
+            lte: endTime
+          }
+        }
+      }
+    ]);
+
+    console.log(`Found ${response.result.data.length} transactions in time range:`);
+    response.result.data.forEach(tx => {
+      const date = new Date(tx.blockTime * 1000);
+      console.log(`${tx.signature} - ${date.toLocaleString()}`);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+getTransactionsInTimeRange();
+```
+</CodeGroup>
+
+### 4. Ascending Order (Historical Replay)
+
+Get transactions in chronological order starting from the earliest.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "sortOrder": "asc",
+        "limit": 10
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+async function getHistoricalTransactions() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+
+  try {
+    const response = await connection._rpcRequest('getTransactionsForAddress', [
+      address.toBase58(),
+      {
+        transactionDetails: 'signatures',
+        sortOrder: 'asc',
+        limit: 10
+      }
+    ]);
+
+    console.log('First 10 historical transactions (oldest first):');
+    response.result.data.forEach((tx, index) => {
+      const date = tx.blockTime ? new Date(tx.blockTime * 1000).toLocaleString() : 'Unknown';
+      console.log(`${index + 1}. Slot ${tx.slot} - ${date}`);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+getHistoricalTransactions();
+```
+</CodeGroup>
+
+### 5. Full Transaction Details
+
+Get complete transaction data without additional API calls.
+
+<CodeGroup>
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "full",
+        "maxSupportedTransactionVersion": 0,
+        "limit": 5
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+async function getFullTransactionDetails() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+
+  try {
+    const response = await connection._rpcRequest('getTransactionsForAddress', [
+      address.toBase58(),
+      {
+        transactionDetails: 'full',
+        maxSupportedTransactionVersion: 0,
+        limit: 5
+      }
+    ]);
+
+    console.log(`Retrieved ${response.result.data.length} complete transactions:`);
+    response.result.data.forEach((tx, index) => {
+      console.log(`\n--- Transaction ${index + 1} ---`);
+      console.log(`Signature: ${tx.transaction.signatures[0]}`);
+      console.log(`Slot: ${tx.slot}`);
+      console.log(`Instructions: ${tx.transaction.message.instructions.length}`);
+      console.log(`Accounts: ${tx.transaction.message.accountKeys.length}`);
+      if (tx.meta?.fee) {
+        console.log(`Fee: ${tx.meta.fee} lamports`);
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+getFullTransactionDetails();
+```
+</CodeGroup>
+
+### 6. Efficient Pagination
+
+Paginate through large transaction histories using keyset pagination.
+
+<CodeGroup>
+```bash cURL
+# First request
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "limit": 3
+      }
+    ]
+  }'
+
+# Next page using paginationKey from previous response
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionsForAddress",
+    "params": [
+      "Vote111111111111111111111111111111111111111",
+      {
+        "transactionDetails": "signatures",
+        "limit": 3,
+        "paginationKey": "1055:5"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+async function paginateTransactions() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address = new PublicKey('Vote111111111111111111111111111111111111111');
+  const pageSize = 3;
+  let paginationKey = null;
+  let allTransactions = [];
+  const maxPages = 3; // Limit for demo
+
+  try {
+    for (let page = 0; page < maxPages; page++) {
+      console.log(`\nFetching page ${page + 1}...`);
+      
+      const params = [
+        address.toBase58(),
+        {
+          transactionDetails: 'signatures',
+          limit: pageSize,
+          ...(paginationKey && { paginationKey })
+        }
+      ];
+
+      const response = await connection._rpcRequest('getTransactionsForAddress', params);
+      
+      if (response.result.data.length === 0) {
+        console.log('No more transactions found.');
+        break;
+      }
+
+      response.result.data.forEach(tx => {
+        allTransactions.push(tx.signature);
+        console.log(`  Found: ${tx.signature} (Slot: ${tx.slot})`);
+      });
+
+      paginationKey = response.result.paginationKey;
+      if (!paginationKey) {
+        console.log('Reached end of results.');
+        break;
+      }
+
+      console.log(`Next pagination key: ${paginationKey}`);
+    }
+
+    console.log(`\nTotal transactions collected: ${allTransactions.length}`);
+  } catch (error) {
+    console.error('Error during pagination:', error);
+  }
+}
+
+paginateTransactions();
+```
+</CodeGroup>
+
+## Developer Tips
+
+*   **Performance:** Use `transactionDetails: "full"` when you need complete transaction data to avoid additional `getTransaction` calls
+*   **Filtering:** Combine multiple filters for precise queries (e.g., successful transactions in a specific time range)
+*   **Pagination:** The keyset pagination is more efficient than the `before`/`until` mechanism in `getSignaturesForAddress`
+*   **Time Queries:** Use `blockTime` filters for date-based queries instead of slot numbers when possible
+*   **Rate Limits:** The efficient pagination allows for faster traversal of large transaction histories
+*   **Sort Order:** Use `"asc"` for building chronological timelines or replaying transaction history
+*   **Status Filtering:** Filter by `"succeeded"` status to skip failed transactions when building transaction histories
+*   **Slot Ranges:** Use slot filters for precise block-based queries when exact timing is important
+
+By leveraging the advanced features of `getTransactionsForAddress`, you can build more efficient and powerful applications that provide better user experiences when working with Solana transaction data.
