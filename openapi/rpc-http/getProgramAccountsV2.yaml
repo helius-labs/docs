@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Solana RPC API
   version: 1.0.0
-  description: Enhanced Solana program account indexing API with cursor-based pagination for efficiently querying large sets of accounts owned by specific programs. Supports incremental updates via slot-based filtering for real-time data synchronization.
+  description: Enhanced Solana program account indexing API with cursor-based pagination and changedSinceSlot support for efficiently querying large sets of accounts owned by specific programs. Supports incremental updates via slot-based filtering for real-time data synchronization.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -53,12 +53,15 @@ paths:
       summary: getProgramAccountsV2
       operationId: getProgramAccountsV2
       description: |
-        Enhanced version of getProgramAccounts with cursor-based pagination support for efficiently querying 
+        Enhanced version of getProgramAccounts with cursor-based pagination and changedSinceSlot support for efficiently querying 
         large sets of accounts owned by specific Solana programs. Enables incremental data fetching with 
-        configurable page sizes up to 10,000 accounts per request. Supports slot-based filtering to retrieve 
+        configurable page sizes up to 10,000 accounts per request. The changedSinceSlot parameter allows retrieving 
         only accounts modified since a specific blockchain slot, perfect for real-time indexing and data 
         synchronization workflows. Essential for applications dealing with large-scale program account discovery 
         such as DeFi protocols, NFT marketplaces, and blockchain analytics platforms.
+        
+        Note: End of pagination is only indicated when no accounts are returned. The API may return fewer accounts 
+        than the limit due to filtering - continue pagination until paginationKey is null.
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -149,7 +152,7 @@ paths:
                             example: 1000
                           paginationKey:
                             type: string
-                            description: Base-58 encoded pagination cursor for fetching subsequent pages. Use the nextPaginationKey from previous response.
+                            description: Base-58 encoded pagination cursor for fetching subsequent pages. Use the paginationKey from previous response.
                             example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
                           changedSinceSlot:
                             type: integer
@@ -246,9 +249,9 @@ paths:
                                   type: integer
                                   description: The data size of the account.
                                   example: 165
-                      nextPaginationKey:
+                      paginationKey:
                         type: string
-                        description: Pagination cursor for the next page. Null if this is the last page.
+                        description: Pagination cursor for the next page. Null only when no accounts are returned (end of pagination). Note that fewer accounts than the limit may be returned due to filtering, but this does not indicate end of pagination.
                         example: "8WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
                         nullable: true
                       totalResults:
