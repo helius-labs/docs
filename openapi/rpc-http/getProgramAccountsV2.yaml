@@ -1,0 +1,339 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  description: Enhanced Solana program account indexing API with cursor-based pagination and changedSinceSlot support for efficiently querying large sets of accounts owned by specific programs. Supports incremental updates via slot-based filtering for real-time data synchronization.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getProgramAccountsV2
+      operationId: getProgramAccountsV2
+      description: |
+        Enhanced version of getProgramAccounts with cursor-based pagination and changedSinceSlot support for efficiently querying 
+        large sets of accounts owned by specific Solana programs. Enables incremental data fetching with 
+        configurable page sizes up to 10,000 accounts per request. The changedSinceSlot parameter allows retrieving 
+        only accounts modified since a specific blockchain slot, perfect for real-time indexing and data 
+        synchronization workflows. Essential for applications dealing with large-scale program account discovery 
+        such as DeFi protocols, NFT marketplaces, and blockchain analytics platforms.
+        
+        Note: End of pagination is only indicated when no accounts are returned. The API may return fewer accounts 
+        than the limit due to filtering - continue pagination until paginationKey is null.
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  description: The JSON-RPC protocol version.
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  description: The name of the RPC method to invoke.
+                  enum:
+                    - "getProgramAccountsV2"
+                  example: "getProgramAccountsV2"
+                  default: "getProgramAccountsV2"
+                params:
+                  type: array
+                  description: Parameters for the enhanced paginated method.
+                  default: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", {"encoding": "base64", "limit": 1000}]
+                  items:
+                    oneOf:
+                      - type: string
+                        description: The Solana program public key (address) to query accounts for, as a base-58 encoded string.
+                        example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      - type: object
+                        description: Enhanced configuration options with pagination support for optimizing program account queries.
+                        properties:
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: The minimum slot that the request can be evaluated at.
+                            example: 1000
+                          withContext:
+                            type: boolean
+                            description: Wrap the result in an RpcResponse JSON object.
+                            example: true
+                          encoding:
+                            type: string
+                            description: Encoding format for the returned account data.
+                            enum:
+                              - jsonParsed
+                              - base58
+                              - base64
+                              - base64+zstd
+                            example: base64
+                          dataSlice:
+                            type: object
+                            description: Request a slice of the account's data.
+                            properties:
+                              length:
+                                type: integer
+                                description: Number of bytes to return.
+                                example: 50
+                              offset:
+                                type: integer
+                                description: Byte offset from which to start reading.
+                                example: 0
+                          limit:
+                            type: integer
+                            description: Maximum number of accounts to return per request (1-10,000).
+                            minimum: 1
+                            maximum: 10000
+                            example: 1000
+                          paginationKey:
+                            type: string
+                            description: Base-58 encoded pagination cursor for fetching subsequent pages. Use the paginationKey from previous response.
+                            example: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                          changedSinceSlot:
+                            type: integer
+                            description: Only return accounts that were modified at or after this slot number. Useful for incremental updates.
+                            example: 12345678
+                          filters:
+                            type: array
+                            description: Powerful filtering system to efficiently query specific Solana account data patterns.
+                            items:
+                              oneOf:
+                                - type: object
+                                  description: Filter Solana accounts by their exact data size in bytes.
+                                  properties:
+                                    dataSize:
+                                      type: integer
+                                      description: The exact size of the account data in bytes for filtering.
+                                      example: 165
+                                - type: object
+                                  description: Filter Solana accounts by comparing data at specific memory offsets (most powerful filter).
+                                  properties:
+                                    memcmp:
+                                      type: object
+                                      description: Memory comparison filter for finding accounts with specific data patterns.
+                                      properties:
+                                        offset:
+                                          type: integer
+                                          description: Byte offset within account data to perform the comparison.
+                                          example: 4
+                                        bytes:
+                                          type: string
+                                          description: Base-58 encoded data to compare at the specified offset position.
+                                          example: "3Mc6vR"
+      responses:
+        200:
+          description: Successfully retrieved paginated program accounts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    description: The JSON-RPC protocol version.
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: object
+                    description: Paginated program accounts with navigation metadata.
+                    properties:
+                      accounts:
+                        type: array
+                        description: List of program accounts for the current page.
+                        items:
+                          type: object
+                          properties:
+                            pubkey:
+                              type: string
+                              description: The account Pubkey as a base-58 encoded string.
+                              example: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
+                            account:
+                              type: object
+                              description: Details about the account.
+                              properties:
+                                lamports:
+                                  type: integer
+                                  description: Number of lamports assigned to this account.
+                                  example: 15298080
+                                owner:
+                                  type: string
+                                  description: Base-58 encoded Pubkey of the program this account is assigned to.
+                                  example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                data:
+                                  type: array
+                                  description: Account data as encoded binary or JSON format.
+                                  items:
+                                    type: string
+                                  example:
+                                    - "2R9jLfiAQ9bgdcw6h8s44439"
+                                    - base64
+                                executable:
+                                  type: boolean
+                                  description: Indicates if the account contains a program.
+                                  example: false
+                                rentEpoch:
+                                  type: integer
+                                  description: The epoch at which this account will next owe rent.
+                                  example: 28
+                                space:
+                                  type: integer
+                                  description: The data size of the account.
+                                  example: 165
+                      paginationKey:
+                        type: string
+                        description: Pagination cursor for the next page. Null only when no accounts are returned (end of pagination). Note that fewer accounts than the limit may be returned due to filtering, but this does not indicate end of pagination.
+                        example: "8WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                        nullable: true
+                      totalResults:
+                        type: integer
+                        description: Total number of accounts matching the query (if available).
+                        example: 25000
+                        nullable: true
+        400:
+          description: Bad Request - Invalid request parameters or malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                  data: {}
+                id: "1"
+        401:
+          description: Unauthorized - Invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                  data: {}
+                id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                  data: {}
+                id: "1"
+        500:
+          description: Internal Server Error - An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                  data: {}
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                  data: {}
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                  data: {}
+                id: "1"
