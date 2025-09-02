@@ -9,11 +9,20 @@ function fixLinksInFile(filePath) {
 
   // Fix internal markdown links that should point to Chinese versions
   // Match pattern: ](...) where ... starts with / but not /zh/, /images/, /logo/, http, https, mailto
-  const linkPattern = /\]\(\/(?!zh\/|images\/|logo\/|favicon|http|mailto)([^)]+)\)/g;
+  const markdownLinkPattern = /\]\(\/(?!zh\/|images\/|logo\/|favicon|http|mailto)([^)]+)\)/g;
   
-  content = content.replace(linkPattern, (match, linkPath) => {
+  content = content.replace(markdownLinkPattern, (match, linkPath) => {
     changed = true;
     return `](/zh/${linkPath})`;
+  });
+
+  // Fix JSX href attributes that should point to Chinese versions  
+  // Match pattern: href="/..." where ... doesn't start with zh/, images/, logo/, http, https, mailto
+  const hrefPattern = /href="\/(?!zh\/|images\/|logo\/|favicon|http|mailto)([^"]+)"/g;
+  
+  content = content.replace(hrefPattern, (match, linkPath) => {
+    changed = true;
+    return `href="/zh/${linkPath}"`;
   });
 
   if (changed) {
