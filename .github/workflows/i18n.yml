@@ -12,6 +12,10 @@ on:
       - '**.mdx'
       - 'i18n.json'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   translate:
     runs-on: ubuntu-latest
