@@ -1,0 +1,614 @@
+---
+title: Solana 优先费用估算：账户密钥方法
+sidebarTitle: 使用账户密钥
+description: 使用 Helius 优先费用 API，通过账户密钥估算 Solana 优先费用。为交易前分析和批量操作提供快速费用估算。
+---
+
+<Info>
+**高级方法**：使用账户密钥获取优先费用估算，适用于交易前分析、批量操作和账户模式研究等特殊用例。
+</Info>
+
+## 概述
+
+当您需要快速费用估算或在构建完整交易之前估算费用时，账户密钥方法提供了一种比交易序列化更简单的替代方案。
+
+<CardGroup cols={2}>
+  <Card title="高级用例" icon="key">
+    - 交易前分析
+    - 批量账户操作  
+    - 市场研究和模式
+    - 专用架构
+  </Card>
+  <Card title="权衡" icon="scale-unbalanced-flip">
+    - 准确性低于序列化交易
+    - 无指令特定分析
+    - 最适合账户级模式
+  </Card>
+</CardGroup>
+
+<Warning>
+**建议**：对于大多数应用程序，请使用[序列化交易方法](/priority-fee/estimating-fees-using-serialized-transaction)。此账户密钥方法适用于需要账户级分析或交易前规划的特殊用例。
+</Warning>
+
+## 何时使用账户密钥
+
+<Tabs>
+  <Tab title="理想用例">
+    <CardGroup cols={2}>
+      <Card title="交易前规划" icon="calendar">
+        在构建完整交易之前获取费用估算
+      </Card>
+      <Card title="简化集成" icon="puzzle-piece">
+        当您的架构使交易序列化变得困难时
+      </Card>
+      <Card title="快速市场分析" icon="chart-line">
+        分析特定账户的费用模式而无需构建交易
+      </Card>
+      <Card title="多账户分析" icon="users">
+        独立了解多个账户的费用模式
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="特殊场景">
+    **研究与分析**：研究不同账户和程序的费用模式时
+    
+    **批量操作**：同时分析多个账户的费用模式时
+    
+    **预规划**：在构建复杂交易工作流之前进行成本估算
+    
+    **自定义架构**：当系统限制阻止交易序列化时
+  </Tab>
+</Tabs>
+
+## 快速开始
+
+<Steps>
+  <Step title="识别账户">
+    确定哪些账户将参与您的交易
+  </Step>
+  <Step title="调用API">
+    使用账户密钥和所需的优先级别发出请求
+  </Step>
+  <Step title="应用费用">
+    使用估算来设置交易中的优先费用
+  </Step>
+</Steps>
+
+### 基本示例
+
+<CodeGroup>
+
+```javascript JavaScript
+import { ComputeBudgetProgram } from "@solana/web3.js";
+
+// 1. Identify accounts involved in your transaction
+const accountKeys = [
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+  "YOUR_WALLET_ADDRESS",                          // Your wallet
+  "RECIPIENT_ADDRESS"                             // Recipient
+];
+
+// 2. Get priority fee estimate
+const priorityFee = await getPriorityFeeEstimate(connection, accountKeys, "Medium");
+
+// 3. Add to your transaction
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+  microLamports: priorityFee
+});
+transaction.add(priorityFeeIx);
+```
+
+```python Python
+import requests
+
+# Get priority fee estimate
+def get_priority_fee_estimate(account_keys, priority_level="Medium"):
+    response = requests.post(
+        "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
+        json={
+            "jsonrpc": "2.0",
+            "id": "1",
+            "method": "getPriorityFeeEstimate",
+            "params": [{
+                "accountKeys": account_keys,
+                "options": {
+                    "priorityLevel": priority_level,
+                    "recommended": True
+                }
+            }]
+        }
+    )
+    return response.json()["result"]["priorityFeeEstimate"]
+
+# Usage
+accounts = ["ACCOUNT_1", "ACCOUNT_2", "ACCOUNT_3"]
+fee = get_priority_fee_estimate(accounts, "High")
+print(f"Priority fee: {fee} micro-lamports")
+```
+
+</CodeGroup>
+
+## 实施指南
+
+### 核心功能
+
+这是一个用于获取优先费用估算的可重用函数：
+
+```javascript
+async function getPriorityFeeEstimate(connection, accountKeys, priorityLevel = "Medium") {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [{
+        accountKeys: accountKeys,
+        options: { 
+          priorityLevel: priorityLevel,
+          recommended: true 
+        }
+      }]
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.error) {
+    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  }
+  
+  return result.result.priorityFeeEstimate;
+}
+```
+
+### 具有多个优先级别的完整示例
+
+<Accordion title="展开以查看完整实现">
+
+```javascript
+const { 
+  Connection, 
+  PublicKey, 
+  Transaction, 
+  ComputeBudgetProgram 
+} = require("@solana/web3.js");
+
+// Initialize connection
+const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
+
+async function analyzeAccountPriorityFees() {
+  // Define accounts involved in your transaction
+  const accountKeys = [
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+    "YOUR_WALLET_ADDRESS",                          // Your wallet
+    "TOKEN_ACCOUNT_ADDRESS",                        // Token account
+    "RECIPIENT_ADDRESS"                             // Recipient
+  ];
+  
+  try {
+    // Get estimates for different priority levels
+    const [lowFee, mediumFee, highFee, veryHighFee] = await Promise.all([
+      getPriorityFeeEstimate(connection, accountKeys, "Low"),
+      getPriorityFeeEstimate(connection, accountKeys, "Medium"), 
+      getPriorityFeeEstimate(connection, accountKeys, "High"),
+      getPriorityFeeEstimate(connection, accountKeys, "VeryHigh")
+    ]);
+    
+    console.log("Priority Fee Estimates:");
+    console.log(`Low:      ${lowFee} micro-lamports`);
+    console.log(`Medium:   ${mediumFee} micro-lamports`);
+    console.log(`High:     ${highFee} micro-lamports`);
+    console.log(`VeryHigh: ${veryHighFee} micro-lamports`);
+    
+    // Get all levels at once for comparison
+    const allLevels = await getAllPriorityLevels(connection, accountKeys);
+    console.log("\nAll priority levels:", allLevels);
+    
+    return {
+      low: lowFee,
+      medium: mediumFee,
+      high: highFee,
+      veryHigh: veryHighFee,
+      allLevels
+    };
+  } catch (error) {
+    console.error("Error getting priority fees:", error);
+    throw error;
+  }
+}
+
+// Helper function to get all priority levels
+async function getAllPriorityLevels(connection, accountKeys) {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [{
+        accountKeys: accountKeys,
+        options: { 
+          includeAllPriorityFeeLevels: true
+        }
+      }]
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.error) {
+    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  }
+  
+  return result.result.priorityFeeLevels;
+}
+
+// Run the analysis
+analyzeAccountPriorityFees();
+```
+
+</Accordion>
+
+## 账户类型与策略
+
+<Tabs>
+  <Tab title="程序账户">
+    高交易量的程序账户通常由于竞争而显示更高的优先费用。
+
+    ```javascript
+    // Popular program accounts
+    const programAccounts = [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+      "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL", // Associated token program
+      "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  // Metaplex program
+    ];
+
+    const programFees = await getPriorityFeeEstimate(connection, programAccounts, "Medium");
+    console.log(`Program account fees: ${programFees} micro-lamports`);
+    ```
+
+    <Note>
+    **预期行为**：由于高交易量和竞争导致更高的费用。
+    </Note>
+  </Tab>
+
+  <Tab title="用户钱包">
+    活跃的用户钱包可能根据其活动显示不同的费用模式。
+
+    ```javascript
+    // Active user wallets
+    const userWallets = [
+      "USER_WALLET_1", // Active trader
+      "USER_WALLET_2"  // Regular user
+    ];
+
+    const walletFees = await getPriorityFeeEstimate(connection, userWallets, "Medium");
+    console.log(`User wallet fees: ${walletFees} micro-lamports`);
+    ```
+
+    <Tip>
+    **专业提示**：包括发送者和接收者钱包以获得更准确的估算。
+    </Tip>
+  </Tab>
+
+  <Tab title="代币账户">
+    特定代币账户可能根据代币的受欢迎程度显示不同的模式。
+
+    ```javascript
+    // Popular token accounts
+    const tokenAccounts = [
+      "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
+      "So11111111111111111111111111111111111111112",  // SOL mint
+      "YOUR_TOKEN_ACCOUNT"                            // Your specific token account
+    ];
+
+    const tokenFees = await getPriorityFeeEstimate(connection, tokenAccounts, "Medium");
+    ```
+
+  </Tab>
+</Tabs>
+
+## 高级配置选项
+
+<AccordionGroup>
+  <Accordion title="空槽评估">
+    `evaluateEmptySlotAsZero` 选项对于基于账户的估算特别有用：
+
+    ```javascript
+    async function compareEmptySlotHandling(accountKeys) {
+      const withEmptyAsZero = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              priorityLevel: "Medium",
+              evaluateEmptySlotAsZero: true // Default: true
+            }
+          }]
+        })
+      });
+
+      const withoutEmptyAsZero = await fetch(connection.rpcEndpoint, {
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate", 
+          params: [{
+            accountKeys: accountKeys,
+            options: {
+              priorityLevel: "Medium",
+              evaluateEmptySlotAsZero: false
+            }
+          }]
+        })
+      });
+      
+      const result1 = await withEmptyAsZero.json();
+      const result2 = await withoutEmptyAsZero.json();
+      
+      console.log(`With empty as zero: ${result1.result.priorityFeeEstimate}`);
+      console.log(`Without empty as zero: ${result2.result.priorityFeeEstimate}`);
+    }
+    ```
+
+    <Note>
+    当 `true` （默认）时，没有交易的槽位被视为零费用而不是被排除。这为活动稀少的账户提供了更平衡的估算。
+    </Note>
+  </Accordion>
+
+  <Accordion title="包含详细信息">
+    请求有关每个账户费用模式的详细信息：
+
+    ```javascript
+    async function getDetailedFeeEstimate(connection, accountKeys) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              includeDetails: true,
+              priorityLevel: "Medium"
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      console.log("Detailed fee analysis:", result.result);
+      return result.result;
+    }
+    ```
+
+    这将返回有关如何为每个账户计算费用的附加信息。
+  </Accordion>
+
+  <Accordion title="自定义回溯期">
+    调整用于费用估算的槽位数量：
+
+    ```javascript
+    async function getCustomLookbackEstimate(accountKeys, lookbackSlots = 50) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            accountKeys: accountKeys,
+            options: { 
+              priorityLevel: "Medium",
+              lookbackSlots: lookbackSlots  // 1-150, default is 150
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      return result.result.priorityFeeEstimate;
+    }
+
+    // Compare different lookback periods
+    const shortTerm = await getCustomLookbackEstimate(accountKeys, 50);   // Recent trends
+    const longTerm = await getCustomLookbackEstimate(accountKeys, 150);   // Historical average
+
+    console.log(`Short-term estimate: ${shortTerm} micro-lamports`);
+    console.log(`Long-term estimate: ${longTerm} micro-lamports`);
+    ```
+
+    <Tip>
+    **较小的回溯期**：更近期，可能波动的数据
+    
+    **较大的回溯期**：更稳定的历史背景
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+## 账户选择的最佳实践
+
+<CardGroup cols={1}>
+  <Card title="包含可写账户" icon="pen-to-square">
+    **优先级**：关注将被修改的账户
+    
+
+    ```javascript
+    const writableAccounts = [
+      "YOUR_WALLET",        // Paying fees
+      "TOKEN_ACCOUNT",      // Being modified  
+      "RECIPIENT_ACCOUNT"   // Receiving tokens
+    ];
+    ```
+
+  </Card>
+  
+  <Card title="添加关键程序" icon="gear">
+    **背景**：包含相关的程序账户
+    
+
+    ```javascript
+    const programAccounts = [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token program
+      "CUSTOM_PROGRAM_ID"                           // Your program
+    ];
+    ```
+
+  </Card>
+</CardGroup>
+
+## 错误处理与回退
+
+<CodeGroup>
+
+```javascript Robust Implementation
+class AccountBasedFeeEstimator {
+  constructor(connection) {
+    this.connection = connection;
+    this.fallbackFee = 10000; // 10k micro-lamports fallback
+  }
+
+  async getEstimate(accountKeys, priorityLevel = "Medium") {
+    try {
+      // Primary attempt
+      const estimate = await this.getPrimaryEstimate(accountKeys, priorityLevel);
+      return estimate;
+    } catch (error) {
+      console.warn("Primary estimate failed:", error.message);
+      
+      // Fallback to different configuration
+      try {
+        return await this.getFallbackEstimate(accountKeys, priorityLevel);
+      } catch (fallbackError) {
+        console.warn("Fallback estimate failed:", fallbackError.message);
+        return this.fallbackFee;
+      }
+    }
+  }
+
+  async getPrimaryEstimate(accountKeys, priorityLevel) {
+    const response = await fetch(this.connection.rpcEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [{
+          accountKeys: accountKeys,
+          options: { 
+            priorityLevel: priorityLevel,
+            recommended: true 
+          }
+        }]
+      })
+    });
+
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    
+    return result.result.priorityFeeEstimate;
+  }
+
+  async getFallbackEstimate(accountKeys, priorityLevel) {
+    // Try with fewer accounts or different settings
+    const coreAccounts = accountKeys.slice(0, 3); // Take first 3 accounts
+    
+    const response = await fetch(this.connection.rpcEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [{
+          accountKeys: coreAccounts,
+          options: { 
+            priorityLevel: "Medium", // Use medium as fallback
+            evaluateEmptySlotAsZero: true
+          }
+        }]
+      })
+    });
+
+    const result = await response.json();
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+    
+    return result.result.priorityFeeEstimate;
+  }
+}
+
+// Usage
+const estimator = new AccountBasedFeeEstimator(connection);
+const fee = await estimator.getEstimate(accountKeys, "High");
+```
+
+```javascript Simple Error Handling
+async function safeGetPriorityFee(accountKeys, priorityLevel = "Medium") {
+  try {
+    return await getPriorityFeeEstimate(connection, accountKeys, priorityLevel);
+  } catch (error) {
+    console.warn(`Priority fee estimation failed: ${error.message}`);
+    
+    // Return reasonable fallback based on priority level
+    const fallbacks = {
+      "Low": 1000,
+      "Medium": 5000,
+      "High": 15000,
+      "VeryHigh": 50000
+    };
+    
+    return fallbacks[priorityLevel] || 5000;
+  }
+}
+```
+
+</CodeGroup>
+
+## 限制与注意事项
+
+<Warning>
+**基于账户的方法限制：**
+
+1. **对只读账户的准确性较低** - 算法侧重于可写账户
+2. **无指令特定分析** - 无法考虑特定操作
+3. **账户活动依赖性** - 对于不活跃账户准确性较低
+4. **不考虑交易大小** - 不考虑交易复杂性
+</Warning>
+
+<Note>
+**何时升级到序列化交易：**
+- 需要最高准确性的生产应用
+- 包含多个指令的复杂交易
+- 当指令特定的费用模式很重要时
+- 性能关键的应用
+</Note>
+
+## 相关资源
+
+<CardGroup cols={2}>
+  <Card title="Serialized Transactions" icon="file-code" href="/priority-fee/estimating-fees-using-serialized-transaction">
+    使用完整交易序列化的更准确方法
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/priority-fee/getpriorityfeeestimate">
+    完整的API文档和参数
+  </Card>
+</CardGroup>

@@ -1,0 +1,47 @@
+---
+title: 错误代码常见问题
+description: 获取有关Helius API请求的最常见错误代码和故障排除步骤的答案
+---
+
+## 常见错误代码
+
+<Accordion title="为什么我会收到401错误？">
+401错误表示身份验证问题。检查您的API密钥是否正确，是否正确包含在您的请求中（如`?api-key=YOUR_API_KEY`），并确保您的账户有权访问您尝试使用的端点。
+</Accordion>
+
+<Accordion title="为什么我会收到429错误？">
+429错误表示您已超出速率限制。查看您的[计划和速率限制](https://www.helius.dev/docs/billing/plans-and-rate-limits)，考虑升级您的计划或在应用程序中实施请求限制。
+</Accordion>
+
+<Accordion title="为什么我会收到500错误？">
+500错误是内部服务器错误。查看我们的[状态页面](https://helius.statuspage.io/)以了解任何正在进行的事件。如果问题仍然存在，请[联系支持](https://www.helius.dev/docs/support)并提供您的请求详细信息。
+</Accordion>
+
+<Accordion title="为什么我会收到503错误？">
+503错误表示服务暂时不可用，通常是由于高负载或维护。查看我们的[状态页面](https://helius.statuspage.io/)以获取更新，并在短暂延迟后重试。
+</Accordion>
+
+<Accordion title="为什么我会收到504错误？">
+504错误是网关超时，通常是由于请求处理时间过长。考虑缩小请求范围，使用分页，或优化查询参数。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    通过Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

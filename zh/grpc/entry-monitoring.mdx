@@ -1,0 +1,421 @@
+---
+title: 使用 Yellowstone gRPC 进行条目监控
+sidebarTitle: 条目监控
+description: 监控 Solana 区块链的低级条目、交易批次和执行单元，以进行深入的网络分析。
+---
+
+## 概述
+
+条目监控提供了对 Solana 区块链基本执行单元的访问。条目包含交易批次及其执行结果，提供了区块链活动的最低级视图。
+
+<Info>
+**先决条件：** 本指南假设您已完成 [Yellowstone gRPC 快速入门](/grpc/quickstart) 并已设置好工作流。
+</Info>
+
+<Warning>
+**高级主题：** 条目监控主要用于深入的区块链分析、调试和特殊用例。大多数应用程序应使用交易或账户监控。
+</Warning>
+
+## 什么是条目？
+
+<Tabs>
+  <Tab title="条目基础">
+    **基本的区块链单元**
+    
+    条目是验证者用来构建区块的基本构建块：
+    
+    - **交易批次：** 一起执行的交易组
+    - **执行顺序：** 条目内的确定性交易排序
+    - **哈希链：** 条目之间的加密链接
+    - **时间信息：** 条目创建和处理的时间
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      entry: {
+        entrySubscribe: {} // Subscribe to all entries
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+  </Tab>
+  
+  <Tab title="条目结构">
+    **理解条目数据**
+    
+    每个条目包含：
+    
+    - **槽：** 条目所属的槽
+    - **索引：** 在槽中的位置
+    - **哈希：** 唯一的条目标识符
+    - **交易：** 条目中的交易列表
+    - **哈希数量：** 历史证明的哈希计数
+    
+    **条目与交易监控：**
+    - 条目显示交易的批处理和排序
+    - 有助于理解验证者行为
+    - 比单个交易监控更低级
+  </Tab>
+  
+  <Tab title="使用案例">
+    **何时使用条目监控**
+    
+    - **性能分析：** 理解交易批处理效率
+    - **验证者研究：** 研究区块构建模式
+    - **网络调试：** 调查共识问题
+    - **学术研究：** 分析区块链结构
+    - **法证分析：** 详细的交易排序调查
+    
+    <Note>
+    **不推荐用于：** 标准应用程序开发、用户界面或业务逻辑
+    </Note>
+  </Tab>
+</Tabs>
+
+## 实现示例
+
+### 基本条目监控
+
+```typescript
+import { StreamManager } from './stream-manager'; // From quickstart guide
+
+async function monitorEntries() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleEntryUpdate
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    entry: {
+      entrySubscribe: {} // Subscribe to all entries
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  console.log('Starting entry monitoring...');
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleEntryUpdate(data: any): void {
+  if (data.entry) {
+    const entry = data.entry;
+    
+    console.log('\n📋 Entry Details:');
+    console.log(`  Slot: ${entry.slot}`);
+    console.log(`  Index: ${entry.index || 'N/A'}`);
+    console.log(`  Hash: ${entry.hash || 'N/A'}`);
+    console.log(`  Num Hashes: ${entry.numHashes || 'N/A'}`);
+    
+    if (entry.transactions?.length > 0) {
+      console.log(`\n  📦 Entry Transactions (${entry.transactions.length}):`);
+      
+      entry.transactions.forEach((tx: any, index: number) => {
+        console.log(`    ${index + 1}. ${tx.signature || 'No signature'}`);
+        console.log(`       Vote: ${tx.isVote ? 'Yes' : 'No'}`);
+        
+        // Show transaction status if available
+        if (tx.meta) {
+          const status = tx.meta.err ? 'Failed' : 'Success';
+          console.log(`       Status: ${status}`);
+          if (tx.meta.fee) {
+            console.log(`       Fee: ${tx.meta.fee} lamports`);
+          }
+        }
+      });
+    } else {
+      console.log(`  📦 No transactions in this entry`);
+    }
+    
+    // Check if this is a tick entry (no transactions)
+    if (entry.tick !== undefined) {
+      console.log(`  ⏱️  Tick Entry: ${entry.tick ? 'Yes' : 'No'}`);
+    }
+  }
+}
+
+// Start monitoring
+monitorEntries().catch(console.error);
+```
+
+### 条目分析示例
+
+条目模式的高级分析：
+
+```typescript
+let entryStats = {
+  totalEntries: 0,
+  totalTransactions: 0,
+  tickEntries: 0,
+  largestEntry: 0,
+  slotsProcessed: new Set<number>()
+};
+
+function analyzeEntry(data: any): void {
+  if (data.entry) {
+    const entry = data.entry;
+    entryStats.totalEntries++;
+    entryStats.slotsProcessed.add(entry.slot);
+    
+    const txCount = entry.transactions?.length || 0;
+    entryStats.totalTransactions += txCount;
+    
+    if (txCount === 0 || entry.tick) {
+      entryStats.tickEntries++;
+    }
+    
+    if (txCount > entryStats.largestEntry) {
+      entryStats.largestEntry = txCount;
+      console.log(`\n🔥 New largest entry: ${txCount} transactions in slot ${entry.slot}`);
+    }
+    
+    // Log stats every 100 entries
+    if (entryStats.totalEntries % 100 === 0) {
+      console.log('\n📊 Entry Statistics:');
+      console.log(`  Total Entries: ${entryStats.totalEntries}`);
+      console.log(`  Total Transactions: ${entryStats.totalTransactions}`);
+      console.log(`  Tick Entries: ${entryStats.tickEntries}`);
+      console.log(`  Slots Processed: ${entryStats.slotsProcessed.size}`);
+      console.log(`  Avg Tx/Entry: ${(entryStats.totalTransactions / entryStats.totalEntries).toFixed(2)}`);
+      console.log(`  Largest Entry: ${entryStats.largestEntry} transactions`);
+    }
+  }
+}
+```
+
+## 条目数据结构
+
+了解条目数据格式：
+
+<Accordion title="条目字段">
+
+  ```typescript
+  {
+    slot: number;              // Slot number containing this entry
+    index: number;             // Entry index within the slot
+    hash: string;              // Entry hash (proof-of-history)
+    numHashes: number;         // Number of hashes in PoH sequence
+    transactions: Array<{      // Transactions in this entry
+      signature: string;
+      isVote: boolean;
+      meta: {
+        err: any;            // Error if transaction failed
+        fee: number;         // Transaction fee
+        // ... other transaction metadata
+      };
+    }>;
+    tick: boolean;             // Whether this is a tick entry
+  }
+  ```
+
+</Accordion>
+
+<Accordion title="条目与其他类型">
+  **条目与交易：**
+  - 条目将交易分组在一起
+  - 显示执行顺序和批处理
+  - 包含 PoH（历史证明）信息
+  
+  **条目与区块：**
+  - 区块包含多个条目
+  - 条目是区块内的子单元
+  - 区块添加共识和最终性信息
+  
+  **条目与槽：**
+  - 槽是时间单位（400ms）
+  - 每个槽可以存在多个条目
+  - 条目显示槽内发生的事件
+</Accordion>
+
+## 性能考虑
+
+<CardGroup cols={2}>
+  <Card title="容量特性" icon="chart-line">
+    **高频数据流**
+    
+    - 非常高的消息速率
+    - 网络活动期间的连续流
+    - 每个条目包含多个交易
+    - 需要高效处理
+  </Card>
+  
+  <Card title="处理效率" icon="gauge">
+    **优化性能**
+    
+    - 异步处理条目
+    - 批量条目分析
+    - 专注于特定数据字段
+    - 对大规模分析使用采样
+  </Card>
+</CardGroup>
+
+## 常见用例
+
+<Tabs>
+  <Tab title="性能分析">
+    **分析交易批处理效率**
+    
+
+    ```typescript
+    function analyzeBatching(entry: any): void {
+      const txCount = entry.transactions?.length || 0;
+      
+      if (txCount > 50) {
+        console.log(`Large batch: ${txCount} transactions in entry ${entry.index}`);
+      }
+      
+      // Track batching patterns
+      const batchSizes = new Map<number, number>();
+      const currentCount = batchSizes.get(txCount) || 0;
+      batchSizes.set(txCount, currentCount + 1);
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="验证者研究">
+    **研究区块构建模式**
+    
+
+    ```typescript
+    function studyValidatorBehavior(entry: any): void {
+      // Analyze entry timing and structure
+      const hasVoteTransactions = entry.transactions?.some((tx: any) => tx.isVote);
+      const hasRegularTransactions = entry.transactions?.some((tx: any) => !tx.isVote);
+      
+      if (hasVoteTransactions && hasRegularTransactions) {
+        console.log(`Mixed entry: votes and regular transactions in slot ${entry.slot}`);
+      }
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="网络调试">
+    **调查共识问题**
+    
+
+    ```typescript
+    function debugNetworkIssues(entry: any): void {
+      // Look for anomalies in entry structure
+      if (entry.transactions?.length === 0 && !entry.tick) {
+        console.log(`Empty non-tick entry in slot ${entry.slot}`);
+      }
+      
+      // Track entry gaps or irregularities
+      if (entry.numHashes && entry.numHashes > 1000) {
+        console.log(`High hash count: ${entry.numHashes} in slot ${entry.slot}`);
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+## 过滤和优化
+
+条目监控目前不支持特定过滤器，因此所有条目都被流式传输。为管理此情况：
+
+<Note>
+**优化策略：**
+
+- **客户端过滤：** 仅处理符合您条件的条目
+- **采样：** 分析每第 N 个条目以进行统计分析
+- **基于时间的分析：** 专注于特定时间段
+- **基于槽位的过滤：** 仅处理来自某些槽位的条目
+- **交易类型过滤：** 专注于具有特定交易类型的条目
+</Note>
+
+客户端过滤示例：
+
+```typescript
+function handleFilteredEntries(data: any): void {
+  if (data.entry) {
+    const entry = data.entry;
+    
+    // Only process entries with transactions
+    if (entry.transactions?.length > 0) {
+      // Only process entries with non-vote transactions
+      const hasNonVoteTransactions = entry.transactions.some((tx: any) => !tx.isVote);
+      
+      if (hasNonVoteTransactions) {
+        processImportantEntry(entry);
+      }
+    }
+  }
+}
+```
+
+## 最佳实践
+
+<Accordion title="何时使用条目监控">
+  **适用场景：**
+  - 深度区块链分析和研究
+  - 验证器性能研究
+  - 网络调试和取证
+  - 学术区块链研究
+  - 理解 PoH 机制
+  
+  **不适用场景：**
+  - 标准应用程序开发
+  - 面向用户的功能
+  - 业务逻辑实现
+  - 实时交易应用程序
+</Accordion>
+
+<Accordion title="性能指南">
+  **处理高容量数据：**
+  - 实施高效的数据处理
+  - 使用异步处理模式
+  - 考虑数据采样进行分析
+  - 监控内存使用并进行清理
+  - 实施背压处理
+</Accordion>
+
+<Accordion title="分析技术">
+  **有效的条目分析：**
+  - 专注于特定指标
+  - 使用统计采样
+  - 实施滚动平均
+  - 跟踪随时间变化的模式
+  - 与其他区块链数据相关联
+</Accordion>
+
+## 故障排除
+
+<Accordion title="高数据量">
+  **问题：** 条目流量过大
+  
+  **解决方案：**
+  - 实施客户端过滤
+  - 使用数据采样技术
+  - 异步处理条目
+  - 监控系统资源
+  - 考虑替代监控方法
+</Accordion>
+
+<Accordion title="缺少上下文">
+  **问题：** 需要额外的交易上下文
+  
+  **解决方案：**
+  - 结合交易监控
+  - 与账户更新交叉引用
+  - 使用区块监控获取更广泛的上下文
+  - 维护本地状态跟踪
+</Accordion>
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="完成您的学习" icon="graduation-cap" href="/grpc/stream-pump-amm-data">
+    高级真实示例：流泵 AMM 数据
+  </Card>
+  <Card title="探索其他监控" icon="receipt" href="/grpc/transaction-monitoring">
+    返回交易监控以获取实际应用
+  </Card>
+</CardGroup>
+
+<Note>
+**请记住：** 入口监控是用于高级区块链分析的专业工具。对于大多数应用程序，交易、账户或区块监控将更合适且更高效。
+</Note>

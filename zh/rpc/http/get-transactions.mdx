@@ -1,0 +1,86 @@
+---
+title: 如何获取 Solana 交易：完整检索指南
+sidebarTitle: 获取交易
+description: 学习如何使用 Helius RPC 方法和增强交易 API 来检索和解析 Solana 交易。包括单个、批量和状态检查。
+---
+
+交易代表 Solana 上的所有状态变化。Helius 提供多种读取交易数据的方法，从原始 RPC 方法到增强的交易 API。
+
+## 获取单个交易
+
+使用标准 RPC 方法检索交易详情：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTransaction',
+    params: [
+      '5brUqZacYhjphkFufZsdJoWA3ACTDh7wX5o4ewHiUGPK5zrLWExsFJb1o83q4SidvgegANZMFqocC4cPyymSEdyt',
+      {
+        encoding: 'json',
+        maxSupportedTransactionVersion: 0
+      }
+    ]
+  })
+});
+const data = await response.json();
+console.log('Transaction data:', data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettransaction">
+  getTransaction
+</Card>
+
+## 增强的交易历史
+
+获取包含解析数据的更丰富的交易历史：
+
+```typescript
+const API_KEY = 'YOUR_API_KEY';
+const WALLET_ADDRESS = 'DjPi9wgUDTtYuuL6ZNvhgKJgC8gHaRKtHq6K5ESWbGKt';
+
+const response = await fetch(`https://api.helius.xyz/v0/addresses/${WALLET_ADDRESS}/transactions?api-key=${API_KEY}&limit=10`, {
+  method: 'GET',
+});
+const transactions = await response.json();
+console.log('Enhanced transaction history:', transactions);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  Get Enhanced Transactions By Address
+</Card>
+
+## 交易状态检查
+
+检查多个交易的状态：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getSignatureStatuses',
+    params: [
+      [
+        '5iT4xEsUHJXWuUfX7ypPoP2h2KGLmomsSfdTnjaV67NhRiUptvFTpVM4Gdeve2Mr6Ye8mgFPx4ESLxEPMsK6pmVS',
+        '4aRAsUtUSKbz5UAw3z3HZs2wU2NuY614RRfugE8BpfidKrkvjU49VXdSLsT7EPKNRA9KZH1yqkiVKK8aNBoAEdMU'
+      ],
+      {
+        searchTransactionHistory: true
+      }
+    ]
+  })
+});
+const statuses = await response.json();
+console.log('Transaction statuses:', statuses.result);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/getsignaturestatuses">
+  getSignatureStatuses
+</Card>

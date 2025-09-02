@@ -1,0 +1,64 @@
+---
+title: 如何使用 getFirstAvailableBlock
+sidebarTitle: getFirstAvailableBlock
+description: 了解 getFirstAvailableBlock 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getFirstAvailableBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getfirstavailableblock) RPC 方法返回尚未被查询节点从账本中清除的最低（最旧）确认区块的槽号。这对于了解特定节点当前存储的历史数据范围非常有用。
+
+## 常见用例
+
+*   **历史数据查询：** 确定可以开始在特定节点上查询历史区块或交易数据的起点。
+*   **节点同步检查：** 虽然不是直接的同步度量，但可以了解一个节点与其他节点相比保留了多少历史数据。
+*   **账本分析：** 了解给定 RPC 端点上可用的账本深度。
+
+## 请求参数
+
+此方法不需要任何参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个 `u64`（无符号 64 位整数），表示第一个可用区块的槽号。
+
+## 示例
+
+### 1. 获取第一个可用区块槽
+
+此示例获取查询节点上可用的最旧区块的槽号。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getFirstAvailableBlock"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logFirstAvailableBlock() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const firstAvailableBlock = await connection.getFirstAvailableBlock();
+    console.log(`First Available Block Slot: ${firstAvailableBlock}`);
+  } catch (error) {
+    console.error('Error fetching first available block:', error);
+  }
+}
+
+logFirstAvailableBlock();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **节点特定：** 不同 RPC 节点之间，第一个可用区块可能会有显著差异。节点可以配置以不同的速率修剪账本数据，因此一个节点可能比另一个节点有更深的历史记录。
+*   **非固定：** 由于旧槽最终会被从账本中清除以节省空间，`getFirstAvailableBlock` 返回的值会随着时间的推移而增加。
+*   **确认区块：** 此方法指的是确认区块。已处理但尚未确认或最终确定的区块不在考虑范围内。
+
+本指南解释了如何使用`getFirstAvailableBlock` RPC 方法来识别 Solana 节点上最早可用的区块槽。

@@ -1,0 +1,777 @@
+---
+title: 解码和解析交易数据
+sidebarTitle: 解码交易数据
+description: 了解如何解码和解析来自Laserstream的交易数据，以更好地理解Solana交易。
+---
+
+**当您从Laserstream接收交易数据时，有两个重要的方面需要注意：**
+
+- **Message** → 用户想要做什么（他们签署的提案）
+- **Meta** → 实际发生了什么（执行结果）
+
+**挑战：** 原始交易数据以二进制字节数组的形式出现，如`<Buffer 00 bf a0 e8...>`，而不是可读的地址和签名。
+
+**本指南将向您展示如何：** 将这些二进制数据解码为人类可读的格式，提取有意义的信息，并理解从提案到执行的完整交易过程。
+
+---
+
+## 实时流，无需解码
+
+运行下面的最小客户端。过滤标志会丢弃投票和失败的交易，accountsInclude数组将结果限制为涉及Jupiter程序ID的活动。
+
+```ts [expandable]
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
+
+async function runTransactionSubscription() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-transactions": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (u: SubscribeUpdate) => console.log('💸 Transaction update', u),
+    console.error
+  );
+
+  console.log(`✅ stream id → ${stream.id}`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+runTransactionSubscription().catch(console.error);
+```
+
+您的控制台现在显示一个包装器—`filters`，`createdAt`加上一个`transaction`分支，隐藏了两个子项：
+
+* `transaction.transaction.transaction` → 签署的**消息**
+* `transaction.transaction.meta` → 执行的**元数据**
+
+```json
+{
+ filters: [ 'Jupiter-transactions' ],
+  account: undefined,
+  transaction: {
+    transaction: {
+      signature: <Buffer 00 bf a0 e8 9f cc 84 0c a4 83 e3 97 cd b7 57 e2 2b bc 1d ca 8c a6 1b ce b5 57 d7 47 5e ec 1f 46 ae b2 2d 6a 12 cb 88 48 1d 07 bf f6 b2 d3 a8 0b c9 04 ... 14 more bytes>,
+      transaction: [Object],
+      meta: [Object],
+      index: '1177'
+    },
+    slot: '351704819'
+  },
+  transactionStatus: undefined,
+  block: undefined,
+  blockMeta: undefined,
+  entry: undefined,
+  ping: undefined,
+  pong: undefined,
+  createdAt: 2025-07-07T10:58:44.403Z
+}
+```
+
+所有看起来像`Uint8Array`的内容目前仍然不透明。
+
+当您运行带有解码功能的脚本时，您将看到实际的嵌套结构和可读的地址：
+
+```json [expandable]
+{
+  "filters": ["Jupiter-transactions"],
+  "account": undefined,
+  "transaction": {
+    "transaction": {
+      "signature": "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx",
+      "transaction": {
+        "message": {
+          "header": {
+            "numRequiredSignatures": 1,
+            "numReadonlySignedAccounts": 0,
+            "numReadonlyUnsignedAccounts": 8
+          },
+          "accountKeys": [
+            "AF9KFSWQeKVxd3kVvFvysWXmATHyYzrN8zN8GtXn4qTF",
+            "G9VzXwhDPQ8KRbQAJN6TyGf2gWukYDAvmnXJhPZFev4f",
+            "ES9qPxWQVMRZkobJ9yr3U6XSrXzGNLJdSe6p6fS7b82T",
+            "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+            "ComputeBudget111111111111111111111111111111",
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "So11111111111111111111111111111111111111112",
+            "11111111111111111111111111111111",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          ],
+          "recentBlockhash": "8sGjRxJHLJVWqpHt5UdN8qxtLLdgcnLKBpFj9Qrn5PNF",
+          "instructions": [
+            {
+              "programIdIndex": 4,
+              "accounts": [],
+              "data": "3bjaAzoXPjbY"
+            },
+            {
+              "programIdIndex": 3,
+              "accounts": [0, 1, 2, 5, 6, 7, 8],
+              "data": "2L1xoA2KEqBgWfGt3fwFJK8k4FPJRJzYHRgH4R3xC8A7"
+            }
+          ]
+        },
+        "signatures": [
+          "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx"
+        ]
+      },
+      "meta": {
+        "err": null,
+        "fee": 12500,
+        "preBalances": [1075517572, 0, 207594496815, 0, 0, 0, 0, 0, 0],
+        "postBalances": [1075502572, 1461600, 207594496815, 2001231920, 2039280, 0, 0, 0, 0],
+        "innerInstructions": [
+          {
+            "index": 1,
+            "instructions": [
+              {
+                "programIdIndex": 5,
+                "accounts": [1, 2, 0],
+                "data": "3Bxs4h24hBtQy9rw"
+              }
+            ]
+          }
+        ],
+        "logMessages": [
+          "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+          "Program ComputeBudget111111111111111111111111111111 success",
+          "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
+          "Program log: Instruction: Swap",
+          "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [2]",
+          "Program log: Create",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+          "Program log: Instruction: GetAccountDataSize",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
+          "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+          "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+          "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success"
+        ],
+        "preTokenBalances": [],
+        "postTokenBalances": [],
+        "computeUnitsConsumed": 182564
+      },
+      "index": "1177"
+    },
+    "slot": "351709933"
+  },
+  "transactionStatus": undefined,
+  "block": undefined,
+  "blockMeta": undefined,
+  "entry": undefined,
+  "ping": undefined,
+  "pong": undefined,
+  "createdAt": "2025-01-14T10:58:44.403Z"
+}
+```
+
+---
+
+## 解码二进制数据
+
+**为什么要解码？** 原始Laserstream数据包含签名、账户密钥和哈希，以二进制`Uint8Array`对象的形式存在，不可读。您需要将这些转换为base58字符串，以理解交易。
+
+**解决方案：** Laserstream使用Yellowstone gRPC，它提供了内置的解码工具。我们使用一个递归函数将所有二进制数据转换为人类可读的格式，而不是为每种字段类型编写单独的解码器。
+
+```ts [expandable]
+import bs58 from 'bs58';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
+
+// Recursive function to convert all Buffer/Uint8Array fields to base58
+function convertBuffers(obj: any): any {
+  if (!obj) return obj;
+  if (Buffer.isBuffer(obj) || obj instanceof Uint8Array) {
+    return bs58.encode(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffers(item));
+  }
+  if (typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBuffers(value)])
+    );
+  }
+  return obj;
+}
+
+async function runTransactionSubscription() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-transactions": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (update: SubscribeUpdate) => {
+      if (update.transaction) {
+        // Convert all binary fields to human-readable format
+        const decodedTransaction = convertBuffers(update.transaction);
+        console.log('💸 Decoded transaction:', JSON.stringify(decodedTransaction, null, 2));
+        
+        // Or process specific fields
+        processTransaction(update.transaction);
+      }
+    },
+    console.error
+  );
+
+  console.log(`✅ stream id → ${stream.id}`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+
+function processTransaction(txUpdate: any) {
+  const tx = txUpdate.transaction;
+  const meta = tx.meta;
+  
+  console.log('Transaction Details:');
+  console.log('- Signature:', bs58.encode(tx.signature));
+  console.log('- Slot:', txUpdate.slot);
+  console.log('- Success:', meta.err === null);
+  console.log('- Fee:', meta.fee, 'lamports');
+  console.log('- Compute Units:', meta.computeUnitsConsumed);
+  
+  // Account keys are already available in the message
+  const message = tx.transaction.message;
+  if (message.accountKeys) {
+    console.log('- Account Keys:');
+    message.accountKeys.forEach((key: Uint8Array, index: number) => {
+      console.log(`  ${index}: ${bs58.encode(key)}`);
+    });
+  }
+  
+  // Log messages are already UTF-8 strings
+  if (meta.logMessages && meta.logMessages.length > 0) {
+    console.log('- Log Messages:');
+    meta.logMessages.forEach((log: string) => {
+      console.log(`  ${log}`);
+    });
+  }
+}
+
+runTransactionSubscription();
+```
+
+这种方法利用了内置的解码功能，同时处理需要手动转换的二进制字段。交易结构已经被解析 - 你只需要将二进制字段转换为人类可读的格式。
+
+---
+
+## 理解交易结构
+
+现在我们可以看到解码后的数据，让我们来探索每个 Laserstream 交易更新的两个主要部分。记住在我们最初的例子中，每个交易包含两个关键对象：
+
+- **Message (Proposal)** → `transaction.transaction.transaction` → 签名消息（用户的提案）
+- **Meta (Execution)** → `transaction.transaction.meta` → 执行元数据（验证者的响应）
+
+这种两部分结构讲述了一个完整的故事：用户请求了什么与实际发生了什么。让我们详细检查每个部分。
+
+---
+
+## 提案：消息中的所有内容
+
+用户创建一个消息，指定*什么*，*谁*以及*何时为止*。以下是如何解码每个部分：
+
+### 交易头
+
+```json
+{
+  "header": {
+    "numRequiredSignatures": 1,
+    "numReadonlySignedAccounts": 0,
+    "numReadonlyUnsignedAccounts": 5
+  }
+}
+```
+
+`numRequiredSignatures` 告诉验证者需要验证多少个签名，而两个 `numReadonly*` 值标记运行时可以视为只读的账户，从而实现并行执行。
+
+### 账户密钥字典
+
+```json
+{
+  "accountKeys": [
+    "7YttLkHDoNj9wyDur5pM1ejNaAvT9X4eqaYcHQqtj2G5",
+    "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "So11111111111111111111111111111111111111112",
+    "11111111111111111111111111111111"
+  ]
+}
+```
+
+`accountKeys` 是一个公共密钥的简单列表，作为查找表。交易中的每个后续整数 - `programIdIndex`，指令的每个元素 `accounts` 数组 - 通过索引指回这个列表，每条消息节省超过一千字节。
+
+### 防重放保护
+
+```json
+{
+  "recentBlockhash": "8sGjRxJHLJVWqpHt5UdN8qxtLLdgcnLKBpFj9Qrn5PNF"
+}
+```
+
+`recentBlockhash` 一旦滚出最后150个区块哈希后就会过期，在主网上大约是九十秒。
+
+### 指令：实际命令
+
+```json
+{
+  "instructions": [
+    {
+      "programIdIndex": 10,
+      "data": "HnkkG7"
+    },
+    {
+      "programIdIndex": 15,
+      "accounts": "3vtmrQMafzDoG2CBz1iqgXPTnC",
+      "data": "5jRcjdixRUDKQKUEt6oHJ747HCB3vWb5y"
+    }
+  ]
+}
+```
+
+每个指令包含三个关键部分：
+
+- **Program ID** (`programIdIndex`): 指向 `accountKeys` 数组中的一个地址（例如，索引10 = `ComputeBudget111111111111111111111111111111`）
+- **Accounts** (`accounts`): 一个 base58 编码的字符串，表示此指令涉及的账户索引
+- **Data** (`data`): 实际的指令数据，编码为 base58
+
+由于 `convertBuffers` 函数，账户显示为 base58，但实际上包含账户索引（例如，`"3vtmrQMafzDoG2CBz1iqgXPTnC"` 解码为索引 [21, 19, 12, 17, 2, 6, 1, 22]）
+
+这种设计意味着每个指令只需引用查找表中的位置，而不是重复完整的 32 字节地址。
+
+### 签名：授权证明
+
+```json
+{
+  "signatures": [
+    "5u62i53R1Hdc4thm6DQTNWNkyypuJJSaXSMwwQDxNqKMaAw62H1Xa3Md7QDhYjoPk5dCPg18fwz83kUR6TrMviTx"
+  ]
+}
+```
+
+`signatures` 包含加密签名，证明所需账户授权了此交易。签名数量必须与 `header.numRequiredSignatures` 匹配。
+
+### 地址表查找
+
+```json
+{
+  "addressTableLookups": [
+    {
+      "accountKey": "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+      "writableIndexes": [0, 1],
+      "readonlyIndexes": [2, 3, 4]
+    }
+  ],
+  "versioned": true
+}
+```
+
+如果 `versioned` 是 `true`，`addressTableLookups` 出现在链上表和两个索引列表中。查找表将地址数量的硬性上限提升到几十个，同时保持数据包在 1,232 字节 MTU 之内。
+
+### 如何连接：流程
+
+从基本原理来看，以下是发生的事情：
+
+1. **构建查找表**：`accountKeys` 列出此交易将涉及的所有地址
+2. **设置规则**：`header` 指定需要多少个签名以及哪些账户是只读的
+3. **创建命令**：每个 `instruction` 指向：
+   - 一个程序（通过 `programIdIndex` → `accountKeys[index]`）
+   - 它需要的账户（通过 `accounts` → 多个 `accountKeys[index]` 位置）
+   - 指令数据（编码在 `data` 中）
+4. **添加授权**：`signatures` 证明所需账户批准了此交易
+5. **设置过期时间**：`recentBlockhash` 确保此交易不能在以后重放
+
+---
+
+## 执行：meta 中的一切
+
+消息显示用户想要做什么，而 meta 显示验证者执行交易时实际发生的事情。
+
+### 基本执行信息
+
+**成功/失败**
+
+```json
+{
+  "err": null,
+  "fee": 12500
+}
+```
+
+- `err: null` = 成功
+- `err: {...}` = 失败并带有错误详情
+- `fee` = 此交易收取的 lamports
+
+**余额变动**
+
+```json
+{
+  "preBalances": [1075517572, 0, 207594496815, 0, 0, 0, 0, 0, 0],
+  "postBalances": [1075502572, 1461600, 207594496815, 2001231920, 2039280, 0, 0, 0, 0]
+}
+```
+
+余额数组按索引对应于`accountKeys`数组：
+- 账户 0：损失 15000 lamports（手续费支付）
+- 账户 1：获得 1461600 lamports（新账户创建）
+- 账户 3：获得 2001231920 lamports（程序账户）
+
+**计算使用情况**
+
+```json
+{
+  "computeUnitsConsumed": 182564
+}
+```
+
+显示使用了多少计算预算（从请求的金额中）。
+
+### 高级执行细节
+
+**内部指令**
+
+```json
+{
+  "innerInstructions": [
+    {
+      "index": 1,
+      "instructions": [
+        {
+          "programIdIndex": 5,
+          "accounts": [1, 2, 0],
+          "data": "3Bxs4h24hBtQy9rw"
+        }
+      ]
+    }
+  ]
+}
+```
+
+内部指令是程序在执行期间调用的附加指令。它们不是原始交易的一部分，但由主要指令触发。
+
+**日志消息**
+
+```json
+{
+  "logMessages": [
+    "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+    "Program ComputeBudget111111111111111111111111111111 success",
+    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 invoke [1]",
+    "Program log: Instruction: Swap",
+    "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [2]",
+    "Program log: Create",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+    "Program log: Instruction: GetAccountDataSize",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 1569 of 242833 compute units",
+    "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+    "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+    "Program JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 success"
+  ]
+}
+```
+
+日志消息提供程序执行的时间顺序跟踪，显示调用了哪些程序以及它们输出的任何自定义日志消息。
+
+**代币余额变动**
+
+```json
+{
+  "preTokenBalances": [],
+  "postTokenBalances": [
+    {
+      "accountIndex": 1,
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "owner": "7YttLkHDoNj9wyDur5pM1ejNaAvT9X4eqaYcHQqtj2G5",
+      "uiTokenAmount": {
+        "amount": "1000000",
+        "decimals": 6,
+        "uiAmount": 1.0,
+        "uiAmountString": "1"
+      }
+    }
+  ]
+}
+```
+
+代币余额变动显示 SPL 代币账户的前/后状态，包括具有适当小数处理的人类可读金额。
+
+---
+
+## 实用解码模式
+
+以下是从解码交易中提取有用信息的常见模式：
+
+```typescript
+// Transaction Success
+function isTransactionSuccessful(meta: any): boolean {
+  return meta.err === null;
+}
+
+function getTransactionFee(meta: any): number {
+  return meta.fee;
+}
+
+function getComputeUnitsUsed(meta: any): number {
+  return meta.computeUnitsConsumed;
+}
+
+// Balance Changes
+function getBalanceChanges(meta: any, accountKeys: string[]): Array<{account: string, change: number}> {
+  const changes = [];
+  
+  for (let i = 0; i < meta.preBalances.length; i++) {
+    const change = meta.postBalances[i] - meta.preBalances[i];
+    if (change !== 0) {
+      changes.push({
+        account: accountKeys[i],
+        change: change
+      });
+    }
+  }
+  
+  return changes;
+}
+
+// Program Calls
+function getInvokedPrograms(meta: any, accountKeys: string[]): string[] {
+  const programs = new Set<string>();
+  
+  meta.logMessages.forEach((log: string) => {
+    const match = log.match(/Program ([1-9A-HJ-NP-Za-km-z]{32,}) invoke/);
+    if (match) {
+      programs.add(match[1]);
+    }
+  });
+  
+  return Array.from(programs);
+}
+
+// Token Transfers
+function getTokenTransfers(meta: any): Array<{mint: string, from: string, to: string, amount: number}> {
+  const transfers = [];
+  
+  // Compare pre and post token balances
+  const preBalances = new Map();
+  const postBalances = new Map();
+  
+  meta.preTokenBalances.forEach((balance: any) => {
+    preBalances.set(balance.accountIndex, balance);
+  });
+  
+  meta.postTokenBalances.forEach((balance: any) => {
+    postBalances.set(balance.accountIndex, balance);
+  });
+  
+  // Find changes
+  for (const [accountIndex, postBalance] of postBalances) {
+    const preBalance = preBalances.get(accountIndex);
+    const preAmount = preBalance ? parseInt(preBalance.uiTokenAmount.amount) : 0;
+    const postAmount = parseInt(postBalance.uiTokenAmount.amount);
+    
+    if (preAmount !== postAmount) {
+      transfers.push({
+        mint: postBalance.mint,
+        account: postBalance.owner,
+        change: postAmount - preAmount,
+        decimals: postBalance.uiTokenAmount.decimals
+      });
+    }
+  }
+  
+  return transfers;
+}
+```
+
+---
+
+## 完整示例：Jupiter 交换解码器
+
+这是一个完整的示例，解码 Jupiter 交换交易并提取有意义的信息：
+
+```typescript [expandable]
+import bs58 from 'bs58';
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from '../client';
+
+interface SwapInfo {
+  signature: string;
+  slot: number;
+  user: string;
+  inputMint: string;
+  outputMint: string;
+  inputAmount: number;
+  outputAmount: number;
+  fee: number;
+  success: boolean;
+}
+
+function convertBuffers(obj: any): any {
+  if (!obj) return obj;
+  if (Buffer.isBuffer(obj) || obj instanceof Uint8Array) {
+    return bs58.encode(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertBuffers(item));
+  }
+  if (typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBuffers(value)])
+    );
+  }
+  return obj;
+}
+
+function decodeJupiterSwap(txUpdate: any): SwapInfo | null {
+  const tx = txUpdate.transaction;
+  const meta = tx.meta;
+  const message = tx.transaction.message;
+  
+  // Convert binary fields to readable format
+  const signature = bs58.encode(tx.signature);
+  const accountKeys = message.accountKeys.map((key: any) => bs58.encode(key));
+  
+  // Check if this is a Jupiter transaction
+  const jupiterProgram = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
+  if (!accountKeys.includes(jupiterProgram)) {
+    return null;
+  }
+  
+  // Extract user (first account is typically the fee payer/user)
+  const user = accountKeys[0];
+  
+  // Get token balance changes
+  const tokenChanges = getTokenTransfers(meta);
+  
+  // Find input (negative change) and output (positive change)
+  const inputChange = tokenChanges.find(change => change.change < 0);
+  const outputChange = tokenChanges.find(change => change.change > 0);
+  
+  if (!inputChange || !outputChange) {
+    return null;
+  }
+  
+  return {
+    signature,
+    slot: parseInt(txUpdate.slot),
+    user,
+    inputMint: inputChange.mint,
+    outputMint: outputChange.mint,
+    inputAmount: Math.abs(inputChange.change),
+    outputAmount: outputChange.change,
+    fee: meta.fee,
+    success: meta.err === null
+  };
+}
+
+function getTokenTransfers(meta: any): Array<{mint: string, change: number}> {
+  const transfers = [];
+  
+  const preBalances = new Map();
+  const postBalances = new Map();
+  
+  meta.preTokenBalances.forEach((balance: any) => {
+    preBalances.set(balance.accountIndex, balance);
+  });
+  
+  meta.postTokenBalances.forEach((balance: any) => {
+    postBalances.set(balance.accountIndex, balance);
+  });
+  
+  for (const [accountIndex, postBalance] of postBalances) {
+    const preBalance = preBalances.get(accountIndex);
+    const preAmount = preBalance ? parseInt(preBalance.uiTokenAmount.amount) : 0;
+    const postAmount = parseInt(postBalance.uiTokenAmount.amount);
+    
+    if (preAmount !== postAmount) {
+      transfers.push({
+        mint: postBalance.mint,
+        change: postAmount - preAmount
+      });
+    }
+  }
+  
+  return transfers;
+}
+
+async function runJupiterSwapMonitor() {
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-endpoint',
+  };
+
+  const request = {
+    transactions: {
+      "Jupiter-swaps": {
+        vote: false,
+        failed: false,
+        accountsInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+      }
+    },
+    commitment: CommitmentLevel.PROCESSED,
+    accounts: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    (update: SubscribeUpdate) => {
+      if (update.transaction) {
+        const swapInfo = decodeJupiterSwap(update.transaction);
+        if (swapInfo) {
+          console.log('🔄 Jupiter Swap:');
+          console.log(`  User: ${swapInfo.user}`);
+          console.log(`  Input: ${swapInfo.inputAmount} of ${swapInfo.inputMint}`);
+          console.log(`  Output: ${swapInfo.outputAmount} of ${swapInfo.outputMint}`);
+          console.log(`  Fee: ${swapInfo.fee} lamports`);
+          console.log(`  Success: ${swapInfo.success}`);
+          console.log(`  Signature: ${swapInfo.signature}`);
+          console.log('---');
+        }
+      }
+    },
+    console.error
+  );
+
+  console.log(`✅ Jupiter swap monitor started (id: ${stream.id})`);
+  process.on('SIGINT', () => { stream.cancel(); process.exit(0); });
+}
+
+runJupiterSwapMonitor().catch(console.error);
+```
+
+此示例展示了如何结合消息解码与元分析，从复杂的 DeFi 交易中提取与业务相关的信息。
+
+---
+
+## 关键要点
+
+- **两部分结构**：每个交易都有一个**消息**（请求的内容）和**元数据**（实际发生的内容）
+- **二进制解码**：使用`bs58.encode()`将二进制字段转换为可读的base58字符串
+- **账户密钥查找**：指令通过索引在`accountKeys`数组中引用账户
+- **余额跟踪**：比较`preBalances`和`postBalances`以查看变化
+
+理解Solana交易的关键在于认识到它们是为效率而设计的：通过使用查找表和索引来最小化交易大小，同时最大化信息密度，而不是重复地址。

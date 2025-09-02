@@ -1,0 +1,301 @@
+---
+title: Solana DAS API 分页：高效的大数据集查询
+sidebarTitle: 分页
+description: 探索 Solana DAS API 的高效分页机制。页面分页、游标分页和键集分页用于大数据集的性能优化。
+---
+
+## 介绍
+
+DAS API 方法最多只返回 1000 条记录。如果您需要检索超过 1000 项，您将需要对记录进行分页。这是通过多次 API 调用并遍历多个数据“页面”来实现的。我们支持两种机制：基于页面的分页和键集分页。
+
+<Note>
+我们建议初学者使用基于页面的分页。这是最简单且最好的入门方式。键集分页推荐给需要高效查询大（50 万以上）数据集的高级用户。
+</Note>
+
+## 排序选项
+
+使用 DAS API，您可以按不同字段对数据进行排序：
+
+1. `id`: 按资产 ID 的二进制排序（默认）。
+2. `created`: 按资产创建日期排序。
+3. `recent_action` : 按资产最后更新日期排序（不推荐）。
+4. `none`: 不对数据进行排序（不推荐）。
+
+禁用排序将获得最快的结果，但由于数据未排序，分页时可能会出现不一致的结果。
+
+## 分页选项
+
+### 基于页面
+
+使用此方法，用户指定页码和每页所需的项目数。要迭代到下一页，增加页码。这对于大多数用例来说简单、直观且快速。
+
+<Accordion title="示例">
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const example = async () => {
+    let page = 1;
+    let items = [];
+    while (true) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 'my-id',
+                method: 'searchAssets',
+                params: {
+                    grouping: ['collection', '5PA96eCFHJSFPY9SWFeRJUHrpoNF5XZL6RrE1JADXhxf'],
+                    page: page,
+                    limit: 1000,
+                    sortBy: { sortBy: 'id', sortDirection: 'asc' },
+                },
+            }),
+        });
+        const { result } = await response.json();
+        if (result.items.length == 0) {
+            console.log('No items remaining');
+            break;
+        } else {
+            console.log(`Processing results from page ${page}`);
+            items.push(...result.items);
+            page += 1;
+        }
+    }
+    console.log(`Got ${items.length} total items`);
+};
+example();
+```
+
+</Accordion>
+
+使用页面需要数据库遍历所有项目，直到到达下一页。例如，如果您请求第 100 页和页面大小为 1000，数据库必须遍历前 100 万条记录才能返回您的数据。
+
+因此，不推荐对大型数据集使用基于页面的分页。Keyset分页更适合这些类型的工作负载。
+
+### Keyset
+
+使用此方法，用户通过提供过滤数据集的条件来定义页面。例如，您可以说：“获取所有ID > X但ID < Y的资产”。用户可以通过在每次调用中修改X或Y来遍历整个数据集。我们提供两种keyset分页方法：
+
+1. **基于游标** – 使用更简单但灵活性较低。
+2. **基于范围** – 更复杂但非常灵活。
+
+<Info>
+Keyset分页仅在按`id`排序时支持。
+</Info>
+
+#### 基于游标
+
+没有任何分页参数的DAS查询将返回一个游标。您可以将游标提供给DAS API以从上次中断的地方继续。
+
+<Accordion title="示例">
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const example = async () => {
+    let items = [];
+    let cursor;
+    while (true) {
+        let params = {
+            grouping: ['collection', '5PA96eCFHJSFPY9SWFeRJUHrpoNF5XZL6RrE1JADXhxf'],
+            limit: 1000,
+            sortBy: { sortBy: 'id', sortDirection: 'asc' },
+        } as any;
+        if (cursor != undefined) {
+            params.cursor = cursor;
+        }
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 'my-id',
+                method: 'searchAssets',
+                params: params,
+            }),
+        });
+        const { result } = await response.json();
+        if (result.items.length == 0) {
+            console.log('No items remaining');
+            break;
+        } else {
+            console.log(`Processing results for cursor ${cursor}`);
+            cursor = result.cursor;
+            items.push(...result.items);
+        }
+    }
+    console.log(`Got ${items.length} total items`);
+};
+example();
+```
+
+</Accordion>
+
+<Info>
+在撰写本文时，游标将是响应的最后一个资产ID；然而，游标设计是灵活的，可以支持任何字符串。
+</Info>
+
+#### 基于范围
+
+要跨范围查询，您可以指定`before`和/或`after`。查询本质上与“获取所有在X之后但在Y之前的资产”相同。您可以通过更新每次调用的before或after参数来遍历数据集。
+
+<Accordion title="示例">
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const example = async () => {
+    // Two NFTs from the Tensorian collection.
+    // The "start" item has a lower asset ID (in binary) than the "end" item.
+    // We will traverse in ascending order.
+    let start = '6CeKtAYX5USSvPCQicwFsvN4jQSHNxQuFrX2bimWrNey';
+    let end = 'CzTP4fUbdfgKzwE6T94hsYV7NWf1SzuCCsmJ6RP1xsDw';
+    let sortDirection = 'asc';
+    let after = start;
+    let before = end;
+    let items = [];
+
+    while (true) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                id: 'my-id',
+                method: 'searchAssets',
+                params: {
+                    grouping: ['collection', '5PA96eCFHJSFPY9SWFeRJUHrpoNF5XZL6RrE1JADXhxf'],
+                    limit: 1000,
+                    after: after,
+                    before: before,
+                    sortBy: { sortBy: 'id', sortDirection: sortDirection },
+                },
+            }),
+        });
+        const { result } = await response.json();
+        if (result.items.length == 0) {
+            console.log('No items remaining');
+            break;
+        } else {
+            console.log(`Processing results with (after: ${after}, before: ${before})`);
+            after = result.items[result.items.length - 1].id;
+            items.push(...result.items);
+        }
+    }
+    console.log(`Got ${items.length} total items`);
+};
+example();
+```
+
+</Accordion>
+
+### 使用Keyset的并行查询（高级）
+
+需要查询大型数据集（例如，整个压缩NFT集合）的高级用户必须出于性能原因使用基于keyset的分页。以下示例展示了用户如何通过划分Solana地址范围并利用before/after参数进行并行查询。这种方法快速、高效且安全。如果您有任何问题或需要帮助，请随时在Discord上联系我们！
+
+<Accordion title="示例">
+在下面的示例中，我们扫描整个 Tensorian 集合（约 10k 条记录）。它将 Solana 地址空间划分为 8 个范围，并同时扫描这些范围。您会注意到，这个示例比其他任何示例都要快得多。
+
+```javascript
+import base58 from 'bs58';
+
+const url = `https://mainnet.helius-rpc.com/?api-key=<api_key>`
+
+const main = async () => {
+    let numParitions = 8;
+    let partitons = partitionAddressRange(numParitions);
+    let promises = [];
+    for (const [i, partition] of partitons.entries()) {
+        let [s, e] = partition;
+        let start = bs58.encode(s);
+        let end = bs58.encode(e);
+        console.log(`Parition: ${i}, Start: ${start}, End: ${end}`);
+
+        let promise: Promise<number> = new Promise(async (resolve, reject) => {
+            let current = start;
+            let totalForPartition = 0;
+            while (true) {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 'my-id',
+                        method: 'searchAssets',
+                        params: {
+                            grouping: ['collection', '5PA96eCFHJSFPY9SWFeRJUHrpoNF5XZL6RrE1JADXhxf'],
+                            limit: 1000,
+                            after: current,
+                            before: end,
+                            sortBy: { sortBy: 'id', sortDirection: 'asc' },
+                        },
+                    }),
+                });
+                const { result } = await response.json();
+                totalForPartition += result.items.length;
+                console.log(`Found ${totalForPartition} total items in parition ${i}`);
+                if (result.items.length == 0) {
+                    break;
+                } else {
+                    current = result.items[result.items.length - 1].id;
+                }
+            }
+            resolve(totalForPartition);
+        });
+        promises.push(promise);
+    }
+    let results = await Promise.all(promises);
+    let total = results.reduce((a, b) => a + b, 0);
+    console.log(`Got ${total} total items`);
+};
+
+// Function to convert a BigInt to a byte array
+function bigIntToByteArray(bigInt: bigint): Uint8Array {
+    const bytes = [];
+    let remainder = bigInt;
+    while (remainder > 0n) {
+        // use 0n for bigint literal
+        bytes.unshift(Number(remainder & 0xffn));
+        remainder >>= 8n;
+    }
+    while (bytes.length < 32) bytes.unshift(0); // pad with zeros to get 32 bytes
+    return new Uint8Array(bytes);
+}
+
+function partitionAddressRange(numPartitions: number) {
+    let N = BigInt(numPartitions);
+
+    // Largest and smallest Solana addresses in integer form.
+    // Solana addresses are 32 byte arrays.
+    const start = 0n;
+    const end = 2n ** 256n - 1n;
+
+    // Calculate the number of partitions and partition size
+    const range = end - start;
+    const partitionSize = range / N;
+
+    // Calculate partition ranges
+    const partitions: Uint8Array[][] = [];
+    for (let i = 0n; i < N; i++) {
+        const s = start + i * partitionSize;
+        const e = i === N - 1n ? end : s + partitionSize;
+        partitions.push([bigIntToByteArray(s), bigIntToByteArray(e)]);
+    }
+
+    return partitions;
+}
+
+main();
+```
+
+</Accordion>

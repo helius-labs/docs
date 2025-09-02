@@ -1,0 +1,95 @@
+---
+title: Webhooks 常见问题
+description: 获取关于 webhooks 的最常见问题的答案，包括管理、网络支持、重试和故障排除
+---
+
+## 配额和速率限制
+
+<Accordion title="一个 webhook 可以输入多少个地址？">
+使用 [API](/api-reference/webhooks/create-webhook) 最多可以输入 100,000 个地址。
+</Accordion>
+
+<Accordion title="在创建 webhook 后，如果我在 Helius 仪表板中更改 webhook URL，会被扣除积分吗？">
+是的，通过 API 或仪表板编辑 webhook 每次请求需要 100 积分。这适用于任何修改，包括 URL 更改、添加/删除地址或更新交易类型。
+</Accordion>
+
+<Accordion title="接收 webhook 通知需要多少积分？">
+每个 webhook 事件在 Helius 处理并发送到您的端点时需要 1 积分。无论您的端点是否成功处理 webhook 或返回错误，您都将被扣除积分。
+</Accordion>
+
+<Accordion title="创建、编辑和删除 webhooks 需要多少积分？">
+通过 API 执行的所有 webhook 管理操作（创建、编辑、删除）每次请求需要 100 积分。这涵盖了更新您的 webhook 配置所需的处理。
+</Accordion>
+
+## 支持的网络
+
+<Accordion title="Solana Devnet 上是否提供 webhooks？">
+是的！在创建 webhook 时设置 `"network":"devnet"` 以监控 Devnet 交易和事件。
+</Accordion>
+
+<Accordion title="我可以为我的 webhook URL 输入 'localhost' 吗？">
+不可以——URL 必须通过 HTTPS 公开可访问。Helius 无法通过 localhost URL 访问本地开发服务器。
+</Accordion>
+
+## 使用 Webhooks
+
+<Accordion title="我如何验证 webhook 来自 Helius？">
+在创建或更新 webhook 时设置一个授权头。Helius 在将数据发送到您的 webhook 端点时会在 `Authorization` 头中回显此值，允许您验证请求的真实性。
+</Accordion>
+
+<Accordion title="'原始'和'增强'webhooks有什么区别？">
+**原始webhooks**直接从区块链返回常规的Solana交易数据。当监控的地址发生交易时，原始交易数据会被发送到您的webhook URL。
+
+**增强webhooks**提供Helius解释的交易类型。我们解析超过100种Solana交易类型（NFT列表、DeFi交换、转账等），并将其抽象为我们自己的模式。
+
+如果您想要所有的交易数据而不进行抽象，请使用原始webhooks；如果您想要内置的交易类型检测和解析，请使用增强webhooks。
+</Accordion>
+
+<Accordion title="Webhook何时发送通知？">
+Webhooks在匹配的交易在区块链上确认后立即发送通知。
+</Accordion>
+
+## 重试
+
+<Accordion title="webhooks的重试策略是什么？">
+Helius会对未确认的webhook事件重试最多3次，每次尝试之间间隔1分钟。我们还为企业计划提供可定制的重试策略。
+</Accordion>
+
+<Accordion title="webhooks会发布失败的交易吗？">
+这取决于webhook的类型。增强webhooks不会发送失败的交易，但原始webhooks会包括成功和失败的交易。
+</Accordion>
+
+## 排查webhooks问题
+
+<Accordion title="为什么我的webhook会丢失数据？">
+数据丢失通常发生在您的端点遇到错误时，导致webhook重试最终失败并导致数据丢失。检查您的webhook日志在[仪表板](https://dashboard.helius.dev/webhooks)中，确保有足够的客户端日志记录，如果问题仍然存在，请[联系支持](/support/contact-support)。
+</Accordion>
+
+<Accordion title="为什么我的webhooks不起作用？">
+确保选择的交易类型与您正在监控的交易匹配。首先使用"ANY"交易类型来识别是否是一般问题或类型不匹配。使用[webhook.site](http://webhook.site/)测试问题是否出在您的端点配置上。
+</Accordion>
+
+<Accordion title="为什么我的 webhook 没有发送给我所有某种类型的交易（例如 TOKEN_MINT）？">
+`TOKEN_MINT` webhook 仅针对特定程序触发，如 Candy Machine V1 和 Solana Program Library。它不涵盖整个区块链上的所有代币铸造事件。要进行更广泛的监控，请考虑通过 webhooks 使用 "ANY" 交易类型过滤来订阅更通用的账户或程序。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

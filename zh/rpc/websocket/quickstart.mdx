@@ -1,0 +1,949 @@
+---
+title: WebSocket 快速入门：构建实时 Solana 应用
+sidebarTitle: 快速入门
+description: 几分钟内开始使用 Solana WebSockets。提供账户监控、交易跟踪和实时应用的实用示例的分步指南。
+---
+
+准备将实时区块链数据添加到您的应用程序中吗？本指南将帮助您在几分钟内连接并订阅 Solana 数据。
+
+## 快速入门指南
+
+<Steps>
+  <Step title="获取您的 API 密钥">
+    从[仪表板](https://dashboard.helius.dev)获取您的 Helius API 密钥。您需要它进行身份验证。
+  </Step>
+  
+  <Step title="选择您的网络">
+    选择适当的端点：
+    - **Mainnet**: `wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+    - **Devnet**: `wss://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+  </Step>
+  
+  <Step title="创建您的第一个连接">
+
+    ```javascript
+    const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+    
+    ws.onopen = () => {
+      console.log('Connected to Solana!');
+    };
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received:', data);
+    };
+    ```
+
+  </Step>
+  
+  <Step title="订阅更新">
+
+    ```javascript
+    // Subscribe to account changes
+    const subscribeMessage = {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "accountSubscribe",
+      "params": [
+        "ACCOUNT_ADDRESS_HERE",
+        { "commitment": "confirmed" }
+      ]
+    };
+    
+    ws.send(JSON.stringify(subscribeMessage));
+    ```
+
+  </Step>
+</Steps>
+
+## 订阅方法
+
+### 账户监控
+
+监控特定账户的余额变化、数据更新或所有权转移。
+
+<CodeGroup>
+
+  ```javascript Basic Account Subscription
+  const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+  const subscribeToAccount = (accountAddress) => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "accountSubscribe",
+      "params": [
+        accountAddress,
+        {
+          "encoding": "jsonParsed",
+          "commitment": "confirmed"
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "accountNotification") {
+      console.log("Account updated:", data.params.result.value);
+      
+      // Handle the account change
+      const accountInfo = data.params.result.value;
+      console.log(`New balance: ${accountInfo.lamports} lamports`);
+    }
+  };
+
+  // Subscribe to a wallet address
+  subscribeToAccount("9PejEmViKHgUkVFWN57cNEZnFS4Qo6SzsLj5UPAXfDTF");
+  ```
+
+  ```javascript Token Account Monitoring
+  const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+  // Monitor a token account for balance changes
+  const monitorTokenAccount = (tokenAccountAddress) => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "accountSubscribe",
+      "params": [
+        tokenAccountAddress,
+        {
+          "encoding": "jsonParsed",
+          "commitment": "confirmed"
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "accountNotification") {
+      const accountData = data.params.result.value.data;
+      
+      if (accountData.program === "spl-token") {
+        const parsed = accountData.parsed;
+        console.log(`Token balance: ${parsed.info.tokenAmount.uiAmount}`);
+        console.log(`Owner: ${parsed.info.owner}`);
+      }
+    }
+  };
+  ```
+
+</CodeGroup>
+
+### 程序活动监控
+
+监控由程序拥有的所有账户 - 非常适合监控 DEX 交易、NFT 转移或 DeFi 活动。
+
+<CodeGroup>
+
+  ```javascript DEX Trade Monitoring
+  // Monitor Raydium AMM for all trade activity
+  const RAYDIUM_AMM_PROGRAM = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
+
+  const subscribeToProgram = (programId) => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "programSubscribe",
+      "params": [
+        programId,
+        {
+          "encoding": "jsonParsed",
+          "commitment": "confirmed",
+          "filters": [
+            {
+              "dataSize": 752 // Raydium pool account size
+            }
+          ]
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "programNotification") {
+      console.log("Raydium pool updated:", data.params.result.value.pubkey);
+      // Process the pool data change
+      const accountData = data.params.result.value.account;
+      // Parse and handle the pool state change
+    }
+  };
+
+  subscribeToProgram(RAYDIUM_AMM_PROGRAM);
+  ```
+
+  ```javascript NFT Marketplace Monitoring  
+  // Monitor Magic Eden program for NFT activity
+  const MAGIC_EDEN_PROGRAM = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+
+  const subscribeToNFTActivity = () => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "programSubscribe",
+      "params": [
+        MAGIC_EDEN_PROGRAM,
+        {
+          "encoding": "base64",
+          "commitment": "confirmed"
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "programNotification") {
+      console.log("NFT marketplace activity detected");
+      // Decode and process the marketplace instruction
+      const accountInfo = data.params.result.value;
+      // Handle NFT listing, purchase, or cancellation
+    }
+  };
+  ```
+
+</CodeGroup>
+
+### 交易监控
+
+跟踪特定交易或监控提到某些账户的交易。
+
+<CodeGroup>
+
+  ```javascript Transaction Status Tracking
+  // Monitor a specific transaction signature
+  const trackTransaction = (signature) => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "method": "signatureSubscribe",
+      "params": [
+        signature,
+        {
+          "commitment": "confirmed"
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "signatureNotification") {
+      const result = data.params.result;
+      
+      if (result.value.err) {
+        console.log("Transaction failed:", result.value.err);
+      } else {
+        console.log("Transaction confirmed successfully!");
+      }
+      
+      // Subscription automatically ends after notification
+    }
+  };
+
+  // Track a payment or swap transaction
+  trackTransaction("YOUR_TRANSACTION_SIGNATURE_HERE");
+  ```
+
+  ```javascript Log-Based Monitoring
+  // Monitor all transactions mentioning a specific address
+  const monitorAddress = (address) => {
+    const request = {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "method": "logsSubscribe",
+      "params": [
+        {
+          "mentions": [address]
+        },
+        {
+          "commitment": "confirmed"
+        }
+      ]
+    };
+    
+    ws.send(JSON.stringify(request));
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    if (data.method === "logsNotification") {
+      const logs = data.params.result.value.logs;
+      const signature = data.params.result.value.signature;
+      
+      console.log(`Transaction ${signature} mentioned our address`);
+      console.log("Logs:", logs);
+      
+      // Parse logs for specific events or errors
+      if (logs.some(log => log.includes("Program failed"))) {
+        console.log("Transaction failed!");
+      }
+    }
+  };
+
+  // Monitor a token mint for all activity
+  monitorAddress("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+  ```
+
+</CodeGroup>
+
+## 准生产环境实现
+
+这是一个具有重连逻辑、错误处理和适当状态管理的健壮的 WebSocket 实现：
+
+```javascript [expandable]
+class WebSocketManager {
+  constructor(endpoint) {
+    this.endpoint = endpoint;
+    this.ws = null;
+    this.subscriptions = new Map();
+    this.isConnected = false;
+  }
+
+  async connect() {
+    this.ws = new WebSocket(this.endpoint);
+    
+    this.ws.onopen = () => {
+      console.log('Connected');
+      this.isConnected = true;
+      this.resubscribeAll();
+    };
+
+    this.ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      
+      // Handle subscription confirmations
+      if (data.result && typeof data.result === 'number') {
+        const sub = Array.from(this.subscriptions.values())
+          .find(s => s.requestId === data.id);
+        if (sub) sub.subscriptionId = data.result;
+        return;
+      }
+
+      // Handle notifications
+      if (data.method?.endsWith('Notification')) {
+        const sub = Array.from(this.subscriptions.values())
+          .find(s => s.subscriptionId === data.params.subscription);
+        if (sub?.callback) sub.callback(data.params.result);
+      }
+    };
+
+    this.ws.onclose = () => {
+      console.log('Disconnected');
+      this.isConnected = false;
+      // Implement reconnection logic here
+    };
+  }
+
+  subscribe(method, params, callback) {
+    const requestId = Date.now();
+    const subscription = { requestId, method, params, callback, subscriptionId: null };
+    this.subscriptions.set(requestId, subscription);
+    
+    if (this.isConnected) {
+      this.ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        id: requestId,
+        method,
+        params
+      }));
+    }
+    
+    return requestId;
+  }
+
+  resubscribeAll() {
+    for (const [id, sub] of this.subscriptions) {
+      sub.subscriptionId = null;
+      this.ws.send(JSON.stringify({
+        jsonrpc: '2.0',
+        id,
+        method: sub.method,
+        params: sub.params
+      }));
+    }
+  }
+}
+
+// Usage
+const wsManager = new WebSocketManager('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+await wsManager.connect();
+
+// Subscribe to account changes
+wsManager.subscribe(
+  'accountSubscribe',
+  ['account-address-here', { commitment: 'confirmed' }],
+  (data) => console.log('Account updated:', data)
+);
+```
+
+## 探索更多 WebSocket 方法
+
+上面的示例涵盖了最常用的订阅类型，但 Solana 的 WebSocket API 提供了更多用于专业监控需求的方法。
+
+<Card title="完整的 WebSocket API 参考" icon="book" href="/api-reference/rpc/websocket-methods">
+  **发现 18+ WebSocket 方法**，包括详细的文档、参数和响应格式。
+</Card>
+
+## 真实世界的用例
+
+### DeFi 交易仪表板
+
+```javascript [expandable]
+class LiquidityPoolMonitor {
+  constructor(wsManager) {
+    this.wsManager = wsManager;
+    this.pools = new Map();
+  }
+
+  monitorPool(poolAddress, tokenAMint, tokenBMint) {
+    // Monitor the pool account itself
+    const poolSubscription = this.wsManager.subscribe(
+      'accountSubscribe',
+      [poolAddress, { encoding: 'base64', commitment: 'confirmed' }],
+      (data) => this.handlePoolUpdate(poolAddress, data)
+    );
+
+    // Monitor token reserves
+    const tokenASubscription = this.wsManager.subscribe(
+      'accountSubscribe', 
+      [tokenAMint, { encoding: 'jsonParsed', commitment: 'confirmed' }],
+      (data) => this.handleReserveUpdate(poolAddress, 'tokenA', data)
+    );
+
+    const tokenBSubscription = this.wsManager.subscribe(
+      'accountSubscribe',
+      [tokenBMint, { encoding: 'jsonParsed', commitment: 'confirmed' }],
+      (data) => this.handleReserveUpdate(poolAddress, 'tokenB', data)
+    );
+
+    this.pools.set(poolAddress, {
+      poolSubscription,
+      tokenASubscription, 
+      tokenBSubscription,
+      lastUpdate: Date.now()
+    });
+  }
+
+  handlePoolUpdate(poolAddress, data) {
+    // Decode pool state and calculate price
+    const poolState = this.decodePoolState(data.value.data);
+    
+    console.log(`Pool ${poolAddress} updated:`);
+    console.log(`- Price: ${poolState.price}`);
+    console.log(`- Liquidity: ${poolState.liquidity}`);
+    console.log(`- Volume 24h: ${poolState.volume24h}`);
+    
+    // Emit price update event
+    this.emitPriceUpdate(poolAddress, poolState);
+  }
+
+  handleReserveUpdate(poolAddress, tokenType, data) {
+    const tokenAmount = data.value.data.parsed.info.tokenAmount;
+    console.log(`${tokenType} reserve updated: ${tokenAmount.uiAmount}`);
+    
+    // Update internal state and recalculate price
+    this.updatePoolPrice(poolAddress, tokenType, tokenAmount);
+  }
+
+  decodePoolState(data) {
+    // Implement pool state decoding based on DEX
+    // This is pseudo-code - actual implementation depends on the DEX
+    return {
+      price: 0,
+      liquidity: 0,
+      volume24h: 0
+    };
+  }
+
+  emitPriceUpdate(poolAddress, poolState) {
+    // Emit custom events for price updates
+    window.dispatchEvent(new CustomEvent('poolPriceUpdate', {
+      detail: { poolAddress, ...poolState }
+    }));
+  }
+}
+
+// Usage
+const poolMonitor = new LiquidityPoolMonitor(wsManager);
+poolMonitor.monitorPool(
+  'POOL_ADDRESS',
+  'TOKEN_A_MINT', 
+  'TOKEN_B_MINT'
+);
+```
+
+### 投资组合追踪器
+
+```javascript [expandable]
+class PortfolioTracker {
+  constructor(wsManager) {
+    this.wsManager = wsManager;
+    this.watchedAddresses = new Set();
+    this.balances = new Map();
+  }
+
+  addWallet(walletAddress) {
+    if (this.watchedAddresses.has(walletAddress)) return;
+
+    this.watchedAddresses.add(walletAddress);
+    
+    // Monitor SOL balance
+    const solSubscription = this.wsManager.subscribe(
+      'accountSubscribe',
+      [walletAddress, { encoding: 'jsonParsed', commitment: 'confirmed' }],
+      (data) => this.handleSolBalanceUpdate(walletAddress, data)
+    );
+
+    // Monitor all token accounts owned by this wallet
+    const tokenSubscription = this.wsManager.subscribe(
+      'programSubscribe',
+      [
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        {
+          encoding: 'jsonParsed',
+          commitment: 'confirmed',
+          filters: [
+            { memcmp: { offset: 32, bytes: walletAddress } }
+          ]
+        }
+      ],
+      (data) => this.handleTokenBalanceUpdate(walletAddress, data)
+    );
+
+    console.log(`Now tracking portfolio for ${walletAddress}`);
+  }
+
+  handleSolBalanceUpdate(walletAddress, data) {
+    const lamports = data.value.lamports;
+    const solBalance = lamports / 1e9;
+    
+    this.balances.set(`${walletAddress}:SOL`, solBalance);
+    
+    console.log(`${walletAddress} SOL balance: ${solBalance}`);
+    this.emitBalanceUpdate(walletAddress, 'SOL', solBalance);
+  }
+
+  handleTokenBalanceUpdate(walletAddress, data) {
+    const tokenData = data.value.account.data.parsed.info;
+    const tokenMint = tokenData.mint;
+    const balance = parseFloat(tokenData.tokenAmount.uiAmount);
+    
+    this.balances.set(`${walletAddress}:${tokenMint}`, balance);
+    
+    console.log(`${walletAddress} token ${tokenMint} balance: ${balance}`);
+    this.emitBalanceUpdate(walletAddress, tokenMint, balance);
+  }
+
+  emitBalanceUpdate(walletAddress, asset, balance) {
+    window.dispatchEvent(new CustomEvent('balanceUpdate', {
+      detail: { walletAddress, asset, balance, timestamp: Date.now() }
+    }));
+  }
+
+  getPortfolioValue(walletAddress) {
+    // Calculate total portfolio value in USD
+    // This would integrate with price feeds
+    let totalValue = 0;
+    
+    for (const [key, balance] of this.balances) {
+      if (key.startsWith(walletAddress)) {
+        const asset = key.split(':')[1];
+        const price = this.getAssetPrice(asset); // Implement price lookup
+        totalValue += balance * price;
+      }
+    }
+    
+    return totalValue;
+  }
+}
+```
+
+### NFT 市场集成
+
+```javascript [expandable]
+class NFTActivityMonitor {
+  constructor(wsManager) {
+    this.wsManager = wsManager;
+    this.watchedCollections = new Map();
+  }
+
+  monitorCollection(collectionAddress, options = {}) {
+    const { includeListings = true, includeSales = true, includeCancellations = true } = options;
+
+    // Monitor the collection's update authority or creator address
+    const collectionSubscription = this.wsManager.subscribe(
+      'logsSubscribe',
+      [
+        { mentions: [collectionAddress] },
+        { commitment: 'confirmed' }
+      ],
+      (data) => this.handleCollectionActivity(collectionAddress, data)
+    );
+
+    this.watchedCollections.set(collectionAddress, {
+      subscription: collectionSubscription,
+      options,
+      stats: {
+        listings: 0,
+        sales: 0,
+        volume: 0
+      }
+    });
+
+    console.log(`Monitoring NFT collection: ${collectionAddress}`);
+  }
+
+  handleCollectionActivity(collectionAddress, data) {
+    const logs = data.value.logs;
+    const signature = data.value.signature;
+
+    // Parse marketplace-specific logs
+    const activity = this.parseMarketplaceActivity(logs);
+    
+    if (activity) {
+      console.log(`NFT Activity in ${collectionAddress}:`);
+      console.log(`- Type: ${activity.type}`);
+      console.log(`- Price: ${activity.price} SOL`);
+      console.log(`- Signature: ${signature}`);
+
+      // Update collection stats
+      this.updateCollectionStats(collectionAddress, activity);
+      
+      // Emit activity event
+      this.emitNFTActivity(collectionAddress, activity, signature);
+    }
+  }
+
+  parseMarketplaceActivity(logs) {
+    // Parse Magic Eden, OpenSea, or other marketplace logs
+    for (const log of logs) {
+      // Magic Eden listing
+      if (log.includes('Instruction: List')) {
+        const price = this.extractPriceFromLog(log);
+        return { type: 'listing', price };
+      }
+      
+      // Magic Eden sale
+      if (log.includes('Instruction: ExecuteSale')) {
+        const price = this.extractPriceFromLog(log);
+        return { type: 'sale', price };
+      }
+      
+      // Listing cancellation
+      if (log.includes('Instruction: CancelBuy') || log.includes('Instruction: CancelSell')) {
+        return { type: 'cancellation', price: 0 };
+      }
+    }
+    
+    return null;
+  }
+
+  extractPriceFromLog(log) {
+    // Extract price from marketplace logs - implementation depends on marketplace
+    // This is pseudo-code
+    const priceMatch = log.match(/price:\s*(\d+)/);
+    return priceMatch ? parseInt(priceMatch[1]) / 1e9 : 0;
+  }
+
+  updateCollectionStats(collectionAddress, activity) {
+    const collection = this.watchedCollections.get(collectionAddress);
+    if (!collection) return;
+
+    switch (activity.type) {
+      case 'listing':
+        collection.stats.listings++;
+        break;
+      case 'sale':
+        collection.stats.sales++;
+        collection.stats.volume += activity.price;
+        break;
+    }
+  }
+
+  emitNFTActivity(collectionAddress, activity, signature) {
+    window.dispatchEvent(new CustomEvent('nftActivity', {
+      detail: {
+        collection: collectionAddress,
+        activity,
+        signature,
+        timestamp: Date.now()
+      }
+    }));
+  }
+}
+```
+
+### React 集成示例
+
+```javascript [expandable]
+import React, { useEffect, useState } from 'react';
+
+function WebSocketComponent() {
+  const [accountData, setAccountData] = useState(null);
+  const [wsManager, setWsManager] = useState(null);
+
+  useEffect(() => {
+    // Initialize WebSocket
+    const manager = new WebSocketManager('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+    
+    manager.connect().then(() => {
+      // Subscribe to account changes
+      manager.subscribe(
+        'accountSubscribe',
+        ['account-address-here', { commitment: 'confirmed' }],
+        (data) => setAccountData(data)
+      );
+    });
+
+    setWsManager(manager);
+
+    // Cleanup on unmount
+    return () => {
+      if (manager) manager.disconnect();
+    };
+  }, []);
+
+  return (
+    <div>
+      <h3>Account Monitor</h3>
+      {accountData ? (
+        <div>
+          <p>Balance: {accountData.value.lamports} lamports</p>
+          <p>Owner: {accountData.value.owner}</p>
+        </div>
+      ) : (
+        <p>Waiting for account updates...</p>
+      )}
+    </div>
+  );
+}
+```
+
+## 性能优化
+
+<Tabs>
+  <Tab title="连接管理">
+
+    ```javascript [expandable]
+    // Use connection pooling for multiple subscriptions
+    class WebSocketPool {
+      constructor(endpoint, maxConnections = 3) {
+        this.endpoint = endpoint;
+        this.connections = [];
+        this.maxConnections = maxConnections;
+        this.currentConnectionIndex = 0;
+      }
+      
+      async getConnection() {
+        if (this.connections.length < this.maxConnections) {
+          const wsManager = new SolanaWebSocketManager(this.endpoint);
+          await wsManager.connect();
+          this.connections.push(wsManager);
+          return wsManager;
+        }
+        
+        // Round-robin selection
+        const connection = this.connections[this.currentConnectionIndex];
+        this.currentConnectionIndex = (this.currentConnectionIndex + 1) % this.connections.length;
+        return connection;
+      }
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="内存管理">
+
+    ```javascript [expandable]
+    // Implement subscription cleanup and memory management
+    class ManagedWebSocket extends SolanaWebSocketManager {
+      constructor(endpoint, options = {}) {
+        super(endpoint, options);
+        this.maxSubscriptions = options.maxSubscriptions || 100;
+        this.subscriptionHistory = [];
+      }
+      
+      subscribe(method, params, callback) {
+        // Check subscription limit
+        if (this.subscriptions.size >= this.maxSubscriptions) {
+          this.cleanupOldSubscriptions();
+        }
+        
+        const requestId = super.subscribe(method, params, callback);
+        
+        // Track subscription for cleanup
+        this.subscriptionHistory.push({
+          requestId,
+          timestamp: Date.now(),
+          method
+        });
+        
+        return requestId;
+      }
+      
+      cleanupOldSubscriptions() {
+        // Remove oldest 10% of subscriptions
+        const toRemove = Math.floor(this.subscriptions.size * 0.1);
+        const sortedHistory = this.subscriptionHistory
+          .sort((a, b) => a.timestamp - b.timestamp);
+        
+        for (let i = 0; i < toRemove && i < sortedHistory.length; i++) {
+          const sub = sortedHistory[i];
+          this.unsubscribe(sub.requestId);
+          
+          // Remove from history
+          this.subscriptionHistory = this.subscriptionHistory
+            .filter(s => s.requestId !== sub.requestId);
+        }
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+## 错误处理和调试
+
+<Info>
+健壮的错误处理对于生产环境中的 WebSocket 应用程序至关重要。实施这些模式以优雅地处理网络问题、速率限制和 API 错误。
+</Info>
+
+```javascript [expandable]
+class ErrorHandlingWebSocket extends SolanaWebSocketManager {
+  constructor(endpoint, options = {}) {
+    super(endpoint, options);
+    this.errorCounts = new Map();
+    this.maxErrorsPerMinute = options.maxErrorsPerMinute || 10;
+  }
+
+  handleMessage(data) {
+    try {
+      // Handle rate limiting
+      if (data.error && data.error.code === 429) {
+        console.warn('Rate limited, backing off...');
+        this.handleRateLimit();
+        return;
+      }
+
+      // Handle subscription errors
+      if (data.error && data.error.code === -32602) {
+        console.error('Invalid subscription parameters:', data.error.message);
+        this.handleInvalidSubscription(data.id);
+        return;
+      }
+
+      // Handle network errors
+      if (data.error && data.error.code === -32603) {
+        console.error('Internal server error:', data.error.message);
+        this.handleServerError();
+        return;
+      }
+
+      super.handleMessage(data);
+    } catch (error) {
+      console.error('Error processing WebSocket message:', error);
+      this.incrementErrorCount('message_processing');
+    }
+  }
+
+  handleRateLimit() {
+    // Exponential backoff for rate limiting
+    const backoffDelay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+    
+    setTimeout(() => {
+      if (this.subscriptions.size > 0) {
+        console.log('Retrying after rate limit...');
+        this.resubscribeAll();
+      }
+    }, backoffDelay);
+  }
+
+  handleInvalidSubscription(requestId) {
+    // Remove invalid subscription
+    const subscription = Array.from(this.subscriptions.entries())
+      .find(([id, sub]) => sub.requestId === requestId);
+    
+    if (subscription) {
+      console.warn(`Removing invalid subscription: ${subscription[1].method}`);
+      this.subscriptions.delete(subscription[0]);
+    }
+  }
+
+  handleServerError() {
+    // Log server error and potentially switch endpoints
+    this.incrementErrorCount('server_error');
+    
+    if (this.getErrorCount('server_error') > 5) {
+      console.error('Too many server errors, consider switching endpoints');
+      this.eventEmitter.dispatchEvent(new CustomEvent('tooManyServerErrors'));
+    }
+  }
+
+  incrementErrorCount(errorType) {
+    const now = Date.now();
+    const errors = this.errorCounts.get(errorType) || [];
+    
+    // Add current error
+    errors.push(now);
+    
+    // Remove errors older than 1 minute
+    const oneMinuteAgo = now - 60000;
+    const recentErrors = errors.filter(timestamp => timestamp > oneMinuteAgo);
+    
+    this.errorCounts.set(errorType, recentErrors);
+    
+    // Check if we're exceeding error threshold
+    if (recentErrors.length > this.maxErrorsPerMinute) {
+      console.error(`Too many ${errorType} errors in the last minute`);
+      this.eventEmitter.dispatchEvent(new CustomEvent('errorThresholdExceeded', {
+        detail: { errorType, count: recentErrors.length }
+      }));
+    }
+  }
+
+  getErrorCount(errorType) {
+    const errors = this.errorCounts.get(errorType) || [];
+    const oneMinuteAgo = Date.now() - 60000;
+    return errors.filter(timestamp => timestamp > oneMinuteAgo).length;
+  }
+}
+```
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="WebSocket 概述" icon="book" href="/rpc/websocket">
+    了解 WebSocket 概念、承诺级别和高级重连模式
+  </Card>
+  <Card title="增强型 WebSockets" icon="signal-stream" href="/enhanced-websockets">
+    探索具有附加功能和更好过滤的 Helius 增强型 WebSockets
+  </Card>
+  <Card title="LaserStream" icon="bolt" href="/laserstream">
+    升级到 LaserStream 以实现超高速数据流和历史重播
+  </Card>
+  <Card title="API 参考" icon="code" href="/api-reference/rpc/websocket-methods">
+    完整的 WebSocket 订阅方法文档
+  </Card>
+</CardGroup>
+
+如有疑问或需要额外支持，请加入我们的 [Discord 社区](https://discord.com/invite/6GXdee3gBj)，我们的团队和社区成员随时准备提供帮助！

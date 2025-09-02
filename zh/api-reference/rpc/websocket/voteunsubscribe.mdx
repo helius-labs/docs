@@ -1,0 +1,65 @@
+---
+title: voteUnsubscribe
+og:title: voteUnsubscribe Solana RPC 方法
+sidebarTitle: voteUnsubscribe
+description: 取消订阅投票通知。
+og:description: 获取免费的 RPC 并探索 voteUnsubscribe RPC 方法。包括请求参数、响应示例、代码片段，以及在 Solana 主网和开发网中的浏览器测试。
+---
+
+## 端点
+
+主网和开发网上可用 Websockets，使用以下 URL：
+
+- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **开发网** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets 有 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
+
+## 授权
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+</ParamField>
+
+## 正文
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="subscriptionId" type="integer" required>
+            要取消的订阅 ID。
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## 响应
+
+<ResponseField name="result" type="boolean">
+  取消订阅成功消息。
+</ResponseField>
+
+<RequestExample>
+
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "voteUnsubscribe",
+  "params": [
+    0
+  ]
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": true,
+  "id": 1
+}
+```
+
+</ResponseExample>

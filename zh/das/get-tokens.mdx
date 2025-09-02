@@ -1,0 +1,172 @@
+---
+title: 如何获取 Solana SPL 代币：完整 API 指南
+sidebarTitle: 获取 SPL 代币
+description: 学习如何使用 Helius API 检索和查询 Solana SPL 代币数据。包括代币余额、账户、供应信息和持有者数据的代码示例。
+---
+
+Solana 的 SPL 代币生态系统非常庞大，Helius 提供了多种 API 来高效查询代币数据。
+
+## 基本代币账户信息
+
+使用 RPC 获取特定代币账户的余额：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountBalance',
+    params: [
+      '3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa'
+    ]
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettokenaccountbalance">
+  getTokenAccountBalance
+</Card>
+
+## 按所有者查找代币账户
+
+列出由某个钱包拥有的所有代币账户：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByOwner',
+    params: [
+      '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+      {
+        programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      },
+      {
+        encoding: 'jsonParsed'
+      }
+    ]
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettokenaccountsbyowner">
+  getTokenAccountsByOwner
+</Card>
+
+## 按铸造查找代币账户
+
+列出持有特定代币的所有账户：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByOwner',
+    params: [
+      'CEXq1uy9y15PL2Wb4vDQwQfcJakBGjaAjeuR2nKLj8dk',
+      {
+        mint: "8wXtPeU6557ETkp9WHFY1n1EcU6NxDvbAggHGsMYiHsB"
+      },
+      {
+        encoding: 'jsonParsed'
+      }
+    ]
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettokenaccountsbyowner">
+  getTokenAccountsByOwner
+</Card>
+
+## 获取代币供应量
+
+检查代币的总供应量：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenSupply',
+    params: [
+      'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+    ]
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettokensupply">
+  getTokenSupply
+</Card>
+
+## 查找大型代币持有者
+
+识别持有代币的最大账户：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenLargestAccounts',
+    params: [
+      'he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A'
+    ]
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/rpc/http/gettokenlargestaccounts">
+  getTokenLargestAccounts
+</Card>
+
+## 使用 DAS API 获取高级代币数据
+
+有关更全面的令牌信息，包括元数据：
+
+```typescript
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getAsset',
+    params: {
+      id: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+      options: {
+        showFungible: true
+      }
+    }
+  })
+});
+const data = await response.json();
+console.log(data);
+```
+
+<Card title="API 参考" horizontal icon="code" href="/api-reference/das/getasset">
+  getAsset
+</Card>

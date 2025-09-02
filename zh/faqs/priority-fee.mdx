@@ -1,0 +1,57 @@
+---
+title: Priority Fee API 常见问题解答
+description: 获取关于 Priority Fee API 的最常见问题的答案，包括交易优化、费用估算和提高着陆率
+---
+
+## 使用 Priority Fee API
+
+<Accordion title="如何提高低费用交易的着陆率？">
+使用 [Priority Fee API](/priority-fee-api) 获取最佳费用建议，而不是猜测费用。选择合适的优先级（大多数情况下选择“Medium”，对于时间敏感的操作选择“High”），并遵循交易最佳实践。
+
+对于付费计划，结合适当的优先费用，质押连接提供几乎有保证的交付。
+
+请参阅我们的[交易优化指南](/sending-transactions/optimizing-transactions)以获取完整的实施细节。
+</Accordion>
+
+<Accordion title="如何在 Solana 上发送交易？">
+Helius 提供三种主要方法：
+
+1. **智能交易**（推荐） - 使用我们的 [SDKs](/sdks) 进行自动优化
+2. **手动优化** - 自行构建和优化交易，完全控制  
+3. **超低延迟** - 使用 [Helius Sender](/sending-transactions/sender) 进行高频交易
+
+请参阅我们的[发送交易概述](/sending-transactions/overview)以选择合适的方法，并查看[手动发送交易](/sending-transactions/send-manually)以获取分步实施指南。
+</Accordion>
+
+<Accordion title="我的交易应该使用什么优先级？">
+**大多数应用程序从“Medium”开始**。对于时间敏感的操作使用“High”或“VeryHigh”，对于成本优化的非紧急交易使用“Low”。
+
+请参阅 [Priority Fee API 指南](/priority-fee-api) 以获取所有六个优先级的详细解释以及何时使用每个优先级。
+</Accordion>
+
+<Accordion title="如何计算优先费用的总成本？">
+**公式**：总优先费用 = 每计算单元价格 × 消耗的计算单元
+
+使用 [Priority Fee API](/priority-fee-api) 获取特定交易的实时估算，而不是手动计算。API 会考虑当前的网络状况和交易复杂性。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

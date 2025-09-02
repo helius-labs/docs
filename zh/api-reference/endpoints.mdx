@@ -1,0 +1,64 @@
+---
+title: Solana RPC URL 和端点
+sidebarTitle: 端点
+description: Helius 提供多种端点类型以满足不同应用的需求。本指南概述了与 Helius API 交互的所有可用连接选项。
+---
+
+## Solana RPC 端点
+
+标准的高性能 RPC 端点，提供完整的 Solana API 兼容性，并增强了可靠性和吞吐量。这些端点支持所有 Solana JSON-RPC 方法，现在对于所有付费计划**默认使用 staked 连接**，提供最佳的交易着陆率：
+
+- **Mainnet**: `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+<Note>
+**Staked Transactions Are the New Default**
+
+通过 Helius 发送的交易将自动使用 staked 连接，适用于所有付费计划，为您提供最高的交易着陆率，并确保您的交易在速度和可靠性方面得到优化。无需更改代码。
+</Note>
+
+## 安全 RPC 端点
+
+这些 URL 专门进行了掩码处理，并在 5 TPS 下进行 IP 速率限制，使其可以安全地直接从前端应用程序使用，而不会暴露您的 API 积分：
+
+- **Mainnet**: `https://abc-456-fast-mainnet.helius-rpc.com`
+- **Devnet**: `https://123-xyz-fast-devnet.helius-rpc.com`
+
+## Staked Connection 端点（已弃用）
+
+<Warning>
+**已弃用**：staked 端点 (`staked.helius-rpc.com`) 已被弃用。请改用常规端点 (`mainnet.helius-rpc.com`)，该端点现在默认对所有付费计划使用 staked 连接。
+</Warning>
+
+- **成本**：每个 `sendTransaction` 请求 1 积分（从 10 积分减少）
+- **自动优化**：所有交易通过优化的网络基础设施发送（亚洲、欧洲和北美）
+- **更高的着陆率**：在市场拥堵期间保证访问 staked 连接
+- **无需更改代码**：现有应用程序自动受益于 staked 连接
+
+## Solana Websocket 端点
+
+标准 WebSocket 端点，根据 Solana WebSocket 协议提供实时数据流。这些端点支持所有标准的 Solana WebSocket 订阅方法，包括账户、程序、签名、槽位和日志订阅：
+
+- **Mainnet**: `wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `wss://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+### 关键特性
+
+- **支持的订阅**: `accountSubscribe`, `programSubscribe`, `signatureSubscribe`, `slotSubscribe`, `logsSubscribe`, 等
+- **协议兼容性**: 完全兼容 Solana 的标准 WebSocket API
+- **最佳用途**: 适用于需要监控账户变化、跟踪交易确认或接收区块链活动实时更新的应用程序
+- **连接管理**: 实施每 30-60 秒的定期 ping 以保持活跃连接
+
+## Geyser 增强型 Websocket 端点
+
+增强型 WebSockets 提供比传统 RPC WebSockets 更快的响应时间，并直接向您的应用程序提供实时交易和账户更新：
+
+- **Mainnet**: `wss://atlas-mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+- **Devnet**: `wss://atlas-devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+### 关键特性
+
+- **适用于**: 仅限商业和专业计划（不同于 Yellowstone Geyser，需要专用节点）
+- **订阅方法**: 支持 `transactionSubscribe` 和 `accountSubscribe`
+- **连接管理**: Websockets 有 10 分钟的不活动计时器；实施健康检查并每分钟发送 ping 以保持连接活跃
+- **当前状态**: 处于测试阶段，偶尔可能会出现数据延迟

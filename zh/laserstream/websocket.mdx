@@ -1,0 +1,487 @@
+---
+title: LaserStream WebSocket：实时数据流
+sidebarTitle: WebSocket
+description: 通过LaserStream增强的WebSocket API流式传输Solana区块链的实时数据。更快的响应时间和高级过滤功能适用于实时应用程序。
+---
+
+### 概述
+
+LaserStream提供**增强的WebSockets**（与标准Solana WebSockets不同），提供**更快的响应时间**和**额外的过滤器**。当前方法：
+
+* `transactionSubscribe`
+* `accountSubscribe`
+
+<Tip>
+WebSockets有一个10分钟的不活动计时器。使用健康检查或每分钟发送ping以保持连接活跃。
+</Tip>
+
+<Note>
+**在寻找Atlas WebSockets吗？**\
+如果您需要Atlas增强WebSockets的信息，请参阅我们的[免责声明](#disclaimer-transition-from-atlas-enhanced-websockets)。
+</Note>
+
+***
+
+### 快速入门
+
+#### 1. 创建一个基本的WebSocket客户端
+
+```bash
+mkdir laserstream-enhanced-ws-demo
+cd laserstream-enhanced-ws-demo
+npm init -y
+npm install ws
+```
+
+_(您只需要`ws`库用于Node.js WebSocket客户端。不需要额外的库。)_
+
+#### 2. 获取您的API密钥
+
+从[Helius Dashboard](https://dashboard.helius.dev/)生成一个密钥。
+
+#### 3. 最小代码示例
+
+创建一个**`index.js`**文件：
+
+```js
+// index.js
+
+const WebSocket = require('ws');
+
+// 1. Use the LaserStream Enhanced WebSockets endpoint (Mainnet example):
+const WS_URL = `laserstream-ws-url`;
+
+const ws = new WebSocket(WS_URL);
+
+// 2. Define a transactionSubscribe request for real-time token transactions
+// Replace "accountInclude" with any accounts you want to track
+function buildSubscriptionRequest() {
+  return {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "transactionSubscribe",
+    params: [
+      {
+        vote: false,
+        failed: false,
+        accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        accountExclude: [],
+        accountRequired: []
+        // You can add "signature" or "fromSlot" if needed
+      },
+      {
+        commitment: "confirmed",
+        encoding: "jsonParsed",
+        transactionDetails: "full",
+        showRewards: false,
+        maxSupportedTransactionVersion: 0
+        // fromSlot: 224339000 // Uncomment for replay from a specific slot
+      }
+    ]
+  };
+}
+
+// 3. Optional: Keep the connection alive (ping every 30s)
+function startPing(ws) {
+  setInterval(() => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.ping();
+      console.log("Ping sent");
+    }
+  }, 30000);
+}
+
+// 4. Set up WebSocket event handlers
+ws.on('open', () => {
+  console.log("Enhanced WebSocket is open");
+  // Send the subscription request
+  const request = buildSubscriptionRequest();
+  ws.send(JSON.stringify(request));
+  startPing(ws);
+});
+
+ws.on('message', (data) => {
+  try {
+    const msg = JSON.parse(data);
+    console.log("Received:", msg);
+  } catch (e) {
+    console.error("Failed to parse JSON:", e);
+  }
+});
+
+ws.on('error', (err) => {
+  console.error("WebSocket error:", err);
+});
+
+ws.on('close', () => {
+  console.log("WebSocket is closed");
+});
+```
+
+#### **4. 替换您的端点和API密钥**
+
+将占位符**`laserstream-ws-url`**替换为您的实际WebSocket URL，并包含您的`api-key`，如下所示：
+
+```js
+const WS_URL = `wss://<YOUR_ENDPOINT>/?api-key=<YOUR_API_KEY>`;
+```
+
+确保使用您从[Helius Dashboard](https://dashboard.helius.dev)获得的密钥。
+
+#### 5. 运行并查看结果
+
+```bash
+node index.js
+```
+
+每当**确认**的代币交易涉及`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`时，您将开始接收交易事件。预计会收到显示交易详情和插槽的JSON对象。
+
+***
+
+### Transaction Subscribe
+
+`transactionSubscribe` websocket 方法启用实时交易事件。要使用它，请提供一个`TransactionSubscribeFilter`，并可选择性地包括`TransactionSubscribeOptions`以进行进一步自定义。
+
+#### **TransactionSubscribeFilter**
+
+`vote`: 一个布尔标志，用于包含/排除与投票相关的交易。
+
+`failed`: 一个布尔标志，用于包含/排除失败的交易。
+
+`signature`: 根据其签名过滤特定交易的更新。
+
+`accountInclude`: 您希望接收交易更新的账户列表。这意味着交易更新中只需包含其中一个账户（例如，账户1或账户2）。
+
+`accountExclude`: 您希望从交易更新中排除的账户列表。
+
+`accountRequired`: 交易必须涉及这些指定账户才能包含在更新中。这意味着交易更新中必须包含所有账户（例如，账户1和账户2）。
+
+<Tip>
+在`accountsInclude`、`accountExclude`和`accountRequired`数组中，您最多可以包含50,000个地址。
+</Tip>
+
+#### **TransactionSubscribeOptions (可选)**
+
+`commitment`: 指定获取数据的承诺级别，决定在交易生命周期的哪个阶段发送更新。可能的值是**processed**、**confirmed**和**finalized**。
+
+`encoding`: 设置返回交易数据的编码格式。可能的值是**base58**、**base64**和**jsonParsed**。
+
+`transactionDetails` : 确定返回交易数据的详细程度。可能的值是**full**、**signatures**、**accounts**和**none**。
+
+`showRewards`: 一个布尔标志，指示是否应在交易更新中包含奖励数据。
+
+`maxSupportedTransactionVersion`: 指定您希望接收更新的最高交易版本。要获取版本化交易，请将值设置为1。
+
+`fromSlot`: 从特定的 Solana 槽位开始订阅，从该槽位向前重播任何相关交易，直到您赶上实时数据。
+
+<Note>
+`maxSupportedTransactionVersion` 是返回给定交易的账户和完整级别详细信息所必需的（即，`transactionDetails: "accounts" | "full"`）。
+</Note>
+
+#### 交易订阅示例
+
+<details>
+
+<summary>示例负载</summary>
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 420,
+  "method": "transactionSubscribe",
+  "params": [
+      {
+        "vote": false,
+        "failed": false,
+        "signature": "2dd5zTLrSs2udfNsegFRCnzSyQcPrM9svX6m1UbEM5bSdXXFj3XpqaodtKarLYFP2mTVUsV27sRDdZCgcKhjeD9S",
+        "accountInclude": ["pqx3fvvh6b2eZBfLhTtQ5KxzU3CginmgGTmDCjk8TPP"],
+        "accountExclude": ["FbfwE8ZmVdwUbbEXdq4ofhuUEiAxeSk5kaoYrJJekpnZ"],
+        "accountRequired": ["As1XYY9RdGkjs62isDhLKG3yxMCMatnbanXrqU85XvXW"]
+      },
+      {
+	"commitment": "processed",
+    	"encoding": "base64",
+    	"transactionDetails": "full",
+    	"showRewards": true,
+    	"maxSupportedTransactionVersion": 0
+      }
+  ]
+}
+```
+
+</details>
+
+<details>
+
+<summary>示例通知</summary>
+
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "transactionNotification",
+    "params": {
+        "subscription": 4743323479349712,
+        "result": {
+            "transaction": {
+                "transaction": [
+                    "Ae6zfSExLsJ/E1+q0jI+3ueAtSoW+6HnuDohmuFwagUo2BU4OpkSdUKYNI1dJfMOonWvjaumf4Vv1ghn9f3Avg0BAAEDGycH0OcYRpfnPNuu0DBQxTYPWpmwHdXPjb8y2P200JgK3hGiC2JyC9qjTd2lrug7O4cvSRUVWgwohbbefNgKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HcpwKokfYDDAJTaF/TWRFWm0Gz5/me17PRnnywHurMBAgIAAQwCAAAAoIYBAAAAAAA=",
+                    "base64"
+                ],
+                "meta": {
+                    "err": null,
+                    "status": {
+                        "Ok": null
+                    },
+                    "fee": 5000,
+                    "preBalances": [
+                        28279852264,
+                        158122684,
+                        1
+                    ],
+                    "postBalances": [
+                        28279747264,
+                        158222684,
+                        1
+                    ],
+                    "innerInstructions": [],
+                    "logMessages": [
+                        "Program 11111111111111111111111111111111 invoke [1]",
+                        "Program 11111111111111111111111111111111 success"
+                    ],
+                    "preTokenBalances": [],
+                    "postTokenBalances": [],
+                    "rewards": null,
+                    "loadedAddresses": {
+                        "writable": [],
+                        "readonly": []
+                    },
+                    "computeUnitsConsumed": 0
+                }
+            },
+            "signature": "5moMXe6VW7L7aQZskcAkKGQ1y19qqUT1teQKBNAAmipzdxdqVLAdG47WrsByFYNJSAGa9TByv15oygnqYvP6Hn2p",
+            "slot": 224341380
+        }
+    }
+}
+```
+
+</details>
+
+<details>
+
+<summary>代码示例</summary>
+
+在此示例中，我们订阅包含 Raydium 账户 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 的交易。每当发生包含 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 在交易的 `accountKeys` 中的交易时，我们将收到一个 websocket 通知。
+
+根据订阅选项，交易通知将在 `processed` 承诺级别、`jsonParsed` 编码、`full` 交易详细信息，并显示奖励。
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('laserstream-ws-url');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "transactionSubscribe",
+        params: [
+            {
+                accountInclude: ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"]
+            },
+            {
+                commitment: "processed",
+                encoding: "jsonParsed",
+                transactionDetails: "full",
+                showRewards: true,
+                maxSupportedTransactionVersion: 0
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</details>
+
+***
+
+### 账户订阅
+
+Solana 的 Websockets 支持一种方法，允许您订阅一个账户，并在与匹配的账户公钥相关的 lamports 或数据发生变化时，通过 websocket 连接接收通知。此方法直接符合 Solana [Websocket API 规范](/rpc/websocket)。
+
+#### **参数**
+
+`string`: 账户公钥，以 base58 格式发送（必需）。
+
+`object`: 一个可选对象，用于传递附加参数。
+
+* `encoding`: 指定在 AccountNotification 中返回的数据格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是 **base58**）。
+* `commitment`: 定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是 **finalized**）。
+* `fromSlot`: 从此槽位重播，接收账户的历史更改直到当前槽位。
+
+#### 账户订阅示例
+
+<details>
+
+<summary>示例负载</summary>
+
+```bash
+{
+  "jsonrpc": "2.0",
+  "id": 420,
+  "method": "accountSubscribe",
+   "params": [
+    "SysvarC1ock11111111111111111111111111111111",
+    {
+      "encoding": "jsonParsed",
+      "commitment": "finalized"
+    }
+  ]
+}
+```
+
+</details>
+
+<details>
+
+<summary>示例通知</summary>
+
+```bash
+{
+    'jsonrpc': '2.0', 
+    'method': 'accountNotification', 
+    'params': 
+        {
+          'subscription': 237508762798666, 
+          'result': 
+           {
+            'context': {'slot': 235781083}, 
+            'value': 
+             {
+             'lamports': 1169280, 
+             'data': 'BvEhEb6hixL3QPn41gHcyi2CDGKt381jbNKFFCQr6XDTzCTXCuSUG9D', 
+             'owner': 'Sysvar1111111111111111111111111111111111111', 
+             'executable': False, 
+             'rentEpoch': 361, 
+             'space': 40
+             }
+           }
+        }
+}
+```
+
+</details>
+
+<details>
+
+<summary>代码示例</summary>
+
+在此示例中，我们订阅了账户 `SysvarC1ock11111111111111111111111111111111` 的变更。\
+\
+每当账户数据或该账户的 lamports 发生变化时，我们将看到更新。\
+对于此特定账户，由于 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分，因此这种情况会频繁发生。
+
+```javascript
+// Create a WebSocket connection
+const ws = new WebSocket('laserstream-ws-url');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "accountSubscribe",
+        params: [
+            "SysvarC1ock11111111111111111111111111111111", // pubkey of account we want to subscribe to
+            {
+                encoding: "jsonParsed", // base58, base64, base65+zstd, jsonParsed
+                commitment: "confirmed", // defaults to finalized if unset
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</details>
+
+***
+
+### 免责声明：Atlas 增强型 WebSockets
+
+Atlas 增强型 WebSockets 将在**底层由 LaserStream 提供支持**。这意味着您可以继续使用相同的 Atlas 端点，并且仍然可以访问 LaserStream 的高级功能，例如 **`fromSlot`** 重播，而无需迁移。如果您已经在使用 Atlas，**无需更改**；如果您更喜欢专用的 LaserStream 端点，也可以使用它们。

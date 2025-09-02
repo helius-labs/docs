@@ -1,0 +1,58 @@
+---
+title: Solana NFT 压缩：成本高效的大规模 NFT 铸造
+sidebarTitle: NFT 压缩
+description: 在 Solana 上铸造大量 NFT 的最具成本效益的方法。了解 Merkle 树、压缩 NFT 和数字收藏的巨大成本节省。
+---
+
+## 什么是压缩？
+
+数据存储在 Solana 的[账户](https://solana.com/docs/core/accounts)中，这可能会很昂贵。**压缩**通过将数据直接存储在 Solana 分类账上，提供了一种成本效益高的替代方案。
+
+## NFT 压缩
+
+NFT 压缩使开发者能够以极低的成本铸造大量 NFT，因为其属性存储在 Solana 分类账上，而不是单独的账户中。传统上，每个 NFT 需要自己的账户，这对于大型收藏来说可能会变得昂贵。通过压缩，NFT 存储在一个 **Merkle 树**中，并使用存储在单个账户中的 **根哈希** 验证树的有效性。
+
+对压缩 NFT 的修改需要 **证明** 以确保 NFT 不能被恶意修改。通过将根哈希与存储在根账户中的内容进行比较，可以验证索引器返回的数据。有关更多详细信息，请参阅 Solana 文档和我们的[博客解释](https://www.helius.dev/blog/solana-nft-compression)。
+
+Helius 通过跟踪压缩 NFT 状态、提供更快的查找并返回带有加密证明的数据以确保完整性，从而简化了 NFT 开发。
+
+## 压缩 NFT 有何不同？
+
+* 压缩 NFT 不是原生的 Solana 代币。它们没有代币账户、铸造账户或元数据。
+* 每个 Merkle 树存在一个账户；每个树可以容纳数百万个 NFT。
+* 一个收藏可以使用多个 Merkle 树（推荐用于较大的收藏）。
+* 一个 Merkle 树账户也可以容纳多个收藏（不推荐）。
+* 需要一个 [DAS API](/api-reference/das) 调用来读取有关压缩 NFT 的任何信息（例如，属性、收藏信息等）。这会影响 Solana dApps 加载您的资产等。
+* 压缩 NFT 可以转换为常规 NFT，但反之则不行。
+
+<Note>
+出于实际原因，建议将树的大小保持在 100 万或更少。这是因为证明路径将开始超过 Solana 交易账户限制。
+</Note>
+
+<Note>
+所有 cNFT 修改必须通过 [Bubblegum 程序](https://github.com/metaplex-foundation/mpl-bubblegum/tree/main/programs/bubblegum) 进行。您可以在[这里](https://developers.metaplex.com/bubblegum)参考方法。
+</Note>
+
+## 索引器如何工作？
+
+压缩的 NFT 信息并不存储在传统的 Solana 账户中。相反，所有元数据都存储在一个分类账上，这需要索引服务来高效地获取所需的元数据。虽然可以通过重放相关交易来推导当前状态，但我们为方便起见处理了这个过程。
+
+索引器监控所有 Bubblegum 交易，解析它们并更新其内部状态。例如，当一个压缩的 NFT 被铸造时，索引器解析交易以提取关键细节，如 NFT 的名称、集合和所有者。如果索引器遇到一个以前未见过的树或检测到缺失的更新，它会获取该树的交易历史并重建完整状态。索引器代码可以在[这里](https://github.com/metaplex-foundation/digital-asset-rpc-infrastructure)找到。
+
+## 示例
+
+您可以从以下示例开始：
+
+* [Helius 压缩示例](https://github.com/helius-labs/compression-examples)
+* [Metaplex 压缩示例](https://github.com/metaplex-foundation/compression-read-api-js-examples)
+
+## 进一步阅读
+
+* [什么是压缩，Twitter 线程](https://twitter.com/heliuslabs/status/1686796581193023489)
+* [Metaplex 压缩文档中心](https://docs.metaplex.com/programs/compression/)
+* [Solana 账户压缩仓库](https://github.com/solana-labs/solana-program-library/tree/master/account-compression)
+* [探索 Solana 上的压缩](https://www.helius.dev/blog/solana-nft-compression)
+
+如果您更喜欢视觉学习，这里有一个速成课程：
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vKIE7tHad8w?si=rkFCHdhMGQYrEH1O" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>

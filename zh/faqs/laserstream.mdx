@@ -1,0 +1,97 @@
+---
+title: LaserStream 常见问题
+description: 获取关于 LaserStream 的最常见问题的答案，包括购买、使用、故障排除和订阅管理
+---
+
+## 购买 LaserStream
+
+<Accordion title="为什么 LaserStream 比专用 gRPC 节点更好？">
+LaserStream 跨越七个区域，具有自动故障转移和重播功能，是 Geyser 的即插即用替代品。与专用节点相比，您将获得更高的吞吐量和弹性。有关更多信息，请查看我们的[比较](https://www.helius.dev/docs/laserstream/laserstream-vs-dedicated-nodes)。
+</Accordion>
+
+<Accordion title="LaserStream Plus 附加组件是什么，它们的费用是多少？">
+LaserStream Plus 附加组件将您的专业计划的按使用付费模式转变为可预测的月度费用。提供五个等级：每月 50TB (\$2,500)、100TB (\$4,500)、150TB (\$6,500)、200TB (\$8,500) 和 250TB (\$10,500)。每个等级包括指定的数据配额，无需消耗积分，超出部分每 0.1 MB 收取 2 积分——比标准费率优惠 33%。[查看详细定价](/billing/plans-and-rate-limits#laserstream-plus-add-ons)。
+</Accordion>
+
+<Accordion title="哪个 Solana 数据流产品提供最低延迟的数据流？">
+LaserStream 提供可用的最低延迟数据流。它直接连接到 Solana 领导者，以接收生成的分片，具有优化的分片流功能，能够比其他任何人更早传递数据。多个区域端点确保最小的地理延迟。
+</Accordion>
+
+<Accordion title="Helius 是否提供类似 Jito 的 ShreadStream 的分片流产品？">
+是的！LaserStream 包含优化的分片流功能。LaserStream 具有“优化的分片流：在其他人之前接收数据”，提供与 Jito 的 ShreadStream 类似的功能，但具有额外的可靠性和多区域支持。
+</Accordion>
+
+<Accordion title="LaserStream 的实际过滤器限制是什么？">
+每个流最多包含 **1000 万** 个账户，无限的程序过滤器，以及每个项目 **100 个并发连接**。
+</Accordion>
+
+## 使用 LaserStream
+
+<Accordion title="LaserStream 是否与 Yellowstone 客户端兼容？">
+是的！LaserStream gRPC 设计为 Yellowstone gRPC 的直接替代品。只需更改您的端点和 API 令牌，现有的 gRPC 代码即可立即与 LaserStream 一起工作。LaserStream 使用开源的 gRPC 协议。
+</Accordion>
+
+<Accordion title="我在哪里可以找到 LaserStream 带宽指标？">
+您可以在 Helius 仪表板的 [LaserStream](https://dashboard.helius.dev/laserstream) 页面上找到 LaserStream 带宽指标。
+</Accordion>
+
+<Accordion title="是否可以获取早于处理承诺级别的数据？">
+不，“处理”已经是 Solana 上最快的承诺级别（约 400 毫秒延迟）。它代表由单个验证者处理的数据，尚未经过网络确认。LaserStream 通过直接领导者连接和 shredstream 技术优化了处理级别数据的传递。
+</Accordion>
+
+<Accordion title="我可以在一个 LaserStream 请求中订阅多种数据类型（例如，账户和交易）吗？">
+可以，您可以在单个 `SubscribeRequest` 中订阅多种数据类型。添加单独的过滤器配置（例如 `accounts` 和 `transactions`）以在一个流中接收账户更新和交易数据。
+</Accordion>
+
+## LaserStream 故障排除
+
+<Accordion title="为什么我的 LaserStream 连接出现延迟或性能缓慢？">
+• **客户端瓶颈**：JavaScript 客户端在负载过重时可能会出现延迟。缩小过滤器范围或切换到更快的语言。
+
+• **本地带宽限制**：大量订阅可能会使慢速链接饱和。监控网络使用情况或升级您的连接。
+
+• **地理距离**：选择离您最近的 LaserStream 端点；长距离路由会丢包并增加延迟。
+
+• **处理逻辑**：避免阻塞主线程；使用异步队列或工作线程。
+
+*基准测试提示*：
+
+```bash
+cargo install helius-laserstream-bandwidth
+helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_KEY
+```
+
+</Accordion>
+
+<Accordion title="如何检查我的 LaserStream 连接是否有错误？">
+验证您的 x-token 和端点，确保允许出站 gRPC。检查您的仪表板以获取连接状态，并查看应用程序中的错误日志以查找身份验证或网络问题。
+</Accordion>
+
+<Accordion title="为什么我的 LaserStream 过滤器没有按预期工作？">
+确认公钥和承诺级别，并检查你的 `AND`/`OR` 逻辑。过滤器的评估方式如[文档](https://www.helius.dev/docs/laserstream/grpc#subscribe-request)中所述。
+</Accordion>
+
+<Accordion title="为什么 LaserStream 每 15 秒发送一个空事件？">
+这些是维持连接健康和防止超时的 ping/心跳事件。它们是 gRPC 协议连接管理的一部分。你可以安全地忽略这些事件，或者在你的应用程序中使用它们来监控连接状态。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

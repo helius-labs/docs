@@ -1,0 +1,97 @@
+---
+title: Solana 事件监听快速入门：实时区块链事件
+sidebarTitle: 快速入门
+description: 使用 Helius webhooks 和 WebSockets 在几分钟内开始 Solana 事件监听。监控区块链事件并设置实时通知。
+---
+
+本指南将引导您使用 Helius 设置您的第一个事件监听器。
+
+## 先决条件
+
+- 一个 Helius API 密钥（从 [Helius Dashboard](https://dashboard.helius.dev) 获取）
+- 一个可以接收 POST 请求的 webhook 端点（用于 webhook 监听器）
+
+## 设置选项
+
+Helius 提供两种主要的事件监听方法：
+
+1. **Webhooks** - 当特定区块链事件发生时接收通知
+2. **WebSockets** - 用于响应式应用程序的实时事件流
+
+## 快速设置：Webhooks
+
+<Steps>
+  <Step title="创建一个 Webhook">
+
+    ```bash
+    curl -X POST 'https://api.helius.xyz/v0/webhooks' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
+        "transactionTypes": ["ANY"],
+        "webhookURL": "YOUR_WEBHOOK_URL",
+        "authHeader": {"key": "value"}, // optional
+        "webhookType": "enhanced"
+      }' \
+      -H 'Authorization: Bearer YOUR_API_KEY'
+    ```
+
+  </Step>
+  <Step title="验证接收">
+    符合您条件的事件将作为 POST 请求发送到您的 webhook URL。负载将包括：
+
+    ```json
+    {
+      "accountData": [],
+      "description": "",
+      "events": {},
+      "fee": 5000,
+      "feePayer": "YOUR_ACCOUNT_ADDRESS",
+      "signature": "TRANSACTION_SIGNATURE",
+      "slot": 1234567,
+      "timestamp": 1234567890000,
+      "type": "TRANSACTION_TYPE"
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## 快速设置：WebSockets
+
+<Steps>
+  <Step title="连接到 WebSocket 端点">
+
+    ```javascript
+    const WebSocket = require('ws');
+
+    // Connect to Helius WebSocket endpoint
+    const ws = new WebSocket('wss://api.helius.xyz/v0/webhook-events?api-key=YOUR_API_KEY');
+    ```
+
+  </Step>
+  <Step title="设置事件处理程序">
+
+    ```javascript
+    // Handle connection open
+    ws.on('open', () => {
+      console.log('Connected to Helius WebSocket');
+    });
+
+    // Handle incoming messages
+    ws.on('message', (data) => {
+      const event = JSON.parse(data);
+      console.log('Received event:', event);
+    });
+    ```
+
+  </Step>
+</Steps>
+
+## 下一步
+
+- [了解更多关于 Webhooks 的信息](/webhooks)
+- 探索高级事件过滤选项
+- 为特定交易类型设置通知
+
+如需更多帮助，请加入我们的 [Discord](https://discord.com/invite/6GXdee3gBj) 或 [Telegram](https://t.me/helius_help) 社区。

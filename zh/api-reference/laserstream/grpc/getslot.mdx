@@ -1,0 +1,48 @@
+---
+title: GetSlot
+description: 使用 LaserStream gRPC API 从 Solana 区块链获取当前插槽号。
+---
+
+<hide>
+## 端点
+
+gRPC 服务在主网和开发网可用，使用以下 URL：
+
+- **主网** `https://laserstream-mainnet.helius-rpc.com:443`
+- **开发网** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## 授权
+
+<ParamField query="x-token" type="string" required>
+  您的 Helius API 密钥。您可以在
+  [仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+</ParamField>
+
+## 消息
+
+此方法接受一个空请求并返回当前插槽号。
+
+<RequestExample>
+
+```json Empty Request
+{}
+```
+
+</RequestExample>
+
+## 响应
+
+<ResponseField name="slot" type="integer">
+  Solana 区块链上的当前插槽号。
+</ResponseField>
+
+<ResponseExample>
+
+```json
+{
+  "slot": "333391830"
+}
+```
+
+</ResponseExample>

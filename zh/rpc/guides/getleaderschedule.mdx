@@ -1,0 +1,139 @@
+---
+title: 如何使用 getLeaderSchedule
+sidebarTitle: getLeaderSchedule
+description: 了解 getLeaderSchedule 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getLeaderSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getleaderschedule) RPC 方法返回特定 epoch 中区块生产领导权分配给验证者的情况。了解领导者计划对于网络分析、预测哪个验证者将在特定时间生成区块或与特定领导者交互的工具可能很有用。
+
+## 常见用例
+
+*   **网络监控：** 观察一个 epoch 中验证者之间的领导者槽分布。
+*   **交易路由（高级）：** 一些高级应用程序可能尝试将交易路由到当前或即将成为领导者的验证者，尽管这通常由网络和 RPC 节点处理。
+*   **验证者性能分析：** 将领导者计划与实际区块生产相关联，以评估验证者的正常运行时间和性能。
+*   **理解 epoch 进程：** 查看哪些验证者在整个 epoch 中负责生成区块。
+
+## 请求参数
+
+该方法最多可以接受两个可选参数：
+
+1.  **`slot`** (u64, 可选)：一个槽号。如果提供，将获取包含此槽的 epoch 的领导者计划。如果 `null` 或省略，将获取当前 epoch 的领导者计划。
+2.  **`config`** (object, 可选)：一个配置对象，可以包含：
+    *   **`commitment`** (string, 可选)：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，将使用节点的默认承诺。
+    *   **`identity`** (string, 可选)：验证者的 base-58 编码公钥。如果提供，返回的计划将仅包括分配给此特定验证者的槽。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是：
+
+*   `null`：如果找不到请求的 `slot` 对应的纪元（或如果未提供槽位则为当前纪元），或者其领导者计划不可用（例如，对于未来未计算的纪元）。
+*   一个 **对象**：如果找到计划。此对象是一个映射，其中：
+    *   每个 **键** 是验证者的 base-58 编码公钥（身份）。
+    *   相应的 **值** 是一个数字数组。每个数字是该验证者作为领导者的槽位索引，相对于纪元的开始。
+
+例如，如果一个纪元从槽位 `1000` 开始，并且一个验证者在其计划中有 `[0, 1, 5]`，这意味着该验证者是槽位 `1000`、`1001` 和 `1005` 的领导者。
+
+## 示例
+
+### 1. 获取当前纪元的领导者计划
+
+此示例获取当前纪元的完整领导者计划。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLeaderSchedule"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchCurrentLeaderSchedule() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const leaderSchedule = await connection.getLeaderSchedule(); // Fetches for current epoch by default
+    if (leaderSchedule) {
+      console.log('Leader Schedule for Current Epoch:');
+      for (const [validatorIdentity, slots] of Object.entries(leaderSchedule)) {
+        console.log(`  Validator: ${validatorIdentity}`);
+        console.log(`    Slots (relative to epoch start): ${slots.join(', ')}`);
+      }
+    } else {
+      console.log('Leader schedule for the current epoch not found or not yet available.');
+    }
+    // console.log(JSON.stringify(leaderSchedule, null, 2));
+  } catch (error) {
+    console.error('Error fetching leader schedule:', error);
+  }
+}
+
+fetchCurrentLeaderSchedule();
+```
+
+</CodeGroup>
+
+### 2. 获取特定纪元中特定验证者的领导者计划（按槽位）
+
+此示例获取给定验证者身份在包含槽位 `200000` 的纪元中的领导者计划。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace VALIDATOR_PUBKEY with an actual validator identity public key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getLeaderSchedule",
+    "params": [
+      200000,
+      { "identity": "VALIDATOR_PUBKEY" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+// Replace VALIDATOR_PUBKEY with an actual validator identity public key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchValidatorEpochSchedule() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const targetSlot = 200000;
+  const validatorIdentity = 'VALIDATOR_PUBKEY'; // e.g., 'Vote111111111111111111111111111111111111111'
+
+  try {
+    const leaderSchedule = await connection.getLeaderSchedule(targetSlot, { identity: validatorIdentity });
+    if (leaderSchedule && leaderSchedule[validatorIdentity]) {
+      console.log(`Leader Schedule for Validator ${validatorIdentity} in epoch of slot ${targetSlot}:`);
+      console.log(`  Slots (relative to epoch start): ${leaderSchedule[validatorIdentity].join(', ')}`);
+    } else {
+      console.log(`No leader slots found for validator ${validatorIdentity} in epoch of slot ${targetSlot}, or schedule not available.`);
+    }
+    // console.log(JSON.stringify(leaderSchedule, null, 2));
+  } catch (error) {
+    console.error('Error fetching validator leader schedule:', error);
+  }
+}
+
+fetchValidatorEpochSchedule();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **纪元边界：** 领导者计划在整个纪元内是固定的。您可以使用 `getEpochInfo` 找到纪元的开始和结束槽位。
+*   **未来纪元：** 请求远期纪元的计划可能会返回 `null`，如果网络尚未计算它。
+*   **相对槽位索引：** 请记住，响应中的槽位号是相对于*请求的*纪元的第一个槽位，而不是区块链上的绝对槽位号。
+*   **大响应：** 对于没有身份过滤器的完整纪元计划，响应可能很大，列出所有验证者及其分配的槽位。
+
+本指南提供了使用`getLeaderSchedule`查询Solana网络上任何给定epoch的区块生产者分配所需的信息。

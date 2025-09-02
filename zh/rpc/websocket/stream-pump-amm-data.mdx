@@ -1,0 +1,252 @@
+---
+title: 流式传输 Solana Pump AMM 数据：标准 WebSocket 指南
+sidebarTitle: 流式传输 Pump AMM 数据
+description: 了解如何使用标准 WebSocket 和 Helius 流式传输实时 Solana Pump AMM 数据。所有计划均提供基于日志的监控，并支持自动重连。
+---
+
+## 标准 WebSocket
+
+<p>
+  <strong>为什么选择标准 WebSocket</strong> – 简单集成，适用于所有计划。使用 Solana PubSub <code>logsSubscribe</code>，因此您只会收到日志消息。
+</p>
+
+<Info>
+  适用于<strong>所有 Helius 计划</strong>。
+</Info>
+
+<p>
+  工作原理 – 连接到标准 WebSocket 端点，订阅提到 Pump AMM 程序的日志，并处理传入的日志数据。示例包括带有指数退避的自动重连。
+</p>
+
+## 要求
+
+<Card>
+  <ul>
+    <li><strong>Node.js ≥ 18</strong>（已在 v20 上测试）</li>
+    <li>如果计划使用 <code>ts‑node</code> 运行 <code>.ts</code> 示例，则需要 <strong>TypeScript ≥ 5</strong></li>
+    <li>任何 <strong>Helius 计划</strong> – 适用于所有计划级别</li>
+    <li>一个名为 <code>HELIUS_API_KEY</code> 的<strong>环境变量</strong>，用于存储您的 API 密钥</li>
+  </ul>
+
+  <Tip>
+    全局安装依赖项：<code>npm i -g typescript ts‑node</code>
+  </Tip>
+</Card>
+
+## 实施
+
+<Steps>
+  <Step title="安装依赖项">
+
+    ```bash
+    npm install ws
+    ```
+
+  </Step>
+
+  <Step title="创建 WebSocket 客户端">
+    创建一个名为 `standard-ws-pump.ts` 的文件，并包含以下代码：
+    
+
+    ```ts
+    // standard-ws-pump.ts
+    import WebSocket from 'ws';
+
+    // Configuration
+    const MAX_RETRIES = 5;
+    const INITIAL_RETRY_DELAY = 1000; // 1 second
+    let retryCount = 0;
+    let retryTimeout: NodeJS.Timeout | null = null;
+    let subscriptionId: number | null = null;
+
+    // Create a WebSocket connection
+    let ws: WebSocket;
+
+    function connect() {
+      ws = new WebSocket(`wss://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`);
+
+      // Function to send a request to the WebSocket server
+      function sendRequest(ws: WebSocket): void {
+        const request = {
+          "jsonrpc": "2.0",
+          "id": 1,
+          "method": "logsSubscribe",
+          "params": [
+            {
+              "mentions": ["pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"]
+            }
+          ]
+        };
+        console.log('Sending subscription request:', JSON.stringify(request, null, 2));
+        ws.send(JSON.stringify(request));
+      }
+
+      // Function to send a ping to the WebSocket server
+      function startPing(ws: WebSocket): void {
+        setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+          }
+        }, 30000); // Ping every 30 seconds
+      }
+
+      // Define WebSocket event handlers
+      ws.on('open', function open() {
+        console.log('WebSocket is open');
+        retryCount = 0; // Reset retry count on successful connection
+        sendRequest(ws); // Send a request once the WebSocket is open
+        startPing(ws); // Start sending pings
+      });
+
+      ws.on('message', function incoming(data: WebSocket.Data) {
+        const messageStr = data.toString('utf8');
+        try {
+          const messageObj = JSON.parse(messageStr);
+
+          // Handle subscription confirmation
+          if (messageObj.result && typeof messageObj.result === 'number') {
+            subscriptionId = messageObj.result;
+            console.log('Successfully subscribed with ID:', subscriptionId);
+            return;
+          }
+
+          // Handle actual log data
+          if (messageObj.params && messageObj.params.result) {
+            const logData = messageObj.params.result;
+            console.log('Received log data:', JSON.stringify(logData, null, 2));
+            
+            // Extract the transaction signature if available
+            if (logData.signature) {
+              console.log('Transaction signature:', logData.signature);
+              // You can call getTransaction with this signature to get the full transaction details
+            }
+          } else {
+            console.log('Received message:', JSON.stringify(messageObj, null, 2));
+          }
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
+        }
+      });
+
+      ws.on('error', function error(err: Error) {
+        console.error('WebSocket error:', err);
+      });
+
+      ws.on('close', function close() {
+        console.log('WebSocket is closed');
+        if (subscriptionId) {
+          console.log('Last subscription ID was:', subscriptionId);
+        }
+        reconnect();
+      });
+    }
+
+    function reconnect() {
+      if (retryCount >= MAX_RETRIES) {
+        console.error('Max retry attempts reached. Please check your connection and try again.');
+        return;
+      }
+
+      const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+      console.log(`Attempting to reconnect in ${delay/1000} seconds... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+
+      retryTimeout = setTimeout(() => {
+        retryCount++;
+        connect();
+      }, delay);
+    }
+
+    // Start the initial connection
+    connect();
+
+    // Cleanup function
+    process.on('SIGINT', () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+      if (ws) {
+        ws.close();
+      }
+      process.exit();
+    });
+    ```
+
+  </Step>
+
+  <Step title="设置环境变量">
+    将您的 Helius API 密钥添加为环境变量：
+    
+
+    ```bash
+    export HELIUS_API_KEY=your-helius-api-key
+    ```
+
+    
+    用您从仪表板获取的实际 Helius API 密钥替换 `your-helius-api-key`。
+  </Step>
+
+  <Step title="运行应用程序">
+    执行脚本以开始流式传输 Pump AMM 数据：
+    
+
+    ```bash
+    npx ts-node standard-ws-pump.ts
+    ```
+
+    
+    您将收到提到 Pump AMM 程序的日志消息。要获取完整交易，请使用日志条目中的签名调用 [`getTransaction`](/api-reference/rpc/http/gettransaction)。
+  </Step>
+</Steps>
+
+## 主要优势
+
+- **通用访问** - 适用于所有 Helius 计划，包括免费层
+- **轻量级** - 数据传输量小，因为只流式传输日志而非完整交易
+- **易于实现** - 使用标准 Solana RPC WebSocket 协议
+- **低入门门槛** - 非常适合原型设计和初始监控
+
+## 获取完整的交易详情
+
+由于标准 WebSocket 仅提供日志消息，您需要额外的步骤来获取完整的交易数据：
+
+```ts
+// Example of how to fetch a full transaction from a log entry
+async function fetchFullTransaction(signature: string) {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'getTransaction',
+      params: [
+        signature,
+        {
+          encoding: 'jsonParsed',
+          maxSupportedTransactionVersion: 0
+        }
+      ]
+    })
+  });
+  
+  const data = await response.json();
+  return data.result;
+}
+```
+
+## 常见问题及解决方案
+
+<AccordionGroup>
+  <Accordion title="401 未授权">
+    验证您的 HELIUS_API_KEY 是否正确。
+  </Accordion>
+  <Accordion title="未收到日志">
+    确保 Pump AMM 程序地址正确，并且程序上有活动。
+  </Accordion>
+  <Accordion title="连接中断">
+    实施更强大的重连逻辑或检查网络稳定性。
+  </Accordion>
+</AccordionGroup>
