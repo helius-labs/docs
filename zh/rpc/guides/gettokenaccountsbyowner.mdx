@@ -8,7 +8,7 @@ description: 了解 getTokenAccountsByOwner 的使用案例、代码示例、请
 
 您必须通过特定代币 `mint` 或 `programId`（例如，SPL Token Program 或 Token-2022 Program）来过滤查询。
 
-对于拥有大量代币组合的钱包，考虑使用 [`getTokenAccountsByOwnerV2`](/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供基于游标的分页支持，每个请求最多可配置 10,000 个账户。
+对于拥有大量代币组合的钱包，考虑使用 [`getTokenAccountsByOwnerV2`](/zh/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供基于游标的分页支持，每个请求最多可配置 10,000 个账户。
 
 ## 常见用例
 
@@ -206,14 +206,14 @@ findOwnerTokenAccounts(exampleOwner, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWu
 *   **过滤要求：** 你*必须*在过滤器中提供 `mint` 或 `programId`。没有这些主要过滤器之一，无法查询所有代币类型的所有者的所有代币账户。
 *   **关联代币账户：** 此方法将返回由公钥拥有的所有代币账户，包括标准的关联代币账户（ATAs）和他们可能拥有的任何其他 SPL 代币账户（例如，来自旧钱包实现或自定义设置）。
 *   **编码：** 强烈推荐为 `encoding` 选项使用 `"jsonParsed"`。它将二进制账户数据解码为更易用的 JSON 结构。
-*   **性能：** 如果一个所有者拥有非常多的代币账户（特别是仅通过 `programId` 过滤时），响应可能会很大。在这种情况下，使用 [`getTokenAccountsByOwnerV2`](/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供内置的分页支持。
+*   **性能：** 如果一个所有者拥有非常多的代币账户（特别是仅通过 `programId` 过滤时），响应可能会很大。在这种情况下，使用 [`getTokenAccountsByOwnerV2`](/zh/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供内置的分页支持。
 *   **Token-2022（代币扩展）：** 如果您使用的是通过 Token-2022 程序创建的代币（支持转账费用、利息等扩展），请确保使用正确的 `programId`：`TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`。
 
 本指南提供了对 `getTokenAccountsByOwner` RPC 方法的深入理解，使您能够高效地检索任何 Solana 地址的代币账户信息。
 
 ## 大型代币组合的分页
 
-对于持有大量代币的钱包，使用 [`getTokenAccountsByOwnerV2`](/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供：
+对于持有大量代币的钱包，使用 [`getTokenAccountsByOwnerV2`](/zh/api-reference/rpc/http/gettokenaccountsbyownerv2)，它提供：
 
 - **基于游标的分页**：设置 `limit`（1-10,000）并使用 `paginationKey` 导航结果
 - **增量更新**：使用 `changedSinceSlot` 仅获取自特定槽位以来修改的代币账户

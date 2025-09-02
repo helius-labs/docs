@@ -57,7 +57,7 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 
 ### Geyser 插件（推荐）
 
-**我们强烈推荐添加 [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser 插件**，这是专用节点的主要使用场景。它提供高性能的槽、区块、交易和账户更新的 [gRPC 流](/grpc)。
+**我们强烈推荐添加 [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser 插件**，这是专用节点的主要使用场景。它提供高性能的槽、区块、交易和账户更新的 [gRPC 流](/zh/grpc)。
 
 <Frame caption="选择 Yellowstone gRPC Geyser 插件（推荐）">
   <img
@@ -91,14 +91,14 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 **专用节点通过 Yellowstone Geyser 插件针对 gRPC 流进行了优化。** 这是使用专用节点的主要和推荐方式。
 
 <Info>
-**考虑使用 LaserStream 进行 gRPC 流式传输**：LaserStream 提供卓越的性能、可靠性和高级功能，如历史重播，非常适合 gRPC 流式传输。推荐用于 99% 的流式传输用例。[比较 LaserStream 与专用节点](/laserstream/laserstream-vs-dedicated-nodes) 以选择最适合您需求的解决方案。
+**考虑使用 LaserStream 进行 gRPC 流式传输**：LaserStream 提供卓越的性能、可靠性和高级功能，如历史重播，非常适合 gRPC 流式传输。推荐用于 99% 的流式传输用例。[比较 LaserStream 与专用节点](/zh/laserstream/laserstream-vs-dedicated-nodes) 以选择最适合您需求的解决方案。
 </Info>
 
 ### 基本 RPC 和 Websocket（功能有限）
 
 每个专用节点也提供基本的 RPC 功能，但有一定限制。**对于生产应用程序，将专用节点与共享计划结合使用。**
 
-这里我们使用 Solana web3.js 调用我们的专用节点上的 [`getSlot`](/api-reference/rpc/http/getslot)：
+这里我们使用 Solana web3.js 调用我们的专用节点上的 [`getSlot`](/zh/api-reference/rpc/http/getslot)：
 
 ```javascript
 // Using @solana/web3.js

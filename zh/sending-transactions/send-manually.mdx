@@ -4,7 +4,7 @@ sidebarTitle: 如何发送交易
 description: 逐步指南，构建稳健的、生产级的 Solana 交易发送工作流。学习计算优化、优先费用和确认策略。
 ---
 
-构建您自己的交易发送逻辑是确保您的应用程序达到最佳性能、控制和可靠性的最佳方式。虽然 [Helius SDK](/sdks) 提供了一个方便的入门封装，但对于生产系统，理解和实现此手动工作流是强烈推荐的。
+构建您自己的交易发送逻辑是确保您的应用程序达到最佳性能、控制和可靠性的最佳方式。虽然 [Helius SDK](/zh/sdks) 提供了一个方便的入门封装，但对于生产系统，理解和实现此手动工作流是强烈推荐的。
 
 本指南将引导您完成构建您自己解决方案的必要步骤。
 
@@ -117,7 +117,7 @@ const setCuLimitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
 
 ### 3. 设置正确的优先费用
 
-接下来，确定要添加到交易中的最佳优先费用。使用 Helius [优先费用 API](/priority-fee-api) 是根据当前网络状况获取实时估算的最佳方式。
+接下来，确定要添加到交易中的最佳优先费用。使用 Helius [优先费用 API](/zh/priority-fee-api) 是根据当前网络状况获取实时估算的最佳方式。
 
 您需要调用 `getPriorityFeeEstimate` RPC 方法。为了通过 Helius 的质押连接获得最高的包含机会，使用 `recommended: true` 选项。
 

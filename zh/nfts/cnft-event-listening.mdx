@@ -45,7 +45,7 @@ Helius 提供了**三种主要**方式来监听 cNFT 事件：
 
 #### 3.1 标准 WebSockets
 
-[**标准 WebSockets**](/rpc/websocket)
+[**标准 WebSockets**](/zh/rpc/websocket)
 
 * **持久连接**：您订阅账户或程序，Solana 推送更新。
 
@@ -114,7 +114,7 @@ ws.on('close', () => {
 
 #### 3.2 增强 WebSockets
 
-[**增强 WebSockets**](/enhanced-websockets)
+[**增强 WebSockets**](/zh/enhanced-websockets)
 
 * **增强** WebSocket，具有高级过滤功能（`accountInclude`, `accountRequired`, 等）。
 * **减少解析开销**，因为您只会收到与您的地址相关的交易。
@@ -240,9 +240,9 @@ const subscribeRequest = {
 
 #### 3.3 Webhooks
 
-[**Webhooks**](/webhooks) 允许 Helius 在链上事件发生时通过 HTTP POST 通知您的服务器。非常适合**不需要**持久连接的情况。
+[**Webhooks**](/zh/webhooks) 允许 Helius 在链上事件发生时通过 HTTP POST 通知您的服务器。非常适合**不需要**持久连接的情况。
 
-1. 通过 [API](/api-reference/webhooks/create-webhook)、[SDK](/sdks) 或 [Dashboard](https://dashboard.helius.dev) **创建** webhook。
+1. 通过 [API](/zh/api-reference/webhooks/create-webhook)、[SDK](/zh/sdks) 或 [Dashboard](https://dashboard.helius.dev) **创建** webhook。
 2. **指定**要监控的地址（Merkle 树地址、用户钱包等）。
 3. **接收**服务器端点上的交易数据；解析 cNFT 指令。
 
@@ -336,7 +336,7 @@ createCNFTWebhook().catch(console.error);
 
 #### 3.4 gRPC (Yellowstone)
 
-[**gRPC**](/grpc) 是最灵活且高性能的事件监听解决方案，可通过 [**LaserStream**](/laserstream) 或 [**Dedicated Nodes**](/dedicated-nodes) 使用。
+[**gRPC**](/zh/grpc) 是最灵活且高性能的事件监听解决方案，可通过 [**LaserStream**](/zh/laserstream) 或 [**Dedicated Nodes**](/zh/dedicated-nodes) 使用。
 
 * **高级过滤**（memcmp，所有者，账户等）。
 * **企业级**吞吐量，适用于大规模应用。
@@ -536,7 +536,7 @@ monitorCNFTTree().catch(console.error);
 
 Helius 提供了一个**增强**的交易 API。它会自动将 NFT、SPL 和 Swap 交易解码为人类可读的格式。这使您无需手动解析原始数据。
 
-**4.1.1 单个或批量交易（**[**`/v0/transactions`**](/api-reference/enhanced-transactions/gettransactions)**)**
+**4.1.1 单个或批量交易（**[**`/v0/transactions`**](/zh/api-reference/enhanced-transactions/gettransactions)**)**
 
 **端点**：
 
@@ -596,7 +596,7 @@ parseMultipleTransactions([
 }
 ```
 
-**4.1.2 按地址解析交易（**[**`/v0/addresses/{address}/transactions`**](/api-reference/enhanced-transactions/gettransactionsbyaddress)**)**
+**4.1.2 按地址解析交易（**[**`/v0/addresses/{address}/transactions`**](/zh/api-reference/enhanced-transactions/gettransactionsbyaddress)**)**
 
 如果您想要获取**特定**地址的**解析**交易，例如**Merkle树**或**用户钱包**，您可以调用：
 

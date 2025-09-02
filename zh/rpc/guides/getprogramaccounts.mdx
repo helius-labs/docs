@@ -8,7 +8,7 @@ description: 了解 getProgramAccounts 的使用案例、代码示例、请求�
 
 由于程序可能拥有的账户数量可能很大，`getProgramAccounts` 提供了强大的过滤功能，帮助您缩小搜索范围并高效地检索所需数据。
 
-对于需要查询非常大规模程序账户的应用程序，考虑使用 [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2)，它提供基于游标的分页支持，配置的页面大小每次请求最多可达 10,000 个账户。
+对于需要查询非常大规模程序账户的应用程序，考虑使用 [`getProgramAccountsV2`](/zh/api-reference/rpc/http/getprogramaccountsv2)，它提供基于游标的分页支持，配置的页面大小每次请求最多可达 10,000 个账户。
 
 ## 常见用例
 
@@ -270,7 +270,7 @@ console.log("Filtered program accounts data:", data);
 ## 开发者提示
 
 *   **性能：** `getProgramAccounts` 在 RPC 节点上可能资源密集，尤其是在没有过滤器或程序有许多账户时。始终使用过滤器（`dataSize`, `memcmp`）和 `dataSlice` 尽可能减少查询范围和响应大小。
-*   **大结果集：** 对于返回许多结果的查询，响应可能会被截断或超时。使用过滤器减少范围，或考虑使用 [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2) 以支持分页。
+*   **大结果集：** 对于返回许多结果的查询，响应可能会被截断或超时。使用过滤器减少范围，或考虑使用 [`getProgramAccountsV2`](/zh/api-reference/rpc/http/getprogramaccountsv2) 以支持分页。
 *   **速率限制：** 注意 RPC 提供商的速率限制，因为频繁或大量的 `getProgramAccounts` 调用可能会触及这些限制。
 *   **数据布局知识：** 有效使用 `memcmp` 需要了解您查询的账户数据的字节布局。
 *   **`jsonParsed` 可用性：** `jsonParsed` 编码取决于 RPC 节点是否有特定程序账户类型的解析器。对于常见程序如 SPL Token 广泛支持。
@@ -279,7 +279,7 @@ console.log("Filtered program accounts data:", data);
 
 ## 大数据集的分页
 
-对于处理拥有大量账户（10,000+）的程序的应用程序，使用 [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2) 提供：
+对于处理拥有大量账户（10,000+）的程序的应用程序，使用 [`getProgramAccountsV2`](/zh/api-reference/rpc/http/getprogramaccountsv2) 提供：
 
 - **基于游标的分页**：设置`limit`（1-10,000）并使用`paginationKey`来浏览结果
 - **增量更新**：使用`changedSinceSlot`仅获取自特定槽位以来修改的账户

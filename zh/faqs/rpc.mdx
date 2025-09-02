@@ -6,7 +6,7 @@ description: 获取关于 Solana RPC 节点、方法、速率限制和故障排�
 ## 计费和速率限制
 
 <Accordion title="为什么在我的计划速率限制以下，我的 getProgramAccounts 会被限速？">
-`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数之外，还有额外的速率限制。请考虑过滤参数，或将大型查询分解为较小的块以保持在[限制](/billing/plans-and-rate-limits#high-complexity-calls)内。
+`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数之外，还有额外的速率限制。请考虑过滤参数，或将大型查询分解为较小的块以保持在[限制](/zh/billing/plans-and-rate-limits#high-complexity-calls)内。
 </Accordion>
 
 <Accordion title="我可以为我的 RPC 端点获取特定区域吗？">
@@ -26,11 +26,11 @@ Helius 会自动将请求路由到最佳区域以提高性能。对于特殊的�
 ## 使用 RPC
 
 <Accordion title="获取最新 blockhash 的最佳实践是什么？">
-使用 `getLatestBlockhash` 与 `"processed"` 或 `"confirmed"` 承诺级别获取最新的 blockhash。在提交交易之前始终获取新的 blockhash 以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/rpc/guides/getlatestblockhash)。
+使用 `getLatestBlockhash` 与 `"processed"` 或 `"confirmed"` 承诺级别获取最新的 blockhash。在提交交易之前始终获取新的 blockhash 以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
 </Accordion>
 
 <Accordion title="什么是 staked connections？">
-Staked connections 将您的交易直接路由到当前和即将到来的区块领导者，绕过公共队列以几乎保证的方式交付。所有付费计划默认自动使用 staked connections - 无需代码更改。请在我们的[交易发送概述](/sending-transactions/overview#staked-vs-unstaked-connections)中了解更多信息。
+Staked connections 将您的交易直接路由到当前和即将到来的区块领导者，绕过公共队列以几乎保证的方式交付。所有付费计划默认自动使用 staked connections - 无需代码更改。请在我们的[交易发送概述](/zh/sending-transactions/overview#staked-vs-unstaked-connections)中了解更多信息。
 </Accordion>
 
 <Accordion title="使用标准RPC调用，我可以访问多长时间的历史数据？">
