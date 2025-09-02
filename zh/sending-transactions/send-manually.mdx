@@ -1,0 +1,217 @@
+---
+title: 如何发送 Solana 交易
+sidebarTitle: 如何发送交易
+description: 逐步指南，构建稳健的、生产级的 Solana 交易发送工作流。学习计算优化、优先费用和确认策略。
+---
+
+构建您自己的交易发送逻辑是确保您的应用程序达到最佳性能、控制和可靠性的最佳方式。虽然 [Helius SDK](/sdks) 提供了一个方便的入门封装，但对于生产系统，理解和实现此手动工作流是强烈推荐的。
+
+本指南将引导您完成构建您自己解决方案的必要步骤。
+
+### 手动工作流
+
+手动发送交易涉及以下步骤：
+
+<Steps>
+  <Step title="构建初始交易">
+    组装您的指令并签署交易，以便可以进行模拟。
+  </Step>
+  <Step title="优化计算单元">
+    模拟交易以确定所需的精确计算单元，并添加一个小的缓冲。
+  </Step>
+  <Step title="添加优先费用">
+    从 Helius 优先费用 API 获取费用估算，并将其添加到您的交易中。
+  </Step>
+  <Step title="发送和重新广播">
+    发送最终交易并实施一个稳健的轮询策略以处理确认。
+  </Step>
+</Steps>
+
+<Info>
+  Helius SDK 是开源的。您可以查看我们 [Node.js SDK](https://github.com/helius-labs/helius-sdk) 和 [Rust SDK](https://github.com/helius-labs/helius-rust-sdk) 中 `sendSmartTransaction` 方法的底层代码，以查看此工作流的生产级实现。
+</Info>
+
+### 1. 构建初始交易
+
+首先，收集您想要包含在交易中的所有指令。然后，创建一个 `Transaction` 或 `VersionedTransaction` 对象。您还需要获取一个最近的区块哈希。
+
+此示例准备了一个版本化交易。在此阶段，您还必须签署它，以便在下一步中进行模拟。
+
+```typescript
+import {
+  Connection,
+  Keypair,
+  TransactionMessage,
+  VersionedTransaction,
+  SystemProgram,
+  LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
+
+const connection = new Connection("YOUR_RPC_URL");
+const fromKeypair = Keypair.generate(); // Assume this is funded
+const toPubkey = Keypair.generate().publicKey;
+
+// 1. Build your instructions
+const instructions = [
+  SystemProgram.transfer({
+    fromPubkey: fromKeypair.publicKey,
+    toPubkey: toPubkey,
+    lamports: 0.001 * LAMPORTS_PER_SOL,
+  }),
+];
+
+// 2. Get a recent blockhash
+const { blockhash } = await connection.getLatestBlockhash();
+
+// 3. Compile the transaction message
+const messageV0 = new TransactionMessage({
+  payerKey: fromKeypair.publicKey,
+  recentBlockhash: blockhash,
+  instructions,
+}).compileToV0Message();
+
+// 4. Create and sign the transaction
+const transaction = new VersionedTransaction(messageV0);
+transaction.sign([fromKeypair]);
+```
+
+### 2. 优化计算单元 (CU) 使用
+
+为了避免浪费费用或交易失败，您应尽可能精确地设置计算单元 (CU) 限制。您可以通过使用 `simulateTransaction` RPC 方法模拟交易来实现这一点。
+
+最佳实践是首先使用较高的 CU 限制进行模拟，以确保模拟本身成功，然后使用响应中的 `unitsConsumed` 来设置您的实际限制。
+
+```typescript
+import { ComputeBudgetProgram } from "@solana/web3.js";
+
+// Create a test transaction with a high compute limit to ensure simulation succeeds
+const testInstructions = [
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 1_400_000 }),
+    ...instructions, // Your original instructions
+];
+const testMessage = new TransactionMessage({
+    payerKey: fromKeypair.publicKey,
+    recentBlockhash: blockhash,
+    instructions: testInstructions,
+}).compileToV0Message();
+const testTransaction = new VersionedTransaction(testMessage);
+testTransaction.sign([fromKeypair]);
+
+// Simulate the transaction to get the exact CUs consumed
+const { value: simulationResult } = await connection.simulateTransaction(testTransaction);
+
+if (!simulationResult.unitsConsumed) {
+  throw new Error("Simulation failed to return unitsConsumed");
+}
+
+// Add a 10% buffer to the CU estimate
+const computeUnitLimit = Math.ceil(simulationResult.unitsConsumed * 1.1);
+
+// Create the instruction to set the CU limit
+const setCuLimitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
+    units: computeUnitLimit,
+});
+```
+
+现在您有一个精确设置计算限制的指令。您将把它添加到最终交易中。
+
+### 3. 设置正确的优先费用
+
+接下来，确定要添加到交易中的最佳优先费用。使用 Helius [优先费用 API](/priority-fee-api) 是根据当前网络状况获取实时估算的最佳方式。
+
+您需要调用 `getPriorityFeeEstimate` RPC 方法。为了通过 Helius 的质押连接获得最高的包含机会，使用 `recommended: true` 选项。
+
+```typescript
+// The transaction needs to be serialized and base58 encoded
+const serializedTransaction = bs58.encode(transaction.serialize());
+
+const response = await fetch("YOUR_RPC_URL", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: "1",
+        method: "getPriorityFeeEstimate",
+        params: [
+            {
+                // Pass the serialized transaction
+                transaction: serializedTransaction, 
+                // Use 'recommended' for Helius's staked connections
+                options: { recommended: true },
+            },
+        ],   
+    }),
+});
+const data = await response.json();
+
+if (!data.result || !data.result.priorityFeeEstimate) {
+    throw new Error("Failed to get priority fee estimate");
+}
+
+const priorityFeeEstimate = data.result.priorityFeeEstimate;
+
+// Create the instruction to set the priority fee
+const setPriorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: priorityFeeEstimate,
+});
+```
+
+### 4. 构建、发送和确认
+
+现在，组装带有新计算预算指令的最终交易，发送它，并实施一个强大的轮询机制以确认它已被记录。
+
+<Warning>
+  不要依赖 RPC 提供商的默认重试逻辑（`maxRetries` 在 `sendTransaction` 中）。虽然 Helius 的质押连接会将您的交易直接转发给领导者，但它仍可能被丢弃。您必须实现自己的重广播逻辑以确保可靠的确认。
+</Warning>
+
+一个常见的模式是定期重新发送相同的交易，直到 blockhash 过期。**只有在您也获取新的 blockhash 时才重新签署交易。** 使用相同的 blockhash 重新签署可能导致重复交易被确认。
+
+```typescript
+// 1. Add the new instructions to your original set
+const finalInstructions = [
+  setCuLimitInstruction,
+  setPriorityFeeInstruction,
+  ...instructions,
+];
+
+// 2. Re-build and re-sign the transaction with the final instructions
+const { blockhash: latestBlockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+const finalMessage = new TransactionMessage({
+  payerKey: fromKeypair.publicKey,
+  recentBlockhash: latestBlockhash,
+  instructions: finalInstructions,
+}).compileToV0Message();
+
+const finalTransaction = new VersionedTransaction(finalMessage);
+finalTransaction.sign([fromKeypair]);
+
+// 3. Send the transaction
+const signature = await connection.sendTransaction(finalTransaction, {
+  skipPreflight: true, // Optional: useful for bypassing client-side checks
+});
+
+// 4. Implement a polling loop to confirm the transaction
+let confirmed = false;
+while (!confirmed) {
+    const statuses = await connection.getSignatureStatuses([signature]);
+    const status = statuses && statuses.value && statuses.value[0];
+
+    if (status && (status.confirmationStatus === 'confirmed' || status.confirmationStatus === 'finalized')) {
+        console.log('Transaction confirmed!');
+        confirmed = true;
+    }
+
+    // Check if the blockhash has expired
+    const currentBlockHeight = await connection.getBlockHeight();
+    if (currentBlockHeight > lastValidBlockHeight) {
+        console.log('Blockhash expired, transaction failed.');
+        break;
+    }
+    
+    // Wait for a short period before polling again
+    await new Promise(resolve => setTimeout(resolve, 2000)); 
+}
+```
+
+此示例提供了一个基本的轮询循环。生产级应用程序需要更复杂的逻辑，包括处理不同的确认状态和潜在的超时。

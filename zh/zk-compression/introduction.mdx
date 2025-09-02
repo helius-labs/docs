@@ -1,0 +1,14 @@
+---
+title: 什么是 Solana 上的 ZK 压缩？
+description: ZK 压缩将 Solana 数据存储成本显著降低 95% 以上。以极低的成本存储压缩账户、NFT 和任意数据。
+---
+
+[ZK 压缩](https://www.zkcompression.com/) 是一个通用的压缩框架，允许开发者以极低的成本在 Solana 上存储数据。在帮助开发 cNFT 压缩后，Helius 发现需要构建一个通用系统。因此，我们与 [Light 团队](https://lightprotocol.com/) 一起构建了 ZK 压缩，以允许开发者在 _压缩账户_ 中存储任意数据，类似于 Solana 原生账户。
+
+## Photon：ZK 压缩索引器
+
+Helius 构建了 [Photon](https://github.com/helius-labs/photon)，即 ZK 压缩索引器。在 ZK 压缩中，程序在 Solana 交易中记录压缩账户数据，并将该数据的指纹存储在验证者内存中。Photon 索引 Solana 交易以解析和存储压缩账户数据。然后，它提供了一个类似于 Solana 原生 API 的 API，帮助用户访问压缩数据。虽然开发者可以直接托管 Photon，但我们提供了一个 Photon API 以简化开发者体验。
+
+<Note>
+请访问官方 [ZK 压缩文档](https://www.zkcompression.com/) 以了解有关 ZK 压缩和 Photon 的更多信息。
+</Note>

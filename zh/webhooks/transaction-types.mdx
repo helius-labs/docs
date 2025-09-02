@@ -1,0 +1,1011 @@
+---
+title: Solana Webhook 交易类型
+sidebarTitle: 交易类型
+description: Solana webhook 交易类型的完整参考指南。了解 NFT 销售、DeFi 交换、质押以及 100 多种支持的区块链交易类型。
+---
+
+## 理解交易类型
+交易类型代表我们系统解码的不同区块链操作。每种交易类型对应特定的链上活动，如 NFT 铸造、竞标或质押。
+
+以下是支持的交易类型的完整列表：
+
+```yaml [expandable]
+- UNKNOWN
+- NFT_BID 
+- NFT_BID_CANCELLED
+- NFT_LISTING
+- NFT_CANCEL_LISTING
+- NFT_SALE
+- NFT_MINT
+- NFT_AUCTION_CREATED
+- NFT_AUCTION_UPDATED
+- NFT_AUCTION_CANCELLED
+- NFT_PARTICIPATION_REWARD 
+- NFT_MINT_REJECTED
+- CREATE_STORE
+- WHITELIST_CREATOR
+- ADD_TO_WHITELIST
+- REMOVE_FROM_WHITELIST
+- AUCTION_MANAGER_CLAIM_BID
+- EMPTY_PAYMENT_ACCOUNT
+- UPDATE_PRIMARY_SALE_METADATA
+- ADD_TOKEN_TO_VAULT
+- ACTIVATE_VAULT
+- INIT_VAULT
+- INIT_BANK
+- INIT_STAKE
+- MERGE_STAKE
+- SPLIT_STAKE
+- SET_BANK_FLAGS
+- SET_VAULT_LOCK
+- UPDATE_VAULT_OWNER
+- UPDATE_BANK_MANAGER
+- RECORD_RARITY_POINTS
+- ADD_RARITIES_TO_BANK
+- INIT_FARM
+- INIT_FARMER
+- REFRESH_FARMER
+- UPDATE_FARM
+- AUTHORIZE_FUNDER
+- DEAUTHORIZE_FUNDER
+- FUND_REWARD
+- CANCEL_REWARD
+- LOCK_REWARD
+- PAYOUT
+- VALIDATE_SAFETY_DEPOSIT_BOX_V2
+- SET_AUTHORITY
+- INIT_AUCTION_MANAGER_V2
+- UPDATE_EXTERNAL_PRICE_ACCOUNT
+- AUCTION_HOUSE_CREATE
+- CLOSE_ESCROW_ACCOUNT
+- WITHDRAW
+- DEPOSIT 
+- TRANSFER
+- BURN
+- BURN_NFT
+- PLATFORM_FEE
+- LOAN
+- REPAY_LOAN
+- ADD_TO_POOL
+- REMOVE_FROM_POOL
+- CLOSE_POSITION
+- UNLABELED
+- CLOSE_ACCOUNT
+- WITHDRAW_GEM
+- DEPOSIT_GEM
+- STAKE_TOKEN
+- UNSTAKE_TOKEN
+- STAKE_SOL
+- UNSTAKE_SOL
+- CLAIM_REWARDS
+- BUY_SUBSCRIPTION
+- BUY
+- SELL
+- SWAP
+- INIT_SWAP
+- CANCEL_SWAP
+- REJECT_SWAP
+- INITIALIZE_ACCOUNT
+- TOKEN_MINT
+- CREATE_APPARAISAL
+- FUSE
+- DEPOSIT_FRACTIONAL_POOL
+- FRACTIONALIZE
+- CREATE_RAFFLE
+- BUY_TICKETS
+- UPDATE_ITEM
+- LIST_ITEM
+- DELIST_ITEM
+- ADD_ITEM
+- CLOSE_ITEM
+- BUY_ITEM
+- FILL_ORDER
+- UPDATE_ORDER
+- CREATE_ORDER
+- CLOSE_ORDER
+- CANCEL_ORDER
+- KICK_ITEM
+- UPGRADE_FOX
+- UPGRADE_FOX_REQUEST
+- LOAN_FOX
+- BORROW_FOX
+- SWITCH_FOX_REQUEST
+- SWITCH_FOX
+- CREATE_ESCROW
+- ACCEPT_REQUEST_ARTIST
+- CANCEL_ESCROW
+- ACCEPT_ESCROW_ARTIST
+- ACCEPT_ESCROW_USER
+- PLACE_BET
+- PLACE_SOL_BET
+- CREATE_BET
+- NFT_RENT_UPDATE_LISTING
+- NFT_RENT_ACTIVATE
+- NFT_RENT_CANCEL_LISTING
+- NFT_RENT_LISTING
+- FINALIZE_PROGRAM_INSTRUCTION
+- UPGRADE_PROGRAM_INSTRUCTION
+- NFT_GLOBAL_BID
+- NFT_GLOBAL_BID_CANCELLED
+- EXECUTE_TRANSACTION
+- APPROVE_TRANSACTION
+- ACTIVATE_TRANSACTION
+- CREATE_TRANSACTION
+- REJECT_TRANSACTION
+- CANCEL_TRANSACTION
+- ADD_INSTRUCTION
+- ATTACH_METADATA
+- REQUEST_PNFT_MIGRATION
+- START_PNFT_MIGRATION
+- MIGRATE_TO_PNFT
+- UPDATE_RAFFLE
+- CREATE_POOL
+- ADD_LIQUIDITY
+- WITHDRAW_LIQUIDITY
+```
+
+如果您希望我们解析上面未列出的交易类型，请随时通过我们的 [Discord](https://discord.com/invite/6GXdee3gBj) 联系我们。
+
+## 将交易类型映射到来源
+每种交易类型由特定的程序来源生成。理解这些关系有助于识别哪些程序正在触发特定的交易类型。
+
+下面的映射展示了来源（程序）与特定交易类型之间的关系：
+
+- **类型到来源**：显示哪些程序生成特定的交易类型
+- **来源到类型**：显示特定程序可以生成的所有交易类型
+
+例如，**NFT_GLOBAL_BID** 交易由 **MAGIC_EDEN** 或 **SOLANART** 生成，而 **CANDY_MACHINE_V2** 专门生成 **NFT_MINT** 事件。
+
+## 类型到来源参考
+此映射显示哪些程序来源可以生成每种交易类型。
+
+```json [expandable]
+{
+  "NFT_MINT": [
+    "CANDY_MACHINE_V2",
+    "CANDY_MACHINE_V1",
+    "CANDY_MACHINE_V3",
+    "FORM_FUNCTION",
+    "MAGIC_EDEN",
+    "LAUNCH_MY_NFT",
+    "BIFROST",
+    "ATADIA",
+    "ELIXIR_LAUNCHPAD",
+    "SOLANA_PROGRAM_LIBRARY",
+    "METAPLEX"
+  ],
+  "TOKEN_MINT": [
+    "CANDY_MACHINE_V1",
+    "ATADIA",
+    "SOLANA_PROGRAM_LIBRARY"
+  ],
+  "CANDY_MACHINE_UPDATE": [
+    "CANDY_MACHINE_V3"
+  ],
+  "CANDY_MACHINE_ROUTE": [
+    "CANDY_MACHINE_V3"
+  ],
+  "CANDY_MACHINE_WRAP": [
+    "CANDY_MACHINE_V3"
+  ],
+  "CANDY_MACHINE_UNWRAP": [
+    "CANDY_MACHINE_V3"
+  ],
+  "NFT_BID": [
+    "FORM_FUNCTION",
+    "EXCHANGE_ART",
+    "SOLANART",
+    "MAGIC_EDEN",
+    "ENGLISH_AUCTION",
+    "YAWWW",
+    "HYPERSPACE",
+    "METAPLEX",
+    "FOXY_AUCTION"
+  ],
+  "NFT_SALE": [
+    "FORM_FUNCTION",
+    "EXCHANGE_ART",
+    "SOLANART",
+    "MAGIC_EDEN",
+    "ENGLISH_AUCTION",
+    "SOLSEA",
+    "YAWWW",
+    "DIGITAL_EYES",
+    "HYPERSPACE",
+    "TENSOR",
+    "METAPLEX",
+    "FOXY_AUCTION"
+  ],
+  "NFT_LISTING": [
+    "FORM_FUNCTION",
+    "EXCHANGE_ART",
+    "SOLANART",
+    "MAGIC_EDEN",
+    "SOLSEA",
+    "YAWWW",
+    "HYPERSPACE",
+    "TENSOR",
+    "METAPLEX"
+  ],
+  "NFT_CANCEL_LISTING": [
+    "EXCHANGE_ART",
+    "SOLANART",
+    "MAGIC_EDEN",
+    "SOLSEA",
+    "YAWWW",
+    "HYPERSPACE",
+    "TENSOR"
+  ],
+  "NFT_BID_CANCELLED": [
+    "EXCHANGE_ART",
+    "SOLANART",
+    "MAGIC_EDEN",
+    "YAWWW",
+    "HYPERSPACE",
+    "METAPLEX"
+  ],
+  "NFT_GLOBAL_BID": [
+    "SOLANART",
+    "MAGIC_EDEN"
+  ],
+  "NFT_GLOBAL_BID_CANCELLED": [
+    "SOLANART",
+    "MAGIC_EDEN"
+  ],
+  "WITHDRAW": [
+    "MAGIC_EDEN",
+    "BIFROST",
+    "STAKE_PROGRAM",
+    "PUMP_AMM"
+  ],
+  "DEPOSIT": [
+    "MAGIC_EDEN",
+    "PUMP_AMM"
+  ],
+  "NFT_AUCTION_CREATED": [
+    "ENGLISH_AUCTION",
+    "METAPLEX",
+    "FOXY_AUCTION"
+  ],
+  "NFT_AUCTION_UPDATED": [
+    "ENGLISH_AUCTION"
+  ],
+  "NFT_AUCTION_CANCELLED": [
+    "ENGLISH_AUCTION",
+    "FOXY_AUCTION"
+  ],
+  "TRANSFER": [
+    "PHANTOM",
+    "SOLANA_PROGRAM_LIBRARY",
+    "SYSTEM_PROGRAM"
+  ],
+  "INIT_BANK": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "SET_BANK_FLAGS": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "INIT_VAULT": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS",
+    "METAPLEX"
+  ],
+  "SET_VAULT_LOCK": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "UPDATE_VAULT_OWNER": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "DEPOSIT_GEM": [
+    "GEM_BANK",
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "WITHDRAW_GEM": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "ADD_TO_WHITELIST": [
+    "GEM_BANK",
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "REMOVE_FROM_WHITELIST": [
+    "GEM_BANK",
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "UPDATE_BANK_MANAGER": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "RECORD_RARITY_POINTS": [
+    "GEM_BANK",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "INIT_FARM": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "UPDATE_FARM": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "PAYOUT": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "STAKE_TOKEN": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS",
+    "FOXY_STAKING",
+    "CARDINAL_STAKING"
+  ],
+  "UNSTAKE_TOKEN": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS",
+    "FOXY_STAKING",
+    "CARDINAL_STAKING"
+  ],
+  "CLAIM_REWARDS": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "INIT_FARMER": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "REFRESH_FARMER": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "AUTHORIZE_FUNDER": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "DEAUTHORIZE_FUNDER": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "FUND_REWARD": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "CANCEL_REWARD": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "LOCK_REWARD": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "ADD_RARITIES_TO_BANK": [
+    "GEM_FARM",
+    "DEGODS",
+    "BLOCKSMITH_LABS"
+  ],
+  "BUY_SUBSCRIPTION": [
+    "YAWWW"
+  ],
+  "BUY": [
+    "PUMP_AMM"
+  ],
+  "SELL": [
+    "PUMP_AMM"
+  ],
+  "FUSE": [
+    "ELIXIR"
+  ],
+  "SWAP": [
+    "ELIXIR",
+    "JUPITER",
+    "FOXY",
+    "ALDRIN",
+    "HADESWAP",
+    "RAYDIUM"
+  ],
+  "DEPOSIT_FRACTIONAL_POOL": [
+    "ELIXIR"
+  ],
+  "FRACTIONALIZE": [
+    "ELIXIR"
+  ],
+  "CREATE_APPRAISAL": [
+    "ELIXIR"
+  ],
+  "addCollateralType": [
+    "HEDGE"
+  ],
+  "AUCTION_HOUSE_CREATE": [
+    "METAPLEX"
+  ],
+  "CLOSE_ESCROW_ACCOUNT": [
+    "METAPLEX"
+  ],
+  "AUCTION_MANAGER_CLAIM_BID": [
+    "METAPLEX"
+  ],
+  "EMPTY_PAYMENT_ACCOUNT": [
+    "METAPLEX"
+  ],
+  "NFT_PARTICIPATION_REWARD": [
+    "METAPLEX"
+  ],
+  "VALIDATE_SAFETY_DEPOSIT_BOX_V2": [
+    "METAPLEX"
+  ],
+  "INIT_AUCTION_MANAGER_V2": [
+    "METAPLEX"
+  ],
+  "SET_AUTHORITY": [
+    "METAPLEX"
+  ],
+  "CREATE_STORE": [
+    "METAPLEX"
+  ],
+  "WHITELIST_CREATOR": [
+    "METAPLEX"
+  ],
+  "CREATE_RAFFLE": [
+    "FOXY_RAFFLE"
+  ],
+  "UPDATE_RAFFLE": [
+    "FOXY_RAFFLE"
+  ],
+  "BUY_TICKETS": [
+    "FOXY_RAFFLE"
+  ],
+  "ADD_ITEM": [
+    "FOXY_TOKEN_MARKET"
+  ],
+  "UPGRADE_FOX": [
+    "FOXY_MISSIONS"
+  ],
+  "CREATE_ESCROW": [
+    "FOXY_MARMALADE"
+  ],
+  "CREATE_BET": [
+    "FOXY_COINFLIP"
+  ],
+  "NFT_RENT_LISTING": [
+    "CARDINAL_RENT"
+  ],
+  "NFT_RENT_ACTIVATE": [
+    "CARDINAL_RENT"
+  ],
+  "NFT_RENT_CANCEL_LISTING": [
+    "CARDINAL_RENT"
+  ],
+  "NFT_RENT_UPDATE_LISTING": [
+    "CARDINAL_RENT"
+  ],
+  "EXECUTE_TRANSACTION": [
+    "SQUADS"
+  ],
+  "CREATE_TRANSACTION": [
+    "SQUADS"
+  ],
+  "APPROVE_TRANSACTION": [
+    "SQUADS"
+  ],
+  "ACTIVATE_TRANSACTION": [
+    "SQUADS"
+  ],
+  "REJECT_TRANSACTION": [
+    "SQUADS"
+  ],
+  "CANCEL_TRANSACTION": [
+    "SQUADS"
+  ],
+  "ADD_INSTRUCTION": [
+    "SQUADS"
+  ],
+  "BURN": [
+    "SOLANA_PROGRAM_LIBRARY"
+  ],
+  "UPDATE_PRIMARY_SALE_METADATA": [
+    "METAPLEX"
+  ],
+  "BURN_NFT": [
+    "METAPLEX"
+  ],
+  "ADD_TOKEN_TO_VAULT": [
+    "METAPLEX"
+  ],
+  "ACTIVATE_VAULT": [
+    "METAPLEX"
+  ],
+  "UPDATE_EXTERNAL_PRICE_ACCOUNT": [
+    "METAPLEX"
+  ],
+  "STAKE_SOL": [
+    "STAKE_PROGRAM"
+  ],
+  "UNSTAKE_SOL": [
+    "STAKE_PROGRAM"
+  ],
+  "INIT_STAKE": [
+    "STAKE_PROGRAM"
+  ],
+  "MERGE_STAKE": [
+    "STAKE_PROGRAM"
+  ],
+  "SPLIT_STAKE": [
+    "STAKE_PROGRAM"
+  ],
+  "UPGRADE_PROGRAM_INSTRUCTION": [
+    "BPF_UPGRADEABLE_LOADER"
+  ],
+  "FINALIZE_PROGRAM_INSTRUCTION": [
+    "BPF_LOADER"
+  ],
+  "REQUEST_PNFT_MIGRATION": [
+    "METAPLEX"
+  ],
+  "START_PNFT_MIGRATION": [
+    "METAPLEX"
+  ],
+  "MIGRATE_TO_PNFT": [
+    "METAPLEX"
+  ],
+  "OFFER_LOAN": [
+    "SHARKY_FI",
+    "CITRUS"
+  ],
+  "RESCIND_LOAN": [
+    "SHARKY_FI"
+  ],
+  "REPAY_LOAN": [
+    "SHARKY_FI",
+    "CITRUS"
+  ],
+  "TAKE_LOAN": [
+    "SHARKY_FI"
+  ],
+  "FORECLOSE_LOAN": [
+    "SHARKY_FI"
+  ],
+  "CANCEL_OFFER": [
+    "CITRUS"
+  ],
+  "LEND_FOR_NFT": [
+    "CITRUS"
+  ],
+  "REQUEST_LOAN": [
+    "CITRUS"
+  ],
+  "CANCEL_LOAN_REQUEST": [
+    "CITRUS"
+  ],
+  "BORROW_SOL_FOR_NFT": [
+    "CITRUS"
+  ],
+  "CLAIM_NFT": [
+    "CITRUS"
+  ],
+  "REBORROW_SOL_FOR_NFT": [
+    "CITRUS"
+  ],
+  "UPDATE_OFFER": [
+    "CITRUS"
+  ],
+  "CREATE_POOL": [
+    "RAYDIUM",
+    "PUMP_AMM"
+  ],
+  "ADD_LIQUIDITY": [
+    "RAYDIUM"
+  ],
+  "WITHDRAW_LIQUIDITY": [
+    "RAYDIUM"
+  ]
+}
+```
+
+## 来源到类型参考
+此映射显示每个程序来源可以生成的所有交易类型。
+
+```json [expandable]
+<summary>Source to Type</summary>
+
+```
+
+json
+{
+  "CANDY_MACHINE_V2": [
+    "NFT_MINT"
+  ],
+  "CANDY_MACHINE_V1": [
+    "TOKEN_MINT",
+    "NFT_MINT"
+  ],
+  "CANDY_MACHINE_V3": [
+    "NFT_MINT",
+    "CANDY_MACHINE_UPDATE",
+    "CANDY_MACHINE_ROUTE",
+    "CANDY_MACHINE_WRAP",
+    "CANDY_MACHINE_UNWRAP"
+  ],
+  "FORM_FUNCTION": [
+    "NFT_BID",
+    "NFT_SALE",
+    "NFT_LISTING",
+    "NFT_MINT"
+  ],
+  "EXCHANGE_ART": [
+    "NFT_LISTING",
+    "NFT_BID",
+    "NFT_SALE",
+    "NFT_CANCEL_LISTING",
+    "NFT_BID_CANCELLED"
+  ],
+  "SOLANART": [
+    "NFT_BID",
+    "NFT_BID_CANCELLED",
+    "NFT_SALE",
+    "NFT_LISTING",
+    "NFT_CANCEL_LISTING",
+    "NFT_GLOBAL_BID",
+    "NFT_GLOBAL_BID_CANCELLED"
+  ],
+  "MAGIC_EDEN": [
+    "NFT_LISTING",
+    "NFT_CANCEL_LISTING",
+    "NFT_BID",
+    "NFT_BID_CANCELLED",
+    "NFT_SALE",
+    "WITHDRAW",
+    "DEPOSIT",
+    "NFT_MINT",
+    "NFT_GLOBAL_BID",
+    "NFT_GLOBAL_BID_CANCELLED"
+  ],
+  "ENGLISH_AUCTION": [
+    "NFT_AUCTION_CREATED",
+    "NFT_AUCTION_UPDATED",
+    "NFT_BID",
+    "NFT_AUCTION_CANCELLED",
+    "NFT_SALE"
+  ],
+  "PHANTOM": [
+    "TRANSFER"
+  ],
+  "SOLSEA": [
+    "NFT_SALE",
+    "NFT_LISTING",
+    "NFT_CANCEL_LISTING"
+  ],
+  "LAUNCH_MY_NFT": [
+    "NFT_MINT"
+  ],
+  "GEM_BANK": [
+    "INIT_BANK",
+    "SET_BANK_FLAGS",
+    "INIT_VAULT",
+    "SET_VAULT_LOCK",
+    "UPDATE_VAULT_OWNER",
+    "DEPOSIT_GEM",
+    "WITHDRAW_GEM",
+    "ADD_TO_WHITELIST",
+    "REMOVE_FROM_WHITELIST",
+    "UPDATE_BANK_MANAGER",
+    "RECORD_RARITY_POINTS"
+  ],
+  "GEM_FARM": [
+    "INIT_FARM",
+    "UPDATE_FARM",
+    "PAYOUT",
+    "ADD_TO_WHITELIST",
+    "REMOVE_FROM_WHITELIST",
+    "STAKE_TOKEN",
+    "UNSTAKE_TOKEN",
+    "CLAIM_REWARDS",
+    "INIT_FARMER",
+    "DEPOSIT_GEM",
+    "REFRESH_FARMER",
+    "AUTHORIZE_FUNDER",
+    "DEAUTHORIZE_FUNDER",
+    "FUND_REWARD",
+    "CANCEL_REWARD",
+    "LOCK_REWARD",
+    "ADD_RARITIES_TO_BANK"
+  ],
+  "DEGODS": [
+    "INIT_BANK",
+    "SET_BANK_FLAGS",
+    "INIT_VAULT",
+    "SET_VAULT_LOCK",
+    "UPDATE_VAULT_OWNER",
+    "DEPOSIT_GEM",
+    "WITHDRAW_GEM",
+    "ADD_TO_WHITELIST",
+    "REMOVE_FROM_WHITELIST",
+    "UPDATE_BANK_MANAGER",
+    "RECORD_RARITY_POINTS",
+    "INIT_FARM",
+    "UPDATE_FARM",
+    "PAYOUT",
+    "STAKE_TOKEN",
+    "UNSTAKE_TOKEN",
+    "CLAIM_REWARDS",
+    "INIT_FARMER",
+    "REFRESH_FARMER",
+    "AUTHORIZE_FUNDER",
+    "DEAUTHORIZE_FUNDER",
+    "FUND_REWARD",
+    "CANCEL_REWARD",
+    "LOCK_REWARD",
+    "ADD_RARITIES_TO_BANK"
+  ],
+  "BLOCKSMITH_LABS": [
+    "INIT_BANK",
+    "SET_BANK_FLAGS",
+    "INIT_VAULT",
+    "SET_VAULT_LOCK",
+    "UPDATE_VAULT_OWNER",
+    "DEPOSIT_GEM",
+    "WITHDRAW_GEM",
+    "ADD_TO_WHITELIST",
+    "REMOVE_FROM_WHITELIST",
+    "UPDATE_BANK_MANAGER",
+    "RECORD_RARITY_POINTS",
+    "INIT_FARM",
+    "UPDATE_FARM",
+    "PAYOUT",
+    "STAKE_TOKEN",
+    "UNSTAKE_TOKEN",
+    "CLAIM_REWARDS",
+    "INIT_FARMER",
+    "REFRESH_FARMER",
+    "AUTHORIZE_FUNDER",
+    "DEAUTHORIZE_FUNDER",
+    "FUND_REWARD",
+    "CANCEL_REWARD",
+    "LOCK_REWARD",
+    "ADD_RARITIES_TO_BANK"
+  ],
+  "YAWWW": [
+    "NFT_SALE",
+    "NFT_LISTING",
+    "NFT_CANCEL_LISTING",
+    "NFT_BID",
+    "NFT_BID_CANCELLED",
+    "BUY_SUBSCRIPTION"
+  ],
+  "DIGITAL_EYES": [
+    "NFT_SALE"
+  ],
+  "HYPERSPACE": [
+    "NFT_BID",
+    "NFT_BID_CANCELLED",
+    "NFT_LISTING",
+    "NFT_CANCEL_LISTING",
+    "NFT_SALE"
+  ],
+  "TENSOR": [
+    "NFT_LISTING",
+    "NFT_SALE",
+    "NFT_CANCEL_LISTING"
+  ],
+  "ELIXIR": [
+    "FUSE",
+    "SWAP",
+    "DEPOSIT_FRACTIONAL_POOL",
+    "FRACTIONALIZE",
+    "CREATE_APPRAISAL"
+  ],
+  "BIFROST": [
+    "NFT_MINT",
+    "WITHDRAW"
+  ],
+  "HEDGE": [
+    "addCollateralType"
+  ],
+  "ATADIA": [
+    "TOKEN_MINT",
+    "NFT_MINT"
+  ],
+  "JUPITER": [
+    "SWAP"
+  ],
+  "METAPLEX": [
+    "NFT_SALE",
+    "NFT_LISTING",
+    "NFT_BID",
+    "AUCTION_HOUSE_CREATE",
+    "CLOSE_ESCROW_ACCOUNT",
+    "AUCTION_MANAGER_CLAIM_BID",
+    "EMPTY_PAYMENT_ACCOUNT",
+    "NFT_PARTICIPATION_REWARD",
+    "VALIDATE_SAFETY_DEPOSIT_BOX_V2",
+    "INIT_AUCTION_MANAGER_V2",
+    "NFT_AUCTION_CREATED",
+    "NFT_BID_CANCELLED",
+    "SET_AUTHORITY",
+    "CREATE_STORE",
+    "WHITELIST_CREATOR",
+    "UPDATE_PRIMARY_SALE_METADATA",
+    "NFT_MINT",
+    "BURN_NFT",
+    "INIT_VAULT",
+    "ADD_TOKEN_TO_VAULT",
+    "ACTIVATE_VAULT",
+    "UPDATE_EXTERNAL_PRICE_ACCOUNT",
+    "REQUEST_PNFT_MIGRATION",
+    "START_PNFT_MIGRATION",
+    "MIGRATE_TO_PNFT"
+  ],
+  "FOXY": [
+    "SWAP"
+  ],
+  "FOXY_STAKING": [
+    "STAKE_TOKEN",
+    "UNSTAKE_TOKEN"
+  ],
+  "FOXY_RAFFLE": [
+    "CREATE_RAFFLE",
+    "BUY_TICKETS",
+    "UPDATE_RAFFLE"
+  ],
+  "FOXY_TOKEN_MARKET": [
+    "ADD_ITEM"
+  ],
+  "FOXY_MISSIONS": [
+    "UPGRADE_FOX"
+  ],
+  "FOXY_MARMALADE": [
+    "CREATE_ESCROW"
+  ],
+  "FOXY_COINFLIP": [
+    "CREATE_BET"
+  ],
+  "FOXY_AUCTION": [
+    "NFT_BID",
+    "NFT_AUCTION_CANCELLED",
+    "NFT_AUCTION_CREATED",
+    "NFT_SALE"
+  ],
+  "ALDRIN": [
+    "SWAP"
+  ],
+  "HADESWAP": [
+    "SWAP"
+  ],
+  "CARDINAL_RENT": [
+    "NFT_RENT_LISTING",
+    "NFT_RENT_ACTIVATE",
+    "NFT_RENT_CANCEL_LISTING",
+    "NFT_RENT_UPDATE_LISTING"
+  ],
+  "CARDINAL_STAKING": [
+    "STAKE_TOKEN",
+    "UNSTAKE_TOKEN"
+  ],
+  "SQUADS": [
+    "EXECUTE_TRANSACTION",
+    "CREATE_TRANSACTION",
+    "APPROVE_TRANSACTION",
+    "ACTIVATE_TRANSACTION",
+    "REJECT_TRANSACTION",
+    "CANCEL_TRANSACTION",
+    "ADD_INSTRUCTION"
+  ],
+  "ELIXIR_LAUNCHPAD": [
+    "NFT_MINT"
+  ],
+  "SHARKY_FI": [
+    "OFFER_LOAN",
+    "RESCIND_LOAN",
+    "REPAY_LOAN",
+    "TAKE_LOAN",
+    "FORECLOSE_LOAN"
+  ],
+  "CITRUS": [
+    "CANCEL_OFFER",
+    "LEND_FOR_NFT",
+    "REQUEST_LOAN",
+    "CANCEL_LOAN_REQUEST",
+    "BORROW_SOL_FOR_NFT",
+    "REPAY_LOAN",
+    "CLAIM_NFT",
+    "REBORROW_SOL_FOR_NFT",
+    "OFFER_LOAN",
+    "UPDATE_OFFER"
+  ],
+  "SOLANA_PROGRAM_LIBRARY": [
+    "BURN",
+    "TOKEN_MINT",
+    "NFT_MINT",
+    "TRANSFER"
+  ],
+  "SYSTEM_PROGRAM": [
+    "TRANSFER"
+  ],
+  "STAKE_PROGRAM": [
+    "STAKE_SOL",
+    "UNSTAKE_SOL",
+    "INIT_STAKE",
+    "MERGE_STAKE",
+    "SPLIT_STAKE",
+    "WITHDRAW"
+  ],
+  "BPF_UPGRADEABLE_LOADER": [
+    "UPGRADE_PROGRAM_INSTRUCTION"
+  ],
+  "BPF_LOADER": [
+    "FINALIZE_PROGRAM_INSTRUCTION"
+  ],
+  "RAYDIUM": [
+    "WITHDRAW_LIQUIDITY",
+    "ADD_LIQUIDITY",
+    "CREATE_POOL",
+    "SWAP"
+  ],
+  "PUMP_AMM": [
+    "CREATE_POOL",
+    "DEPOSIT",
+    "WITHDRAW",
+    "BUY",
+    "SELL"
+  ]
+}
+
+```
+
+## Using Transaction Types in Your Code
+When implementing webhook listeners, you can filter for specific transaction types of interest.
+
+Here's a simple example of how to listen for NFT sale events:
+
+```
+
+javascript
+// 用于 NFT 销售的示例 webhook 处理程序
+app.post('/webhook', (req, res) => {
+  const event = req.body;
+  
+  // 过滤 NFT 销售交易
+  if (event.type === 'NFT_SALE') {
+    console.log('检测到 NFT 销售！');
+    console.log('卖家:', event.seller);
+    console.log('买家:', event.buyer);
+    console.log('价格:', event.amount);
+    console.log('NFT:', event.nft?.mint);
+    
+    // 处理销售事件
+    // ...
+  }
+  
+  res.status(200).send('OK');
+});
+```
+
+您可以使用 Type-to-Source 和 Source-to-Type 映射来预测哪些程序将生成特定的交易类型。

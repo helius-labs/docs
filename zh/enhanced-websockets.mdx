@@ -1,0 +1,25 @@
+---
+title: Solana 增强型 WebSockets
+sidebarTitle: 概览
+description: 通过增强型 WebSocket 集成，实时流式传输 Solana 的交易和账户更新。响应时间更快，并具备高级过滤功能。
+---
+
+## 什么是增强型 WebSockets？
+
+Helius 提供了增强型 WebSockets，作为 Solana 标准 WebSocket 方法的补充。这些增强型 WebSockets 比传统 WebSockets 提供更快的响应时间。我们支持两种订阅方法：`transactionSubscribe` 和 `accountSubscribe`。
+
+<Info>
+此功能仅适用于 **企业和专业计划**。请注意，这是 **增强型 WebSocket**，而不是 **Yellowstone gRPC**。对于 Yellowstone gRPC 功能，您可以使用 [**LaserStream**](/laserstream/) 或 [**专用节点**](/dedicated-nodes/)。
+</Info>
+
+## 订阅端点
+
+Geyser 增强型 WebSockets 目前可用于 `mainnet` 和 `devnet`，对应以下 URL
+
+**主网:** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+
+**开发网:** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Warning>
+WebSocket 有 10 分钟的非活动计时器；为了保持 WebSocket 连接活跃，强烈建议实施健康检查并每分钟发送一次 ping。
+</Warning>

@@ -1,0 +1,44 @@
+{
+  "version": 0,
+  "locale": {
+    "source": "en",
+    "targets": [
+      "zh"
+    ]
+  },
+  "provider": {
+    "id": "openai",
+    "model": "gpt-4o",
+    "prompt": "Act as a professional software localization expert. Translate each key from {source} to {target}. Preserve ICU message format placeholders like {name} and {{count}}. Maintain Markdown formatting including links and code blocks. Match the tone and formality of the source text. Technical terms that are typically untranslated in the industry should remain in English."
+  },
+  "buckets": {
+    "mdx": {
+      "include": [
+        "[locale]/*.mdx",
+        "[locale]/*/*.mdx",
+        "[locale]/*/*/*.mdx",
+        "[locale]/*/*/*/*.mdx"
+      ],
+      "exclude": [
+        ".mintlify/*",
+        "node_modules/*",
+        "cn/*"
+      ],
+      "lockedKeys": [
+        "href",
+        "src",
+        "id",
+        "className",
+        "slug",
+        "canonical",
+        "icon",
+        "openapi",
+        "code",
+        "language",
+        "filename",
+        "lineNumbers"
+      ]
+    }
+  },
+  "$schema": "https://lingo.dev/schema/i18n.json"
+}
