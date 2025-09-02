@@ -1,0 +1,65 @@
+name: Auto-translate Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**.mdx'
+      - 'i18n.json'
+      - '.github/workflows/i18n.yml'
+  pull_request:
+    paths:
+      - 'docs/**.mdx'
+      - 'i18n.json'
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Load environment variables
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          
+      - name: Run translation
+        run: npm run i18n
+        
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Commit translations
+        if: steps.changes.outputs.changes == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add zh/ i18n.lock
+          git commit -m "🌐 Auto-update Chinese translations"
+          git push
+          
+      - name: Upload translation artifacts (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chinese-translations
+          path: |
+            zh/
+            i18n.lock
