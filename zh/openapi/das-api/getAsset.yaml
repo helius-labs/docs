@@ -1,0 +1,572 @@
+openapi: "3.1.0"
+info:
+  title: "Solana 数字资产标准 (DAS) API"
+  version: "1.0.0"
+  description: "Solana 数字资产标准 (DAS) API 提供对 Solana 区块链 NFT 和数字资产的全面和标准化访问。
+
+    这个强大的 API 集使开发者能够检索 Solana 上任何数字资产的详细信息，
+
+    包括传统和压缩 NFT，无论代币标准如何，数据格式始终一致。\n"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getAsset"
+      description: "通过其唯一标识符检索任何 Solana NFT 或数字资产的全面数据。
+
+        此端点提供完整的链上和链下元数据、所有权详细信息、版税信息、
+
+        集合数据和任何 Solana 数字资产的压缩状态。getAsset 方法支持所有代币标准，
+
+        包括压缩 NFT (cNFTs)、可编程 NFT (pNFTs) 和传统 SPL 代币。
+
+
+        使用此端点可以：
+
+        - 获取 NFT 市场列表的完整元数据
+
+        - 检索钱包集成的资产所有权信息
+
+        - 访问版税和创作者数据以执行版税
+
+        - 检查压缩状态以识别成本效益高的压缩 NFT
+
+        - 查看 NFT 集合分析的集合分组\n"
+      operationId: "rpc"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC 协议版本。"
+                  enum:
+                    - "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的RPC方法的名称。"
+                  enum:
+                    - "getAsset"
+                  default: "getAsset"
+                params:
+                  type: "object"
+                  default:
+                    id: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                  properties:
+                    id:
+                      type: "string"
+                      description: "要检索的Solana NFT或数字资产的唯一标识符。通常是NFT或代币的铸造地址。"
+                      example: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                    options:
+                      type: "object"
+                      description: "资产数据响应的显示和格式选项。"
+                      properties:
+                        showUnverifiedCollections:
+                          type: "boolean"
+                          default: false
+                          description: "显示未验证集合的分组信息，而不是跳过它们。"
+                        showCollectionMetadata:
+                          type: "boolean"
+                          default: false
+                          description: "显示集合的元数据。"
+                        showFungible:
+                          type: "boolean"
+                          description: "显示所有者持有的可替代代币。"
+                          default: false
+                        showInscription:
+                          type: "boolean"
+                          description: "显示链上刻写资产的刻写详情。"
+                          default: false
+      responses:
+        "200":
+          description: "成功响应"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    description: "JSON-RPC协议的版本。"
+                  id:
+                    type: "string"
+                    description: "用于标识请求的ID。"
+                  result:
+                    type: "object"
+                    properties:
+                      interface:
+                        type: "string"
+                        description: "Solana数字资产的接口类型，指示其代币标准和实现。"
+                        enum:
+                          - "V1_NFT"
+                          - "V1_PRINT"
+                          - "LEGACY_NFT"
+                          - "V2_NFT"
+                          - "FungibleAsset"
+                          - "FungibleToken"
+                          - "Custom"
+                          - "Identity"
+                          - "Executable"
+                          - "ProgrammableNFT"
+                      id:
+                        type: "string"
+                        description: "资产的唯一标识符。"
+                      content:
+                        type: "object"
+                        description: "Solana数字资产的内容信息，包括元数据、文件和链接。"
+                        properties:
+                          $schema:
+                            type: "string"
+                            description: "资产元数据的模式URL。"
+                          json_uri:
+                            type: "string"
+                            description: "指向Solana NFT的JSON元数据的URI，通常托管在Arweave或其他去中心化存储上。"
+                          files:
+                            type: "array"
+                            description: "与资产相关的文件数组。"
+                            items:
+                              type: "object"
+                          metadata:
+                            type: "object"
+                            description: "关于 Solana 数字资产的完整元数据信息，包括名称、符号、属性和代币标准。"
+                            properties:
+                              name:
+                                type: "string"
+                                description: "资产的名称。"
+                              symbol:
+                                type: "string"
+                                description: "资产的符号。"
+                              attributes:
+                                type: "array"
+                                description: "特征属性的数组。"
+                                items:
+                                  type: "object"
+                                  properties:
+                                    value:
+                                      type: "string"
+                                      description: "特征的值。"
+                                    trait_type:
+                                      type: "string"
+                                      description: "特征的类型。"
+                              description:
+                                type: "string"
+                                description: "资产的描述。"
+                              token_standard:
+                                type: "string"
+                                description: "使用的代币标准。"
+                          links:
+                            type: "object"
+                            description: "与资产相关的外部链接。"
+                      authorities:
+                        type: "array"
+                        description: "与资产相关的权限列表。"
+                        items:
+                          type: "object"
+                          properties:
+                            address:
+                              type: "string"
+                              description: "权限的地址。"
+                            scopes:
+                              type: "array"
+                              description: "权限的范围。"
+                              items:
+                                type: "string"
+                      compression:
+                        type: "object"
+                        description: "Solana 数字资产的压缩详情，指示它是否是具有状态证明验证的压缩 NFT。"
+                        properties:
+                          eligible:
+                            type: "boolean"
+                            description: "资产是否符合压缩条件。"
+                          compressed:
+                            type: "boolean"
+                            description: "资产当前是否使用 Solana 的状态压缩技术进行压缩，以降低存储成本。"
+                          data_hash:
+                            type: "string"
+                            description: "资产数据的哈希。"
+                          creator_hash:
+                            type: "string"
+                            description: "创建者数据的哈希。"
+                          asset_hash:
+                            type: "string"
+                            description: "整个资产的哈希。"
+                          tree:
+                            type: "string"
+                            description: "Merkle 树地址。"
+                          seq:
+                            type: "integer"
+                            description: "序列号。"
+                          leaf_id:
+                            type: "integer"
+                            description: "Merkle 树中的叶标识符。"
+                      grouping:
+                        type: "array"
+                        description: "资产的分组信息。"
+                        items:
+                          type: "object"
+                          properties:
+                            group_key:
+                              type: "string"
+                              description: "标识组的键。"
+                            group_value:
+                              type: "string"
+                              description: "与组关联的值。"
+                      royalty:
+                        type: "object"
+                        description: "用于市场费用计算和创作者支付的Solana数字资产的版税信息。"
+                        properties:
+                          royalty_model:
+                            type: "string"
+                            description: "用于版税的模型。"
+                          target:
+                            type:
+                              - "string"
+                              - "null"
+                            description: "版税的目标地址。"
+                          percent:
+                            type: "number"
+                            description: "版税百分比。"
+                          basis_points:
+                            type: "integer"
+                            description: "版税基点。"
+                          primary_sale_happened:
+                            type: "boolean"
+                            description: "是否已发生初次销售。"
+                          locked:
+                            type: "boolean"
+                            description: "版税是否被锁定。"
+                      creators:
+                        type: "array"
+                        description: "资产创作者列表。"
+                        items:
+                          type: "object"
+                          properties:
+                            address:
+                              type: "string"
+                              description: "创作者的地址。"
+                            share:
+                              type: "integer"
+                              description: "创作者的份额百分比。"
+                            verified:
+                              type: "boolean"
+                              description: "创作者是否经过验证。"
+                      ownership:
+                        type: "object"
+                        description: "Solana 数字资产的所有权详细信息，包括当前所有者、委托状态和冻结信息。"
+                        required:
+                          - "frozen"
+                          - "delegated"
+                          - "ownership_model"
+                          - "owner"
+                        properties:
+                          frozen:
+                            type: "boolean"
+                            description: "资产是否被冻结。"
+                          delegated:
+                            type: "boolean"
+                            description: "资产是否被委托。"
+                          delegate:
+                            type:
+                              - "string"
+                              - "null"
+                            description: "如果被委托，委托人的地址。"
+                          ownership_model:
+                            type: "string"
+                            description: "所有权模型。"
+                          owner:
+                            type: "string"
+                            description: "所有者的地址。"
+                      supply:
+                        type:
+                          - "object"
+                          - "null"
+                        description: "资产的供应信息。"
+                        properties:
+                          print_max_supply:
+                            type: "integer"
+                            description: "可印刷的最大供应量。"
+                          print_current_supply:
+                            type: "integer"
+                            description: "当前印刷的供应量。"
+                          edition_nonce:
+                            type: "integer"
+                            description: "版本随机数。"
+                      mutable:
+                        type: "boolean"
+                        description: "资产是否可变。"
+                      burnt:
+                        type: "boolean"
+                        description: "资产是否已被销毁。"
+                      token_info:
+                        type: "object"
+                        description: "特定于代币的信息。"
+                        properties:
+                          supply:
+                            type: "integer"
+                            description: "代币总供应量。"
+                          decimals:
+                            type: "integer"
+                            description: "小数位数。"
+                          token_program:
+                            type: "string"
+                            description: "代币程序ID。"
+                          mint_authority:
+                            type: "string"
+                            description: "铸造权限地址。"
+                          freeze_authority:
+                            type: "string"
+                            description: "冻结权限地址。"
+              examples:
+                success:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "test"
+                    result:
+                      interface: "ProgrammableNFT"
+                      id: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                      content:
+                        $schema: "https://schema.metaplex.com/nft1.0.json"
+                        json_uri: "https://madlads.s3.us-west-2.amazonaws.com/json/8420.json"
+                        files:
+                          - uri: "https://madlads.s3.us-west-2.amazonaws.com/images/8420.png"
+                            cdn_uri: "https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/8420.png"
+                            mime: "image/png"
+                          - uri: "https://arweave.net/qJ5B6fx5hEt4P7XbicbJQRyTcbyLaV-OQNA1KjzdqOQ/0.png"
+                            cdn_uri: "https://cdn.helius-rpc.com/cdn-cgi/image//https://arweave.net/qJ5B6fx5hEt4P7XbicbJQRyTcbyLaV-OQNA1KjzdqOQ/0.png"
+                            mime: "image/png"
+                        metadata:
+                          attributes:
+                            - value: "Male"
+                              trait_type: "性别"
+                            - value: "国王"
+                              trait_type: "类型"
+                            - value: "皇家"
+                              trait_type: "表情"
+                            - value: "疯狂皇冠"
+                              trait_type: "帽子"
+                            - value: "疯狂"
+                              trait_type: "眼睛"
+                            - value: "疯狂盔甲"
+                              trait_type: "服装"
+                            - value: "皇家地毯"
+                              trait_type: "背景"
+                          description: "管它呢。"
+                          name: "疯狂小子 #8420"
+                          symbol: "MAD"
+                          token_standard: "ProgrammableNonFungible"
+                        links:
+                          image: "https://madlads.s3.us-west-2.amazonaws.com/images/8420.png"
+                          external_url: "https://madlads.com"
+                      authorities:
+                        - address: "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                          scopes:
+                            - "full"
+                      compression:
+                        eligible: false
+                        compressed: false
+                        data_hash: ""
+                        creator_hash: ""
+                        asset_hash: ""
+                        tree: ""
+                        seq: 0
+                        leaf_id: 0
+                      grouping:
+                        - group_key: "collection"
+                          group_value: "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                      royalty:
+                        royalty_model: "creators"
+                        target: null
+                        percent: 0.042
+                        basis_points: 420
+                        primary_sale_happened: true
+                        locked: false
+                      creators:
+                        - address: "5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv"
+                          share: 0
+                          verified: true
+                        - address: "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                          share: 100
+                          verified: true
+                      ownership:
+                        frozen: true
+                        delegated: false
+                        delegate: null
+                        ownership_model: "single"
+                        owner: "4zdNGgAtFsW1cQgHqkiWyRsxaAgxrSRRynnuunxzjxue"
+                      supply:
+                        print_max_supply: 0
+                        print_current_supply: 0
+                        edition_nonce: 254
+                      mutable: true
+                      burnt: false
+                      token_info:
+                        supply: 1
+                        decimals: 0
+                        token_program: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                        mint_authority: "TdMA45ZnakQCBt5XUvm7ib2htKuTWdcgGKu1eUGrDyJ"
+                        freeze_authority: "TdMA45ZnakQCBt5XUvm7ib2htKuTWdcgGKu1eUGrDyJ"
+        "400":
+          description: "错误请求。由于语法无效，服务器无法理解请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32602
+                      message:
+                        type: "string"
+                        example: "请求参数无效。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "401":
+          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32001
+                      message:
+                        type: "string"
+                        example: "身份验证失败。缺少或无效的API密钥。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "403":
+          description: "禁止访问。客户端无权访问内容。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32003
+                      message:
+                        type: "string"
+                        example: "您没有权限访问此资源。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "404":
+          description: "未找到。服务器无法找到请求的资源。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32004
+                      message:
+                        type: "string"
+                        example: "请求的资产未找到。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "429":
+          description: "请求过多。用户在给定时间内发送了过多请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32029
+                      message:
+                        type: "string"
+                        example: "超出速率限制。请稍后再试。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "500":
+          description: "内部服务器错误。服务器遇到了无法处理的情况。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32000
+                      message:
+                        type: "string"
+                        example: "服务器发生了意外错误。"
+                  id:
+                    type: "string"
+                    example: "1"

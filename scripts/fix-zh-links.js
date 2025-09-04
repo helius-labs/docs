@@ -25,6 +25,33 @@ function fixLinksInFile(filePath) {
     return `href="/zh/${linkPath}"`;
   });
 
+  // Fix openapi frontmatter references that should point to Chinese versions
+  // Match pattern: openapi: /... where ... doesn't start with zh/, images/, logo/, http, https
+  const openapiPattern = /^openapi:\s+\/(?!zh\/|images\/|logo\/|favicon|http|mailto)([^\s]+)/gm;
+  
+  content = content.replace(openapiPattern, (match, apiPath) => {
+    changed = true;
+    return `openapi: /zh/${apiPath}`;
+  });
+
+  // Fix openapi frontmatter references that are missing leading slash
+  // Match pattern: openapi: openapi/... (without leading slash)
+  const openapiNoSlashPattern = /^openapi:\s+(?!\/|zh\/|images\/|logo\/|favicon|http|mailto)(openapi\/[^\s]+)/gm;
+  
+  content = content.replace(openapiNoSlashPattern, (match, apiPath) => {
+    changed = true;
+    return `openapi: /zh/${apiPath}`;
+  });
+
+  // Fix openapi frontmatter references that already have zh/ but missing leading slash
+  // Match pattern: openapi: zh/openapi/... 
+  const openapiZhNoSlashPattern = /^openapi:\s+zh\/(openapi\/[^\s]+)/gm;
+  
+  content = content.replace(openapiZhNoSlashPattern, (match, apiPath) => {
+    changed = true;
+    return `openapi: /zh/${apiPath}`;
+  });
+
   if (changed) {
     fs.writeFileSync(filePath, content);
     console.log(`✅ Fixed links in: ${filePath.replace(process.cwd(), '.')}`);

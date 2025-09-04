@@ -1,0 +1,449 @@
+"openapi": "3.1.0"
+"info":
+  "title": "Solana NFT 发现与搜索 API"
+  "version": "1.0.0"
+  "description": "高级 Solana 数字资产标准 (DAS) API，用于在 Solana 生态系统中搜索和发现 NFT、代币和其他数字资产，具有强大的过滤功能。
+
+    这个综合搜索 API 为 NFT 市场、投资组合应用程序和分析平台提供基础，
+
+    可以根据多个标准发现和过滤数字资产，包括集合、创作者、压缩状态和所有权 - 支持整个 Solana 生态系统中的传统和压缩 NFT。\n"
+  "license":
+    "name": "Apache 2.0"
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+"servers":
+  - "url": "https://mainnet.helius-rpc.com"
+    "description": "主网 RPC 端点"
+  - "url": "https://devnet.helius-rpc.com"
+    "description": "开发网 RPC 端点"
+"components":
+  "securitySchemes":
+    "ApiKeyQuery":
+      "type": "apiKey"
+      "in": "query"
+      "name": "api-key"
+      "description": "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+"paths":
+  "/":
+    "post":
+      "tags":
+        - "RPC"
+      "summary": "searchAssets"
+      "description": "使用全面的过滤选项搜索和发现 Solana 数字资产。
+
+        这个强大的发现 API 使应用程序能够使用多个标准查找 NFT、压缩 NFT、可替代代币和其他数字资产，包括所有权、创作者、集合、压缩状态和元数据属性。非常适合需要高级资产发现功能的市场、投资组合跟踪器和分析平台，
+
+        在整个 Solana 生态系统中。
+
+
+        关键功能：
+
+        - 跨所有 Solana NFT 标准（传统、压缩、可编程）的多标准搜索
+
+        - 基于集合的过滤，用于 NFT 项目和社区
+
+        - 基于创作者和所有权的查询，用于归属和投资组合分析
+
+        - 压缩状态过滤，以识别成本效益高的资产
+
+        - 元数据属性搜索，用于基于特征的发现
+
+        - 完整的分页支持，用于大型结果集\n"
+      "operationId": "rpc"
+      "security":
+        - "ApiKeyQuery": []
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "required":
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              "properties":
+                "jsonrpc":
+                  "type": "string"
+                  "enum":
+                    - "2.0"
+                  "description": "JSON-RPC 协议的版本。"
+                  "default": "2.0"
+                "id":
+                  "type": "string"
+                  "description": "用于标识请求的 ID。"
+                  "default": "1"
+                "method":
+                  "type": "string"
+                  "enum":
+                    - "searchAssets"
+                  "description": "要调用的JSON-RPC方法的名称。"
+                  "default": "searchAssets"
+                "params":
+                  "type": "object"
+                  "description": "`searchAssets`方法的参数。"
+                  "default":
+                    "ownerAddress": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                    "tokenType": "all"
+                  "required":
+                    - "ownerAddress"
+                    - "tokenType"
+                  "properties":
+                    "ownerAddress":
+                      "type": "string"
+                      "description": "用于检索拥有的数字资产以过滤搜索结果的Solana钱包地址。"
+                      "example": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                    "tokenType":
+                      "type": "string"
+                      "enum":
+                        - "fungible"
+                        - "nonFungible"
+                        - "regularNft"
+                        - "compressedNft"
+                        - "all"
+                      "description": "过滤特定的Solana代币类型，包括压缩NFT（cNFT）、常规NFT、可编程NFT（pNFT）或可替代SPL代币，以便于目标资产发现。"
+                      "example": "all"
+                    "page":
+                      "type": "integer"
+                      "description": "要返回的结果页。"
+                      "example": 1
+                    "authorityAddress":
+                      "type": "string"
+                      "description": "根据程序权限过滤Solana数字资产的权限地址标准，有助于查找由特定协议或更新权限控制的资产。"
+                      "example": "string"
+                    "limit":
+                      "type": "integer"
+                      "description": "返回的资产最大数量。"
+                      "example": 100
+                    "sortBy":
+                      "type": "object"
+                      "description": "响应的排序选项。"
+                      "properties":
+                        "sortBy":
+                          "type": "string"
+                          "description": "资产排序的标准。"
+                          "enum":
+                            - "created"
+                            - "recent_action"
+                            - "updated"
+                            - "none"
+                        "sortDirection":
+                          "type": "string"
+                          "description": "排序方向。"
+                          "enum":
+                            - "asc"
+                            - "desc"
+                    "compressed":
+                      "type": "boolean"
+                      "description": "过滤使用状态压缩技术的压缩Solana NFT（cNFT），以降低存储成本和提高可扩展性。"
+                      "example": true
+                    "compressible":
+                      "type": "boolean"
+                      "description": "过滤符合压缩条件但尚未压缩为状态压缩格式的Solana资产。"
+                      "example": false
+                    "delegate":
+                      "type": "integer"
+                      "description": "资产搜索的委托标准。"
+                    "creatorAddress":
+                      "type": "string"
+                      "description": "用于查找由特定艺术家、项目或创作者创建的Solana NFT的创作者钱包地址标准，以便进行归属和版税跟踪。"
+                      "example": "string"
+                    "creatorVerified":
+                      "type": "boolean"
+                      "description": "创作者是否已验证。"
+                      "example": true
+                    "grouping":
+                      "type": "array"
+                      "items":
+                        "type": "string"
+                      "description": "用于通过集合成员资格过滤Solana NFT的集合分组数组（例如，[\"collection\", \"<collectionKey>\"]）以查找相关资产。"
+                      "example":
+                        - "collection"
+                        - "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"
+                    "supply":
+                      "type": "integer"
+                      "description": "资产搜索的供应标准。"
+                      "example": 0
+                    "supplyMint":
+                      "type": "string"
+                      "description": "资产搜索的供应铸造标准。"
+                    "frozen":
+                      "type": "boolean"
+                      "description": "资产是否被冻结。"
+                      "example": false
+                    "burnt":
+                      "type": "boolean"
+                      "description": "资产是否被销毁。"
+                      "example": false
+                    "interface":
+                      "type": "string"
+                      "description": "Solana 代币标准接口类型，用于过滤特定的NFT实现，包括可编程NFT、传统NFT和可替代代币。"
+                      "enum":
+                        - "V1_NFT"
+                        - "V1_PRINT"
+                        - "LEGACY_NFT"
+                        - "V2_NFT"
+                        - "FungibleAsset"
+                        - "FungibleToken"
+                        - "Custom"
+                        - "Identity"
+                        - "Executable"
+                        - "ProgrammableNFT"
+                      "example": "Custom"
+                    "royaltyTargetType":
+                      "type": "string"
+                      "description": "版税目标类型标准。"
+                      "example": "creators"
+                    "royaltyTarget":
+                      "type": "integer"
+                      "description": "版税目标标准。"
+                      "example": 0
+                    "royaltyAmount":
+                      "type": "integer"
+                      "description": "版税金额标准。"
+                      "example": 0
+                    "ownerType":
+                      "type": "integer"
+                      "description": "所有权模型标准。"
+                      "example": 1
+                    "before":
+                      "type": "string"
+                      "description": "用于向后分页的游标。"
+                      "example": "string"
+                    "after":
+                      "type": "string"
+                      "description": "用于向前分页的游标。"
+                      "example": "string"
+                    "options":
+                      "type": "object"
+                      "description": "用于自定义 Solana 资产搜索响应的高级显示选项。"
+                      "properties":
+                        "showUnverifiedCollections":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示未验证的集合而不是跳过它们。"
+                        "showCollectionMetadata":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示集合的元数据。"
+                        "showGrandTotal":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示匹配资产的总数（请求较慢）。"
+                        "showNativeBalance":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示所有者的本地（SOL）余额。"
+                        "showInscription":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示铭文详情。"
+                        "showZeroBalance":
+                          "type": "boolean"
+                          "default": false
+                          "description": "显示余额为零的资产。"
+              "example":
+                "jsonrpc": "2.0"
+                "id": "my-id"
+                "method": "searchAssets"
+                "params":
+                  "ownerAddress": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                  "tokenType": "all"
+                  "limit": 50
+      "responses":
+        "200":
+          "description": "成功响应"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "assets":
+                    "type": "object"
+                    "properties":
+                      "total":
+                        "type": "integer"
+                        "description": "符合搜索条件的 Solana NFT 和数字资产的总数。"
+                        "example": 80
+                      "limit":
+                        "type": "integer"
+                        "description": "请求的资产最大数量。"
+                        "example": 50
+                      "page":
+                        "type": "integer"
+                        "description": "当前结果页。"
+                        "example": 1
+                      "items":
+                        "type": "array"
+                        "description": "资产数组。"
+                        "items":
+                          "type": "object"
+                          "properties":
+                            "interface":
+                              "type": "string"
+                              "description": "数字资产的 Solana 代币标准实现类型。"
+                            "id":
+                              "type": "string"
+                              "description": "Solana 数字资产的唯一铸造地址标识符。"
+                            "ownership":
+                              "type": "object"
+                              "description": "Solana 数字资产的所有权详细信息，包括当前所有者和模型。"
+                            "content":
+                              "type": "object"
+                              "description": "Solana 数字资产的内容和元数据，包括 URI、属性和媒体。"
+                    "example":
+                      "total": 80
+                      "limit": 50
+                      "page": 1
+                      "items":
+                        - "interface": "V1_NFT"
+                          "id": "SomeNftMintKey12345"
+                          "ownership":
+                            "owner": "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                            "ownership_model": "single"
+                          "content":
+                            "json_uri": "https://example.com/metadata/12345.json"
+                  "nativeBalance":
+                    "type": "object"
+                    "description": "Solana 钱包账户的本机 SOL 余额，以 lamports 和美元价值表示。"
+                    "properties":
+                      "lamports":
+                        "type": "integer"
+                        "description": "账户中的 lamports 数量。"
+                      "price_per_sol":
+                        "type": "number"
+                        "description": "SOL 的当前价格。"
+                      "total_price":
+                        "type": "number"
+                        "description": "此账户中的 SOL 总价值。"
+        "400":
+          "description": "错误请求。由于语法无效，服务器无法理解请求。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32602
+                      "message":
+                        "type": "string"
+                        "example": "请求参数无效。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "401":
+          "description": "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32001
+                      "message":
+                        "type": "string"
+                        "example": "身份验证失败。缺少或无效的API密钥。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "403":
+          "description": "禁止访问。客户端没有访问内容的权限。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32003
+                      "message":
+                        "type": "string"
+                        "example": "您没有权限访问此资源。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "404":
+          "description": "未找到。服务器无法找到请求的资源。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32004
+                      "message":
+                        "type": "string"
+                        "example": "未找到符合搜索条件的资产。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "429":
+          "description": "请求过多。用户在给定时间内发送了过多请求。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32029
+                      "message":
+                        "type": "string"
+                        "example": "超出速率限制。请稍后再试。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "500":
+          "description": "内部服务器错误。服务器遇到了一个无法处理的情况。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32000
+                      "message":
+                        "type": "string"
+                        "example": "服务器发生了意外错误。"
+                  "id":
+                    "type": "string"
+                    "example": "1"

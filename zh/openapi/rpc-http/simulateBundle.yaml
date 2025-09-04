@@ -1,0 +1,403 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "JITO Bundle Simulation API 用于在通过 JITO 验证器提交到 Solana 网络之前测试和验证捆绑执行。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "simulateBundle"
+      operationId: "simulateBundle"
+      description: "模拟一个 JITO 包而不在区块链上执行它。此方法允许开发人员测试包执行，验证包内的交易行为，估算计算单元消耗，检测错误，并预览包执行前后的账户状态变化。仅供 JITO-Solana 验证者使用，对于 MEV 策略开发和包优化至关重要。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC 协议版本。"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "simulateBundle"
+                  description: "要调用的 RPC 方法名称。"
+                  example: "simulateBundle"
+                  default: "simulateBundle"
+                params:
+                  type: "array"
+                  description: "用于模拟 JITO 包的参数。"
+                  default:
+                    - encodedTransactions:
+                        - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                  items:
+                    type: "object"
+                    description: "包模拟配置对象。"
+                    required:
+                      - "encodedTransactions"
+                    properties:
+                      encodedTransactions:
+                        type: "array"
+                        description: "用于模拟的一个或多个 base64 编码的序列化交易数组。"
+                        items:
+                          type: "string"
+                          description: "Base64 编码的序列化交易。"
+                          example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                      simulationBank:
+                        type: "string"
+                        description: "可选的银行，用于运行模拟。"
+                        example: "Bank12345"
+                      skipSigVerify:
+                        type: "boolean"
+                        description: "是否在模拟前跳过签名验证。"
+                        example: false
+                      replaceRecentBlockhash:
+                        type: "boolean"
+                        description: "是否用最新的区块哈希替换模拟交易的最近区块哈希。"
+                        example: false
+                      accounts:
+                        type: "object"
+                        description: "要返回的账户数据配置。"
+                        properties:
+                          addresses:
+                            type: "array"
+                            description: "要返回的账户数组，以 base-58 编码的字符串形式。"
+                            items:
+                              type: "string"
+                              example: "F6Su1HvqZk8ee1WsjZLAa1AGXk4R2TPsovynZ8kgNB6t"
+                          encoding:
+                            type: "string"
+                            description: "账户数据的编码格式。"
+                            enum:
+                              - "base58"
+                              - "base64"
+                              - "base64+zstd"
+                              - "jsonParsed"
+                            example: "base64"
+                      preExecutionAccountsConfigs:
+                        type: "array"
+                        description: "指定执行前的账户状态配置。"
+                        items:
+                          type:
+                            - "object"
+                            - "null"
+                          properties:
+                            accountIndex:
+                              type: "integer"
+                              description: "交易中账户的索引。"
+                              example: 0
+                            addresses:
+                              type: "array"
+                              description: "执行前要监控的账户地址列表。"
+                              items:
+                                type: "string"
+                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                      postExecutionAccountsConfigs:
+                        type: "array"
+                        description: "指定执行后账户状态配置。"
+                        items:
+                          type:
+                            - "object"
+                            - "null"
+                          properties:
+                            accountIndex:
+                              type: "integer"
+                              description: "交易中账户的索引。"
+                              example: 0
+                            addresses:
+                              type: "array"
+                              description: "执行后要监控的账户地址列表。"
+                              items:
+                                type: "string"
+                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "simulateBundle"
+              params:
+                - encodedTransactions:
+                    - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+      responses:
+        "200":
+          description: "成功模拟了捆绑。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    description: "JSON-RPC协议版本。"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "object"
+                    description: "模拟包的结果。"
+                    properties:
+                      context:
+                        type: "object"
+                        description: "模拟响应的上下文。"
+                        properties:
+                          apiVersion:
+                            type: "string"
+                            description: "API版本。"
+                            example: "1.16.3"
+                          slot:
+                            type: "integer"
+                            description: "数据处理的槽位。"
+                            example: 203841925
+                      err:
+                        type:
+                          - "object"
+                          - "null"
+                        description: "如果包失败则为错误，成功则为null。"
+                        example: null
+                      logs:
+                        type:
+                          - "array"
+                          - "null"
+                        description: "来自事务执行的日志消息数组。"
+                        items:
+                          type: "string"
+                          example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
+                      preExecutionAccounts:
+                        type:
+                          - "array"
+                          - "null"
+                        description: "包执行前的账户状态。"
+                        items:
+                          type:
+                            - "object"
+                            - "null"
+                          properties:
+                            lamports:
+                              type: "integer"
+                              description: "分配给此账户的 lamports 数量。"
+                              example: 1500000000
+                            owner:
+                              type: "string"
+                              description: "此账户分配到的程序的 Base-58 编码公钥。"
+                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                            data:
+                              type: "string"
+                              description: "与账户关联的数据。"
+                              example: ""
+                            executable:
+                              type: "boolean"
+                              description: "账户是否包含程序。"
+                              example: false
+                            rentEpoch:
+                              type: "integer"
+                              description: "此账户下次需要支付租金的纪元。"
+                              example: 324
+                      postExecutionAccounts:
+                        type:
+                          - "array"
+                          - "null"
+                        description: "捆绑执行后的账户状态。"
+                        items:
+                          type:
+                            - "object"
+                            - "null"
+                          properties:
+                            lamports:
+                              type: "integer"
+                              description: "分配给此账户的 lamports 数量。"
+                              example: 997000000
+                            owner:
+                              type: "string"
+                              description: "此账户分配到的程序的 Base-58 编码公钥。"
+                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                            data:
+                              type: "string"
+                              description: "与账户关联的数据。"
+                              example: ""
+                            executable:
+                              type: "boolean"
+                              description: "账户是否包含程序。"
+                              example: false
+                            rentEpoch:
+                              type: "integer"
+                              description: "此账户将在该纪元下次欠租。"
+                              example: 324
+                      unitsConsumed:
+                        type: "integer"
+                        description: "处理期间消耗的计算预算单位数量。"
+                        example: 200000
+                      returnData:
+                        type:
+                          - "object"
+                          - "null"
+                        description: "指令生成的最新返回数据。"
+                        properties:
+                          programId:
+                            type: "string"
+                            description: "生成返回数据的程序。"
+                            example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                          data:
+                            type: "string"
+                            description: "以base-64编码的二进制数据形式返回的数据。"
+                            example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result:
+                  context:
+                    apiVersion: "1.16.3"
+                    slot: 203841925
+                  err: null
+                  logs:
+                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
+                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R success"
+                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ invoke [1]"
+                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ success"
+                  preExecutionAccounts:
+                    - lamports: 1500000000
+                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                      data: ""
+                      executable: false
+                      rentEpoch: 324
+                  postExecutionAccounts:
+                    - lamports: 997000000
+                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                      data: ""
+                      executable: false
+                      rentEpoch: 324
+                  unitsConsumed: 300000
+                  returnData:
+                    programId: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                    data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
+                id: "1"
+        "401":
+          description: "未授权 - API 密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"
