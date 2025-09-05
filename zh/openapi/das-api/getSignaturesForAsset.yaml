@@ -1,0 +1,260 @@
+openapi: "3.1.0"
+info:
+  title: "Solana 数字资产交易历史 API"
+  version: "1.0.0"
+  description: "高级 Solana 数字资产标准 (DAS) API，用于检索 Solana 区块链上任何 NFT 或代币的完整交易历史。这个专门的交易监控 API 提供了对特定数字资产上执行的所有历史操作的全面可见性，使应用程序能够跟踪所有权转移、铸造、销毁和其他生命周期事件，适用于传统和压缩的 Solana NFT。\n"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getSignaturesForAsset"
+      description: "检索涉及特定压缩 NFT (cNFT) 的所有交易的完整时间顺序历史。这个专门的方法返回一个有序的交易签名和操作类型列表，这些操作影响了 Solana 区块链上的特定压缩数字资产，使应用程序能够跟踪完整的所有权历史、创建事件、转移、列表、销售和其他操作。
+
+
+        **注意：**此方法专为压缩 NFT 设计。对于常规 NFT，请使用 `getSignaturesForAddress`。添加此专用端点是因为标准的 `getSignaturesForAddress` 方法不适用于压缩 NFT。\n"
+      operationId: "rpc"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC 协议的版本。"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "用于标识请求的 ID。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getSignaturesForAsset"
+                  description: "要调用的 DAS 方法名称。"
+                  default: "getSignaturesForAsset"
+                params:
+                  type: "object"
+                  default:
+                    id: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
+                  required:
+                    - "id"
+                    - "page"
+                  properties:
+                    id:
+                      type: "string"
+                      description: "要检索交易历史的 Solana 数字资产的唯一标识符（铸造地址）。"
+                      example: "FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC"
+                    page:
+                      type: "integer"
+                      description: "用于分页浏览 Solana 资产交易历史的页码。"
+                      example: 1
+                    limit:
+                      type: "integer"
+                      description: "每个请求返回的 Solana 交易签名的最大数量。"
+                      example: 100
+                    before:
+                      type: "string"
+                      description: "用于向后分页浏览签名的游标。"
+                      example: "string"
+                    after:
+                      type: "string"
+                      description: "用于向前分页浏览签名的游标。"
+                      example: "string"
+      responses:
+        "200":
+          description: "成功响应"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  result:
+                    type: "object"
+                    properties:
+                      total:
+                        type: "integer"
+                        description: "在此 Solana 数字资产的历史记录中找到的交易总数。"
+                        example: 3
+                      limit:
+                        type: "integer"
+                        description: "每页请求的 Solana 交易签名的最大数量。"
+                        example: 1000
+                      items:
+                        type: "array"
+                        description: "一个包含 Solana 交易签名及其对应操作类型的数组，这些操作类型影响此数字资产。"
+                        items:
+                          type: "array"
+                          items:
+                            type: "string"
+                        example:
+                          - - "5nLi8m72bU6PBcz4Xrk23P6KTGy9ufF92kZiQXjTv9ELgkUxrNaiCGhMF4vh6RAcisw9DEQWJt9ogM3G2uCuwwV7"
+                            - "MintToCollectionV1"
+                          - - "323Ag4J69gagBt3neUvajNauMydiXZTmXYSfdK5swWcK1iwCUypcXv45UFcy5PTt136G9gtQ45oyPJRs1f2zFZ3v"
+                            - "Transfer"
+                          - - "3TbybyYRtNjVMhhahTNbd4bbpiEacZn2qkwtH7ByL7tCHmwi2g4YapPidSRGs1gjaseKbs7RjNmUKWmU6xbf3wUT"
+                            - "Transfer"
+                  id:
+                    type: "string"
+                    example: "text"
+        "400":
+          description: "错误请求。由于语法无效，服务器无法理解请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32602
+                      message:
+                        type: "string"
+                        example: "请求参数无效。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "401":
+          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32001
+                      message:
+                        type: "string"
+                        example: "身份验证失败。缺少或无效的API密钥。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "403":
+          description: "禁止访问。客户端没有访问内容的权限。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32003
+                      message:
+                        type: "string"
+                        example: "您没有权限访问此资源。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "404":
+          description: "未找到。服务器无法找到请求的资源。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32004
+                      message:
+                        type: "string"
+                        example: "未找到指定资产的签名。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "429":
+          description: "请求过多。用户在给定时间内发送了太多请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32029
+                      message:
+                        type: "string"
+                        example: "超出速率限制。请稍后再试。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "500":
+          description: "内部服务器错误。服务器遇到了一个无法处理的情况。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32000
+                      message:
+                        type: "string"
+                        example: "服务器发生了意外错误。"
+                  id:
+                    type: "string"
+                    example: "1"

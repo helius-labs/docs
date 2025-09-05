@@ -1,0 +1,238 @@
+---
+title: LaserStream 历史重播：补充缺失数据
+sidebarTitle: 历史重播
+description: 通过 LaserStream 的历史重播功能，从断线中恢复并补充缺失的 Solana 区块链数据。再也不会错过任何交易。
+---
+
+<Info>
+**永不遗漏**：LaserStream 的历史重播确保您可以从断线中恢复，并补充过去 20 分钟区块链活动中缺失的数据。
+</Info>
+
+## 什么是历史重播？
+
+历史重播是 LaserStream 的一项功能，允许您重播过去最多 3000 个槽位的最近区块链数据（大约 20 分钟的区块链活动）。这对于处理断线和确保实时应用程序中的数据连续性特别有用。
+
+<Warning>
+**时间窗口有限**：历史重播目前仅限于最近 3000 个槽位（大约 20 分钟的区块链活动）。您无法重播过去任意时间点的数据。
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="处理断线" icon="clock-rotate-left">
+    恢复在短暂断线期间丢失的数据（最多 20 分钟）
+  </Card>
+  <Card title="引导应用程序" icon="rocket">
+    从最近 20 分钟的上下文启动应用程序
+  </Card>
+  <Card title="分析最近事件" icon="magnifying-glass">
+    查看最近的交易和账户变更
+  </Card>
+  <Card title="使用最近数据进行测试" icon="flask">
+    使用真实的最近数据进行测试和开发
+  </Card>
+</CardGroup>
+
+## 工作原理
+
+<Steps>
+  <Step title="指定起始点">
+    使用 `fromSlot` 参数设置您的重播起始点（必须在最近 3000 个槽位内）
+  </Step>
+  <Step title="流式传输历史数据">
+    LaserStream 从您指定的槽位开始传送所有事件
+  </Step>
+  <Step title="赶上实时">
+    历史数据流传输直到您达到当前槽位
+  </Step>
+  <Step title="继续实时流式传输">
+    无缝过渡到实时数据流
+  </Step>
+</Steps>
+
+<Note>
+**自动重新连接**： [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) 自动处理重新连接和重播。无需额外代码！
+</Note>
+
+## 快速开始
+
+<Tabs>
+  <Tab title="gRPC">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream';
+
+    const subscriptionRequest: SubscribeRequest = {
+      transactions: {
+        client: {
+          accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+          vote: false,
+          failed: false
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED,
+      accounts: {},
+      slots: {},
+      blocks: {},
+      blocksMeta: {},
+      entry: {},
+      accountsDataSlice: [],
+      fromSlot: '224339000' // Start replay from this slot (must be within last 3000 slots)
+    };
+
+    const config: LaserstreamConfig = {
+      apiKey: 'YOUR_API_KEY',
+      endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+    };
+
+    await subscribe(config, subscriptionRequest, 
+      async (data) => {
+        console.log('Received data:', data);
+      }, 
+      async (error) => {
+        console.error('Error:', error);
+      }
+    );
+    ```
+
+  </Tab>
+  <Tab title="WebSocket (即将推出)">
+
+    ```javascript
+    const ws = new WebSocket('wss://laserstream-mainnet-ewr.helius-rpc.com/ws');
+
+    const subscribeMessage = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'transactionSubscribe',
+      params: {
+        transactions: {
+          client: {
+            accountInclude: ['6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P'],
+            vote: false,
+            failed: false
+          }
+        },
+        commitment: 'confirmed',
+        fromSlot: '224339000' // Start replay from this slot (must be within last 3000 slots)
+      }
+    };
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify(subscribeMessage));
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received data:', data);
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+## 配置选项
+
+<ParamField path="fromSlot" type="string" required>
+  开始重播的槽号。必须在重播窗口内（当前槽的最后3000个槽）。
+  
+  **示例**: `"224339000"`
+  
+  **重要**: 槽号必须足够新，以便在20分钟的重播窗口内。
+</ParamField>
+
+## 用例
+
+<AccordionGroup>
+  <Accordion title="短暂断开后的重新连接">
+    当您的应用程序在短暂断开连接（20分钟内）后重新连接时，可以使用历史重播以确保没有数据丢失：
+
+    ```typescript
+    // Store the last processed slot
+    let lastProcessedSlot = getLastProcessedSlot();
+
+    // Check if the slot is still within the replay window
+    const currentSlot = await getCurrentSlot();
+    const maxReplaySlot = currentSlot - 3000;
+
+    if (lastProcessedSlot < maxReplaySlot) {
+      console.warn('Disconnection too long, some data may be lost');
+      lastProcessedSlot = maxReplaySlot;
+    }
+
+    const subscriptionRequest: SubscribeRequest = {
+      // ... your subscription config
+      fromSlot: lastProcessedSlot.toString()
+    };
+
+    await subscribe(config, subscriptionRequest, 
+      async (data) => {
+        // Process data and update last processed slot
+        await processData(data);
+        lastProcessedSlot = data.slot;
+        saveLastProcessedSlot(lastProcessedSlot);
+      }
+    );
+    ```
+
+  </Accordion>
+  
+  <Accordion title="使用最近的上下文启动">
+    使用最近几分钟的上下文启动您的应用程序：
+
+    ```typescript
+    // Get a slot from 10 minutes ago (within the 20-minute window)
+    const currentSlot = await getCurrentSlot();
+    const startSlot = currentSlot - 1500; // ~10 minutes ago
+
+    const subscriptionRequest: SubscribeRequest = {
+      // ... your subscription config
+      fromSlot: startSlot.toString()
+    };
+    ```
+
+  </Accordion>
+
+  <Accordion title="使用最近数据进行测试">
+    使用最近的历史数据进行测试（限于最近20分钟）：
+
+    ```typescript
+    // Test with data from the last 5 minutes
+    const currentSlot = await getCurrentSlot();
+    const testStartSlot = currentSlot - 750; // ~5 minutes ago
+    const testEndSlot = currentSlot - 150; // ~1 minute ago
+
+    const subscriptionRequest: SubscribeRequest = {
+      // ... your subscription config
+      fromSlot: testStartSlot.toString()
+    };
+
+    // Stop processing when reaching test end slot
+    await subscribe(config, subscriptionRequest, 
+      async (data) => {
+        if (data.slot >= testEndSlot) {
+          // Stop processing
+          return;
+        }
+        await processTestData(data);
+      }
+    );
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## 下一步
+
+<CardGroup cols={1}>
+  <Card title="LaserStream gRPC" icon="bolt" href="/zh/laserstream/grpc">
+    了解更多关于 gRPC 流功能的信息
+  </Card>
+</CardGroup> 
+
+<CardGroup cols={2}>
+  <Card title="SDK 文档" icon="github" href="https://github.com/helius-labs/laserstream-sdk">
+    查看完整的 SDK 文档
+  </Card>
+  <Card title="联系支持" icon="headset" href="/zh/support">
+    获取实施帮助
+  </Card>
+</CardGroup>

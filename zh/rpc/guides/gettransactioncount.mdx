@@ -1,0 +1,98 @@
+---
+title: 如何使用 getTransactionCount
+sidebarTitle: getTransactionCount
+description: 了解 getTransactionCount 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getTransactionCount`](https://www.helius.dev/docs/api-reference/rpc/http/gettransactioncount) RPC 方法返回自创世以来 Solana 账本在指定承诺级别下处理的当前总交易数。
+
+## 常见用例
+
+*   **网络统计：** 显示网络上的总体交易量，作为一般健康或活动指标。
+*   **增长跟踪：** 监控随时间增加的交易数量，以观察网络采用和使用趋势。
+*   **仪表板指标：** 提供区块链活动的高级概览。
+
+## 请求参数
+
+此方法有一个可选参数：
+
+1.  **`options`**（对象，可选）：一个可选的配置对象，可以包括：
+    *   **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果未提供，则使用节点的默认承诺。
+    *   **`minContextSlot`**（u64，可选）：请求可以评估的最小槽位。
+
+## 响应结构
+
+JSON-RPC 响应中的 `result` 字段是一个单一的 `u64` 数字，表示到由承诺级别确定的槽位为止的账本总交易数。
+
+**示例响应：**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 398146706879,
+  "id": 1
+}
+```
+
+## 代码示例
+
+<CodeGroup>
+
+```bash cURL
+# Basic Request (uses default commitment of the RPC node):
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionCount"
+  }' \
+  <YOUR_RPC_URL>
+
+# Request with a specific commitment level:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransactionCount",
+    "params": [
+      {
+        "commitment": "confirmed"
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getCurrentTransactionCount() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const transactionCount = await connection.getTransactionCount();
+    console.log(`Current ledger transaction count: ${transactionCount}`);
+
+    // Example with commitment
+    const confirmedTransactionCount = await connection.getTransactionCount('confirmed');
+    console.log(`Current ledger transaction count (confirmed): ${confirmedTransactionCount}`);
+
+  } catch (error) {
+    console.error('Error fetching transaction count:', error);
+  }
+}
+
+getCurrentTransactionCount();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **账本范围计数：** 此计数表示自账本创建以来处理的所有交易，而不仅仅是针对特定账户或区块。
+*   **递增值：** 交易计数是一个单调递增的值。
+*   **承诺级别：** 返回的计数取决于所选的 `commitment` 级别。`processed` 承诺可能会产生更高、更实时的计数，而 `finalized` 则提供防止回滚的保证。
+*   **不是 TPS 指标：** 虽然与网络活动相关，但此单一值在没有比较定义时间段内的计数时，不能直接转换为每秒交易数（TPS）。
+
+本指南解释了如何使用 `getTransactionCount` RPC 方法来检索 Solana 网络上的交易总数。

@@ -1,0 +1,59 @@
+---
+title: 增强交易常见问题解答
+description: 获取关于增强交易API的最常见问题的答案，包括使用、认证、速率限制和故障排除
+---
+
+## 使用增强交易
+
+<Accordion title="什么是增强交易API？">
+[增强交易API](/zh/api-reference/enhanced-transactions/gettransactions) 提供以人类可读格式解析的交易数据。它允许您解析单个或多个交易，或获取特定地址的完整历史交易记录，将复杂的原始区块链数据转换为结构化、可读的信息。
+</Accordion>
+
+<Accordion title="增强交易API可以解析哪些类型的交易？">
+目前，[增强交易API](/zh/api-reference/enhanced-transactions/gettransactions) 仅解析NFT和SPL相关的交易。不要依赖这些解析器来处理非NFT和SPL交易。请参阅[交易类型文档](https://www.helius.dev/docs/webhooks/transaction-types)以获取支持类型的完整列表。
+</Accordion>
+
+<Accordion title="如何认证增强交易API请求？">
+将您的Helius API密钥作为`?api-key=YOUR_API_KEY`查询参数添加到所有[增强交易API](/zh/api-reference/enhanced-transactions/gettransactions)请求中。
+</Accordion>
+
+<Accordion title="此交易的类型是什么？">
+交易类型在API响应的`type`字段中返回（例如，`NFT_SALE`，`SWAP`，`TRANSFER`）。您还可以在API请求中使用`type`参数按交易类型进行过滤。请参阅我们的[交易类型文档](https://www.helius.dev/docs/webhooks/transaction-types)以获取所有可用类型。
+</Accordion>
+
+<Accordion title="增强交易API的V1和V2有什么区别？">
+在我们开发V2的过程中，增强交易API V1将不会更新。V2将引入额外的解析功能和改进。目前的API是V1，我们建议您关注V2的公告。
+</Accordion>
+
+## 速率限制
+
+<Accordion title="增强交易的速率限制是多少？">
+[增强交易API](/zh/api-reference/enhanced-transactions/gettransactions) 的使用遵循Helius的标准速率限制和定价政策。请参阅[计划和速率限制](https://www.helius.dev/docs/billing/plans-and-rate-limits)页面以获取基于您计划的具体限制。
+</Accordion>
+
+## 故障排除增强交易
+
+<Accordion title="为什么我没有获得增强交易历史调用的所有交易？">
+[增强交易 API](/zh/api-reference/enhanced-transactions/gettransactions) 仅返回支持类型（NFT 和 SPL 相关）的解析交易。其他交易类型会被过滤掉。此外，请检查您的分页参数并确保您使用的是正确的地址格式。大量交易历史可能需要多个分页请求。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

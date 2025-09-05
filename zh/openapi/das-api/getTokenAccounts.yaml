@@ -1,0 +1,269 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getTokenAccounts"
+      description: "返回给定铸币和所有者的代币账户列表。"
+      operationId: "rpc"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC 协议的版本。"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "用于标识请求的 ID。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getTokenAccounts"
+                  description: "要调用的方法名称。"
+                  default: "getTokenAccounts"
+                params:
+                  type: "object"
+                  default:
+                    owner: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                  properties:
+                    mint:
+                      type: "string"
+                      description: "铸币地址键。"
+                      example: "string"
+                    owner:
+                      type: "string"
+                      description: "所有者地址键。"
+                      example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+                    page:
+                      type: "integer"
+                      description: "要返回的结果页。"
+                      example: 1
+                    limit:
+                      type: "integer"
+                      description: "要返回的最大资产数量。"
+                      example: 100
+                    cursor:
+                      type: "string"
+                      description: "用于分页的游标。"
+                    before:
+                      type: "string"
+                      description: "返回指定游标之前的结果。"
+                    after:
+                      type: "string"
+                      description: "返回指定游标之后的结果。"
+                    options:
+                      type: "object"
+                      properties:
+                        showZeroBalance:
+                          type: "boolean"
+                          description: "如果为 true，则显示空代币余额的账户。"
+      responses:
+        "200":
+          description: "成功响应"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  total:
+                    type: "integer"
+                    description: "请求找到的结果数量。"
+                    example: 2
+                  limit:
+                    type: "integer"
+                    description: "请求的最大结果数量。"
+                    example: 100
+                  cursor:
+                    type: "string"
+                    description: "用于分页的游标。"
+                  token_accounts:
+                    type: "array"
+                    description: "一个包含代币账户的数组。"
+                    items:
+                      type: "object"
+                      properties:
+                        address:
+                          type: "string"
+                          description: "代币账户的地址。"
+                        mint:
+                          type: "string"
+                          description: "铸币账户的地址。"
+                        owner:
+                          type: "string"
+                          description: "代币账户所有者的地址。"
+                        amount:
+                          type: "integer"
+                          description: "账户中的代币数量。"
+                        delegated_amount:
+                          type: "integer"
+                          description: "账户中委托的代币数量。"
+                        frozen:
+                          type: "boolean"
+                          description: "If the account is frozen."
+                        burnt: false
+        "400":
+          description: "错误请求。由于语法无效，服务器无法理解请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32602
+                      message:
+                        type: "string"
+                        example: "请求参数无效。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "401":
+          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32001
+                      message:
+                        type: "string"
+                        example: "身份验证失败。缺少或无效的API密钥。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "403":
+          description: "禁止访问。客户端无权访问内容。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32003
+                      message:
+                        type: "string"
+                        example: "您没有权限访问此资源。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "404":
+          description: "未找到。服务器无法找到请求的资源。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32004
+                      message:
+                        type: "string"
+                        example: "请求的资源未找到。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "429":
+          description: "请求过多。用户在给定时间内发送了过多请求。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32029
+                      message:
+                        type: "string"
+                        example: "超出速率限制。请稍后再试。"
+                  id:
+                    type: "string"
+                    example: "1"
+        "500":
+          description: "内部服务器错误。服务器遇到了无法处理的情况。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    example: "2.0"
+                  error:
+                    type: "object"
+                    properties:
+                      code:
+                        type: "integer"
+                        example: -32000
+                      message:
+                        type: "string"
+                        example: "服务器发生了意外错误。"
+                  id:
+                    type: "string"
+                    example: "1"

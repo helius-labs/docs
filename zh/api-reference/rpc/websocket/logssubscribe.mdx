@@ -1,0 +1,113 @@
+---
+title: logsSubscribe
+og:title: logsSubscribe Solana RPC 方法
+sidebarTitle: logsSubscribe
+description: 订阅交易日志。
+og:description: 获取免费的 RPC 并探索 logsSubscribe RPC 方法。包括请求参数、响应示例、代码片段，以及 Solana 主网和开发网的浏览器内测试。
+---
+
+## 端点
+
+主网和开发网上可用的 Websockets URL：
+
+- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **开发网** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets 有 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
+
+## 授权
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)上免费获取一个。
+</ParamField>
+
+## 请求体
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="filter" type="string | object" required>
+            用于根据账户类型接收结果的日志过滤条件。目前支持以下过滤器类型：
+            - `all` - 订阅除简单投票交易外的所有交易
+            - `allWithVotes` - 订阅包括简单投票交易在内的所有交易
+            - 一个包含以下字段的 JSON 对象：
+              - `mentions: [ <string> ]` - 包含单个 Pubkey（作为 base-58 编码字符串）的数组；如果存在，则仅订阅提到此地址的交易
+            
+            注意：`mentions` 字段目前每次方法调用仅支持一个 Pubkey 字符串。列出其他地址将导致错误。
+        </ParamField>
+
+        <ParamField body="config" type="object">
+            包含以下字段的配置对象：
+            
+            <ParamField body="commitment" type="string">
+                订阅的承诺级别。可以是 `finalized`、`confirmed` 或 `processed`。
+            </ParamField>
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## 响应
+
+<ResponseField name="result" type="integer">
+  订阅 ID（用于取消订阅）
+</ResponseField>
+
+## 通知格式
+
+通知将是一个 RpcResponse JSON 对象，其值等于：
+- `signature: <string>` - 交易签名的 base58 编码。
+- `err: <object|null>` - 如果交易失败则为错误，如果交易成功则为 null。请参阅 TransactionError 定义。
+- `logs: <array[string]>` - 交易指令在执行期间输出的日志消息数组。
+
+<RequestExample>
+
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "logsSubscribe",
+  "params": [
+    {
+      "mentions": ["11111111111111111111111111111111"]
+    },
+    {
+      "commitment": "finalized"
+    }
+  ]
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 24040,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "logsNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 5208469
+      },
+      "value": {
+        "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
+        "err": null,
+        "logs": [
+          "SBF program 83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri success"
+        ]
+      }
+    },
+    "subscription": 24040
+  }
+}
+```
+
+</ResponseExample>

@@ -1,0 +1,269 @@
+---
+title: Solana Yellowstone gRPC：实时数据流
+sidebarTitle: 概览
+description: 使用 gRPC 协议进行高性能、实时的 Solana 区块链数据流传输，提供高级过滤功能和超低延迟交付，专为开发者设计。
+---
+
+## 什么是 Yellowstone gRPC？
+
+Yellowstone gRPC 通过直接连接到 Solana 的领导者节点，接收实时生成的分片数据，提供 **超低延迟的数据流传输**。这使您的应用程序能够以最小的延迟接收实时数据。
+
+<CardGroup cols={2}>
+  <Card title="高性能" icon="bolt">
+    使用高效的二进制协议进行序列化，最大化吞吐量并最小化带宽使用
+  </Card>
+  <Card title="实时流传输" icon="wave-pulse">
+    支持双向流传输，立即创建和取消订阅
+  </Card>
+  <Card title="高级过滤" icon="filter">
+    通过账户、交易和程序过滤器精确控制接收的数据
+  </Card>
+  <Card title="多种数据类型" icon="database">
+    在单一流中订阅账户、交易、槽、区块和条目
+  </Card>
+</CardGroup>
+
+## 流类型
+
+<Tabs>
+  <Tab title="账户">
+    **实时监控账户变化**
+    
+    跟踪余额更新、数据修改、所有权变更以及账户创建/删除事件，并提供精确的过滤选项。
+    
+    <Card title="账户监控指南" icon="user" href="/zh/grpc/account-monitoring">
+      学习如何通过过滤示例流式传输账户更新
+    </Card>
+  </Tab>
+  
+  <Tab title="交易">
+    **流式传输交易数据和执行结果**
+    
+    实时接收交易签名、执行状态、程序交互和代币余额变化。
+    
+    <Card title="交易监控指南" icon="receipt" href="/zh/grpc/transaction-monitoring">
+      通过程序过滤和执行细节监控交易
+    </Card>
+  </Tab>
+  
+  <Tab title="槽和区块">
+    **跟踪网络共识和区块生成**
+    
+    监控槽更新、区块创建以及不同承诺级别的网络状态变化。
+    
+    <Card title="槽和区块监控指南" icon="cube" href="/zh/grpc/slot-and-block-monitoring">
+      流式传输包含交易详情的槽和区块
+    </Card>
+  </Tab>
+  
+  <Tab title="条目">
+    **低级别区块链条目监控**
+    
+    访问包含交易批次及其结果的基本执行单元。
+    
+    <Card title="条目监控指南" icon="code" href="/zh/grpc/entry-monitoring">
+      流式传输包含交易批次的区块条目
+    </Card>
+  </Tab>
+</Tabs>
+
+## 如何访问 Yellowstone gRPC
+
+<Note>
+选择最适合您需求的选项：
+
+**[LaserStream](/zh/laserstream/)** - 多租户、高可用的 gRPC 服务，具有自动故障切换和历史回放功能。非常适合大多数生产应用程序。
+
+**[Dedicated Nodes](/zh/dedicated-nodes/)** - 独享的 gRPC 端点，提供资源隔离保障。最适合特殊需求。
+
+**需要帮助选择？** 查看我们的[详细比较指南](/zh/laserstream/laserstream-vs-dedicated-nodes)，了解哪种选项适合您的使用场景。
+</Note>
+
+## 快速开始
+
+准备好开始流式传输了吗？从我们的综合设置指南开始：
+
+<Card title="Yellowstone gRPC 快速入门" icon="rocket" href="/zh/grpc/quickstart">
+  包含安装、认证和首次流式传输的完整设置指南
+</Card>
+
+---
+
+## 订阅请求结构
+
+每个 gRPC 订阅都需要一个正确结构化的请求。以下是构建方法：
+
+### 核心参数
+
+<ParamField path="commitment" type="string" required>
+  **数据一致性的承诺级别**
+  
+  - `processed` - 节点已处理的交易
+  - `confirmed` - 集群已确认的交易  
+  - `finalized` - 集群已完成的交易
+</ParamField>
+
+<ParamField path="ping" type="boolean" optional>
+  **保持连接活跃**
+  
+  设置为 `true`，每 15 秒接收一次 pong 消息，防止负载均衡器或代理导致的连接超时。
+</ParamField>
+
+<ParamField path="accounts_data_slice" type="array" optional>
+  **优化数据传输**
+  
+  请求账户数据的特定字节范围：
+
+  ```json
+  [
+    { "offset": 0, "length": 100 },
+    { "offset": 200, "length": 50 }
+  ]
+  ```
+
+</ParamField>
+
+### 过滤器配置
+
+<Accordion title="账户过滤器">
+  <ParamField path="account" type="array<string>">
+    要监控的账户公钥数组（逻辑或）
+  </ParamField>
+  
+  <ParamField path="owner" type="array<string>">
+    要监控的所有者公钥数组（逻辑或）  
+  </ParamField>
+  
+  <ParamField path="filters" type="array<object>">
+    DataSize 和 Memcmp 过滤器（逻辑与）：
+
+    ```json
+    [
+      { "dataSize": 165 },
+      { "memcmp": { "offset": 0, "bytes": "base58_encoded_bytes" } }
+    ]
+    ```
+
+  </ParamField>
+  
+  <Info>
+    当使用多种过滤器类型时，它们以逻辑与方式操作。在数组内，值以逻辑或方式操作。
+  </Info>
+</Accordion>
+
+<Accordion title="交易过滤器">
+  <ParamField path="vote" type="boolean">
+    包含/排除投票交易
+  </ParamField>
+  
+  <ParamField path="failed" type="boolean">
+    包含/排除失败的交易
+  </ParamField>
+  
+  <ParamField path="signature" type="string">
+    监控特定交易签名
+  </ParamField>
+  
+  <ParamField path="account_include" type="array<string>">
+    包含涉及以下任意账户的交易（逻辑或）
+  </ParamField>
+  
+  <ParamField path="account_exclude" type="array<string>">
+    排除涉及以下账户的交易
+  </ParamField>
+  
+  <ParamField path="account_required" type="array<string>">
+    包含涉及以下所有账户的交易（逻辑与）
+  </ParamField>
+</Accordion>
+
+<Accordion title="区块过滤器">
+  <ParamField path="account_include" type="array<string>">
+    过滤区块内的交易和账户
+  </ParamField>
+  
+  <ParamField path="include_transactions" type="boolean">
+    包含区块内的所有交易
+  </ParamField>
+  
+  <ParamField path="include_accounts" type="boolean">
+    包含区块内的所有账户更新
+  </ParamField>
+  
+  <ParamField path="include_entries" type="boolean">
+    包含区块内的所有条目
+  </ParamField>
+</Accordion>
+
+<Accordion title="插槽过滤器">
+  <ParamField path="filter_by_commitment" type="boolean" default="false">
+    当 `true` 时，仅接收指定承诺级别的插槽更新。当 `false` 时，接收所有承诺级别的更新。
+  </ParamField>
+</Accordion>
+
+---
+
+## 示例：基础交易监控
+
+以下是一个完整的示例，帮助您快速入门：
+
+```typescript
+import Client, { CommitmentLevel, SubscribeRequest } from "@triton-one/yellowstone-grpc";
+
+const client = new Client("your-grpc-endpoint", "your-api-token", {
+  "grpc.max_receive_message_length": 64 * 1024 * 1024
+});
+
+const stream = await client.subscribe();
+
+// Handle incoming data
+stream.on("data", (data) => {
+  if (data.transaction) {
+    console.log(`Transaction: ${data.transaction.signature}`);
+    console.log(`Success: ${!data.transaction.meta?.err}`);
+  }
+});
+
+// Subscribe to transactions with complete request structure
+const subscribeRequest: SubscribeRequest = {
+  transactions: {
+    client: {
+      accountInclude: [
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token Program
+        "11111111111111111111111111111111"               // System Program
+      ],
+      accountExclude: [],
+      accountRequired: [],
+      vote: false,
+      failed: false
+    }
+  },
+  commitment: CommitmentLevel.CONFIRMED,
+  ping: { id: 1 }
+};
+
+stream.write(subscribeRequest);
+```
+
+<Note>
+这是一个基础示例。用于生产环境时，请实现适当的错误处理、重连逻辑和数据处理。有关完整实现，请参阅我们的详细指南。
+</Note>
+
+---
+
+## 准备好开始了吗？
+
+<CardGroup cols={2}>
+  <Card title="完整设置指南" icon="rocket" href="/zh/grpc/quickstart">
+    安装、认证和首次流实现
+  </Card>
+  <Card title="流式监控 Pump AMM 数据" icon="chart-line" href="/zh/grpc/stream-pump-amm-data">
+    实际示例：监控 Pump AMM 交易
+  </Card>
+</CardGroup>
+
+## 高级资源
+
+- **[Yellowstone gRPC 源代码库](https://github.com/rpcpool/yellowstone-grpc)** - 完整的 protobuf 定义和示例
+- **[Discord 社区](https://discord.com/invite/6GXdee3gBj)** - 获取开发者和 Helius 团队的帮助
+- **[LaserStream 文档](/zh/laserstream/)** - 提供额外功能的增强型 gRPC 服务

@@ -1,0 +1,189 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "节点监控API，用于检查Solana验证器的操作状态和同步健康状况，以验证服务可靠性和区块链连接性。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getHealth"
+      operationId: "getHealth"
+      description: "检查 Solana 节点是否正常运行并与网络同步。这个重要的监控 API 提供了一个简单的健康状态指示器，用于验证 RPC 端点是否正常运行并跟上区块链。如果节点健康，将返回成功响应；如果节点遇到问题，例如在区块链同步中落后，将返回带有诊断详细信息的错误响应。对于基础设施监控系统、可靠性仪表板、高可用性设置、应用程序健康检查以及任何需要确认 Solana RPC 端点在发送交易请求之前正常运行的服务来说，这都是至关重要的。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC 协议版本。"
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的 RPC 方法名称。"
+                  enum:
+                    - "getHealth"
+                  example: "getHealth"
+                  default: "getHealth"
+            examples:
+              request:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getHealth"
+      responses:
+        "200":
+          description: "节点健康。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    description: "JSON-RPC 协议版本。"
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "string"
+                    description: "健康状态指示器，确认节点正在运行并与Solana网络同步。"
+                    example: "ok"
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result: "ok"
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超过速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

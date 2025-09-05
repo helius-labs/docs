@@ -1,0 +1,737 @@
+---
+title: Solana WebSocket：实时区块链数据流
+sidebarTitle: 概述
+description: 使用WebSockets流式传输Solana区块链的实时数据。学习账户监控、交易跟踪和DeFi应用的概念、模式和生产就绪的实现。
+---
+
+## 什么是WebSockets及其用途？
+
+WebSockets在您的应用程序和Solana区块链之间提供了一个持久的实时连接。与传统的HTTP请求中反复询问“是否有变化？”不同，WebSockets让区块链在发生变化时立即通知您。
+
+<CardGroup cols={2}>
+  <Card title="实时更新" icon="bolt">
+    当账户变化、交易发生或区块生成时立即收到通知
+  </Card>
+  <Card title="高效的资源使用" icon="leaf">
+    一个持久连接代替数百个HTTP请求的轮询
+  </Card>
+  <Card title="低延迟" icon="clock">
+    亚秒级响应时间，适用于时间关键的交易和监控应用
+  </Card>
+  <Card title="标准协议" icon="globe">
+    使用Solana的官方WebSocket API - 兼容所有Solana工具
+  </Card>
+</CardGroup>
+
+## 核心概念
+
+### 订阅类型
+
+<AccordionGroup>
+  <Accordion title="账户订阅" icon="user">
+    监控特定账户的变化，如钱包余额、代币账户或程序数据。
+    
+    **使用场景：**
+    - 钱包余额跟踪
+    - 代币账户监控  
+    - 智能合约状态变化
+    - NFT所有权更新
+  </Accordion>
+
+  <Accordion title="程序订阅" icon="code">
+    监控由特定程序拥有的所有账户的任何变化。
+    
+    **使用场景：**
+    - DEX交易监控
+    - DeFi协议跟踪
+    - NFT市场活动
+    - 游戏资产变化
+  </Accordion>
+
+  <Accordion title="交易订阅" icon="receipt">
+    当特定交易被确认或交易涉及某些账户时收到通知。
+    
+    **使用场景：**
+    - 支付确认
+    - 交易状态跟踪
+    - 多重签名批准
+    - 合约执行监控
+  </Accordion>
+
+  <Accordion title="槽位订阅" icon="clock">
+    在槽位级别监控区块链的进展和最终性。
+    
+    **使用场景：**
+    - 区块浏览器应用
+    - 网络健康监控
+    - 共识跟踪
+    - 性能分析
+  </Accordion>
+</AccordionGroup>
+
+### 承诺级别
+
+了解承诺级别对于可靠的应用程序至关重要：
+
+<Tabs>
+  <Tab title="已处理">
+    **最快** - 交易已被验证者处理但未确认
+    - 延迟：约400毫秒
+    - 风险：可能被丢弃或重新排序
+    - 用于：实时UI更新（需谨慎）
+  </Tab>
+  
+  <Tab title="已确认">
+    **平衡** - 集群的大多数已对该槽位投票
+    - 延迟：约2-3秒  
+    - 风险：被丢弃的可能性低
+    - 用于：大多数应用程序
+  </Tab>
+  
+  <Tab title="已最终确定">
+    **最安全** - 集群的超级多数已对该槽位投票
+    - 延迟：约15-30秒
+    - 风险：极不可能被丢弃
+    - 用于：金融应用程序，高价值交易
+  </Tab>
+</Tabs>
+
+<Info>
+**想了解更多关于承诺级别的信息吗？** 阅读我们的综合博客文章：[理解 Solana 承诺级别](https://www.helius.dev/blog/solana-commitment-levels)
+</Info>
+
+## 可用的 WebSocket 方法
+
+本指南中的示例涵盖了最常用的 WebSocket 方法，但 Solana 的 WebSocket API 提供了更多的订阅类型以满足特殊用例。
+
+<Card title="完整的 API 参考" icon="book" href="/zh/api-reference/rpc/websocket-methods">
+  **探索所有18+ WebSocket 方法**。每个方法都包括详细的参数、响应格式和示例。
+</Card>
+
+## 实现强大的重连逻辑
+
+WebSocket 连接可能由于各种原因断开 - 网络问题、服务器维护或临时中断。生产应用程序**必须**实现重连逻辑以确保可靠性。
+
+### 为什么会发生断连
+
+<AccordionGroup>
+  <Accordion title="网络问题">
+    - 互联网连接问题
+    - 移动设备上的 WiFi 切换
+    - 企业防火墙超时
+    - ISP 路由更改
+  </Accordion>
+  
+  <Accordion title="服务器端事件">
+    - 计划的维护窗口
+    - 负载均衡器重启
+    - RPC 节点更新
+    - 临时过载保护
+  </Accordion>
+  
+  <Accordion title="客户端问题">
+    - 浏览器标签页后台运行
+    - 移动应用程序挂起
+    - 计算机休眠/休眠
+    - 进程崩溃或重启
+  </Accordion>
+</AccordionGroup>
+
+### 检测断开连接
+
+<Tabs>
+  <Tab title="JavaScript/Browser">
+
+    ```javascript [expandable]
+    class ConnectionMonitor {
+      constructor(ws) {
+        this.ws = ws;
+        this.pingInterval = null;
+        this.lastPong = Date.now();
+        this.isConnected = false;
+        
+        this.setupEventListeners();
+        this.startPingMonitoring();
+      }
+      
+      setupEventListeners() {
+        this.ws.onopen = () => {
+          console.log('Connected');
+          this.isConnected = true;
+          this.lastPong = Date.now();
+        };
+        
+        this.ws.onclose = (event) => {
+          console.log('Disconnected:', event.code, event.reason);
+          this.isConnected = false;
+          this.stopPingMonitoring();
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.isConnected = false;
+        };
+        
+        // Listen for pong responses (server acknowledgment)
+        this.ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.method === 'pong') {
+            this.lastPong = Date.now();
+          }
+          // Handle other messages...
+        };
+      }
+      
+      startPingMonitoring() {
+        this.pingInterval = setInterval(() => {
+          if (this.isConnected) {
+            // Send ping to check connection health
+            this.ws.send(JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'ping',
+              id: Date.now()
+            }));
+            
+            // Check if we received a pong recently
+            const timeSinceLastPong = Date.now() - this.lastPong;
+            if (timeSinceLastPong > 30000) { // 30 seconds timeout
+              console.warn('No pong received, connection may be stale');
+              this.ws.close();
+            }
+          }
+        }, 10000); // Ping every 10 seconds
+      }
+      
+      stopPingMonitoring() {
+        if (this.pingInterval) {
+          clearInterval(this.pingInterval);
+          this.pingInterval = null;
+        }
+      }
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="Node.js">
+
+    ```javascript [expandable]
+    const WebSocket = require('ws');
+    
+    class NodeConnectionMonitor {
+      constructor(url) {
+        this.url = url;
+        this.ws = null;
+        this.pingInterval = null;
+        this.isAlive = false;
+      }
+      
+      connect() {
+        this.ws = new WebSocket(this.url);
+        
+        this.ws.on('open', () => {
+          console.log('Connected');
+          this.isAlive = true;
+          this.startHeartbeat();
+        });
+        
+        this.ws.on('close', () => {
+          console.log('Disconnected');
+          this.isAlive = false;
+          this.stopHeartbeat();
+        });
+        
+        this.ws.on('error', (error) => {
+          console.error('WebSocket error:', error);
+          this.isAlive = false;
+        });
+        
+        // Built-in ping/pong handling
+        this.ws.on('pong', () => {
+          this.isAlive = true;
+        });
+      }
+      
+      startHeartbeat() {
+        this.pingInterval = setInterval(() => {
+          if (!this.isAlive) {
+            console.log('Connection lost, terminating');
+            return this.ws.terminate();
+          }
+          
+          this.isAlive = false;
+          this.ws.ping();
+        }, 30000); // Ping every 30 seconds
+      }
+      
+      stopHeartbeat() {
+        if (this.pingInterval) {
+          clearInterval(this.pingInterval);
+          this.pingInterval = null;
+        }
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+### 重连策略
+
+<Tabs>
+  <Tab title="指数退避">
+
+    ```javascript [expandable]
+    class ExponentialBackoffReconnector {
+      constructor(url, maxRetries = 10) {
+        this.url = url;
+        this.maxRetries = maxRetries;
+        this.retryCount = 0;
+        this.baseDelay = 1000; // Start with 1 second
+        this.maxDelay = 30000; // Cap at 30 seconds
+        this.ws = null;
+        this.subscriptions = new Map();
+        this.isReconnecting = false;
+      }
+      
+      connect() {
+        if (this.isReconnecting) return;
+        
+        try {
+          this.ws = new WebSocket(this.url);
+          this.setupEventHandlers();
+        } catch (error) {
+          console.error('Failed to create WebSocket:', error);
+          this.scheduleReconnect();
+        }
+      }
+      
+      setupEventHandlers() {
+        this.ws.onopen = () => {
+          console.log('Connected successfully');
+          this.retryCount = 0; // Reset retry count on successful connection
+          this.isReconnecting = false;
+          this.resubscribeAll(); // Restore subscriptions
+        };
+        
+        this.ws.onclose = (event) => {
+          console.log('Connection closed:', event.code);
+          if (!this.isReconnecting) {
+            this.scheduleReconnect();
+          }
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+      }
+      
+      scheduleReconnect() {
+        if (this.retryCount >= this.maxRetries) {
+          console.error('Max retry attempts reached. Giving up.');
+          return;
+        }
+        
+        this.isReconnecting = true;
+        this.retryCount++;
+        
+        // Calculate delay with exponential backoff + jitter
+        const delay = Math.min(
+          this.baseDelay * Math.pow(2, this.retryCount - 1),
+          this.maxDelay
+        );
+        
+        // Add jitter to prevent thundering herd
+        const jitteredDelay = delay + (Math.random() * 1000);
+        
+        console.log(`Reconnecting in ${jitteredDelay}ms (attempt ${this.retryCount}/${this.maxRetries})`);
+        
+        setTimeout(() => {
+          this.connect();
+        }, jitteredDelay);
+      }
+      
+      subscribe(method, params, callback) {
+        const id = this.generateId();
+        this.subscriptions.set(id, { method, params, callback });
+        
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.sendSubscription(id, method, params);
+        }
+        
+        return id;
+      }
+      
+      resubscribeAll() {
+        console.log(`Restoring ${this.subscriptions.size} subscriptions`);
+        for (const [id, sub] of this.subscriptions) {
+          this.sendSubscription(id, sub.method, sub.params);
+        }
+      }
+      
+      sendSubscription(id, method, params) {
+        this.ws.send(JSON.stringify({
+          jsonrpc: '2.0',
+          id: id,
+          method: method,
+          params: params
+        }));
+      }
+      
+      generateId() {
+        return Date.now() + Math.random();
+      }
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="断路器模式">
+
+    ```javascript [expandable]
+    class CircuitBreakerWebSocket {
+      constructor(url, options = {}) {
+        this.url = url;
+        this.failureThreshold = options.failureThreshold || 5;
+        this.recoveryTimeout = options.recoveryTimeout || 60000;
+        this.checkInterval = options.checkInterval || 10000;
+        
+        this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+        this.failureCount = 0;
+        this.lastFailureTime = null;
+        this.ws = null;
+        this.subscriptions = new Map();
+      }
+      
+      connect() {
+        if (this.state === 'OPEN') {
+          if (Date.now() - this.lastFailureTime > this.recoveryTimeout) {
+            console.log('Circuit breaker moving to HALF_OPEN state');
+            this.state = 'HALF_OPEN';
+          } else {
+            console.log('Circuit breaker is OPEN, connection blocked');
+            return false;
+          }
+        }
+        
+        try {
+          this.ws = new WebSocket(this.url);
+          this.setupEventHandlers();
+          return true;
+        } catch (error) {
+          this.recordFailure();
+          return false;
+        }
+      }
+      
+      setupEventHandlers() {
+        this.ws.onopen = () => {
+          console.log('Connected - Circuit breaker CLOSED');
+          this.state = 'CLOSED';
+          this.failureCount = 0;
+          this.resubscribeAll();
+        };
+        
+        this.ws.onclose = () => {
+          this.recordFailure();
+        };
+        
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.recordFailure();
+        };
+      }
+      
+      recordFailure() {
+        this.failureCount++;
+        this.lastFailureTime = Date.now();
+        
+        console.log(`Failure recorded: ${this.failureCount}/${this.failureThreshold}`);
+        
+        if (this.failureCount >= this.failureThreshold) {
+          console.log('Circuit breaker opened due to repeated failures');
+          this.state = 'OPEN';
+        }
+      }
+      
+      startHealthCheck() {
+        setInterval(() => {
+          if (this.state === 'OPEN' || 
+              (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
+            this.connect();
+          }
+        }, this.checkInterval);
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+### 测试重连逻辑
+
+<Tabs>
+  <Tab title="网络模拟">
+
+    ```javascript [expandable]
+    // Test disconnection scenarios
+    class NetworkSimulator {
+      constructor(wsManager) {
+        this.wsManager = wsManager;
+      }
+      
+      // Simulate network outage
+      simulateNetworkOutage(duration = 5000) {
+        console.log('Simulating network outage...');
+        
+        // Force close the connection
+        if (this.wsManager.ws) {
+          this.wsManager.ws.close(1006, 'Network outage simulation');
+        }
+        
+        // Block reconnection temporarily
+        const originalConnect = this.wsManager.connect.bind(this.wsManager);
+        this.wsManager.connect = () => {
+          console.log('Connection blocked during outage simulation');
+        };
+        
+        // Restore connection after duration
+        setTimeout(() => {
+          console.log('Network restored');
+          this.wsManager.connect = originalConnect;
+          this.wsManager.connect();
+        }, duration);
+      }
+      
+      // Simulate intermittent connectivity
+      simulateIntermittentConnectivity() {
+        setInterval(() => {
+          if (Math.random() < 0.1) { // 10% chance every 10 seconds
+            console.log('Simulating connection drop...');
+            this.wsManager.ws?.close(1006, 'Intermittent connectivity');
+          }
+        }, 10000);
+      }
+    }
+    
+    // Usage
+    const simulator = new NetworkSimulator(wsManager);
+    simulator.simulateNetworkOutage(10000); // 10 second outage
+    ```
+
+  </Tab>
+  
+  <Tab title="自动化测试">
+
+    ```javascript [expandable]
+    // Jest test example
+    describe('WebSocket Reconnection', () => {
+      let wsManager;
+      
+      beforeEach(() => {
+        wsManager = new ProductionWebSocketManager({
+          endpoint: 'ws://localhost:8080',
+          apiKey: 'test-key'
+        });
+      });
+      
+      test('should reconnect after connection loss', async () => {
+        const reconnectPromise = new Promise((resolve) => {
+          wsManager.on('connected', resolve);
+        });
+        
+        await wsManager.connect();
+        
+        // Simulate connection loss
+        wsManager.ws.close(1006, 'Test disconnection');
+        
+        // Wait for reconnection
+        await reconnectPromise;
+        
+        expect(wsManager.connectionState).toBe('CONNECTED');
+        expect(wsManager.metrics.reconnections).toBeGreaterThan(0);
+      });
+      
+      test('should restore subscriptions after reconnection', async () => {
+        await wsManager.connect();
+        
+        const messages = [];
+        const subscriptionId = wsManager.subscribe(
+          'accountSubscribe',
+          ['test-account', {}],
+          (data) => messages.push(data)
+        );
+        
+        // Verify subscription exists
+        expect(wsManager.subscriptions.has(subscriptionId)).toBe(true);
+        
+        // Simulate disconnection and reconnection
+        wsManager.ws.close(1006, 'Test disconnection');
+        
+        await new Promise(resolve => wsManager.on('connected', resolve));
+        
+        // Verify subscription was restored
+        const subscription = wsManager.subscriptions.get(subscriptionId);
+        expect(subscription.pending).toBe(true); // Should be re-subscribing
+      });
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+<Warning>
+**生产环境关键**：在生产应用中实现适当的重连逻辑是必不可少的。WebSocket 连接会断开——为此做好计划、测试，并在生产中监控。
+</Warning>
+
+## 故障排除
+
+<AccordionGroup>
+  <Accordion title="连接失败">
+    **症状**：WebSocket 初始连接失败
+    
+    **解决方案**：
+    - 验证您的 API 密钥是否正确且有足够的额度
+    - 检查端点 URL 格式：`wss://mainnet.helius-rpc.com?api-key=YOUR_KEY`
+    - 确保您的防火墙允许 WebSocket 在端口 443 上的连接
+    - 先用简单的 ping 测试以验证基本连接性
+  </Accordion>
+
+  <Accordion title="频繁断开连接">
+    **症状**：连接每隔几分钟就会断开
+    
+    **解决方案**：
+    - 实现适当的 ping/pong 心跳（如上面的重连示例所示）
+    - 检查您的网络稳定性和公司防火墙设置
+    - 监控您的订阅数量——过多可能导致不稳定
+    - 验证您是否正确处理了连接生命周期
+  </Accordion>
+
+  <Accordion title="消息丢失">
+    **症状**：未收到预期的订阅更新
+    
+    **解决方案**：
+    - 验证您的订阅是否已确认（检查响应）
+    - 确保您监控的账户/程序有实际活动
+    - 监控您的连接状态——丢失消息通常表示断开连接
+  </Accordion>
+
+  <Accordion title="高延迟">
+    **症状**：消息传递缓慢，更新延迟
+    
+    **解决方案**：
+    - 使用 "confirmed" 而不是 "finalized" 承诺
+    - 减少活动订阅的数量
+    - 优化您的消息处理逻辑
+    - 考虑使用多个连接来分配负载
+    - 检查您的网络连接质量
+  </Accordion>
+
+  <Accordion title="内存泄漏">
+    **症状**：应用程序的内存使用量随时间增长
+    
+    **解决方案**：
+    - 实现适当的订阅清理
+    - 在组件卸载时移除事件监听器
+    - 定期清除消息日志
+    - 监控订阅数量并强制限制
+    - 在可能的情况下使用弱引用来处理回调函数
+  </Accordion>
+</AccordionGroup>
+
+## 从标准RPC迁移
+
+如果您当前正在使用HTTP轮询，以下是迁移到WebSockets的方法：
+
+```javascript [expandable]
+// Old approach - HTTP polling
+class HTTPAccountMonitor {
+  constructor(connection, accountAddress) {
+    this.connection = connection;
+    this.accountAddress = accountAddress;
+    this.interval = null;
+    this.lastKnownBalance = null;
+  }
+
+  start() {
+    this.interval = setInterval(async () => {
+      try {
+        const accountInfo = await this.connection.getAccountInfo(
+          new PublicKey(this.accountAddress)
+        );
+        
+        const currentBalance = accountInfo?.lamports || 0;
+        
+        if (this.lastKnownBalance !== currentBalance) {
+          console.log(`Balance changed: ${currentBalance}`);
+          this.lastKnownBalance = currentBalance;
+        }
+      } catch (error) {
+        console.error('Failed to fetch account info:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+  }
+
+  stop() {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+}
+
+// New approach - WebSocket subscription
+class WebSocketAccountMonitor {
+  constructor(wsManager, accountAddress) {
+    this.wsManager = wsManager;
+    this.accountAddress = accountAddress;
+    this.subscriptionId = null;
+  }
+
+  start() {
+    this.subscriptionId = this.wsManager.subscribe(
+      'accountSubscribe',
+      [
+        this.accountAddress,
+        { encoding: 'jsonParsed', commitment: 'confirmed' }
+      ],
+      (data) => {
+        const currentBalance = data.value.lamports;
+        console.log(`Balance changed: ${currentBalance}`);
+        
+        // Handle the change immediately - no polling delay!
+      }
+    );
+  }
+
+  stop() {
+    if (this.subscriptionId) {
+      this.wsManager.unsubscribe(this.subscriptionId);
+      this.subscriptionId = null;
+    }
+  }
+}
+```
+
+## 增强功能
+
+对于需要更高级功能的应用程序，请考虑使用[LaserStream gRPC](/zh/laserstream)：
+
+<CardGroup cols={2}>
+  <Card title="历史重播" icon="clock-rotate-left">
+    当您的应用程序离线时，补上错过的数据
+  </Card>
+  <Card title="多节点聚合" icon="network-wired">
+    通过来自多个验证节点的数据增强可靠性
+  </Card>
+  <Card title="更高吞吐量" icon="gauge-high">
+    处理更多的订阅和更高的消息速率
+  </Card>
+  <Card title="企业功能" icon="building">
+    高级监控、分析和自定义数据管道
+  </Card>
+</CardGroup>
+
+<Note>
+**准备好开始了吗？** 查看我们的[WebSocket快速入门指南](/zh/rpc/websocket/quickstart)，获取实用示例和分步实施指南。
+</Note>

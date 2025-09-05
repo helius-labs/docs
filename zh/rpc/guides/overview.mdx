@@ -1,0 +1,258 @@
+---
+title: Solana RPC 方法指南：完整开发者参考
+sidebarTitle: 概述
+description: 有效使用 Solana RPC 方法的实用指南。区块链开发的真实案例、代码示例和最佳实践。
+---
+
+## 快速导航
+
+<CardGroup cols={2}>
+  <Card title="账户与余额方法" icon="wallet" href="#account-%26-balance-methods">
+    查询账户信息、余额和代币数据
+  </Card>
+  <Card title="交易方法" icon="arrow-right-arrow-left" href="#transaction-methods">
+    发送、模拟和跟踪 Solana 上的交易
+  </Card>
+  <Card title="区块与槽方法" icon="cube" href="#block-%26-slot-methods">
+    访问区块链结构和时间信息
+  </Card>
+  <Card title="网络与集群方法" icon="globe" href="#network-%26-cluster-methods">
+    监控网络健康和验证器信息
+  </Card>
+</CardGroup>
+
+---
+
+## 什么是 RPC 方法指南？
+
+这些实用指南展示了**如何使用特定的 Solana RPC 方法**来解决常见的开发挑战。每个指南包括：
+
+- **真实用例**以及何时使用每种方法
+- **完整代码示例**，涵盖多种语言
+- **参数解释**及实用技巧
+- **响应结构**解析
+- **开发者提示**，用于优化和最佳实践
+
+非常适合希望不仅了解每个 RPC 方法*是什么*，还希望了解*如何*在生产应用中有效使用它的开发者。
+
+## 账户与余额方法
+
+查询账户数据、余额和代币信息的基本方法。
+
+<CardGroup cols={3}>
+  <Card title="getAccountInfo" icon="info" href="/zh/rpc/guides/getaccountinfo">
+    获取完整的账户详情，包括余额、所有者和数据
+  </Card>
+  <Card title="getBalance" icon="coins" href="/zh/rpc/guides/getbalance">
+    快速查询任何账户的 SOL 余额
+  </Card>
+  <Card title="getMultipleAccounts" icon="layer-group" href="/zh/rpc/guides/getmultipleaccounts">
+    高效批量查询多个账户
+  </Card>
+  <Card title="getProgramAccounts" icon="code" href="/zh/rpc/guides/getprogramaccounts">
+    查找由特定程序拥有的所有账户
+  </Card>
+  <Card title="getLargestAccounts" icon="star" href="/zh/rpc/guides/getlargestaccounts">
+    获取 SOL 余额最大的账户
+  </Card>
+  <Card title="getSupply" icon="server" href="/zh/rpc/guides/getsupply">
+    获取当前供应信息
+  </Card>
+</CardGroup>
+
+### 代币账户方法
+
+<CardGroup cols={2}>
+  <Card title="getTokenAccountsByOwner" icon="wallet" href="/zh/rpc/guides/gettokenaccountsbyowner">
+    获取钱包的所有代币账户
+  </Card>
+  <Card title="getTokenAccountsByDelegate" icon="user" href="/zh/rpc/guides/gettokenaccountsbydelegate">
+    通过代理查询代币账户
+  </Card>
+  <Card title="getTokenAccountBalance" icon="wallet" href="/zh/rpc/guides/gettokenaccountbalance">
+    获取特定代币账户的余额
+  </Card>
+  <Card title="getTokenSupply" icon="coins" href="/zh/rpc/guides/gettokensupply">
+    查询SPL代币的总供应量
+  </Card>
+  <Card title="getTokenLargestAccounts" icon="star" href="/zh/rpc/guides/gettokenlargestaccounts">
+    查找持有代币最多的账户
+  </Card>
+</CardGroup>
+
+## 交易方法
+
+用于发送交易、检查状态和检索交易历史的方法。
+
+<CardGroup cols={3}>
+  <Card title="getTransaction" icon="receipt" href="/zh/rpc/guides/gettransaction">
+    获取特定交易的详细信息
+  </Card>
+  <Card title="getSignatures" icon="list" href="/zh/rpc/guides/getsignaturesforaddress">
+    获取账户的交易签名
+  </Card>
+  <Card title="getSignatureStatuses" icon="check" href="/zh/rpc/guides/getsignaturestatuses">
+    检查交易的确认状态
+  </Card>
+  <Card title="getTransactionCount" icon="calculator" href="/zh/rpc/guides/gettransactioncount">
+    获取已处理交易的总数
+  </Card>
+  <Card title="requestAirdrop" icon="gift" href="/zh/rpc/guides/requestairdrop">
+    在开发网/测试网上请求SOL空投
+  </Card>
+</CardGroup>
+
+### 交易费用与模拟
+
+<CardGroup cols={3}>
+  <Card title="getPriorityFees" icon="coins" href="/zh/rpc/guides/getrecentprioritizationfees">
+    获取最近的优先费用以实现最佳定价
+  </Card>
+  <Card title="getFeeForMessage" icon="calculator" href="/zh/rpc/guides/getfeeformessage">
+    在发送前计算交易费用
+  </Card>
+</CardGroup>
+
+## 区块与插槽方法
+
+访问区块链结构、时间和历史数据。
+
+<CardGroup cols={3}>
+  <Card title="getBlock" icon="cube" href="/zh/rpc/guides/getblock">
+    获取完整的区块信息，包括所有交易
+  </Card>
+  <Card title="getBlockHeight" icon="arrow-up" href="/zh/rpc/guides/getblockheight">
+    获取网络的当前区块高度
+  </Card>
+  <Card title="getSlot" icon="clock" href="/zh/rpc/guides/getslot">
+    获取当前插槽号
+  </Card>
+  <Card title="getBlocks" icon="cubes" href="/zh/rpc/guides/getblocks">
+    获取范围内的已确认区块列表
+  </Card>
+  <Card title="getBlocksWithLimit" icon="list" href="/zh/rpc/guides/getblockswithlimit">
+    获取有限数量的已确认区块
+  </Card>
+  <Card title="getBlockTime" icon="clock" href="/zh/rpc/guides/getblocktime">
+    获取区块的预计生产时间
+  </Card>
+</CardGroup>
+
+### 区块哈希与插槽信息
+
+<CardGroup cols={3}>
+  <Card title="getLatestBlockhash" icon="hashtag" href="/zh/rpc/guides/getlatestblockhash">
+    获取交易的最新区块哈希
+  </Card>
+  <Card title="isBlockhashValid" icon="check" href="/zh/rpc/guides/isblockhashvalid">
+    验证区块哈希是否仍然有效
+  </Card>
+  <Card title="getSlotLeader" icon="crown" href="/zh/rpc/guides/getslotleader">
+    获取当前插槽领导者
+  </Card>
+  <Card title="getSlotLeaders" icon="users" href="/zh/rpc/guides/getslotleaders">
+    获取一系列插槽的领导者
+  </Card>
+  <Card title="getLeaderSchedule" icon="calendar" href="/zh/rpc/guides/getleaderschedule">
+    获取一个纪元的领导者时间表
+  </Card>
+</CardGroup>
+
+## 网络与集群方法
+
+监控网络健康、验证者信息和集群状态。
+
+<CardGroup cols={3}>
+  <Card title="getHealth" icon="heart" href="/zh/rpc/guides/gethealth">
+    检查RPC节点的健康状态
+  </Card>
+  <Card title="getVersion" icon="tag" href="/zh/rpc/guides/getversion">
+    获取Solana软件版本信息
+  </Card>
+  <Card title="getClusterNodes" icon="server" href="/zh/rpc/guides/getclusternodes">
+    获取集群验证者的信息
+  </Card>
+  <Card title="getVoteAccounts" icon="check" href="/zh/rpc/guides/getvoteaccounts">
+    获取当前和拖欠的投票账户
+  </Card>
+  <Card title="getEpochInfo" icon="calendar" href="/zh/rpc/guides/getepochinfo">
+    获取当前纪元的信息
+  </Card>
+  <Card title="getEpochSchedule" icon="calendar" href="/zh/rpc/guides/getepochschedule">
+    获取纪元时间表信息
+  </Card>
+</CardGroup>
+
+### 网络性能与经济
+
+<CardGroup cols={3}>
+  <Card title="getPerformanceSamples" icon="server" href="/zh/rpc/guides/getrecentperformancesamples">
+    获取最近的网络性能指标
+  </Card>
+  <Card title="getInflationGovernor" icon="info" href="/zh/rpc/guides/getinflationgovernor">
+    获取当前的通胀参数
+  </Card>
+  <Card title="getInflationRate" icon="arrow-up" href="/zh/rpc/guides/getinflationrate">
+    获取当前的通胀率
+  </Card>
+  <Card title="getInflationReward" icon="coins" href="/zh/rpc/guides/getinflationreward">
+    计算账户的通胀奖励
+  </Card>
+  <Card title="getStakeDelegation" icon="handshake" href="/zh/rpc/guides/getstakeminimumdelegation">
+    获取最小的质押委托金额
+  </Card>
+</CardGroup>
+
+## 实用工具与系统方法
+
+用于系统信息、验证和高级查询的辅助方法。
+
+<CardGroup cols={3}>
+  <Card title="getRentExemption" icon="house" href="/zh/rpc/guides/getminimumbalanceforrentexemption">
+    计算租金豁免的最低余额
+  </Card>
+  <Card title="getGenesisHash" icon="fingerprint" href="/zh/rpc/guides/getgenesishash">
+    获取集群的创世哈希
+  </Card>
+  <Card title="getIdentity" icon="user" href="/zh/rpc/guides/getidentity">
+    获取RPC节点的身份公钥
+  </Card>
+  <Card title="getFirstAvailableBlock" icon="play" href="/zh/rpc/guides/getfirstavailableblock">
+    获取第一个可用区块的插槽
+  </Card>
+  <Card title="getHighestSnapshotSlot" icon="arrow-up" href="/zh/rpc/guides/gethighestsnapshotslot">
+    获取具有快照的最高插槽
+  </Card>
+  <Card title="minimumLedgerSlot" icon="database" href="/zh/rpc/guides/minimumledgerslot">
+    获取节点具有账本信息的最小插槽
+  </Card>
+</CardGroup>
+
+### 高级系统查询
+
+<CardGroup cols={3}>
+  <Card title="getMaxRetransmitSlot" icon="repeat" href="/zh/rpc/guides/getmaxretransmitslot">
+    获取从重传阶段看到的最大槽位
+  </Card>
+  <Card title="getMaxShredInsertSlot" icon="layer-group" href="/zh/rpc/guides/getmaxshredinsertslot">
+    获取从碎片插入看到的最大槽位
+  </Card>
+</CardGroup>
+
+## 相关资源
+
+<CardGroup cols={3}>
+  <Card title="RPC Optimization" icon="rocket" href="/zh/rpc/optimization-techniques">
+    学习优化RPC性能的高级技术
+  </Card>
+  <Card title="WebSocket Methods" icon="wifi" href="/zh/rpc/websocket">
+    探索实时订阅和流数据
+  </Card>
+  <Card title="API Reference" icon="book" href="/zh/api-reference/rpc/http-methods">
+    所有RPC方法的完整技术参考
+  </Card>
+</CardGroup>
+
+---
+
+**需要帮助解决特定的RPC方法吗？** 每个指南都包含实用示例和开发者提示，帮助您快速入门。浏览上面的类别或使用搜索功能找到您所需的内容。

@@ -1,0 +1,12 @@
+---
+title: getAsset
+openapi: /zh/openapi/das-api/getAsset.yaml POST /
+---
+
+## 价格数据缓存
+
+<Warning>
+getAsset 返回的价格数据是缓存的，可能不是最新的。价格信息有 60 秒的缓存，这意味着数据可能有多达 60 秒的延迟。
+</Warning>
+
+价格数据仅适用于 Jupiter 验证的代币，可以在响应的 `token_info.price_info` 部分找到。对于需要实时定价的应用程序，建议实施额外的验证或使用 Jupiter 的直接 API 以获取最新数据。

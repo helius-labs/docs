@@ -1,0 +1,188 @@
+---
+title: 如何使用 getMultipleAccounts
+sidebarTitle: getMultipleAccounts
+description: 了解 getMultipleAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getMultipleAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getmultipleaccounts) RPC 方法是一种高效的方式，可以同时获取一组 Solana 账户的信息。与其为每个账户单独发起 `getAccountInfo` 请求，`getMultipleAccounts` 允许您批量处理这些请求，从而减少网络开销并提高应用程序的响应速度。
+
+## 常见用例
+
+*   **批量加载账户数据：** 当您的应用程序需要显示或处理多个已知账户的数据时（例如，用户的代币账户，一组链上程序配置）。
+*   **投资组合追踪器：** 获取用户拥有的多个代币账户的余额和状态。
+*   **市场界面：** 通过一次性获取账户数据来显示多个 NFT 或上市项目的详细信息。
+*   **提高 dApp 性能：** 显著减少 RPC 调用次数，从而加快加载时间并改善用户体验，特别是在处理大量账户时。
+
+## 请求参数
+
+1.  **`pubkeys`** (`array` of `string`, 必需):
+    *   要查询的账户的 base-58 编码公钥字符串数组。
+    *   每个请求最多 100 个公钥。
+    *   示例：`["So11111111111111111111111111111111111111112", "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]`
+
+2.  **`options`** (`object`, 可选): 包含以下一个或多个字段的配置对象：
+    *   **`commitment`** (`string`): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`, `"confirmed"`, `"processed"`）。
+    *   **`encoding`** (`string`): 账户数据的编码。选项包括：
+        *   `"base64"` (默认): 标准 base64 编码。
+        *   `"base58"`: 较慢，但在某些情况下可能有用。
+        *   `"base64+zstd"`: base64 编码的 zstd 压缩数据。
+        *   `"jsonParsed"`: 如果账户由 RPC 节点具有解析器的程序拥有（例如，SPL 代币程序，Stake 程序），`data` 字段将是一个 JSON 对象。这对于结构化数据非常有用。
+    *   **`dataSlice`** (`object`): 允许您仅获取账户数据的特定部分。这对于只需要大账户中的一小部分信息时非常有用。
+        *   `offset` (`usize`): 从账户数据开始的字节偏移量。
+        *   `length` (`usize`): 从偏移量开始返回的字节数。
+        *   *注意：`dataSlice` 仅适用于 `base58`, `base64`, 或 `base64+zstd` 编码。*
+    *   **`minContextSlot`** (`u64`): 请求可以在其上进行评估的最小槽位。
+
+## 响应结构
+
+JSON-RPC 响应对象将包含一个 `result` 字段，其中包括：
+
+*   **`context`** (`object`):
+    *   `slot` (`u64`): 获取信息的槽位。
+    *   `apiVersion` (`string`, 可选): 节点的 API 版本。
+
+## 示例
+
+### 1. 获取两个账户的基本信息
+
+此示例获取两个账户的数据：SOL Llama（一个 NFT）和 Serum Dex Program v3。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# SOL Llama Mint: Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F
+# Serum Dex Program v3: 9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMultipleAccounts",
+    "params": [
+      [
+        "Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F",
+        "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
+      ]
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchMultipleAccountInfo() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const accountPubkeys = [
+    new PublicKey('Abug4qgG1x23AEdjS2h9CEJ1m6ha2Z22LdK2kL2pys3F'), // SOL Llama
+    new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin')  // Serum Dex Program v3
+  ];
+
+  try {
+    const accountsInfo = await connection.getMultipleAccountsInfo(accountPubkeys);
+    
+    accountsInfo.forEach((account, index) => {
+      console.log(`--- Account ${index + 1} (${accountPubkeys[index].toBase58()}) ---`);
+      if (account) {
+        console.log(`  Owner: ${account.owner.toBase58()}`);
+        console.log(`  Lamports: ${account.lamports}`);
+        console.log(`  Executable: ${account.executable}`);
+        console.log(`  Data length: ${account.data.length}`);
+        // For brevity, not logging full data buffer
+      } else {
+        console.log("  Account not found or error fetching.");
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching multiple accounts:', error);
+  }
+}
+
+fetchMultipleAccountInfo();
+```
+
+</CodeGroup>
+
+### 2. 获取解析的代币账户数据
+
+此示例获取两个 SPL 代币账户的数据，并请求 `jsonParsed` 编码以获取结构化数据。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Example USDC Token Account 1: GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p
+# Example USDT Token Account 2: HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMultipleAccounts",
+    "params": [
+      [
+        "GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p",
+        "HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m"
+      ],
+      {
+        "encoding": "jsonParsed"
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchParsedTokenAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const tokenAccountPubkeys = [
+    new PublicKey('GqoZ2MCrdTtygoX1F2b8X7F2tDXxNxyvMvykR9RzQW8p'), // Example USDC account
+    new PublicKey('HYnLMbkaPMh9W2aPNy2yP4LzLSWWw9zSCYEZdX2g2E7m')  // Example USDT account
+  ];
+
+  try {
+    const accountsInfo = await connection.getMultipleAccountsInfo(tokenAccountPubkeys, 'confirmed'); // Can also pass commitment here
+    // Note: @solana/web3.js's getMultipleAccountsInfo automatically requests jsonParsed if the node supports it for token accounts.
+    // For explicit control with raw RPC, you use the options object as in the cURL example.
+
+    accountsInfo.forEach((account, index) => {
+      console.log(`--- Token Account ${index + 1} (${tokenAccountPubkeys[index].toBase58()}) ---`);
+      if (account && account.data && typeof account.data !== 'string') { // Check if data is parsed
+        // The actual structure of account.data depends on the program (e.g., SPL Token)
+        // For SPL Token accounts, you'd typically find parsed data in account.data.parsed.info
+        const parsedInfo = (account.data as any).parsed?.info;
+        if (parsedInfo) {
+            console.log(`  Mint: ${parsedInfo.mint}`);
+            console.log(`  Owner: ${parsedInfo.owner}`);
+            console.log(`  Amount: ${parsedInfo.tokenAmount.uiAmountString} (decimals: ${parsedInfo.tokenAmount.decimals})`);
+        } else {
+            console.log("  Account data is not in the expected parsed format or is not a token account.");
+            // console.log("Raw data:", account.data.toString('base64')); // if buffer
+        }
+      } else if (account) {
+        console.log("  Account found, but data is not parsed or is a string (binary data).");
+        // console.log("  Raw data:", account.data.toString()); // if string
+      } else {
+        console.log("  Account not found or error fetching.");
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching parsed token accounts:', error);
+  }
+}
+
+fetchParsedTokenAccounts();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **最多 100 个账户：** 每次调用最多可以请求 100 个账户。
+*   **原子性：** 请求不是原子的，如果一个账户查找失败，其他账户可能仍然成功。检查 `value` 数组中的每个元素是否为 `null`。
+*   **`jsonParsed` 便利性：** 在处理常见账户类型如 SPL 代币账户时，强烈推荐使用 `jsonParsed` 编码，因为它可以避免手动反序列化。
+*   **`dataSlice` 用于大账户：** 对于非常大的账户（例如某些程序状态账户），使用 `dataSlice` 仅获取必要的字节以避免过多的数据传输。
+*   **错误处理：** 准备好处理响应 `value` 数组中的 `null` 条目，表示账户未找到或无法获取。
+
+通过利用`getMultipleAccounts`，您可以构建更高性能和可扩展的Solana应用程序。

@@ -1,0 +1,139 @@
+---
+title: accountSubscribe
+description: 订阅一个账户，以便在给定账户公钥的 lamports 或数据发生变化时接收通知。
+---
+
+## 端点
+
+主网和开发网提供 Websockets，使用以下 URL：
+
+- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping，以保持 websocket 连接活跃。</Note>
+
+## 授权
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+</ParamField>
+
+## 正文
+
+<ParamField body="params" type="array" required>
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="pubkey" type="string" required>
+            账户公钥，作为 base-58 编码的字符串。
+        </ParamField>
+
+        <ParamField body="encoding" type="string">
+            账户数据的编码格式。可以是 `base58`, `base64`, `base64+zstd`, 或 `jsonParsed`。
+
+            - `base58` 较慢
+            - `jsonParsed` 编码尝试使用程序特定的状态解析器返回更具可读性和明确的账户状态数据
+            - 如果请求 `jsonParsed` 但找不到解析器，则字段会回退到二进制编码，当数据字段为字符串类型时可检测到。
+        </ParamField>
+
+        <ParamField body="commitment" type="string">
+            订阅的承诺级别。可以是 `finalized`, `confirmed`, 或 `processed`。
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## 响应
+
+<ResponseField name="result" type="integer">
+  订阅 id（取消订阅时需要）
+</ResponseField>
+
+<RequestExample>
+
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "accountSubscribe",
+  "params": [
+    "CM78CPUeXjn8o3yroDHxUtKsZZgoy4GPkPPXfouKNH12",
+    {
+      "encoding": "jsonParsed",
+      "commitment": "finalized"
+    }
+  ]
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 23784,
+  "id": 1
+}
+```
+
+```json Message (base58)
+{
+  "jsonrpc": "2.0",
+  "method": "accountNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 5199307
+      },
+      "value": {
+        "data": [
+          "11116bv5nS2h3y12kD1yUKeMZvGcKLSjQgX6BeV7u1FrjeJcKfsHPXHRDEHrBesJhZyqnnq9qJeUuF7WHxiuLuL5twc38w2TXNLxnDbjmuR",
+          "base58"
+        ],
+        "executable": false,
+        "lamports": 33594,
+        "owner": "11111111111111111111111111111111",
+        "rentEpoch": 635,
+        "space": 80
+      }
+    },
+    "subscription": 23784
+  }
+}
+```
+
+```json Message (jsonParsed)
+{
+  "jsonrpc": "2.0",
+  "method": "accountNotification",
+  "params": {
+    "result": {
+      "context": {
+        "slot": 5199307
+      },
+      "value": {
+        "data": {
+          "program": "nonce",
+          "parsed": {
+            "type": "initialized",
+            "info": {
+              "authority": "Bbqg1M4YVVfbhEzwA9SpC9FhsaG83YMTYoR4a8oTDLX",
+              "blockhash": "LUaQTmM7WbMRiATdMMHaRGakPtCkc2GHtH57STKXs6k",
+              "feeCalculator": {
+                "lamportsPerSignature": 5000
+              }
+            }
+          }
+        },
+        "executable": false,
+        "lamports": 33594,
+        "owner": "11111111111111111111111111111111",
+        "rentEpoch": 635,
+        "space": 80
+      }
+    },
+    "subscription": 23784
+  }
+}
+```
+
+</ResponseExample>

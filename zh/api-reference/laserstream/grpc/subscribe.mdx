@@ -1,0 +1,607 @@
+---
+title: 订阅
+description: 订阅账户、交易、区块和插槽更新，以使用高性能的 gRPC API 接收实时通知。
+---
+
+<hide>
+## 端点
+
+gRPC 服务在主网和开发网可用，使用以下 URL：
+
+- **主网** `https://laserstream-mainnet.helius-rpc.com:443`
+- **开发网** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## 授权
+
+<ParamField query="x-token" type="string" required>
+  您的 Helius API 密钥。您可以在
+  [仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+</ParamField>
+
+## 消息
+
+gRPC API 支持多种订阅类型，可以在单个请求中组合：
+
+<ParamField body="accounts" type="object">
+  订阅账户更新。当指定账户被修改时返回数据。
+  <Expandable title="属性" defaultOpen>
+    <ParamField body="account" type="array">
+      要监控的账户公钥数组。
+    </ParamField>
+
+    <ParamField body="owner" type="array">
+      要监控的所有者公钥数组（这些程序拥有的所有账户）。
+    </ParamField>
+
+    <ParamField body="filters" type="object">
+      可选的过滤器。
+      <Expandable title="过滤选项">
+        <ParamField body="memcmp" type="object">
+          根据账户数据中某个偏移量的特定字节进行过滤。
+          <Expandable title="属性">
+            <ParamField body="offset" type="integer">
+              开始比较数据的字节位置。
+            </ParamField>
+
+            <ParamField body="bytes" type="string">
+              要比较的数据（字节格式）。
+            </ParamField>
+
+            <ParamField body="base58" type="string">
+              要比较的数据（base58 格式）。
+            </ParamField>
+
+            <ParamField body="base64" type="string">
+              要比较的数据（base64 格式）。
+            </ParamField>
+          </Expandable>
+        </ParamField>
+
+        <ParamField body="datasize" type="integer">
+          根据账户数据的确切字节大小进行过滤。
+        </ParamField>
+
+        <ParamField body="token_account_state" type="boolean">
+          仅过滤到代币账户。
+        </ParamField>
+
+        <ParamField body="lamports" type="object">
+          根据 SOL 余额进行比较过滤。
+          <Expandable title="比较运算符">
+            <ParamField body="eq" type="integer">
+              等于指定金额。
+            </ParamField>
+
+            <ParamField body="ne" type="integer">
+              不等于指定金额。
+            </ParamField>
+
+            <ParamField body="lt" type="integer">
+              小于指定金额。
+            </ParamField>
+
+            <ParamField body="gt" type="integer">
+              大于指定金额。
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+    </ParamField>
+
+    <ParamField body="nonempty_txn_signature" type="boolean">
+      如果可用，包含交易签名。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="slots" type="object">
+  订阅槽位更新。
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="filter_by_commitment" type="boolean">
+      按承诺级别过滤槽位。
+    </ParamField>
+
+    <ParamField body="interslot_updates" type="boolean">
+      包含中间槽位状态更新（PROCESSED, CONFIRMED, FINALIZED,
+      FIRST_SHRED_RECEIVED, COMPLETED, CREATED_BANK, DEAD）。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="transactions" type="object">
+  订阅交易更新。
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="vote" type="boolean">
+      包含投票交易。
+    </ParamField>
+
+    <ParamField body="failed" type="boolean">
+      包含失败的交易。
+    </ParamField>
+
+    <ParamField body="signature" type="string">
+      监控特定交易签名。
+    </ParamField>
+
+    <ParamField body="account_include" type="array">
+      仅包含影响这些账户的交易。
+    </ParamField>
+
+    <ParamField body="account_exclude" type="array">
+      排除影响这些账户的交易。
+    </ParamField>
+
+    <ParamField body="account_required" type="array">
+      交易必须影响所有这些账户。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="transactions_status" type="object">
+  订阅交易状态更新。
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="vote" type="boolean">
+      包含投票交易。
+    </ParamField>
+
+    <ParamField body="failed" type="boolean">
+      包含失败的交易。
+    </ParamField>
+
+    <ParamField body="signature" type="string">
+      监控特定交易签名。
+    </ParamField>
+
+    <ParamField body="account_include" type="array">
+      仅包含影响这些账户的交易。
+    </ParamField>
+
+    <ParamField body="account_exclude" type="array">
+      排除影响这些账户的交易。
+    </ParamField>
+
+    <ParamField body="account_required" type="array">
+      交易必须影响所有这些账户。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="blocks" type="object">
+  订阅区块更新。
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="account_include" type="array">
+      仅包含具有影响这些账户的交易的区块。
+    </ParamField>
+
+    <ParamField body="include_transactions" type="boolean">
+      包含完整的交易详情。
+    </ParamField>
+
+    <ParamField body="include_accounts" type="boolean">
+      包含账户更新。
+    </ParamField>
+
+    <ParamField body="include_entries" type="boolean">
+      包含区块条目。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="blocks_meta" type="object">
+  订阅区块元数据更新（比完整区块更新更轻量）。
+  <Expandable title="returns" defaultOpen>
+    <ParamField body="slot" type="integer">
+      槽位编号。
+    </ParamField>
+
+    <ParamField body="blockhash" type="string">
+      区块哈希。
+    </ParamField>
+
+    <ParamField body="rewards" type="array">
+      奖励信息。
+    </ParamField>
+
+    <ParamField body="block_time" type="integer">
+      区块时间。
+    </ParamField>
+
+    <ParamField body="block_height" type="integer">
+      区块高度。
+    </ParamField>
+
+    <ParamField body="parent_slot" type="integer">
+      父槽位。
+    </ParamField>
+
+    <ParamField body="parent_blockhash" type="string">
+      父区块哈希。
+    </ParamField>
+
+    <ParamField body="executed_transaction_count" type="integer">
+      交易计数。
+    </ParamField>
+
+    <ParamField body="entries_count" type="integer">
+      条目计数。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="entry" type="object">
+  订阅条目更新。
+  <Expandable title="returns" defaultOpen>
+    <ParamField body="slot" type="integer">
+      槽位号。
+    </ParamField>
+
+    <ParamField body="index" type="integer">
+      条目索引。
+    </ParamField>
+
+    <ParamField body="num_hashes" type="integer">
+      哈希数量。
+    </ParamField>
+
+    <ParamField body="hash" type="string">
+      哈希。
+    </ParamField>
+
+    <ParamField body="executed_transaction_count" type="integer">
+      交易计数。
+    </ParamField>
+
+    <ParamField body="starting_transaction_index" type="integer">
+      起始交易索引。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="commitment" type="enum">
+  订阅的承诺级别：
+  <Expandable title="levels" defaultOpen>
+    <ParamField body="PROCESSED" type="integer">
+      (0)：由当前节点处理。
+    </ParamField>
+
+    <ParamField body="CONFIRMED" type="integer">
+      (1)：由集群的绝大多数确认。
+    </ParamField>
+
+    <ParamField body="FINALIZED" type="integer">
+      (2)：由集群最终确定。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="accounts_data_slice" type="array">
+  指定要接收的部分账户数据：
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="offset" type="integer">
+      开始读取数据的字节位置。
+    </ParamField>
+
+    <ParamField body="length" type="integer">
+      要读取的字节数。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="ping" type="object">
+  启用乒乓消息以监控连接健康状况。
+  <Expandable title="properties" defaultOpen>
+    <ParamField body="id" type="integer">
+      乒的数字标识符。
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="from_slot" type="integer">
+  开始接收更新的槽位。此值之前的槽位更新将被排除。
+</ParamField>
+
+<RequestExample>
+
+```json Accounts Subscription
+{
+  "slots": {
+      "slots": {}
+  },
+  "accounts": {
+      "user-defined-label": {
+          "account": [
+              "DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu",
+              "5U3bH5b6XtG99aVCE9ycvDgBKQx3fVT8WwTNbMToFuEr"
+          ],
+          "owner": [
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          ],
+          "filter": {
+              "memcmp": {
+                  "offset": 0,
+                  "bytes": "0102030405"
+              },
+              "datasize": 165,
+              "token_account_state": true,
+              "lamports": {
+                  "gt": 100000000
+              }
+          },
+          "nonempty_txn_signature": true
+      }
+  },
+  "transactions": {},
+  "blocks": {},
+  "blocks_meta": {},
+  "accounts_data_slice": [],
+  "commitment": 1
+}
+```
+
+```json Slots Subscription
+{
+  "slots": {
+    "incoming_slots": {}
+  },
+  "commitment": 1
+}
+```
+
+```json Transactions Subscription
+{
+  "transactions": {
+    "vote": false,
+    "failed": true,
+    "signature": "4RPMxKBhCBubFmZ1r9BC52ztjG3qBTW9Gp1PXfufUSATQaLKTW3Dj6vQBYyVrhfjgJ4PjZLzwYs4Z92KDCPw8Qym",
+    "account_include": ["DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu"],
+    "account_exclude": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    "account_required": ["11111111111111111111111111111111"]
+  },
+  "commitment": 2
+}
+```
+
+```json Transaction Status Subscription
+{
+  "transactions_status": {
+    "vote": false,
+    "failed": true,
+    "account_include": ["DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu"],
+    "account_exclude": ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    "account_required": ["11111111111111111111111111111111"]
+  },
+  "commitment": 2
+}
+```
+
+```json Blocks Subscription
+{
+  "blocks": {
+    "account_include": ["DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu"],
+    "include_transactions": 1,
+    "include_accounts": 1,
+    "include_entries": 0
+  },
+  "commitment": 2
+}
+```
+
+```json Block Metadata Subscription
+{
+  "blocks_meta": {},
+  "commitment": 2,
+  "from_slot": 139000000
+}
+```
+
+```json Entry Subscription
+{
+  "entry": {},
+  "commitment": 1
+}
+```
+
+```json Partial Account Data Subscription
+{
+  "accounts": {
+    "account": ["DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu"]
+  },
+  "accounts_data_slice": [
+    {
+      "offset": 0,
+      "length": 64
+    },
+    {
+      "offset": 128,
+      "length": 32
+    }
+  ],
+  "commitment": 2
+}
+```
+
+```json Ping Subscription
+{
+  "ping": {
+    "id": 1
+  }
+}
+```
+
+```json Combined Subscription
+{
+  "accounts": {
+    "account": ["DjUF9ASpyMbVpGJmTvzfSbCgUWj6JowwLh8dGAJzSPmu"],
+    "nonempty_txn_signature": true
+  },
+  "slots": {
+    "filter_by_commitment": 1,
+    "interslot_updates": 1
+  },
+  "commitment": 2,
+  "from_slot": 139000000,
+  "ping": {
+    "id": 123
+  }
+}
+```
+
+</RequestExample>
+
+## 承诺级别
+
+所有订阅支持以下承诺级别：
+
+- `PROCESSED`: 由当前节点处理 (0)
+- `CONFIRMED`: 由集群的超级多数确认 (1)
+- `FINALIZED`: 由集群最终确定 (2)
+
+## 响应结构
+
+订阅响应包括：
+
+- `filters`: 匹配此更新的过滤器名称
+- 以下更新类型之一：
+  - `account`: 账户数据、所有者、lamports、可执行状态等。
+  - `slot`: 插槽信息和状态更新
+  - `transaction`: 完整的交易详情、签名和元数据
+  - `transaction_status`: 交易执行状态（成功/错误）
+  - `block`: 包含交易、账户、奖励等的完整区块数据
+  - `block_meta`: 不含完整交易详情的轻量级区块元数据
+  - `entry`: 区块内的条目详情
+  - `ping`/`pong`: 连接健康检查消息
+- `created_at`: 更新创建的时间戳
+
+<ResponseExample>
+
+```json Account Update
+{
+  "filters": ["accounts"],
+  "account": {
+    "account": {
+      "pubkey": "BASE58_ENCODED_PUBKEY",
+      "lamports": 12345678,
+      "owner": "BASE58_ENCODED_OWNER",
+      "executable": false,
+      "rent_epoch": 361,
+      "data": "BASE64_ENCODED_DATA",
+      "write_version": 123,
+      "txn_signature": "BASE58_ENCODED_SIGNATURE"
+    },
+    "slot": 189554321,
+    "is_startup": false
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Slot Update
+{
+  "filters": ["slots"],
+  "slot": {
+    "slot": 189554321,
+    "parent": 189554320,
+    "status": 2,
+    "dead_error": null
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Transaction Update
+{
+  "filters": ["transactions"],
+  "transaction": {
+    "transaction": {
+      "signature": "BASE58_ENCODED_SIGNATURE",
+      "is_vote": false,
+      "transaction": {
+        "signatures": ["BASE58_ENCODED_SIGNATURE"],
+        "message": {
+          "header": {
+            "num_required_signatures": 1,
+            "num_readonly_signed_accounts": 0,
+            "num_readonly_unsigned_accounts": 1
+          },
+          "account_keys": ["BASE58_ENCODED_PUBKEY1", "BASE58_ENCODED_PUBKEY2"],
+          "recent_blockhash": "BASE58_ENCODED_BLOCKHASH",
+          "instructions": [
+            {
+              "program_id_index": 1,
+              "accounts": [0],
+              "data": "BASE64_ENCODED_INSTRUCTION_DATA"
+            }
+          ]
+        }
+      },
+      "meta": {
+        "err": null,
+        "fee": 5000,
+        "pre_balances": [10000000, 1],
+        "post_balances": [9995000, 1],
+        "pre_token_balances": [],
+        "post_token_balances": [],
+        "log_messages": ["Program log: Instruction executed"],
+        "rewards": []
+      },
+      "index": 2
+    },
+    "slot": 189554321
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Block Metadata Update
+{
+  "filters": ["blocks_meta"],
+  "block_meta": {
+    "slot": 189554321,
+    "blockhash": "BASE58_ENCODED_BLOCKHASH",
+    "rewards": [
+      {
+        "pubkey": "BASE58_ENCODED_PUBKEY",
+        "lamports": 1785000,
+        "post_balance": 48589432109,
+        "reward_type": 0,
+        "commission": 10
+      }
+    ],
+    "block_time": 1682684096,
+    "block_height": 185432109,
+    "parent_slot": 189554320,
+    "parent_blockhash": "BASE58_ENCODED_PARENT_BLOCKHASH",
+    "executed_transaction_count": 2576,
+    "entries_count": 16
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Entry Update
+{
+  "filters": ["entry"],
+  "entry": {
+    "slot": 189554321,
+    "index": 5,
+    "num_hashes": 8765432,
+    "hash": "BASE58_ENCODED_HASH",
+    "executed_transaction_count": 128,
+    "starting_transaction_index": 1024
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+```json Pong Response
+{
+  "filters": [],
+  "pong": {
+    "id": 1
+  },
+  "created_at": "2023-04-28T12:34:56.789Z"
+}
+```
+
+</ResponseExample>

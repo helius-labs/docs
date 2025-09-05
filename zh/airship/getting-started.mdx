@@ -1,0 +1,284 @@
+---
+title: Helius AirShip 指南：开始使用 ZK 压缩空投
+sidebarTitle: AirShip 指南
+description: 使用 Helius AirShip 进行 Solana 代币空投的完整指南。了解 ZK 压缩、成本节约，以及向 NFT 持有者和代币持有者的分发。
+---
+
+<Info>
+**Helius AirShip** 是一个开源工具，使代币空投变得简单、经济且易于访问。无论您是向 Saga Chapter 2 持有者、NFT/cNFT 持有者、SPL 代币持有者分发，还是使用 CSV 文件，AirShip 都能简化流程，并通过 ZK 压缩大幅降低成本。
+</Info>
+
+## 什么是 AirShip？
+
+AirShip 是一个全面的空投解决方案，利用 ZK 压缩使大规模代币分发在 Solana 上变得经济实惠。AirShip 不再为每个接收者创建单独的代币账户（每个账户约需 0.002 SOL），而是使用 ZK 压缩将接收者数据捆绑到一个单一的 Merkle 根中，从而将成本降低超过 95%。
+
+<Note>
+有关空投成本和 ZK 压缩工作原理的详细说明，请阅读我们的综合指南：[The Cheapest Way to Airdrop Solana Tokens](https://www.helius.dev/blog/solana-airdrop)
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="网页版" icon="globe" href="#using-the-web-version">
+    适合小型空投，最多可达 200,000 名接收者
+  </Card>
+  <Card title="CLI 版" icon="terminal" href="#using-the-cli-version">
+    适用于需要大规模分发的高级用户
+  </Card>
+</CardGroup>
+
+## 主要功能
+
+<CardGroup cols={2}>
+  <Card title="简化空投" icon="paper-plane">
+    轻松进行代币空投，无需技术技能
+  </Card>
+  <Card title="ZK 压缩" icon="compress">
+    通过减少账户使用来降低大型空投的成本
+  </Card>
+  <Card title="多接收者" icon="users">
+    支持 NFT 持有者、代币持有者、CSV 文件等
+  </Card>
+  <Card title="成本效益" icon="dollar-sign">
+    与传统方法相比，空投成本降低超过 95%
+  </Card>
+</CardGroup>
+
+## 成本比较
+
+<Tip>
+随着您扩展到更大的接收者列表，ZK 压缩带来的节省变得更加显著。
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="传统空投" icon="x" color="#ef4444">
+    **10,000 名接收者**: 20 SOL ($4,800)
+  </Card>
+  <Card title="ZK 压缩空投" icon="check" color="#10b981">
+    **10,000 名接收者**: 0.01 SOL ($2.40)
+  </Card>
+</CardGroup>
+
+## 先决条件
+
+<CardGroup cols={2}>
+  <Card title="Solana 钱包" icon="wallet">
+    一个持有您想要分发的代币的钱包
+  </Card>
+  <Card title="用于费用的 SOL" icon="coins">
+    足够的 SOL 以支付最低交易费用
+  </Card>
+  <Card title="接收者列表" icon="list">
+    CSV 文件、NFT 持有者或代币持有者
+  </Card>
+  <Card title="RPC 端点" icon="server">
+    支持 ZK 压缩和 DAS API ([免费获取一个](https://www.helius.dev))
+  </Card>
+</CardGroup>
+
+## 使用网页版
+
+<Info>
+网页版非常适合较小的空投和喜欢图形界面的用户。
+</Info>
+
+<Steps>
+  <Step title="访问 AirShip">
+    访问 [AirShip 网站](https://airship.helius.dev) 并点击“创建新空投”。
+  </Step>
+  
+  <Step title="配置您的钱包">
+    1. 输入您的私钥和 RPC URL
+    2. 使用一个 RPC，例如 `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+    <Warning>
+    使用专为此空投任务创建的临时钱包。私钥仅用于签署交易，不会存储或共享。
+    </Warning>
+  </Step>
+  
+  <Step title="选择接收者">
+    从多个选项中选择：
+    
+    <CardGroup cols={2}>
+      <Card title="NFT 持有者" icon="image">
+        选择特定的 NFT 集合
+      </Card>
+      <Card title="代币持有者" icon="coins">
+        目标是特定 SPL 代币的持有者
+      </Card>
+      <Card title="Saga 持有者" icon="mobile">
+        分发给 Saga 第 2 章的持有者
+      </Card>
+      <Card title="CSV 上传" icon="file-csv">
+        上传您自己的接收者列表
+      </Card>
+    </CardGroup>
+  </Step>
+  
+  <Step title="设置代币数量">
+    指定以下之一：
+    - 每个接收者的固定代币数量
+    - 分发的总代币供应的百分比
+  </Step>
+  
+  <Step title="审核并确认">
+    仔细审核空投摘要：
+    - 总接收者数
+    - 每个接收者的代币数量
+    - 预计交易费用
+    - 总成本
+
+    一旦确认，AirShip 将自动处理批量发送和 ZK 证明。
+  </Step>
+</Steps>
+
+## 使用 CLI 版本
+
+<Info>
+CLI 版本更适合较大的空投和喜欢命令行工具的用户。
+</Info>
+
+### 安装
+
+<Tabs>
+  <Tab title="npm">
+
+    ```bash
+    npm install -g helius-airship
+    ```
+
+  </Tab>
+  <Tab title="从源码构建">
+
+    ```bash
+    git clone https://github.com/helius-labs/airship.git
+    cd airship
+    pnpm install && pnpm build
+    cd packages/cli
+    pnpm link --global
+    ```
+
+  </Tab>
+</Tabs>
+
+### 使用方法
+
+<CodeGroup>
+
+```bash Basic Command
+helius-airship \
+  --keypair /path/to/your/airdrop_wallet.json \
+  --url "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"
+```
+
+```bash With Help
+helius-airship --help
+```
+
+</CodeGroup>
+
+<Note>
+将 `/path/to/your/airdrop_wallet.json` 替换为您的 Solana 文件系统钱包路径，将 `YOUR_API_KEY` 替换为您的 Helius API 密钥。
+</Note>
+
+### 交互式设置
+
+<Steps>
+  <Step title="选择接收者类型">
+    从 NFT 持有者、代币持有者、CSV 等中选择
+  </Step>
+  <Step title="指定代币数量">
+    设置每个接收者的分发数量
+  </Step>
+  <Step title="确认详情">
+    查看空投配置
+  </Step>
+  <Step title="执行交易">
+    AirShip 将处理批量处理
+  </Step>
+</Steps>
+
+## 要求
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js">
+    Node.js >= v20.9.0
+    
+    pnpm >= v9.13.2（用于从源码构建）
+  </Card>
+  <Card title="Solana 钱包" icon="wallet">
+    一个有效的文件系统钱包，需满足：
+    - 持有要分发的代币
+    - 有用于交易费用的 SOL
+    - 拥有正在分发的代币
+  </Card>
+  <Card title="RPC 端点" icon="server">
+    必须支持：
+    - ZK 压缩
+    - 数字资产标准 (DAS) API
+    
+    [在 Helius Dashboard 免费获取](https://www.dashbord.helius.dev)
+  </Card>
+</CardGroup>
+
+<Note>
+如果您没有文件系统钱包，请访问 [Solana 文档](https://docs.solana.com/cli/install-solana-cli-tools) 了解创建方法。
+</Note>
+
+## 最佳实践
+
+<CardGroup cols={2}>
+  <Card title="先测试" icon="flask">
+    在进行大规模空投之前，始终先用小批量进行测试
+  </Card>
+  <Card title="使用专用钱包" icon="shield">
+    专门创建一个用于空投的钱包
+  </Card>
+  <Card title="备份数据" icon="download">
+    保存您的接收者列表和交易签名
+  </Card>
+  <Card title="验证接收者" icon="check-double">
+    在执行之前仔细检查接收者地址
+  </Card>
+</CardGroup>
+
+### 获取帮助
+
+<CardGroup cols={3}>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/helius-labs/airship">
+    检查问题和更新
+  </Card>
+  <Card title="Discord Support" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入社区
+  </Card>
+  <Card title="Documentation" icon="book" href="/zh/zk-compression/introduction">
+    查看 ZK 压缩文档
+  </Card>
+</CardGroup>
+
+## 下一步
+
+<Steps>
+  <Step title="Verify Distribution">
+    使用区块浏览器检查分发是否成功
+  </Step>
+  <Step title="Monitor Balances">
+    跟踪接收者的代币余额
+  </Step>
+  <Step title="Explore More Features">
+    查看其他[压缩功能](/zh/nfts/nft-compression)
+  </Step>
+</Steps>
+
+<Tip>
+AirShip 使代币分发变得易于访问且经济实惠，使您能够在不破费的情况下奖励您的社区。ZK 压缩和直观界面的结合消除了以前使大规模空投成本高昂且复杂的技术障碍。
+</Tip>
+
+## 其他资源
+
+<CardGroup cols={2}>
+  <Card title="Blog: Cheapest Way to Airdrop" icon="newspaper" href="https://www.helius.dev/blog/solana-airdrop">
+    空投成本和 ZK 压缩的综合指南
+  </Card>
+  <Card title="AirShip Calculator" icon="calculator" href="https://airship.helius.dev">
+    在开始之前计算您的空投成本
+  </Card>
+</CardGroup>

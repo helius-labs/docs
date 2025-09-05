@@ -1,0 +1,161 @@
+---
+title: 如何使用 getInflationReward
+sidebarTitle: getInflationReward
+description: 了解 getInflationReward 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getInflationReward`](https://www.helius.dev/docs/api-reference/rpc/http/getinflationreward) RPC 方法允许您查询特定纪元中一个或多个地址获得的[通胀](https://www.helius.dev/blog/solana-issuance-inflation-schedule)奖励（通常称为质押奖励）。
+
+这对于验证质押账户或任何可能收到通胀奖励的账户所收到的奖励非常有用。
+
+## 常见用例
+
+*   **验证质押奖励：** 检查质押账户是否在过去的纪元中获得了预期的奖励。
+*   **跟踪奖励历史：** 查询多个纪元的奖励以建立某个地址的历史记录。
+*   **审计验证者支付：** 验证者可以使用此方法验证奖励分配（尽管奖励是支付给质押账户的，而不是直接支付给验证者身份）。
+
+## 请求参数
+
+该方法需要两个主要参数：
+
+1.  **`addresses`**（字符串数组）：要查询的账户的 base-58 编码公钥列表。允许的最大地址数量可能因 RPC 提供商而异（例如，Helius 对于付费计划允许最多 1005 个）。
+2.  **`config`**（对象，可选）：一个配置对象，包含以下可选字段：
+    *   **`commitment`**（字符串，可选）：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，默认为 `finalized`。
+    *   **`epoch`**（整数，可选）：要获取奖励的纪元编号。如果省略，RPC 节点通常会使用最近完成的已分发奖励的纪元。
+    *   **`minContextSlot`**（整数，可选）：请求可以评估的最小槽位。这确保查询是在至少处理到该槽位的分类账状态下进行的。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个数组，对应于输入的 `addresses` 数组。结果数组中的每个元素将是：
+
+*   如果地址在指定的 epoch 收到了奖励，则为包含通胀奖励详细信息的 **对象**。
+*   如果地址在该 epoch 没有收到通胀奖励或账户不存在，则为 **`null`**。
+
+奖励对象具有以下字段：
+
+*   **`epoch`** (u64): 该奖励被记入的 epoch。
+*   **`effectiveSlot`** (u64): 奖励被应用并生效的 slot。
+*   **`amount`** (u64): 奖励的金额，以 lamports 为单位。
+*   **`postBalance`** (u64): 奖励记入后账户的余额，以 lamports 为单位。
+*   **`commission`** (u8 | undefined): 对于投票账户，这是奖励记入时验证者收取的佣金百分比（0-100）。对于非投票账户，将为 `undefined`。
+
+## 示例
+
+### 1. 获取单个地址的通胀奖励（上一个 Epoch）
+
+此示例获取特定地址在最近完成的 epoch 的通胀奖励。
+
+<CodeGroup>
+
+```bash cURL
+# Replace YOUR_VOTE_ACCOUNT_PUBKEY with an actual vote account public key
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationReward",
+    "params": [
+      ["YOUR_VOTE_ACCOUNT_PUBKEY"]
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace YOUR_VOTE_ACCOUNT_PUBKEY with an actual vote account public key
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkInflationReward() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const voteAccountPubkey = new PublicKey('YOUR_VOTE_ACCOUNT_PUBKEY'); // Example: 'Vote111111111111111111111111111111111111111'
+
+  try {
+    const rewards = await connection.getInflationReward([voteAccountPubkey]);
+    if (rewards && rewards[0]) {
+      const rewardInfo = rewards[0];
+      console.log(`Reward for Epoch ${rewardInfo.epoch}:`);
+      console.log(`  Amount: ${rewardInfo.amount} lamports`);
+      console.log(`  Effective Slot: ${rewardInfo.effectiveSlot}`);
+      console.log(`  Post Balance: ${rewardInfo.postBalance} lamports`);
+      if (rewardInfo.commission !== undefined) {
+        console.log(`  Commission: ${rewardInfo.commission}%`);
+      }
+    } else {
+      console.log('No inflation reward found for the address in the previous epoch.');
+    }
+    // console.log(JSON.stringify(rewards, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation reward:', error);
+  }
+}
+
+checkInflationReward();
+```
+
+</CodeGroup>
+
+### 2. 获取多个地址在特定 Epoch 的通胀奖励
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace PUBKEY_1 and PUBKEY_2 with actual public keys
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationReward",
+    "params": [
+      ["PUBKEY_1", "PUBKEY_2"],
+      { "epoch": 450, "commitment": "confirmed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+// Replace PUBKEY_1 and PUBKEY_2 with actual public keys
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function checkMultipleRewards() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const address1 = new PublicKey('PUBKEY_1'); 
+  const address2 = new PublicKey('PUBKEY_2');
+  const specificEpoch = 450;
+
+  try {
+    const rewards = await connection.getInflationReward(
+      [address1, address2],
+      specificEpoch,
+      { commitment: 'confirmed' }
+    );
+    rewards.forEach((rewardInfo, index) => {
+      const address = index === 0 ? 'PUBKEY_1' : 'PUBKEY_2';
+      if (rewardInfo) {
+        console.log(`Reward for ${address} in Epoch ${rewardInfo.epoch}:`);
+        console.log(`  Amount: ${rewardInfo.amount} lamports`);
+      } else {
+        console.log(`No inflation reward found for ${address} in Epoch ${specificEpoch}.`);
+      }
+    });
+    // console.log(JSON.stringify(rewards, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation rewards for epoch ', specificEpoch, error);
+  }
+}
+
+checkMultipleRewards();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **Epoch 特定性：** 奖励每个 epoch 记入一次。确保您查询的是正确的 epoch 编号。
+*   **奖励的时间：** 通胀奖励在 epoch 结束时计算，并在下一个 epoch 开始时应用。`effectiveSlot` 指示何时发生这种情况。
+*   **空结果：** 地址的 `null` 结果表示在指定的 epoch 中未找到该地址的奖励。这可能是因为账户不符合条件（例如，不是足够抵押的抵押账户）、奖励为零或账户当时不存在。
+*   **速率限制：** 注意 RPC 提供者的速率限制，尤其是在查询大量地址时。
+
+本指南帮助您使用`getInflationReward`方法准确检索和验证Solana网络上的质押奖励。

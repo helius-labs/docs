@@ -1,0 +1,512 @@
+---
+title: 使用 Helius SDK 进行编程化 Solana 质押
+description: 使用 Helius SDK 构建无缝的 Solana 质押体验。从设置到提现的完整指南，集成 0% 佣金验证器。
+---
+
+<Info>
+**零佣金验证器**：使用 Helius 验证器进行质押，享受 0% 佣金率，保留 100% 的质押奖励。
+</Info>
+
+## 快速概览
+
+Helius SDK 提供简单的方法以编程方式处理完整的 SOL 质押生命周期。非常适合构建质押界面、DeFi 协议或自动化质押策略。
+
+<CardGroup cols={3}>
+  <Card title="创建与委托" icon="plus">
+    在一次交易中设置新的质押账户并委托给验证器
+  </Card>
+  <Card title="监控与管理" icon="chart-line">
+    跟踪奖励、检查状态并管理现有质押账户
+  </Card>
+  <Card title="提现与赎回" icon="money-bill">
+    在冷却期后停用质押并提取 SOL
+  </Card>
+</CardGroup>
+
+## 安装与设置
+
+<CodeGroup>
+
+```bash npm
+npm install helius-sdk @solana/web3.js bs58
+```
+
+```bash yarn  
+yarn add helius-sdk @solana/web3.js bs58
+```
+
+```bash pnpm
+pnpm add helius-sdk @solana/web3.js bs58
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```typescript Setup
+import { Helius } from 'helius-sdk';
+import { Keypair, Transaction } from '@solana/web3.js';
+import bs58 from 'bs58';
+
+// Initialize Helius client
+const helius = new Helius('YOUR_API_KEY');
+
+// Your wallet keypair (load from your secure storage)
+const payer = Keypair.fromSecretKey(/* your secret key */);
+```
+
+</CodeGroup>
+
+## 质押基础
+
+<AccordionGroup>
+  <Accordion title="Solana 质押如何运作">
+    **质押账户**：一种特殊账户，用于锁定 SOL 并将其委托给验证器。每个质押账户仅指向一个验证器。
+    
+    **奖励**：验证器通过保障网络安全获得奖励。这些奖励分配给所有委托给该验证器的质押账户。
+    
+    **生命周期**：创建 → 委托 → 获得奖励 → 停用 → 提现
+  </Accordion>
+  
+  <Accordion title="为何选择 Helius 验证器">
+    - **0% 佣金**：保留 100% 的质押奖励
+    - **高性能**：可靠的区块生产和最小的停机时间  
+    - **易于集成**：针对 Helius SDK 优化，内置辅助工具
+  </Accordion>
+  
+  <Accordion title="时间与周期">
+    - **激活**：质押在下一个周期开始时生效（约 2 天）
+    - **停用**：在当前周期结束时生效
+    - **冷却**：停用的质押可在周期结束后立即提取
+  </Accordion>
+</AccordionGroup>
+
+## 入门指南
+
+<Tabs>
+  <Tab title="快速开始">
+    仅需三行代码即可质押 SOL：
+
+    ```typescript
+    // 1. Create the staking transaction
+    const { serializedTx, stakeAccountPubkey } = 
+      await helius.rpc.createStakeTransaction(payer.publicKey, 1.5);
+
+    // 2. Sign and send
+    const tx = Transaction.from(bs58.decode(serializedTx));
+    tx.partialSign(payer);
+    const signature = await helius.connection.sendRawTransaction(tx.serialize());
+
+    console.log(`Staked! Transaction: ${signature}`);
+    console.log(`Stake Account: ${stakeAccountPubkey}`);
+    ```
+
+    
+    <Info>
+    SDK 会自动处理租金计算和质押账户创建。`1.5` 参数是您想要质押的 SOL 数量。
+    </Info>
+  </Tab>
+  
+  <Tab title="完整示例">
+    包含错误处理的完整质押实现：
+
+    ```typescript
+    async function stakeSOL(amountInSol: number) {
+      try {
+        // Create staking transaction
+        const { serializedTx, stakeAccountPubkey } = 
+          await helius.rpc.createStakeTransaction(payer.publicKey, amountInSol);
+        
+        // Deserialize and sign transaction
+        const transaction = Transaction.from(bs58.decode(serializedTx));
+        transaction.partialSign(payer);
+        
+        // Send transaction
+        const signature = await helius.connection.sendRawTransaction(
+          transaction.serialize(),
+          { 
+            skipPreflight: false,
+            preflightCommitment: 'confirmed'
+          }
+        );
+        
+        // Wait for confirmation
+        await helius.connection.confirmTransaction(signature, 'confirmed');
+        
+        return {
+          signature,
+          stakeAccount: stakeAccountPubkey,
+          amount: amountInSol
+        };
+        
+      } catch (error) {
+        console.error('Staking failed:', error);
+        throw error;
+      }
+    }
+
+    // Usage
+    const result = await stakeSOL(2.5);
+    console.log(`Successfully staked ${result.amount} SOL`);
+    ```
+
+  </Tab>
+</Tabs>
+
+## SDK 方法参考
+
+<AccordionGroup>
+  <Accordion title="createStakeTransaction(owner, amount)">
+    创建一个可以签名和发送的完整质押交易。
+    
+    **参数：**
+    - `owner` (PublicKey): 将拥有质押账户的钱包
+    - `amount` (number): 要质押的 SOL 数量
+    
+    **返回：**
+
+    ```typescript
+    {
+      serializedTx: string,        // Base58 encoded transaction
+      stakeAccountPubkey: string   // New stake account address
+    }
+    ```
+
+    
+    **示例：**
+
+    ```typescript
+    const result = await helius.rpc.createStakeTransaction(
+      payer.publicKey, 
+      1.5  // 1.5 SOL
+    );
+    ```
+
+  </Accordion>
+  
+  <Accordion title="getStakeInstructions(owner, amount)">
+    返回质押指令（对于自定义交易构建很有用）。
+    
+    **返回：**
+
+    ```typescript
+    {
+      instructions: TransactionInstruction[],
+      stakeAccount: Keypair
+    }
+    ```
+
+    
+    **示例：**
+
+    ```typescript
+    const { instructions } = await helius.rpc.getStakeInstructions(
+      payer.publicKey, 
+      1.5
+    );
+    
+    // Use with Smart Transactions
+    const signature = await helius.rpc.sendSmartTransaction(
+      instructions, 
+      [payer]
+    );
+    ```
+
+  </Accordion>
+  
+  <Accordion title="getHeliusStakeAccounts(wallet)">
+    检索委托给 Helius 验证器的钱包的所有质押账户。
+    
+    **示例：**
+
+    ```typescript
+    const accounts = await helius.rpc.getHeliusStakeAccounts(
+      payer.publicKey.toBase58()
+    );
+    
+    accounts.forEach(account => {
+      const delegation = account.account.data.parsed.info.stake.delegation;
+      console.log(`Account: ${account.pubkey}`);
+      console.log(`Stake: ${delegation.stake / LAMPORTS_PER_SOL} SOL`);
+    });
+    ```
+
+  </Accordion>
+  
+  <Accordion title="createUnstakeTransaction(owner, stakeAccount)">
+    创建一个交易以停用（开始取消质押）质押账户。
+    
+    **示例：**
+
+    ```typescript
+    const tx = await helius.rpc.createUnstakeTransaction(
+      payer.publicKey,
+      stakeAccountPubkey
+    );
+    
+    const transaction = Transaction.from(bs58.decode(tx));
+    transaction.partialSign(payer);
+    await helius.connection.sendRawTransaction(transaction.serialize());
+    ```
+
+  </Accordion>
+  
+  <Accordion title="getWithdrawableAmount(stakeAccount, includeRent?)">
+    检查可以从已停用的质押账户中提取多少 SOL。
+    
+    **参数：**
+    - `includeRent` (boolean): 是否包括免租金额
+    
+    **示例：**
+
+    ```typescript
+    const available = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey);
+    const total = await helius.rpc.getWithdrawableAmount(stakeAccountPubkey, true);
+    
+    console.log(`Available now: ${available / LAMPORTS_PER_SOL} SOL`);
+    console.log(`Total balance: ${total / LAMPORTS_PER_SOL} SOL`);
+    ```
+
+  </Accordion>
+  
+  <Accordion title="createWithdrawTransaction(owner, stakeAccount, destination, amount)">
+    创建一个交易以从已停用的质押账户中提取 SOL。
+    
+    **示例：**
+
+    ```typescript
+    const tx = await helius.rpc.createWithdrawTransaction(
+      payer.publicKey,
+      stakeAccountPubkey,
+      destinationPubkey,
+      withdrawAmount  // in lamports
+    );
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## 完整质押工作流程
+
+<Steps>
+  <Step title="创建和委托">
+
+    ```typescript
+    // Stake 2 SOL to Helius validator
+    const { serializedTx, stakeAccountPubkey } = 
+      await helius.rpc.createStakeTransaction(payer.publicKey, 2.0);
+    
+    const tx = Transaction.from(bs58.decode(serializedTx));
+    tx.partialSign(payer);
+    
+    const signature = await helius.connection.sendRawTransaction(tx.serialize());
+    console.log(`Stake created: ${stakeAccountPubkey}`);
+    ```
+
+  </Step>
+  
+  <Step title="监控您的质押">
+
+    ```typescript
+    // Get all your Helius stake accounts
+    const accounts = await helius.rpc.getHeliusStakeAccounts(
+      payer.publicKey.toBase58()
+    );
+    
+    console.log(`You have ${accounts.length} active stake accounts`);
+    
+    accounts.forEach((account, index) => {
+      const info = account.account.data.parsed.info;
+      const delegation = info.stake.delegation;
+      
+      console.log(`Stake ${index + 1}:`);
+      console.log(`  Amount: ${delegation.stake / LAMPORTS_PER_SOL} SOL`);
+      console.log(`  Activated: Epoch ${delegation.activationEpoch}`);
+      console.log(`  Status: ${info.meta.lockup.unixTimestamp === 0 ? 'Active' : 'Locked'}`);
+    });
+    ```
+
+  </Step>
+  
+  <Step title="停用（开始解除质押）">
+
+    ```typescript
+    // Begin the unstaking process
+    const unstakeTx = await helius.rpc.createUnstakeTransaction(
+      payer.publicKey,
+      stakeAccountPubkey
+    );
+    
+    const tx = Transaction.from(bs58.decode(unstakeTx));
+    tx.partialSign(payer);
+    
+    await helius.connection.sendRawTransaction(tx.serialize());
+    console.log('Deactivation started. Will be withdrawable next epoch.');
+    ```
+
+  </Step>
+  
+  <Step title="提取 SOL">
+
+    ```typescript
+    // Check withdrawable amount
+    const withdrawable = await helius.rpc.getWithdrawableAmount(
+      stakeAccountPubkey, 
+      true  // include rent
+    );
+    
+    if (withdrawable > 0) {
+      // Create withdrawal instruction
+      const withdrawInstruction = helius.rpc.getWithdrawInstruction(
+        payer.publicKey,
+        stakeAccountPubkey,
+        payer.publicKey,  // withdraw to same wallet
+        withdrawable
+      );
+      
+      // Send using Smart Transactions for better reliability
+      const signature = await helius.rpc.sendSmartTransaction(
+        [withdrawInstruction], 
+        [payer]
+      );
+      
+      console.log(`Withdrawn ${withdrawable / LAMPORTS_PER_SOL} SOL`);
+    }
+    ```
+
+  </Step>
+</Steps>
+
+## 高级模式
+
+<Tabs>
+  <Tab title="浏览器集成">
+    对于使用钱包适配器的浏览器应用程序：
+
+    ```typescript
+    // Get instructions instead of full transaction
+    const { instructions, stakeAccount } = await helius.rpc.getStakeInstructions(
+      wallet.publicKey,
+      stakeAmount
+    );
+    
+    // Let the wallet handle transaction building and signing
+    const transaction = new Transaction().add(...instructions);
+    
+    // Sign with wallet adapter
+    const signature = await wallet.sendTransaction(transaction, connection);
+    
+    console.log(`Stake account: ${stakeAccount.publicKey.toBase58()}`);
+    ```
+
+  </Tab>
+  
+  <Tab title="批量操作">
+    高效地为多个钱包进行质押：
+
+    ```typescript
+    async function batchStake(wallets: Keypair[], amount: number) {
+      const promises = wallets.map(async (wallet) => {
+        try {
+          const { serializedTx, stakeAccountPubkey } = 
+            await helius.rpc.createStakeTransaction(wallet.publicKey, amount);
+          
+          const tx = Transaction.from(bs58.decode(serializedTx));
+          tx.partialSign(wallet);
+          
+          return helius.connection.sendRawTransaction(tx.serialize());
+        } catch (error) {
+          console.error(`Failed to stake for ${wallet.publicKey.toBase58()}:`, error);
+          return null;
+        }
+      });
+      
+      const results = await Promise.allSettled(promises);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      
+      console.log(`Successfully staked for ${successful}/${wallets.length} wallets`);
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="智能交易">
+    使用智能交易以提高可靠性和优化：
+
+    ```typescript
+    // Get individual instructions
+    const { instructions } = await helius.rpc.getStakeInstructions(
+      payer.publicKey,
+      2.5
+    );
+    
+    // Send with Smart Transaction features:
+    // - Automatic priority fee optimization
+    // - Retry logic with backoff
+    // - Better error handling
+    const signature = await helius.rpc.sendSmartTransaction(
+      instructions,
+      [payer],
+      {
+        skipPreflight: false,
+        maxRetries: 3
+      }
+    );
+    
+    console.log(`Smart transaction sent: ${signature}`);
+    ```
+
+  </Tab>
+</Tabs>
+
+## 重要提示
+
+<Warning>
+**Epoch 时间**：Solana 的 epoch 大约持续 2 天。质押在下一个 epoch 开始时激活，停用在当前 epoch 结束时生效。
+</Warning>
+
+<Note>
+**租金考虑**：质押账户需要租金豁免储备（约 0.00228 SOL）。提取全部余额将关闭账户。
+</Note>
+
+<Tip>
+**硬件钱包**：用户将看到两个签名提示 - 一个用于质押账户（预签名），另一个用于费用支付者。请相应设计您的用户体验。
+</Tip>
+
+## 快速参考
+
+需要快速提醒吗？以下是基本方法：
+
+```typescript
+// Stake SOL
+await helius.rpc.createStakeTransaction(owner, amountInSol);
+
+// Check your stakes  
+await helius.rpc.getHeliusStakeAccounts(ownerAddress);
+
+// Start unstaking
+await helius.rpc.createUnstakeTransaction(owner, stakeAccount);
+
+// Check withdrawable amount
+await helius.rpc.getWithdrawableAmount(stakeAccount, includeRent);
+
+// Withdraw SOL
+helius.rpc.getWithdrawInstruction(owner, stakeAccount, destination, amount);
+```
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="Helius SDK 文档" icon="code" href="https://github.com/helius-labs/helius-sdk">
+    完整的 SDK 参考，包含所有可用方法
+  </Card>
+  <Card title="智能交易" icon="bolt" href="/zh/sending-transactions/optimizing-transactions">
+    使用优先费用和重试逻辑优化您的交易
+  </Card>
+  <Card title="加入 Discord" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    从我们的开发者社区获取帮助
+  </Card>
+  <Card title="验证者仪表板" icon="chart-bar" href="https://www.validators.app/validators/EKgWgpJY5BtX7TeJfhKbqcJT7gzLKFFtj7cjX1XY6CxA">
+    监控 Helius 验证者的性能和奖励
+  </Card>
+</CardGroup>

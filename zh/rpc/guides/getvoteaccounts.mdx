@@ -1,0 +1,156 @@
+---
+title: 如何使用 getVoteAccounts
+sidebarTitle: getVoteAccounts
+description: 了解 getVoteAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvoteaccounts) RPC 方法返回当前银行中所有投票账户（验证者）的信息。它区分了`current`（活跃）和`delinquent`验证者，并提供有关其权益、投票活动和身份的详细信息。
+
+## 常见用例
+
+*   **验证者监控：** 跟踪网络上验证者的状态、权益和性能。
+*   **权益仪表板：** 为希望委托其 SOL 的用户显示可用验证者的信息。
+*   **网络健康分析：** 通过检查权益分布和验证者活动来评估网络的整体健康和去中心化程度。
+*   **识别失职验证者：** 找出未积极参与共识的验证者。
+
+## 请求参数
+
+此方法接受一个可选的配置对象，包含以下字段：
+
+1.  **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果省略，则使用节点的默认承诺。
+2.  **`votePubkey`**（字符串，可选）：如果提供，结果将被过滤以仅包含指定的验证者投票账户地址（base-58 编码）。
+3.  **`keepUnstakedDelinquents`**（布尔值，可选）：默认为`false`。如果设置为`true`，则`delinquent`列表将包括没有激活权益的验证者。否则，它们将被过滤掉。
+4.  **`delinquentSlotDistance`**（u64，可选）：指定验证者必须落后于分类账尖端多少个槽位才被视为失职。如果未指定，节点将使用默认值。
+
+## 响应结构
+
+JSON-RPC 响应中的`result`字段是一个包含两个数组的对象：
+
+*   **`current`**：一个对象数组，其中每个对象代表一个活跃的投票账户，具有以下字段：
+    *   **`votePubkey`**（字符串）：投票账户地址（base-58 编码）。
+    *   **`nodePubkey`**（字符串）：验证者节点的身份公钥（base-58 编码）。
+    *   **`activatedStake`**（u64）：委托给此投票账户并在当前纪元中活跃的权益数量，以 lamports 为单位。
+    *   **`epochVoteAccount`**（布尔值）：如果投票账户在当前纪元中至少活跃过一次，则为`true`。
+    *   **`commission`**（数字）：验证者收取的佣金百分比（0-100）。
+    *   **`lastVote`**（u64）：此验证者最近投票的槽位号。
+    *   **`rootSlot`**（u64）：节点认为是根的最后一个槽位（一个完全确认且不会回滚的区块）。
+    *   **`epochCredits`**（数组）：一个数组的数组，其中每个内部数组包含`[epoch, credits_earned_in_epoch, previous_total_credits]`。
+*   **`delinquent`**：一个对象数组，结构与`current`相同，代表节点认为失职的验证者。
+
+**示例响应片段：**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "current": [
+      {
+        "commission": 10,
+        "epochCredits": [[300, 12345, 567890]],
+        "epochVoteAccount": true,
+        "lastVote": 180000500,
+        "nodePubkey": "NodePubkeyExample123...",
+        "rootSlot": 180000450,
+        "activatedStake": "50000000000000", // lamports
+        "votePubkey": "VoteAccountPubkeyExample123..."
+      }
+      // ... more current validators
+    ],
+    "delinquent": [
+      // ... delinquent validators, if any
+    ]
+  },
+  "id": 1
+}
+```
+
+## 代码示例
+
+<CodeGroup>
+
+```bash cURL
+# Get all current and delinquent vote accounts:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts"
+  }' \
+  <YOUR_RPC_URL>
+
+# Get a specific vote account:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts",
+    "params": [
+      {
+        "votePubkey": "<SPECIFIC_VOTE_ACCOUNT_PUBKEY>"
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Get vote accounts with "confirmed" commitment and keep unstaked delinquents:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getVoteAccounts",
+    "params": [
+      {
+        "commitment": "confirmed",
+        "keepUnstakedDelinquents": true
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function fetchVoteAccounts() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    // Get all vote accounts
+    const voteAccounts = await connection.getVoteAccounts();
+    console.log(`Found ${voteAccounts.current.length} current validators.`);
+    console.log(`Found ${voteAccounts.delinquent.length} delinquent validators.`);
+
+    if (voteAccounts.current.length > 0) {
+      console.log("\nFirst current validator details:");
+      console.log(`  Vote Pubkey: ${voteAccounts.current[0].votePubkey}`);
+      console.log(`  Node Pubkey: ${voteAccounts.current[0].nodePubkey}`);
+      console.log(`  Activated Stake: ${voteAccounts.current[0].activatedStake} lamports`);
+      console.log(`  Commission: ${voteAccounts.current[0].commission}%`);
+      console.log(`  Last Vote: ${voteAccounts.current[0].lastVote}`);
+      // console.log(JSON.stringify(voteAccounts.current[0], null, 2)); // For full details
+    }
+
+    // Get a specific vote account (replace with an actual vote account public key)
+    // const specificVotePubkey = 'SPECIFIC_VOTE_ACCOUNT_PUBKEY';
+    // const specificValidator = await connection.getVoteAccounts('confirmed', specificVotePubkey);
+    // console.log(`\nDetails for ${specificVotePubkey}:`, JSON.stringify(specificValidator, null, 2));
+
+  } catch (error) {
+    console.error('Error fetching vote accounts:', error);
+  }
+}
+
+fetchVoteAccounts();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **大响应：** 此方法可能返回大量数据，特别是在有许多验证者的网络上，如 Mainnet Beta。请注意响应大小和处理时间。
+*   **拖欠定义：** "拖欠"的定义可能取决于`delinquentSlotDistance`和节点的视角。如果一个节点对账本末端的视图不同，验证者可能在一个节点上显示为拖欠，而在另一个节点上则不是。
+*   **权益激活：** `activatedStake`反映了在当前纪元中活跃的权益。权益的激活和停用需要时间。
+*   **纪元积分：** `epochCredits`提供了验证者通过投票赚取积分的历史表现。
+
+本指南涵盖了`getVoteAccounts` RPC 方法，使您能够查询和理解 Solana 网络上的验证者信息。

@@ -1,0 +1,192 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "节点识别API，用于检索您当前连接的Solana RPC端点的唯一验证器公钥。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getIdentity"
+      operationId: "getIdentity"
+      description: "检索您所连接的Solana节点的验证者身份公钥。此发现API返回托管此RPC端点的特定验证者节点的唯一加密标识符。每个Solana验证者都有一个独特的身份密钥对，作为其在共识参与、区块生产和投票签名中的网络标识符。对于需要验证与哪个特定验证者通信的应用程序、将RPC端点映射到特定验证者的工具、跟踪验证者特征的网络监控系统以及需要识别其接收的区块链数据来源的服务来说，这是必不可少的。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC协议版本。"
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的RPC方法名称。"
+                  enum:
+                    - "getIdentity"
+                  example: "getIdentity"
+                  default: "getIdentity"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getIdentity"
+      responses:
+        "200":
+          description: "成功检索到节点的身份。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    description: "JSON-RPC协议版本。"
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "object"
+                    description: "连接的Solana节点的验证器身份信息。"
+                    properties:
+                      identity:
+                        type: "string"
+                        description: "此Solana节点的唯一验证器公钥（base-58编码），作为其网络标识符。"
+                        example: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      identity: "2r1F4iWqVcb8M1DbAjQuFpebkQHY9hcVU4WuW2DJBppN"
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超过速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

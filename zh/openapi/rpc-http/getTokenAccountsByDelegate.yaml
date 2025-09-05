@@ -1,0 +1,403 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "高级 Solana API 用于查询委托令牌授权，允许应用程序检索已授予特定权限给第三方地址的所有 SPL 令牌账户。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getTokenAccountsByDelegate"
+      operationId: "getTokenAccountsByDelegate"
+      description: "检索所有已将授权委托给特定Solana地址的SPL代币账户。这个强大的API可以识别所有已授予第三方应用程序、钱包或其他委托地址消费或管理权限的代币账户。对于安全监控、委托跟踪以及需要发现其有权限管理或消费的代币账户的应用程序来说至关重要。支持按特定代币类型和委托授权级别进行过滤，并提供解析数据以便于集成。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC协议版本。"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getTokenAccountsByDelegate"
+                  description: "要调用的RPC方法名称。"
+                  example: "getTokenAccountsByDelegate"
+                  default: "getTokenAccountsByDelegate"
+                params:
+                  type: "array"
+                  description: "按委托查询代币账户的参数。"
+                  default:
+                    - "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                    - programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                    - encoding: "jsonParsed"
+                  items:
+                    oneOf:
+                      - type: "string"
+                        description: "已被授权管理代币账户的委托的Solana地址（公钥）。"
+                        example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                      - type: "object"
+                        description: "过滤配置以将结果缩小到特定的代币类型或程序。"
+                        properties:
+                          mint:
+                            type: "string"
+                            description: "特定代币铸造地址，用于按特定代币类型过滤委托账户。"
+                            example: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                          programId:
+                            type: "string"
+                            description: "特定代币程序ID（通常为SPL代币程序），用于过滤委托账户。"
+                            example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      - type: "object"
+                        description: "配置对象。"
+                        properties:
+                          commitment:
+                            type: "string"
+                            description: "请求的承诺级别。"
+                            enum:
+                              - "confirmed"
+                              - "finalized"
+                              - "processed"
+                            example: "finalized"
+                          minContextSlot:
+                            type: "integer"
+                            description: "请求可以评估的最小槽位。"
+                            example: 1000
+                          dataSlice:
+                            type: "object"
+                            description: "请求账户数据的一个切片。"
+                            properties:
+                              length:
+                                type: "integer"
+                                description: "要返回的字节数。"
+                                example: 10
+                              offset:
+                                type: "integer"
+                                description: "开始读取的字节偏移量。"
+                                example: 0
+                          encoding:
+                            type: "string"
+                            description: "账户数据的编码格式。"
+                            enum:
+                              - "base58"
+                              - "base64"
+                              - "base64+zstd"
+                              - "jsonParsed"
+                            example: "jsonParsed"
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getTokenAccountsByDelegate"
+              params:
+                - "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                - programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                - encoding: "jsonParsed"
+      responses:
+        "200":
+          description: "成功检索到委托的代币账户。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    description: "JSON-RPC协议版本。"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "object"
+                    description: "上下文和账户详细信息。"
+                    properties:
+                      context:
+                        type: "object"
+                        description: "响应的上下文。"
+                        properties:
+                          slot:
+                            type: "integer"
+                            description: "获取数据的槽位。"
+                            example: 1114
+                      value:
+                        type: "array"
+                        description: "代币账户列表。"
+                        items:
+                          type: "object"
+                          properties:
+                            pubkey:
+                              type: "string"
+                              description: "作为 base-58 编码字符串的账户公钥。"
+                              example: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
+                            account:
+                              type: "object"
+                              description: "代币账户详情。"
+                              properties:
+                                lamports:
+                                  type: "integer"
+                                  description: "分配给账户的 lamports 数量。"
+                                  example: 1726080
+                                owner:
+                                  type: "string"
+                                  description: "此账户分配到的程序的公钥。"
+                                  example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                data:
+                                  type: "object"
+                                  description: "与账户关联的代币状态数据。"
+                                  properties:
+                                    program:
+                                      type: "string"
+                                      description: "程序名称。"
+                                      example: "spl-token"
+                                    parsed:
+                                      type: "object"
+                                      description: "解析的代币数据。"
+                                      properties:
+                                        info:
+                                          type: "object"
+                                          description: "代币账户信息。"
+                                          properties:
+                                            tokenAmount:
+                                              type: "object"
+                                              description: "代币数量详情。"
+                                              properties:
+                                                amount:
+                                                  type: "string"
+                                                  description: "不含小数的原始余额。"
+                                                  example: "1"
+                                                decimals:
+                                                  type: "integer"
+                                                  description: "小数位数。"
+                                                  example: 1
+                                                uiAmount:
+                                                  type: "number"
+                                                  description: "用户友好格式的余额。"
+                                                  example: 0.1
+                                                uiAmountString:
+                                                  type: "string"
+                                                  description: "字符串形式的余额。"
+                                                  example: "0.1"
+                                            delegate:
+                                              type: "string"
+                                              description: "被授予委托授权以花费或管理代币的Solana地址。"
+                                              example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                                            delegatedAmount:
+                                              type: "object"
+                                              description: "委托被授权代表所有者花费的代币数量。"
+                                              properties:
+                                                amount:
+                                                  type: "string"
+                                                  description: "不含小数的原始余额。"
+                                                  example: "1"
+                                                decimals:
+                                                  type: "integer"
+                                                  description: "小数位数。"
+                                                  example: 1
+                                                uiAmount:
+                                                  type: "number"
+                                                  description: "用户友好格式的余额。"
+                                                  example: 0.1
+                                                uiAmountString:
+                                                  type: "string"
+                                                  description: "字符串形式的余额。"
+                                                  example: "0.1"
+                                        state:
+                                          type: "string"
+                                          description: "代币账户状态。"
+                                          example: "initialized"
+                                        isNative:
+                                          type: "boolean"
+                                          description: "指示账户是否持有本地SOL。"
+                                          example: false
+                                        mint:
+                                          type: "string"
+                                          description: "代币铸造的公钥。"
+                                          example: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                                        owner:
+                                          type: "string"
+                                          description: "账户所有者的公钥。"
+                                          example: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
+                                    space:
+                                      type: "integer"
+                                      description: "为账户分配的空间。"
+                                      example: 165
+                                executable:
+                                  type: "boolean"
+                                  description: "指示账户是否包含程序。"
+                                  example: false
+                                rentEpoch:
+                                  type: "integer"
+                                  description: "账户下次需要支付租金的纪元。"
+                                  example: 4
+                                space:
+                                  type: "integer"
+                                  description: "账户的数据大小。"
+                                  example: 165
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      context:
+                        slot: 1114
+                      value:
+                        - pubkey: "28YTZEwqtMHWrhWcvv34se7pjS7wctgqzCPB3gReCFKp"
+                          account:
+                            lamports: 1726080
+                            owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                            data:
+                              program: "spl-token"
+                              parsed:
+                                info:
+                                  tokenAmount:
+                                    amount: "1"
+                                    decimals: 1
+                                    uiAmount: 0.1
+                                    uiAmountString: "0.1"
+                                  delegate: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                                  delegatedAmount:
+                                    amount: "1"
+                                    decimals: 1
+                                    uiAmount: 0.1
+                                    uiAmountString: "0.1"
+                                  state: "initialized"
+                                  isNative: false
+                                  mint: "3wyAj7Rt1TWVPZVteFJPLa26JmLvdb1CAKEFZm3NY75E"
+                                  owner: "CnPoSPKXu7wJqxe59Fs72tkBeALovhsCxYeFwPCQH9TD"
+                                type: "account"
+                              space: 165
+                            executable: false
+                            rentEpoch: 4
+                            space: 165
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                id: "1"
+        "429":
+          description: "请求过多 - 超过速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

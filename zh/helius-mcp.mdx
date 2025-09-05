@@ -1,0 +1,306 @@
+---
+title: Helius MCP：支持 AI 的 Solana 开发文档
+sidebarTitle: Helius MCP
+description: 将 AI 工具直接连接到 Helius Solana API 文档，实现智能代码生成和上下文开发支持。
+---
+
+<Info>
+**AI 原生开发**：使用 Helius MCP 服务器为 AI 工具提供访问我们的文档的能力，从而实现上下文代码生成和智能支持。
+</Info>
+
+## 什么是 MCP？
+
+模型上下文协议（Model Context Protocol，MCP）是一种标准，允许 AI 应用程序访问外部文档和数据源。可以将其视为一座桥梁，使得像 Claude、Cursor 和 Windsurf 这样的 AI 工具能够实时读取您的文档，从而提供更好、更准确的支持。
+
+<CardGroup cols={2}>
+  <Card title="实时上下文" icon="bolt">
+    AI 工具可以查询实时文档和 API 规范，获取准确、最新的信息
+  </Card>
+  <Card title="代码生成" icon="code">
+    AI 使用我们文档中的当前 API 方法和最佳实践生成可用的代码示例
+  </Card>
+  <Card title="交互式开发" icon="robot">
+    提出关于 Helius API 的问题，并根据我们的文档获取上下文答案
+  </Card>
+  <Card title="无缝集成" icon="plug">
+    支持流行的 AI 驱动的 IDE 和开发工具
+  </Card>
+</CardGroup>
+
+## Helius MCP 的工作原理
+
+Helius MCP 服务器会自动为 AI 工具提供以下访问：
+
+- **完整的 API 文档**：所有 Helius API 方法、参数和示例
+- **代码示例**：常见用例的工作实现  
+- **最佳实践**：使用 Helius 服务的推荐模式
+- **实时更新**：始终与最新的文档更改保持同步
+
+<Note>
+**自动生成**：我们的 MCP 服务器是根据我们的文档和 API 规范自动生成的，确保其始终与最新功能和更改保持同步。
+</Note>
+
+## 快速入门
+
+<Steps>
+  <Step title="安装 MCP 支持">
+    首先，确保您的 AI 工具支持 MCP。常见选项包括：
+    - **Cursor**：内置 MCP 支持
+    - **Windsurf**：原生 MCP 集成  
+    - **Claude Desktop**：支持 MCP 服务器
+    - **VS Code**：通过 MCP 扩展
+  </Step>
+  
+  <Step title="添加 Helius MCP 服务器">
+    在您的开发环境中安装 Helius MCP 服务器：
+
+    ```bash
+    npx mint-mcp add helius
+    ```
+
+    这将自动配置您的 MCP 客户端以访问 Helius 文档，从而提供 AI 协助。
+  </Step>
+  
+  <Step title="开始使用带有 Helius 上下文的 AI">
+    打开您的 AI 驱动的 IDE，开始询问有关 Helius API 的问题。AI 将自动查询我们的 MCP 服务器，以提供准确且有上下文的文档来帮助生成代码。
+  </Step>
+</Steps>
+
+## 快速测试
+
+想要亲眼看看它的效果吗？以下是测试 Helius MCP 集成的最快方法：
+
+<Tabs>
+  <Tab title="Cursor">
+    1. 打开 Cursor IDE
+    2. 打开终端并运行：`npx mint-mcp add helius`
+    3. 打开 Agent 模式（Ctrl/Cmd + K）
+    4. 询问：“编写一个使用 Helius 发送交易的 Node.js 脚本”
+    5. AI 将通过 MCP 引用我们的文档生成准确的代码
+    6. 观看 AI 使用我们文档中当前的 Helius API 模式生成可用代码
+  </Tab>
+  
+  <Tab title="Windsurf">
+    1. 打开 Windsurf IDE
+    2. 在终端中运行：`npx mint-mcp add helius`
+    3. 打开 AI 助手
+    4. 询问：“展示如何使用 Helius DAS API 获取 NFT 数据”
+    5. AI 将通过 MCP 引用我们的文档，并生成带有正确导入和错误处理的代码
+  </Tab>
+  
+  <Tab title="Claude Desktop">
+    1. 安装 Claude Desktop
+    2. 运行：`npx mint-mcp add helius`
+    3. 打开 Claude 并询问：“帮助我使用 Helius 构建一个 Solana 交易监控器”
+    4. 获取基于我们文档的上下文响应和可用代码示例
+  </Tab>
+</Tabs>
+
+## 使用案例
+
+<AccordionGroup>
+  <Accordion title="快速原型设计">
+    **场景**：您需要快速构建一个演示，获取 NFT 数据并显示出来。
+    
+    **使用 MCP**：向您的 AI 工具询问“创建一个 React 组件，使用 Helius DAS API 获取并显示钱包的 NFT”。
+    
+    **结果**：获得一个完整的组件，包含适当的错误处理、加载状态和当前 API 的使用。
+  </Accordion>
+  
+  <Accordion title="API 集成">
+    **场景**：将 Helius websockets 集成到您的应用程序中。
+    
+    **使用 MCP**：“告诉我如何设置 Helius websockets 以监控账户更改”。
+    
+    **结果**：完整的 websocket 设置代码，包含适当的连接处理和实时更新。
+  </Accordion>
+  
+  <Accordion title="文档生成">
+    **场景**：需要为团队记录您的 Helius 集成。
+    
+    **使用 MCP**：“为我们的 Helius RPC 使用模式生成文档”。
+    
+    **结果**：全面的文档，包含代码示例和最佳实践。
+  </Accordion>
+  
+  <Accordion title="调试与优化">
+    **场景**：您的 Helius API 调用失败或性能较差。
+    
+    **使用 MCP**：“帮助我优化这些 Helius API 调用并正确处理错误”。
+    
+    **结果**：改进的代码，包含适当的错误处理和性能优化。
+  </Accordion>
+</AccordionGroup>
+
+## 示例工作流
+
+### 构建交易监控器
+
+```typescript
+// Ask your AI: "Create a transaction monitor using Helius websockets"
+// The AI will generate something like this with current API patterns:
+
+const WebSocket = require('ws');
+
+// Create WebSocket connection
+const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+ws.on('open', function open() {
+  console.log('WebSocket connected');
+  
+  // Subscribe to account changes
+  const request = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "accountSubscribe",
+    params: [
+      "YOUR_WALLET_ADDRESS",
+      {
+        encoding: "jsonParsed",
+        commitment: "confirmed"
+      }
+    ]
+  };
+  
+  ws.send(JSON.stringify(request));
+});
+
+ws.on('message', function incoming(data) {
+  const message = JSON.parse(data.toString());
+  console.log('Account update:', message);
+});
+```
+
+### NFT 投资组合追踪器
+
+```typescript
+// Ask: "Build an NFT portfolio tracker using Helius DAS API"
+// Get working code with current method signatures:
+
+const getNFTPortfolio = async (walletAddress: string) => {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: walletAddress,
+        page: 1,
+        limit: 1000
+      },
+    }),
+  });
+  
+  const data = await response.json();
+  return data.result;
+};
+```
+
+## 高级功能
+
+<Tabs>
+  <Tab title="上下文感知建议">
+    MCP 服务器提供文档上下文，使 AI 工具能够做出智能建议：
+    
+    - **API 方法选择**：AI 根据我们的文档推荐最合适的 Helius API
+    - **错误处理**：AI 从我们的文档中建议适当的错误处理模式
+    - **性能提示**：AI 使用我们的最佳实践识别优化机会
+  </Tab>
+  
+  <Tab title="多 API 协同">
+    获取帮助以结合多个 Helius 服务：
+    
+
+    ```typescript
+    // Ask: "Combine RPC, DAS, and websocket APIs to build a complete NFT marketplace backend"
+    // The AI understands how these services work together from our documentation
+    ```
+
+  </Tab>
+  
+  <Tab title="实时更新">
+    MCP 服务器会与我们的文档保持同步，涵盖以下内容：
+    - 新的 API 端点和方法
+    - 更新的参数要求  
+    - 最新的 SDK 版本和功能
+    - 当前的最佳实践和模式
+  </Tab>
+</Tabs>
+
+## 支持的 AI 工具
+
+| 工具 | 支持级别 | 设置难度 | 最适合 |
+|------|---------------|------------------|----------|
+| **Cursor** | ✅ 原生支持 | 简单 | 全栈开发 |
+| **Windsurf** | ✅ 原生支持 | 简单 | AI 辅助编码 |
+| **Claude Desktop** | ✅ 支持 | 中等 | 文档和规划 |
+| **VS Code** | ⚠️ 需要扩展 | 中等 | 现有的 VS Code 工作流 |
+
+## 最佳实践
+
+<CardGroup cols={2}>
+  <Card title="具体明确" icon="bullseye">
+    提出具体的问题，例如“如何分页获取 NFT 结果？”而不是“帮我处理 NFT”
+  </Card>
+  <Card title="提供上下文" icon="info">
+    提及你的技术栈：“使用 Next.js 和 TypeScript，告诉我如何……”
+  </Card>
+  <Card title="快速迭代" icon="arrow-right">
+    将生成的代码作为起点，并请求修改
+  </Card>
+  <Card title="测试生成的代码" icon="flask">
+    始终在你的开发环境中测试 AI 生成的代码
+  </Card>
+</CardGroup>
+
+## 故障排除
+
+<AccordionGroup>
+  <Accordion title="找不到 MCP 服务器">
+    **问题**：AI 工具无法找到 Helius MCP 服务器
+    
+    **解决方案**： 
+    1. 重新运行 `npx mint-mcp add helius`
+    2. 重启你的 AI 工具
+    3. 检查 MCP 是否在工具设置中启用
+  </Accordion>
+  
+  <Accordion title="信息过时">
+    **问题**：AI 提供了过时的 API 信息
+    
+    **解决方案**： 
+    1. MCP 服务器会自动更新，但你可能需要刷新 AI 会话
+    2. 如果可用，清除 AI 工具的缓存
+    3. 明确要求“最新的”信息
+  </Accordion>
+  
+  <Accordion title="生成的代码无法运行">
+    **问题**：AI 生成的代码有错误或无法运行
+    
+    **解决方案**：
+    1. 将错误信息分享给 AI 进行调试
+    2. 请求改进错误处理
+    3. 验证你的 API 密钥和网络连接
+  </Accordion>
+</AccordionGroup>
+
+## 了解更多
+
+<CardGroup cols={2}>
+  <Card title="MCP Specification" icon="book" href="https://modelcontextprotocol.io/">
+    了解 Model Context Protocol 标准
+  </Card>
+  <Card title="Helius APIs" icon="code" href="/zh/api-reference">
+    探索所有可用的 Helius API 和端点
+  </Card>
+  <Card title="SDK Documentation" icon="code" href="/zh/sdks">
+    不同编程语言的官方 SDK 文档
+  </Card>
+  <Card title="Join Discord" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    从我们的开发者社区获取帮助
+  </Card>
+</CardGroup>
+
+准备好提升您的开发工作流程了吗？安装 Helius MCP 服务器，今天就开始借助 AI 助力构建吧！

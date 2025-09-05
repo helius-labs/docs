@@ -1,0 +1,282 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "全面的Solana交易历史API，用于检索和分析与任何钱包地址或程序相关的历史区块链活动。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getSignaturesForAddress"
+      operationId: "getSignaturesForAddress"
+      description: "检索涉及特定Solana地址的活动的交易签名，具有强大的分页功能。这个重要的API提供任何Solana钱包、代币、程序或NFT地址的交易历史，返回按时间顺序排列的交易签名及其状态、时间和执行结果。非常适合构建钱包交易历史、程序活动监控、地址分析以及任何需要跟踪Solana区块链上历史操作的应用程序。支持灵活的分页以访问完整的交易历史。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  description: "JSON-RPC协议版本。"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  example: "1"
+                  description: "请求的唯一标识符。"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getSignaturesForAddress"
+                  example: "getSignaturesForAddress"
+                  description: "要调用的RPC方法的名称。"
+                  default: "getSignaturesForAddress"
+                params:
+                  type: "array"
+                  description: "包含所需账户地址和可选配置对象的数组。"
+                  default:
+                    - "Vote111111111111111111111111111111111111111"
+                  items:
+                    oneOf:
+                      - type: "string"
+                        description: "要检索交易历史的Solana账户地址（钱包、代币、程序、NFT等）。"
+                        example: "Vote111111111111111111111111111111111111111"
+                      - type: "object"
+                        description: "用于自定义交易历史检索的高级查询配置。"
+                        properties:
+                          commitment:
+                            type: "string"
+                            description: "请求的承诺级别。"
+                            enum:
+                              - "confirmed"
+                              - "finalized"
+                              - "processed"
+                            example: "finalized"
+                          minContextSlot:
+                            type: "integer"
+                            description: "请求可以评估的最小槽位。"
+                            example: 1000
+                          limit:
+                            type: "integer"
+                            description: "单个请求中返回的最大交易签名数量（1-1,000）。"
+                            example: 1000
+                          before:
+                            type: "string"
+                            description: "分页参数，用于获取此签名之前的交易（时间较早）。"
+                            example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                          until:
+                            type: "string"
+                            description: "获取直到达到此签名的交易，适用于特定时间范围。"
+                            example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+      responses:
+        "200":
+          description: "成功检索到指定地址的签名。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                    description: "JSON-RPC协议版本。"
+                  id:
+                    type: "string"
+                    example: "1"
+                    description: "与请求匹配的标识符。"
+                  result:
+                    type: "array"
+                    description: "交易签名信息列表。"
+                    items:
+                      type: "object"
+                      description: "每个交易签名的详细信息。"
+                      properties:
+                        signature:
+                          type: "string"
+                          description: "交易签名，作为base-58编码的字符串。"
+                          example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                        slot:
+                          type: "integer"
+                          description: "包含交易的区块所在的槽。"
+                          example: 114
+                        err:
+                          oneOf:
+                            - type: "object"
+                              description: "如果交易失败则返回错误"
+                            - type: "null"
+                          description: "如果交易失败则返回错误，成功则为null。"
+                          example: null
+                        memo:
+                          oneOf:
+                            - type: "string"
+                              description: "与交易相关的备忘录"
+                            - type: "null"
+                          description: "与交易相关的备忘录，如果没有则为null。"
+                          example: null
+                        blockTime:
+                          oneOf:
+                            - type: "integer"
+                              description: "估计的生产时间，作为Unix时间戳"
+                            - type: "null"
+                          description: "估计的生产时间，作为Unix时间戳（自纪元以来的秒数），如果不可用则为null。"
+                          example: null
+                        confirmationStatus:
+                          oneOf:
+                            - type: "string"
+                              enum:
+                                - "processed"
+                                - "已确认"
+                                - "已完成"
+                              description: "交易的集群确认状态"
+                            - type: "null"
+                          description: "交易的集群确认状态。"
+                          example: "已完成"
+              examples:
+                response:
+                  value:
+                    jsonrpc: "2.0"
+                    id: 1
+                    result:
+                      - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                        slot: 114
+                        err: null
+                        memo: null
+                        blockTime: null
+                        confirmationStatus: "已完成"
+            application/json; schema=examples/request:
+              example:
+                jsonrpc: "2.0"
+                id: 1
+                method: "getSignaturesForAddress"
+                params:
+                  - "Vote111111111111111111111111111111111111111"
+                  - limit: 1
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                id: "1"
+        "429":
+          description: "请求过多 - 超过速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

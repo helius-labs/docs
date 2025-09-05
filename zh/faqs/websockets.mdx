@@ -1,0 +1,76 @@
+---
+title: WebSockets 常见问题
+description: 获取关于 WebSockets 的最常见问题的答案，包括增强功能、故障排除和使用方法
+---
+
+## 计费和速率限制
+
+<Accordion title="WebSocket 事件消耗多少积分？">
+WebSocket 事件不消耗积分。标准 WebSockets 和增强型 WebSockets 都包含在您的计划中，无需额外的积分费用。
+</Accordion>
+
+<Accordion title="增强型 WebSockets 比普通 WebSockets 快多少？">
+增强型 WebSockets 平均比标准 WebSockets 快 1.5 倍到 2 倍。它们通过优化的基础设施和直接访问 Helius 的流媒体后端提供更快的响应时间，非常适合需要低延迟数据的高性能应用程序。
+</Accordion>
+
+## 断开连接和重试
+
+<Accordion title="为什么我的增强型 WebSockets 连接会断开？">
+增强型 WebSockets 具有 10 分钟的不活动计时器，会断开空闲连接。为了防止断开连接：
+
+1. **实施健康检查**：每分钟发送 ping 以保持连接
+2. **添加重连逻辑**：在发生断开连接时自动重连
+3. **使用适当的连接管理**：遵循我们[增强型 WebSockets 文档](/zh/enhanced-websockets/transaction-subscribe)中显示的模式
+
+按照我们文档中显示的方式实现重连和 ping 逻辑，然后在此基础上添加您的应用程序逻辑。
+</Accordion>
+
+## 使用 WebSockets
+
+<Accordion title="如何使用 WebSockets 订阅完整交易？">
+**对于增强型 WebSockets**，在您的订阅选项中设置 `transactionDetails: "full"`：
+
+```javascript
+const subscriptionRequest = {
+  jsonrpc: "2.0",
+  id: 1,
+  method: "transactionSubscribe",
+  params: [
+    {
+      accountInclude: ["YOUR_ACCOUNT_ADDRESS"],
+      failed: false,
+      vote: false
+    },
+    {
+      commitment: "confirmed",
+      encoding: "jsonParsed",
+      transactionDetails: "full",  // Full transaction details
+      maxSupportedTransactionVersion: 0
+    }
+  ]
+};
+```
+
+**对于标准 WebSockets**，根据您的监控需求使用 `logsSubscribe` 或 `signatureSubscribe` 方法。有关每种订阅类型的详细示例，请参阅我们的 [WebSocket 指南](/zh/rpc/websocket)。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

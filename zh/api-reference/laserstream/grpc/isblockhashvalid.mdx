@@ -1,0 +1,51 @@
+---
+title: IsBlockhashValid
+description: 使用 LaserStream gRPC API 检查 Solana 区块链上的 blockhash 是否仍然有效。
+---
+
+<hide>
+## 端点
+
+gRPC 服务在主网和开发网可用，使用以下 URL：
+
+- **主网** `https://laserstream-mainnet.helius-rpc.com:443`
+- **开发网** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## 授权
+
+<ParamField query="x-token" type="string" required>
+  您的 Helius API 密钥。您可以在
+  [仪表板](https://dashboard.helius.dev/api-keys) 免费获取一个。
+</ParamField>
+
+## 消息
+
+<ParamField body="blockhash" type="string" required>
+  要检查的 blockhash，作为 base-58 编码的字符串。
+</ParamField>
+
+## 响应
+
+<ResponseField name="valid" type="boolean">
+  blockhash 是否仍然有效（true）或已过期（false）。
+</ResponseField>
+
+<RequestExample>
+
+```json Empty Request
+{}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json
+{
+    "slot": "333440972",
+    "valid": false
+}
+```
+
+</ResponseExample>

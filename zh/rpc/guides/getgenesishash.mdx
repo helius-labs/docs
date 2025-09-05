@@ -1,0 +1,64 @@
+---
+title: 如何使用 getGenesisHash
+sidebarTitle: getGenesisHash
+description: 了解 getGenesisHash 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getGenesisHash`](https://www.helius.dev/docs/api-reference/rpc/http/getgenesishash) RPC 方法返回您所连接的 Solana 集群的创世哈希。创世哈希是特定 Solana 网络（例如，Mainnet Beta、Devnet、Testnet 或私有集群）的唯一标识符。
+
+## 常见用例
+
+*   **网络验证：** 确认您的应用程序连接到预期的 Solana 集群（例如，确保您在使用 Devnet 时未意外与 Mainnet Beta 交互）。
+*   **客户端配置：** 一些工具或客户端应用程序可能会使用创世哈希为特定网络进行配置。
+*   **缓存失效：** 使用创世哈希作为缓存键的一部分，以确保缓存的数据特定于某个集群，防止一个网络的数据被错误地用于另一个网络。
+
+## 请求参数
+
+此方法不接受任何参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个包含 base-58 编码创世哈希的字符串。
+
+## 示例
+
+### 1. 获取连接集群的创世哈希
+
+此示例从 RPC 端点获取创世哈希。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getGenesisHash"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logGenesisHash() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const genesisHash = await connection.getGenesisHash();
+    console.log(`Genesis Hash: ${genesisHash}`);
+  } catch (error) {
+    console.error('Error fetching genesis hash:', error);
+  }
+}
+
+logGenesisHash();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **唯一性：** 每个 Solana 集群（Mainnet Beta、Devnet、Testnet 以及任何私有集群）都有其独特的创世哈希。
+*   **常量值：** 对于给定的集群，创世哈希是集群首次初始化时定义的常量值。它不会随时间变化。
+*   **客户端验证：** 客户端应用程序最好获取创世哈希并与预期值进行比较，以防止在错误的网络上进行意外操作，特别是在处理敏感操作或真实资金时。
+
+本指南展示了如何使用`getGenesisHash` RPC 方法来检索 Solana 集群的唯一标识符。

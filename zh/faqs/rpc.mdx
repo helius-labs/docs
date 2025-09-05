@@ -1,0 +1,59 @@
+---
+title: RPC 常见问题解答
+description: 获取关于 Solana RPC 节点、方法、速率限制和故障排除的常见问题解答
+---
+
+## 计费和速率限制
+
+<Accordion title="为什么在我的计划速率限制以下，我的 getProgramAccounts 会被限速？">
+`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数之外，还有额外的速率限制。请考虑过滤参数，或将大型查询分解为较小的块以保持在[限制](/zh/billing/plans-and-rate-limits#high-complexity-calls)内。
+</Accordion>
+
+<Accordion title="我可以为我的 RPC 端点获取特定区域吗？">
+Helius 会自动将请求路由到最佳区域以提高性能。对于特殊的区域要求或专用基础设施，请[联系销售团队](https://form.typeform.com/to/KiacmxpZ)讨论企业选项。
+</Accordion>
+
+## RPC 故障排除
+
+<Accordion title="为什么我的 sendTransaction 请求没有成功？">
+调用 **Priority Fee API**，优化计算单元使用，并使用 `skipPreflight: true` 发送交易。请参阅我们的[**交易优化指南**](https://www.helius.dev/docs/sending-transactions/optimizing-transactions)以获取分步演练。
+</Accordion>
+
+<Accordion title="为什么我突然看到 5xx 错误？">
+查看我们的[状态页面](https://helius.statuspage.io/)以获取相关更新。如果没有相关事件，请联系[支持](https://www.helius.dev/docs/support)。
+</Accordion>
+
+## 使用 RPC
+
+<Accordion title="获取最新 blockhash 的最佳实践是什么？">
+使用 `getLatestBlockhash` 与 `"processed"` 或 `"confirmed"` 承诺级别获取最新的 blockhash。在提交交易之前始终获取新的 blockhash 以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
+</Accordion>
+
+<Accordion title="什么是 staked connections？">
+Staked connections 将您的交易直接路由到当前和即将到来的区块领导者，绕过公共队列以几乎保证的方式交付。所有付费计划默认自动使用 staked connections - 无需代码更改。请在我们的[交易发送概述](/zh/sending-transactions/overview#staked-vs-unstaked-connections)中了解更多信息。
+</Accordion>
+
+<Accordion title="使用标准RPC调用，我可以访问多长时间的历史数据？">
+标准RPC计划提供对所有历史Solana数据的访问。专用节点仅维护约48小时的历史记录。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

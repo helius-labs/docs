@@ -1,0 +1,58 @@
+---
+title: GetLatestBlockhash
+description: 使用 LaserStream gRPC API 从 Solana 区块链获取最新的区块哈希。
+---
+
+<hide>
+## 端点
+
+gRPC 服务在主网和开发网可用，使用以下 URL：
+
+- **主网** `https://laserstream-mainnet.helius-rpc.com:443`
+- **开发网** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## 授权
+
+<ParamField query="x-token" type="string" required>
+  您的 Helius API 密钥。您可以在
+  [仪表板](https://dashboard.helius.dev/api-keys)免费获取一个。
+</ParamField>
+
+## 消息
+
+此方法接受一个空请求，并返回最新的区块哈希及其对应的最后有效区块高度。
+
+<RequestExample>
+
+```json Empty Request
+{}
+```
+
+</RequestExample>
+
+## 响应
+
+<ResponseField name="slot" type="string">
+  当前的插槽编号。
+</ResponseField>
+
+<ResponseField name="blockhash" type="string">
+  最新的区块哈希，作为 base-58 编码的字符串。
+</ResponseField>
+
+<ResponseField name="last_valid_block_height" type="string">
+  返回的区块哈希将有效的最后区块高度。
+</ResponseField>
+
+<ResponseExample>
+
+```json Latest Blockhash Response
+{
+  "slot": "333390974",
+  "blockhash": "CiqX6nU67eVCFqxh6TJ3LF8bDqjtnD2wULRMME917QSY",
+  "last_valid_block_height": "311630163"
+}
+```
+
+</ResponseExample>

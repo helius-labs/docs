@@ -1,0 +1,199 @@
+---
+title: 如何使用 getTransaction
+sidebarTitle: getTransaction
+description: 了解 getTransaction 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettransaction) RPC 方法允许您通过提供其签名来检索有关已确认交易的详细信息。这包括交易的槽位、区块时间、元数据（如费用、状态和余额变化）以及交易结构本身。
+
+## 常见用例
+
+*   **交易验证：** 确认交易已被处理并检查其结果（成功或失败）。
+*   **交易历史显示：** 向用户展示他们在钱包或浏览器中的过去交易详情。
+*   **审计和分析：** 检查交易的具体细节，包括执行的指令、支付的费用和涉及的账户。
+*   **调试失败的交易：** 检查元数据中的 `logMessages` 和 `err` 字段以了解交易失败的原因。
+*   **数据索引：** 从交易中提取特定信息以进行链下存储和分析。
+
+## 请求参数
+
+1.  **`transactionSignature`**（字符串，必需）：您要查询的 base-58 编码的交易签名。
+
+2.  **`options`**（对象，可选）：一个可选的配置对象，可以包括：
+    *   **`commitment`**（字符串，可选）：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`）。如果未提供，则使用节点的默认承诺（通常为 `"finalized"`）。
+    *   **`encoding`**（字符串，可选）：`transaction` 数据的编码。常见值：
+        *   `"json"`：以结构化 JSON 格式返回交易数据（但指令可能仍然是 base64 编码）。
+        *   `"jsonParsed"`：返回交易数据，其中程序特定的指令被解析为人类可读的 JSON 结构（如果可能）。这通常是分析最有用的编码。
+        *   `"base58"`：将交易数据作为 base-58 编码字符串返回。
+        *   `"base64"`：将交易数据作为 base-64 编码字符串返回。
+        *   如果未指定，默认为 `"json"`，但 Solana 默认可能不同。最好指定此项。
+    *   **`maxSupportedTransactionVersion`**（数字，可选）：RPC 端点应处理的最大交易版本。
+        *   设置为 `0` 以包含版本化交易（包括传统）。
+        *   如果省略，某些节点可能只返回传统交易或在遇到版本化交易时出错。强烈建议将此设置为 `0` 以支持所有交易类型。
+
+## 响应结构
+
+如果未找到交易（例如，尚未处理或签名不正确）或未确认到指定的承诺级别，该方法返回`null`。否则，它返回一个包含以下字段的对象：
+
+*   **`slot`** (u64): 交易被包含在区块中的槽号。
+*   **`blockTime`** (i64 | null): 生成包含交易的区块时的估计 Unix 时间戳（自纪元以来的秒数）。如果不可用，可以是`null`。
+*   **`meta`** (object | null): 包含交易执行元数据的对象。如果交易在处理前失败或元数据不可用，可以是`null`。
+    *   **`err`** (object | null): 如果交易失败则为错误对象，否则为`null`。
+    *   **`fee`** (u64): 为交易支付的 lamports 费用。
+    *   **`preBalances`** (array of u64): 交易处理*之前*涉及账户的 lamport 余额。
+    *   **`postBalances`** (array of u64): 交易处理*之后*涉及账户的 lamport 余额。
+    *   **`preTokenBalances`** (array of objects | null): 交易*之前*涉及的代币账户的代币余额。
+    *   **`postTokenBalances`** (array of objects | null): 交易*之后*涉及的代币账户的代币余额。
+    *   **`innerInstructions`** (array of objects | null): 作为此交易中 CPI（跨程序调用）的一部分执行的指令数组。
+    *   **`logMessages`** (array of string | null): 由交易指令及任何内部指令发出的日志消息数组。
+    *   **`loadedAddresses`** (object, optional): 指定从地址查找表加载的账户用于此交易。包含`writable`和`readonly`的公钥数组。
+    *   **`returnData`** (object, optional): 通过`sol_set_return_data`和`sol_get_return_data`返回的交易数据。包含`programId`（字符串）和`data`（数组：`[string, encoding]`）。
+    *   **`computeUnitsConsumed`** (u64, optional): 此交易消耗的计算单元数量。
+*   **`transaction`** (object | array): 交易结构本身。格式取决于`encoding`参数：
+    *   如果`encoding`是`"jsonParsed"`或`"json"`：一个包含`message`（包含`accountKeys`、`instructions`、`recentBlockhash`等）和`signatures`（字符串数组）的对象。
+    *   如果`encoding`是`"base58"`、`"base64"`：一个数组`[encoded_string, encoding_format_string]`。
+*   **`version`** ("legacy" | number | undefined): 交易的版本。对于旧交易可以是`"legacy"`，对于版本化交易可以是一个数字（例如，`0`）。如果`maxSupportedTransactionVersion`未设置且交易是版本化的，则为`undefined`。
+
+**示例响应 (`jsonParsed` 编码):**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "blockTime": 1635900000,
+    "meta": {
+      "err": null,
+      "fee": 5000,
+      "innerInstructions": [],
+      "logMessages": [
+        "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]",
+        "Program log: Memo 'Hello, Solana!'",
+        "Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS success"
+      ],
+      "postBalances": [
+        499999999999994999, 
+        1000000000
+      ],
+      "postTokenBalances": [],
+      "preBalances": [
+        500000000000000000, 
+        1000000000
+      ],
+      "preTokenBalances": [],
+      "rewards": [],
+      "status": { "Ok": null },
+      "computeUnitsConsumed": 200
+    },
+    "slot": 98765432,
+    "transaction": {
+      "message": {
+        "accountKeys": [
+          "SysvarRent111111111111111111111111111111111",
+          "Vote111111111111111111111111111111111111111"
+        ],
+        "instructions": [
+          {
+            "parsed": {
+              "type": "vote",
+              "info": {
+                "votePubkey": "Vote111111111111111111111111111111111111111",
+                "slot": 123,
+                "hash": "abc..."
+              }
+            },
+            "program": "vote",
+            "programId": "Vote111111111111111111111111111111111111111"
+          }
+        ],
+        "recentBlockhash": "xyz..."
+      },
+      "signatures": [
+        "sig1..."
+      ]
+    },
+    "version": "legacy"
+  },
+  "id": 1
+}
+```
+
+## 代码示例
+
+<CodeGroup>
+
+```bash cURL
+# Replace <TRANSACTION_SIGNATURE> with an actual signature
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTransaction",
+    "params": [
+      "<TRANSACTION_SIGNATURE>",
+      {
+        "encoding": "jsonParsed",
+        "maxSupportedTransactionVersion": 0
+      }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getTransactionDetails(signature) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const transaction = await connection.getTransaction(signature, {
+      maxSupportedTransactionVersion: 0, // Recommended to support all transaction versions
+      // commitment: 'confirmed', // Optional: specify commitment level
+    });
+
+    if (transaction) {
+      console.log('Transaction Details:');
+      console.log(`  Slot: ${transaction.slot}`);
+      console.log(`  Block Time: ${transaction.blockTime ? new Date(transaction.blockTime * 1000).toLocaleString() : 'N/A'}`);
+      console.log(`  Fee: ${transaction.meta ? transaction.meta.fee : 'N/A'} lamports`);
+      console.log(`  Status: ${transaction.meta && transaction.meta.err ? 'Failed' : 'Success'}`);
+      if (transaction.meta && transaction.meta.err) {
+        console.log(`    Error: ${JSON.stringify(transaction.meta.err)}`);
+      }
+      // console.log(JSON.stringify(transaction, null, 2)); // Log full transaction details
+
+      if (transaction.meta && transaction.meta.logMessages) {
+        console.log('  Log Messages:');
+        transaction.meta.logMessages.forEach(log => console.log(`    ${log}`));
+      }
+
+    } else {
+      console.log('Transaction not found or not confirmed.');
+    }
+  } catch (error) {
+    console.error(`Error fetching transaction ${signature}:`, error);
+  }
+}
+
+// Replace with an actual transaction signature from Mainnet-beta or your test environment
+const exampleSignature = '5h4zCwobYsdL3mY26FgfXy8c4rTPkX6gYVXW8w2tTjCXZMWzE9jX9p8Q2Y8Yj9p8ZQ8Yj9p8ZQ8Yj9p8ZQ8Yj9'; // Replace with a real signature
+// getTransactionDetails(exampleSignature);
+
+// Example of a known transaction (you'll need to find a recent one on an explorer)
+// getTransactionDetails('2xNdnHjZDmJRy1L6jC1mF87K3V9nXZo2bY6vA8GzQ3T7bS9xU8cM7sR5eD3fG2hJ1aB0cE9lK6mN5pP4qR7');
+
+console.log("Please replace 'exampleSignature' with a real transaction signature to run the example.");
+
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **交易最终性：** 确保您使用适当的 `commitment` 级别进行查询。请求尚未达到指定承诺的交易将导致 `null`。
+*   **数据量：** 响应对象可能非常大，特别是对于包含许多指令或详细日志的复杂交易。在处理数据时请注意这一点。
+*   **`jsonParsed` 与 `json`：** 虽然 `jsonParsed` 非常方便，但解析支持取决于 RPC 节点对特定程序的能力。如果程序未被识别，即使使用 `jsonParsed`，其指令可能会回退到较少解析的格式。
+*   **版本化交易：** 始终在请求选项中设置 `maxSupportedTransactionVersion: 0`，以确保您的应用程序能够处理传统和版本化交易。否则，您可能会错过数据或在处理较新的交易格式时遇到错误。
+*   **RPC 提供商差异：** 虽然核心 API 是标准的，但某些 RPC 提供商可能提供增强的解析或附加字段。例如，Helius 提供丰富的交易解析。
+
+本指南全面概述了 `getTransaction` RPC 方法，使您能够获取和理解详细的 Solana 交易数据。

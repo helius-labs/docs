@@ -1,0 +1,261 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "用于监控多个Solana交易状态和最终性级别的交易确认跟踪API，提供实时更新。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getSignatureStatuses"
+      operationId: "getSignatureStatuses"
+      description: "检索多个 Solana 交易的确认状态，通过单个高效的批量请求实现。这个重要的交易跟踪 API 允许应用程序监控交易在 Solana 共识过程中的进展，从初始提交到最终确认。返回关于交易状态的详细信息，包括处理槽位、确认计数、错误详情和最终性级别。对于钱包、交易所、支付处理器以及任何需要验证交易何时在区块链上成功结算的应用程序来说至关重要，并提供可配置的历史交易查询选项。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC 协议版本。"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getSignatureStatuses"
+                  description: "要调用的 RPC 方法名称。"
+                  example: "getSignatureStatuses"
+                  default: "getSignatureStatuses"
+                params:
+                  type: "array"
+                  description: "包含交易签名和可选配置对象的数组。"
+                  default:
+                    - - "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+                  items:
+                    oneOf:
+                      - type: "array"
+                        description: "交易签名数组（最多 256 个），以 base-58 编码的字符串形式。"
+                        items:
+                          type: "string"
+                          example: "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+                      - type: "object"
+                        description: "配置选项。"
+                        properties:
+                          searchTransactionHistory:
+                            type: "boolean"
+                            description: "启用搜索超出最近状态缓存以查找较早的历史交易。"
+                            example: true
+            examples:
+              requestExample:
+                value:
+                  jsonrpc: "2.0"
+                  id: "1"
+                  method: "getSignatureStatuses"
+                  params:
+                    - - "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW"
+                    - searchTransactionHistory: true
+      responses:
+        "200":
+          description: "成功检索到签名状态。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    description: "JSON-RPC协议版本。"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "object"
+                    description: "包含上下文和签名状态值。"
+                    properties:
+                      context:
+                        type: "object"
+                        properties:
+                          slot:
+                            type: "integer"
+                            description: "获取数据的插槽。"
+                            example: 82
+                      value:
+                        type: "array"
+                        description: "交易签名状态列表。"
+                        items:
+                          oneOf:
+                            - type: "null"
+                              description: "如果交易未知，则为null。"
+                            - type: "object"
+                              properties:
+                                slot:
+                                  type: "integer"
+                                  description: "Solana区块链插槽号，其中此交易被包含在一个区块中。"
+                                  example: 48
+                                confirmations:
+                                  oneOf:
+                                    - type: "integer"
+                                      description: "自该交易处理以来确认的区块数量（如果完全最终确定则为null）。"
+                                    - type: "null"
+                                      description: "null表示交易已达到最大最终性（已根植）。"
+                                  example: 48
+                                err:
+                                  oneOf:
+                                    - type: "object"
+                                      description: "如果交易在执行期间失败，错误对象包含详细信息。"
+                                    - type: "null"
+                                      description: "null表示交易成功执行且无错误。"
+                                  example: null
+                                confirmationStatus:
+                                  type: "string"
+                                  enum:
+                                    - "processed"
+                                    - "confirmed"
+                                    - "finalized"
+                                  description: "Solana网络上交易的当前最终状态（processed → confirmed → finalized）。"
+                                  example: "finalized"
+              examples:
+                responseExample:
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      context:
+                        slot: 82
+                      value:
+                        - slot: 48
+                          confirmations: 48
+                          err: null
+                          confirmationStatus: "finalized"
+                        - null
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

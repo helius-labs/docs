@@ -1,0 +1,107 @@
+---
+title: Shred Delivery
+sidebarTitle: 概览
+description: 超低延迟的 Solana 数据流，通过原始 shreds 提供最早的链上信号
+---
+
+<Info>
+**需要 Beta 访问权限**：Shred Delivery 目前处于 Beta 测试阶段，采用专属定制服务。访问权限有限，需要 Helius 团队的批准。[在此申请 Beta 访问权限](#request-beta-access)。
+</Info>
+
+## 什么是 Shred Delivery？
+
+Shred Delivery 是 Helius 的**顶级低延迟 shred 交付服务**，旨在为您提供 Solana 原始交易数据的最早访问权限。通过直接从网络传输未处理的 shreds，Shred Delivery 为高频交易 (HFT)、套利策略以及其他对延迟敏感的应用提供了显著的竞争优势。
+
+<CardGroup cols={2}>
+  <Card title="最早访问" icon="clock">
+    接收 Solana 网络生成的原始 shreds，提供对网络活动的最快洞察。
+  </Card>
+  <Card title="未处理数据" icon="gear">
+    访问原始形式的数据，支持根据您的特定交易策略进行定制化处理。
+  </Card>
+  <Card title="验证者优势" icon="star">
+    Helius 运营着 Solana 上质押量最高的验证者，最早从网络接收 shreds。
+  </Card>
+  <Card title="手动配置" icon="shield">
+    精心配置的访问权限确保最佳性能，并由 Helius 团队提供专属支持。
+  </Card>
+</CardGroup>
+
+## 什么是 Shreds？
+
+在 Solana 中，交易被分解为称为 **"shreds"** 的小型数据包，以促进高效且快速的网络传播。每个 shred 是交易数据的一个片段，经过优化以适应标准网络数据包，从而确保验证者能够快速分发和重组为完整的区块。
+
+这种架构对于维持 Solana 的高吞吐量和低延迟至关重要，而 Shred Delivery 直接接入这一未处理的数据流，在任何处理发生之前提供数据。
+
+<Card title="深入解析：了解 Solana Shreds" icon="book-open" href="https://www.helius.dev/blog/solana-shreds">
+  阅读我们全面的博客文章，了解 Solana 的 shred 机制如何运作以及它在交易中的重要性
+</Card>
+
+## Shred Delivery 与 LaserStream 的对比
+
+虽然 Shred Delivery 和 LaserStream 都是 Helius 的旗舰数据流服务，但它们在交易技术栈中有着不同的用途：
+
+<CardGroup cols={2}>
+  <Card title="Shred Delivery" icon="bolt" color="#E84125">
+    **“交易的第一眼”**
+    - 原始、未处理的 shred 数据
+    - 最早的链上信号
+    - 需要自定义的 deshredding 逻辑
+    - 仅支持手动配置
+    - 适用于高频交易和套利策略
+  </Card>
+  <Card title="LaserStream" icon="rocket" color="#00D4AA">
+    **经过处理且可靠的数据**
+    - 承诺级别的保证（已处理、已确认、已最终确定）
+    - 支持历史回放功能
+    - 开发者友好的 SDK
+    - 自动重新连接
+    - 适用于生产应用和分析
+  </Card>
+</CardGroup>
+
+**何时使用每项服务：**
+
+- **选择 Shred Delivery**，当您需要以最低延迟访问原始交易数据，并具备处理原始 shred 的技术能力时
+- **选择 LaserStream**，当您需要可靠的、带有承诺保证的处理数据以及历史回放功能时
+
+<Card title="LaserStream 文档" icon="rocket" href="/zh/laserstream">
+  了解 LaserStream 的可靠数据流功能
+</Card>
+
+## Helius 验证者的优势
+
+Helius 运营着 **Solana 上质押量最高的验证者**，通过 Solana 的 Turbine 协议为我们提供了无与伦比的原始 shred 访问能力。在 Turbine 中，质押权重更高的验证者在数据传播树中享有优先权，这意味着区块领导者会优先将 shreds 发送给像 Helius 这样的高质押验证者。
+
+这种基于质押权重的传播确保我们在网络数据流中以最快的速度接收到 shreds。而其他提供商必须等待二次传播或依赖未质押的基础设施，我们的验证者位置使我们能够直接优先访问网络中流动的原始交易数据。
+
+## 技术要求
+
+为了有效利用 Shred Delivery，您的系统应具备以下条件：
+
+<CardGroup cols={2}>
+  <Card title="反碎片能力" icon="gear">
+    自定义逻辑以从原始碎片中重建完整交易
+  </Card>
+  <Card title="低延迟基础设施" icon="server">
+    针对微秒级处理优化的高性能系统
+  </Card>
+  <Card title="交易逻辑集成" icon="code">
+    能够对未处理数据采取行动，并具备适当的风险管理
+  </Card>
+  <Card title="网络优化" icon="wifi">
+    优化的网络配置以实现最小的处理延迟
+  </Card>
+</CardGroup>
+
+<Warning>
+**需要技术专长**：Shred Delivery 提供原始、未处理的数据。您的团队必须具备处理反碎片化和实施适当处理逻辑的技术能力。
+</Warning>
+
+## 申请测试版访问
+
+Shred Delivery 目前处于测试阶段，访问权限有限。要申请访问，请填写我们的测试版访问表单，我们的团队将审核您的需求并与您联系后续步骤。
+
+<Card title="申请测试版访问" icon="rocket" href="https://form.typeform.com/to/aE6sUFRj?typeform-source=t.co" color="#E84125">
+  提交您的 Shred Delivery 测试版访问申请
+</Card>

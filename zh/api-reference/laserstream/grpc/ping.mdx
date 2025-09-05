@@ -1,0 +1,48 @@
+---
+title: Ping
+description: 通过简单的ping-pong机制检查与LaserStream gRPC API的连接性。
+---
+
+<hide>
+## Endpoints
+
+gRPC服务在主网和开发网可通过以下URL访问：
+
+- **Mainnet** `https://laserstream-mainnet.helius-rpc.com:443`
+- **Devnet** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## Authorizations
+
+<ParamField query="x-token" type="string" required>
+  您的Helius API密钥。您可以在
+  [dashboard](https://dashboard.helius.dev/api-keys)免费获取一个。
+</ParamField>
+
+## Message
+
+此方法接受一个空请求，并返回一个简单的pong响应以确认连接性。
+
+## Response
+
+<ResponseField name="pong" type="boolean">
+  如果连接成功，总是返回true。
+</ResponseField>
+
+<RequestExample>
+
+```json Empty Request
+{}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json
+{
+    "count": 0
+}
+```
+
+</ResponseExample>

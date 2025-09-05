@@ -1,0 +1,141 @@
+---
+title: 如何使用 getRecentPerformanceSamples
+sidebarTitle: getRecentPerformanceSamples
+description: 了解 getRecentPerformanceSamples 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getRecentPerformanceSamples`](https://www.helius.dev/docs/api-reference/rpc/http/getrecentperformancesamples) RPC 方法提供了 Solana 网络最近性能的快照。它返回一个样本列表，大约每 60 秒采集一次，详细说明在这些时间段内处理的交易和槽的数量。这些数据对于监控网络吞吐量和健康状况非常有价值。有关 Solana 性能指标（如 TPS 和槽时间）的更多背景信息，您可以阅读 [Solana for Enterprise 指南](https://www.helius.dev/blog/solana-for-enterprise)。
+
+## 常见用例
+
+*   **网络健康监控：** 跟踪交易处理率和槽生产，以评估整体网络健康状况并识别潜在的拥堵或减速。
+*   **性能分析：** 分析历史性能数据，以了解网络在不同条件下的行为。
+*   **仪表盘展示：** 在监控仪表盘上显示关键性能指标（KPI），如每秒交易数（TPS）和每分钟槽数。
+*   **容量规划：** 观察网络负载趋势，以为应用程序或基础设施的扩展决策提供信息。
+
+## 请求参数
+
+1.  **`limit`** (`usize`, 可选):
+    *   要返回的最近性能样本的数量。
+    *   最大值：`720`（代表大约 12 小时的数据，因为样本每 60 秒采集一次）。
+    *   如果省略，RPC 节点将返回默认数量的样本（具体默认值可能因 RPC 提供商而异）。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段是一个性能样本对象数组，按时间倒序返回（最新样本在前）。每个对象具有以下结构：
+
+*   **`slot`** (`u64`): 记录此性能样本的槽号。
+*   **`numTransactions`** (`u64`): 在此 `slot` 之前的 `samplePeriodSecs` 内处理的交易总数（包括投票和非投票交易）。
+*   **`numSlots`** (`u64`): 在此 `slot` 之前的 `samplePeriodSecs` 内处理的槽数。
+*   **`samplePeriodSecs`** (`u16`): 采集此样本的持续时间（以秒为单位，通常为 `60`）。
+*   **`numNonVoteTransactions`** (`u64`): 在此 `samplePeriodSecs` 期间处理的非共识投票交易的数量。
+
+## 示例
+
+### 1. 获取最近 5 个性能样本
+
+此示例请求网络中最近的五个性能样本。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPerformanceSamples",
+    "params": [5]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchRecentPerformance() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const samples = await connection.getRecentPerformanceSamples(5);
+    if (samples && samples.length > 0) {
+      console.log(`Fetched ${samples.length} performance samples:`);
+      samples.forEach((sample, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${sample.slot}`);
+        console.log(`  Number of Slots in Period: ${sample.numSlots}`);
+        console.log(`  Total Transactions: ${sample.numTransactions}`);
+        console.log(`  Non-Vote Transactions: ${sample.numNonVoteTransactions}`);
+        console.log(`  Sample Period (seconds): ${sample.samplePeriodSecs}`);
+        const tps = sample.numTransactions / sample.samplePeriodSecs;
+        const nonVoteTps = sample.numNonVoteTransactions / sample.samplePeriodSecs;
+        console.log(`  Average TPS (Total): ${tps.toFixed(2)}`);
+        console.log(`  Average TPS (Non-Vote): ${nonVoteTps.toFixed(2)}`);
+      });
+    } else {
+      console.log('No performance samples returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching recent performance samples:', error);
+  }
+}
+
+fetchRecentPerformance();
+```
+
+</CodeGroup>
+
+### 2. 获取默认数量的性能样本
+
+此示例省略了`limit`参数，请求 RPC 节点的默认样本数量。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPerformanceSamples"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchDefaultPerformanceSamples() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const samples = await connection.getRecentPerformanceSamples(); // No limit parameter
+    if (samples && samples.length > 0) {
+      console.log(`Fetched ${samples.length} (default) performance samples:`);
+      // Process or log samples as needed - e.g., the first one
+      const sample = samples[0];
+      console.log(`--- Most Recent Sample ---`);
+      console.log(`  Slot: ${sample.slot}`);
+      console.log(`  Total Transactions: ${sample.numTransactions}`);
+      console.log(`  Non-Vote Transactions: ${sample.numNonVoteTransactions}`);
+      console.log(`  Slots in Period: ${sample.numSlots}`);
+      console.log(`  Sample Period (seconds): ${sample.samplePeriodSecs}`);
+    } else {
+      console.log('No performance samples returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching default performance samples:', error);
+  }
+}
+
+fetchDefaultPerformanceSamples();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **采样间隔：** 样本通常每 60 秒采集一次，但这只是一个近似值。响应中的`samplePeriodSecs`字段指示每个样本的实际持续时间。
+*   **历史数据限制：** 最大`limit`为 720 个样本，提供大约 12 小时的历史数据窗口。对于长期性能分析，需要外部数据记录和聚合。
+*   **投票与非投票交易：** `numTransactions`包括所有交易，而`numNonVoteTransactions`专门统计那些不属于共识投票过程的交易。后者通常是用户驱动网络活动的更好指标。
+*   **节点变异性：** 具体数据可能会因不同 RPC 节点的同步状态和在采样时对网络的本地视图而略有不同。
+
+通过利用`getRecentPerformanceSamples`，开发者和网络观察者可以获得有关 Solana 网络运行状态和吞吐量的宝贵见解。

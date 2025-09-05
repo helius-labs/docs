@@ -1,0 +1,67 @@
+---
+title: 如何使用 getIdentity
+sidebarTitle: getIdentity
+description: 了解 getIdentity 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getIdentity`](https://www.helius.dev/docs/api-reference/rpc/http/getidentity) RPC 方法返回您所连接的特定 Solana RPC 节点的公钥（也称为身份或节点 ID）。Solana 网络中的每个节点都有一个唯一的加密密钥对，其公钥作为其标识符。
+
+## 常见用例
+
+*   **节点识别：** 唯一识别您正在通信的 RPC 节点，特别是在分布式设置中或与多个 RPC 提供商交互时。
+*   **网络分析：** 当与 `getClusterNodes` 结合使用时，您可以将 `getIdentity` 的身份与集群列表中的节点匹配，以查找有关您正在查询的特定节点的更多详细信息。
+*   **调试和日志记录：** 记录节点的身份以进行调试或跟踪哪个节点服务了特定请求。
+*   **验证（高级）：** 在某些特定场景中，节点身份可能用于高级协议或验证目的，尽管这在典型的 dApp 交互中较少见。
+
+## 请求参数
+
+此方法不需要任何参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个包含单个字段的对象：
+
+*   **`identity`** (字符串)：RPC 节点的 base-58 编码公钥。
+
+## 示例
+
+### 1. 获取连接的 RPC 节点的身份
+
+此示例获取 RPC 节点的公钥。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getIdentity"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logNodeIdentity() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const identityInfo = await connection.getIdentity();
+    console.log(`Node Identity (Public Key): ${identityInfo.identity}`);
+  } catch (error) {
+    console.error('Error fetching node identity:', error);
+  }
+}
+
+logNodeIdentity();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **节点特定：** 返回的身份是您所连接的特定 RPC 节点实例的唯一标识。如果您连接到不同的 RPC 端点（即使它是同一集群的一部分或由同一提供商运营但负载均衡），您可能会获得不同的身份。
+*   **不适用于用户钱包：** 返回的身份是 RPC 节点本身的，而不是 Solana 网络上任何用户钱包或账户的。
+*   **稳定性：** 给定节点的身份通常是稳定的，但如果节点运营商重新配置或更换节点的密钥对，身份可能会改变。
+
+本指南演示如何使用 `getIdentity` RPC 方法来检索您正在交互的 Solana 节点的唯一公钥。

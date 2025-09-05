@@ -1,0 +1,637 @@
+---
+title: LaserStream gRPC：高性能数据流
+sidebarTitle: gRPC
+description: 使用 LaserStream gRPC 流式传输 Solana 区块链的实时数据。高度可配置的低延迟流，支持历史重播和多区域。
+---
+
+## 概述
+
+LaserStream 的 gRPC 提供基于 Yellowstone 的接口，并通过历史重播、多节点故障转移和完全托管环境等功能进行增强。LaserStream 使用开源的 gRPC 协议，确保没有供应商锁定，并与现有 gRPC 实现最大兼容。
+
+您可以直接连接 `@yellowstone-grpc` 或使用更高级别的 **[Helius LaserStream SDK](https://github.com/helius-labs/laserstream-sdk)** 以获得更多好处（自动重连、订阅管理、错误处理等）。
+
+<Warning>
+**性能注意**：如果您在使用 LaserStream 连接时遇到任何延迟或性能问题，请参阅 [故障排除部分](#troubleshooting-%2F-faq) 以获取与客户端性能和网络优化相关的常见原因和解决方案。
+</Warning>
+
+<Divider />
+
+## 端点与区域
+
+LaserStream 在全球多个区域可用。选择离您的应用程序最近的端点以获得最佳性能：
+
+### 主网端点
+
+| 区域 | 位置 | 端点 |
+|--------|----------|----------|
+| **ewr** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-mainnet-ewr.helius-rpc.com` |
+| **pitt** | 匹兹堡，美国（中部） | `https://laserstream-mainnet-pitt.helius-rpc.com` |
+| **slc** | 盐湖城，美国（西海岸） | `https://laserstream-mainnet-slc.helius-rpc.com` |
+| **ams** | 阿姆斯特丹，欧洲 | `https://laserstream-mainnet-ams.helius-rpc.com` |
+| **fra** | 法兰克福，欧洲 | `https://laserstream-mainnet-fra.helius-rpc.com` |
+| **tyo** | 东京，亚洲 | `https://laserstream-mainnet-tyo.helius-rpc.com` |
+| **sgp** | 新加坡，亚洲 | `https://laserstream-mainnet-sgp.helius-rpc.com` |
+
+### 开发网端点
+
+| 网络 | 位置 | 端点 |
+|---------|----------|----------|
+| **开发网** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-devnet-ewr.helius-rpc.com` |
+
+<Tip>
+**网络与区域选择**：
+- 对于 **生产应用程序**，选择离您的服务器最近的主网端点以获得最佳性能。例如，如果在欧洲部署，请使用阿姆斯特丹 (`ams`) 或法兰克福 (`fra`) 端点。
+- 对于 **开发和测试**，使用开发网端点：`https://laserstream-devnet-ewr.helius-rpc.com`。
+</Tip>
+
+## 快速开始
+
+<Steps>
+  <Step title="创建一个新项目">
+
+    ```bash
+    mkdir laserstream-grpc-demo
+    cd laserstream-grpc-demo
+    npm init -y
+    ```
+
+  </Step>
+  <Step title="安装依赖">
+
+    ```bash
+    npm install helius-laserstream
+    npm install --save-dev typescript ts-node
+    npx tsc --init
+    ```
+
+  </Step>
+  <Step title="获取您的 API 密钥">
+    从 [Helius Dashboard](https://dashboard.helius.dev/) 生成一个密钥。此密钥将作为您对 LaserStream 的身份验证令牌。
+    
+    <Note>
+    **计划要求**：LaserStream devnet 需要开发者或商业计划。LaserStream mainnet 需要专业计划。确保您的 Helius 账户具有适当的计划以访问 LaserStream 功能。
+    </Note>
+  </Step>
+  <Step title="创建订阅脚本">
+    创建 **`index.ts`**，内容如下：
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+      const subscriptionRequest: SubscribeRequest = {
+        transactions: {
+          client: {
+            accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+            accountExclude: [],
+            accountRequired: [],
+            vote: false,
+            failed: false
+          }
+        },
+        commitment: CommitmentLevel.CONFIRMED,
+        accounts: {},
+        slots: {},
+        transactionsStatus: {},
+        blocks: {},
+        blocksMeta: {},
+        entry: {},
+        accountsDataSlice: [],
+        // Optionally, you can replay missed data by specifying a fromSlot:
+        // fromSlot: '224339000'
+        // Note: Currently, you can only replay data from up to 3000 slots in the past.
+      };
+    
+    // Replace the values below with your actual LaserStream API key and endpoint
+    const config: LaserstreamConfig = {
+      apiKey: 'YOUR_API_KEY', // Replace with your key from https://dashboard.helius.dev/
+      endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+    }
+    
+      await subscribe(config, subscriptionRequest, async (data) => {
+        
+        console.log(data);
+    
+      }, async (error) => {
+        console.error(error);
+      });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Step>
+  <Step title="替换您的 API 密钥并选择您的区域">
+    在 `index.ts` 中，更新 `config` 对象，包含以下内容：
+    1. 您从 [Helius Dashboard](https://dashboard.helius.dev/) 获取的实际 API 密钥
+    2. 离您的服务器位置最近的 LaserStream 端点
+
+    ```typescript
+    const config: LaserstreamConfig = {
+      apiKey: 'YOUR_ACTUAL_API_KEY', // Replace with your key from Helius Dashboard
+      endpoint: 'https://laserstream-mainnet-fra.helius-rpc.com', // Example: Frankfurt mainnet
+      // For devnet: endpoint: 'https://laserstream-devnet-ewr.helius-rpc.com'
+    }
+    ```
+
+    **网络和区域选择示例：**
+    - **用于生产（Mainnet）**：
+      - 欧洲：使用 `fra`（法兰克福）或 `ams`（阿姆斯特丹）
+      - 美国东部：使用 `ewr`（纽约）
+      - 美国西部：使用 `slc`（盐湖城）
+      - 亚洲：使用 `tyo`（东京）或 `sgp`（新加坡）
+    - **用于开发（Devnet）**：使用 `https://laserstream-devnet-ewr.helius-rpc.com`
+  </Step>
+  <Step title="运行并查看结果">
+
+    ```bash
+    npx ts-node index.ts
+    ```
+
+    每当一个 `confirmed` 代币交易涉及 `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` 时，您将在控制台中看到数据。
+  </Step>
+</Steps>
+
+<Divider />
+
+## 订阅请求
+
+在订阅请求中，您需要包含以下通用参数：
+
+<Note>
+  **历史重放：** 您可以选择在主 `SubscribeRequest` 对象中包含一个 `fromSlot: string` 字段，以从特定槽位开始重放数据。目前，重放支持最多回溯 3000 个槽位。
+</Note>
+
+<ParamField type="enum">
+  指定承诺级别，可以是 **processed**、**confirmed** 或 **finalized**。
+</ParamField>
+
+<ParamField type="array">
+  一个对象数组 `{ offset: uint64, length: uint64 }`，允许您仅接收来自账户的所需数据片段。
+</ParamField>
+
+<ParamField type="boolean">
+  一些云提供商（如 Cloudflare）可能会在一段时间不活动后关闭空闲流。为了防止这种情况并保持连接活跃而无需重新发送过滤器，请将此设置为 **true**。服务器将每15秒响应一个 Pong 消息。
+</ParamField>
+
+```typescript
+const subscriptionRequest: SubscribeRequest = {
+  commitment: CommitmentLevel.CONFIRMED,
+  accountsDataSlice: [],
+  transactions: {},
+  accounts: {},
+  slots: {},
+  blocks: {},
+  blocksMeta: {},
+  entry: {},
+}
+```
+
+接下来，您需要指定要订阅的数据的过滤器，例如账户、区块、插槽或交易。
+
+<Accordion title="Slots">
+  定义插槽更新的过滤器。您使用的键（例如，`mySlotLabel`）是此特定过滤器配置的**用户定义标签**，允许您在需要时定义多个命名配置（尽管通常一个就足够了）。
+
+  <ParamField type="boolean">
+    默认情况下，插槽会发送所有承诺级别的数据。使用此过滤器，您可以选择仅接收所选的承诺级别。
+  </ParamField>
+  <ParamField type="boolean">
+    启用订阅以接收插槽内变化的更新，而不仅仅是在新插槽开始时。这对于更细粒度、低延迟的插槽数据非常有用。
+  </ParamField>
+
+  ```typescript
+  slots: {
+    // mySlotLabel is a user-defined name for this slot update filter configuration
+    mySlotLabel: {
+      // filterByCommitment: true => Only broadcast slot updates at the specified subscribeRequest commitment
+      filterByCommitment: true
+      // interslotUpdates: true allows receiving updates for changes occurring within a slot, not just new slots.
+      interslotUpdates: true
+    }
+  },
+  ```
+
+</Accordion>
+
+<Accordion title="Accounts">
+  定义账户数据更新的过滤器。您使用的键（例如，`tokenAccounts`）是此特定过滤器配置的**用户定义标签**。
+
+  <ParamField type="array">
+    匹配提供的数组中的任何公钥。
+  </ParamField>
+  <ParamField type="array">
+    账户所有者的公钥。匹配提供的数组中的任何公钥。
+  </ParamField>
+  <ParamField type="array">
+    类似于 [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts) 中的过滤器。这是一个 `dataSize` 和/或 `memcmp` 过滤器的数组。支持的编码包括 `bytes`、`base58` 和 `base64`。
+  </ParamField>
+  如果所有字段为空，则广播所有账户。否则：
+
+  - 字段作为逻辑 **AND** 操作。
+  - 数组中的值作为逻辑 **OR** 操作（除了 `filters`，它们作为逻辑 **AND** 操作）。
+
+  ```typescript
+  accounts: {
+    // tokenAccounts is a user-defined label for this account filter configuration
+    tokenAccounts: {
+      // Matches any of these public keys (logical OR)
+      account: ["9SHQTA66Ekh7ZgMnKWsjxXk6DwXku8przs45E8bcEe38"],
+      // Matches owners that are any of these public keys
+      owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+      // Filters - all must match (AND logic)
+      filters: [
+        { dataSize: 165 },
+        {
+          memcmp: {
+            offset: 0,
+            data: { base58: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" }
+          }
+        }
+      ]
+    }
+  },
+  ```
+
+</Accordion>
+
+<Accordion title="Transaction">
+  定义交易更新的过滤器。您使用的键（例如，`myTxSubscription`）是此特定过滤器配置的**用户定义标签**。
+
+  <ParamField type="boolean">
+    启用或禁用投票交易的广播。
+  </ParamField>
+  <ParamField type="boolean">
+    启用或禁用失败交易的广播。
+  </ParamField>
+  <ParamField type="string">
+    仅广播与指定签名匹配的交易。
+  </ParamField>
+  <ParamField type="array">
+    过滤涉及提供列表中任何账户的交易。
+  </ParamField>
+  <ParamField type="array">
+    排除涉及提供列表中任何账户的交易（与 `accountInclude` 相反）。
+  </ParamField>
+  <ParamField type="array">
+    过滤涉及提供列表中所有账户的交易（必须使用所有账户）。
+  </ParamField>
+  如果所有字段都为空，则广播所有交易。否则：
+
+  - 字段作为逻辑 **AND** 操作。
+  - 数组中的值被视为逻辑 **OR** 操作（除了 `accountRequired`，其中所有必须匹配）。
+
+  ```typescript
+  transactions: {
+    // myTxSubscription is a user-defined label for this transaction filter configuration
+    myTxSubscription: {
+      vote: false,
+      failed: false,
+      signature: "",
+      // Transaction must include at least one of these public keys (OR)
+      accountInclude: ["86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"],
+      // Exclude if it matches any of these
+      accountExclude: [],
+      // Require all accounts in this array (AND)
+      accountRequired: []
+    }
+  },
+  ```
+
+</Accordion>
+
+<Accordion title="Block">
+  定义区块更新的过滤器。您使用的键（例如，`myBlockLabel`）是此特定过滤器配置的**用户定义标签**。
+
+  <ParamField type="array">
+    过滤涉及提供列表中任何账户的交易和账户。
+  </ParamField>
+  <ParamField type="boolean">
+    在广播中包含所有交易。
+  </ParamField>
+  <ParamField type="boolean">
+    在广播中包含所有账户更新。
+  </ParamField>
+  <ParamField type="boolean">
+    在广播中包含所有条目。
+  </ParamField>
+
+  ```typescript
+  blocks: {
+    // myBlockLabel is a user-defined label for this block filter configuration
+    myBlockLabel: {
+      // Only broadcast blocks referencing these accounts
+      accountInclude: ["86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"],
+      includeTransactions: true,
+      includeAccounts: false,
+      includeEntries: false
+    }
+  },
+  ```
+
+</Accordion>
+
+<Accordion title="Blocks Meta">
+  这与 Blocks 类似，但不包括交易、账户和条目。您使用的键（例如，`blockmetadata`）是此订阅的**用户定义标签**。目前，没有可用于区块元数据的过滤器——默认情况下，所有消息都会被广播。
+
+  ```typescript
+  blocksMeta: {
+    blockmetadata: {}
+  },
+  ```
+
+</Accordion>
+
+<Accordion title="Entries">
+  订阅分类账条目。您使用的键（例如，`entrySubscribe`）是此订阅的**用户定义标签**。目前，条目没有可用的过滤器；所有条目都会被广播。
+
+  ```typescript
+  entry: {
+    entrySubscribe: {}
+  },
+  ```
+
+</Accordion>
+
+<Divider />
+
+## 代码示例 (LaserStream SDK)
+
+<Tabs>
+  <Tab title="Slot Updates">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            transactions: {},
+            commitment: CommitmentLevel.CONFIRMED,
+            accounts: {},
+            slots: {
+                slot: { filterByCommitment: true },
+            },
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {},
+            accountsDataSlice: [],
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+  <Tab title="Account Updates">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            accounts: {
+                accountSubscribe: {
+                    account: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint account
+                    owner: [],
+                    filters: []
+                }
+            },
+            accountsDataSlice: [],
+            commitment: CommitmentLevel.CONFIRMED,
+            slots: {},
+            transactions: {},
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {}
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+  <Tab title="Transaction Updates">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            transactions: {
+                client: {
+                    accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+                    accountExclude: [],
+                    accountRequired: [],
+                    vote: false,
+                    failed: false
+                }
+            },
+            commitment: CommitmentLevel.CONFIRMED,
+            accounts: {},
+            slots: {},
+            transactionsStatus: {},
+            blocks: {},
+            blocksMeta: {},
+            entry: {},
+            accountsDataSlice: [],
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+  <Tab title="Blocks">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {},
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {
+                blocks: {
+                    accountInclude: []
+                }
+            },
+            blocksMeta: {},
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+  <Tab title="Block Metadata">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {},
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {},
+            blocksMeta: {
+                blockmetadata: {}
+            },
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+  <Tab title="Entries">
+
+    ```typescript
+    import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream'
+    
+    async function main() {
+        const subscriptionRequest: SubscribeRequest = {
+            entry: {
+                entrySubscribe: {}  // Subscribe to all entries
+            },
+            accounts: {},
+            accountsDataSlice: [],
+            slots: {},
+            blocks: {},
+            blocksMeta: {},
+            transactions: {},
+            transactionsStatus: {},
+            commitment: CommitmentLevel.CONFIRMED,
+        };
+    
+        const config: LaserstreamConfig = {
+            apiKey: 'YOUR_API_KEY', // Replace with your key
+            endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com', // Choose your closest region
+        }
+    
+        await subscribe(config, subscriptionRequest, async (data) => {
+            console.log(data);
+        }, async (error) => {
+            console.error(error);
+        });
+    }
+    
+    main().catch(console.error);
+    ```
+
+  </Tab>
+</Tabs>
+
+<Divider />
+
+## SDK 选项
+
+我们为多种编程语言提供官方 SDK：
+
+- **TypeScript**: [LaserStream TypeScript SDK](https://github.com/helius-labs/laserstream-sdk)
+- **Rust**: [LaserStream Rust SDK](https://github.com/helius-labs/laserstream-sdk/tree/main/rust)
+- **Go**: [LaserStream Go SDK](https://github.com/helius-labs/laserstream-sdk/tree/main/go)
+
+对于其他语言或自定义实现，您可以直接使用 [Yellowstone gRPC proto 文件](https://github.com/rpcpool/yellowstone-grpc/tree/v6.0.0%2Bsolana.2.2.12/yellowstone-grpc-proto/proto) 来为您偏好的语言生成 gRPC 客户端。
+
+<Divider />
+
+## 故障排除 / 常见问题
+
+<Accordion title="Q: 我的 LaserStream 连接出现延迟或性能缓慢的问题。可能是什么原因导致的？">
+  **A:** LaserStream 连接的性能问题通常由以下原因引起：
+  
+  - **Javascript 客户端缓慢**：当处理过多消息或消耗过多带宽时，JavaScript 客户端可能会滞后。考虑更精确地过滤您的订阅以减少消息量，或使用其他语言。
+  
+  - **本地带宽有限**：大量订阅可能会使带宽有限的客户端不堪重负。监控您的网络使用情况，考虑升级您的连接或减少订阅范围。
+  
+  - **地理距离**：对地理位置较远的服务器运行订阅可能会导致性能问题。TCP 数据包可能在长距离路由中丢失，并且您受限于最慢的中间网络路径。**解决方案**：从我们可用的区域中选择离您的服务器位置最近的 LaserStream 端点（参见上面的 [Endpoints & Regions](#mainnet-endpoints)）。
+  
+  - **客户端处理瓶颈**：确保您的消息处理逻辑已优化，并且不会长时间阻塞主线程。
+
+**调试客户端延迟**：为了帮助您调试客户端，我们构建了一个工具来测试从您的节点到 Laserstream gRPC 服务器的最大带宽。要使用它，请运行：
+
+```
+cargo install helius-laserstream-bandwidth
+helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_KEY
+```
+
+输出将返回您的服务器与 Laserstream 服务器之间的最大网络容量。最低限度，您需要 10MB/s 来订阅所有交易数据，80MB/s 来订阅所有账户数据。我们建议至少拥有所需容量的 2 倍以获得最佳性能。
+</Accordion>
+
+<Accordion title="Q: 我收到连接错误。我应该检查什么？">
+  **A:** 验证您的 API 密钥和端点是否正确，并确保您的网络允许到指定端点的出站 gRPC 连接。检查 [Helius 状态页面](https://helius.statuspage.io/) 以了解任何正在进行的事件。
+</Accordion>
+
+<Accordion title="Q: 为什么我的过滤器没有按预期工作？">
+  **A:** 请仔细检查过滤器部分中描述的逻辑运算符（AND/OR）。确保公钥正确。查看请求中指定的承诺级别。
+</Accordion>
+
+<Accordion title="Q: 我可以在一个请求中订阅多种类型的数据（例如，账户和交易）吗？">
+  **A:** 可以，您可以在同一个`SubscribeRequest`对象中定义多个键下的过滤器配置（例如，`accounts`, `transactions`）。
+</Accordion>
