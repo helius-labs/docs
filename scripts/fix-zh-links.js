@@ -3,6 +3,82 @@
 const fs = require('fs');
 const path = require('path');
 
+// Common English to Chinese anchor mappings (based on actual analysis)
+const anchorMappings = {
+  // Billing & Plans
+  'pricing-plans': '定价计划',
+  'credit-system': '信用系统', 
+  'rate-limits': '速率限制',
+  'enterprise': '企业计划',
+  'legacy-plans': '旧版计划',
+  'getting-started': '快速开始',
+  
+  // Common sections
+  'overview': '概述',
+  'best-practices': '最佳实践',
+  'examples': '示例',
+  'parameters': '参数',
+  'response': '响应',
+  'common-use-cases': '常见用例',
+  'developer-tips': '开发者提示',
+  'quick-start': '快速入门',
+  'getting-your-rpc-url': '获取您的RPC端点',
+  
+  // RPC Methods
+  'account-&-balance-methods': '账户与余额方法',
+  'transaction-methods': '交易方法', 
+  'block-&-slot-methods': '区块与槽方法',
+  'network-&-cluster-methods': '网络与集群方法',
+  
+  // DAS API
+  'fetching-individual-assets': 'API方法',
+  'fetching-asset-collections': 'API方法',
+  'advanced-query-methods': 'API方法',
+  'fungible-tokens': '处理特殊资产类型',
+  'compressed-nfts': '处理特殊资产类型',
+  'inscriptions--spl-20': '处理特殊资产类型',
+  'off-chain-data': '处理特殊资产类型',
+  
+  // Enhanced Transactions
+  'parse-individual-transactions': '概述',
+  'fetch-transaction-history-for-an-address': '概述',
+  
+  // Airship
+  'using-the-web-version': '使用网页版',
+  'using-the-cli-version': '使用CLI版',
+  
+  // Other common
+  'transaction-optimization': '交易优化',
+  'data-retrieval-optimization': '数据检索优化', 
+  'real-time-monitoring': '实时监控'
+};
+
+function createSlug(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\u4e00-\u9fff\s-]/g, '') // Keep alphanumeric, Chinese chars, spaces, hyphens
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/--+/g, '-') // Replace multiple hyphens with single
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+function extractHeadings(content) {
+  const headings = [];
+  const headingPattern = /^#{1,6}\s+(.+)$/gm;
+  let match;
+  
+  while ((match = headingPattern.exec(content)) !== null) {
+    const headingText = match[1].trim();
+    const slug = createSlug(headingText);
+    headings.push({
+      text: headingText,
+      slug: slug
+    });
+  }
+  
+  return headings;
+}
+
 function fixLinksInFile(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   let changed = false;
@@ -50,6 +126,66 @@ function fixLinksInFile(filePath) {
   content = content.replace(openapiZhNoSlashPattern, (match, apiPath) => {
     changed = true;
     return `openapi: /zh/${apiPath}`;
+  });
+
+  // Extract available headings in this file
+  const availableHeadings = extractHeadings(content);
+
+  // Fix anchor links using mappings and available headings
+  const anchorPattern = /href="(#[^"]+)"/g;
+  
+  content = content.replace(anchorPattern, (match, anchorLink) => {
+    const anchorId = anchorLink.substring(1); // Remove the #
+    
+    // First try direct mapping
+    if (anchorMappings[anchorId]) {
+      const chineseSlug = createSlug(anchorMappings[anchorId]);
+      changed = true;
+      return `href="#${chineseSlug}"`;
+    }
+    
+    // Try URL decoded version (for %26 -> &)
+    const decodedAnchorId = decodeURIComponent(anchorId);
+    if (anchorMappings[decodedAnchorId]) {
+      const chineseSlug = createSlug(anchorMappings[decodedAnchorId]);
+      changed = true;
+      return `href="#${chineseSlug}"`;
+    }
+    
+    // Then try intelligent matching with available headings
+    for (const heading of availableHeadings) {
+      // Match common patterns
+      if (heading.text.includes('定价') && anchorId.includes('pricing')) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+      if (heading.text.includes('信用') && anchorId.includes('credit')) {
+        changed = true;
+        return `href="#${heading.slug}"`;  
+      }
+      if (heading.text.includes('速率') && anchorId.includes('rate')) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+      if (heading.text.includes('企业') && anchorId.includes('enterprise')) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+      if (heading.text.includes('开始') && (anchorId.includes('start') || anchorId.includes('getting'))) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+      if (heading.text.includes('概述') && anchorId.includes('overview')) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+      if (heading.text.includes('最佳实践') && anchorId.includes('best-practices')) {
+        changed = true;
+        return `href="#${heading.slug}"`;
+      }
+    }
+    
+    return match; // Return unchanged if no mapping found
   });
 
   if (changed) {
