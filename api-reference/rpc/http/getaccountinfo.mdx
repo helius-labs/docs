@@ -6,3 +6,7 @@ description: "Returns all information associated with the account of provided Pu
 "og:description": "Get a free RPC and explore the getAccountInfo Method. Includes request parameters, response examples, code snippets, and in-browser testing for both Mainnet and Devnet."
 openapi: "/openapi/rpc-http/getAccountInfo.yaml POST /"
 ---
+
+<Info>
+**New Feature**: `getAccountInfo` now supports the `changedSinceSlot` parameter for incremental updates. When specified, the method returns only accounts that have been modified at or after the given slot number. For accounts that exist but haven't changed since the specified slot, the response will contain `status: "unchanged"`.
+</Info>

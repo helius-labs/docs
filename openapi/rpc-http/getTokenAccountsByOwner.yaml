@@ -140,6 +140,10 @@ paths:
                               - base64+zstd
                               - jsonParsed
                             example: jsonParsed
+                          changedSinceSlot:
+                            type: integer
+                            description: Only return accounts that were modified at or after this slot number. Useful for incremental updates.
+                            example: 464175999
             example:
               jsonrpc: "2.0"
               id: "1"

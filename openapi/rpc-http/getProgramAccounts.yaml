@@ -141,6 +141,10 @@ paths:
                                 type: integer
                                 description: Byte offset from which to start reading.
                                 example: 0
+                          changedSinceSlot:
+                            type: integer
+                            description: Only return accounts that were modified at or after this slot number. Useful for incremental updates.
+                            example: 464175999
                           filters:
                             type: array
                             description: Powerful filtering system to efficiently query specific Solana account data patterns.

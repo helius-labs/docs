@@ -7,3 +7,7 @@ og:description: 获取免费 RPC 并探索 getMultipleAccounts RPC 方法。包�
   Solana 主网和 Devnet 的浏览器内测试。
 openapi: /zh/openapi/rpc-http/getMultipleAccounts.yaml POST /
 ---
+
+<Info>
+**新功能**: `getMultipleAccounts` 现在支持 `changedSinceSlot` 参数用于增量更新。当指定此参数时，该方法只返回在给定槽号之后被修改的账户。对于存在但自指定槽以来没有变化的账户，响应将包含 `status: "unchanged"`。
+</Info>

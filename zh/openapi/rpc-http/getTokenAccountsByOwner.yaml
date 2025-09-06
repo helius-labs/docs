@@ -138,6 +138,10 @@ paths:
                               - "base64+zstd"
                               - "jsonParsed"
                             example: "jsonParsed"
+                          changedSinceSlot:
+                            type: "integer"
+                            description: "仅返回在此槽号之后被修改的账户。用于增量更新。"
+                            example: 464175999
             example:
               jsonrpc: "2.0"
               id: "1"

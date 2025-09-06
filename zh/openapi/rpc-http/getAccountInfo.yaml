@@ -125,6 +125,10 @@ paths:
                             type: "integer"
                             description: "请求可以评估的最小槽位。"
                             example: 100000000
+                          changedSinceSlot:
+                            type: "integer"
+                            description: "仅返回在此槽号之后被修改的账户。如果账户存在但自指定槽以来没有变化，响应将包含状态为"unchanged"。"
+                            example: 464175999
             example:
               jsonrpc: "2.0"
               id: 1

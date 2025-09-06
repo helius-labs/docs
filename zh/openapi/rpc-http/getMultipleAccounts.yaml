@@ -137,6 +137,10 @@ paths:
                               - "base64"
                               - "base64+zstd"
                             example: "base58"
+                          changedSinceSlot:
+                            type: "integer"
+                            description: "仅返回在此槽号之后被修改的账户。对于存在但自指定槽以来没有变化的账户，响应将包含状态为"unchanged"。"
+                            example: 464175999
       responses:
         "200":
           description: "成功检索到账户详细信息。"
