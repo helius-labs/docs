@@ -7,3 +7,7 @@ og:description: 获取免费 RPC 并探索 getTokenAccountsByOwner RPC 方法。
   Solana 主网和 Devnet 的浏览器内测试。
 openapi: /zh/openapi/rpc-http/getTokenAccountsByOwner.yaml POST /
 ---
+
+<Info>
+**新功能**: `getTokenAccountsByOwner` 现在支持 `changedSinceSlot` 参数用于增量更新。当指定此参数时，该方法只返回在给定槽号之后被修改的代币账户。这对于跟踪代币余额变化和投资组合更新非常理想。
+</Info>
