@@ -30,7 +30,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 <Steps titleSize="h3">
   <Step title="创建您的免费 Helius 账户">
-    首先在 [Helius Dashboard](https://dashboard.helius.dev/dashboard) 创建您的免费账户。Sender 在所有计划中均可用，包括免费层，并且不消耗任何 API 积分。
+    首先在 [Helius Dashboard](https://dashboard.helius.dev/dashboard) 创建您的免费账户。Sender 在所有计划中都可用，包括免费层，并且不消耗任何 API 积分。
   </Step>
   <Step title="获取您的 API 密钥">
     导航到 [API Keys](https://dashboard.helius.dev/api-keys) 部分并复制您的密钥。您将使用此密钥获取区块哈希和交易确认，而 Sender 负责交易提交。
@@ -38,112 +38,216 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
   <Step title="发送您的第一笔交易">
     让我们使用 Sender 发送一个简单的 SOL 转账。此示例包括所有必需的组件：小费、优先费用和跳过预检。
     
+    <Tabs>
+      <Tab title="@solana/web3.js">
 
-    ```typescript [expandable]
-    import { 
-      Connection, 
-      TransactionMessage,
-      VersionedTransaction,
-      SystemProgram, 
-      PublicKey,
-      Keypair,
-      LAMPORTS_PER_SOL,
-      ComputeBudgetProgram
-    } from '@solana/web3.js';
-    import bs58 from 'bs58';
+        ```typescript [expandable]
+        import { 
+          Connection, 
+          TransactionMessage,
+          VersionedTransaction,
+          SystemProgram, 
+          PublicKey,
+          Keypair,
+          LAMPORTS_PER_SOL,
+          ComputeBudgetProgram
+        } from '@solana/web3.js';
+        import bs58 from 'bs58';
 
-    const TIP_ACCOUNTS = [
-      "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
-      "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
-      "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta"
-      // ... more tip accounts available
-    ];
+        const TIP_ACCOUNTS = [
+          "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+          "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+          "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta"
+          // ... more tip accounts available
+        ];
 
-    async function sendWithSender(
-      keypair: Keypair, 
-      recipientAddress: string
-    ): Promise<string> {
-      const connection = new Connection(
-        'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'
-      );
-      
-      const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
-      
-      // Build transaction with tip transfer and transfer to recipient
-      const transaction = new VersionedTransaction(
-        new TransactionMessage({
-          instructions: [
-            ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
-            ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
-            SystemProgram.transfer({
-              fromPubkey: keypair.publicKey,
-              toPubkey: new PublicKey(recipientAddress),
-              lamports: 0.001 * LAMPORTS_PER_SOL,
-            }),
-            SystemProgram.transfer({
-              fromPubkey: keypair.publicKey,
-              toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-              lamports: 0.001 * LAMPORTS_PER_SOL,
+        async function sendWithSender(
+          keypair: Keypair, 
+          recipientAddress: string
+        ): Promise<string> {
+          const connection = new Connection(
+            'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'
+          );
+          
+          const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
+          
+          // Build transaction with tip transfer and transfer to recipient
+          const transaction = new VersionedTransaction(
+            new TransactionMessage({
+              instructions: [
+                ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
+                ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
+                SystemProgram.transfer({
+                  fromPubkey: keypair.publicKey,
+                  toPubkey: new PublicKey(recipientAddress),
+                  lamports: 0.001 * LAMPORTS_PER_SOL,
+                }),
+                SystemProgram.transfer({
+                  fromPubkey: keypair.publicKey,
+                  toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+                  lamports: 0.001 * LAMPORTS_PER_SOL,
+                })
+              ],
+              payerKey: keypair.publicKey,
+              recentBlockhash: blockhash,
+            }).compileToV0Message()
+          );
+
+          transaction.sign([keypair]);
+          console.log('Sending transaction via Sender endpoint...');
+
+          const response = await fetch('https://sender.helius-rpc.com/fast', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: Date.now().toString(),
+              method: 'sendTransaction',
+              params: [
+                Buffer.from(transaction.serialize()).toString('base64'),
+                {
+                  encoding: 'base64',
+                  skipPreflight: true, // Required for Sender
+                  maxRetries: 0
+                }
+              ]
             })
-          ],
-          payerKey: keypair.publicKey,
-          recentBlockhash: blockhash,
-        }).compileToV0Message()
-      );
+          });
+          
+          const json = await response.json();
+          if (json.error) {
+            throw new Error(json.error.message);
+          }
+          
+          console.log('Transaction sent:', json.result);
+          return json.result;
+        }
 
-      transaction.sign([keypair]);
-      console.log('Sending transaction via Sender endpoint...');
+        // Usage
+        const keypair = Keypair.fromSecretKey(bs58.decode('YOUR_PRIVATE_KEY'));
+        sendWithSender(keypair, 'RECIPIENT_ADDRESS');
+        ```
 
-      const response = await fetch('http://slc-sender.helius-rpc.com/fast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: Date.now().toString(),
-          method: 'sendTransaction',
-          params: [
-            Buffer.from(transaction.serialize()).toString('base64'),
-            {
-              encoding: 'base64',
-              skipPreflight: true, // Required for Sender
-              maxRetries: 0
-            }
-          ]
-        })
-      });
-      
-      const json = await response.json();
-      if (json.error) {
-        throw new Error(json.error.message);
-      }
-      
-      console.log('Transaction sent:', json.result);
-      return json.result;
-    }
+      </Tab>
+      <Tab title="@solana/kit">
 
-    // Usage
-    const keypair = Keypair.fromSecretKey(bs58.decode('YOUR_PRIVATE_KEY'));
-    sendWithSender(keypair, 'RECIPIENT_ADDRESS');
-    ```
+        ```typescript [expandable]
+        import { pipe } from "@solana/kit";
+        import {
+          createSolanaRpc,
+          createTransactionMessage,
+          setTransactionMessageFeePayerSigner,
+          setTransactionMessageLifetimeUsingBlockhash,
+          appendTransactionMessageInstruction,
+          signTransactionMessageWithSigners,
+          lamports,
+          getBase64EncodedWireTransaction,
+          createKeyPairSignerFromBytes,
+          address,
+        } from "@solana/kit";
+        import { getTransferSolInstruction } from "@solana-program/system";
+        import {
+          getSetComputeUnitLimitInstruction,
+          getSetComputeUnitPriceInstruction,
+        } from "@solana-program/compute-budget";
+        import bs58 from 'bs58';
 
+        const TIP_ACCOUNTS = [
+          "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+          "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+          "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta"
+          // ... more tip accounts available
+        ];
+
+        async function sendWithSender(
+          privateKeyB58: string, 
+          recipientAddress: string
+        ): Promise<string> {
+          // Load signer from base58 private key
+          const ownerSigner = await createKeyPairSignerFromBytes(bs58.decode(privateKeyB58));
+
+          // Init RPC and fetch blockhash
+          const rpc = createSolanaRpc('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+          const { value: blockhash } = await rpc.getLatestBlockhash().send();
+
+          // Build + sign transaction
+          const tx = pipe(
+            createTransactionMessage({ version: 0 }),
+            (m) => setTransactionMessageFeePayerSigner(ownerSigner, m),
+            (m) => setTransactionMessageLifetimeUsingBlockhash(blockhash, m),
+            (m) => appendTransactionMessageInstruction(getSetComputeUnitLimitInstruction({ units: 100_000 }), m),
+            (m) => appendTransactionMessageInstruction(getSetComputeUnitPriceInstruction({ microLamports: 200_000 }), m),
+            (m) =>
+              appendTransactionMessageInstruction(
+                getTransferSolInstruction({
+                  source: ownerSigner,
+                  destination: address(recipientAddress),
+                  amount: lamports(1_000_000n), // 0.001 SOL
+                }),
+                m
+              ),
+            (m) =>
+              appendTransactionMessageInstruction(
+                getTransferSolInstruction({
+                  source: ownerSigner,
+                  destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+                  amount: lamports(1_000_000n), // 0.001 SOL
+                }),
+                m
+              )
+          );
+
+          const signedTx = await signTransactionMessageWithSigners(tx);
+          const base64Tx = getBase64EncodedWireTransaction(signedTx);
+
+          console.log('Sending transaction via Sender endpoint...');
+
+          // Send via Sender
+          const res = await fetch("https://sender.helius-rpc.com/fast", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: Date.now().toString(),
+              method: "sendTransaction",
+              params: [
+                base64Tx,
+                { encoding: "base64", skipPreflight: true, maxRetries: 0 },
+              ],
+            }),
+          });
+
+          const { result: sig, error } = await res.json();
+          if (error) throw new Error(error.message);
+
+          console.log("Transaction sent: ", sig);
+          return sig;
+        }
+
+        // Usage
+        sendWithSender('YOUR_PRIVATE_KEY', 'RECIPIENT_ADDRESS');
+        ```
+
+      </Tab>
+    </Tabs>
   </Step>
   <Step title="成功！了解发生了什么">
     您已通过 Sender 成功提交了一笔交易！以下是其成功的原因：
     - **不消耗积分**：Sender 对所有用户免费
     - **双重路由**：您的交易同时发送到验证者和 Jito
-    - **必要的小费**：0.001 SOL 的小费使 Jito 能够参与拍卖
-    - **优先费用**：向验证者表明您愿意支付优先处理费用
+    - **必需的小费**：0.001 SOL 小费使 Jito 的拍卖参与成为可能
+    - **优先费用**：向验证者表明您愿意为优先处理付费
     - **跳过预检**：优化速度而非验证
   </Step>
 </Steps>
 
-**接下来是什么？** 上述代码可以运行，但您可以通过动态费用、自动计算单元计算和重试逻辑进一步优化。查看下面的[简单代码示例](#simple-code-example)和[具有动态优化的高级示例](#advanced-example-with-dynamic-optimization)，以获取生产就绪的实现和详细说明。
+**接下来是什么？** 上述代码可以工作，但您可以通过动态费用、自动计算单元计算和重试逻辑进一步优化。查看下面的[简单代码示例](#simple-code-example)和[具有动态优化的高级示例](#advanced-example-with-dynamic-optimization)，以获取生产就绪的实现和详细说明。
 
 ## 路由选项
 
 <CardGroup cols={2}>
   <Card title="默认双重路由" icon="arrows-split-up-and-left">
-    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 的小费。
+    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 小费。
   </Card>
   <Card title="仅 SWQOS 替代方案" icon="dollar-sign">
     对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.0005 SOL。
@@ -153,12 +257,12 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 ## 要求
 
 <Warning>
-**强制性要求**：所有交易必须包含小费（最低 0.001 SOL，或仅 SWQOS 为 0.0005 SOL）、优先费用，并跳过预检检查。
+**强制性要求**：所有交易必须包含小费（最低0.001 SOL，或仅限SWQOS的0.0005 SOL）、优先费用，并跳过预检检查。
 </Warning>
 
 ### 1. 跳过预检（强制）
 
-必须将 `skipPreflight` 参数设置为 `true`。Sender 针对优先速度而非交易验证的交易者进行了优化。
+`skipPreflight` 参数**必须**设置为 `true`。Sender针对优先考虑速度而非交易验证的交易者进行了优化。
 
 ```typescript
 {
@@ -170,11 +274,11 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 由于跳过了预检检查，请确保您的交易在提交前已正确构建和资助。无效交易将在提交后被网络拒绝。
 </Warning>
 
-### 2. 必须的小费和优先费用
+### 2. 必须包含小费和优先费用
 
-通过 Sender 提交的所有交易**必须包括小费和优先费用**：
+通过Sender提交的所有交易**必须同时包含小费和优先费用**：
 
-- **小费**：最低 0.001 SOL 转账到指定的小费账户（仅 SWQOS 的最低为 0.0005 SOL）
+- **小费**：最低0.001 SOL转账到指定的小费账户（或仅限SWQOS的0.0005 SOL）
 
 <Accordion title="指定小费账户（mainnet-beta）">
 
@@ -197,23 +301,23 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 #### 为什么两者都需要
 
-- **小费**：启用对 Jito 基础设施和基于拍卖的交易包含的访问
-- **优先费用**：通过 Solana 的本地优先系统向验证者表明您愿意支付优先处理费用
-- **双重收益**：小费让您可以访问 Jito 的拍卖，而优先费用提高了您在验证者中的交易优先级——两者结合最大化包含概率
+- **小费**：启用对Jito基础设施和基于拍卖的交易包含的访问
+- **优先费用**：通过Solana的本地优先系统向验证者表明您愿意支付优先处理费用
+- **双重收益**：小费让您可以访问Jito的拍卖，而优先费用提高了您的交易在验证者中的优先级——两者结合最大化包含概率
 
 #### 小费和优先费用指南
 
-**Jito 小费**：参与拍卖的最低 0.001 SOL 是强制性的。有关当前最佳实践小费大小，请参阅 [Jito 小费指南](https://docs.jito.wtf/lowlatencytxnsend/#tips)。
+**Jito小费**：最低0.001 SOL是参与拍卖的强制要求。有关当前最佳实践小费大小，请参阅[Jito小费指南](https://docs.jito.wtf/lowlatencytxnsend/#tips)。
 
-**优先费用**：使用 [Helius 优先费用 API](/zh/priority-fee-api) 获取实时费用建议。
+**优先费用**：使用[Helius优先费用API](/zh/priority-fee-api)获取实时费用建议。
 
 ## 端点
 
-Sender 端点根据您的使用情况提供多种配置：
+Sender端点根据您的使用情况提供多种配置：
 
 <Tabs>
   <Tab title="前端/浏览器应用程序">
-    **推荐用于前端应用程序以避免 CORS 问题：**
+    **推荐用于前端应用程序以避免CORS问题：**
 
     ```
     https://sender.helius-rpc.com/fast         # Global HTTPS endpoint
@@ -221,10 +325,10 @@ Sender 端点根据您的使用情况提供多种配置：
 
     
     <Note>
-    HTTPS 端点解决了使用区域 HTTP 端点时浏览器应用程序出现的 CORS 预检失败问题。此端点会自动路由到最近的位置以获得最佳性能。请在所有前端/浏览器实现中使用此端点。
+    HTTPS 端点解决了使用区域 HTTP 端点时，基于浏览器的应用程序出现的 CORS 预检失败问题。此端点会自动路由到最近的位置以获得最佳性能。将其用于所有前端/浏览器实现。
     </Note>
   </Tab>
-  <Tab title="后端/服务器应用程序">
+  <Tab title="Backend/Server Applications">
     **区域 HTTP 端点以获得最佳服务器到服务器的延迟：**
 
     ```
@@ -239,10 +343,10 @@ Sender 端点根据您的使用情况提供多种配置：
 
     
     <Note>
-    对于后端/服务器应用程序，请选择最接近您基础设施的区域 HTTP 端点以获得最佳性能。
+    对于后端/服务器应用程序，请选择离您的基础设施最近的区域 HTTP 端点以获得最佳性能。
     </Note>
   </Tab>
-  <Tab title="连接预热">
+  <Tab title="Connection Warming">
     **HTTPS（前端）：**
 
     ```
@@ -267,11 +371,11 @@ Sender 端点根据您的使用情况提供多种配置：
 
 ## 连接预热
 
-对于交易提交间隔时间较长的应用程序，使用 ping 端点来保持连接的温暖状态，减少冷启动延迟。
+对于提交事务之间间隔时间较长的应用程序，使用 ping 端点来保持连接的温暖并减少冷启动延迟。
 
 ### Ping 端点使用
 
-ping 端点接受简单的 GET 请求，并返回基本响应以保持连接活跃：
+ping 端点接受简单的 GET 请求并返回基本响应以保持连接活跃：
 
 ```bash
 # Frontend applications - use HTTPS (auto-routes to nearest location)
@@ -304,12 +408,12 @@ setInterval(() => {
 ```
 
 <Tip>
-当您的应用程序在交易之间的间隔超过 1 分钟时，使用连接预热以保持最佳提交延迟。
+当您的应用程序在事务之间的间隔时间超过 1 分钟时，使用连接预热以保持最佳提交延迟。
 </Tip>
 
 ## 使用
 
-Sender 端点使用与标准 RPC 端点相同的 `sendTransaction` 方法，但有特定的性能优化要求。**所有交易必须包括小费和优先费用，并跳过预检检查。**
+Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以获得最佳性能。**所有事务必须包括小费和优先费用，并跳过预检检查。**
 
 ### 基本请求格式
 
@@ -330,130 +434,268 @@ Sender 端点使用与标准 RPC 端点相同的 `sendTransaction` 方法，但�
 ```
 
 <Warning>
-上面的 `BASE64_ENCODED_TRANSACTION` 必须包含一个带有最低小费的 SOL 转账指令到指定的小费账户和一个计算单元价格指令。没有这两个要求，您的交易将被拒绝。
+上述内容必须包含一个 SOL 转账指令，最低小费到指定的小费账户和一个计算单元价格指令。没有这两个要求，您的事务将被拒绝。
 </Warning>
 
 ### 简单代码示例
 
-```typescript [expandable]
-import { 
-  Connection, 
-  TransactionMessage,
-  VersionedTransaction,
-  SystemProgram, 
-  PublicKey,
-  Keypair,
-  LAMPORTS_PER_SOL,
-  ComputeBudgetProgram
-} from '@solana/web3.js';
-import bs58 from 'bs58';
+<Tabs>
+  <Tab title="@solana/web3.js">
 
-const PRIV_B58 = 'Your Private Key';
-const RECIPIENT = 'Random Recipient';
-const HELIUS_API_KEY = 'Your API Key';
-const TIP_ACCOUNTS = [
-  "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
-  "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
-  "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
-  "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
-  "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
-  "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
-  "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
-  "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
-  "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
-  "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
-];
+    ```typescript [expandable]
+    import { 
+      Connection, 
+      TransactionMessage,
+      VersionedTransaction,
+      SystemProgram, 
+      PublicKey,
+      Keypair,
+      LAMPORTS_PER_SOL,
+      ComputeBudgetProgram
+    } from '@solana/web3.js';
+    import bs58 from 'bs58';
 
-async function sendWithSender(
-  keypair: Keypair, 
-  recipientAddress: string
-): Promise<string> {
-  const connection = new Connection(
-    `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
-  );
-  
-  const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
-  
-  // Build transaction with tip transfer and transfer to recipient
-  const transaction = new VersionedTransaction(
-    new TransactionMessage({
-      instructions: [
-        ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
-        ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
-        SystemProgram.transfer({
-          fromPubkey: keypair.publicKey,
-          toPubkey: new PublicKey(recipientAddress),
-          lamports: 0.001 * LAMPORTS_PER_SOL,
-        }),
-        SystemProgram.transfer({
-          fromPubkey: keypair.publicKey,
-          toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-          lamports: 0.001 * LAMPORTS_PER_SOL,
+    const PRIV_B58 = 'Your Private Key';
+    const RECIPIENT = 'Random Recipient';
+    const HELIUS_API_KEY = 'Your API Key';
+    const TIP_ACCOUNTS = [
+      "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+      "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+      "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+      "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+      "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+      "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+      "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+      "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+      "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+      "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+    ];
+
+    async function sendWithSender(
+      keypair: Keypair, 
+      recipientAddress: string
+    ): Promise<string> {
+      const connection = new Connection(
+        `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+      );
+      
+      const { value: { blockhash } } = await connection.getLatestBlockhashAndContext('confirmed');
+      
+      // Build transaction with tip transfer and transfer to recipient
+      const transaction = new VersionedTransaction(
+        new TransactionMessage({
+          instructions: [
+            ComputeBudgetProgram.setComputeUnitLimit({ units: 100_000 }),
+            ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 200_000 }),
+            SystemProgram.transfer({
+              fromPubkey: keypair.publicKey,
+              toPubkey: new PublicKey(recipientAddress),
+              lamports: 0.001 * LAMPORTS_PER_SOL,
+            }),
+            SystemProgram.transfer({
+              fromPubkey: keypair.publicKey,
+              toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+              lamports: 0.001 * LAMPORTS_PER_SOL,
+            })
+          ],
+          payerKey: keypair.publicKey,
+          recentBlockhash: blockhash,
+        }).compileToV0Message()
+      );
+
+      // Sign transaction
+      transaction.sign([keypair]);
+      console.log('Sending transaction via Sender endpoint...');
+
+      // Frontend: Use HTTPS endpoint to avoid CORS issues
+      const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast'; 
+      // Backend: Use regional HTTP endpoint closest to your servers
+      // const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast';
+      const response = await fetch(SENDER_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: Date.now().toString(),
+          method: 'sendTransaction',
+          params: [
+            Buffer.from(transaction.serialize()).toString('base64'),
+            {
+              encoding: 'base64',
+              skipPreflight: true, // Required for Sender
+              maxRetries: 0
+            }
+          ]
         })
-      ],
-      payerKey: keypair.publicKey,
-      recentBlockhash: blockhash,
-    }).compileToV0Message()
-  );
-
-  // Sign transaction
-  transaction.sign([keypair]);
-  console.log('Sending transaction via Sender endpoint...');
-
-  // Frontend: Use HTTPS endpoint to avoid CORS issues
-  const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast'; 
-  // Backend: Use regional HTTP endpoint closest to your servers
-  // const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast';
-  const response = await fetch(SENDER_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: Date.now().toString(),
-      method: 'sendTransaction',
-      params: [
-        Buffer.from(transaction.serialize()).toString('base64'),
-        {
-          encoding: 'base64',
-          skipPreflight: true, // Required for Sender
-          maxRetries: 0
+      });
+      const json = await response.json();
+      if (json.error) {
+        throw new Error(json.error.message);
+      }
+      const signature = json.result;
+      console.log('Transaction sent:', signature);
+      
+      // Confirmation check
+      for (let i = 0; i < 30; i++) {
+        const status = await connection.getSignatureStatuses([signature]);
+        console.log('Status:', status?.value[0]?.confirmationStatus || 'pending');
+        
+        if (status?.value[0]?.confirmationStatus === "confirmed") {
+          console.log('Transaction confirmed!');
+          return signature;
         }
-      ]
-    })
-  });
-  const json = await response.json();
-  if (json.error) {
-    throw new Error(json.error.message);
-  }
-  const signature = json.result;
-  console.log('Transaction sent:', signature);
-  
-  // Confirmation check
-  for (let i = 0; i < 30; i++) {
-    const status = await connection.getSignatureStatuses([signature]);
-    console.log('Status:', status?.value[0]?.confirmationStatus || 'pending');
-    
-    if (status?.value[0]?.confirmationStatus === "confirmed") {
-      console.log('Transaction confirmed!');
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      console.log('Transaction may have succeeded but confirmation timed out');
       return signature;
     }
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-  
-  console.log('Transaction may have succeeded but confirmation timed out');
-  return signature;
-}
 
-// Send transaction
-sendWithSender(Keypair.fromSecretKey(bs58.decode(PRIV_B58)), RECIPIENT);
-```
+    // Send transaction
+    sendWithSender(Keypair.fromSecretKey(bs58.decode(PRIV_B58)), RECIPIENT);
+    ```
+
+  </Tab>
+  <Tab title="@solana/kit">
+
+    ```typescript [expandable]
+    import { pipe } from "@solana/kit";
+    import {
+      createSolanaRpc,
+      createTransactionMessage,
+      setTransactionMessageFeePayerSigner,
+      setTransactionMessageLifetimeUsingBlockhash,
+      appendTransactionMessageInstruction,
+      signTransactionMessageWithSigners,
+      lamports,
+      getBase64EncodedWireTransaction,
+      createKeyPairSignerFromBytes,
+      address,
+    } from "@solana/kit";
+    import { getTransferSolInstruction } from "@solana-program/system";
+    import {
+      getSetComputeUnitLimitInstruction,
+      getSetComputeUnitPriceInstruction,
+    } from "@solana-program/compute-budget";
+    import bs58 from 'bs58';
+
+    const PRIV_B58 = 'Your Private Key';
+    const RECIPIENT = 'Random Recipient';
+    const HELIUS_API_KEY = 'Your API Key';
+    const TIP_ACCOUNTS = [
+      "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+      "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+      "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+      "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+      "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+      "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+      "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+      "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+      "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+      "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+    ];
+
+    async function sendWithSender(
+      privateKeyB58: string, 
+      recipientAddress: string
+    ): Promise<string> {
+      // Load signer from base58 private key
+      const ownerSigner = await createKeyPairSignerFromBytes(bs58.decode(privateKeyB58));
+
+      // Init RPC and fetch blockhash
+      const rpc = createSolanaRpc(`https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`);
+      const { value: blockhash } = await rpc.getLatestBlockhash().send();
+
+      // Build + sign transaction
+      const tx = pipe(
+        createTransactionMessage({ version: 0 }),
+        (m) => setTransactionMessageFeePayerSigner(ownerSigner, m),
+        (m) => setTransactionMessageLifetimeUsingBlockhash(blockhash, m),
+        (m) => appendTransactionMessageInstruction(getSetComputeUnitLimitInstruction({ units: 100_000 }), m),
+        (m) => appendTransactionMessageInstruction(getSetComputeUnitPriceInstruction({ microLamports: 200_000 }), m),
+        (m) =>
+          appendTransactionMessageInstruction(
+            getTransferSolInstruction({
+              source: ownerSigner,
+              destination: address(recipientAddress),
+              amount: lamports(1_000_000n), // 0.001 SOL
+            }),
+            m
+          ),
+        (m) =>
+          appendTransactionMessageInstruction(
+            getTransferSolInstruction({
+              source: ownerSigner,
+              destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
+              amount: lamports(1_000_000n), // 0.001 SOL
+            }),
+            m
+          )
+      );
+
+      const signedTx = await signTransactionMessageWithSigners(tx);
+      const base64Tx = getBase64EncodedWireTransaction(signedTx);
+
+      console.log('Sending transaction via Sender endpoint...');
+
+      // Frontend: Use HTTPS endpoint to avoid CORS issues
+      const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast'; 
+      // Backend: Use regional HTTP endpoint closest to your servers
+      // const SENDER_ENDPOINT = 'http://slc-sender.helius-rpc.com/fast';
+
+      // Send via Sender
+      const res = await fetch(SENDER_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: Date.now().toString(),
+          method: "sendTransaction",
+          params: [
+            base64Tx,
+            { encoding: "base64", skipPreflight: true, maxRetries: 0 },
+          ],
+        }),
+      });
+
+      const { result: signature, error } = await res.json();
+      if (error) throw new Error(error.message);
+
+      console.log("Transaction sent: ", signature);
+      
+      // Confirmation check
+      for (let i = 0; i < 30; i++) {
+        const status = await rpc.getSignatureStatuses([signature]).send();
+        console.log('Status:', status?.value[0]?.confirmationStatus || 'pending');
+        
+        if (status?.value[0]?.confirmationStatus === "confirmed") {
+          console.log('Transaction confirmed!');
+          return signature;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      console.log('Transaction may have succeeded but confirmation timed out');
+      return signature;
+    }
+
+    // Send transaction
+    sendWithSender(PRIV_B58, RECIPIENT);
+    ```
+
+  </Tab>
+</Tabs>
 
 ### 动态优化的高级示例
 
-高级示例通过动态 Jito 小费（第 75 百分位）、自动计算单元计算、动态优先费用和重试逻辑改进了简单版本。
+高级示例通过动态 Jito 提示（第 75 百分位）、自动计算单元计算、动态优先级费用和重试逻辑改进了简单版本。
 
-```typescript [expandable]
+<Tabs>
+  <Tab title="@solana/web3.js">
+
+    ```typescript [expandable]
 import { 
   Connection, 
   TransactionMessage,
@@ -730,36 +972,334 @@ export async function exampleUsage() {
 }
 
 export { sendWithSender };
-```
+    ```
+
+  </Tab>
+  <Tab title="@solana/kit">
+
+    ```typescript [expandable]
+    import { pipe } from "@solana/kit";
+    import {
+      createSolanaRpc,
+      createTransactionMessage,
+      setTransactionMessageFeePayerSigner,
+      setTransactionMessageLifetimeUsingBlockhash,
+      appendTransactionMessageInstructions,
+      signTransactionMessageWithSigners,
+      lamports,
+      getBase64EncodedWireTransaction,
+      createKeyPairSignerFromBytes,
+      address,
+    } from "@solana/kit";
+    import { getTransferSolInstruction } from "@solana-program/system";
+    import {
+      getSetComputeUnitLimitInstruction,
+      getSetComputeUnitPriceInstruction,
+    } from "@solana-program/compute-budget";
+    import bs58 from 'bs58';
+
+    const TIP_ACCOUNTS = [
+      "4ACfpUFoaSD9bfPdeu6DBt89gB6ENTeHBXCAi87NhDEE",
+      "D2L6yPZ2FmmmTKPgzaMKdhu6EWZcTpLy1Vhx8uvZe7NZ", 
+      "9bnz4RShgq1hAnLnZbP8kbgBg1kEmcJBYQq3gQbmnSta",
+      "5VY91ws6B2hMmBFRsXkoAAdsPHBJwRfBht4DXox3xkwn",
+      "2nyhqdwKcJZR2vcqCyrYsaPVdAnFoJjiksCXJ7hfEYgD",
+      "2q5pghRs6arqVjRvT5gfgWfWcHWmw1ZuCzphgd5KfWGJ",
+      "wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF",
+      "3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT",
+      "4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey",
+      "4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or"
+    ];
+
+    async function getDynamicTipAmount(): Promise<number> {
+      try {
+        const response = await fetch('https://bundles.jito.wtf/api/v1/bundles/tip_floor');
+        const data = await response.json();
+        
+        if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
+          const tip75th = data[0].landed_tips_75th_percentile;
+          // Use 75th percentile but minimum 0.001 SOL
+          return Math.max(tip75th, 0.001);
+        }
+        
+        // Fallback if API fails or data is invalid
+        return 0.001;
+      } catch (error) {
+        console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
+        return 0.001; // Fallback to minimum
+      }
+    }
+
+    async function sendWithSender(
+      privateKeyB58: string, 
+      instructionBuilders: Array<(signer: any) => any>
+    ): Promise<string> {
+      const rpc = createSolanaRpc('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+      
+      // Load signer from base58 private key
+      const ownerSigner = await createKeyPairSignerFromBytes(bs58.decode(privateKeyB58));
+      
+      // Build user instructions
+      const userInstructions = instructionBuilders.map(builder => builder(ownerSigner));
+      
+      // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+      const tipAmountSOL = await getDynamicTipAmount();
+      const tipAccount = TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)];
+      
+      console.log(`Using dynamic tip amount: ${tipAmountSOL} SOL`);
+      
+      // Get recent blockhash with context
+      const { value: blockhashInfo } = await rpc.getLatestBlockhash().send();
+      const { blockhash, lastValidBlockHeight } = blockhashInfo;
+      
+      // Create tip instruction
+      const tipInstruction = getTransferSolInstruction({
+        source: ownerSigner,
+        destination: address(tipAccount),
+        amount: lamports(BigInt(Math.floor(tipAmountSOL * 1_000_000_000))),
+      });
+      
+      // Create transaction message for simulation with max compute units
+      const testInstructions = [
+        getSetComputeUnitLimitInstruction({ units: 1_400_000 }),
+        ...userInstructions,
+        tipInstruction
+      ];
+      
+      const testTx = pipe(
+        createTransactionMessage({ version: 0 }),
+        (m) => setTransactionMessageFeePayerSigner(ownerSigner, m),
+        (m) => setTransactionMessageLifetimeUsingBlockhash(blockhashInfo, m),
+        (m) => appendTransactionMessageInstructions(testInstructions, m)
+      );
+
+      // Simulate transaction using RPC directly
+      const signedTestTx = await signTransactionMessageWithSigners(testTx);
+      const serializedTestTx = getBase64EncodedWireTransaction(signedTestTx);
+      
+      const simulationResponse = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'simulateTransaction',
+          params: [
+            serializedTestTx,
+            { encoding: 'base64', commitment: 'processed' }
+          ]
+        })
+      });
+      
+      const simulation = await simulationResponse.json();
+      
+      if (simulation.error || !simulation.result?.value?.unitsConsumed) {
+        throw new Error('Simulation failed to return compute units');
+      }
+
+      // Set compute unit limit with minimum 1000 CUs and 10% margin
+      const units = simulation.result.value.unitsConsumed;
+      const computeUnits = units < 1000 ? 1000 : Math.ceil(Number(units) * 1.1);
+      
+      // Get dynamic priority fee
+      const priorityFee = await getPriorityFee(rpc, userInstructions, ownerSigner, blockhashInfo);
+      
+      // Build final optimized transaction
+      const finalInstructions = [
+        getSetComputeUnitLimitInstruction({ units: computeUnits }),
+        getSetComputeUnitPriceInstruction({ microLamports: priorityFee }),
+        ...userInstructions,
+        tipInstruction
+      ];
+      
+      const tx = pipe(
+        createTransactionMessage({ version: 0 }),
+        (m) => setTransactionMessageFeePayerSigner(ownerSigner, m),
+        (m) => setTransactionMessageLifetimeUsingBlockhash(blockhashInfo, m),
+        (m) => appendTransactionMessageInstructions(finalInstructions, m)
+      );
+
+      // Send via Sender endpoint with retry logic
+      return await sendWithRetry(tx, rpc, lastValidBlockHeight);
+    }
+
+    async function getPriorityFee(
+      rpc: any, 
+      instructions: any[], 
+      payerSigner: any, 
+      blockhashInfo: any
+    ): Promise<number> {
+      try {
+        const tempTx = pipe(
+          createTransactionMessage({ version: 0 }),
+          (m) => setTransactionMessageFeePayerSigner(payerSigner, m),
+          (m) => setTransactionMessageLifetimeUsingBlockhash(blockhashInfo, m),
+          (m) => appendTransactionMessageInstructions(instructions, m)
+        );
+        
+        const signedTempTx = await signTransactionMessageWithSigners(tempTx);
+        const serializedTx = getBase64EncodedWireTransaction(signedTempTx);
+        
+        const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getPriorityFeeEstimate",
+            params: [{
+              transaction: serializedTx,
+              options: { recommended: true },
+            }],   
+          }),
+        });
+        
+        const data = await response.json();
+        return data.result?.priorityFeeEstimate ? 
+          Math.ceil(data.result.priorityFeeEstimate * 1.2) : 50_000;
+      } catch {
+        return 50_000; // Fallback fee
+      }
+    }
+
+    async function sendWithRetry(
+      transaction: any,
+      rpc: any,
+      lastValidBlockHeight: bigint
+    ): Promise<string> {
+      const maxRetries = 3;
+      // Frontend: Use HTTPS endpoint to avoid CORS issues
+      const endpoint = 'https://sender.helius-rpc.com/fast';
+      // Backend: Use regional HTTP endpoint closest to your servers
+      // const endpoint = 'http://slc-sender.helius-rpc.com/fast';
+      
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+                  // Check blockhash validity
+        const { value: currentHeight } = await rpc.getBlockHeight('confirmed').send();
+        if (currentHeight > lastValidBlockHeight) {
+          throw new Error('Blockhash expired');
+        }
+          
+          // Sign and serialize transaction
+          const signedTx = await signTransactionMessageWithSigners(transaction);
+          const base64Tx = getBase64EncodedWireTransaction(signedTx);
+          
+          // Send transaction via Sender endpoint
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: Date.now().toString(),
+              method: "sendTransaction",
+              params: [
+                base64Tx,
+                {
+                  encoding: "base64",
+                  skipPreflight: true,    // Required for Sender
+                  maxRetries: 0           // Implement your own retry logic
+                }
+              ]
+            })
+          });
+          
+          const result = await response.json();
+          if (result.error) throw new Error(result.error.message);
+          
+          console.log(`Transaction sent: ${result.result}`);
+          return await confirmTransaction(result.result, rpc);
+          
+        } catch (error) {
+          console.warn(`Attempt ${attempt + 1} failed:`, error);
+          if (attempt === maxRetries - 1) throw error;
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+      
+      throw new Error('All retry attempts failed');
+    }
+
+    async function confirmTransaction(
+      signature: string, 
+      rpc: any
+    ): Promise<string> {
+      const timeout = 15000;
+      const interval = 3000;
+      const startTime = Date.now();
+      
+      while (Date.now() - startTime < timeout) {
+        try {
+          const status = await rpc.getSignatureStatuses([signature]).send();
+          if (status?.value[0]?.confirmationStatus === "confirmed") {
+            return signature;
+          }
+        } catch (error) {
+          console.warn('Status check failed:', error);
+        }
+        await new Promise(resolve => setTimeout(resolve, interval));
+      }
+      
+      throw new Error(`Transaction confirmation timeout: ${signature}`);
+    }
+
+    // Example usage following standard Helius docs pattern
+    export async function exampleUsage() {
+      const privateKeyB58 = 'YOUR_PRIVATE_KEY_BASE58';
+      
+      // 1. Prepare your transaction instruction builders (USER ADDS THEIR INSTRUCTIONS HERE)
+      const instructionBuilders = [
+        (signer: any) => getTransferSolInstruction({
+          source: signer,
+          destination: address("RECIPIENT_ADDRESS"),
+          amount: lamports(100_000_000n), // 0.1 SOL
+        }),
+        // Add more instruction builders as needed
+      ];
+      
+      // 2. Send with Sender (automatically adds tip + optimizations)
+      try {
+        const signature = await sendWithSender(privateKeyB58, instructionBuilders);
+        console.log(`Successful transaction: ${signature}`);
+      } catch (error) {
+        console.error('Transaction failed:', error);
+      }
+    }
+
+    export { sendWithSender };
+    ```
+
+  </Tab>
+</Tabs>
 
 ## 最佳实践
 
 ### 端点选择
-- **前端应用程序**：使用 `https://sender.helius-rpc.com/fast` 以避免 CORS 预检失败。此端点会自动路由到最近的位置以获得最佳性能。
-- **后端应用程序**：选择最接近您基础设施的区域 HTTP [端点](#endpoints) 以获得最佳性能
+- **前端应用程序**：使用`https://sender.helius-rpc.com/fast`以避免 CORS 预检失败。此端点会自动路由到最近的位置以获得最佳性能。
+- **后端应用程序**：选择最接近您的基础设施的区域 HTTP [端点](#endpoints)以获得最佳性能
 
 ### 连接预热
-- 在空闲时间超过 1 分钟时使用 `/ping` 端点
-- 实施定期 ping 调用（每 30-60 秒）以保持连接的温暖状态
+- 在空闲时间超过 1 分钟时使用`/ping`端点
+- 实施定期 ping 调用（每 30-60 秒）以保持连接预热
 - 在高频交易会话开始前预热连接
 
 ### 交易设置
 - 使用`skipPreflight: true`和`maxRetries: 0`
-- 实现您自己的重试逻辑
-- 向指定账户包含至少0.001 SOL的小费
-- 使用`'confirmed'`承诺获取blockhash
+- 实施您自己的重试逻辑
+- 向指定账户至少包含 0.001 SOL 的提示
+- 使用`'confirmed'`承诺获取区块哈希
 - 设置适当的计算单元限制
 
 ## 速率限制和扩展
 
-- **默认速率限制**：每秒6笔交易
-- **无信用使用**：发送方交易不消耗您计划中的API信用
+- **默认速率限制**：每秒 6 笔交易
+- **无信用使用**：发送者交易不消耗您计划中的 API 信用
 
 ## 支持和扩展
 
 对于需要更高吞吐量的生产部署：
 
-1. **创建支持票**：包括您预期的TPS和用例详细信息
+1. **创建支持票**：包括您预期的 TPS 和用例详细信息
 2. **提供指标**：分享您当前的交易模式
 
-通过[Helius Dashboard](https://dashboard.helius.dev)联系支持，或加入我们的[Discord社区](https://discord.com/invite/6GXdee3gBj)。
+通过 [Helius Dashboard](https://dashboard.helius.dev) 联系支持或加入我们的 [Discord 社区](https://discord.com/invite/6GXdee3gBj)。
