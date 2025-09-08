@@ -127,7 +127,7 @@ paths:
                             example: 100000000
                           changedSinceSlot:
                             type: "integer"
-                            description: "仅返回在此槽号之后被修改的账户。如果账户存在但自指定槽以来没有变化，响应将包含状态为"unchanged"。"
+                            description: "仅返回在此槽号之后被修改的账户。如果账户存在但自指定槽以来没有变化，响应将包含状态为\"unchanged\"。"
                             example: 464175999
             example:
               jsonrpc: "2.0"
@@ -196,6 +196,15 @@ paths:
                                 type: "integer"
                                 description: "账户的数据大小。"
                                 example: 0
+                          - type: "object"
+                            description: "仅状态响应，当账户存在但自指定槽位以来未发生变化时。"
+                            properties:
+                              status:
+                                type: "string"
+                                description: "指示账户自指定槽位以来未发生变化的状态。"
+                                enum:
+                                  - "unchanged"
+                                example: "unchanged"
                   id:
                     type: "integer"
                     description: "与请求ID匹配的唯一标识符。"

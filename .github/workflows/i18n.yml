@@ -49,14 +49,52 @@ jobs:
             echo "changes=true" >> $GITHUB_OUTPUT
           fi
           
-      - name: Commit translations
+      - name: Close old translation PRs
         if: steps.changes.outputs.changes == 'true' && github.event_name == 'push'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add zh/ i18n.lock
-          git commit -m "🌐 Auto-update Chinese translations"
-          git push
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:auto-translations`
+            });
+            
+            for (const pr of prs) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                state: 'closed'
+              });
+              console.log(`Closed old translation PR #${pr.number}`);
+            }
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changes == 'true' && github.event_name == 'push'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "🌐 Auto-update Chinese translations"
+          title: "🌐 Auto-update Chinese translations"
+          body: |
+            This PR contains automatically generated Chinese translations.
+            
+            **Changes:**
+            - Updated Chinese documentation files in `/zh/` directory
+            - Updated translation lock file
+            
+            **Auto-generated on:** ${{ github.event.head_commit.timestamp }}
+            **Triggered by commit:** ${{ github.event.head_commit.id }}
+            
+            This PR was automatically created by the i18n workflow and supersedes any previous translation PRs.
+          branch: auto-translations
+          delete-branch: true
+          reviewers: guneysol
+          add-paths: |
+            zh/
+            i18n.lock
           
       - name: Upload translation artifacts (PR only)
         if: github.event_name == 'pull_request'
