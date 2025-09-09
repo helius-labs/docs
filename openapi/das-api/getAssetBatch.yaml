@@ -126,6 +126,10 @@ paths:
                       type: object
                       description: The content of the asset.
                       properties:
+                        last_indexed_slot:
+                          type: integer
+                          description: All data up to and including this slot is guaranteed to have been indexed.
+                          example: 365750752  
                         $schema:
                           type: string
                           example: 'https://schema.metaplex.com/nft1.0.json'
