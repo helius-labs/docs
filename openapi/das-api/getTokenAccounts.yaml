@@ -136,6 +136,22 @@ paths:
                                                 frozen:
                                                     type: boolean
                                                     description: If the account is frozen.
+                                                last_indexed_slot:
+                                                    type: integer
+                                                    description: The slot number when the token account data was last indexed.
+                                                    example: 123456789
+                                                burnt:
+                                                    type: boolean
+                                                    description: If the token account has been burnt.
+                                                    example: false
+                                            example:
+                                                address: "TokenAccountAddress"
+                                                mint: "MintAddress"
+                                                owner: "OwnerAddress"
+                                                amount: 1
+                                                delegated_amount: 0
+                                                frozen: false
+                                                last_indexed_slot: 365752246
                                                 burnt: false
                 400:
                     description: Bad Request. The server could not understand the request due to invalid syntax.

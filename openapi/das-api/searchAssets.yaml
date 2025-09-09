@@ -278,12 +278,16 @@ paths:
                         type: integer
                         description: The current page of results.
                         example: 1
-                      items:
+                    items:
                         type: array
                         description: An array of assets.
                         items:
                           type: object
                           properties:
+                            last_indexed_slot:
+                              type: integer
+                              description: The slot number when the asset data was last indexed.
+                              example: 123456789
                             interface:
                               type: string
                               description: The Solana token standard implementation type of the digital asset.
@@ -302,7 +306,8 @@ paths:
                       limit: 50
                       page: 1
                       items:
-                        - interface: "V1_NFT"
+                        - last_indexed_slot: 365752246
+                          interface: "V1_NFT"
                           id: "SomeNftMintKey12345"
                           ownership:
                             owner: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
