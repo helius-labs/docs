@@ -12,7 +12,7 @@ description: "Helius-exclusive RPC method for advanced transaction history queri
 
 `getTransactionsForAddress` is an enhanced transaction history API that overcomes the limitations of Solana's standard `getSignaturesForAddress` method. It provides advanced filtering, bidirectional sorting, efficient pagination, and optional full transaction data retrieval.
 
-The method supports advanced filtering by time ranges, slots, transaction status, and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
+The method supports advanced filtering by time ranges, slots, and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
 
 ---
 
@@ -27,10 +27,9 @@ The method supports advanced filtering by time ranges, slots, transaction status
 <Tabs>
   <Tab title="Enhanced Capabilities">
     - **Bidirectional sorting**: Query from the beginning forward or newest first  
-    - **Advanced filtering**: Time ranges, slot ranges, transaction status
+    - **Advanced filtering**: Time ranges, slot ranges, signature filtering
     - **Full transaction data**: Get complete details in one call
     - **Efficient pagination**: Faster keyset pagination with slot:position keys
-    - **Status filtering**: Skip failed transactions automatically
   </Tab>
   
   <Tab title="Performance Benefits">
@@ -85,30 +84,46 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 ## Practical Examples
 
 <Tabs>
-  <Tab title="First Token Mints">
-    **Track the earliest mint transactions for a token program:**
+  <Tab title="Token Mint Creation">
+    **Find the mint creation transaction for a specific token:**
 
     ```javascript
     {
       "jsonrpc": "2.0",
-      "id": 1,
+      "id": "find-first-mint",
       "method": "getTransactionsForAddress",
       "params": [
-        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token Program
+        MINT_ADDRESS, // Token mint address
+        {
+          "encoding": "jsonParsed",
+          "maxSupportedTransactionVersion": 0,
+          "sortOrder": "asc",  // Chronological order from the beginning
+          "limit": 10,
+          "transactionDetails": "full"
+        }
+      ]
+    }
+    ```
+
+    **For Liquidity Pool creation, query the pool address:**
+    ```javascript
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "getTransactionsForAddress", 
+      "params": [
+        "POOL_ADDRESS_HERE", // Raydium/Orca pool address
         {
           "transactionDetails": "full",
-          "sortOrder": "asc",  // Chronological order from the beginning
-          "limit": 50,
-          "filters": {
-            "status": "succeeded",  // Only successful mints
-          }
+          "sortOrder": "asc",  // First transaction is usually pool creation
+          "limit": 1
         }
       ]
     }
     ```
 
     <Note>
-    **Use Case**: Identify the first successful token mints on Solana to analyze early token projects and their creators.
+    **Use Case**: Find the exact moment when a token mint or liquidity pool was created, including the creator address and initial parameters.
     </Note>
   </Tab>
 
@@ -125,10 +140,7 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         {
           "transactionDetails": "full",
           "sortOrder": "asc",  // Oldest first
-          "limit": 20,
-          "filters": {
-            "status": "succeeded"
-          }
+          "limit": 20
         }
       ]
     }
@@ -169,13 +181,13 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         {
           "transactionDetails": "full",
           "filters": {
-            "status": "succeeded",
             "blockTime": {
               "gte": 1640995200,  // Specific time window
               "lte": 1640995260 
             }
           },
-          "sortOrder": "asc"  // Chronological for MEV analysis
+          "sortOrder": "asc",  // Chronological for MEV analysis
+          "limit": 100
         }
       ]
     }
@@ -221,7 +233,6 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         {
           "transactionDetails": "signatures",
           "filters": {
-            "status": "succeeded",
             "blockTime": {
               "gte": startTime,
               "lt": endTime
@@ -269,7 +280,6 @@ These operators work like database queries to give you precise control over your
 ```javascript
 "filters": {
   "slot": { "gte": 1000, "lte": 2000 },     // Between slots 1000-2000
-  "status": "succeeded",                      // Only successful transactions
   "blockTime": { "gt": 1641081600 }          // After specific timestamp
 }
 ```
@@ -375,7 +385,7 @@ These operators work like database queries to give you precise control over your
 <ParamField body="transactionDetails" type="string" default="signatures">
   Level of transaction detail to return:
   - `signatures`: Basic signature info (faster)
-  - `full`: Complete transaction data (eliminates need for getTransaction calls)
+  - `full`: Complete transaction data (eliminates need for getTransaction calls, requires limit ≤ 100)
 </ParamField>
 
 <ParamField body="sortOrder" type="string" default="desc">
@@ -401,7 +411,6 @@ These operators work like database queries to give you precise control over your
   - `slot`: Filter by slot number with comparison operators
   - `blockTime`: Filter by Unix timestamp with comparison operators  
   - `signature`: Filter by signature with comparison operators
-  - `status`: Filter by transaction status (`succeeded`, `failed`, `all`)
 </ParamField>
 
 ---
@@ -469,7 +478,7 @@ These operators work like database queries to give you precise control over your
 
 <Tabs>
   <Tab title="Performance">
-    For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and use status filtering to skip failed transactions when building user-facing features.
+    For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by time ranges or specific slots for more targeted queries.
   </Tab>
   
   <Tab title="Filtering">
@@ -536,8 +545,7 @@ These operators work like database queries to give you precise control over your
         {
           "sortOrder": "asc",  // Not possible with getSignaturesForAddress
           "filters": {
-            "status": "succeeded",     // Not possible 
-            "blockTime": {             // Not possible
+            "blockTime": {             // Not possible with standard RPC
               "gte": 1640995200,
               "lte": 1641081600
             }
