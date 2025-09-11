@@ -2,11 +2,10 @@ openapi: "3.1.0"
 info:
   title: "Solana 数字资产标准 (DAS) API"
   version: "1.0.0"
-  description: "Solana 数字资产标准 (DAS) API 提供对 Solana 区块链 NFT 和数字资产的全面和标准化访问。
+  description: "Solana数字资产标准（DAS）API提供对Solana区块链NFT和数字资产的全面和标准化访问。这个强大的API集使开发者能够检索Solana上任何数字资产的详细信息，包括传统和压缩NFT，无论代币标准如何，数据格式都保持一致。
 
-    这个强大的 API 集使开发者能够检索 Solana 上任何数字资产的详细信息，
 
-    包括传统和压缩 NFT，无论代币标准如何，数据格式始终一致。\n"
+    请注意，每个成功的DAS响应都包含一个`last_indexed_slot`字段，指示DAS索引保证完整的最新槽位。所有链上数据**直到并包括**此槽位都已被索引。此槽位之后的数据也可能已经被索引，但不保证。\n"
   license:
     name: "Apache 2.0"
     url: "https://www.apache.org/licenses/LICENSE-2.0.html"
@@ -127,6 +126,9 @@ paths:
                   result:
                     type: "object"
                     properties:
+                      last_indexed_slot:
+                        type: "integer"
+                        description: "保证所有数据直到并包括此槽位都已被索引。"
                       interface:
                         type: "string"
                         description: "Solana数字资产的接口类型，指示其代币标准和实现。"
@@ -355,6 +357,7 @@ paths:
                     jsonrpc: "2.0"
                     id: "test"
                     result:
+                      last_indexed_slot: 365749093
                       interface: "ProgrammableNFT"
                       id: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
                       content:

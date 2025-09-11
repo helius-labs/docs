@@ -94,6 +94,10 @@ paths:
                       Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss:
                         type: "object"
                         properties:
+                          last_indexed_slot:
+                            type: "integer"
+                            description: "保证所有数据都已被索引，直至并包括此槽位。"
+                            example: 365750752
                           root:
                             type: "string"
                             description: "包含此压缩NFT的Solana状态压缩默克尔树的根哈希。"
