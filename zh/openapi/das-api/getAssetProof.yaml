@@ -74,6 +74,10 @@ paths:
               schema:
                 type: "object"
                 properties:
+                  last_indexed_slot:
+                    type: "integer"
+                    description: "保证所有数据都已索引到此槽位及之前的所有数据。"
+                    example: 365750752
                   root:
                     type: "string"
                     description: "包含此压缩 NFT 的 Solana 状态压缩默克尔树的根哈希。"
