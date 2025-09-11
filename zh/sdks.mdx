@@ -20,6 +20,8 @@ description: 官方 Helius SDK，支持在 Node.js 和 Rust 中进行 Solana 开
 
 ## Node.js SDK
 
+请注意，Node.js SDK 从版本 2.0.0 开始已重写。这是为了使用`@solana/kit`并移除对版本高于 1.73.2 的`@solana/web3.js`的依赖。对于迁移到最新版本的用户，请参考我们的[迁移指南](https://github.com/helius-labs/helius-sdk/blob/main/MIGRATION.md)。
+
 ### 安装
 
 Helius Node.js SDK 可以通过以下任意包管理器安装：
@@ -50,49 +52,59 @@ Helius Node.js SDK 可以通过以下任意包管理器安装：
 
 ### 快速开始
 
-以下是一个简单的示例，展示如何使用 Node.js SDK 获取某个地址拥有的资产列表：
+下面是一个如何使用 Node.js SDK 获取给定地址拥有的资产列表的简单示例：
 
 ```typescript
-import { Helius } from "helius-sdk";
+import { createHelius } from "helius-sdk";
 
-const helius = new Helius("YOUR_API_KEY");
-const response = await helius.rpc.getAssetsByOwner({
-  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-  page: 1,
-});
+(async () => {
+  const apiKey = ""; // From Helius dashboard
+  const helius = createHelius({ apiKey });
 
-console.log(response.items);
+  try {
+    const assets = await helius.getAssetsByOwner({
+      ownerAddress: "owner_address_goes_here",
+      page: 1,
+      limit: 50,
+      sortBy: { sortBy: "created", sortDirection: "asc" },
+    });
+
+    console.log("Fetched assets:", assets);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
 ```
 
 ### 文档
 
-[README 文件](https://github.com/helius-labs/helius-sdk/blob/main/README.md) 包含了涵盖每个方法和基本用法的详细代码示例。有关 API 参考文档，请参阅我们的[文档](/zh/api-reference)以及通用 Solana JSON RPC API 的[官方 Solana 文档](https://solana.com/docs/rpc)。
+[示例目录](https://github.com/helius-labs/helius-sdk/tree/main/examples)中包含了涵盖每个方法和基本用法的深入代码示例，按命名空间组织。有关 API 参考文档，请参阅我们的[文档](/zh/api-reference)和[Solana 官方文档](https://solana.com/docs/rpc)以获取一般的 Solana JSON RPC API 帮助。有关 Kit 的一般帮助，请参阅[Kit 的文档](https://www.solanakit.com/)。
 
 ## Rust SDK
 
 ### 安装
 
 <Steps>
-  <Step title="将依赖项添加到 Cargo.toml">
-    要在项目中开始使用 Helius Rust SDK，请通过 [`cargo`](https://doc.rust-lang.org/cargo/) 将其添加为依赖项。打开项目的 `Cargo.toml`，并在 `[dependencies]` 下添加以下行：
+  <Step title="添加依赖到 Cargo.toml">
+    要在项目中开始使用 Helius Rust SDK，请通过[`cargo`](https://doc.rust-lang.org/cargo/)将其添加为依赖项。打开项目的`Cargo.toml`并在`[dependencies]`下添加以下行：
 
     ```toml
     helius = "x.y.z"
     ```
 
-    其中 `x.y.z` 是您期望的版本。
+    其中`x.y.z`是您所需的版本。
   </Step>
   <Step title="替代方法：使用 cargo add 命令">
-    或者，使用 `cargo add helius` 通过命令行直接添加依赖项。这将自动找到与您的项目兼容的最新版本，并将其添加到您的 `Cargo.toml` 中。
+    或者，使用`cargo add helius`直接通过命令行添加依赖项。这将自动找到与您的项目兼容的最新版本并将其添加到您的`Cargo.toml`中。
   </Step>
-  <Step title="保持您的 SDK 更新">
-    请记得定期运行 `cargo update` 以获取 SDK 的最新版本。
+  <Step title="保持 SDK 更新">
+    请记得定期运行`cargo update`以获取 SDK 的最新版本。
   </Step>
 </Steps>
 
 ### 快速开始
 
-以下是使用 [增强交易 API](/zh/enhanced-transactions) [解析给定交易](/zh/api-reference/enhanced-transactions/gettransactions) 的一个简单示例：
+下面是一个使用[增强交易API](/zh/enhanced-transactions)来[解析给定交易](/zh/api-reference/enhanced-transactions/gettransactions)的简单示例：
 
 ```rust
 use helius::error::Result;
@@ -123,7 +135,7 @@ async fn main() -> Result<()> {
 
 <CardGroup cols={3}>
   <Card title="Rust 文档" icon="book" href="https://docs.rs/helius/latest/helius/">
-    docs.rs 上的最新文档
+    docs.rs上的最新文档
   </Card>
   <Card title="API 参考" icon="code" href="/zh/api-reference">
     Helius API 文档
@@ -136,37 +148,38 @@ async fn main() -> Result<()> {
 ## 错误处理
 
 <Callout type="warning">
-  当 API 返回非成功状态（即 4xx 或 5xx 状态码）时，将抛出错误消息。
+  当API返回非成功（即4xx或5xx状态码）时，将抛出错误消息。
 </Callout>
 
-例如：
+例如，下面是使用Node.js SDK进行错误的getAsset调用时抛出的401错误：
 
 ```typescript
-// From our Node.js SDK
-try {
-  const response = await helius.rpc.getAssetsByOwner({
-    ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-    page: 1,
-  });
-  console.log(response.items);
-} catch (error) {
-  console.log(error);
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32001,
+    "message": "Authentication failed. Missing or invalid API key."
+  },
+  "id": "1"
 }
 ```
 
 ### 常见错误代码
 
-在使用 Helius SDK 时，您可能会遇到一些错误代码。以下是一些常见错误代码的表格，以及帮助您排查问题的附加信息：
+使用Helius SDK时，您可能会遇到几个错误代码。下面是一些常见错误代码的表格，以及帮助您排除故障的附加信息：
 
 <AccordionGroup>
+  <Accordion title="400: 错误请求">
+    当请求参数无效时发生。
+  </Accordion>
   <Accordion title="401: 未授权">
-    当提供了无效的 API 密钥或由于 RPC 规则限制了访问时，会发生此错误。
+    当提供了无效的API密钥或由于RPC规则限制访问时发生。
   </Accordion>
   <Accordion title="429: 请求过多">
-    这表明用户在给定时间内超出了请求限制或已用完额度。
+    表示用户在给定时间内超过了请求限制或超出了信用额度。
   </Accordion>
   <Accordion title="5XX: 内部服务器错误">
-    这是服务器端问题的通用错误消息。请联系 Helius 支持以获取帮助。
+    这是服务器端问题的通用错误消息。请联系Helius支持以获得帮助。
   </Accordion>
 </AccordionGroup>
 
@@ -174,43 +187,43 @@ try {
 
 <Steps>
   <Step title="检查错误文档">
-    如果使用 Rust SDK，请参考 [`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs) 获取所有可能由 `Helius` 客户端返回的错误列表
+    如果使用Rust SDK，请参考[`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs)以获取客户端返回的所有可能错误的列表。对于Node.js SDK，请参考[Kit的错误](https://www.solanakit.com/docs/concepts/errors)
   </Step>
   <Step title="查看文档">
-    请参考 [Helius 文档](/) 以获取更多指导
+    请参考[Helius文档](/)以获得进一步指导
   </Step>
-  <Step title="联系支持团队">
-    联系 Helius 支持团队以获得更详细的帮助
+  <Step title="联系支持">
+    联系Helius支持团队以获得更详细的帮助
   </Step>
 </Steps>
 
-## 对我们 SDK 的贡献
+## 对我们的SDK的贡献
 
-我们欢迎所有对我们 SDK 的贡献！如果您感兴趣，这里是我们的 GitHub 仓库：
+我们欢迎所有对我们SDK的贡献！如果您有兴趣，这里是我们的GitHub仓库：
 
 <CardGroup cols={2}>
   <Card title="Node.js SDK" icon="js" href="https://github.com/helius-labs/helius-sdk/blob/main/CONTRIBUTING.md">
-    为我们的 Node.js SDK 做出贡献
+    贡献我们的Node.js SDK
   </Card>
   <Card title="Rust SDK" icon="rust" href="https://github.com/helius-labs/helius-rust-sdk/blob/dev/CONTRIBUTIONS.md">
-    为我们的 Rust SDK 做出贡献
+    贡献我们的Rust SDK
   </Card>
 </CardGroup>
 
 <Callout type="info">
-  对 Helius Rust SDK 的贡献感兴趣？在提交拉取请求之前，请阅读以下 [贡献指南](https://github.com/helius-labs/helius-rust-sdk/blob/dev/CONTRIBUTIONS.md)！
+  特别想为Helius Rust SDK做贡献吗？在提交pull request之前，请阅读以下[贡献指南](https://github.com/helius-labs/helius-rust-sdk/blob/dev/CONTRIBUTIONS.md)！
 </Callout>
 
-## 非官方社区 SDK
+## 非官方社区SDK
 
 <Callout emoji="👏">
-  我们出色的社区成员还创建了他们自己的 SDK 来与我们的 REST API 交互。请注意，我们的团队并未正式维护这些 SDK。
+  我们出色的社区成员也创建了他们自己的SDK来与我们的REST API进行交互。请注意，我们的团队并不正式维护这些SDK。
 </Callout>
 
 <CardGroup cols={3}>
   <Card title="Kotlin SDK" href="https://github.com/dlgrech/khelius" />
   <Card title="PHP SDK" href="https://github.com/HowRareIs/helius-php-sdk" />
   <Card title="Python SDK" href="https://github.com/vmpyre/helius_sdk" />
-  <Card title="Rust SDK（同步）" href="https://github.com/bgreni/helius-rust-sdk" />
-  <Card title="Rust SDK（异步）" href="https://github.com/dougEfresh/selene-helius-sdk" />
+  <Card title="Rust SDK (Synchronous)" href="https://github.com/bgreni/helius-rust-sdk" />
+  <Card title="Rust SDK (Asynchronous)" href="https://github.com/dougEfresh/selene-helius-sdk" />
 </CardGroup>
