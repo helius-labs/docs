@@ -614,5 +614,5 @@ The output returns the max network capacity between your server and the Laserstr
 </Accordion>
 
 <Accordion title="Q: Does LaserStream support consumer groups?">
-  **A:** We don’t implement consumer groups. Instead, LaserStream delivers the same outcomes teams want: resume, replay, and multi-node reliability without a coordination layer (and the latency/overhead that comes with it). We believe consumer groups are not needed for most workloads and they add latency and operational overhead. As an example a single LaserStream gRPC connection can emit up to 10× Solana’s transaction + account data, and most clients subscribe to a small, filtered slice. Using consumer groups in this case burns performance headroom and introduces another failure domain.
+  **A:** We don’t implement consumer groups. Instead, LaserStream delivers the same outcomes teams want: resume, replay, and multi-node reliability without a coordination layer (and the latency/overhead that comes with it). We believe consumer groups are not needed for most workloads and they add latency and operational overhead. As an example a single LaserStream gRPC connection can emit up to 10× Solana’s transaction + account data, and most clients subscribe to a small, filtered slice. Using consumer groups in this case burns performance headroom and introduces another point of failure.
 </Accordion>
