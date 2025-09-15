@@ -636,3 +636,7 @@ helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_K
 <Accordion title="Q: 我可以在一个请求中订阅多种类型的数据（例如，账户和交易）吗？">
   **A:** 可以，您可以在同一个`SubscribeRequest`对象中定义多个键下的过滤器配置（例如，`accounts`, `transactions`）。
 </Accordion>
+
+<Accordion title="Q: LaserStream 是否支持消费者组？">
+  **A:** 我们没有实现消费者组。相反，LaserStream 提供团队所需的相同结果：恢复、重放和多节点可靠性，而无需协调层（以及随之而来的延迟/开销）。我们认为大多数工作负载不需要消费者组，它们会增加延迟和操作开销。例如，单个 LaserStream gRPC 连接可以发出高达 Solana 交易 + 账户数据的 10 倍，并且大多数客户端订阅一个小的、过滤后的片段。在这种情况下使用消费者组会消耗性能余量并引入另一个故障点。
+</Accordion>
