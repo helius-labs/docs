@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a new docs page or section
+labels: [feature]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Suggested title for the new page/section
+  - type: textarea
+    id: description
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case and target audience
+    validations:
+      required: true
+  - type: textarea
+    id: content
+    attributes:
+      label: Content outline
+      description: Bullet points of what the page should cover
+  - type: checkboxes
+    id: zh
+    attributes:
+      label: Scope
+      options:
+        - label: I understand `zh/` content is generated from English sources
+          required: true
+
