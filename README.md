@@ -35,8 +35,8 @@ mint dev
 
 ## License
 
-MIT © Helius Labs
+Apache-2.0 © Helius Labs
 
 ## Trademarks and assets
 
-Helius names, logos, and brand assets in `logo/` are trademarks of Helius Labs and are not covered by the MIT license.
+Helius names, logos, and brand assets in `logo/` are trademarks of Helius Labs and are not covered by the Apache-2.0 license.
