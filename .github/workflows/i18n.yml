@@ -20,7 +20,7 @@ jobs:
   translate:
     runs-on: ubuntu-latest
     # Skip if this is a translation merge commit
-    if: ${{ !contains(github.event.head_commit.message, '🌐 Auto-update Chinese translations') }}
+    if: ${{ !contains(github.event.head_commit.message, 'Auto-update Chinese translations') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,8 +78,8 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "🌐 Auto-update Chinese translations"
-          title: "🌐 Auto-update Chinese translations"
+          commit-message: "Auto-update Chinese translations"
+          title: "Auto-update Chinese translations"
           body: |
             This PR contains automatically generated Chinese translations.
             
