@@ -10,11 +10,11 @@ LaserStream 客户端通过槽号持续跟踪您的流媒体位置。如果发�
 
 ## JavaScript/TypeScript 客户端
 
-[JavaScript 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) 使用原生 Rust 绑定实现 1.3GB/s 的吞吐量——比 Yellowstone gRPC JavaScript 客户端快 40 倍以上，后者的最大吞吐量为 30MB/s。
-
 <Warning>
-随着 Solana 的持续扩展，Yellowstone JavaScript 客户端将难以跟上。如果 Solana 提速 3 倍，订阅所有交易或区块的 Yellowstone gRPC 客户端将无法匹配链速度。LaserStream 客户端的性能余量确保您的应用程序能够随网络扩展。
+**我们强烈建议为 JavaScript 应用切换到 LaserStream SDK。** 如果您当前使用 Yellowstone gRPC 客户端，您将会遇到逐渐增加的流延迟和性能瓶颈，这些问题会随着时间的推移而加剧。LaserStream 客户端的性能余量确保您的应用可以随网络扩展，并完全消除这些问题。
 </Warning>
+
+[JavaScript 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) 使用原生 Rust 绑定实现 1.3GB/s 的吞吐量——比 Yellowstone gRPC JavaScript 客户端的最大 30MB/s 快 40 倍以上。
 
 在高带宽订阅中，Yellowstone 客户端会经历随时间累积的渐进延迟。LaserStream 无论数据量如何，始终保持一致的低延迟流媒体。
 
