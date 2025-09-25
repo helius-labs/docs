@@ -29,6 +29,8 @@ Solana的Websockets支持一种方法，允许您订阅一个账户，并在与�
 对于此特定账户，这种情况会频繁发生，因为 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分。
 
 ```javascript
+const WebSocket = require('ws');
+
 // Create a WebSocket connection
 const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com?api-key=<API_KEY>');
 
