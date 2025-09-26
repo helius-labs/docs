@@ -48,6 +48,7 @@ description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra
     npm install --save-dev @types/node
     ```
     Set `"types": ["node"]` in your `tsconfig.json`
+
     Set `"type": "module"` in `package.json`
   </Step>
 
@@ -233,7 +234,7 @@ description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra
   </Step>
 
   <Step title="Configuration">
-    Replace the hardcoded API key and private key with your credentials. Set the right constants for your swap: token addresses, amount, slippage. Choose the Sender enpoint that's closest to your server (it's currently EWR).
+    Replace the hardcoded API key and private key with your credentials. Set the right constants for your swap: token addresses, amount, slippage. Choose the Sender enpoint that's closest to your server (it's currently set to EWR).
   </Step>
 
   <Step title="Run the Application">
@@ -245,13 +246,33 @@ description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra
   </Step>
 </Steps>
 
-## Advanced
-
-### Dynamic tipping with the Jito API
-
-In the code above, the tip amount is hardcoded at the minimal 0.001 SOL. This may not be enough to win the Jito auction for highly contested accounts. To solve this, use the Jito API to dynamically compute the Sender tip:
+## Sample output
 
 ```
+Request Jupiter quote
+Request Jupiter swap
+Create transaction for Sender
+Signature: 2weWhhYyGA9xPqFaXVfR9FdBDAjM3AEbebYzEER2bLQn6JJ7tJ8wwtncbvD9qi2xFJuDxHdDGQWQWQ7m1cUCg74S
+Send to Sender
+Sender Response:
+{
+  jsonrpc: '2.0',
+  id: '1758913856910',
+  result: '2weWhhYyGA9xPqFaXVfR9FdBDAjM3AEbebYzEER2bLQn6JJ7tJ8wwtncbvD9qi2xFJuDxHdDGQWQWQ7m1cUCg74S'
+}
+Wait for confirmation
+Confirmed
+```
+
+[Example transaction](https://solscan.io/tx/2weWhhYyGA9xPqFaXVfR9FdBDAjM3AEbebYzEER2bLQn6JJ7tJ8wwtncbvD9qi2xFJuDxHdDGQWQWQ7m1cUCg74S)
+
+## Advanced
+
+### Dynamic tipping using the Jito API
+
+Right now, the tip amount is hardcoded at the minimum 0.001 SOL. However, this may not be enough to win the Jito auction for highly contested accounts. For these cases, use the Jito API to dynamically compute the Sender tip:
+
+```ts
 async function getDynamicTipAmount(): Promise<number> {
     try {
         const response = await fetch('https://bundles.jito.wtf/api/v1/bundles/tip_floor');
