@@ -7,21 +7,21 @@ description: 学习如何使用 Helius DAS API 检索和查询 Solana NFTs、SPL
 Helius 数字资产标准 (DAS) API 提供了强大的工具，用于读取和查询 Solana 上的 NFT 和代币数据。本指南向您展示如何有效地处理不同类型的 Solana 资产。
 
 <CardGroup cols={2}>
-  <Card title="查询 NFTs" icon="image" href="#working-with-nfts-and-digital-collectibles">
-    检索、搜索和管理 NFT 数据和集合
+  <Card title="查询NFTs" icon="image" href="#working-with-nfts-and-digital-collectibles">
+    检索、搜索和管理NFT数据和收藏
   </Card>
-  <Card title="访问 SPL 代币" icon="coins" href="#working-with-spl-tokens">
+  <Card title="访问SPL代币" icon="coins" href="#working-with-spl-tokens">
     获取代币余额、账户和持有人信息
   </Card>
-  <Card title="代币定价" icon="chart-line" href="#price-data-for-jupiter-verified-tokens">
-    获取 Jupiter 验证代币的实时价格数据
+  <Card title="代币定价" icon="chart-line" href="#price-data-for-tokens">
+    获取前10万种代币的实时价格数据，按24小时交易量排序
   </Card>
-  <Card title="API 参考" icon="code" href="/zh/api-reference/das">
-    查看详细的 API 文档
+  <Card title="API参考" icon="code" href="/zh/api-reference/das">
+    查看详细的API文档
   </Card>
 </CardGroup>
 
-## Jupiter 验证代币的价格数据
+## 代币价格数据
 
 <Warning>
 getAsset 返回的价格数据是缓存的，可能不是最新的。价格信息有 60 秒的缓存，这意味着数据可能最多有 60 秒的延迟。
@@ -519,10 +519,10 @@ getTokenAccountsByMint("8wXtPeU6557ETkp9WHFY1n1EcU6NxDvbAggHGsMYiHsB");
 在使用 DAS API 时，请牢记以下最佳实践：
 
 1. 对于返回大量数据集的方法，**使用分页**
-2. 通过实现 try/catch 块，**优雅地处理错误**
-3. 在适当的时候，**缓存响应**以减少 API 调用
-4. **遵守速率限制**以避免应用程序中断
-5. 在计算市值之前，**验证 Jupiter 价格数据**是否可用
+2. 通过实现try/catch块，**优雅地处理错误**
+3. **在适当的时候缓存响应**，以减少API调用
+4. **遵守速率限制**，以避免应用程序中断
+5. 在计算市值之前，**验证价格数据**是否可用
 
 ## 有问题？
 
