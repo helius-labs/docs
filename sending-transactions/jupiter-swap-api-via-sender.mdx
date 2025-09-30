@@ -1,24 +1,24 @@
 ---
-title: "Execute Jupiter Swaps via Helius Sender: Complete Guide"
-sidebarTitle: "Jupiter Swaps via Sender"
-description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra-low sending latency."
+title: "How to Use Jupiter Swap API and Helius Sender for Trading"
+sidebarTitle: "Jupiter Swap API via Sender"
+description: "Learn how to land trades with Jupiter's Swap API and Helius Sender, an ultra-low latency Solana transaction sending service."
 ---
 
-## Helius Sender
+## Using Helius Sender with the Jupiter Swap API
 
 <p>
-  <strong>Why choose Helius Sender</strong> – ultra-low latency transaction submission optimized for traders
+  Helius Sender is a low-latency Solana transaction sending service that sends your transactions through two pathways, maximizing inclusion speed and landing rate. Jupiter's Swap API allows you to find the most price-efficient route for your swaps and creates a ready-to-use transaction for you. Combining these two tools enables traders to seize trading opportunities before the competition and increase the chance that the swap will succeed.
 </p>
 
-<Info>
-  Publicly available – no plan required
-</Info>
+<Tip>
+  Sender is publicly available — no plan is required.
+</Tip>
 
 ## How it works
 
 <ol>
-  <li>Get a Jupiter quote for a trading pair</li>
-  <li>Use it to create a swap transaction with Jupiter's Swap API</li>
+  <li>Get a [Jupiter quote](https://dev.jup.ag/docs/api/swap-api/quote) for a trading pair</li>
+  <li>Use it to create a swap transaction with [Jupiter's Swap API](https://dev.jup.ag/docs/api/swap-api/swap)</li>
   <li>Modify it for Sender compatibility</li>
   <li>Broadcast it through Helius Sender for maximum success rate</li>
 </ol>
@@ -29,7 +29,7 @@ description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra
   <ul>
     <li><strong>Node.js ≥ 20</strong> (tested with v20.9.0)</li>
     <li><strong>TypeScript ≥ 5</strong></li>
-    <li>A <strong>Helius account</strong> (free or paid) for RPC access</li>
+    <li>A [Helius account](https://dashboard.helius.dev/signup) (free or paid) for RPC access</li>
     <li>A <strong>Solana wallet</strong> with sufficient SOL for transaction fees and tips</li>
   </ul>
 
@@ -234,7 +234,7 @@ description: "Learn how to use Helius Sender to execute Jupiter swaps at a ultra
   </Step>
 
   <Step title="Configuration">
-    Replace the hardcoded API key and private key with your credentials. Set the right constants for your swap: token addresses, amount, slippage. Choose the Sender enpoint that's closest to your server (it's currently set to EWR).
+    Replace the hardcoded API key and private key with your credentials. Set the right parameters for your swap: token addresses, amount, slippage. Choose the [Sender endpoint](https://dashboard.helius.dev/sender) that's closest to your server.
   </Step>
 
   <Step title="Run the Application">
@@ -264,13 +264,13 @@ Wait for confirmation
 Confirmed
 ```
 
-[Example transaction](https://solscan.io/tx/2weWhhYyGA9xPqFaXVfR9FdBDAjM3AEbebYzEER2bLQn6JJ7tJ8wwtncbvD9qi2xFJuDxHdDGQWQWQ7m1cUCg74S)
+[Example transaction](https://orb.helius.dev/tx/2weWhhYyGA9xPqFaXVfR9FdBDAjM3AEbebYzEER2bLQn6JJ7tJ8wwtncbvD9qi2xFJuDxHdDGQWQWQ7m1cUCg74S?cluster=mainnet-beta&tab=instructions)
 
 ## Advanced
 
 ### Dynamic tipping using the Jito API
 
-Right now, the tip amount is hardcoded at the minimum 0.001 SOL. However, this may not be enough to win the Jito auction for highly contested accounts. For these cases, use the Jito API to dynamically compute the Sender tip:
+Right now, the tip amount is hardcoded at the minimum 0.001 SOL. However, this may not be enough to win the Jito auction for highly contested accounts. For these cases, use the [Jito API](https://docs.jito.wtf/lowlatencytxnsend/#tip-amount) to dynamically compute the Sender tip:
 
 ```ts
 async function getDynamicTipAmount(): Promise<number> {
