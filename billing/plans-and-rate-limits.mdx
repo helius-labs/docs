@@ -109,9 +109,9 @@ description: "Complete guide to Helius Solana API pricing with free tier. Transp
   </Card>
 </CardGroup>
 
-### LaserStream Plus Add-Ons
+### Data Add-Ons
 
-Transform your Professional plan's pay-per-use model into predictable costs with included monthly data allowances and reduced overage rates.
+Transform your Professional plan's pay-per-use model into predictable costs with included monthly data allowances and reduced overage rates. Available for Professional plans only and covers both LaserStream gRPC and Enhanced WebSockets data usage.
 
 <Tabs>
   <Tab title="50 TB">
@@ -147,10 +147,7 @@ Transform your Professional plan's pay-per-use model into predictable costs with
 </Tabs>
 
 <Note>
-**Pricing Model Comparison:**
-- **Professional Plan**: Pay 3 credits per 0.1 MB from the first byte
-- **LaserStream Plus**: Fixed monthly cost + included data allowance + reduced overage rates
-- All Professional plan features remain included with add-ons
+**Data Add-Ons**: Available exclusively for Professional plans. Provides fixed monthly cost with included data allowance (50TB-250TB) and reduced overage rates of 2 credits per 0.1 MB (33% savings). Applies to both LaserStream and Enhanced WebSockets usage.
 </Note>
 
 ## Enterprise Plan
@@ -436,19 +433,19 @@ Some endpoints have special restrictions due to their computational requirements
       <td>Per event sent by Helius, regardless of successful or failed endpoint responses</td>
     </tr>
     <tr>
-      <td><strong>LaserStream gRPC (Devnet)</strong></td>
+      <td><strong>LaserStream gRPC</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
       <td>Per 0.1 MB of streamed data (uncompressed)</td>
     </tr>
     <tr>
-      <td><strong>LaserStream gRPC (Mainnet)</strong></td>
+      <td><strong>Enhanced WebSockets</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
-      <td>Per 0.1 MB of streamed data (uncompressed)</td>
+      <td>Per 0.1 MB of streamed data (uncompressed). For users who upgrade to Business or Professional plans after October 6, 2025</td>
     </tr>
     <tr>
-      <td><strong>LaserStream Plus Add-on</strong></td>
+      <td><strong>Data Add-on (Professional only)</strong></td>
       <td style={{textAlign: 'center'}}>2</td>
-      <td>Per 0.1 MB after included data allowance (50TB, 100TB, 150TB, 200TB, or 250TB)</td>
+      <td>Reduced rate per 0.1 MB after included allowance (50-250TB). Applies to LaserStream and Enhanced WebSockets usage. See <a href="#data-add-ons">Data Add-ons</a> for pricing tiers</td>
     </tr>
     <tr>
       <td><strong>getProgramAccounts</strong></td>
@@ -484,11 +481,11 @@ Some endpoints have special restrictions due to their computational requirements
 </table>
 
 <Note>
-**LaserStream Billing Guide**: 
-- **Developer & Business Plans**: Pay 3 credits per 0.1 MB for all LaserStream devnet usage.
-- **Professional Plan**: Pay 3 credits per 0.1 MB for all LaserStream devnet and mainnet usage.
-- **LaserStream Plus Add-on**: Available in 50TB (\$2,500), 100TB (\$4,500), 150TB (\$6,500), 200TB (\$8,500), or 250TB (\$10,500) tiers. After included data runs out, pay only 2 credits per 0.1 MB (33% savings).
-- **Data Size**: Billing based on uncompressed gRPC message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
+**Data Streaming Billing Guide**: 
+- **Enhanced WebSockets**: Available on Business and Professional plans. Users who upgrade after October 6, 2025 pay 3 credits per 0.1 MB. Users on these plans before this date remain unmetered.
+- **LaserStream**: Available on Professional plans only. All users pay 3 credits per 0.1 MB usage.
+- **Data Add-on**: Available for Professional plans. See [Data Add-ons](#data-add-ons) for pricing tiers (50TB-250TB) with included data allowance and reduced overage rates of 2 credits per 0.1 MB (33% savings). Applies to both LaserStream and Enhanced WebSockets.
+- **Data Size**: Billing based on uncompressed message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
 </Note>
 
 <Tabs>
