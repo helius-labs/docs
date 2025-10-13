@@ -1,0 +1,313 @@
+---
+title: LaserStream 与 Dedicated Nodes：选择合适的 gRPC 解决方案
+sidebarTitle: LaserStream 与 Dedicated Nodes
+description: 比较 LaserStream 和 Dedicated Nodes，以选择最适合您需求的 gRPC 流解决方案
+---
+
+<Warning>
+**LaserStream 是几乎所有流用例的推荐选择**，因为它具有卓越的性能、增强的可靠性、托管基础设施以及历史重播和自动重连等高级功能。
+</Warning>
+
+## 快速决策指南
+
+<CardGroup cols={2}>
+  <Card title="选择 LaserStream" icon="bolt" color="#00D4AA">
+    **适用于 99% 的用例**
+    - 卓越的性能和可靠性
+    - 历史重播和自动重连
+    - 托管基础设施
+    - 多区域支持
+  </Card>
+  <Card title="选择 Dedicated Nodes" icon="server" color="#F59E0B">
+    **仅在您特别需要时**
+    - 无速率限制
+    - 无积分使用
+    - 自定义节点配置
+  </Card>
+</CardGroup>
+
+---
+
+## 功能比较
+
+<Tabs>
+  <Tab title="性能与可靠性">
+    <table>
+      <thead>
+        <tr>
+          <th width="300">功能</th>
+          <th width="200">LaserStream</th>
+          <th width="200">Dedicated Nodes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>流性能</strong></td>
+          <td>✅ **卓越的优化性能**</td>
+          <td>⚠️ **在高负载下可能失败**</td>
+        </tr>
+        <tr>
+          <td><strong>可靠性</strong></td>
+          <td>✅ **多节点冗余**</td>
+          <td>❌ **单点故障**</td>
+        </tr>
+        <tr>
+          <td><strong>正常运行时间保证</strong></td>
+          <td>✅ **零停机风险**</td>
+          <td>❌ **节点故障风险**</td>
+        </tr>
+        <tr>
+          <td><strong>地理分布</strong></td>
+          <td>✅ **全球多个区域**</td>
+          <td>⚠️ **单一位置**</td>
+        </tr>
+        <tr>
+          <td><strong>网络支持</strong></td>
+          <td>✅ **Mainnet + Devnet**</td>
+          <td>⚠️ **仅单一网络**</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+  <Tab title="高级功能">
+    <table>
+      <thead>
+        <tr>
+          <th width="300">功能</th>
+          <th width="200">LaserStream</th>
+          <th width="200">Dedicated Nodes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>历史重播</strong></td>
+          <td>✅ **最多 3000 个槽位（约 20 分钟）**</td>
+          <td>❌ **不可用**</td>
+        </tr>
+        <tr>
+          <td><strong>自动重连</strong></td>
+          <td>✅ **内置于 SDK**</td>
+          <td>❌ **需要手动实现**</td>
+        </tr>
+        <tr>
+          <td><strong>增强的 SDK</strong></td>
+          <td>✅ **专业的连接管理**</td>
+          <td>❌ **仅基本客户端**</td>
+        </tr>
+        <tr>
+          <td><strong>档案数据访问</strong></td>
+          <td>✅ **通过共享计划可用**</td>
+          <td>❌ **不可用**</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+  <Tab title="平台集成">
+    <table>
+      <thead>
+        <tr>
+          <th width="300">功能</th>
+          <th width="200">LaserStream</th>
+          <th width="200">专用节点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>速率限制</strong></td>
+          <td>⚠️ **有速率限制**</td>
+          <td>✅ **无速率限制**</td>
+        </tr>
+        <tr>
+          <td><strong>信用使用</strong></td>
+          <td>⚠️ **有信用**</td>
+          <td>✅ **无信用**</td>
+        </tr>
+        <tr>
+          <td><strong>sendTransaction</strong></td>
+          <td>✅ **优化的着陆率**</td>
+          <td>❌ **较差的着陆率**</td>
+        </tr>
+        <tr>
+          <td><strong>平台功能</strong></td>
+          <td>✅ **包括API和webhooks**</td>
+          <td>❌ **需要单独的共享计划**</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+</Tabs>
+
+---
+
+## 用例
+
+<Tabs>
+  <Tab title="LaserStream 理想用途">
+    <CardGroup cols={2}>
+      <Card title="高性能交易" icon="chart-line">
+        实时数据流，具有卓越的性能和可靠性
+      </Card>
+      <Card title="生产应用" icon="shield-check">
+        需要保证正常运行时间的关键任务系统
+      </Card>
+      <Card title="投资组合跟踪" icon="wallet">
+        账户监控、余额更新、交易历史
+      </Card>
+      <Card title="DeFi 分析" icon="coins">
+        协议监控、收益农场数据、流动性跟踪
+      </Card>
+      <Card title="NFT 应用" icon="image">
+        收藏监控、市场数据、特征分析
+      </Card>
+      <Card title="企业解决方案" icon="building">
+        需要托管基础设施的专业应用
+      </Card>
+    </CardGroup>
+  </Tab>
+
+     <Tab title="专用节点有限案例">
+     <Warning>
+       **非常有限的用例** - 仅适用于特定需求
+     </Warning>
+     
+     <CardGroup cols={2}>
+       <Card title="无信用" icon="filter">
+         当您不想处理信用时
+       </Card>
+       <Card title="无速率限制" icon="gauge">
+         当您需要无限请求速率时
+       </Card>
+     </CardGroup>
+
+    <Note>
+      **重要**：专用节点有显著的限制，包括性能风险、单点故障和更高的成本。
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## 价格比较
+
+<CardGroup cols={2}>
+  <Card title="LaserStream" icon="bolt" color="#00D4AA">
+    **专业计划：$999/月**
+    - 包含200M月度信用
+    - 每0.1 MB数据3个信用
+    - 透明的按使用付费定价
+    - 包含所有平台功能
+  </Card>
+  <Card title="专用节点" icon="server" color="#F59E0B">
+    **起价$2,900+/月**
+    - 节点成本因规格而异
+    - 需要共享计划以获得完整功能
+    - 大多数用例的总成本更高
+  </Card>
+</CardGroup>
+
+---
+
+## 技术实现
+
+<Tabs>
+  <Tab title="LaserStream">
+    **简单集成，功能增强**
+    
+
+    ```typescript
+    import { subscribe, LaserstreamConfig } from 'helius-laserstream';
+
+    const config: LaserstreamConfig = {
+      apiKey: 'your-api-key',
+      endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com'
+    };
+
+    // Automatic reconnection and historical replay
+    await subscribe(config, subscriptionRequest, handleData, handleError);
+    ```
+
+    <Info>
+      **主要优势**：内置重连、历史重播和专业错误处理
+    </Info>
+  </Tab>
+
+  <Tab title="Dedicated Nodes">
+    **需要手动连接管理**
+    
+
+    ```typescript
+    import { Client } from '@yellowstone-grpc/client';
+
+    const client = new Client(endpoint, undefined, {
+      'grpc.keepalive_time_ms': 30000,
+      // Custom connection settings...
+    });
+
+    // Manual reconnection logic needed
+    client.on('error', (error) => {
+      // Implement your own reconnection strategy
+    });
+    ```
+
+    <Warning>
+      **需要额外工作**：您需要实现自己的重连逻辑、错误处理和连接管理
+    </Warning>
+  </Tab>
+</Tabs>
+
+---
+
+## 决策框架
+
+<Steps>
+  <Step title="评估您的需求">
+    您是否需要最佳的流媒体性能和可靠性？
+    - **是** → LaserStream
+    - **否** → 继续下一步
+  </Step>
+  
+  <Step title="基础设施偏好">
+    您是否希望专注于应用程序而不是基础设施管理？
+    - **是** → LaserStream
+    - **否** → 继续下一步
+  </Step>
+  
+  <Step title="高级功能">
+    您是否需要历史重播或自动重连？
+    - **是** → LaserStream
+    - **否** → 继续下一步
+  </Step>
+  
+     <Step title="速率限制和积分">
+     您是否特别需要没有速率限制和积分使用？
+     - **是** → 考虑 Dedicated Nodes（但要权衡显著的缺点）
+     - **否** → LaserStream
+   </Step>
+</Steps>
+
+---
+
+## 入门指南
+
+<CardGroup cols={2}>
+  <Card title="从 LaserStream 开始" icon="bolt" href="/zh/laserstream">
+    开始使用 LaserStream 的增强 gRPC 流
+  </Card>
+  <Card title="探索 Dedicated Nodes" icon="server" href="/zh/dedicated-nodes">
+    了解专用节点选项和规格
+  </Card>
+</CardGroup>
+
+## 需要帮助决策？
+
+<CardGroup cols={1}>
+  <Card title="加入 Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    从我们的社区和团队获得实时帮助
+  </Card>
+</CardGroup>
+
+<Tip>
+**专业提示**：大多数用户发现 LaserStream 完全满足他们的需求。除非您特别需要没有速率限制或积分，否则从这里开始。
+</Tip>

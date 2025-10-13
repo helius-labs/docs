@@ -6,3 +6,7 @@ description: "Returns all SPL Token accounts by token owner."
 "og:description": "Get a free RPC and explore the getTokenAccountsByOwner RPC Method. Includes request parameters, response examples, code snippets, and in-browser testing for both Solana Mainnet and Devnet."
 openapi: "/openapi/rpc-http/getTokenAccountsByOwner.yaml POST /"
 ---
+
+<Info>
+**New Feature**: `getTokenAccountsByOwner` now supports the `changedSinceSlot` parameter for incremental updates. When specified, the method returns only token accounts that have been modified at or after the given slot number. This is ideal for tracking token balance changes and portfolio updates.
+</Info>

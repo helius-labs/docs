@@ -1,0 +1,119 @@
+---
+title: 账户订阅
+sidebarTitle: 账户订阅
+description: 通过账户订阅流式传输Solana账户的实时更新。通过WebSocket监控余额变化、数据修改和lamport更新。
+---
+
+## 账户订阅
+
+Solana的Websockets支持一种方法，允许您订阅一个账户，并在与匹配的账户公钥相关的lamports或数据发生变化时，通过WebSocket连接接收通知。此方法直接符合Solana [Websocket API规范](https://solana.com/docs/rpc/websocket#accountsubscribe)。
+
+### **参数**
+
+`string`: 账户公钥，以base58格式发送（必需）。
+
+`object`: 一个可选对象，用于传递附加参数。
+
+* `encoding`: 指定在AccountNotification中返回的数据格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是**base58**）。
+* `commitment`: 定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是**finalized**）。
+
+## 示例
+
+### 基本账户订阅示例
+
+<AccordionGroup>
+<Accordion title="代码示例">
+在此示例中，我们正在订阅账户 `SysvarC1ock11111111111111111111111111111111` 的更改。 \
+\
+每当此账户的数据或lamports发生变化时，我们将看到更新。\
+对于此特定账户，这种情况会频繁发生，因为 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分。
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com?api-key=<API_KEY>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "accountSubscribe",
+        params: [
+            "SysvarC1ock11111111111111111111111111111111", // pubkey of account we want to subscribe to
+            {
+                encoding: "jsonParsed", // base58, base64, base65+zstd, jsonParsed
+                commitment: "confirmed", // defaults to finalized if unset
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</Accordion>
+<Accordion title="示例通知">
+
+```bash
+{
+    'jsonrpc': '2.0', 
+    'method': 'accountNotification', 
+    'params': 
+        {
+          'subscription': 237508762798666, 
+          'result': 
+           {
+            'context': {'slot': 235781083}, 
+            'value': 
+             {
+             'lamports': 1169280, 
+             'data': 'BvEhEb6hixL3QPn41gHcyi2CDGKt381jbNKFFCQr6XDTzCTXCuSUG9D', 
+             'owner': 'Sysvar1111111111111111111111111111111111111', 
+             'executable': False, 
+             'rentEpoch': 361, 
+             'space': 40
+             }
+           }
+        }
+}
+```
+
+</Accordion>
+</AccordionGroup>

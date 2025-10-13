@@ -1,0 +1,220 @@
+---
+title: Solana 数据流快速入门
+sidebarTitle: 快速入门
+description: 在不到 5 分钟内运行您的第一个实时 Solana 数据流。LaserStream、增强型 WebSockets 和 Webhooks 设置指南。
+---
+
+## 快速设置
+
+通过工作代码示例在几分钟内获取流式 Solana 数据。根据您的需求选择方法：
+
+| 方法 | 最适合 | 所需计划 | 延迟 |
+|--------|----------|---------------|---------|
+| **LaserStream gRPC** | 关键任务，后端服务 | Developer+ (Devnet), Professional+ (Mainnet) | **最快** |
+| **增强型 WebSockets** | 高级过滤，高性能应用 | Business+ | **快** |
+| **标准 WebSockets** | 大多数应用程序，现有 Solana 代码 | Free+ | **良好** |
+| **Webhooks** | 服务器通知，事件驱动应用 | Free+ | **可变** |
+
+## 选项 1：标准 WebSockets
+
+适用于大多数用例，并与现有的 Solana WebSocket 代码兼容。
+
+```javascript
+const WebSocket = require('ws');
+
+const ws = new WebSocket('wss://mainnet.helius-rpc.com?api-key=YOUR_API_KEY');
+
+ws.on('open', () => {
+  console.log('Connected to Helius');
+  
+  // Subscribe to account changes
+  ws.send(JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "accountSubscribe",
+    params: [
+      "9PejEmViKHgUkVFWN57cNEZnFS4Qo6SzsLj5UPAXfDTF", // Replace with your account
+      { encoding: "jsonParsed", commitment: "confirmed" }
+    ]
+  }));
+});
+
+ws.on('message', (data) => {
+  const message = JSON.parse(data);
+  if (message.method === 'accountNotification') {
+    console.log('Account updated:', message.params.result.value);
+  }
+});
+```
+
+**将 `YOUR_API_KEY` 替换为您从 [dashboard.helius.dev](https://dashboard.helius.dev) 获取的密钥**
+
+<Card title="标准 WebSockets 指南" icon="arrow-right" href="/zh/rpc/websocket">
+  完整参考，包含所有订阅方法和示例
+</Card>
+
+## 选项 2：增强型 WebSockets
+
+适用于需要高级过滤和更快性能的应用程序。
+
+```javascript
+const WebSocket = require('ws');
+
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+ws.on('open', () => {
+  console.log('Enhanced WebSocket connected');
+  
+  // Subscribe to transactions involving specific accounts
+  ws.send(JSON.stringify({
+    jsonrpc: "2.0",
+    id: 1,
+    method: "transactionSubscribe",
+    params: [
+      {
+        accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        vote: false,
+        failed: false
+      },
+      {
+        commitment: "confirmed",
+        encoding: "jsonParsed",
+        transactionDetails: "full"
+      }
+    ]
+  }));
+  
+  // Keep connection alive
+  setInterval(() => ws.ping(), 30000);
+});
+
+ws.on('message', (data) => {
+  const message = JSON.parse(data);
+  console.log('Transaction:', message);
+});
+```
+
+<Card title="增强型 WebSockets 指南" icon="arrow-right" href="/zh/enhanced-websockets">
+  学习高级过滤和订阅选项
+</Card>
+
+## 选项 3：LaserStream gRPC
+
+最可靠的选项，具有历史重播和多节点故障转移。
+
+```bash
+npm install helius-laserstream
+```
+
+```typescript
+import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream';
+
+async function main() {
+  const subscriptionRequest: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'],
+        accountExclude: [],
+        accountRequired: [],
+        vote: false,
+        failed: false
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    accounts: {},
+    slots: {},
+    transactionsStatus: {},
+    blocks: {},
+    blocksMeta: {},
+    entry: {},
+    accountsDataSlice: [],
+  };
+
+  const config: LaserstreamConfig = {
+    apiKey: 'YOUR_API_KEY',
+    endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com',
+  }
+
+  await subscribe(config, subscriptionRequest, async (data) => {
+    console.log(data);
+  }, async (error) => {
+    console.error(error);
+  });
+}
+
+main().catch(console.error);
+```
+
+<Card title="LaserStream 指南" icon="arrow-right" href="/zh/laserstream">
+  完整的 LaserStream 文档，包含历史重播
+</Card>
+
+## 选项 4：Webhooks
+
+适用于需要事件通知的服务器端应用程序。
+
+```bash
+# Create a webhook
+curl -X POST "https://api.helius.xyz/v0/webhooks" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "webhookURL": "https://your-server.com/webhook",
+    "transactionTypes": ["Any"],
+    "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
+    "webhookType": "enhanced"
+  }'
+```
+
+```javascript
+// Handle webhook events (Express.js example)
+app.post('/webhook', (req, res) => {
+  req.body.forEach(event => {
+    console.log('Blockchain event:', event);
+  });
+  res.status(200).send('OK');
+});
+```
+
+<Card title="Webhooks 指南" icon="arrow-right" href="/zh/webhooks">
+  完整的 webhook 设置和事件处理
+</Card>
+
+## 常见用例
+
+**监控代币转移**
+
+```javascript
+// Subscribe to Token Program activity
+method: "programSubscribe",
+params: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", {...}]
+```
+
+**跟踪 NFT 销售**
+
+```javascript
+// Subscribe to Magic Eden program
+method: "programSubscribe", 
+params: ["M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K", {...}]
+```
+
+**监视钱包活动**
+
+```javascript
+// Monitor specific wallet
+method: "accountSubscribe",
+params: ["WALLET_ADDRESS", {...}]
+```
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="Streaming Overview" icon="play" href="/zh/data-streaming">
+    了解所有流选项及其使用时机
+  </Card>
+  <Card title="API Reference" icon="book" href="/zh/api-reference">
+    完整的方法文档和参数
+  </Card>
+</CardGroup>
+
+**需要帮助吗？** 加入我们的 [Discord](https://discord.com/invite/6GXdee3gBj) 或查看 [支持文档](/zh/support)。

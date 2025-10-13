@@ -1,0 +1,115 @@
+---
+title: Solana 可替代代币 API：完整的代币数据访问
+sidebarTitle: 可替代代币扩展
+description: 用于处理所有 Solana 代币的最通用 API。SPL 代币、Token22 扩展、价格数据和全面的代币信息访问。
+---
+
+## 背景
+
+最初，DAS API 仅支持对 Metaplex NFT 和 cNFT 的所有权查询。Helius 已扩展 DAS API 以支持**所有代币**，包括普通 SPL 代币（无元数据）和 Token22（及其扩展）。
+
+用户可以查询**任何**账户的代币余额，涵盖**所有**代币（SPL、Token22、NFT、压缩 NFT）。我们还包括以美元计价的代币价格。
+
+Solana 代币由其铸造账户定义。例如，USDC 的铸造账户是 [EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v](https://explorer.solana.com/address/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v)。当您购买 40 美元的 USDC 时，会创建一个代币账户，持有 40 个 USDC 代币。这可以扩展到数百（甚至更多）的不同代币账户。
+
+<Info>
+想了解更多关于 Token22 的信息吗？查看 Helius 的[博客文章](https://www.helius.dev/blog/what-is-token-2022)！
+</Info>
+
+## 它是如何工作的？
+
+Helius 的可替代代币扩展围绕所有权索引进行。以下查询提供了账户资产的统一视图。[GetAsset](/zh/api-reference/das/getasset)、[GetAssetsByOwner](/zh/api-reference/das/getassetsbyowner) 和 [SearchAssets](/zh/api-reference/das/searchassets) 支持可替代代币。
+
+此扩展添加了一个名为 `tokenType` 的额外字段。此字段允许您查询账户拥有的所有资产，包括可替代代币和 Token22 代币。
+
+`tokenType` 的选项包括：
+
+* `fungible` : 返回所有可替代代币。
+* `nonFungible`: 返回所有 NFT（压缩和常规 NFT）。
+* `regularNft` : 仅返回常规 NFT。
+* `compressedNft`: 仅返回压缩 NFT。
+* `all` : 返回所有代币。
+
+示例：
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": "helius-test",
+    "method": "searchAssets",
+    "params": {
+        "ownerAddress": "5aZZ4duJUKiMsJN9vRsoAn4SDX7agvKu7Q3QdFWRfWze",
+        "tokenType": "all"
+    }
+}
+```
+
+现在，您将在响应中看到像 JitoSOL 这样的同质化代币（为简洁起见已截断）。它将包括总账户余额、代币的程序地址、关联的代币地址、流通中的总供应量和价格信息。
+
+```json
+"id": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+"content": {
+    "$schema": "",
+    "json_uri": "",
+    "metadata": {
+        "description": "MEV-Powered Liquid Staking Derivative",
+        "name": "Jito Staked SOL",
+        "symbol": "JitoSOL",
+        "token_standard": "Fungible"
+    },
+    [...],
+    "token_info": {
+        "symbol": "JitoSOL",
+        "balance": 35688813508,
+        "supply": 5949594702758293,
+        "decimals": 9,
+        "token_program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "associated_token_address": "H7iLu4DPFpzEx1AGN8BCN7Qg966YFndt781p6ukhgki9",
+        "price_info": {
+            "price_per_token": 56.47943,
+            "total_price": 2015.6838854339217,
+            "currency": "USDC"
+        }
+    },
+[...]
+
+```
+
+### Token22 支持
+
+我们支持 Token22 代币并解析其扩展。如果它是一个 Token22 程序，响应将包括 `mint_extensions` 字段。以下是 BERN 的示例：
+
+```json
+"mint_extensions": {
+    "transfer_fee_config": {
+        "withheld_amount": 0,
+        "newer_transfer_fee": {
+            "epoch": 457,
+            "maximum_fee": 3906250000000000000,
+            "transfer_fee_basis_points": 690
+        },
+        "older_transfer_fee": {
+            "epoch": 455,
+            "maximum_fee": 3906250000000000000,
+            "transfer_fee_basis_points": 0
+        },
+        "withdraw_withheld_authority": "7MyTjmRygJoCuDBUtAuSugiYZFULD2SWaoUTmtjtRDzD",
+        "transfer_fee_config_authority": "7MyTjmRygJoCuDBUtAuSugiYZFULD2SWaoUTmtjtRDzD"
+    }
+}
+```
+
+### 向后兼容性
+
+为了向后兼容，行为与原始 DAS 相同，这意味着仅返回 NFT 和压缩 NFT。
+
+```json
+{
+    "jsonrpc": "2.0",
+    "id": "helius-test",
+    "method": "searchAssets",
+    "params": {
+        "ownerAddress": "5aZZ4duJUKiMsJN9vRsoAn4SDX7agvKu7Q3QdFWRfWze"
+    }
+}
+```

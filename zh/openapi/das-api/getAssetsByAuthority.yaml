@@ -1,0 +1,363 @@
+"openapi": "3.1.0"
+"info":
+  "title": "Solana RPC API"
+  "version": "1.0.0"
+  "license":
+    "name": "Apache 2.0"
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+"servers":
+  - "url": "https://mainnet.helius-rpc.com"
+    "description": "主网 RPC 端点"
+  - "url": "https://devnet.helius-rpc.com"
+    "description": "开发网 RPC 端点"
+"components":
+  "securitySchemes":
+    "ApiKeyQuery":
+      "type": "apiKey"
+      "in": "query"
+      "name": "api-key"
+      "description": "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+"paths":
+  "/":
+    "post":
+      "tags":
+        - "RPC"
+      "summary": "getAssetsByAuthority"
+      "description": "返回由给定权限拥有的资产列表。"
+      "operationId": "rpc"
+      "security":
+        - "ApiKeyQuery": []
+      "requestBody":
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "required":
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              "properties":
+                "jsonrpc":
+                  "type": "string"
+                  "enum":
+                    - "2.0"
+                  "description": "JSON-RPC 协议的版本。"
+                  "default": "2.0"
+                "id":
+                  "type": "string"
+                  "description": "用于标识请求的 ID。"
+                  "default": "1"
+                "method":
+                  "type": "string"
+                  "enum":
+                    - "getAssetsByAuthority"
+                  "description": "要调用的 DAS 方法名称。"
+                  "default": "getAssetsByAuthority"
+                "params":
+                  "type": "object"
+                  "default":
+                    "authorityAddress": "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                  "properties":
+                    "authorityAddress":
+                      "type": "string"
+                      "description": "要检索其资产的所有者地址。"
+                      "example": "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                    "page":
+                      "type": "integer"
+                      "description": "要返回的结果页。"
+                      "example": 1
+                    "limit":
+                      "type": "integer"
+                      "description": "要返回的最大资产数量。"
+                      "example": 100
+                    "sortBy":
+                      "type": "object"
+                      "description": "响应的排序选项。"
+                      "properties":
+                        "sortBy":
+                          "type": "string"
+                          "description": "检索到的资产将按此标准排序。"
+                          "enum":
+                            - "created"
+                            - "recent_action"
+                            - "updated"
+                            - "none"
+                        "sortDirection":
+                          "type": "string"
+                          "description": "检索到的资产将按此方向排序。"
+                          "enum":
+                            - "asc"
+                            - "desc"
+                    "before":
+                      "type": "string"
+                      "description": "用于向后分页浏览资产的游标。"
+                      "example": "string"
+                    "after":
+                      "type": "string"
+                      "description": "用于向前分页浏览资产的游标。"
+                      "example": "string"
+                    "options":
+                      "type": "object"
+                      "description": "响应的显示选项。"
+                      "properties":
+                        "showUnverifiedCollections":
+                          "type": "boolean"
+                          "description": "显示未验证集合的分组信息，而不是跳过它们。"
+                          "default": false
+                        "showCollectionMetadata":
+                          "type": "boolean"
+                          "description": "显示集合的元数据。"
+                          "default": false
+                        "showGrandTotal":
+                          "type": "boolean"
+                          "description": "显示与查询匹配的资产总数。这将使请求变慢。"
+                          "default": false
+                        "showInscription":
+                          "type": "boolean"
+                          "description": "显示链上记录的资产的铭文详情。"
+                          "default": false
+                  "required":
+                    - "authorityAddress"
+      "responses":
+        "200":
+          "description": "成功响应"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "result":
+                    "type": "object"
+                    "properties":
+                      "last_indexed_slot":
+                        "type": "integer"
+                        "description": "保证所有数据都已索引到此槽位及之前的所有数据。"
+                        "example": 365750752
+                      "total":
+                        "type": "integer"
+                        "description": "找到的资产总数。"
+                        "example": 1
+                      "limit":
+                        "type": "integer"
+                        "description": "请求的资产最大数量。"
+                        "example": 1
+                      "page":
+                        "type": "integer"
+                        "description": "结果的当前页。"
+                        "example": 1
+                      "items":
+                        "type": "array"
+                        "description": "资产的数组。"
+                        "items":
+                          "type": "object"
+                          "properties":
+                            "interface":
+                              "type": "string"
+                              "description": "资产的接口。"
+                              "example": "ProgrammableNFT"
+                            "id":
+                              "type": "string"
+                              "description": "资产的ID。"
+                              "example": "JEGruwYE13mhX2wi2MGrPmeLiVyZtbBptmVy9vG3pXRC"
+                            "content":
+                              "type": "object"
+                              "description": "资产的内容。"
+                              "example":
+                                "$schema": "https://schema.metaplex.com/nft1.0.json"
+                                "json_uri": "https://madlads.s3.us-west-2.amazonaws.com/json/6867.json"
+                                "files":
+                                  - "uri": "https://madlads.s3.us-west-2.amazonaws.com/images/6867.png"
+                                    "cdn_uri": "https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/6867.png"
+                                    "mime": "image/png"
+                            "authorities":
+                              "type": "array"
+                              "items":
+                                "type": "object"
+                              "description": "资产的权限。"
+                              "example":
+                                - "address": "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                                  "scopes":
+                                    - "full"
+                            "compression":
+                              "type": "object"
+                              "description": "资产的压缩详情。"
+                              "example":
+                                "eligible": false
+                                "compressed": false
+                                "data_hash": ""
+                                "creator_hash": ""
+                                "asset_hash": ""
+                                "tree": ""
+                                "seq": 0
+                                "leaf_id": 0
+                            "grouping":
+                              "type": "object"
+                              "description": "资产的分组详情。"
+                              "example":
+                                - "group_key": "collection"
+                                  "group_value": "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                            "royalty":
+                              "type": "object"
+                              "description": "资产的版税详情。"
+                              "example":
+                                "royalty_model": "creators"
+                                "target": null
+                                "percent": 0.042
+                                "basis_points": 420
+                                "primary_sale_happened": true
+                                "locked": false
+                            "creators":
+                              "type": "array"
+                              "items":
+                                "type": "object"
+                              "description": "资产的创作者详情。"
+                              "example":
+                                - "address": "5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv"
+                                  "share": 0
+                                  "verified": true
+                            "ownership":
+                              "type": "object"
+                              "description": "资产的所有权详情。"
+                              "example":
+                                "frozen": true
+                                "delegated": false
+                                "delegate": null
+                                "ownership_model": "single"
+                                "owner": "3F21SJs4FMpsakrxmd8GjgfQZG6BN6MVsvXcm5Yc6Jcf"
+                            "burnt": false
+        "400":
+          "description": "错误请求。由于语法无效，服务器无法理解请求。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32602
+                      "message":
+                        "type": "string"
+                        "example": "请求参数无效。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "401":
+          "description": "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32001
+                      "message":
+                        "type": "string"
+                        "example": "身份验证失败。缺少或无效的API密钥。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "403":
+          "description": "禁止访问。客户端没有访问内容的权限。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32003
+                      "message":
+                        "type": "string"
+                        "example": "您没有权限访问此资源。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "404":
+          "description": "未找到。服务器无法找到请求的资源。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32004
+                      "message":
+                        "type": "string"
+                        "example": "未找到指定权限的资产。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "429":
+          "description": "请求过多。用户在给定时间内发送了太多请求。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32029
+                      "message":
+                        "type": "string"
+                        "example": "超出速率限制。请稍后再试。"
+                  "id":
+                    "type": "string"
+                    "example": "1"
+        "500":
+          "description": "内部服务器错误。服务器遇到了一个无法处理的情况。"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "example": "2.0"
+                  "error":
+                    "type": "object"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32000
+                      "message":
+                        "type": "string"
+                        "example": "服务器发生了意外错误。"
+                  "id":
+                    "type": "string"
+                    "example": "1"

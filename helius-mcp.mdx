@@ -5,16 +5,16 @@ description: "Connect AI tools directly to Helius Solana API documentation for i
 ---
 
 <Info>
-**AI-Native Development**: Use the Helius MCP server to give AI tools access to our documentation, enabling contextual code generation and intelligent assistance.
+**AI-Native Development**: The Helius MCP server gives AI tools direct access to our documentation and API specifications, enabling contextual code generation and intelligent assistance.
 </Info>
 
 ## What is MCP?
 
-Model Context Protocol (MCP) is a standard that allows AI applications to access external documentation and data sources. Think of it as a bridge that lets AI tools like Claude, Cursor, and Windsurf read your documentation in real-time to provide better, more accurate assistance.
+Model Context Protocol (MCP) is an open standard that creates standardized connections between AI applications and external services like documentation. The Helius MCP server automatically exposes tools for AI applications to search our documentation and interact with our APIs.
 
 <CardGroup cols={2}>
   <Card title="Real-time Context" icon="bolt">
-    AI tools can query live documentation and API specifications for accurate, up-to-date information
+    AI tools can search live documentation and API specifications for accurate, up-to-date information
   </Card>
   <Card title="Code Generation" icon="code">
     AI generates working code examples using current API methods and best practices from our docs
@@ -29,9 +29,10 @@ Model Context Protocol (MCP) is a standard that allows AI applications to access
 
 ## How Helius MCP Works
 
-The Helius MCP server automatically provides AI tools with access to:
+The Helius MCP server is automatically generated and hosted at `https://docs.helius.dev/mcp`, providing AI tools with access to:
 
 - **Complete API Documentation**: All Helius API methods, parameters, and examples
+- **Search Capabilities**: Query any part of our documentation for specific information
 - **Code Examples**: Working implementations for common use cases  
 - **Best Practices**: Recommended patterns for using Helius services
 - **Real-time Updates**: Always current with the latest documentation changes
@@ -43,46 +44,48 @@ The Helius MCP server automatically provides AI tools with access to:
 ## Getting Started
 
 <Steps>
-  <Step title="Install MCP Support">
-    First, make sure your AI tool supports MCP. Popular options include:
+  <Step title="Choose Your AI Tool">
+    Make sure your AI tool supports MCP. Popular options include:
     - **Cursor**: Built-in MCP support
     - **Windsurf**: Native MCP integration  
     - **Claude Desktop**: MCP server support
     - **VS Code**: via MCP extensions
   </Step>
   
-  <Step title="Add Helius MCP Server">
-    Install the Helius MCP server in your development environment:
+  <Step title="Connect to Helius MCP Server">
+    Add the Helius MCP server URL to your AI tool:
 
-    ```bash
-    npx mint-mcp add helius
+    ```
+    https://docs.helius.dev/mcp
     ```
 
-    This automatically configures your MCP client to access Helius documentation for AI assistance.
+    Each tool has different configuration methods - see the specific instructions below for your AI tool.
   </Step>
   
   <Step title="Start Using AI with Helius Context">
-    Open your AI-powered IDE and start asking questions about Helius APIs. The AI will automatically query our MCP server for accurate, contextual documentation to help generate code.
+    Once connected, start asking questions about Helius APIs. The AI will automatically search our MCP server for accurate, contextual documentation to help generate code.
   </Step>
 </Steps>
 
-## Quick Test
+## Connection Instructions
 
-Want to see it in action? Here's the fastest way to test the Helius MCP integration:
+Choose your AI tool and follow the specific setup instructions:
 
 <Tabs>
   <Tab title="Cursor">
     1. Open Cursor IDE
-    2. Open a terminal and run: `npx mint-mcp add helius`
+    2. Use the contextual menu (see below) or manually add the MCP server:
+       - Open Settings → MCP Servers
+       - Add server URL: `https://docs.helius.dev/mcp`
     3. Open Agent mode (Ctrl/Cmd + K)
     4. Ask: "Write a Node.js script for sending transactions using Helius"
-    5. The AI will reference our documentation via MCP to generate accurate code
-    6. Watch as the AI generates working code using current Helius API patterns from our docs
+    5. The AI will search our documentation via MCP to generate accurate code
   </Tab>
   
   <Tab title="Windsurf">
     1. Open Windsurf IDE
-    2. Run: `npx mint-mcp add helius` in terminal
+    2. Configure MCP server in settings:
+       - Add server URL: `https://docs.helius.dev/mcp`
     3. Open the AI assistant
     4. Ask: "Show me how to get NFT data using Helius DAS API"
     5. The AI will reference our docs via MCP and generate code with proper imports and error handling
@@ -90,11 +93,31 @@ Want to see it in action? Here's the fastest way to test the Helius MCP integrat
   
   <Tab title="Claude Desktop">
     1. Install Claude Desktop
-    2. Run: `npx mint-mcp add helius`
-    3. Open Claude and ask: "Help me build a Solana transaction monitor with Helius"
-    4. Get contextual responses with working code examples based on our documentation
+    2. Configure MCP server in your Claude configuration file
+    3. Add the Helius MCP server URL: `https://docs.helius.dev/mcp`
+    4. Open Claude and ask: "Help me build a Solana transaction monitor with Helius"
+    5. Get contextual responses with working code examples based on our documentation
+  </Tab>
+  
+  <Tab title="VS Code">
+    1. Install an MCP extension for VS Code
+    2. Configure the extension to connect to: `https://docs.helius.dev/mcp`
+    3. Use the AI features provided by your chosen extension
+    4. Ask questions about Helius APIs to get contextual assistance
   </Tab>
 </Tabs>
+
+## Contextual Menu Integration
+
+For quick access, use the contextual menu available on any page of our documentation:
+
+- **Copy MCP server URL**: Copies `https://docs.helius.dev/mcp` to your clipboard
+- **Connect to Cursor**: Automatically installs the MCP server in Cursor
+- **Connect to VS Code**: Automatically installs the MCP server in VS Code
+
+<Note>
+The contextual menu provides the easiest way to connect to our MCP server. Look for the menu icon in the top-right corner of any documentation page.
+</Note>
 
 ## Use Cases
 
@@ -256,22 +279,33 @@ const getNFTPortfolio = async (walletAddress: string) => {
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title="MCP Server Not Found">
-    **Issue**: AI tool can't find the Helius MCP server
+  <Accordion title="MCP Server Connection Issues">
+    **Issue**: AI tool can't connect to the Helius MCP server
     
     **Solution**: 
-    1. Re-run `npx mint-mcp add helius`
-    2. Restart your AI tool
-    3. Check that MCP is enabled in your tool's settings
+    1. Verify the MCP server URL is correct: `https://docs.helius.dev/mcp`
+    2. Check your internet connection
+    3. Restart your AI tool and try reconnecting
+    4. Ensure your AI tool supports MCP (check tool documentation)
+  </Accordion>
+  
+  <Accordion title="Search Tool Only Available">
+    **Issue**: Only the search tool appears, no API endpoints
+    
+    **Solution**: 
+    1. This is expected - our MCP server exposes documentation search capabilities
+    2. API endpoints are accessed through the search tool when the AI needs specific information
+    3. The search tool provides access to all our documentation and API specifications
   </Accordion>
   
   <Accordion title="Outdated Information">
     **Issue**: AI is providing outdated API information
     
     **Solution**: 
-    1. The MCP server auto-updates, but you may need to refresh your AI session
-    2. Clear your AI tool's cache if available
-    3. Ask specifically for "the latest" information
+    1. The MCP server auto-updates with our documentation
+    2. Refresh your AI session or restart the tool
+    3. Ask specifically for "the latest" information about the API
+    4. Verify you're connected to the correct MCP server URL
   </Accordion>
   
   <Accordion title="Generated Code Doesn't Work">
@@ -279,8 +313,19 @@ const getNFTPortfolio = async (walletAddress: string) => {
     
     **Solution**:
     1. Share the error message with the AI for debugging
-    2. Ask for error handling improvements
+    2. Ask the AI to search for specific error handling patterns
     3. Verify your API key and network connectivity
+    4. Ask for working examples from our documentation
+  </Accordion>
+  
+  <Accordion title="Contextual Menu Not Working">
+    **Issue**: Can't find or use the contextual menu
+    
+    **Solution**:
+    1. Look for the menu icon in the top-right corner of documentation pages
+    2. Ensure you're viewing the documentation in a supported browser
+    3. Manually copy the MCP server URL: `https://docs.helius.dev/mcp`
+    4. Configure your AI tool manually using the connection instructions above
   </Accordion>
 </AccordionGroup>
 
@@ -301,4 +346,4 @@ const getNFTPortfolio = async (walletAddress: string) => {
   </Card>
 </CardGroup>
 
-Ready to supercharge your development workflow? Install the Helius MCP server and start building with AI assistance today! 
+Ready to supercharge your development workflow? Connect to the Helius MCP server and start building with AI assistance today! 

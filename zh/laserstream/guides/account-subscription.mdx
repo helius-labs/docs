@@ -1,0 +1,441 @@
+---
+title: 账户订阅和更新
+sidebarTitle: 账户订阅
+description: 了解如何订阅账户更新并使用 Laserstream 高效跟踪链上状态变化。
+---
+
+在构建需要响应链上变化的应用程序时，轮询 RPC 端点以获取账户更新既低效又缓慢。账户订阅通过直接向您的应用程序传递关于账户状态变化的实时更新来解决这个问题。
+
+本指南涵盖了您需要了解的关于账户订阅的所有内容：它们是什么，如何工作，以及如何针对您的特定用例进行优化。
+
+---
+
+## 账户模型背景
+
+<Info>
+如果您熟悉 Solana 账户及其结构，请跳过此部分。
+</Info>
+
+Solana 使用基于账户的模型，其中每个数据片段都存在于一个账户中——一个包含数据和元数据的容器。每个账户具有：
+
+- **数据**：存储程序状态、代币余额或其他信息的实际字节
+- **所有者**：控制此账户并可以修改其数据的程序
+- **Lamports**：账户的 SOL 余额用于租金豁免
+- **可执行**：此账户是否包含程序代码
+
+程序是无状态的——它们不在内部存储数据。相反，它们创建和管理单独的账户来存储其状态。当您与程序交互时，您需要传入它应该读取或写入的账户。
+
+这种设计使账户订阅功能强大：您可以监视特定账户的变化、由某个程序拥有的所有账户或符合某些条件的账户。
+
+---
+
+## 基本账户订阅
+
+让我们从一个简单的示例开始，该示例订阅代币账户的变化。此脚本将在代币余额发生变化时通知您：
+
+```ts [expandable]
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
+import * as bs58 from 'bs58';
+
+// Utility function to recursively convert Buffer objects to base58 strings
+function convertBuffersToBase58(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (Buffer.isBuffer(obj)) {
+    return bs58.encode(obj);
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(convertBuffersToBase58);
+  }
+  
+  if (typeof obj === 'object') {
+    const result: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = convertBuffersToBase58(obj[key]);
+      }
+    }
+    return result;
+  }
+  
+  return obj;
+}
+
+async function main() {
+  console.log('🏦 Basic Account Subscription Example');
+
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-url',
+  };
+
+  const request = {
+    accounts: {
+      "token-accounts": {
+        account: [], // Specific account pubkeys (empty = all)
+        owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"], // Token program
+        filters: [
+          {
+            // Only token accounts (165 bytes)
+            datasize: 165
+          }
+        ]
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    transactions: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    async (update: SubscribeUpdate) => {
+      const readableUpdate = convertBuffersToBase58(update);
+      console.log('🏦 Account Update:', JSON.stringify(readableUpdate, null, 2));
+    },
+    async (err) => console.error('❌ Stream error:', err)
+  );
+
+  console.log(`✅ Account subscription started (id: ${stream.id})`);
+
+  process.on('SIGINT', () => {
+    console.log('\n🛑 Cancelling stream...');
+    stream.cancel();
+    process.exit(0);
+  });
+}
+
+main().catch(console.error);
+```
+
+当您运行此基本订阅时，您将在控制台中看到实时账户更新流：
+
+```
+🏦 Basic Account Subscription Example
+✅ Account subscription started (id: xyz789)
+
+🏦 Account Update: {
+  "filters": ["token-accounts"],
+  "account": {
+    "account": {
+      "pubkey": "BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF",
+      "lamports": "2039280",
+      "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "rentEpoch": "18446744073709551615",
+      "data": "2NUx6Xw9QkmgJCyYUP3d8TPsjJhUpSM7hcy9Fi1juGc6g9DrpPFyGyvBZzu9qiAjFtyEDbNiLHYFJsq1dD5Wxr4LPcF9Dqs4AJa15L1N92pfinnoKVfCsVCcybhV1iwkCCTMeMyxTRA4tqJm6MrLwgKG3HmmwVdhsEuXjSsGJFXGzgfgPHucVzBEgAqcpH9JPpoaQyis2MFwRJLjenxzkE8xJzWHv1Zk2T",
+      "writeVersion": "2697618495",
+      "txnSignature": "5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD"
+    },
+    "slot": "352366983"
+  },
+  "createdAt": "2025-07-10T11:56:22.027Z"
+}
+```
+
+**刚刚发生了什么？** 我们的订阅完美运行！我们请求Laserstream通知我们关于代币账户的更改，它提供了关于账户 `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF` 的更新。
+
+此账户具有：
+- **2,039,280 lamports**（约0.002 SOL余额 - 这是此代币账户的免租金额）
+- **所有者程序** `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`（这是SPL Token程序）
+- **交易签名** `5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD` 显示导致此账户更改的具体交易
+- **槽位 352366983** 表示此更新在区块链上发生的时间
+- **数据字段** 包含165字节的账户数据，编码为base58
+
+### 理解使用datasize进行账户过滤
+
+数据字段至关重要 - 它包含实际的代币账户结构。让我们利用这一理解进行**智能账户过滤**。
+
+#### 为什么使用datasize过滤？
+
+要理解我们为什么需要过滤，首先要了解代币账户到底是什么。**对于钱包持有的每个代币，链上都有一个单独的账户。** 如果您的钱包持有3种不同的代币（USDC、BONK和SOL），实际上您有1个钱包账户（您的主SOL账户）加上3个代币账户（每种代币类型一个）。每个代币账户正好是165字节，并存储：它持有的代币（铸造地址），谁拥有它（您的钱包地址），以及它包含多少该代币（数量）。
+
+Token Program在Solana上拥有**数百万个账户**，但并非所有账户都是我们认为的持有用户余额的“代币账户”。以下是有过滤和无过滤的情况：
+
+**无过滤 - 洪水般的数据：**
+
+```ts
+accounts: {
+  "all-token-program-accounts": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"] // ❌ Overwhelming!
+  }
+}
+```
+
+这会订阅所有由 Token Program 拥有的账户，包括：
+- **Token 账户**（165 字节）- 用户余额：数百万个账户
+- **Mint 账户**（82 字节）- 代币定义：数十万个账户
+- **Multisig 账户**（355 字节）- 共享钱包控制：数万个账户
+- **Associated Token Program 账户**（各种大小）- 数百万个账户
+
+<Warning>
+**结果：** 您的应用程序会不断收到数百万个账户更新，其中大多数您并不关心。
+</Warning>
+
+**使用智能过滤 - 精确打击：**
+
+```ts
+accounts: {
+  "token-accounts-only": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [{ datasize: 165 }] // ✅ Only standard token accounts
+  }
+}
+```
+
+这会过滤到仅包含 165 字节的账户，这些账户专门是用户代币余额账户 - 正是您想要跟踪代币转移、余额变化和投资组合更新的内容。
+
+**区别：**
+- **无过滤：** 数百万个账户更新（代币创建、多重签名更改等）
+- **使用数据大小过滤：** 仅代币余额变化
+
+这显著减少了噪音，仅关注实际代表用户代币持有的账户。
+
+#### 165 字节从何而来？
+
+这不是魔法 - 它来自 [SPL Token 程序的账户结构](https://github.com/solana-program/token/blob/d05d10807fe8cf157f6e1f024c708274c30c953a/program/src/state.rs#L87)。查看源代码，我们可以看到 `Account` 结构体定义了正好 165 字节：
+
+```rust
+pub struct Account {
+    pub mint: Pubkey,                    // 32 bytes
+    pub owner: Pubkey,                   // 32 bytes  
+    pub amount: u64,                     // 8 bytes
+    pub delegate: COption<Pubkey>,       // 4 + 32 bytes
+    pub state: AccountState,             // 1 byte
+    pub is_native: COption<u64>,         // 4 + 8 bytes
+    pub delegated_amount: u64,           // 8 bytes
+    pub close_authority: COption<Pubkey> // 4 + 32 bytes
+}
+// Total: 32+32+8+36+1+12+8+36 = 165 bytes
+```
+
+这个固定大小允许我们精确过滤标准代币账户并排除：
+- Mint 账户（82 字节）
+- Multisig 账户（355 字节）
+- Associated token account program 账户
+- 其他具有不同大小的代币相关账户
+
+要计算其他程序中的账户大小，请查看 [Anchor Space Reference](https://www.anchor-lang.com/docs/references/space) - 它显示了不同数据类型占用的空间（Pubkey = 32 字节，u64 = 8 字节等）。
+
+#### 解码账户结构
+
+现在我们已经了解了为什么要过滤165字节，让我们解码示例账户中的内容：
+
+```
+Base58 data: 2NUx6Xw9QkmgJCyYUP3d8TPsjJhUpSM7hcy9Fi1juGc6g9...
+```
+
+165字节的分解如下：
+- **字节 0-31：** 铸币地址（此账户持有的代币）
+- **字节 32-63：** 拥有者地址（谁拥有此代币账户）  
+- **字节 64-71：** 代币数量（账户中的代币数量）
+- **字节 72-164：** 附加元数据（委托、状态、关闭权限等）
+
+这种结构化的方法为我们提供了精确的控制：我们只接收标准代币账户的更新，而不是其他账户类型的噪音。
+
+### 结合过滤器：datasize + memcmp 实现精确定位
+
+现在我们知道铸币地址位于字节0-31，我们可以更加具体。假设我们只想监控USDC代币账户。我们可以将我们的`datasize`过滤器与`memcmp`过滤器结合，以定位确切的铸币地址：
+
+```ts
+const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+const request = {
+  accounts: {
+    "usdc-only": {
+      owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+      filters: [
+        { datasize: 165 },                    // Standard token accounts only
+        { 
+          memcmp: {
+            offset: 0,                         // Mint address starts at byte 0
+            base58: USDC_MINT                  // Match this specific mint
+          }
+        }
+      ]
+    }
+  },
+  // ... other config
+};
+```
+
+**渐进式过滤策略：**
+1. **拥有者过滤器：** “给我由代币程序拥有的账户”（数百万个账户）
+2. **数据大小过滤器：** “但仅限165字节的标准代币账户”（数十万个）  
+3. **Memcmp过滤器：** “并且仅限持有USDC的账户”（数千个）
+
+这种从广泛到具体的进展是高效账户监控的关键。每个过滤器都缩小了结果集，因此您只接收您关心的确切更新。
+
+**重要：** 所有过滤器使用AND逻辑 - 每个条件都必须满足才能触发账户更新。
+
+### 读取USDC账户更新：谁，多少，在哪里？
+
+现在让我们看看这些过滤后的更新实际上包含什么。让我们创建一个USDC特定的监控器，以回答代币账户更改时的关键问题：
+
+- **谁** 拥有这个代币账户？
+- **多少** USDC 现在包含在其中？
+- **哪里**（哪个具体账户）发生了变化？
+- **何时** 发生了这种变化？
+- **什么交易** 导致了变化？
+
+原始账户更新包含我们需要解码的二进制数据。由于 Solana 使用 base58 编码地址和签名，我们使用 `bs58.encode()` 函数将二进制 Buffer 对象转换为可读字符串。
+
+```ts [expandable]
+import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
+import * as bs58 from 'bs58';
+
+async function main() {
+  console.log('USDC Account Monitor');
+
+  const config: LaserstreamConfig = {
+    apiKey: 'your-api-key',
+    endpoint: 'laserstream-url',
+  };
+
+  const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+
+  const request = {
+    accounts: {
+      "usdc-accounts": {
+        account: [],
+        owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        filters: [
+          { datasize: 165 },                           // Standard token accounts
+          { memcmp: { offset: 0, base58: USDC_MINT } } // Only USDC
+        ]
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED,
+    transactions: {}, slots: {}, transactionsStatus: {}, blocks: {}, blocksMeta: {}, entry: {}, accountsDataSlice: []
+  };
+
+  const stream = await subscribe(
+    config,
+    request,
+    async (update: SubscribeUpdate) => {
+      explainAccountUpdate(update);
+    },
+    async (err) => console.error('Stream error:', err)
+  );
+
+  console.log(`Account monitor started (id: ${stream.id})`);
+
+  process.on('SIGINT', () => {
+    console.log('\nCancelling stream...');
+    stream.cancel();
+    process.exit(0);
+  });
+}
+
+function explainAccountUpdate(update: SubscribeUpdate) {
+  if (!update.account) return;
+  
+  const account = update.account.account;
+  
+  // Decode the key addresses
+  const tokenAccountAddress = bs58.encode(account.pubkey);
+  const transactionSignature = account.txnSignature ? bs58.encode(account.txnSignature) : 'Unknown';
+  
+  // Extract and decode the token account data (165 bytes)
+  const walletOwner = bs58.encode(account.data.slice(32, 64));       // Bytes 32-63: Owner
+  const tokenAmount = account.data.readBigUInt64LE(64);              // Bytes 64-71: Amount
+  const usdcAmount = Number(tokenAmount) / 1_000_000;                // Convert to USDC (6 decimals)
+  
+  console.log(`Account: ${tokenAccountAddress}`);
+  console.log(`Owner: ${walletOwner}`);
+  console.log(`Balance: ${usdcAmount.toLocaleString()} USDC`);
+  console.log(`Slot: ${update.account.slot}`);
+  console.log(`Transaction: ${transactionSignature.slice(0, 8)}...`);
+  console.log('---');
+}
+
+main().catch(console.error);
+```
+
+当你运行这个 USDC 监控器时，你会看到如下干净、结构化的输出：
+
+```
+USDC Account Monitor
+Account monitor started (id: abc123)
+
+Account: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+Owner: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+Balance: 1,500 USDC
+Slot: 352154103
+Transaction: 5v8fy0eJ...
+---
+Account: BQy5rNRxLfcaK6554PMzsg4VJsFXzwGnAnayb8TZKgZX
+Owner: HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH
+Balance: 0 USDC
+Slot: 352154103
+Transaction: 5v8fy0eJ...
+---
+```
+
+每个区块代表一个状态改变的 USDC 账户。第一个账户现在持有 1,500 USDC，而第二个账户已被清空至 0 USDC。你会在每笔交易后立即获得当前余额，以及哪个具体账户发生了变化和何时发生的。
+
+账户订阅显示的是每个账户发生变化的最终结果，而不是交易细节。如果你需要了解完整的交易上下文（谁发送给谁，费用等），你需要使用显示的签名获取完整的交易。
+
+## 完整过滤参考
+
+除了我们使用的基本 `owner`、`datasize` 和 `memcmp` 过滤器外，账户订阅还支持其他过滤选项以进一步缩小结果范围：
+
+### 特定账户过滤
+
+通过公钥监控精确账户：
+
+```ts
+accounts: {
+  "specific-accounts": {
+    account: [
+      "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+      "BQy5rNRxLfcaK6554PMzsg4VJsFXzwGnAnayb8TZKgZX"
+    ]
+  }
+}
+```
+
+当你确切知道哪些账户对你的应用程序重要时，这种方法效果很好——比如监控你的应用程序的资金账户或特定用户账户。
+
+### 组合过滤策略
+
+强大的地方在于结合多种过滤类型。这里是思维模型：
+
+1. **广撒网** 使用 `owner` - “给我所有由这个程序管理的账户”
+2. **按结构过滤** 使用 `datasize` - “但仅限于这种特定类型的账户”
+3. **定位特定数据** 使用 `memcmp` - “并且仅限于包含此特定信息的账户”
+4. **监控已知账户** 使用 `account` - “或者只监控我关心的这些确切账户”
+
+例如，监控高价值的 USDC 账户：
+
+```ts
+accounts: {
+  "high-value-usdc": {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [
+      { datasize: 165 },                           // Token accounts only
+      { memcmp: { offset: 0, base58: USDC_MINT } } // USDC only
+      // Note: You'd implement balance filtering in your callback logic
+    ]
+  }
+}
+```
+
+关键的见解是，每个过滤器都会减少您收到的更新量。没有过滤，您可能会收到大量的账户更新。通过智能过滤，您只会收到与您的特定用例相关的更新。
+
+### 理解更大的图景
+
+将账户订阅视为观看数据库更改的实时动态。Solana 的状态本质上是一个巨大的键值存储，每个账户都是一个条目。当程序执行时，它们会修改这些账户。您的订阅让您可以实时观看特定条目的变化。
+
+过滤系统的工作原理类似于数据库索引——您不仅仅是在观看“所有更改”，而是在观看“符合这些标准的账户的更改”。这使得构建响应式应用程序成为可能，这些应用程序可以立即对相关的链上事件做出反应，而不会因不相关的数据而使您的系统不堪重负。
+
+## 将此模式应用于其他程序
+
+我们学到的方法适用于任何 Solana 程序。以下是一般模式：
+
+1. **研究账户结构** - 查看程序的源代码或文档
+2. **从所有者过滤开始** - 针对管理账户的程序
+3. **应用结构过滤器** - 使用账户大小、数据模式或其他特征来缩小到特定的账户类型
+4. **添加目标过滤器** - 专注于对您的应用程序重要的特定账户、状态或数据值

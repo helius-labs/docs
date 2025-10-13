@@ -1,0 +1,78 @@
+---
+title: rootSubscribe
+og:title: rootSubscribe Solana RPC 方法
+sidebarTitle: rootSubscribe
+description: 订阅以在验证器设置新根时接收通知。
+og:description: 获取免费的 RPC 并探索 rootSubscribe RPC 方法。包括请求参数、响应示例、代码片段，以及在 Solana
+  主网和 Devnet 上的浏览器内测试。
+---
+
+## 端点
+
+主网和 devnet 上可用 Websockets，使用以下 URL：
+
+- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets 有 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
+
+## 授权
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)上免费获取一个。
+</ParamField>
+
+## 正文
+
+<ParamField body="params" type="array">
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="none" type="null">
+            不需要参数。
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## 响应
+
+<ResponseField name="result" type="integer">
+  订阅 ID（需要取消订阅）
+</ResponseField>
+
+## 通知格式
+
+结果是最新的根槽号。
+
+<RequestExample>
+
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "rootSubscribe"
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 0,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "rootNotification",
+  "params": {
+    "result": 42,
+    "subscription": 0
+  }
+}
+```
+
+</ResponseExample>

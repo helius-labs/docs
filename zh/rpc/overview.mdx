@@ -1,0 +1,259 @@
+---
+title: Solana RPC 概览：高性能区块链基础设施
+sidebarTitle: 概览
+description: 高性能 Solana RPC 基础设施，响应时间快 95%。完整指南涵盖 RPC 方法、优化和最佳实践。
+---
+
+<CardGroup cols={2}>
+  <Card title="立即开始构建" icon="rocket" href="#获取您的rpc端点">
+    获取您的 RPC 端点并发出您的第一个请求
+  </Card>
+  <Card title="浏览 RPC 方法" icon="book-open" href="/zh/rpc/guides/overview">
+    探索所有 Solana RPC 方法的实用指南
+  </Card>
+</CardGroup>
+
+<Info>
+访问我们遍布 **匹兹堡、纽瓦克、盐湖城、洛杉矶、温哥华、都柏林、伦敦、阿姆斯特丹、法兰克福、新加坡和东京** 的 RPC 节点群，自动路由到最近的节点。
+</Info>
+
+---
+
+## 为什么开发者选择 Helius RPC
+
+<CardGroup cols={3}>
+  <Card title="99.99% 正常运行时间" icon="shield-check">
+    企业级可靠性，具有自动故障转移和多节点冗余
+  </Card>
+  <Card title="<100ms 延迟" icon="bolt">
+    全球基础设施优化速度，覆盖多个地区
+  </Card>
+  <Card title="24/7 支持" icon="headset">
+    专业工程支持和活跃的 Discord 社区
+  </Card>
+</CardGroup>
+
+<Note>
+**什么是 Solana RPC 节点？** 它们是您的应用程序连接到 Solana 区块链的网关，提供读取数据、写入交易、实时更新和网络查询的基础设施。每个 Solana 应用程序都依赖于 RPC 节点来运行。
+</Note>
+
+---
+
+## 获取您的 RPC URL
+
+<Steps>
+  <Step title="Go to Dashboard">
+    前往 [dashboard.helius.dev](https://dashboard.helius.dev) 并注册或登录
+  </Step>
+  <Step title="Create a Plan">
+    选择适合您需求的计划 - 免费层可供开始使用
+  </Step>
+  <Step title="Go to RPCs Section">
+    前往仪表板中的 RPCs 部分
+  </Step>
+  <Step title="Copy Your Endpoint">
+    复制您要使用的网络（mainnet 或 devnet）的 RPC 端点 URL
+  </Step>
+</Steps>
+
+## 测试您的连接
+
+选择您偏好的语言来测试您的 RPC 连接：
+
+<Tabs>
+  <Tab title="JavaScript/TypeScript">
+
+    ```javascript
+    import { Connection } from '@solana/web3.js';
+    
+    // Your Helius RPC URL from dashboard
+    const rpcUrl = 'YOUR_HELIUS_RPC_URL';
+    const connection = new Connection(rpcUrl);
+    
+    // Test the connection
+    const testConnection = async () => {
+      try {
+        const version = await connection.getVersion();
+        const slot = await connection.getSlot();
+        
+        console.log('Connection successful!');
+        console.log(`Solana version: ${version['solana-core']}`);
+        console.log(`Current slot: ${slot}`);
+      } catch (error) {
+        console.error('Connection failed:', error);
+      }
+    };
+    
+    testConnection();
+    ```
+
+  </Tab>
+  
+  <Tab title="Python">
+
+    ```python
+    from solana.rpc.api import Client
+    
+    # Your Helius RPC URL from dashboard
+    rpc_url = 'YOUR_HELIUS_RPC_URL'
+    client = Client(rpc_url)
+    
+    # Test the connection
+    try:
+        version = client.get_version()
+        slot = client.get_slot()
+        
+        print('Connection successful!')
+        print(f'Solana version: {version.value}')
+        print(f'Current slot: {slot.value}')
+    except Exception as e:
+        print(f'Connection failed: {e}')
+    ```
+
+  </Tab>
+  
+  <Tab title="Rust">
+
+    ```rust
+    use solana_client::rpc_client::RpcClient;
+    use solana_sdk::commitment_config::CommitmentConfig;
+    
+    #[tokio::main]
+    async fn main() -> Result<(), Box<dyn std::error::Error>> {
+        // Your Helius RPC URL from dashboard
+        let rpc_url = "YOUR_HELIUS_RPC_URL";
+        
+        let client = RpcClient::new_with_commitment(
+            rpc_url.to_string(),
+            CommitmentConfig::confirmed(),
+        );
+        
+        // Test the connection
+        match client.get_version() {
+            Ok(version) => {
+                println!("Connection successful!");
+                println!("Solana version: {:?}", version.solana_core);
+                
+                let slot = client.get_slot()?;
+                println!("Current slot: {}", slot);
+            }
+            Err(err) => println!("Connection failed: {}", err),
+        }
+        
+        Ok(())
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="cURL">
+
+    ```bash
+    curl -X POST "YOUR_HELIUS_RPC_URL" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "getVersion"
+      }' | jq
+    ```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 选择您的 RPC 解决方案
+
+### 常规 RPC 节点（推荐）
+
+<Card title="适用于 99% 的应用程序" icon="star">
+  **卓越的性能、可靠性和功能，具有成本效益的定价**
+  
+  - **卓越性能**：多节点冗余与优化的基础设施
+  - **最大可靠性**：无单点故障，自动故障转移
+  - **完整的 API 覆盖**：所有 Solana RPC 方法加上增强的 API
+  - **全球基础设施**：多个区域以优化延迟
+  - **增强功能**：包括 DAS API、优先费用 API、增强交易
+  - **起价 $0**：慷慨的免费层，仅为您使用的部分付费
+</Card>
+
+### 专用 RPC 节点（有限使用场景）
+
+<Card title="仅适用于无限制的信用/速率限制" icon="server">
+  **仅在您特别需要无限制的信用和速率限制时考虑**
+  
+  **何时考虑：**
+  - 需要无限制的信用
+  - 需要无限制的速率限制
+  
+  **重要权衡：**
+  - 性能风险：在高负载下可能变慢
+  - 更高的成本：$2,300+/月，且需要共享计划
+  - 功能有限：缺少高级 API
+</Card>
+
+<Card title="了解更多关于专用节点的信息" icon="server" href="/zh/dedicated-nodes">
+  探索专用选项（仅在您需要无限制的信用/速率时）
+</Card>
+
+---
+
+## 使用案例推荐
+
+<Tabs>
+  <Tab title="DeFi 应用程序">
+    **实时交易和 AMM 数据**
+    - 监控账户变化以更新价格
+    - 跟踪交换交易和流动性变化
+    - 提交时间敏感的套利交易
+    
+    **推荐：**常规 RPC 计划
+  </Tab>
+  
+  <Tab title="NFT 市场">
+    **收藏监控和销售跟踪**
+    - 查询 NFT 元数据和所有权
+    - 监控市场程序账户
+    - 跟踪销售和上市事件
+    
+    **推荐：**常规 RPC 计划
+  </Tab>
+  
+  <Tab title="钱包和浏览器">
+    **账户管理和交易历史**
+    - 获取账户余额和代币持有量
+    - 显示解析数据的交易历史
+    - 可靠地提交用户交易
+    
+    **推荐：**常规 RPC 计划
+  </Tab>
+  
+  <Tab title="分析平台">
+    **数据收集和处理**
+    - 批量账户和交易查询
+    - 历史数据分析
+    - 实时区块链监控
+    
+    **推荐：**常规 RPC 计划
+  </Tab>
+</Tabs>
+
+---
+
+## 接下来是什么？
+
+<CardGroup cols={2}>
+  <Card title="优化性能" icon="rocket" href="/zh/rpc/optimization-techniques">
+    学习高级技术以最大化RPC性能并最小化成本
+  </Card>
+  <Card title="实时数据" icon="wifi" href="/zh/data-streaming">
+    为实时区块链事件设置流
+  </Card>
+</CardGroup>
+
+<Card title="准备好构建惊人的东西了吗？" icon="code">
+  **您现在拥有在Solana上使用Helius RPC开始构建所需的一切**
+  
+  查看我们的[完整API参考](/zh/api-reference)以获取详细的方法文档，或加入我们的[Discord社区](https://discord.gg/aXjCcEDN)与其他开发者交流并获得我们团队的支持。
+</Card>

@@ -9,4 +9,4 @@ openapi: "/openapi/das-api/getAsset.yaml POST /"
 Price data returned by getAsset is cached and may not be fresh. The price information has a 60-second cache, meaning the data can be up to 60 seconds old.
 </Warning>
 
-Price data is only available for Jupiter verified tokens and can be found in the `token_info.price_info` section of the response. For applications requiring real-time pricing, consider implementing additional validation or using Jupiter's direct API for the most current data.
+Price data is available for the top 10k tokens by 24h volume and can be found in the `token_info.price_info` section of the response. For applications requiring real-time pricing, consider implementing additional validation.

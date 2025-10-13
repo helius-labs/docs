@@ -1,0 +1,259 @@
+---
+title: Solana 优先费用 API：智能交易费用估算
+sidebarTitle: 概览
+description: 为 Solana 交易估算最佳优先费用。通过六个优先级别的实时费用分析，确保快速确认和成本效率。
+---
+
+<Info>
+**省钱，提高性能**：根据实时网络状况获取精确的优先费用估算。只需支付所需的费用，即可获得所需的速度。
+</Info>
+
+## 什么是优先费用？
+
+在 Solana 上，优先费用可以让您的交易在网络拥堵时优先进入验证者队列。可以将其视为交易的快速通道。
+
+<CardGroup cols={2}>
+  <Card title="基础费用与优先费用" icon="coins">
+    **基础费用** 是交易处理的固定成本
+    
+    **优先费用** 是为了更快处理而支付的可选费用
+  </Card>
+  <Card title="它们如何运作" icon="rocket">
+    您可以为每个计算单元设置价格——在网络拥堵时，价格更高的交易会优先处理
+  </Card>
+</CardGroup>
+
+## 为什么使用优先费用
+
+优先费用现在是 Solana 交易的标准组成部分，有助于确保可靠的确认时间和最佳的网络性能。
+
+<CardGroup cols={2}>
+  <Card title="可靠的确认" icon="circle-check">
+    确保您的交易在不同的网络条件下快速且可靠地确认
+  </Card>
+  <Card title="竞争优势" icon="trophy">
+    在交易、铸币和 DeFi 交互等时间敏感的操作中保持竞争力
+  </Card>
+  <Card title="用户体验" icon="heart">
+    提供一致且快速的交易处理，提升用户体验
+  </Card>
+  <Card title="网络效率" icon="gauge">
+    帮助优化网络资源分配和整体性能
+  </Card>
+</CardGroup>
+
+## 优先级别说明
+
+我们的 API 根据最近的网络活动提供六个优先级别：
+
+<AccordionGroup>
+  <Accordion title="最低 (Min)">
+    **最低观察到的费用** - 基于最近时段内的最低费用
+    
+    **适合**：当成本优化是优先事项时的非紧急交易
+    
+    **注意**：可能导致确认时间较慢
+  </Accordion>
+  
+  <Accordion title="低 (Low)">
+    **第 25 百分位** - 经济实惠的选项，确认时间合理
+    
+    **适合**：速度不是关键的标准操作
+    
+    **注意**：成本与可靠性的良好平衡
+  </Accordion>
+  
+  <Accordion title="中等 (推荐) (Medium)">
+    **第 50 百分位** - 提供可靠确认时间的中位费用
+    
+    **适合**：大多数应用程序和一般用例
+    
+    **注意**：大多数开发者的推荐起点
+  </Accordion>
+  
+  <Accordion title="高 (High)">
+    **第 75 百分位** - 更高的费用以实现更快的处理
+    
+    **适合**：时间敏感的操作和竞争场景
+    
+    **注意**：在网络活动期间优先处理
+  </Accordion>
+  
+  <Accordion title="非常高 (VeryHigh)">
+    **第 95 百分位** - 最高速度的高级费用
+    
+    **适合**：关键操作、MEV 策略、紧急交易
+    
+    **注意**：即使在高网络活动期间也能快速确认
+  </Accordion>
+  
+  <Accordion title="不安全的最高值 (UnsafeMax)">
+    **观察到的最高费用** - 最近时段内的最高费用
+    
+    **适合**：仅限紧急情况
+    
+    **警告**：通常费用过高 - 请谨慎使用
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+**费用计算**：总优先费用 = 每计算单元价格 × 消耗的计算单元
+
+一次典型的交易会使用 200,000-400,000 个计算单元。在当前的中等水平（约 40,000 微 lamports 每单元）下，优先费用为 0.000008-0.000016 SOL。请始终检查当前网络状况以获得准确的估算。
+</Warning>
+
+## 实现方法
+
+<CardGroup cols={2}>
+  <Card title="序列化交易（推荐）" icon="file-code" href="/zh/priority-fee/estimating-fees-using-serialized-transaction">
+    **主要方法** - 分析您的具体交易以获得最高精度
+    
+    **最佳适用场景**：大多数应用程序和生产用例
+    
+    **优势**：
+    - 指令级别的分析
+    - 最高精度
+    - 适用于生产环境
+    - 考虑交易复杂性
+  </Card>
+  
+  <Card title="账户密钥（高级）" icon="key" href="/zh/priority-fee/estimating-fees-using-account-keys">
+    **特殊用例** - 基于账户模式的估算
+    
+    **最佳适用场景**：交易前分析、批量操作、特殊架构
+    
+    **优势**：
+    - 账户级模式分析
+    - 适用于规划和研究
+    - 批量账户分析
+  </Card>
+</CardGroup>
+
+## 快速入门示例
+
+<CodeGroup>
+
+```javascript JavaScript
+import { Transaction, SystemProgram, ComputeBudgetProgram } from "@solana/web3.js";
+import bs58 from "bs58";
+
+// 1. Build your transaction (without priority fee)
+const transaction = new Transaction();
+const transferIx = SystemProgram.transfer({
+  fromPubkey: senderKeypair.publicKey,
+  toPubkey: recipientPublicKey,
+  lamports: 1000000, // 0.001 SOL
+});
+transaction.add(transferIx);
+
+// 2. Set required fields and serialize
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.feePayer = senderKeypair.publicKey;
+const serializedTx = bs58.encode(transaction.serialize());
+
+// 3. Get priority fee estimate
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getPriorityFeeEstimate",
+    params: [{
+      transaction: serializedTx,
+      options: { 
+        priorityLevel: "Medium",
+        recommended: true 
+      }
+    }]
+  })
+});
+
+const result = await response.json();
+const priorityFee = result.result.priorityFeeEstimate;
+
+// 4. Add priority fee and send
+transaction.instructions = []; // Reset
+transaction.add(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }));
+transaction.add(transferIx);
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.sign(senderKeypair);
+```
+
+```python Python
+import requests
+import base58
+from solana.transaction import Transaction
+from solana.system_program import transfer, TransferParams
+
+# 1. Build and serialize your transaction
+# (transaction building code here)
+serialized_tx = base58.b58encode(transaction.serialize()).decode('utf-8')
+
+# 2. Get priority fee estimate
+response = requests.post(
+    "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
+    json={
+        "jsonrpc": "2.0",
+        "id": "1",
+        "method": "getPriorityFeeEstimate",
+        "params": [{
+            "transaction": serialized_tx,
+            "options": {
+                "priorityLevel": "Medium",
+                "recommended": True
+            }
+        }]
+    }
+)
+
+result = response.json()
+priority_fee = result["result"]["priorityFeeEstimate"]
+print(f"Recommended priority fee: {priority_fee} micro-lamports")
+
+# 3. Rebuild transaction with priority fee and send
+```
+
+```curl cURL
+curl -X POST "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "getPriorityFeeEstimate",
+    "params": [{
+      "transaction": "SERIALIZED_TRANSACTION_BASE58",
+      "options": {
+        "priorityLevel": "Medium",
+        "recommended": true
+      }
+    }]
+  }'
+```
+
+</CodeGroup>
+
+## API 参考
+
+<Card title="getPriorityFeeEstimate" icon="code" href="/zh/api-reference/priority-fee/getpriorityfeeestimate">
+完整的 API 文档，包括所有参数和响应格式
+</Card>
+
+## 实时网络监控
+
+<Tip>
+**专业提示**：监控网络状况以优化您的优先费用策略。在正常情况下，使用较低的优先级别。在拥堵时，对于时间敏感的操作可以考虑使用较高的优先级别。
+
+您可以使用 Solana 浏览器或 `getRecentPerformanceSamples` RPC 方法检查当前网络状况。
+</Tip>
+
+## 支持与资源
+
+<CardGroup cols={2}>
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    从社区和 Helius 团队获取帮助
+  </Card>
+  <Card title="直接支持" icon="headset" href="/zh/support">
+    优先费用问题和优化协助
+  </Card>
+</CardGroup>

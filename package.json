@@ -1,0 +1,19 @@
+{
+  "name": "helius-docs",
+  "version": "1.0.0",
+  "description": "Helius developer documentation",
+  "scripts": {
+    "i18n:prep": "rm -rf en && mkdir -p en && rsync -a --exclude 'en' --exclude 'zh' --exclude 'cn' --exclude 'docs' . en/",
+    "i18n:run": "npx lingo.dev@latest i18n",
+    "i18n:fix-links": "node scripts/fix-zh-links.js",
+    "i18n": "npm run i18n:prep && npm run i18n:run && npm run i18n:fix-links",
+    "i18n:check": "npm run i18n:prep && npx lingo.dev@latest i18n --frozen",
+    "i18n:force": "npm run i18n:prep && npx lingo.dev@latest i18n --force && npm run i18n:fix-links",
+    "dev": "mint dev",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "mint": "latest",
+    "husky": "^8.0.3"
+  }
+}

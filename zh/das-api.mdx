@@ -1,0 +1,741 @@
+---
+title: Solana DAS API：统一的NFT和代币数据访问
+sidebarTitle: 概述
+description: 最全面的Solana API，支持NFT、压缩NFT和代币。为所有数字资产提供高性能和完整元数据的统一接口。
+---
+
+<Note>
+**快速参考**：DAS API为所有Solana资产提供统一接口。使用`getAsset`获取单个资产，使用`getAssetsByOwner`获取钱包持有，使用`searchAssets`进行过滤查询，并为压缩NFT提供专门方法。
+</Note>
+
+## 什么是DAS？
+
+数字资产标准（DAS）API是一个开源规范，提供了一个统一接口，用于在Solana上与所有类型的数字资产进行交互：
+
+- 常规NFT（非同质化代币）
+- 压缩NFT（状态压缩）
+- 同质化代币（包括SPL代币和Token-2022）
+- 铭文和SPL-20代币（实验性）
+
+<CardGroup cols={2}>
+  <Card title="主网端点" icon="server">
+    `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+  </Card>
+  <Card title="开发网端点" icon="server">
+    `https://devnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+  </Card>
+</CardGroup>
+
+<Tabs>
+  <Tab title="关键特性">
+    - 统一访问所有Solana资产类型
+    - 全面的元数据检索
+    - 链下数据索引（Arweave, IPFS）
+    - 支持压缩资产的Merkle证明
+    - 验证代币的价格数据
+    - 高级过滤和搜索功能
+  </Tab>
+  <Tab title="使用案例">
+    - NFT市场和店面
+    - 钱包应用和投资组合追踪器
+    - 代币门控应用
+    - 创作者仪表板和分析工具
+    - NFT收藏探索器
+    - 需要代币数据的DeFi应用
+  </Tab>
+</Tabs>
+
+## API方法
+
+<CardGroup cols={3}>
+  <Card title="单个资产" icon="cube" href="#api方法">
+    获取特定资产的详细数据
+  </Card>
+  <Card title="资产集合" icon="layer-group" href="#api方法">
+    按所有者、创作者或集合获取资产
+  </Card>
+  <Card title="高级查询" icon="magnifying-glass" href="#api方法">
+    使用复杂条件搜索和过滤资产
+  </Card>
+</CardGroup>
+
+### 获取单个资产
+
+这些方法允许您通过资产的ID检索特定资产的详细信息。
+
+<Tabs>
+  <Tab title="getAsset">
+
+    ```typescript
+    // Get a single asset by its ID
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAsset = async (id) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getAsset",
+          params: {
+            id: id,
+          },
+        }),
+      });
+      
+      const data = await response.json();
+      return data.result;
+    };
+    
+    // Example usage
+    getAsset("FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getasset">
+      查看 getAsset 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getAssetBatch">
+
+    ```typescript
+    // Get multiple assets (up to 1,000) in a single request
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetBatch = async (ids) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetBatch',
+          params: {
+            ids: ids
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetBatch([
+      '81bxPqYCE8j34nQm7Rooqi8Vt3iMHLzgZJ71rUVbQQuz',
+      'CWHuz6GPjWYdwt7rTfRHKaorMwZP58Spyd7aqGK7xFbn'
+    ]);
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetbatch">
+      查看 getAssetBatch 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getAssetProof">
+
+    ```typescript
+    // Get Merkle proof for a compressed asset
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetProof = async (id) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetProof',
+          params: {
+            id: id
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetProof("Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetproof">
+      查看 getAssetProof 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getAssetProofBatch">
+
+    ```typescript
+    // Get Merkle proofs for multiple compressed assets
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetProofBatch = async (ids) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetProofBatch',
+          params: {
+            ids: ids
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetProofBatch([
+      '81bxPqYCE8j34nQm7Rooqi8Vt3iMHLzgZJ71rUVbQQuz',
+      'CWHuz6GPjWYdwt7rTfRHKaorMwZP58Spyd7aqGK7xFbn'
+    ]);
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetproofbatch">
+      查看 getAssetProofBatch 的详细文档
+    </Card>
+  </Tab>
+</Tabs>
+
+### 获取资产集合
+
+这些方法允许您根据所有权、创建、权限或集合成员资格检索资产。
+
+<Note>
+  DAS API 方法中的所有分页从1开始（而不是0）。
+</Note>
+
+<Tabs>
+  <Tab title="按所有者">
+
+    ```typescript
+    // Get all assets owned by a wallet address
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByOwner = async (ownerAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByOwner',
+          params: {
+            ownerAddress: ownerAddress,
+            page: 1,
+            limit: 1000,
+            displayOptions: {
+              showFungible: true, // Include SPL tokens
+              showNativeBalance: true, // Include SOL balance
+              showInscription: true, // Include inscription data
+            },
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByOwner("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetsbyowner">
+      查看 getAssetsByOwner 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="按集合">
+
+    ```typescript
+    // Get all assets in a collection
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByGroup = async (collectionAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByGroup',
+          params: {
+            groupKey: 'collection',
+            groupValue: collectionAddress,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByGroup("J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetsbygroup">
+      查看 getAssetsByGroup 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="按创建者">
+
+    ```typescript
+    // Get all assets by a specific creator
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByCreator = async (creatorAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByCreator',
+          params: {
+            creatorAddress: creatorAddress,
+            onlyVerified: true,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByCreator("D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetsbycreator">
+      查看 getAssetsByCreator 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="按权限">
+
+    ```typescript
+    // Get all assets with a specific authority
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getAssetsByAuthority = async (authorityAddress) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getAssetsByAuthority',
+          params: {
+            authorityAddress: authorityAddress,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getAssetsByAuthority("2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getassetsbyauthority">
+      查看 getAssetsByAuthority 的详细文档
+    </Card>
+  </Tab>
+</Tabs>
+
+### 高级查询方法
+
+这些方法允许进行更专业的资产查询，包括交易历史、NFT版本和复杂的搜索过滤器。
+
+<Tabs>
+  <Tab title="searchAssets">
+
+    ```typescript
+    // Search for assets with flexible criteria
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const searchAssets = async (searchParams) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'searchAssets',
+          params: searchParams,
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example: Search for NFTs with specific traits
+    searchAssets({
+      ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+      grouping: ["collection", "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"],
+      traits: [
+        { trait_type: "Background", values: ["Blue"] }
+      ],
+      limit: 100
+    });
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/searchassets">
+      查看 searchAssets 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getSignaturesForAsset">
+
+    ```typescript
+    // Get transaction history for a compressed asset
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getSignaturesForAsset = async (assetId) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'my-request-id',
+          method: 'getSignaturesForAsset',
+          params: {
+            id: assetId,
+            page: 1,
+            limit: 1000,
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getSignaturesForAsset("FNt6A9Mfnqbwc1tY7uwAguKQ1JcpBrxmhczDgbdJy5AC");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getsignaturesforasset">
+      查看 getSignaturesForAsset 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getNftEditions">
+
+    ```typescript
+    // Get all editions for a master NFT
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getNftEditions = async (masterMint) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getNftEditions",
+          params: {
+            mint: masterMint,
+            page: 1,
+            limit: 100
+          },
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example usage
+    getNftEditions("Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL");
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/getnfteditions">
+      查看 getNftEditions 的详细文档
+    </Card>
+  </Tab>
+  <Tab title="getTokenAccounts">
+
+    ```typescript
+    // Get token accounts for a mint or owner
+    const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+    
+    const getTokenAccounts = async (params) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "my-request-id",
+          method: "getTokenAccounts",
+          params: params,
+        }),
+      });
+      
+      const { result } = await response.json();
+      return result;
+    };
+    
+    // Example: Get all accounts holding a specific token
+    getTokenAccounts({
+      mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+      page: 1,
+      limit: 100
+    });
+    ```
+
+    <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/gettokenaccounts">
+      查看 getTokenAccounts 的详细文档
+    </Card>
+  </Tab>
+</Tabs>
+
+## 处理特殊资产类型
+
+<CardGroup cols={2}>
+  <Card title="可替代代币" icon="coins" href="#处理特殊资产类型">
+    访问 SPL 代币并获取价格数据
+  </Card>
+  <Card title="压缩 NFT" icon="file-zipper" href="#处理特殊资产类型">
+    处理状态压缩资产
+  </Card>
+  <Card title="铭文" icon="file-signature" href="#处理特殊资产类型">
+    访问铭文和 SPL-20 数据
+  </Card>
+  <Card title="链下数据" icon="cloud" href="#处理特殊资产类型">
+    从 Arweave/IPFS 检索元数据
+  </Card>
+</CardGroup>
+
+### 可替代代币
+
+<Info>
+  Helius 已扩展 DAS API 以支持**所有代币**，包括普通的 SPL 代币（无元数据）和 Token-2022（及其扩展）。可替代代币支持通过 `getAssetsByOwner` 和 `searchAssets` 方法提供。
+</Info>
+
+```typescript
+// Get all tokens for a wallet including price data
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+const getTokensWithPrices = async (ownerAddress) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: ownerAddress,
+        displayOptions: {
+          showFungible: true,
+        },
+      },
+    }),
+  });
+
+  const { result } = await response.json();
+  
+  // Filter tokens that have price data
+  const tokensWithPrices = result.items.filter(
+    asset => asset.token_info?.price_info
+  );
+  
+  return tokensWithPrices;
+};
+
+// Example usage
+getTokensWithPrices("86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY");
+```
+
+### 压缩 NFT
+
+状态压缩 NFT（cNFT）需要特殊处理以进行诸如检索 Merkle 证明和交易历史等操作：
+
+```typescript
+// Common operations with compressed NFTs
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+// 1. Get a compressed NFT
+const getCompressedNft = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAsset',
+      params: { id },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+
+// 2. Get Merkle proof for verification
+const getProof = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetProof',
+      params: { id },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+
+// 3. Get transaction history
+const getTransactionHistory = async (id) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getSignaturesForAsset',
+      params: { 
+        id,
+        page: 1,
+        limit: 100
+      },
+    }),
+  });
+  
+  const { result } = await response.json();
+  return result;
+};
+```
+
+### 铭文 & SPL-20
+
+<Tip>
+  您可以选择使用 `showInscription` 标志显示铭文和 SPL-20 代币数据。这是一个实验性功能。
+</Tip>
+
+```typescript
+// Get inscriptions for a wallet
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+const getInscriptionsForWallet = async (ownerAddress) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-request-id',
+      method: 'getAssetsByOwner',
+      params: {
+        ownerAddress: ownerAddress,
+        displayOptions: {
+          showInscription: true,
+        },
+      },
+    }),
+  });
+
+  const { result } = await response.json();
+  
+  // Filter results to only include assets with inscription data
+  const inscriptions = result.items.filter(
+    asset => asset.inscription
+  );
+  
+  return inscriptions;
+};
+
+// Example usage
+getInscriptionsForWallet("6GmTFg5SCs4zGfDEidUAJjS5pSrXEPwW8Rpfs3RHrbc5");
+```
+
+### 链下数据
+
+<Accordion title="链下数据检索">
+  大多数 NFT 集合在 Arweave 或 IPFS 等平台上链下存储额外的元数据（属性、图像等）。DAS API 自动索引这些链下数据，并在单个 API 调用中将其与链上数据一起提供。
+
+  <Note>
+    Helius 无法检测链下数据的变更。链下数据只有在系统再次看到 NFT 时（例如，当 NFT 在链上被修改时）才会更新。如果您需要重新索引某个集合的链下数据，请联系 Helius 支持。
+  </Note>
+</Accordion>
+
+## 最佳实践
+
+<CardGroup cols={2}>
+  <Card title="分页" icon="arrows-split-up-and-left">
+    - 从第 1 页开始（而不是 0）
+    - 使用合理的限制值（100-1000）
+    - 为大型数据集实现健壮的分页
+  </Card>
+  <Card title="错误处理" icon="shield-check">
+    - 始终检查响应中的错误
+    - 实现指数退避的重试机制
+    - 处理无效参数等边缘情况
+  </Card>
+  <Card title="性能" icon="bolt">
+    - 尽可能使用批处理方法
+    - 在适当的时候缓存响应
+    - 避免在一个请求可以完成时链式多个请求
+  </Card>
+  <Card title="安全" icon="lock">
+    - 切勿在客户端代码中暴露您的 API 密钥
+    - 使用服务器端函数代理 API 请求
+    - 设置适当的 CORS 策略
+  </Card>
+</CardGroup>
+
+## 资源
+
+<CardGroup cols={3}>
+  <Card title="API 参考" icon="book-open" href="/zh/api-reference/das">
+    所有 DAS 方法的完整 API 文档
+  </Card>
+  <Card title="GitHub 仓库" icon="github" href="https://github.com/metaplex-foundation/digital-asset-standard-api">
+    DAS API 开源规范
+  </Card>
+  <Card title="示例和 SDK" icon="code" href="/zh/sdks">
+    从客户端库和代码示例开始
+  </Card>
+</CardGroup>

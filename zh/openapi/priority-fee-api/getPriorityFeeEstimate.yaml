@@ -1,0 +1,248 @@
+"openapi": "3.1.0"
+"info":
+  "title": "Solana 优先费用优化 API"
+  "version": "1.0.0"
+  "description": "高级 Solana 优先费用估算 API，用于优化 Solana 区块链上的交易确认时间和成本。
+
+    此专用 API 通过提供实时、数据驱动的多优先级费用建议，帮助开发人员在网络拥堵期间最大化交易吞吐量。非常适合需要可靠交易处理和优化成本的钱包、DeFi 应用程序、NFT 平台以及任何 Solana 项目。\n"
+  "license":
+    "name": "Apache 2.0"
+    "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+"servers":
+  - "url": "https://mainnet.helius-rpc.com"
+    "description": "主网 RPC 端点"
+  - "url": "https://devnet.helius-rpc.com"
+    "description": "开发网 RPC 端点"
+"components":
+  "securitySchemes":
+    "ApiKeyQuery":
+      "type": "apiKey"
+      "in": "query"
+      "name": "api-key"
+      "description": "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  "schemas":
+    "PriorityFeeEstimateRequest":
+      "type": "object"
+      "properties":
+        "jsonrpc":
+          "type": "string"
+          "enum":
+            - "2.0"
+          "default": "2.0"
+          "description": "Solana RPC API 请求的 JSON-RPC 版本标识符，必须为 \"2.0\""
+        "id":
+          "type": "string"
+          "default": "1"
+          "description": "客户端生成的请求标识符"
+        "method":
+          "type": "string"
+          "enum":
+            - "getPriorityFeeEstimate"
+          "default": "getPriorityFeeEstimate"
+          "description": "RPC 方法名称"
+        "params":
+          "type": "array"
+          "description": "方法调用的参数"
+          "default":
+            - "transaction": "LxzhDW7TapzziJVHEGPh1QjmZB6kjNqmvuJ9gmihBGEkzw2N8ospDq32UZdVmKWzRZqKuyvhp7xmLvsmmHa3MfxVKpYoLV9cPkw5isHnHgDUwLSMsDaZ4dLEULexXAvuV9k6fLD2LMhFKM6gqH6j69GQLAm1g4e3z5ZVZN6pmJdSmZ4PqKcwNn4sS7E3Abp1hV59uBJB9i4jEdEAh28rZ8WCeNizzEmrJZFhatFFFGSDsk23jDPEjbkMcoRWXKf1WthFScC2S6Wz284Dtjqp7kW8eybV3DpmN9DtBbcfFNQPtUwmiBZCKszdYym5AjJvRHiUKUdMwFpC3toPnMvTmKZ9iHQtzZRkg5xBufRtUN5eVYJfdw2DxzH6RfqhC2rAjfSbfJA4wmaq9f5eUe2iEjmqvne6r85PPcHBJzyqkVtAyUFtTc9DfU8UiM9rFhQ2UB71M6m5UCsC6EwowMw5k8iF8rL7iPCLdubVdy8S58DPLNG4E4rdosev1T63YdRWSgEwBZh7iX4zGBA9AKAm3B9itCSxLSL46Y6uZgVku9UXsMcWWz3URoa6hRbo55CYPLhrVeqjqX5DsXpaG6QkngbEaESQUnkakE1AFkYXmNXEd2m3sLRTYB2o5UTkwkJS2u5sJHyYqAvXr3vFZr7qAYFLD3LwS5tsdb45ZQVQwsbnNddMHgkpmSqLHS6Fv1epxqHbzpRCU1tgMsriApVWC3pj2LLD41HxkV8aKvkVyHgJFACUtbvRBZAasHf1F71Gz3qZNTdh3efWsZJRXnfxKPbATU7NTMaMUL8JjknfoVwp3"
+          "items":
+            "type": "object"
+            "properties":
+              "transaction":
+                "type": "string"
+                "description": "Base58或Base64编码的Solana交易，用于估算最佳优先费用。API将分析此交易中的特定指令和账户，以根据当前网络状况和计算复杂性提供准确的费用估算。"
+              "accountKeys":
+                "type": "array"
+                "description": "Solana账户公钥数组，用于估算优先费用（提供交易的替代方法）"
+                "items":
+                  "type": "string"
+                  "description": "Base58编码的Solana账户公钥"
+              "options":
+                "$ref": "#/components/schemas/PriorityFeeOptions"
+    "PriorityFeeOptions":
+      "type": "object"
+      "description": "根据网络状况自定义Solana优先费用估算的高级选项"
+      "properties":
+        "transactionEncoding":
+          "type": "string"
+          "enum":
+            - "Base58"
+            - "Base64"
+          "description": "所提供Solana交易的编码格式"
+        "priorityLevel":
+          "type": "string"
+          "enum":
+            - "Min"
+            - "Low"
+            - "Medium"
+            - "High"
+            - "VeryHigh"
+            - "UnsafeMax"
+          "description": "根据当前Solana网络拥堵情况估算费用的特定优先级别"
+        "includeAllPriorityFeeLevels":
+          "type": "boolean"
+          "description": "当为true时，返回从最低到最高所有优先级别的全面估算"
+        "lookbackSlots":
+          "type": "integer"
+          "minimum": 1
+          "maximum": 150
+          "description": "分析最近Solana区块链槽位的数量以进行准确费用估算（1-150）"
+        "includeVote":
+          "type": "boolean"
+          "description": "为 true 时，在费用计算中包括投票交易，以便进行更全面的分析"
+        "recommended":
+          "type": "boolean"
+          "description": "为 true 时，根据当前 Solana 网络状况返回推荐的最佳费用"
+        "evaluateEmptySlotAsZero":
+          "type": "boolean"
+          "description": "为 true 时，将没有交易的槽位视为零费用槽位进行计算"
+    "PriorityFeeEstimateResponse":
+      "type": "object"
+      "properties":
+        "jsonrpc":
+          "type": "string"
+          "enum":
+            - "2.0"
+          "description": "JSON-RPC 版本标识符"
+        "id":
+          "type": "string"
+          "description": "客户端生成的标识符，与请求匹配"
+        "result":
+          "type": "object"
+          "description": "包含全面 Solana 优先费用估算的结果对象"
+          "properties":
+            "priorityFeeEstimate":
+              "type": "number"
+              "format": "float"
+              "description": "根据最近的区块链活动和计算需求，估算的请求 Solana 交易的最佳优先费用（单位：microlamports）。"
+            "priorityFeeLevels":
+              "type": "object"
+              "description": "Solana 区块链上不同优先级的详细费用估算（单位：microlamports），
+
+                允许开发者选择成本与确认速度之间的最佳平衡。"
+              "properties":
+                "min":
+                  "type": "number"
+                  "format": "float"
+                  "description": "Solana 交易的最低可行费用 - 适用于低拥堵期间的非紧急交易
+
+                    （在网络拥堵期间可能导致交易失败）"
+                "low":
+                  "type": "number"
+                  "format": "float"
+                  "description": "Solana 交易的低优先级费用 - 对于不时间敏感的交易来说是经济的选择
+
+                    （确认时间较长，成本较低）"
+                "medium":
+                  "type": "number"
+                  "format": "float"
+                  "description": "Medium priority fee for Solana transactions - balanced option for most standard transactions
+
+                    (reasonable confirmation time with moderate cost)\n"
+                "high":
+                  "type": "number"
+                  "format": "float"
+                  "description": "High priority fee for Solana transactions - prioritized processing for time-sensitive operations
+
+                    like DeFi trades or NFT mints (faster confirmation, higher cost)\n"
+                "veryHigh":
+                  "type": "number"
+                  "format": "float"
+                  "description": "Very high priority fee for Solana transactions - premium option for critical transactions requiring
+
+                    near-immediate confirmation (very fast confirmation, premium cost)\n"
+                "unsafeMax":
+                  "type": "number"
+                  "format": "float"
+                  "description": "Maximum observed fee on Solana - the highest fee seen in the analysis window, representing
+
+                    an upper bound during extreme congestion (fastest possible confirmation, but potentially unnecessarily high)\n"
+"paths":
+  "/":
+    "post":
+      "summary": "Get Solana priority fee estimates"
+      "description": "Calculate optimal priority fee recommendations for Solana transactions based on real-time\ 
+
+        network conditions. This advanced API analyzes historical fee data and current congestion\ 
+
+        levels to provide precise fee estimates for different priority levels.\n"
+      "operationId": "getPriorityFeeEstimate"
+      "security":
+        - "ApiKeyQuery": []
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/PriorityFeeEstimateRequest"
+            "examples":
+              "transactionExample":
+                "value":
+                  "jsonrpc": "2.0"
+                  "id": "1"
+                  "method": "getPriorityFeeEstimate"
+                  "params":
+                    - "transaction": "LxzhDW7TapzziJVHEGPh1QjmZB6kjNqmvuJ9gmihBGEkzw2N8ospDq32UZdVmKWzRZqKuyvhp7xmLvsmmHa3MfxVKpYoLV9cPkw5isHnHgDUwLSMsDaZ4dLEULexXAvuV9k6fLD2LMhFKM6gqH6j69GQLAm1g4e3z5ZVZN6pmJdSmZ4PqKcwNn4sS7E3Abp1hV59uBJB9i4jEdEAh28rZ8WCeNizzEmrJZFhatFFFGSDsk23jDPEjbkMcoRWXKf1WthFScC2S6Wz284Dtjqp7kW8eybV3DpmN9DtBbcfFNQPtUwmiBZCKszdYym5AjJvRHiUKUdMwFpC3toPnMvTmKZ9iHQtzZRkg5xBufRtUN5eVYJfdw2DxzH6RfqhC2rAjfSbfJA4wmaq9f5eUe2iEjmqvne6r85PPcHBJzyqkVtAyUFtTc9DfU8UiM9rFhQ2UB71M6m5UCsC6EwowMw5k8iF8rL7iPCLdubVdy8S58DPLNG4E4rdosev1T63YdRWSgEwBZh7iX4zGBA9AKAm3B9itCSxLSL46Y6uZgVku9UXsMcWWz3URoa6hRbo55CYPLhrVeqjqX5DsXpaG6QkngbEaESQUnkakE1AFkYXmNXEd2m3sLRTYB2o5UTkwkJS2u5sJHyYqAvXr3vFZr7qAYFLD3LwS5tsdb45ZQVQwsbnNddMHgkpmSqLHS6Fv1epxqHbzpRCU1tgMsriApVWC3pj2LLD41HxkV8aKvkVyHgJFACUtbvRBZAasHf1F71Gz3qZNTdh3efWsZJRXnfxKPbATU7NTMaMUL8JjknfoVwp3/SsAUIMHFzjQMQmoiQMSL1q+S+r9dLR55BgaWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG3fbh12Whk9nL4UbO63msHLSF7V9bN5E6jPWFfv8AqQECAwABDAIAAAAEAAAAAAAA"
+              "accountKeysExample":
+                "value":
+                  "jsonrpc": "2.0"
+                  "id": "1"
+                  "method": "getPriorityFeeEstimate"
+                  "params":
+                    - "accountKeys":
+                        - "2CiBfRKcERi2GgYn83UaGo1wFaYHHrXGGfnDaa2hxdEA"
+                      "options":
+                        "includeAllPriorityFeeLevels": true
+      "responses":
+        "200":
+          "description": "Successfully retrieved Solana priority fee estimates"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/PriorityFeeEstimateResponse"
+              "examples":
+                "singleEstimateResponse":
+                  "value":
+                    "jsonrpc": "2.0"
+                    "result":
+                      "priorityFeeEstimate": 120000
+                    "id": "1"
+                "allLevelsResponse":
+                  "value":
+                    "jsonrpc": "2.0"
+                    "result":
+                      "priorityFeeLevels":
+                        "min": 0
+                        "low": 2
+                        "medium": 10082
+                        "high": 100000
+                        "veryHigh": 1000000
+                        "unsafeMax": 50000000
+                    "id": "1"
+        "400":
+          "description": "错误请求"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "properties":
+                  "jsonrpc":
+                    "type": "string"
+                    "enum":
+                      - "2.0"
+                    "description": "JSON-RPC 版本标识符"
+                  "error":
+                    "type": "object"
+                    "description": "错误信息"
+                    "properties":
+                      "code":
+                        "type": "integer"
+                        "example": -32602
+                        "description": "错误代码"
+                      "message":
+                        "type": "string"
+                        "example": "无效参数"
+                        "description": "错误消息"
+                  "id":
+                    "type": "string"
+                    "description": "与请求匹配的客户端生成标识符"

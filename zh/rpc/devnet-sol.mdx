@@ -1,0 +1,112 @@
+---
+title: 如何获取 Devnet SOL
+description: 登录您的 Helius 账户并访问我们的 Solana Devnet 水龙头，以获取免费的 Devnet SOL 来测试您的 Solana 程序。
+---
+
+Solana Devnet 是一个测试环境，复制了 Solana Mainnet Beta，供开发者测试他们的应用程序而无需使用真实的 SOL。Devnet SOL 用于测试交易、部署程序以及在上线 Solana Mainnet Beta 之前试验链上应用。
+
+<Note>
+需要付费的 Helius 计划才能访问 Devnet 水龙头并从 Helius 请求 Devnet SOL 空投。
+</Note>
+
+## 如何通过 CLI 获取 Devnet SOL
+
+### 前提条件
+
+要使用 CLI 方法，请确保您拥有：
+
+- **付费 Helius 计划**：付费订阅以访问 Devnet 水龙头
+- **Solana CLI**：[安装 Solana CLI 工具](https://solana.com/docs/intro/installation#install-the-solana-cli)
+- **Helius Devnet RPC 端点**：从您的仪表板获取您的 [Devnet RPC URL](https://dashboard.helius.dev/endpoints)
+
+### 步骤 1：检查您的默认密钥对
+
+首先，验证您当前的密钥对和钱包地址：
+
+```bash
+solana address
+```
+
+如果您没有密钥对，请创建一个：
+
+```bash
+solana-keygen new
+```
+
+### 步骤 2：设置您的 CLI 配置以使用 Helius Devnet RPC 端点
+
+配置您的 Solana CLI 以使用您的 Helius Devnet RPC URL：
+
+```bash
+solana config set --url https://devnet.helius-rpc.com/?api-key=<your-api-key>
+```
+
+验证您的配置：
+
+```bash
+solana config get
+```
+
+### 步骤 3：请求 Devnet SOL 空投
+
+请求将 Devnet SOL 空投到您的钱包：
+
+```bash
+solana airdrop 1
+```
+
+### 步骤 4：检查您的余额
+
+验证 Devnet SOL 是否成功添加到您的钱包：
+
+```bash
+solana balance
+```
+
+## 如何通过 UI 获取 Devnet SOL
+
+### 先决条件
+
+要使用 UI 方法，请确保您具备：
+
+- **付费 Helius 计划**：访问 Devnet 水龙头的付费订阅
+
+### 步骤 1：登录到您的仪表板
+
+登录到您的 [Helius 仪表板](https://dashboard.helius.dev)。
+
+### 步骤 2：前往 Devnet 水龙头页面
+
+在侧边栏导航菜单中，点击“Faucet”以访问 [Devnet 水龙头](https://dashboard.helius.dev/faucet) 页面。
+
+<Frame>
+
+  ![仪表板导航中的 Devnet 水龙头位置](/images/helius-devnet-faucet.png)
+
+</Frame>
+
+### 步骤 3：输入您的 Solana 地址
+
+在提供的字段中输入您的 Solana 钱包地址。您可以使用 `solana address` 从 Solana CLI 获取您的钱包地址，或从您的钱包应用程序中复制。
+
+### 步骤 4：请求 Devnet SOL
+
+点击“空投 1 SOL”以接收您的 Devnet 代币。
+
+### 步骤 5：验证交易
+
+一旦您的请求被处理，您将看到带有交易签名的确认消息。您可以在 [Solana explorer](https://orb.helius.dev/) 上验证交易或检查您的钱包余额。
+
+## 结论
+
+获取 Devnet SOL 对于在部署到主网之前安全测试您的 Solana 应用程序至关重要。通过付费 Helius 计划，您可以通过 Solana CLI 或仪表板中的 Solana Devnet 水龙头获取 Devnet SOL。
+
+### 后续步骤
+
+通过以下指南和参考资料继续学习 Solana 开发：
+
+- [最大化 RPC 性能](/zh/rpc/optimization-techniques)
+- 使用 [Sender](/zh/sending-transactions/sender) 进行交易
+- 使用 [LaserStream](/zh/laserstream) 流式传输实时数据
+- 探索和测试所有 RPC 方法的 [API 参考](/zh/api-reference)
+- 了解您的 Helius 计划的 [定价和速率限制](/zh/billing/plans-and-rate-limits)

@@ -1,0 +1,135 @@
+---
+title: 如何使用 getTokenLargestAccounts
+sidebarTitle: getTokenLargestAccounts
+description: 了解 getTokenLargestAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getTokenLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenlargestaccounts) RPC 方法返回给定 SPL Token 铸币的 20 个最大代币账户的列表。这对于分析代币分布和识别特定代币的主要持有者非常有用。
+
+## 常见用例
+
+*   **代币分布分析：** 了解代币的供应如何在持有者之间分布。
+*   **识别大户：** 找到持有大量特定代币的账户。
+*   **市场研究：** 评估代币持有的集中度。
+*   **显示最大持有者：** 在代币浏览器或仪表板中显示最大账户的列表。
+
+## 请求参数
+
+1.  **`mintAddress`** (字符串，必需)：要查找最大账户的代币铸币的 base-58 编码公钥。
+
+2.  **`options`** (对象，可选)：一个可选的配置对象，可以包括：
+    *   **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。
+
+## 响应结构
+
+JSON-RPC 响应中的 `result.value` 字段是一个最多包含 20 个对象的数组。每个对象代表一个最大的代币账户，并包含以下字段：
+
+*   **`address`** (字符串)：代币账户的 base-58 编码公钥。
+*   **`amount`** (字符串)：代币账户的原始余额，以字符串形式表示。此值未调整小数位。
+*   **`decimals`** (u8)：为此代币铸币定义的小数位数。
+*   **`uiAmount`** (数字 | null)：调整小数位后的代币余额，作为浮点数。此字段可能会被弃用或不太可靠；`uiAmountString` 是首选。
+*   **`uiAmountString`** (字符串)：调整小数位后的代币余额，以字符串形式表示。这是余额的最用户友好的表示。
+
+**示例响应：**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": { "slot": 123456789 },
+    "value": [
+      {
+        "address": "TokenAccountPubkey1...",
+        "amount": "1000000000000", // e.g., 1,000,000 tokens with 6 decimals
+        "decimals": 6,
+        "uiAmount": 1000000.0,
+        "uiAmountString": "1000000.0"
+      },
+      {
+        "address": "TokenAccountPubkey2...",
+        "amount": "500000000000",  // e.g., 500,000 tokens with 6 decimals
+        "decimals": 6,
+        "uiAmount": 500000.0,
+        "uiAmountString": "500000.0"
+      }
+      // ... up to 18 more accounts
+    ]
+  },
+  "id": 1
+}
+```
+
+## 代码示例
+
+<CodeGroup>
+
+```bash cURL
+# Replace <TOKEN_MINT_PUBKEY> with the actual mint address
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenLargestAccounts",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>"
+    ]
+  }' \
+  <YOUR_RPC_URL>
+
+# Example with commitment level
+curl -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getTokenLargestAccounts",
+    "params": [
+      "<TOKEN_MINT_PUBKEY>",
+      { "commitment": "confirmed" }
+    ]
+  }' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function getLargestTokenHolders(mintAddress) {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const mintPublicKey = new PublicKey(mintAddress);
+
+  try {
+    const largestAccounts = await connection.getTokenLargestAccounts(mintPublicKey);
+    console.log(`Largest accounts for mint ${mintAddress}:`);
+    largestAccounts.value.forEach(account => {
+      console.log(`  Address: ${account.address}`);
+      console.log(`    UI Amount: ${account.uiAmountString}`);
+      console.log(`    Raw Amount: ${account.amount}`);
+      console.log(`    Decimals: ${account.decimals}`);
+    });
+    // For full details:
+    // console.log(JSON.stringify(largestAccounts, null, 2));
+  } catch (error) {
+    console.error(`Error fetching largest token accounts for mint ${mintAddress}:`, error);
+  }
+}
+
+// Replace with the actual token mint public key you want to query
+const exampleTokenMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // USDC mint
+getLargestTokenHolders(exampleTokenMint);
+
+// Example with a different mint (e.g., Raydium)
+// const raydiumMint = '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R';
+// getLargestTokenHolders(raydiumMint);
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **固定限制：** 此方法始终返回最多前20个最大账户。不支持分页或请求超过20个账户。
+*   **数据准确性：** 数据反映了由指定承诺级别确定的槽位的账本状态。
+*   **特定代币铸造：** 结果特定于请求中提供的单个代币铸造。
+*   **性能：** 这是一个有针对性的查询，通常表现良好。然而，应避免过度轮询。
+
+本指南帮助您使用`getTokenLargestAccounts` RPC方法来发现Solana上任何SPL代币的主要持有者。

@@ -6,6 +6,10 @@ info:
     The Solana Digital Asset Standard (DAS) API provides comprehensive and standardized access to Solana blockchain NFTs and digital assets. 
     This powerful API set enables developers to retrieve detailed information about any digital asset on Solana, 
     including both traditional and compressed NFTs, with consistent data formatting regardless of token standard.
+
+    Note, every successful DAS response includes a `last_indexed_slot` field indicating the most recent slot for which the DAS index is guaranteed to be
+    complete. All on-chain data **up to and including** this slot has been indexed. Data beyond this slot may also have already been indexed,
+    although it is not guaranteed.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -115,6 +119,9 @@ paths:
                                 result:
                                     type: object
                                     properties:
+                                        last_indexed_slot:
+                                            type: integer
+                                            description: All data up to and including this slot is guaranteed to have been indexed. 
                                         interface:
                                             type: string
                                             description: The interface type of the Solana digital asset, indicating its token standard and implementation.
@@ -337,6 +344,7 @@ paths:
                                     jsonrpc: "2.0"
                                     id: "test"
                                     result:
+                                        last_indexed_slot: 365749093
                                         interface: "ProgrammableNFT"
                                         id: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
                                         content:

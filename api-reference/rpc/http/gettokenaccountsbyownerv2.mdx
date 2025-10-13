@@ -1,0 +1,160 @@
+---
+title: "getTokenAccountsByOwnerV2"
+"og:title": "getTokenAccountsByOwnerV2 Solana RPC Method"
+sidebarTitle: "getTokenAccountsByOwnerV2"
+description: "Enhanced version of getTokenAccountsByOwner with additional features including cursor-based pagination and changedSinceSlot support for efficiently retrieving SPL token accounts owned by a specific wallet address."
+"og:description": "Get a free RPC and explore the getTokenAccountsByOwnerV2 RPC Method with pagination support. Includes request parameters, response examples, code snippets, and in-browser testing for both Solana Mainnet and Devnet."
+openapi: "/openapi/rpc-http/getTokenAccountsByOwnerV2.yaml POST /"
+---
+
+<Warning>
+**Beta release**: Please note `getTokenAccountsByOwnerV2` is available for early use. Contact support to report any issues you experience.
+</Warning>
+
+## Overview
+
+`getTokenAccountsByOwnerV2` is an enhanced version of the standard `getTokenAccountsByOwner` method, specifically designed for efficiently querying token portfolios and handling wallets with extensive token holdings. This method introduces cursor-based pagination and incremental update capabilities.
+
+<Info>
+**New Features in V2:**
+- **Cursor-based pagination**: Configure limits from 1 to 10,000 token accounts per request
+- **Incremental updates**: Use `changedSinceSlot` to fetch only recently modified token accounts
+- **Portfolio scalability**: Handle wallets with thousands of token accounts efficiently  
+- **Backward compatibility**: Supports all existing `getTokenAccountsByOwner` parameters and filters
+</Info>
+
+<Warning>
+**Filter Requirement**: You must provide either a `mint` (specific token) or `programId` (SPL Token or Token-2022 program) in your query. Querying all token types for an owner without a filter is not supported.
+</Warning>
+
+## Key Benefits
+
+<CardGroup cols={2}>
+  <Card title="Large Portfolios" icon="wallet">
+    Handle wallets with thousands of token accounts without timeouts or memory issues
+  </Card>
+  <Card title="Real-time Tracking" icon="chart-line">
+    Monitor portfolio changes in real-time using `changedSinceSlot` for incremental updates
+  </Card> 
+</CardGroup>
+
+## Pagination Best Practices
+
+<Warning>
+**Important Pagination Behavior**: End of pagination is only indicated when **no token accounts are returned**. The API may return fewer accounts than your limit due to filtering - always continue pagination until `paginationKey` is `null`.
+</Warning>
+
+### Basic Portfolio Query
+
+```typescript
+// Get all SPL Token accounts for a wallet
+let allTokenAccounts = [];
+let paginationKey = null;
+
+do {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'getTokenAccountsByOwnerV2',
+      params: [
+        "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // wallet address
+        { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+        {
+          encoding: 'jsonParsed',
+          limit: 1000,
+          ...(paginationKey && { paginationKey })
+        }
+      ]
+    })
+  });
+  
+  const data = await response.json();
+  allTokenAccounts.push(...data.result.value);
+  paginationKey = data.result.paginationKey;
+} while (paginationKey);
+
+console.log(`Total token accounts: ${allTokenAccounts.length}`);
+```
+
+### Incremental Portfolio Updates
+
+```typescript
+// Get only token accounts modified since a specific slot
+const portfolioUpdates = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByOwnerV2',
+    params: [
+      walletAddress,
+      { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+      {
+        encoding: 'jsonParsed',
+        limit: 1000,
+        changedSinceSlot: lastUpdateSlot // Only get recent changes
+      }
+    ]
+  })
+});
+```
+
+## Token Program Support
+
+<Tip>
+**Token-2022 Support**: Use `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb` as the `programId` to query Token-2022 accounts with extensions like transfer fees, interest-bearing tokens, and more.
+</Tip>
+
+```typescript
+// Query Token-2022 accounts (supports token extensions)
+const token2022Response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getTokenAccountsByOwnerV2',
+    params: [
+      walletAddress,
+      { "programId": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb" }, // Token-2022
+      { encoding: 'jsonParsed', limit: 1000 }
+    ]
+  })
+});
+```
+
+## Migration from getTokenAccountsByOwner
+
+Migration is simple - just add pagination parameters to your existing queries:
+
+```diff
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+- "method": "getTokenAccountsByOwner",
++ "method": "getTokenAccountsByOwnerV2",
+  "params": [
+    "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    { "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" },
+    {
+      "encoding": "jsonParsed",
++     "limit": 1000
+    }
+  ]
+}
+```
+
+## Related Methods
+
+<CardGroup cols={2}>
+  <Card title="getTokenAccountsByOwner" icon="wallet" href="/api-reference/rpc/http/gettokenaccountsbyowner">
+    Original method without pagination
+  </Card>
+  <Card title="getProgramAccountsV2" icon="code" href="/api-reference/rpc/http/getprogramaccountsv2">
+    V2 method for program account queries
+  </Card>
+</CardGroup>

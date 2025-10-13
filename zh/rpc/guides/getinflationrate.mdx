@@ -1,0 +1,76 @@
+---
+title: 如何使用 getInflationRate
+sidebarTitle: getInflationRate
+description: 了解 getInflationRate 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getInflationRate`](https://www.helius.dev/docs/api-reference/rpc/http/getinflationrate) RPC 方法返回当前纪元的[通胀](https://www.helius.dev/blog/solana-issuance-inflation-schedule)率的详细信息。这包括总通胀率、分配给验证者的部分、分配给基金会的部分以及这些率适用的纪元编号。
+
+此方法提供了新代币发行（通胀）当前奖励分配的快照。
+
+## 常见用例
+
+*   **质押奖励估算：** 了解分配给验证者的当前年化通胀率，这是计算质押年收益率的关键组成部分。
+*   **监控基金会分配：** 观察当前通胀中分配给 Solana 基金会的部分。
+*   **当前纪元分析：** 快速概览活跃纪元的通胀指标。
+
+## 请求参数
+
+此方法不需要任何参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个包含以下内容的对象：
+
+*   **`total`** (f64): 当前纪元的总通胀率（例如，0.065 表示 6.5%）。
+*   **`validator`** (f64): 当前纪元分配给验证者的总通胀率部分（例如，0.06 表示 6%）。
+*   **`foundation`** (f64): 当前纪元分配给基金会的总通胀率部分（例如，0.005 表示 0.5%）。
+*   **`epoch`** (u64): 这些通胀率适用的纪元编号。
+
+## 示例
+
+### 1. 获取当前纪元通胀率
+
+此示例获取当前纪元的通胀率详细信息。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getInflationRate"
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function logCurrentInflationRate() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const inflationRate = await connection.getInflationRate();
+    console.log(`Inflation Rate for Epoch ${inflationRate.epoch}:`);
+    console.log(`  Total: ${(inflationRate.total * 100).toFixed(4)}%`);
+    console.log(`  Validator: ${(inflationRate.validator * 100).toFixed(4)}%`);
+    console.log(`  Foundation: ${(inflationRate.foundation * 100).toFixed(4)}%`);
+    // For full raw details:
+    // console.log(JSON.stringify(inflationRate, null, 2));
+  } catch (error) {
+    console.error('Error fetching inflation rate:', error);
+  }
+}
+
+logCurrentInflationRate();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **特定于纪元：** 返回的值特定于查询时的当前纪元。这些比率源自整体通胀计划中定义的`getInflationGovernor`，但代表了此特定纪元的年化率。
+*   **年化率：** 这些比率通常以年化百分比表示，即使它们适用于当前纪元。
+*   **动态值：** 虽然基础通胀计划（`getInflationGovernor`）很少变化，但计算出的`getInflationRate`将随着整体通胀的逐渐减少而在每个纪元中变化。
+
+本指南解释了如何使用`getInflationRate` RPC方法获取当前纪元通胀分布的快照。

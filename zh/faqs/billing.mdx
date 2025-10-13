@@ -1,0 +1,129 @@
+---
+title: 计费常见问题
+description: 获取有关计费的最常见问题的答案，包括定价计划、支付方式、升级、超额使用和企业解决方案
+---
+
+## 购买计划
+
+<Accordion title="Helius 免费计划的限制是什么？">
+免费计划包括适合开发和测试的有限额度和请求速率。对于生产应用程序，请考虑付费计划以获得更高的限制、抵押连接和增强的 API。有关详细比较，请参阅我们的[定价页面](https://www.helius.dev/pricing)。
+</Accordion>
+
+<Accordion title="我如何支付我的订阅费用？">
+我们接受传统支付方式（信用卡）和加密货币（Solana 上的 USDC）。您可以在选择计划时设置支付方式，或在您的[计费仪表板](https://dashboard.helius.dev/billing)中更改支付方式。
+</Accordion>
+
+<Accordion title="为什么我的付费计划还没有出现在我的仪表板中？">
+更新可能需要长达一小时。如果之后仍无变化，请联系[支持](https://www.helius.dev/docs/support)。
+</Accordion>
+
+<Accordion title="如果我订阅了一个计划，但我的支付方式失败了怎么办？">
+如果支付失败，您将收到通知，并有一个宽限期来更新您的支付方式。在支付解决之前，您的服务可能会暂时降级到免费层限制。在您的[计费仪表板](https://dashboard.helius.dev/billing)中更新支付详情。
+</Accordion>
+
+## 使用加密货币支付
+
+<Accordion title="我如何将支付方式从信用卡更改为加密货币（或反之）？">
+请联系[支持](https://www.helius.dev/docs/support)，我们将帮助您过渡。
+</Accordion>
+
+<Accordion title="“授权自动扣款”是什么意思？">
+• Helius 在每个计费周期开始时从您的 Solana 钱包中提取所需的 USDC。
+
+• 只有当您的钱包中有足够的 USDC 时，扣款才会成功。
+
+• 您可以随时在您的钱包或在 [**Billing**](https://dashboard.helius.dev/billing) → **Manage Authorization Limit** 中撤销授权。
+</Accordion>
+
+<Accordion title="如何手动支付订阅费用而不是授权扣款？">
+不支持手动支付。不过，您可以在每次扣款后立即通过在 [**Manage Authorization Limit**](https://dashboard.helius.dev/billing) 中将限额设置为0来撤销授权。
+</Accordion>
+
+## 升级
+
+<Accordion title="如何升级我的计划？">
+您可以随时从 [**Helius Dashboard**](https://dashboard.helius.dev/billing) 升级您的计划。
+</Accordion>
+
+<Accordion title="你们提供定制解决方案吗？">
+是的！我们提供具有专用基础设施、定制速率限制和专业支持的企业定制解决方案。[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)以获取个性化选项。
+</Accordion>
+
+<Accordion title="如何升级到企业计划？">
+企业计划是根据您的需求定制的。[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)以讨论您的需求并获取个性化报价。
+</Accordion>
+
+<Accordion title="企业计划包括什么？">
+企业计划包括定制请求限制、专用基础设施、优先支持、定制计费条款、SLA 和专为您的组织需求量身定制的专业功能。
+</Accordion>
+
+## 降级
+
+<Accordion title="如何降级我的计划？">
+您可以从 [billing dashboard](https://dashboard.helius.dev/billing) 降级您的计划。
+</Accordion>
+
+<Accordion title="如果我降级我的加密订阅，何时生效？">
+加密降级会立即生效。您将收到按比例分配的信用额度，作为下一个订阅计费周期中未使用部分的折扣。
+</Accordion>
+
+<Accordion title="如何取消我的订阅？">
+您可以从 [billing dashboard](https://dashboard.helius.dev/billing) 取消您的订阅。您的服务将持续到当前计费周期结束，然后恢复到免费层限制。
+</Accordion>
+
+## 自动扩展
+
+<Accordion title="如何启用自动扩展？">
+在[项目设置](https://dashboard.helius.dev/settings)的自动扩展部分启用自动扩展。当您超出计划限制时，这将自动购买额外的积分。详情请参阅我们的[自动扩展指南](https://www.helius.dev/docs/billing/autoscaling)。
+</Accordion>
+
+<Accordion title="为什么在我启用自动扩展后仍收到超额费用的发票？">
+当您超出计划限制时，自动扩展会购买额外的积分，这些积分会在您的发票上显示为超额费用。这是预期的行为——自动扩展通过自动购买所需的积分来防止服务中断。
+</Accordion>
+
+## 超额费用
+
+<Accordion title="如果我超出了信用额度会发生什么？">
+如果您超出了信用额度，您可以启用自动扩展或购买额外的预付积分。了解更多信息，请访问[**额外积分**](https://www.helius.dev/docs/billing/autoscaling)页面。
+</Accordion>
+
+<Accordion title="即使我没有使用任何 Helius 端点，为什么我的项目仍在消耗积分？">
+检查可能正在进行 API 调用的活动 webhook、自动化脚本或后台进程。查看您的[使用情况仪表板](https://dashboard.helius.dev/usage)以识别积分消耗的来源。
+</Accordion>
+
+<Accordion title="当我没有更改任何内容时，为什么我的使用量在增加？">
+您的 API 密钥可能已被泄露，或者某个 webhook 可能在后台运行。要解决此问题：
+
+1. 删除当前的 API 密钥并创建一个新的。
+2. 从仪表板检查您的 webhook，并禁用任何不应处于活动状态的 webhook。
+3. 如果问题仍然存在，请联系支持以获得帮助。
+
+为了帮助防止将来密钥泄露，请考虑按照[本指南](https://www.helius.dev/docs/rpc/protect-your-keys)中描述的设置代理。
+</Accordion>
+
+## 退款
+
+<Accordion title="如果我的计划意外自动续订，我可以获得退款吗？">
+如果您已经使用了该服务，我们无法对自动订阅续订提供退款。这符合大多数平台的标准做法。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

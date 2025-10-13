@@ -1,0 +1,125 @@
+---
+title: 如何使用 getBalance
+sidebarTitle: getBalance
+description: 了解 getBalance 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getBalance`](https://www.helius.dev/docs/api-reference/rpc/http/getbalance) RPC 方法是一个简单的方法，用于查询 Solana 区块链上任何账户的原生 SOL 余额。它返回以 lamports 为单位的余额（1 SOL = 1,000,000,000 lamports）。
+
+如果您*只*需要 SOL 余额而不需要其他账户详细信息，此方法比 `getAccountInfo` 更轻量。
+
+## 主要用例
+
+*   **快速检查账户的 SOL 持有量：** 主要用途是确定一个账户（钱包、程序等）持有多少 SOL。
+
+## 参数
+
+1.  `publicKey` (字符串，必需)：要查询的账户的 base-58 编码公钥。
+
+2.  `config` (对象，可选)：一个包含以下字段的配置对象：
+    *   `commitment` (字符串，可选)：指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。默认为 `finalized`。
+        *   `finalized`：节点将查询由集群的超级多数确认已达到最大锁定的最新区块。
+        *   `confirmed`：节点将查询由集群的超级多数投票的最新区块。
+        *   `processed`：节点将查询其最新的区块。请注意，该区块可能不完整。
+    *   `minContextSlot` (数字，可选)：请求可以评估的最小槽位。
+
+## 响应
+
+JSON-RPC 响应的 `result` 字段将是一个包含以下内容的对象：
+
+*   `context` (对象)：
+    *   `slot` (数字)：检索余额的槽位。
+    *   `apiVersion` (字符串，可选)：RPC API 版本（可能并非所有节点都存在）。
+*   `value` (数字)：账户的余额，以 lamports 为单位（无符号 64 位整数）。
+
+如果账户在链上不存在，`getBalance` 通常会返回一个值 `0` lamports。
+
+## 示例：获取账户余额
+
+让我们检查主网上 Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) 的 SOL 余额。此程序账户本身持有 SOL 以免租金。
+
+**注意：** 在下面的示例中，将 `YOUR_API_KEY` 替换为您实际的 Helius API 密钥。
+
+<CodeGroup>
+
+```bash curl
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBalance",
+  "params": [
+    "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
+  ]
+}'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection, PublicKey, LAMPORTS_PER_SOL } = require('@solana/web3.js');
+
+async function checkBalance() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  const accountPubKey = new PublicKey('9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin');
+
+  try {
+    const lamports = await connection.getBalance(accountPubKey);
+    const sol = lamports / LAMPORTS_PER_SOL;
+
+    console.log(`Account PubKey: ${accountPubKey.toBase58()}`);
+    console.log(`Balance (Lamports): ${lamports}`);
+    console.log(`Balance (SOL): ${sol}`);
+
+  } catch (error) {
+    console.error('Error fetching balance:', error);
+  }
+}
+
+checkBalance();
+```
+
+```typescript Kit
+import { address, createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const publicKey = address("83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri");
+const balance = await rpc.getBalance(publicKey).send();
+
+console.log("Account Balance:", balance);
+```
+
+```rust Rust
+use anyhow::Result;
+use solana_client::nonblocking::rpc_client::RpcClient;
+use solana_sdk::{
+    commitment_config::CommitmentConfig, native_token::LAMPORTS_PER_SOL, pubkey::Pubkey,
+};
+use std::str::FromStr;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let client = RpcClient::new_with_commitment(
+        String::from("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY"),
+        CommitmentConfig::confirmed(),
+    );
+
+    let pubkey = Pubkey::from_str("83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri")?;
+    let balance = client.get_balance(&pubkey).await?;
+
+    println!("{:#?} SOL", balance / LAMPORTS_PER_SOL);
+
+    Ok(())
+}
+```
+
+</CodeGroup> 
+
+## 开发者提示
+
+*   **SOL 余额的简便性：** 如果您只需要账户的 SOL 余额而不需要其他链上数据（如所有者、数据或可执行状态），`getBalance` 比 `getAccountInfo` 更高效，因为它获取的数据更少。
+*   **不存在的账户：** 如果账户在链上不存在（从未初始化或没有 SOL），`getBalance` 将返回 `0`。如果您只关心 SOL 余额，这可以是检查账户存在性的快速方法。
+*   **Lamports 与 SOL：** 请记住，余额以 lamports 返回。您需要除以 `LAMPORTS_PER_SOL` (1,000,000,000) 将其转换为 SOL。
+*   **承诺级别：** 选择 `commitment` 会影响您获取余额的速度以及余额的确认程度。对于大多数 UI 显示目的，`confirmed` 提供了良好的平衡。对于关键的金融交易，`finalized` 提供了最高的保证。有关详细信息，请参阅 [Solana 承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
+*   **使用 `getMultipleAccounts` 进行批处理：** 虽然 `getBalance` 适用于单个账户，但如果您需要多个账户的余额，使用 `getMultipleAccounts` 然后从每个账户的信息中提取 lamport 余额可能比多个单独的 `getBalance` 调用更高效。

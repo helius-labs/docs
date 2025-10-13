@@ -1,0 +1,84 @@
+---
+title: GetVersion
+description: 获取 LaserStream gRPC API 及其连接的 Solana 节点的版本信息。
+---
+
+<hide>
+## 端点
+
+gRPC 服务在主网和开发网可通过以下 URL 访问：
+
+- **主网** `https://laserstream-mainnet.helius-rpc.com:443`
+- **开发网** `https://laserstream-devnet.helius-rpc.com:443`
+</hide>
+
+## 授权
+
+<ParamField query="x-token" type="string" required>
+  您的 Helius API 密钥。您可以在
+  [dashboard](https://dashboard.helius.dev/api-keys) 免费获取一个。
+</ParamField>
+
+## 消息
+
+此方法接受一个空请求并返回版本信息。
+
+## 响应
+
+<ResponseField name="version" type="string">
+  一个包含详细版本信息的 JSON 字符串，具有以下字段：
+</ResponseField>
+
+<ResponseField name="version.package" type="string">
+  包名称。
+</ResponseField>
+
+<ResponseField name="version.version" type="string">
+  包版本。
+</ResponseField>
+
+<ResponseField name="version.proto" type="string">
+  协议版本。
+</ResponseField>
+
+<ResponseField name="version.proto_richat" type="string">
+  Richat 协议版本。
+</ResponseField>
+
+<ResponseField name="version.solana" type="string">
+  服务使用的 Solana 版本。
+</ResponseField>
+
+<ResponseField name="version.git" type="string">
+  构建的 Git 提交哈希。
+</ResponseField>
+
+<ResponseField name="version.rustc" type="string">
+  用于构建服务的 Rust 编译器版本。
+</ResponseField>
+
+<ResponseField name="version.buildts" type="string">
+  服务构建时的时间戳。
+</ResponseField>
+
+<ResponseField name="extra.hostname" type="string">
+  处理请求的服务器主机名。
+</ResponseField>
+
+<RequestExample>
+
+```json Empty Request
+{}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json
+{
+  "version": "{\"version\":{\"package\":\"richat\",\"version\":\"2.1.0\",\"proto\":\"4.2.1\",\"proto_richat\":\"2.0.0\",\"solana\":\"2.1.14\",\"git\":\"cf5f498fe\",\"rustc\":\"1.85.0\",\"buildts\":\"2025-04-11T17:12:50.779748607Z\"},\"extra\":{\"hostname\":\"laserstream-prod-mainnet-fra-worker-1\"}}"
+}
+```
+
+</ResponseExample>

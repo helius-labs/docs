@@ -1,0 +1,287 @@
+openapi: "3.0.3"
+info:
+  title: "Solana 零知识证明验证 API"
+  description: "高级 Solana 索引器，用于使用零知识密码学进行状态压缩验证。
+
+    此专用 API 通过加密有效性证明，验证 Solana 区块链上的压缩 NFT 和代币账户，
+
+    在保持 Solana 共识模型安全保证的同时，为压缩资产的数据完整性提供数学确定性。\n"
+  license:
+    name: "Apache-2.0"
+  version: "0.50.0"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+paths:
+  /:
+    summary: "getValidityProof"
+    post:
+      description: "检索 Solana 压缩账户的加密零知识有效性证明。
+
+        此高级验证端点返回验证压缩 NFT 和代币账户所需的数学证明组件，
+
+        无需完整的链上数据。对于需要压缩资产状态的加密验证的应用程序至关重要，
+
+        同时受益于 Solana 的状态压缩技术以降低存储成本和提高可扩展性。\n"
+      operationId: "getValidityProof"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC 协议的版本。"
+                  enum:
+                    - "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "用于标识请求的 ID。"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的方法名称。"
+                  enum:
+                    - "getValidityProof"
+                  default: "getValidityProof"
+                params:
+                  type: "object"
+                  properties:
+                    hashes:
+                      type: "array"
+                      items:
+                        $ref: "#/components/schemas/Hash"
+                      description: "用于验证 Solana 压缩账户的加密哈希数组"
+                    newAddressesWithTrees:
+                      type: "array"
+                      items:
+                        $ref: "#/components/schemas/AddressWithTree"
+                      description: "Solana 账户地址及其关联的默克尔树数组，用于验证"
+                  additionalProperties: false
+        required: true
+      responses:
+        "200":
+          description: "成功检索到 Solana 压缩账户的有效性证明"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                  - "value"
+                  - "context"
+                properties:
+                  context:
+                    $ref: "#/components/schemas/Context"
+                  value:
+                    $ref: "#/components/schemas/CompressedProofWithContext"
+                additionalProperties: false
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API 密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    AddressWithTree:
+      type: "object"
+      required:
+        - "address"
+        - "tree"
+      properties:
+        address:
+          $ref: "#/components/schemas/SerializablePubkey"
+          description: "通过零知识证明验证的 Solana 账户地址"
+        tree:
+          $ref: "#/components/schemas/SerializablePubkey"
+          description: "存储压缩 Solana 账户的 Merkle 树地址"
+      additionalProperties: false
+    CompressedProof:
+      type: "object"
+      required:
+        - "a"
+        - "b"
+        - "c"
+      properties:
+        a:
+          type: "string"
+          format: "binary"
+          description: "Solana零知识有效性证明的第一个组件"
+        b:
+          type: "string"
+          format: "binary"
+          description: "Solana零知识有效性证明的第二个组件"
+        c:
+          type: "string"
+          format: "binary"
+          description: "Solana零知识有效性证明的第三个组件"
+    CompressedProofWithContext:
+      type: "object"
+      required:
+        - "compressedProof"
+        - "roots"
+        - "rootIndices"
+        - "leafIndices"
+        - "leaves"
+        - "merkleTrees"
+      properties:
+        compressedProof:
+          $ref: "#/components/schemas/CompressedProof"
+          description: "用于验证Solana压缩账户的零知识加密证明"
+        leafIndices:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int32"
+            minimum: 0
+          description: "Solana默克尔树中压缩账户叶子的索引"
+        leaves:
+          type: "array"
+          items:
+            type: "string"
+          description: "用于验证 Solana 压缩账户的叶节点数据"
+        merkleTrees:
+          type: "array"
+          items:
+            type: "string"
+          description: "包含压缩账户的 Solana Merkle 树的地址"
+        rootIndices:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int64"
+            minimum: 0
+          description: "Solana Merkle 树中压缩账户根的索引"
+        roots:
+          type: "array"
+          items:
+            type: "string"
+          description: "Solana Merkle 树中压缩账户的根哈希"
+    Context:
+      type: "object"
+      required:
+        - "slot"
+      properties:
+        slot:
+          type: "integer"
+          default: 100
+          example: 100
+          description: "此有效性证明请求的当前 Solana 区块链插槽"
+    Hash:
+      type: "string"
+      description: "一个 32 字节的加密哈希，以 base58 字符串表示，用于 Solana 压缩账户验证。"
+      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+    SerializablePubkey:
+      type: "string"
+      description: "一个以 base58 字符串表示的 Solana 公钥，用于标识账户、树和程序。"
+      default: "11111118eRTi4fUVRoeYEeeTyL4DPAwxatvWT5q1Z"
+      example: "11111118eRTi4fUVRoeYEeeTyL4DPAwxatvWT5q1Z"
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"

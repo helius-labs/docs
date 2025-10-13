@@ -19,6 +19,8 @@ We also outline a list of unofficial community SDKs made by our wonderful commun
 
 ## Node.js SDK
 
+Note the Node.js SDK has been rewritten as of version 2.0.0. This was done to use `@solana/kit` and remove the dependency on `@solana/web3.js` versions higher than 1.73.2. For those migrating to the latest version, please refer to our [migration guide](https://github.com/helius-labs/helius-sdk/blob/main/MIGRATION.md).
+
 ### Installation
 
 The Helius Node.js SDK can be installed with any of the following package managers:
@@ -43,23 +45,33 @@ The Helius Node.js SDK can be installed with any of the following package manage
 
 ### Quick Start
 
-Here's a straightforward example of how to use the Node.js SDK to fetch a list of assets owned by a given address:
+Below is a straightforward example of how to use the Node.js SDK to fetch a list of assets owned by a given address:
 
 ```typescript
-import { Helius } from "helius-sdk";
+import { createHelius } from "helius-sdk";
 
-const helius = new Helius("YOUR_API_KEY");
-const response = await helius.rpc.getAssetsByOwner({
-  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-  page: 1,
-});
+(async () => {
+  const apiKey = ""; // From Helius dashboard
+  const helius = createHelius({ apiKey });
 
-console.log(response.items);
+  try {
+    const assets = await helius.getAssetsByOwner({
+      ownerAddress: "owner_address_goes_here",
+      page: 1,
+      limit: 50,
+      sortBy: { sortBy: "created", sortDirection: "asc" },
+    });
+
+    console.log("Fetched assets:", assets);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
 ```
 
 ### Documentation
 
-The [README file](https://github.com/helius-labs/helius-sdk/blob/main/README.md) is filled with in-depth code examples covering each method and basic usage. For API reference documentation, refer to our [documentation](/api-reference) and the [official Solana documentation](https://solana.com/docs/rpc) for general Solana JSON RPC API help.
+The [examples directory](https://github.com/helius-labs/helius-sdk/tree/main/examples) is filled with in-depth code examples covering each method and basic usage, organized by namespace. For API reference documentation, refer to our [documentation](/api-reference) and the [official Solana documentation](https://solana.com/docs/rpc) for general Solana JSON RPC API help. For general help with Kit, please refer to [Kit's documentation](https://www.solanakit.com/).
 
 ## Rust SDK
 
@@ -85,7 +97,7 @@ The [README file](https://github.com/helius-labs/helius-sdk/blob/main/README.md)
 
 ### Quick Start
 
-Here is a straightforward example of using the [Enhanced Transactions API](/enhanced-transactions) to [parse a given transaction](/api-reference/enhanced-transactions/gettransactions):
+Below is a straightforward example of using the [Enhanced Transactions API](/enhanced-transactions) to [parse a given transaction](/api-reference/enhanced-transactions/gettransactions):
 
 ```rust
 use helius::error::Result;
@@ -132,18 +144,16 @@ async fn main() -> Result<()> {
   An error message will be thrown when the API returns a non-success (i.e., 4xx or 5xx status code).
 </Callout>
 
-For example:
+For example, below is a 401 thrown for an incorrect getAsset call using the Node.js SDK:
 
 ```typescript
-// From our Node.js SDK
-try {
-  const response = await helius.rpc.getAssetsByOwner({
-    ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
-    page: 1,
-  });
-  console.log(response.items);
-} catch (error) {
-  console.log(error);
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32001,
+    "message": "Authentication failed. Missing or invalid API key."
+  },
+  "id": "1"
 }
 ```
 
@@ -152,6 +162,9 @@ try {
 When working with the Helius SDK, you may encounter several error codes. Below is a table detailing some of the common error codes along with additional information to help you troubleshoot:
 
 <AccordionGroup>
+  <Accordion title="400: Bad Request">
+    This occurs when a request has invalid parameters.
+  </Accordion>
   <Accordion title="401: Unauthorized">
     This occurs when an invalid API key is provided or access is restricted due to RPC rules.
   </Accordion>
@@ -167,7 +180,7 @@ If you encounter any of these errors:
 
 <Steps>
   <Step title="Check error documentation">
-    Refer to [`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs) for a list of all possible errors returned by the `Helius` client, if using the Rust SDK
+    Refer to [`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs) for a list of all possible errors returned by the `Helius` client, if using the Rust SDK. For the Node.js SDK, refer to [Kit's errors](https://www.solanakit.com/docs/concepts/errors)
   </Step>
   <Step title="Review the documentation">
     Refer to the [Helius documentation](/) for further guidance

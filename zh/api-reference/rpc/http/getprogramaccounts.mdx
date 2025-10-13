@@ -1,0 +1,13 @@
+---
+title: getProgramAccounts
+og:title: getProgramAccounts Solana RPC 方法
+sidebarTitle: getProgramAccounts
+description: 返回由提供的程序公钥拥有的所有账户。
+og:description: 获取免费 RPC 并探索 getProgramAccounts RPC 方法。包括请求参数、响应示例、代码片段，以及在
+  Solana 主网和 Devnet 上的浏览器内测试。
+openapi: /zh/openapi/rpc-http/getProgramAccounts.yaml POST /
+---
+
+<Info>
+**新功能**: `getProgramAccounts` 现在支持 `changedSinceSlot` 参数用于增量更新。当指定此参数时，该方法只返回在给定槽号之后被修改的账户。这对于实时索引和数据同步工作流程非常理想。
+</Info>

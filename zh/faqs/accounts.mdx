@@ -1,0 +1,65 @@
+---
+title: 账户常见问题
+description: 获取关于Solana账户、项目管理、积分、速率限制和测试资源的常见问题解答
+---
+
+## 管理项目
+
+<Accordion title="如何获取我的项目ID？">
+您可以在[**Helius仪表板**](https://dashboard.helius.dev/project-settings)的左上角找到您的项目ID。
+</Accordion>
+
+<Accordion title="在仪表板中，“成功请求”与“包括批处理的成功请求”有何不同？">
+“成功请求”显示单个API调用，而“包括批处理的成功请求”包括批处理操作，其中多个请求一起处理（如`getAssetBatch`或`getMultipleAccounts`）。批处理操作将批处理中每个单独的请求计入总数。
+</Accordion>
+
+## 积分
+
+<Accordion title="每次调用需要多少积分？">
+调用及其积分成本的详细列表可在[此处](https://www.helius.dev/docs/billing/plans-and-rate-limits)查看。
+</Accordion>
+
+<Accordion title="未使用的积分会结转到下个月吗？">
+不会，未使用的积分不会结转到下一个计费周期。积分会根据您的订阅计划每月重置。如果您经常超出计划限制，建议启用[自动扩展](https://www.helius.dev/docs/billing/autoscaling)。
+</Accordion>
+
+## 速率限制
+
+<Accordion title="我的计划速率限制是多少？">
+API使用遵循Helius的标准速率限制。详情请参见[**计划和速率限制**](https://www.helius.dev/docs/billing/plans-and-rate-limits)页面。
+</Accordion>
+
+<Accordion title="为什么即使我有付费计划，仍然在低速率下受到速率限制？">
+速率限制可能由于多个因素而发生：超过计划的每秒请求限制、从过多的并发连接发出请求或达到特定方法的限制。请检查您的[仪表板使用情况](https://dashboard.helius.dev/usage)，确保您适当地分配请求。有关速率限制，请参见[**计划和速率限制**](https://www.helius.dev/docs/billing/plans-and-rate-limits)页面。
+</Accordion>
+
+## 水龙头
+
+<Accordion title="如何获取 Devnet SOL？">
+使用您的 Helius Dashboard 中的[Devnet 水龙头](https://dashboard.helius.dev/faucet)（需要付费计划）或使用 Solana CLI：`solana airdrop 1`，同时连接到您的 Helius Devnet 端点。有关详细说明，请参阅我们的[Devnet SOL 指南](/zh/rpc/devnet-sol)。
+</Accordion>
+
+<Accordion title="每天可以请求的 Devnet SOL 的最大数量是多少？">
+标准限制通常是每次请求 1 SOL，并有合理的每日限制。如果您需要更大量进行测试，请[联系支持](/zh/support/contact-support)，并提供有关您的测试需求的详细信息。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

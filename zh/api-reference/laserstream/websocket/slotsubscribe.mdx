@@ -1,0 +1,82 @@
+---
+title: slotSubscribe
+description: 订阅以在验证器处理插槽时接收通知。
+---
+
+## 端点
+
+主网和开发网都可以通过以下 URL 使用 Websockets：
+
+- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+
+<Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
+
+## 授权
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+</ParamField>
+
+## 正文
+
+<ParamField body="params" type="array">
+    <Expandable title="properties" defaultOpen>
+        <ParamField body="none" type="null">
+            无需参数。
+        </ParamField>
+    </Expandable>
+</ParamField>
+
+## 响应
+
+<ResponseField name="result" type="integer">
+  订阅 ID（取消订阅时需要）
+</ResponseField>
+
+## 通知格式
+
+通知将是一个包含以下字段的对象：
+
+- `parent: <u64>` - 父插槽
+- `root: <u64>` - 当前根插槽
+- `slot: <u64>` - 新设置的插槽值
+
+<RequestExample>
+
+```json Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "slotSubscribe"
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Response
+{
+  "jsonrpc": "2.0",
+  "result": 0,
+  "id": 1
+}
+```
+
+```json Notification
+{
+  "jsonrpc": "2.0",
+  "method": "slotNotification",
+  "params": {
+    "result": {
+      "parent": 75,
+      "root": 44,
+      "slot": 76
+    },
+    "subscription": 0
+  }
+}
+```
+
+</ResponseExample>

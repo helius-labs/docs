@@ -1,0 +1,2930 @@
+openapi: "3.0.3"
+info:
+  description: "Helius API 的综合文档 - Solana 开发者的领先区块链 API。访问高性能 RPC 节点、索引数据和高级区块链功能。访问 <a href=https://helius.xyz>helius.xyz</a> 了解更多关于我们企业级基础设施的信息。"
+  version: "1.0.1"
+  title: "Helius API"
+  contact:
+    email: "mert@helius.xyz"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://api.helius.xyz"
+    description: "Mainnet RPC 端点"
+  - url: "https://api-devnet.helius.xyz"
+    description: "Devnet RPC 端点"
+security:
+  - ApiKeyQuery: []
+tags:
+  - name: "NFTs"
+    description: "访问全面的 NFT 数据，包括事件、集合聚合、实时统计和 Solana 上的完整历史活动。"
+  - name: "Tokens"
+    description: "完整的代币账户数据、链上和链下元数据，以及详细的可替代和不可替代 Solana 代币信息。"
+  - name: "Transactions"
+    description: "增强和人性化的交易历史，包含解码的指令数据和详细的上下文。"
+  - name: "Addresses"
+    description: "增强的链上身份数据，包含完整的钱包活动和所有权信息。"
+paths:
+  /v0/addresses/{address}/nft-events:
+    get:
+      tags:
+        - "NFTs"
+      summary: "返回与给定地址相关的所有 NFT 相关事件。"
+      operationId: "getNftEvents"
+      description: "检索任何 Solana 地址的综合 NFT 事件数据。按事件类型、交易来源和时间范围过滤，以获取精确的 NFT 活动，包括铸造、销售、上市和转移。"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/beforeParam"
+        - $ref: "#/components/parameters/untilParam"
+        - $ref: "#/components/parameters/commitmentParam"
+        - $ref: "#/components/parameters/addressParam"
+        - $ref: "#/components/parameters/transactionSourceParam"
+        - $ref: "#/components/parameters/transactionTypeParam"
+      responses:
+        "200":
+          description: "返回一个 NFTEvents 数组。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/NFTEvent"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nft-events"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v0/addresses/{address}/transactions:
+    get:
+      tags:
+        - "Transactions"
+      summary: "返回给定地址的增强交易历史"
+      operationId: "getEnhancedTransactions"
+      description: "访问任何 Solana 地址的全面交易历史，包含人类可读的解码数据。通过交易类型、来源和时间范围进行过滤，以获取详细的上下文和解码指令的洞察。\n"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/beforeParam"
+        - $ref: "#/components/parameters/untilParam"
+        - $ref: "#/components/parameters/commitmentParam"
+        - $ref: "#/components/parameters/addressParam"
+        - $ref: "#/components/parameters/transactionSourceParam"
+        - $ref: "#/components/parameters/transactionTypeParam"
+        - $ref: "#/components/parameters/limitNewParam"
+      responses:
+        "200":
+          description: "返回增强交易的数组。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/EnhancedTransaction"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v0/addresses/{address}/raw-transactions:
+    get:
+      tags:
+        - "Transactions"
+      summary: "返回给定地址的原始交易历史记录"
+      operationId: "getRawTransactionHistory"
+      description: "检索任何 Solana 地址的完整原始交易数据，包含其原始格式的完整交易详情。通过精确的时间过滤选项访问历史交易数据。"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/beforeParam"
+        - $ref: "#/components/parameters/untilParam"
+        - $ref: "#/components/parameters/commitmentParam"
+        - $ref: "#/components/parameters/addressParam"
+      responses:
+        "200":
+          description: "返回一个原始交易的数组。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RawTransaction"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/raw-transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v0/transactions:
+    post:
+      tags:
+        - "Transactions"
+      summary: "返回给定交易的增强版、可读性强的版本数组。"
+      description: "将原始的 Solana 交易转换为增强的、可读性强的格式，包含解码的指令数据和上下文信息。在单个请求中处理多个交易，以实现高效的数据分析和展示。"
+      operationId: "getEnhancedTransaction"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/commitmentParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParseTransactionsRequest"
+      responses:
+        "200":
+          description: "返回增强交易的数组。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/EnhancedTransaction"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v0/raw-transactions:
+    post:
+      tags:
+        - "交易"
+      summary: "返回一个原始（直接来自RPC）的交易数组。"
+      operationId: "getRawTransactions"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/commitmentParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParseTransactionsRequest"
+      responses:
+        "200":
+          description: "返回一个原始交易数组。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RawTransaction"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v0/tokens/metadata:
+    post:
+      tags:
+        - "代币"
+        - "NFTs"
+      summary: "返回给定代币地址的代币元数据（无论是NFT还是可替代代币）。"
+      operationId: "getTokenMetadata"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokensMetadataRequest"
+      responses:
+        "200":
+          description: "返回代币元数据。"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/TokenMetadataResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v0/addresses/{address}/names:
+    get:
+      tags:
+        - "地址"
+      summary: "返回给定地址的Solana命名服务名称。"
+      operationId: "getAddressName"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/addressParam"
+      responses:
+        "200":
+          description: "如果存在，返回Solana命名服务名称。否则返回null。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NamesResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/names"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v0/addresses/{address}/balances:
+    get:
+      tags:
+        - "地址"
+      summary: "返回给定地址的原生余额和代币余额。"
+      operationId: "getBalances"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/addressParam"
+      responses:
+        "200":
+          description: "返回给定账户的原生余额和代币余额。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BalancesResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/balances"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v0/addresses/{address}/nfts:
+    get:
+      tags:
+        - "NFTs"
+      summary: "返回给定地址持有的NFTs。"
+      operationId: "getNFTs"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+        - $ref: "#/components/parameters/addressParam"
+        - $ref: "#/components/parameters/pageNumberParam"
+      responses:
+        "200":
+          description: "返回该地址当前拥有的NFTs。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NFTsResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "GET"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/addresses/{address}/nfts"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        requestParameters:
+          integration.request.path.address: "method.request.path.address"
+  /v1/nft-events:
+    post:
+      tags:
+        - "NFTs"
+      summary: "查询NFT事件。"
+      operationId: "queryNftEvents"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryNftEventsRequest"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryNftEventsResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nft-events"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v1/nfts:
+    post:
+      tags:
+        - "NFTs"
+      summary: "描述提供的NFTs。"
+      operationId: "describeNfts"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeNftsRequest"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeNftsResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/nfts"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v1/mintlist:
+    post:
+      tags:
+        - "NFTs"
+      summary: "返回给定NFT集合的铸造账户列表。"
+      operationId: "mintlist"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MintlistRequest"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MintlistResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/mintlist"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v1/active-listings:
+    post:
+      tags:
+        - "NFTs"
+      summary: "查询活跃的NFT列表。"
+      operationId: "queryActiveListings"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActiveListingsRequest"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveListingsResponse"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/active-listings"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v1/raw-transactions:
+    post:
+      tags:
+        - "交易"
+      summary: "返回给定账户的原始交易数组。"
+      operationId: "queryRawTxns"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RawTransactionsV1Request"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RawTransactionsV1Response"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/raw-transactions-v1"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+  /v0/token-metadata:
+    post:
+      tags:
+        - "代币"
+        - "NFTs"
+      summary: "返回与账户关联的所有元数据，包括旧代币列表中的数据。"
+      operationId: "queryMetadataV1"
+      parameters:
+        - $ref: "#/components/parameters/apiKeyParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokensMetadataRequestV1"
+      responses:
+        "200":
+          description: "查询结果。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokensMetadataResponseV1"
+        "400":
+          $ref: "#/components/responses/400-BadRequest"
+        "401":
+          $ref: "#/components/responses/401-Unauthorized"
+        "403":
+          $ref: "#/components/responses/403-Forbidden"
+        "404":
+          $ref: "#/components/responses/404-NotFound"
+        "429":
+          $ref: "#/components/responses/429-TooManyRequests"
+        "500":
+          $ref: "#/components/responses/500-InternalServerError"
+        "503":
+          $ref: "#/components/responses/503-ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/504-GatewayTimeout"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+    options:
+      responses:
+        "200":
+          $ref: "#/components/responses/200-NoContent"
+      x-amazon-apigateway-integration:
+        httpMethod: "OPTIONS"
+        type: "http_proxy"
+        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/tokens/metadata-v1"
+        connectionType: "VPC_LINK"
+        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  parameters:
+    limitParam:
+      name: "limit"
+      in: "query"
+      description: "要返回的最大项目数。"
+      required: false
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 1000
+        default: 100
+    beforeParam:
+      name: "before"
+      in: "query"
+      description: "从此交易签名开始向后搜索。"
+      required: false
+      schema:
+        type: "string"
+    untilParam:
+      name: "until"
+      in: "query"
+      description: "搜索直到此交易签名。"
+      required: false
+      schema:
+        type: "string"
+    commitmentParam:
+      name: "commitment"
+      in: "query"
+      description: "区块必须达到的最终状态才能被包含在搜索中。如果未提供，将默认为“finalized”承诺。请注意，不支持“processed”级别的承诺。"
+      required: false
+      schema:
+        $ref: "#/components/schemas/Commitment"
+    addressParam:
+      name: "address"
+      in: "path"
+      description: "要查询的地址。"
+      required: true
+      schema:
+        type: "string"
+        example: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+        default: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY"
+    webhookIDParam:
+      name: "webhookID"
+      in: "path"
+      description: "webhook ID — 唯一标识webhook的UUIDv4。"
+      required: true
+      schema:
+        type: "string"
+        example: "123e4567-e89b-12d3-a456-426614174000"
+    pageNumberParam:
+      name: "pageNumber"
+      in: "query"
+      description: "用于分页的页码。"
+      required: false
+      schema:
+        type: "number"
+    transactionIdParam:
+      name: "transaction-id"
+      in: "path"
+      description: "要查询的交易签名。"
+      required: true
+      schema:
+        type: "string"
+    transactionSourceParam:
+      name: "source"
+      in: "query"
+      description: "用于过滤的TransactionSource。有关可能的选项列表，请参阅交易类型部分。"
+      required: false
+      schema:
+        $ref: "#/components/schemas/TransactionSource"
+    transactionTypeParam:
+      name: "type"
+      in: "query"
+      description: "要过滤的TransactionType。有关可能选项的列表，请参见交易类型部分。"
+      required: false
+      schema:
+        $ref: "#/components/schemas/TransactionType"
+    limitNewParam:
+      name: "limit"
+      in: "query"
+      description: "要检索的交易数量。该值应在1到100之间。"
+      required: false
+      schema:
+        type: "integer"
+        minimum: 1
+        maximum: 100
+  responses:
+    200-NoContent:
+      description: "无内容。"
+      content:
+        application/json:
+          schema:
+            type: "object"
+            properties:
+              message:
+                type: "string"
+    400-BadRequest:
+      description: "无效请求。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32602
+              message: "无效参数"
+            id: "1"
+    401-Unauthorized:
+      description: "未经授权的请求。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32001
+              message: "未授权"
+            id: "1"
+    403-Forbidden:
+      description: "请求被禁止。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32003
+              message: "禁止"
+            id: "1"
+    404-NotFound:
+      description: "未找到指定的资源。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32601
+              message: "方法未找到"
+            id: "1"
+    429-TooManyRequests:
+      description: "超出速率限制。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32005
+              message: "超出速率限制"
+            id: "1"
+    500-InternalServerError:
+      description: "服务器遇到意外情况，无法完成请求。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32603
+              message: "内部错误"
+            id: "1"
+    503-ServiceUnavailable:
+      description: "服务暂时不可用。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32002
+              message: "服务不可用"
+            id: "1"
+    504-GatewayTimeout:
+      description: "请求超时。"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            jsonrpc: "2.0"
+            error:
+              code: -32003
+              message: "网关超时"
+            id: "1"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      description: "JSON-RPC 错误响应格式"
+      properties:
+        jsonrpc:
+          type: "string"
+          example: "2.0"
+          description: "JSON-RPC 版本"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息"
+              example: "无效参数"
+        id:
+          type: "string"
+          description: "请求标识符"
+          example: "1"
+      required:
+        - "jsonrpc"
+        - "error"
+        - "id"
+    Webhook:
+      type: "object"
+      properties:
+        webhookID:
+          type: "string"
+        wallet:
+          type: "string"
+        webhookURL:
+          type: "string"
+        transactionTypes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TransactionType"
+        accountAddresses:
+          type: "array"
+          items:
+            type: "string"
+        webhookType:
+          $ref: "#/components/schemas/WebhookType"
+        authHeader:
+          type: "string"
+    WebhookType:
+      type: "string"
+      enum:
+        - "enhanced"
+        - "raw"
+        - "discord"
+        - "enhancedDevnet"
+        - "rawDevnet"
+        - "discordDevnet"
+    TransactionType:
+      type: "string"
+      enum:
+        - "接受托管艺术家"
+        - "接受托管用户"
+        - "接受提案"
+        - "接受请求艺术家"
+        - "激活提案"
+        - "激活交易"
+        - "激活保险库"
+        - "添加权限"
+        - "添加余额流动性"
+        - "添加批量交易"
+        - "添加不平衡流动性"
+        - "添加指令"
+        - "添加项目"
+        - "添加流动性"
+        - "通过策略添加流动性"
+        - "通过单侧策略添加流动性"
+        - "按权重添加流动性"
+        - "单侧添加流动性"
+        - "精确单侧添加流动性"
+        - "添加成员"
+        - "添加成员并更改阈值"
+        - "添加元数据"
+        - "添加支付铸币支付方式"
+        - "向银行添加稀有物品"
+        - "添加奖励"
+        - "添加消费限制"
+        - "添加到池"
+        - "添加到白名单"
+        - "添加代币到保险库"
+        - "添加特征冲突"
+        - "管理员同步流动性"
+        - "批准"
+        - "批准提案"
+        - "批准交易"
+        - "附加元数据"
+        - "拍卖行创建"
+        - "拍卖经理认领出价"
+        - "授权资助者"
+        - "回填总区块"
+        - "开始特征更新"
+        - "开始变体更新"
+        - "引导流动性"
+        - "借入CNFT永久"
+        - "借入FOX"
+        - "借入义务流动性"
+        - "借入永久"
+        - "借入SOL用于NFT"
+        - "借入质押BANX永久"
+        - "机器人认领销售"
+        - "机器人下架"
+        - "机器人清算"
+        - "机器人清算卖出"
+        - "机器人解冻"
+        - "绑定HADO市场到FRAKT市场"
+        - "销毁"
+        - "销毁NFT"
+        - "销毁支付"
+        - "销毁支付树"
+        - "购买物品"
+        - "购买贷款"
+        - "购买订阅"
+        - "购买票"
+        - "取消"
+        - "取消所有并下单"
+        - "取消所有订单"
+        - "取消托管"
+        - "取消贷款请求"
+        - "取消多个订单"
+        - "取消报价"
+        - "取消订单"
+        - "通过客户订单ID取消订单"
+        - "取消提案"
+        - "取消奖励"
+        - "取消交换"
+        - "取消交易"
+        - "取消至"
+        - "取消更新"
+        - "糖果机路线"
+        - "糖果机展开"
+        - "糖果机更新"
+        - "糖果机包装"
+        - "更改区块构建器"
+        - "更改漫画状态"
+        - "更改费用接收者"
+        - "更改市场状态"
+        - "更改席位状态"
+        - "更改阈值"
+        - "更改小费接收者"
+        - "认领权限"
+        - "认领CNFT永久贷款"
+        - "认领费用"
+        - "认领NFT"
+        - "通过贷方CNFT认领NFT"
+        - "通过贷方PNFT认领NFT"
+        - "认领永久贷款"
+        - "认领奖励"
+        - "认领奖励"
+        - "认领销售"
+        - "认领小费"
+        - "清理"
+        - "关闭账户"
+        - "关闭批量账户"
+        - "关闭捆绑头寸"
+        - "关闭索赔状态"
+        - "关闭配置"
+        - "关闭配置交易账户"
+        - "关闭托管账户"
+        - "关闭项目"
+        - "关闭市场"
+        - "关闭未结订单账户"
+        - "关闭未结订单索引器"
+        - "关闭订单"
+        - "关闭池"
+        - "关闭头寸"
+        - "关闭预设参数"
+        - "关闭小费分配账户"
+        - "关闭保险库批量交易账户"
+        - "关闭保险库交易账户"
+        - "收取费用"
+        - "收取奖励"
+        - "压缩NFT"
+        - "压缩NFT销毁"
+        - "压缩NFT取消赎回"
+        - "压缩NFT委托"
+        - "压缩NFT铸造"
+        - "压缩NFT兑换"
+        - "压缩NFT设置验证集合"
+        - "压缩NFT转移"
+        - "压缩NFT取消验证集合"
+        - "压缩NFT取消验证创作者"
+        - "压缩NFT更新元数据"
+        - "压缩NFT验证集合"
+        - "压缩NFT验证创作者"
+        - "消费事件"
+        - "消费指定事件"
+        - "复制集群信息"
+        - "复制Gossip联系信息"
+        - "复制小费分配账户"
+        - "复制投票账户"
+        - "曲柄"
+        - "曲柄事件队列"
+        - "创建"
+        - "创建AMM"
+        - "创建评估"
+        - "创建头像"
+        - "创建头像类"
+        - "创建批次"
+        - "创建投注"
+        - "创建债券并出售给报价"
+        - "创建债券并出售给报价CNFT"
+        - "创建债券并出售给测试报价"
+        - "创建标准债券报价"
+        - "创建集合"
+        - "创建配置"
+        - "创建配置交易"
+        - "创建托管"
+        - "创建锁定托管"
+        - "创建市场"
+        - "创建主版本"
+        - "创建默克尔树"
+        - "创建铸币元数据"
+        - "创建多重签名"
+        - "创建开放订单账户"
+        - "创建开放订单索引器"
+        - "创建订单"
+        - "创建支付方式"
+        - "创建永久债券报价"
+        - "创建池"
+        - "创建提案"
+        - "创建抽奖"
+        - "创建统计"
+        - "创建商店"
+        - "创建代币池"
+        - "创建特征"
+        - "创建交易"
+        - "创建未检查"
+        - "创建保险库交易"
+        - "取消授权资助者"
+        - "解压NFT"
+        - "减少流动性"
+        - "委托Merkle树"
+        - "删除集合"
+        - "删除位置捆绑"
+        - "删除推荐人状态和短网址"
+        - "删除代币徽章"
+        - "下架物品"
+        - "下架NFT"
+        - "存款"
+        - "存入分数池"
+        - "存入宝石"
+        - "存入义务抵押品"
+        - "存入储备流动性"
+        - "存入储备流动性和义务抵押品"
+        - "存入SOL到闪贷池"
+        - "存入标准债券报价"
+        - "存入农场保险库"
+        - "存入奖励保险库"
+        - "分配压缩奖励"
+        - "编辑订单"
+        - "编辑挂钩订单"
+        - "清空支付账户"
+        - "启用或禁用池"
+        - "装备特性"
+        - "装备特性权限"
+        - "驱逐席位"
+        - "执行批量交易"
+        - "执行配置交易"
+        - "执行指令"
+        - "执行贷款"
+        - "执行抵押"
+        - "执行交易"
+        - "执行保险库交易"
+        - "退出验证并出售给债券报价V2"
+        - "到期"
+        - "延长贷款"
+        - "扩展执行"
+        - "填充订单"
+        - "完成程序指令"
+        - "完成HADO市场"
+        - "修复池"
+        - "闪电借用储备流动性"
+        - "闪电偿还储备流动性"
+        - "强制取消订单"
+        - "取消抵押贷款"
+        - "分割"
+        - "冻结"
+        - "资金奖励"
+        - "融合"
+        - "获取池信息"
+        - "转到一个箱子"
+        - "收获奖励"
+        - "IDL缺失类型"
+        - "增加流动性"
+        - "增加预言机长度"
+        - "初始化拍卖管理器V2"
+        - "初始化银行"
+        - "初始化集群历史账户"
+        - "初始化配置"
+        - "初始化配置扩展"
+        - "初始化可定制的无许可恒定产品池"
+        - "初始化农场"
+        - "初始化农民"
+        - "为储备初始化农场"
+        - "初始化费用等级"
+        - "初始化借贷市场"
+        - "初始化义务"
+        - "为储备初始化义务农场"
+        - "初始化有权限池"
+        - "初始化带配置的无许可恒定产品池"
+        - "初始化带配置的无许可恒定产品池2"
+        - "初始化无许可池"
+        - "初始化带费用等级的无许可池"
+        - "初始化池"
+        - "初始化池V2"
+        - "初始化位置捆绑"
+        - "初始化带元数据的位置捆绑"
+        - "初始化推荐人状态和短网址"
+        - "初始化推荐人代币状态"
+        - "初始化租赁"
+        - "初始化储备"
+        - "初始化奖励"
+        - "初始化奖励V2"
+        - "初始化质押"
+        - "初始化交换"
+        - "初始化刻度数组"
+        - "初始化小费分配账户"
+        - "初始化代币徽章"
+        - "初始化用户元数据"
+        - "初始化验证器历史账户"
+        - "初始化保险库"
+        - "初始化"
+        - "初始化账户"
+        - "初始化二进制数组"
+        - "初始化二进制数组位图扩展"
+        - "初始化可定制的无许可LB对"
+        - "初始化农场"
+        - "初始化委托农场"
+        - "初始化闪贷池"
+        - "初始化全局配置"
+        - "初始化HADO市场"
+        - "初始化LB对"
+        - "初始化市场"
+        - "初始化权限LB对"
+        - "初始化仓位"
+        - "通过操作员初始化仓位"
+        - "初始化仓位PDA"
+        - "初始化预设参数"
+        - "初始化奖励"
+        - "初始化用户"
+        - "即时再融资永久贷款"
+        - "踢出项目"
+        - "为NFT借贷"
+        - "限价单"
+        - "清算"
+        - "拍卖CNFT清算债券"
+        - "拍卖PNFT清算债券"
+        - "清算债务并赎回储备抵押品"
+        - "列出项目"
+        - "列出NFT"
+        - "贷款"
+        - "贷款_FOX"
+        - "锁定"
+        - "锁定奖励"
+        - "日志"
+        - "创建永久市场"
+        - "映射BANX到积分"
+        - "合并条件代币"
+        - "合并股份"
+        - "迁移BIN数组"
+        - "迁移位置"
+        - "迁移到PNFT"
+        - "铸造到"
+        - "命名继任者"
+        - "NFT拍卖取消"
+        - "NFT拍卖创建"
+        - "NFT拍卖更新"
+        - "NFT出价"
+        - "NFT出价取消"
+        - "NFT取消挂牌"
+        - "NFT全局出价"
+        - "NFT全局出价取消"
+        - "NFT挂牌"
+        - "NFT铸造"
+        - "NFT铸造被拒"
+        - "NFT参与奖励"
+        - "NFT租赁激活"
+        - "NFT租赁取消挂牌"
+        - "NFT租赁结束"
+        - "NFT租赁挂牌"
+        - "NFT租赁更新挂牌"
+        - "NFT销售"
+        - "提供贷款"
+        - "开启捆绑头寸"
+        - "开启头寸"
+        - "开启带元数据的头寸"
+        - "覆盖曲线参数"
+        - "合作伙伴索取费用"
+        - "修补损坏的用户权益"
+        - "暂停"
+        - "支付"
+        - "下达并接受永续订单"
+        - "下注"
+        - "下达多个仅发布订单"
+        - "下订单"
+        - "下达挂钩订单"
+        - "下达订单"
+        - "下达SOL投注"
+        - "下达接受订单"
+        - "平台费用"
+        - "池取消提案"
+        - "发布多重PYTH"
+        - "发布PYTH"
+        - "程序配置初始化"
+        - "程序配置设置授权"
+        - "程序配置设置创建费"
+        - "程序配置设置国库"
+        - "提议贷款"
+        - "修剪订单"
+        - "重新分配集群历史账户"
+        - "重新分配验证者历史账户"
+        - "为NFT重新借入SOL"
+        - "记录稀有度点数"
+        - "赎回条件代币"
+        - "赎回费用"
+        - "赎回储备抵押品"
+        - "减少订单"
+        - "补充"
+        - "通过贷款人再融资FBOND"
+        - "再融资永久贷款"
+        - "再融资到债券报价V2"
+        - "再融资到债券报价V2 CNFT"
+        - "刷新农场"
+        - "刷新农民"
+        - "刷新义务"
+        - "刷新储备的义务农场"
+        - "刷新储备"
+        - "批量刷新储备"
+        - "刷新用户状态"
+        - "拒绝提案"
+        - "拒绝交换"
+        - "拒绝交易"
+        - "移除所有流动性"
+        - "移除余额流动性"
+        - "移除债券报价V2"
+        - "从池中移除"
+        - "从白名单中移除"
+        - "移除流动性"
+        - "按范围移除流动性"
+        - "单侧移除流动性"
+        - "移除成员"
+        - "移除成员并更改阈值"
+        - "移除永久报价"
+        - "移除支出限额"
+        - "移除特性"
+        - "移除特性权限"
+        - "偿还"
+        - "偿还CNFT永久贷款"
+        - "压缩偿还"
+        - "偿还FBOND以进行交易"
+        - "偿还FBOND以进行交易CNFT"
+        - "偿还闪电贷"
+        - "偿还贷款"
+        - "偿还义务流动性"
+        - "部分偿还永久贷款"
+        - "偿还永久贷款"
+        - "偿还质押的BANX"
+        - "偿还质押的BANX永久贷款"
+        - "请求提升组"
+        - "请求贷款"
+        - "请求PNFT迁移"
+        - "请求席位"
+        - "请求授权席位"
+        - "撤销贷款"
+        - "撤销"
+        - "一次性奖励用户"
+        - "出售贷款"
+        - "出售NFT"
+        - "出售质押的BANX给报价"
+        - "设置激活点"
+        - "设置权限"
+        - "设置银行标志"
+        - "设置收取协议费用权限"
+        - "设置配置授权"
+        - "设置配置扩展权限"
+        - "设置默认费率"
+        - "设置默认协议费率"
+        - "设置委托"
+        - "设置费用权限"
+        - "设置费率"
+        - "设置市场过期"
+        - "设置新管理员"
+        - "设置新的预言机权限"
+        - "设置新的小费分配程序"
+        - "设置参数"
+        - "设置池费用"
+        - "设置预激活持续时间"
+        - "设置预激活交换地址"
+        - "设置协议费率"
+        - "设置租金收集器"
+        - "设置奖励权限"
+        - "通过超级权限设置奖励权限"
+        - "设置奖励发放"
+        - "设置奖励发放超级权限"
+        - "设置奖励发放V2"
+        - "设置委托的质押"
+        - "设置时间锁"
+        - "设置代币徽章权限"
+        - "设置保险库锁定"
+        - "设置白名单保险库"
+        - "结算条件保险库"
+        - "结算资金"
+        - "结算过期资金"
+        - "结算盈亏"
+        - "分摊损失"
+        - "拆分股份"
+        - "股份"
+        - "股份BANX"
+        - "股份SOL"
+        - "股份代币"
+        - "开始PNFT迁移"
+        - "构建存根ID"
+        - "关闭存根预言机"
+        - "创建存根预言机"
+        - "设置存根预言机"
+        - "交换"
+        - "精确输出交换"
+        - "带价格影响的交换"
+        - "清除费用"
+        - "切换FOX"
+        - "请求切换FOX"
+        - "同步流动性"
+        - "获取压缩贷款"
+        - "获取闪电贷款"
+        - "获取贷款"
+        - "获取抵押贷款"
+        - "终止永久贷款"
+        - "解冻"
+        - "切换配对状态"
+        - "代币铸造"
+        - "充值"
+        - "转账"
+        - "转移所有权"
+        - "转移支付"
+        - "转移支付树"
+        - "转移接收者"
+        - "解冻"
+        - "未知"
+        - "未标记"
+        - "取消暂停"
+        - "取消质押"
+        - "取消质押BANX"
+        - "取消质押SOL"
+        - "取消质押代币"
+        - "取消订阅或收获周"
+        - "取消订阅或收获周增强版"
+        - "更新"
+        - "更新激活点"
+        - "更新银行经理"
+        - "更新标准债券报价"
+        - "更新类变体权限"
+        - "更新类变体元数据"
+        - "更新集合"
+        - "更新集合或创建者"
+        - "更新配置"
+        - "更新外部价格账户"
+        - "更新农场"
+        - "更新农场管理员"
+        - "更新农场配置"
+        - "更新费用参数"
+        - "更新费用和奖励"
+        - "更新底价"
+        - "更新全局配置"
+        - "更新全局配置管理员"
+        - "更新HADO市场费用"
+        - "更新永续市场利率"
+        - "更新项目"
+        - "更新借贷市场"
+        - "更新借贷市场所有者"
+        - "更新报价"
+        - "更新订单"
+        - "更新永续市场"
+        - "更新永续报价"
+        - "更新池"
+        - "更新池集合"
+        - "更新池抵押"
+        - "更新池状态"
+        - "更新池白名单"
+        - "更新位置操作员"
+        - "更新定价V2"
+        - "更新主要销售元数据"
+        - "更新抽奖"
+        - "更新记录权限数据"
+        - "更新储备配置"
+        - "更新奖励持续时间"
+        - "更新奖励资助者"
+        - "更新质押历史"
+        - "更新质押设置"
+        - "更新统计数据"
+        - "更新特征变体"
+        - "更新特征变体权限"
+        - "更新特征变体元数据"
+        - "更新可用金额"
+        - "更新变体"
+        - "更新保险库所有者"
+        - "升级狐狸"
+        - "请求升级狐狸"
+        - "升级程序指令"
+        - "上传Merkle根"
+        - "使用支出限额"
+        - "验证安全存储箱V2"
+        - "验证支付铸造"
+        - "验证支付铸造测试"
+        - "投票"
+        - "白名单创建者"
+        - "提现"
+        - "从标准债券报价中提现"
+        - "从农场保险库中提现"
+        - "提取宝石"
+        - "提取不合格奖励"
+        - "提取流动性"
+        - "提取义务抵押品"
+        - "提取义务抵押品并赎回储备抵押品"
+        - "提取协议费用"
+        - "提取协议费用"
+        - "提取推荐人费用"
+        - "提取奖励"
+        - "从保险库中提取奖励"
+        - "提取被削减金额"
+        - "从闪贷池中提取SOL"
+        - "提取国库资金"
+        - "提取未质押存款"
+    NFTEventType:
+      type: "string"
+      enum:
+        - "NFT出价"
+        - "NFT出价取消"
+        - "NFT全局出价"
+        - "NFT_GLOBAL_BID_CANCELLED"
+        - "NFT_LISTING"
+        - "NFT_CANCEL_LISTING"
+        - "NFT_SALE"
+        - "NFT_MINT"
+        - "NFT_MINT_REJECTED"
+        - "NFT_AUCTION_CREATED"
+        - "NFT_AUCTION_UPDATED"
+        - "NFT_AUCTION_CANCELLED"
+        - "NFT_PARTICIPATION_REWARD"
+        - "BURN_NFT"
+        - "NFT_RENT_LISTING"
+        - "NFT_RENT_CANCEL_LISTING"
+        - "NFT_RENT_UPDATE_LISTING"
+        - "NFT_RENT_ACTIVATE"
+        - "NFT_RENT_END"
+        - "ATTACH_METADATA"
+        - "MIGRATE_TO_PNFT"
+        - "CREATE_POOL"
+    CompressedNFTEventType:
+      type: "string"
+      enum:
+        - "CREATE_MERKLE_TREE"
+        - "COMPRESSED_NFT_MINT"
+        - "COMPRESSED_NFT_TRANSFER"
+        - "COMPRESSED_NFT_REDEEM"
+        - "COMPRESSED_NFT_CANCEL_REDEEM"
+        - "压缩NFT销毁"
+        - "压缩NFT委托"
+    TransactionSource:
+      type: "string"
+      enum:
+        - "FORM_FUNCTION"
+        - "EXCHANGE_ART"
+        - "CANDY_MACHINE_V3"
+        - "CANDY_MACHINE_V2"
+        - "CANDY_MACHINE_V1"
+        - "未知"
+        - "SOLANART"
+        - "SOLSEA"
+        - "MAGIC_EDEN"
+        - "HOLAPLEX"
+        - "METAPLEX"
+        - "OPENSEA"
+        - "SOLANA_PROGRAM_LIBRARY"
+        - "ANCHOR"
+        - "PHANTOM"
+        - "SYSTEM_PROGRAM"
+        - "STAKE_PROGRAM"
+        - "COINBASE"
+        - "CORAL_CUBE"
+        - "HEDGE"
+        - "LAUNCH_MY_NFT"
+        - "GEM_BANK"
+        - "GEM_FARM"
+        - "DEGODS"
+        - "BSL"
+        - "YAWWW"
+        - "ATADIA"
+        - "DIGITAL_EYES"
+        - "HYPERSPACE"
+        - "TENSOR"
+        - "BIFROST"
+        - "JUPITER"
+        - "MERCURIAL"
+        - "SABER"
+        - "SERUM"
+        - "STEP_FINANCE"
+        - "CROPPER"
+        - "RAYDIUM"
+        - "ALDRIN"
+        - "CREMA"
+        - "LIFINITY"
+        - "CYKURA"
+        - "ORCA"
+        - "MARINADE"
+        - "STEPN"
+        - "SENCHA"
+        - "SAROS"
+        - "英语拍卖"
+        - "FOXY"
+        - "HADESWAP"
+        - "FOXY_STAKING"
+        - "FOXY_RAFFLE"
+        - "FOXY_TOKEN_MARKET"
+        - "FOXY_MISSIONS"
+        - "FOXY_MARMALADE"
+        - "FOXY_COINFLIP"
+        - "FOXY_AUCTION"
+        - "CITRUS"
+        - "ZETA"
+        - "ELIXIR"
+        - "ELIXIR_LAUNCHPAD"
+        - "CARDINAL_RENT"
+        - "CARDINAL_STAKING"
+        - "BPF_LOADER"
+        - "BPF_UPGRADEABLE_LOADER"
+        - "SQUADS"
+        - "SHARKY_FI"
+        - "开放创作者协议"
+        - "BUBBLEGUM"
+        - "NOVA"
+        - "D_READER"
+        - "RAINDROPS"
+        - "W_SOL"
+        - "DUST"
+        - "SOLI"
+        - "USDC"
+        - "FLWR"
+        - "HDG"
+        - "MEAN"
+        - "UXD"
+        - "SHDW"
+        - "POLIS"
+        - "ATLAS"
+        - "USH"
+        - "TRTLS"
+        - "RUNNER"
+        - "INVICTUS"
+    SaleType:
+      type: "string"
+      enum:
+        - "拍卖"
+        - "即时销售"
+        - "报价"
+        - "全局报价"
+        - "铸造"
+        - "未知"
+    Token:
+      type: "object"
+      properties:
+        mint:
+          type: "string"
+          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
+          description: "该代币的铸造账户。"
+        tokenStandard:
+          $ref: "#/components/schemas/TokenStandard"
+    TokenStandard:
+      type: "string"
+      enum:
+        - "NonFungible"
+        - "FungibleAsset"
+        - "Fungible"
+        - "NonFungibleEdition"
+    TokenTransfer:
+      type: "object"
+      properties:
+        fromUserAccount:
+          type: "string"
+          description: "代币发送方的用户账户。"
+        toUserAccount:
+          type: "string"
+          description: "代币接收方的用户账户。"
+        fromTokenAccount:
+          type: "string"
+          description: "代币发送方的代币账户。"
+        toTokenAccount:
+          type: "string"
+          description: "代币接收方的代币账户。"
+        tokenAmount:
+          type: "number"
+          description: "发送的代币数量。"
+        mint:
+          type: "string"
+          description: "该代币的铸造账户。"
+          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
+    NativeTransfer:
+      type: "object"
+      properties:
+        fromUserAccount:
+          type: "string"
+          description: "SOL发送方的用户账户。"
+        toUserAccount:
+          type: "string"
+          description: "接收 sol 的用户账户。"
+        amount:
+          type: "integer"
+          description: "发送的 sol 数量（以 lamports 为单位）。"
+    TokenMetadataResponse:
+      type: "object"
+      description: "Metaplex 元数据存储在链上和链下。"
+      properties:
+        mint:
+          type: "string"
+        onChainData:
+          $ref: "#/components/schemas/OnChainMetadata"
+        offChainData:
+          $ref: "#/components/schemas/OffChainMetadata"
+    OnChainMetadata:
+      type: "object"
+      description: "存储在链上的 Metaplex 元数据。"
+      properties:
+        key:
+          type: "string"
+        mint:
+          type: "string"
+        updateAuthority:
+          type: "string"
+        data:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            symbol:
+              type: "string"
+            uri:
+              type: "string"
+            sellerFeeBasisPoints:
+              type: "integer"
+            creators:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  address:
+                    type: "string"
+                  share:
+                    type: "string"
+                  verified:
+                    type: "boolean"
+        tokenStandard:
+          type: "string"
+        primarySaleHappened:
+          type: "boolean"
+        isMutable:
+          type: "boolean"
+        editionNonce:
+          type: "integer"
+        collection:
+          type: "object"
+          properties:
+            key:
+              type: "string"
+            verified:
+              type: "boolean"
+        collectionDetails:
+          type: "object"
+          properties:
+            size:
+              type: "integer"
+        uses:
+          type: "object"
+          properties:
+            useMethod:
+              type: "string"
+            remaining:
+              type: "integer"
+            total:
+              type: "integer"
+    OffChainMetadata:
+      type: "object"
+      description: "存储在链外的Metaplex元数据。"
+      properties:
+        name:
+          type: "string"
+        symbol:
+          type: "string"
+        attributes:
+          type: "array"
+          items:
+            properties:
+              traitType:
+                type: "string"
+              value:
+                type: "string"
+        sellerFeeBasisPoints:
+          type: "integer"
+        image:
+          type: "string"
+        properties:
+          type: "object"
+          properties:
+            category:
+              type: "string"
+            files:
+              type: "array"
+              items:
+                properties:
+                  uri:
+                    type: "string"
+                  type:
+                    type: "string"
+            creators:
+              type: "数组"
+              items:
+                properties:
+                  address:
+                    type: "字符串"
+                  share:
+                    type: "字符串"
+    RawTransaction:
+      type: "对象"
+      properties:
+        slot:
+          type: "整数"
+        blocktime:
+          type: "整数"
+        transaction:
+          $ref: "#/components/schemas/InnerTransaction"
+        meta:
+          $ref: "#/components/schemas/Meta"
+    InnerTransaction:
+      type: "对象"
+      properties:
+        signatures:
+          type: "数组"
+          items:
+            type: "字符串"
+        message:
+          type: "对象"
+          properties:
+            accountKeys:
+              type: "数组"
+              items:
+                type: "字符串"
+            header:
+              type: "对象"
+            recentBlockhash:
+              type: "字符串"
+            instructions:
+              type: "数组"
+              items:
+                type: "对象"
+                properties:
+                  programIdIndex:
+                    type: "整数"
+                  accounts:
+                    type: "数组"
+                    items:
+                      type: "整数"
+                  data:
+                    type: "字符串"
+    Meta:
+      type: "对象"
+      properties:
+        err:
+          type: "对象"
+        fee:
+          type: "整数"
+        preBalances:
+          type: "array"
+          items:
+            type: "integer"
+        postBalances:
+          type: "array"
+          items:
+            type: "integer"
+        preTokenBalances:
+          type: "array"
+          items:
+            type: "integer"
+        postTokenBalances:
+          type: "array"
+          items:
+            type: "integer"
+        logMessages:
+          type: "array"
+          items:
+            type: "string"
+        rewards:
+          type: "array"
+          items:
+            type: "object"
+        loadedAddresses:
+          type: "object"
+    EnhancedTransaction:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+          example: "交易的人类可读解释"
+        type:
+          $ref: "#/components/schemas/TransactionType"
+        source:
+          $ref: "#/components/schemas/TransactionSource"
+        fee:
+          type: "integer"
+          example: 5000
+        feePayer:
+          type: "string"
+          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+        signature:
+          type: "string"
+          example: "yy5BT9benHhx8fGCvhcAfTtLEHAtRJ3hRTzVL16bdrTCWm63t2vapfrZQZLJC3RcuagekaXjSs2zUGQvbcto8DK"
+        slot:
+          type: "integer"
+          example: 148277128
+        timestamp:
+          type: "integer"
+          example: 1656442333
+        nativeTransfers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NativeTransfer"
+        tokenTransfers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenTransfer"
+        accountData:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AccountData"
+        transactionError:
+          type: "object"
+          properties:
+            error:
+              type: "string"
+        instructions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Instruction"
+        events:
+          type: "object"
+          properties:
+            nft:
+              $ref: "#/components/schemas/NFTEvent"
+            swap:
+              $ref: "#/components/schemas/SwapEvent"
+            compressed:
+              $ref: "#/components/schemas/CompressedNFTEvent"
+            distributeCompressionRewards:
+              $ref: "#/components/schemas/DistributeCompressionRewardsEvent"
+            setAuthority:
+              $ref: "#/components/schemas/SetAuthorityEvent"
+          description: "与此交易相关的事件。这些事件提供有关交易的详细信息。它们与事件API返回的类型相匹配。"
+    Instruction:
+      type: "object"
+      description: "交易中的单个指令数据。"
+      properties:
+        accounts:
+          type: "array"
+          description: "指令中使用的账户。"
+          items:
+            type: "string"
+            example: "8uX6yiUuH4UjUb1gMGJAdkXorSuKshqsFGDCFShcK88B"
+        data:
+          type: "string"
+          description: "传递给指令的数据"
+          example: "kdL8HQJrbbvQRGXmoadaja1Qvs"
+        programId:
+          type: "string"
+          description: "指令中使用的程序"
+          example: "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8"
+        innerInstructions:
+          type: "array"
+          description: "指令中使用的内部指令"
+          items:
+            $ref: "#/components/schemas/InnerInstruction"
+    InnerInstruction:
+      type: "object"
+      description: "每个指令的内部指令"
+      properties:
+        accounts:
+          type: "array"
+          items:
+            type: "string"
+        data:
+          type: "string"
+        programId:
+          type: "string"
+    AccountData:
+      type: "object"
+      description: "涉及账户的Sol和代币转移在此对象中引用。"
+      properties:
+        account:
+          type: "string"
+          description: "提供此数据的账户。"
+        nativeBalanceChange:
+          type: "number"
+          description: "账户的本地（SOL）余额变化。"
+        tokenBalanceChanges:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenBalanceChange"
+          description: "账户的代币余额变化。"
+    NFTEvent:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+          description: "交易的人类可读解释"
+        type:
+          $ref: "#/components/schemas/NFTEventType"
+        source:
+          $ref: "#/components/schemas/TransactionSource"
+        amount:
+          type: "integer"
+          example: 1000000
+          description: "NFT交易的金额（以lamports为单位）。"
+        fee:
+          type: "integer"
+          example: 5000
+        feePayer:
+          type: "string"
+          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+        signature:
+          type: "string"
+          example: "4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf"
+        slot:
+          type: "integer"
+          example: 148277128
+        timestamp:
+          type: "integer"
+          example: 1656442333
+        saleType:
+          $ref: "#/components/schemas/SaleType"
+        buyer:
+          type: "string"
+          description: "NFT的买家。"
+        seller:
+          type: "string"
+          description: "NFT的卖家。"
+        staker:
+          type: "string"
+          description: "NFT的质押者。"
+        nfts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Token"
+          description: "作为此NFT事件一部分的NFT。"
+    CompressedNFTEvent:
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/CompressedNFTEventType"
+        treeId:
+          type: "string"
+          description: "相关默克尔树的地址。"
+        assetId:
+          type: "string"
+          description: "压缩NFT的ID。"
+        leafIndex:
+          type: "integer"
+          description: "正在追加或修改的叶子的索引。"
+        instructionIndex:
+          type: "integer"
+          description: "交易中解析指令的索引。"
+        innerInstructionIndex:
+          type: "integer"
+          description: "交易中解析内部指令的索引。"
+        newLeafOwner:
+          type: "string"
+          description: "叶子的新的所有者。"
+        oldLeafOwner:
+          type: "string"
+          description: "叶子的前任所有者。"
+    DistributeCompressionRewardsEvent:
+      type: "object"
+      properties:
+        amount:
+          type: "integer"
+          description: "在DistributeCompressionRewardsV0指令中转移的金额。"
+    SetAuthorityEvent:
+      type: "object"
+      properties:
+        account:
+          type: "string"
+          description: "权限正在更改的账户。"
+        from:
+          type: "string"
+          description: "当前权限。"
+        to:
+          type: "string"
+          description: "新的权限。"
+        instructionIndex:
+          type: "integer"
+          description: "交易中解析指令的索引。"
+        innerInstructionIndex:
+          type: "integer"
+          description: "交易中解析的内部指令的索引。"
+    SwapEvent:
+      type: "object"
+      properties:
+        nativeInput:
+          $ref: "#/components/schemas/NativeBalanceChange"
+          description: "交换中以Lamports为单位的本机输入。"
+        nativeOutput:
+          $ref: "#/components/schemas/NativeBalanceChange"
+          description: "交换中以Lamports为单位的本机输出。"
+        tokenInputs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenBalanceChange"
+          description: "交换的代币输入。"
+        tokenOutputs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenBalanceChange"
+          description: "交换的代币输出。"
+        tokenFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenBalanceChange"
+          description: "账户支付的代币费用。"
+        nativeFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NativeBalanceChange"
+          description: "账户支付的本机费用。"
+        innerSwaps:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenSwap"
+          description: "为实现此交换而发生的内部交换。例如，wSOL <-> USDC的交换可能由多个交换组成，如wSOL <-> DUST, DUST <-> USDC。"
+    TokenSwap:
+      type: "object"
+      properties:
+        tokenInputs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenTransfer"
+          description: "此交换的代币输入。"
+        tokenOutputs:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenTransfer"
+          description: "此交换的代币输出。"
+        tokenFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenTransfer"
+          description: "此交换中用代币收取的费用。"
+        nativeFees:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NativeTransfer"
+          description: "此交换中以SOL收取的费用。"
+        programInfo:
+          $ref: "#/components/schemas/ProgramInfo"
+          description: "创建此交换的程序信息。"
+    ProgramInfo:
+      type: "object"
+      properties:
+        source:
+          type: "string"
+          example: "ORCA"
+        account:
+          type: "string"
+          description: "程序的账户"
+          example: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+        programName:
+          type: "string"
+          description: "程序的名称"
+          example: "ORCA_WHIRLPOOLS"
+        instructionName:
+          type: "string"
+          description: "创建此交换的指令名称。如果可用，它是来自Anchor IDL的指令名称的值。"
+          example: "whirlpoolSwap"
+    NativeBalanceChange:
+      type: "object"
+      properties:
+        account:
+          type: "string"
+          description: "本机余额变动所针对的账户"
+          example: "2uySTNgvGT2kwqpfgLiSgeBLR3wQyye1i1A2iQWoPiFr"
+        amount:
+          type: "string"
+          description: "余额变动的金额，作为字符串"
+          example: "100000000"
+    TokenBalanceChange:
+      type: "object"
+      properties:
+        userAccount:
+          type: "string"
+          example: "F54ZGuxyb2gA7vRjzWKLWEMQqCfJxDY1whtqtjdq4CJ"
+        tokenAccount:
+          type: "string"
+          example: "2kvmbRybhrcptDnwyNv6oiFGFEnRVv7MvVyqsxkirgdn"
+        mint:
+          type: "string"
+          example: "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ"
+        rawTokenAmount:
+          $ref: "#/components/schemas/RawTokenAmount"
+    RawTokenAmount:
+      type: "object"
+      properties:
+        tokenAmount:
+          type: "string"
+        decimals:
+          type: "integer"
+    NamesResponse:
+      type: "object"
+      properties:
+        domainNames:
+          type: "array"
+          items:
+            type: "string"
+    BalancesResponse:
+      type: "object"
+      properties:
+        tokens:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Balance"
+        nativeBalance:
+          type: "number"
+          description: "以 Lamports 为单位"
+    Balance:
+      type: "object"
+      properties:
+        mint:
+          type: "string"
+        amount:
+          type: "number"
+        decimals:
+          type: "number"
+        tokenAccount:
+          type: "string"
+    NFTsResponse:
+      type: "object"
+      properties:
+        numberOfPages:
+          type: "number"
+        nfts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Asset"
+    Asset:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        tokenAddress:
+          type: "string"
+        collectionAddress:
+          type: "string"
+        collectionName:
+          type: "string"
+        imageURL:
+          type: "string"
+        traits:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              trait_type:
+                type: "string"
+              value:
+                type: "string"
+    Commitment:
+      type: "string"
+      enum:
+        - "finalized"
+        - "confirmed"
+    TokensMetadataRequest:
+      type: "object"
+      properties:
+        mintAccounts:
+          type: "array"
+          items:
+            type: "string"
+            description: "要检索元数据的代币的铸造账户。"
+          maxItems: 100
+    ParseTransactionsRequest:
+      type: "object"
+      properties:
+        transactions:
+          type: "array"
+          default:
+            - "4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf"
+          items:
+            type: "string"
+            description: "要解析的交易ID/签名。"
+          maxItems: 100
+    CreateWebhookRequest:
+      type: "object"
+      properties:
+        webhookURL:
+          type: "string"
+        transactionTypes:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TransactionType"
+        accountAddresses:
+          type: "array"
+          items:
+            type: "string"
+          maxItems: "100_000"
+        webhookType:
+          $ref: "#/components/schemas/WebhookType"
+        authHeader:
+          type: "string"
+        encoding:
+          type: "string"
+        txnStatus:
+          type: "string"
+    RpcProxyRequest:
+      type: "object"
+      properties:
+        method:
+          type: "string"
+          description: "要调用的方法名称"
+          example: "getBlock"
+        params:
+          type: "array"
+          items:
+            anyOf:
+              - type: "string"
+              - type: "number"
+              - type: "integer"
+              - type: "boolean"
+              - type: "array"
+                items: {}
+              - type: "object"
+          description: "要传递的参数。请参阅 Solana JSON-RPC 文档。"
+    QueryNftEventsRequest:
+      type: "object"
+      properties:
+        query:
+          type: "object"
+          properties:
+            accounts:
+              type: "array"
+              items:
+                type: "string"
+                example: "79FjnnXFpSajugwpx3FfQbV7hJJTe7QXAusF7R4CMf6c"
+                maxItems: 100
+            types:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/NFTEventType"
+            sources:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/TransactionSource"
+            startSlot:
+              type: "integer"
+              example: 162368570
+              description: "查询中包含的最早槽位（包括在内）。不能与 \"startTime\" 结合使用。"
+            endSlot:
+              type: "integer"
+              example: 162368580
+              description: "查询中包含的最新槽位（包括在内）。不能与 \"endTime\" 结合使用。"
+            startTime:
+              type: "integer"
+              example: 1669055189
+              description: "最早的事件时间（unix 秒）。不能与 \"startSlot\" 结合使用。"
+            endTime:
+              type: "integer"
+              example: 1669070189
+              description: "最新的事件时间（unix 秒）。不能与 \"endSlot\" 结合使用。"
+            nftCollectionFilters:
+              type: "object"
+              properties:
+                firstVerifiedCreator:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/FirstVerifiedCreator"
+                verifiedCollectionAddress:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/VerifiedCollectionAddress"
+        options:
+          type: "object"
+          properties:
+            limit:
+              type: "integer"
+              description: "要返回的最大项目数。必须在1到1000之间。默认值为100。"
+              minimum: 1
+              maximum: 1000
+              default: 100
+            sortOrder:
+              $ref: "#/components/schemas/SortOrder"
+            paginationToken:
+              $ref: "#/components/schemas/PaginationToken"
+    QueryNftEventsResponse:
+      type: "object"
+      properties:
+        result:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftEventV2"
+        paginationToken:
+          $ref: "#/components/schemas/PaginationToken"
+    DescribeNftsRequest:
+      type: "object"
+      properties:
+        mints:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftMintAccount"
+    DescribeNftsResponse:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          mint:
+            $ref: "#/components/schemas/NftMintAccount"
+          name:
+            $ref: "#/components/schemas/NftName"
+          burned:
+            $ref: "#/components/schemas/NftBurned"
+          firstVerifiedCreator:
+            $ref: "#/components/schemas/FirstVerifiedCreator"
+          verifiedCollectionAddress:
+            $ref: "#/components/schemas/VerifiedCollectionAddress"
+          activeListings:
+            type: "array"
+            items:
+              $ref: "#/components/schemas/ActiveListing"
+    MintlistRequest:
+      type: "object"
+      properties:
+        query:
+          type: "object"
+          properties:
+            firstVerifiedCreators:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/FirstVerifiedCreator"
+            verifiedCollectionAddresses:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/VerifiedCollectionAddress"
+        options:
+          type: "object"
+          properties:
+            limit:
+              type: "integer"
+              description: "返回的最大项目数。必须在1到10,000之间。默认值为1000。"
+              minimum: 1
+              maximum: "10_000"
+              default: 1000
+            paginationToken:
+              $ref: "#/components/schemas/PaginationToken"
+    MintlistResponse:
+      type: "object"
+      properties:
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              mint:
+                $ref: "#/components/schemas/NftMintAccount"
+              name:
+                $ref: "#/components/schemas/NftName"
+        paginationToken:
+          $ref: "#/components/schemas/PaginationToken"
+    ActiveListingsRequest:
+      type: "object"
+      properties:
+        query:
+          type: "object"
+          properties:
+            marketplaces:
+              items:
+                $ref: "#/components/schemas/Marketplace"
+            firstVerifiedCreators:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/FirstVerifiedCreator"
+            verifiedCollectionAddresses:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/VerifiedCollectionAddress"
+        options:
+          type: "object"
+          properties:
+            limit:
+              type: "integer"
+              description: "返回的最大项目数。必须在1到1000之间。默认值为100。"
+              minimum: 1
+              maximum: 1000
+              default: 100
+            paginationToken:
+              $ref: "#/components/schemas/PaginationToken"
+    ActiveListingsResponse:
+      type: "object"
+      properties:
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              mint:
+                $ref: "#/components/schemas/NftMintAccount"
+              name:
+                $ref: "#/components/schemas/NftName"
+              firstVerifiedCreator:
+                $ref: "#/components/schemas/FirstVerifiedCreator"
+              verifiedCollectionAddress:
+                $ref: "#/components/schemas/VerifiedCollectionAddress"
+              activeListings:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/ActiveListing"
+        paginationToken:
+          $ref: "#/components/schemas/PaginationToken"
+    SortOrder:
+      type: "string"
+      description: "返回结果的顺序。必须是 'ASC' 或 'DESC'。结果默认是降序。"
+      enum:
+        - "ASC"
+        - "DESC"
+      default: "DESC"
+    NftEventV2:
+      type: "object"
+      properties:
+        description:
+          type: "string"
+          description: "交易的人类可读解释"
+        type:
+          $ref: "#/components/schemas/NFTEventType"
+        source:
+          $ref: "#/components/schemas/TransactionSource"
+        amount:
+          type: "integer"
+          example: 1000000
+          description: "NFT交易的金额（以lamports为单位）。"
+        fee:
+          type: "integer"
+          example: 5000
+        feePayer:
+          type: "string"
+          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+        signature:
+          type: "string"
+          example: "4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf"
+        slot:
+          type: "integer"
+          example: 148277128
+        timestamp:
+          type: "integer"
+          example: 1656442333
+        saleType:
+          $ref: "#/components/schemas/SaleType"
+        buyer:
+          type: "string"
+          description: "NFT的买家。"
+        seller:
+          type: "string"
+          description: "NFT的卖家。"
+        staker:
+          type: "string"
+          description: "NFT的质押者。"
+        nfts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NftV2"
+          description: "关联的NFTs"
+        nativeTransfers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/NativeTransfer"
+        tokenTransfers:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TokenTransfer"
+    NftV2:
+      type: "object"
+      properties:
+        mint:
+          $ref: "#/components/schemas/NftMintAccount"
+        name:
+          $ref: "#/components/schemas/NftName"
+        burned:
+          $ref: "#/components/schemas/NftBurned"
+        firstVerifiedCreator:
+          $ref: "#/components/schemas/FirstVerifiedCreator"
+        verifiedCollectionAddress:
+          $ref: "#/components/schemas/VerifiedCollectionAddress"
+    NftMintAccount:
+      type: "string"
+      description: "NFT铸造账户地址。"
+      example: "KG6f4Fa6YxAW8cG2Dhb18DiMn3rQ3rSLa1Eo2FYM4gi"
+    NftName:
+      type: "string"
+      description: "NFT的名称。"
+      example: "y00t #2940"
+    NftBurned:
+      type: "boolean"
+      description: "如果NFT被销毁。被销毁的NFT没有名称、firstVerifiedCreator或verifiedCollectionAddress。"
+      example: false
+    FirstVerifiedCreator:
+      type: "string"
+      description: "NFT的第一个验证创作者。用于引用NFT集合。"
+      example: "A4FM6h8T5Fmh9z2g3fKUrKfZn6BNFEgByR8QGpdbQhk1"
+    VerifiedCollectionAddress:
+      type: "string"
+      description: "验证的Metaplex集合地址。并非所有NFT集合都有。"
+      example: "4mKSoDDqApmF1DqXvVTSL6tu2zixrSSNjqMxUnwvVzy2"
+    ActiveListing:
+      type: "object"
+      properties:
+        transactionSignature:
+          type: "string"
+          description: "挂牌交易的签名。"
+          example: "27W41DrnxGFJGX7yEGuKBtRb7oMwFdGdPwffBTTeakV8nTQTgWR2hzFKmrt8QnxaMEbw4pS2NoiLmiuB2VfqxVn7"
+        marketplace:
+          $ref: "#/components/schemas/Marketplace"
+        amount:
+          type: "integer"
+          example: 1000000
+          description: "NFT的挂牌价格（以lamports为单位）。"
+        seller:
+          type: "string"
+          description: "NFT卖家的地址。"
+          example: "3ngLS7Y64DoMAHJ6k6XYh8vo5nSiG66AP1yLvbckfKrc"
+    Marketplace:
+      type: "string"
+      description: "NFT被挂牌的市场。"
+      example: "MAGIC_EDEN"
+      enum:
+        - "MAGIC_EDEN"
+        - "OPENSEA"
+        - "FORM_FUNCTION"
+        - "EXCHANGE_ART"
+        - "SOLANART"
+        - "SOLSEA"
+        - "HOLAPLEX"
+        - "CORAL_CUBE"
+        - "YAWWW"
+        - "SOLPORT"
+        - "HYPERSPACE"
+        - "DIGITAL_EYES"
+        - "CORAL_CUBE"
+        - "UNKNOWN"
+    PaginationToken:
+      type: "string"
+      description: "用于分页的令牌。提供令牌给API以检索下一页的结果。如果没有令牌，查询没有剩余结果。"
+      example: "V1_162262948_99"
+    RawTransactionsV1Request:
+      type: "object"
+      properties:
+        query:
+          type: "object"
+          properties:
+            accounts:
+              type: "array"
+              items:
+                type: "string"
+                example: "CyFyz1xR4YTG9CrY9jg5jG6GZfm2e8k97qscs2GFpjX1"
+                description: "用于查找交易的账户数组。限制为1000个账户。"
+            startSlot:
+              type: "integer"
+              example: 162368570
+              description: "查询中包含的最早槽位（包括）。不能与“startTime”结合使用。"
+            endSlot:
+              type: "integer"
+              example: 162368580
+              description: "查询中包含的最新槽（包括在内）。不能与 \"endTime\" 结合使用。"
+            startTime:
+              type: "integer"
+              example: 1669055189
+              description: "最早的事件时间（unix秒）。不能与 \"startSlot\" 结合使用。"
+            endTime:
+              type: "integer"
+              example: 1669070189
+              description: "最新的事件时间（unix秒）。不能与 \"endSlot\" 结合使用。"
+        options:
+          type: "object"
+          properties:
+            limit:
+              description: "返回的最大项目数。必须在1到500之间。默认值为100。"
+              type: "integer"
+              minimum: 1
+              maximum: 500
+              default: 100
+            sortOrder:
+              $ref: "#/components/schemas/SortOrder"
+            paginationToken:
+              $ref: "#/components/schemas/PaginationToken"
+    RawTransactionsV1Response:
+      type: "object"
+      properties:
+        result:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/RawTransaction"
+        paginationToken:
+          $ref: "#/components/schemas/PaginationToken"
+    TokensMetadataRequestV1:
+      type: "object"
+      properties:
+        mintAccounts:
+          type: "array"
+          items:
+            type: "string"
+            description: "要检索元数据的代币的铸造账户。"
+          maxItems: 100
+        includeOffChain:
+          type: "boolean"
+          default: false
+          description: "包括元数据账户uri中引用的链下数据。省略时默认为false。"
+        disableCache:
+          type: "boolean"
+          default: false
+          description: "禁用缓存的使用，对监控元数据更改有用。"
+    TokensMetadataResponseV1:
+      type: "array"
+      items:
+        type: "object"
+        description: "存储在链上和旧代币列表中的代币元数据。"
+        properties:
+          account:
+            type: "string"
+          onChainAccountInfo:
+            $ref: "#/components/schemas/OnChainAccountInfoResult"
+          onChainMetadata:
+            $ref: "#/components/schemas/OnChainMetadataResult"
+          offChainMetadata:
+            $ref: "#/components/schemas/OffChainMetadataResult"
+          legacyMetadata:
+            $ref: "#/components/schemas/LegacyMetadata"
+    OnChainAccountInfoResult:
+      type: "object"
+      properties:
+        accountInfo:
+          $ref: "#/components/schemas/OnChainAccountInfo"
+        error:
+          $ref: "#/components/schemas/AccountErrorType"
+    OnChainMetadataResult:
+      type: "object"
+      properties:
+        metadata:
+          $ref: "#/components/schemas/OnChainMetadata"
+        error:
+          $ref: "#/components/schemas/AccountErrorType"
+    OffChainMetadataResult:
+      type: "object"
+      properties:
+        metadata:
+          $ref: "#/components/schemas/OffChainMetadata"
+        uri:
+          type: "string"
+        error:
+          $ref: "#/components/schemas/AccountErrorType"
+    OnChainAccountInfo:
+      type: "object"
+      description: "存储在链上的账户数据。"
+      properties:
+        key:
+          type: "string"
+        isSigner:
+          type: "boolean"
+        isWritable:
+          type: "boolean"
+        lamports:
+          type: "integer"
+        data:
+          type: "object"
+          properties:
+            parsed:
+              type: "object"
+              properties:
+                info:
+                  type: "object"
+                  properties:
+                    decimals:
+                      type: "integer"
+                    freezeAuthority:
+                      type: "string"
+                    isInitialized:
+                      type: "boolean"
+                    mintAuthority:
+                      type: "string"
+                    supply:
+                      type: "string"
+                type:
+                  type: "string"
+            program:
+              type: "string"
+            space:
+              type: "integer"
+        owner:
+          type: "string"
+        executable:
+          type: "boolean"
+        rentEpoch:
+          type: "integer"
+    LegacyMetadata:
+      type: "object"
+      description: "来自旧 SPL 代币列表的数据。"
+      properties:
+        chainId:
+          type: "integer"
+        address:
+          type: "string"
+        symbol:
+          type: "string"
+        name:
+          type: "string"
+        decimals:
+          type: "integer"
+        logoURI:
+          type: "string"
+        tags:
+          type: "array"
+          items:
+            type: "string"
+        extensions:
+          type: "object"
+    AccountErrorType:
+      type: "string"
+      example: ""
+      enum:
+        - "UNKNOWN"
+        - "EMPTY_ACCOUNT"
+        - "TIMEOUT"
+        - "无效账户"
+        - "无效公钥"
+x-amazon-apigateway-gateway-responses:
+  MISSING_AUTHENTICATION_TOKEN:
+    statusCode: 400
+    responseTemplates:
+      application/json: "{\"error\":\"无效路径\"}"
+  DEFAULT_4XX:
+    responseTemplates:
+      application/json: "{\"error\": $context.error.messageString}"
+  DEFAULT_5XX:
+    responseTemplates:
+      application/json: "{\"error\": $context.error.messageString}"

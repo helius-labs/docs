@@ -29,6 +29,11 @@
     "content": "Shred Delivery and Sender are now live! Get earliest access to raw Solana data and optimized transaction sending. [Learn about Shred Delivery](/docs/shred-delivery) | [Learn about Sender](/docs/sending-transactions/sender)",
     "dismissible": true
   },
+  "seo": {
+    "metatags": {
+      "canonical": "https://www.helius.dev/docs"
+    }
+  },
   "contextual": {
     "options": [
       "copy",
@@ -36,13 +41,14 @@
       "chatgpt",
       "claude",
       "cursor",
-      "perplexity"
+      "perplexity",
+      "mcp"
     ]
   },
   "integrations": {
     "posthog": {
       "apiKey": "phc_H66gRNy1uok5uPmsul2kpbRynt6h9L74f5BlPJ4RMqE",
-      "apiHost": "https://www.helius.dev/ingest"
+      "apiHost": "https://www.helius.dev/relay-RMqE"
     }
   },
   "errors": {
@@ -51,7 +57,10 @@
     }
   },
   "navigation": {
-    "anchors": [
+    "languages": [
+      {
+        "language": "en",
+        "anchors": [
       {
         "anchor": "Documentation",
         "icon": "book",
@@ -200,7 +209,13 @@
             "pages": [
               "sending-transactions/overview",
               "sending-transactions/send-manually",
-              "sending-transactions/sender",
+              {
+                "group": "Helius Sender (For Traders)",
+                "pages": [
+                  "sending-transactions/sender",
+                  "sending-transactions/jupiter-swap-api-via-sender"
+                ]
+              },
               "sending-transactions/backrun-rebates",
               "sending-transactions/optimizing-transactions",
               {
@@ -278,8 +293,7 @@
             "group": "Resources",
             "pages": [
               "sdks",
-              "helius-mcp",
-              "changelog"
+              "helius-mcp"
             ]
           }
         ]
@@ -333,6 +347,7 @@
                   "api-reference/rpc/http/getminimumbalanceforrentexemption",
                   "api-reference/rpc/http/getmultipleaccounts",
                   "api-reference/rpc/http/getprogramaccounts",
+                  "api-reference/rpc/http/getprogramaccountsv2",
                   "api-reference/rpc/http/getrecentperformancesamples",
                   "api-reference/rpc/http/getrecentprioritizationfees",
                   "api-reference/rpc/http/getsignaturesforaddress",
@@ -346,6 +361,7 @@
                   "api-reference/rpc/http/gettokenaccountbalance",
                   "api-reference/rpc/http/gettokenaccountsbydelegate",
                   "api-reference/rpc/http/gettokenaccountsbyowner",
+                  "api-reference/rpc/http/gettokenaccountsbyownerv2",
                   "api-reference/rpc/http/gettokenlargestaccounts",
                   "api-reference/rpc/http/gettokensupply",
                   "api-reference/rpc/http/gettransaction",
@@ -580,6 +596,540 @@
           }
         ]
       }
+        ]
+      },
+      {
+        "language": "zh",
+        "anchors": [
+          {
+            "anchor": "文档",
+            "icon": "book",
+            "groups": [
+              {
+                "group": "开始使用",
+                "pages": [
+                  "zh/index",
+                  "zh/billing/plans-and-rate-limits"
+                ]
+              },
+              {
+                "group": "Solana RPC 节点",
+                "pages": [
+                  "zh/rpc/overview",
+                  "zh/rpc/protect-your-keys",
+                  "zh/rpc/devnet-sol",
+                  "zh/rpc/optimization-techniques",
+                  {
+                    "group": "RPC 方法指南",
+                    "pages": [
+                      "zh/rpc/guides/overview",
+                      "zh/rpc/guides/getaccountinfo",
+                      "zh/rpc/guides/getbalance",
+                      "zh/rpc/guides/getblock",
+                      "zh/rpc/guides/getblockcommitment",
+                      "zh/rpc/guides/getblockheight",
+                      "zh/rpc/guides/getblockproduction",
+                      "zh/rpc/guides/getblocks",
+                      "zh/rpc/guides/getblockswithlimit",
+                      "zh/rpc/guides/getblocktime",
+                      "zh/rpc/guides/getclusternodes",
+                      "zh/rpc/guides/getepochinfo",
+                      "zh/rpc/guides/getepochschedule",
+                      "zh/rpc/guides/getfeeformessage",
+                      "zh/rpc/guides/getfirstavailableblock",
+                      "zh/rpc/guides/getgenesishash",
+                      "zh/rpc/guides/gethealth",
+                      "zh/rpc/guides/gethighestsnapshotslot",
+                      "zh/rpc/guides/getidentity",
+                      "zh/rpc/guides/getinflationgovernor",
+                      "zh/rpc/guides/getinflationrate",
+                      "zh/rpc/guides/getinflationreward",
+                      "zh/rpc/guides/getlargestaccounts",
+                      "zh/rpc/guides/getlatestblockhash",
+                      "zh/rpc/guides/getleaderschedule",
+                      "zh/rpc/guides/getmaxretransmitslot",
+                      "zh/rpc/guides/getmaxshredinsertslot",
+                      "zh/rpc/guides/getminimumbalanceforrentexemption",
+                      "zh/rpc/guides/getmultipleaccounts",
+                      "zh/rpc/guides/getprogramaccounts",
+                      "zh/rpc/guides/getrecentperformancesamples",
+                      "zh/rpc/guides/getrecentprioritizationfees",
+                      "zh/rpc/guides/getsignaturesforaddress",
+                      "zh/rpc/guides/getsignaturestatuses",
+                      "zh/rpc/guides/getslot",
+                      "zh/rpc/guides/getslotleader",
+                      "zh/rpc/guides/getslotleaders",
+                      "zh/rpc/guides/getstakeminimumdelegation",
+                      "zh/rpc/guides/getsupply",
+                      "zh/rpc/guides/gettokenaccountbalance",
+                      "zh/rpc/guides/gettokenaccountsbydelegate",
+                      "zh/rpc/guides/gettokenaccountsbyowner",
+                      "zh/rpc/guides/gettokenlargestaccounts",
+                      "zh/rpc/guides/gettokensupply",
+                      "zh/rpc/guides/gettransaction",
+                      "zh/rpc/guides/gettransactioncount",
+                      "zh/rpc/guides/getversion",
+                      "zh/rpc/guides/getvoteaccounts",
+                      "zh/rpc/guides/isblockhashvalid",
+                      "zh/rpc/guides/minimumledgerslot",
+                      "zh/rpc/guides/requestairdrop"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "数据流和事件监听",
+                "pages": [
+                  "zh/data-streaming",
+                  "zh/data-streaming/quickstart",
+                  {
+                    "group": "Shred Delivery",
+                    "pages": [
+                      "zh/shred-delivery"
+                    ]
+                  },
+                  {
+                    "group": "LaserStream",
+                    "pages": [
+                      "zh/laserstream",
+                      "zh/laserstream/grpc",
+                      "zh/laserstream/historical-replay",
+                      "zh/laserstream/clients",
+                      "zh/laserstream/laserstream-vs-dedicated-nodes",
+                      {
+                        "group": "LaserStream 指南",
+                        "pages": [
+                          "zh/laserstream/guides/decoding-transaction-data",
+                          "zh/laserstream/guides/account-subscription",
+                          "zh/laserstream/guides/measuring-latency"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Yellowstone gRPC",
+                    "pages": [
+                      "zh/grpc",
+                      "zh/grpc/quickstart",
+                      "zh/grpc/account-monitoring",
+                      "zh/grpc/transaction-monitoring",
+                      "zh/grpc/slot-and-block-monitoring",
+                      "zh/grpc/entry-monitoring",
+                      "zh/grpc/stream-pump-amm-data"
+                    ]
+                  },
+                  {
+                    "group": "增强型 WebSocket",
+                    "pages": [
+                      "zh/enhanced-websockets",
+                      "zh/enhanced-websockets/transaction-subscribe",
+                      "zh/enhanced-websockets/account-subscribe",
+                      "zh/enhanced-websockets/stream-pump-amm-data"
+                    ]
+                  },
+                  {
+                    "group": "标准 WebSocket",
+                    "pages": [
+                      "zh/rpc/websocket",
+                      "zh/rpc/websocket/quickstart",
+                      "zh/rpc/websocket/stream-pump-amm-data"
+                    ]
+                  },
+                  {
+                    "group": "Webhook",
+                    "pages": [
+                      "zh/webhooks",
+                      "zh/webhooks/transaction-types"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "如何发送交易",
+                "pages": [
+                  "zh/sending-transactions/overview",
+                  "zh/sending-transactions/send-manually",
+                  {
+                    "group": "Helius Sender（适用于交易者）",
+                    "pages": [
+                      "zh/sending-transactions/sender",
+                      "zh/sending-transactions/jupiter-swap-api-via-sender"
+                    ]
+                  },
+                  "zh/sending-transactions/backrun-rebates",
+                  "zh/sending-transactions/optimizing-transactions",
+                  {
+                    "group": "优先费用 API",
+                    "pages": [
+                      "zh/priority-fee-api",
+                      "zh/priority-fee/estimating-fees-using-serialized-transaction",
+                      "zh/priority-fee/estimating-fees-using-account-keys"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "获取数据",
+                "pages": [
+                  "zh/getting-data",
+                  "zh/das/get-tokens",
+                  "zh/das/get-nfts",
+                  "zh/das/search",
+                  "zh/enhanced-transactions",
+                  {
+                    "group": "数字资产标准 (DAS)",
+                    "pages": [
+                      "zh/das-api",
+                      "zh/das/fungible-token-extension",
+                      "zh/das/pagination"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "专用节点",
+                "pages": [
+                  "zh/dedicated-nodes",
+                  "zh/dedicated-nodes/getting-started",
+                  "zh/dedicated-nodes/best-practices"
+                ]
+              },
+              {
+                "group": "压缩",
+                "pages": [
+                  "zh/nfts/nft-compression",
+                  "zh/nfts/cnft-event-listening",
+                  "zh/zk-compression/introduction",
+                  {
+                    "group": "Helius AirShip",
+                    "pages": [
+                      "zh/airship/overview",
+                      "zh/airship/getting-started"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "质押",
+                "pages": [
+                  "zh/staking/how-to-stake-with-helius-programmatically"
+                ]
+              },
+              {
+                "group": "计费",
+                "pages": [
+                  "zh/billing/autoscaling",
+                  "zh/billing/pay-with-crypto"
+                ]
+              },
+              {
+                "group": "资源",
+                "pages": [
+                  "zh/sdks",
+                  "zh/helius-mcp"
+                ]
+              }
+            ]
+          },
+          {
+            "anchor": "API 参考",
+            "icon": "code",
+            "groups": [
+              {
+                "group": "API 参考",
+                "pages": [
+                  "zh/api-reference",
+                  "zh/api-reference/authentication",
+                  "zh/api-reference/endpoints"
+                ]
+              },
+              {
+                "group": "Solana RPC API",
+                "pages": [
+                  {
+                    "group": "HTTP 方法",
+                    "icon": "server",
+                    "pages": [
+                      "zh/api-reference/rpc/http-methods",
+                      "zh/api-reference/rpc/http/getaccountinfo",
+                      "zh/api-reference/rpc/http/getbalance",
+                      "zh/api-reference/rpc/http/getblock",
+                      "zh/api-reference/rpc/http/getblockcommitment",
+                      "zh/api-reference/rpc/http/getblockheight",
+                      "zh/api-reference/rpc/http/getblockproduction",
+                      "zh/api-reference/rpc/http/getblocks",
+                      "zh/api-reference/rpc/http/getblockswithlimit",
+                      "zh/api-reference/rpc/http/getblocktime",
+                      "zh/api-reference/rpc/http/getclusternodes",
+                      "zh/api-reference/rpc/http/getepochinfo",
+                      "zh/api-reference/rpc/http/getepochschedule",
+                      "zh/api-reference/rpc/http/getfeeformessage",
+                      "zh/api-reference/rpc/http/getfirstavailableblock",
+                      "zh/api-reference/rpc/http/getgenesishash",
+                      "zh/api-reference/rpc/http/gethealth",
+                      "zh/api-reference/rpc/http/gethighestsnapshotslot",
+                      "zh/api-reference/rpc/http/getidentity",
+                      "zh/api-reference/rpc/http/getinflationgovernor",
+                      "zh/api-reference/rpc/http/getinflationrate",
+                      "zh/api-reference/rpc/http/getinflationreward",
+                      "zh/api-reference/rpc/http/getlargestaccounts",
+                      "zh/api-reference/rpc/http/getlatestblockhash",
+                      "zh/api-reference/rpc/http/getleaderschedule",
+                      "zh/api-reference/rpc/http/getmaxretransmitslot",
+                      "zh/api-reference/rpc/http/getmaxshredinsertslot",
+                      "zh/api-reference/rpc/http/getminimumbalanceforrentexemption",
+                      "zh/api-reference/rpc/http/getmultipleaccounts",
+                      "zh/api-reference/rpc/http/getprogramaccounts",
+                      "zh/api-reference/rpc/http/getprogramaccountsv2",
+                      "zh/api-reference/rpc/http/getrecentperformancesamples",
+                      "zh/api-reference/rpc/http/getrecentprioritizationfees",
+                      "zh/api-reference/rpc/http/getsignaturesforaddress",
+                      "zh/api-reference/rpc/http/getsignaturestatuses",
+                      "zh/api-reference/rpc/http/getslot",
+                      "zh/api-reference/rpc/http/getslotleader",
+                      "zh/api-reference/rpc/http/getslotleaders",
+                      "zh/api-reference/rpc/http/getstakeminimumdelegation",
+                      "zh/api-reference/rpc/http/getsupply",
+                      "zh/api-reference/rpc/http/gettokenaccountbalance",
+                      "zh/api-reference/rpc/http/gettokenaccountsbydelegate",
+                      "zh/api-reference/rpc/http/gettokenaccountsbyowner",
+                      "zh/api-reference/rpc/http/gettokenaccountsbyownerv2",
+                      "zh/api-reference/rpc/http/gettokenlargestaccounts",
+                      "zh/api-reference/rpc/http/gettokensupply",
+                      "zh/api-reference/rpc/http/gettransaction",
+                      "zh/api-reference/rpc/http/gettransactioncount",
+                      "zh/api-reference/rpc/http/getversion",
+                      "zh/api-reference/rpc/http/getvoteaccounts",
+                      "zh/api-reference/rpc/http/isblockhashvalid",
+                      "zh/api-reference/rpc/http/minimumledgerslot",
+                      "zh/api-reference/rpc/http/requestairdrop",
+                      "zh/api-reference/rpc/http/sendtransaction",
+                      "zh/api-reference/rpc/http/simulatebundle",
+                      "zh/api-reference/rpc/http/simulatetransaction"
+                    ]
+                  },
+                  {
+                    "group": "WebSocket 方法",
+                    "icon": "signal-stream",
+                    "pages": [
+                      "zh/api-reference/rpc/websocket-methods",
+                      "zh/api-reference/rpc/websocket/accountsubscribe",
+                      "zh/api-reference/rpc/websocket/accountunsubscribe",
+                      "zh/api-reference/rpc/websocket/blocksubscribe",
+                      "zh/api-reference/rpc/websocket/blockunsubscribe",
+                      "zh/api-reference/rpc/websocket/logssubscribe",
+                      "zh/api-reference/rpc/websocket/logsunsubscribe",
+                      "zh/api-reference/rpc/websocket/programsubscribe",
+                      "zh/api-reference/rpc/websocket/programunsubscribe",
+                      "zh/api-reference/rpc/websocket/rootsubscribe",
+                      "zh/api-reference/rpc/websocket/rootunsubscribe",
+                      "zh/api-reference/rpc/websocket/signaturesubscribe",
+                      "zh/api-reference/rpc/websocket/signatureunsubscribe",
+                      "zh/api-reference/rpc/websocket/slotsubscribe",
+                      "zh/api-reference/rpc/websocket/slotsupdatessubscribe",
+                      "zh/api-reference/rpc/websocket/slotsupdatesunsubscribe",
+                      "zh/api-reference/rpc/websocket/slotunsubscribe",
+                      "zh/api-reference/rpc/websocket/votesubscribe",
+                      "zh/api-reference/rpc/websocket/voteunsubscribe"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Solana API",
+                "pages": [
+                  {
+                    "group": "数字资产标准 (DAS)",
+                    "icon": "hexagon-image",
+                    "pages": [
+                      "zh/api-reference/das",
+                      "zh/api-reference/das/getasset",
+                      "zh/api-reference/das/getassetbatch",
+                      "zh/api-reference/das/getassetproof",
+                      "zh/api-reference/das/getassetproofbatch",
+                      "zh/api-reference/das/getassetsbyauthority",
+                      "zh/api-reference/das/getassetsbycreator",
+                      "zh/api-reference/das/getassetsbygroup",
+                      "zh/api-reference/das/getassetsbyowner",
+                      "zh/api-reference/das/getnfteditions",
+                      "zh/api-reference/das/gettokenaccounts",
+                      "zh/api-reference/das/searchassets"
+                    ]
+                  },
+                  {
+                    "group": "优先费用",
+                    "icon": "star",
+                    "pages": [
+                      "zh/api-reference/priority-fee/getpriorityfeeestimate"
+                    ]
+                  },
+                  {
+                    "group": "增强型交易",
+                    "icon": "receipt",
+                    "pages": [
+                      "zh/api-reference/enhanced-transactions",
+                      "zh/api-reference/enhanced-transactions/gettransactions",
+                      "zh/api-reference/enhanced-transactions/gettransactionsbyaddress"
+                    ]
+                  },
+                  {
+                    "group": "ZK 压缩",
+                    "icon": "arrows-to-circle",
+                    "pages": [
+                      "zh/api-reference/zk-compression",
+                      "zh/api-reference/das/getsignaturesforasset",
+                      "zh/api-reference/zk-compression/getcompressedaccount",
+                      "zh/api-reference/zk-compression/getcompressedaccountproof",
+                      "zh/api-reference/zk-compression/getcompressedaccountsbyowner",
+                      "zh/api-reference/zk-compression/getcompressedbalance",
+                      "zh/api-reference/zk-compression/getcompressedbalancebyowner",
+                      "zh/api-reference/zk-compression/getcompressedminttokenholders",
+                      "zh/api-reference/zk-compression/getcompressedtokenaccountbalance",
+                      "zh/api-reference/zk-compression/getcompressedtokenaccountsbydelegate",
+                      "zh/api-reference/zk-compression/getcompressedtokenaccountsbyowner",
+                      "zh/api-reference/zk-compression/getcompressedtokenbalancesbyowner",
+                      "zh/api-reference/zk-compression/getcompressedtokenbalancesbyownerv2",
+                      "zh/api-reference/zk-compression/getcompressionsignaturesforaccount",
+                      "zh/api-reference/zk-compression/getcompressionsignaturesforaddress",
+                      "zh/api-reference/zk-compression/getcompressionsignaturesforowner",
+                      "zh/api-reference/zk-compression/getcompressionsignaturesfortokenowner",
+                      "zh/api-reference/zk-compression/getindexerhealth",
+                      "zh/api-reference/zk-compression/getindexerslot",
+                      "zh/api-reference/zk-compression/getlatestcompressionsignatures",
+                      "zh/api-reference/zk-compression/getlatestnonvotingsignatures",
+                      "zh/api-reference/zk-compression/getmultiplecompressedaccountproofs",
+                      "zh/api-reference/zk-compression/getmultiplecompressedaccounts",
+                      "zh/api-reference/zk-compression/getmultiplenewaddressproofs",
+                      "zh/api-reference/zk-compression/getmultiplenewaddressProofsv2",
+                      "zh/api-reference/zk-compression/gettransactionwithcompressioninfo",
+                      "zh/api-reference/zk-compression/getvalidityproof"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "数据流 API",
+                "pages": [
+                  {
+                    "group": "LaserStream gRPC",
+                    "icon": "bolt",
+                    "pages": [
+                      "zh/api-reference/laserstream-grpc",
+                      "zh/api-reference/laserstream/grpc/subscribe",
+                      "zh/api-reference/laserstream/grpc/getblockheight",
+                      "zh/api-reference/laserstream/grpc/getlatestblockhash",
+                      "zh/api-reference/laserstream/grpc/getslot",
+                      "zh/api-reference/laserstream/grpc/getversion",
+                      "zh/api-reference/laserstream/grpc/isblockhashvalid",
+                      "zh/api-reference/laserstream/grpc/ping"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "事件监听 API",
+                "pages": [
+                  {
+                    "group": "Webhook",
+                    "icon": "webhook",
+                    "pages": [
+                      "zh/api-reference/webhooks",
+                      "zh/api-reference/webhooks/create-webhook",
+                      "zh/api-reference/webhooks/get-webhook",
+                      "zh/api-reference/webhooks/get-all-webhooks",
+                      "zh/api-reference/webhooks/update-webhook",
+                      "zh/api-reference/webhooks/delete-webhook"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "已弃用的 API",
+                "pages": [
+                  {
+                    "group": "代币元数据",
+                    "icon": "ban",
+                    "pages": [
+                      "zh/api-reference/token-metadata/querymetadatav1"
+                    ]
+                  },
+                  {
+                    "group": "铸造",
+                    "icon": "ban",
+                    "pages": [
+                      "zh/api-reference/mint/mintcompressednft"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "anchor": "常见问题",
+            "icon": "question",
+            "groups": [
+              {
+                "group": "常见问题概述",
+                "pages": [
+                  "zh/faqs"
+                ]
+              },
+              {
+                "group": "账户和计费",
+                "pages": [
+                  "zh/faqs/accounts",
+                  "zh/faqs/billing"
+                ]
+              },
+              {
+                "group": "基础设施和节点",
+                "pages": [
+                  "zh/faqs/rpc",
+                  "zh/faqs/dedicated-nodes",
+                  "zh/faqs/error-codes"
+                ]
+              },
+              {
+                "group": "实时数据流",
+                "pages": [
+                  "zh/faqs/websockets",
+                  "zh/faqs/laserstream",
+                  "zh/faqs/webhooks"
+                ]
+              },
+              {
+                "group": "交易和费用 API",
+                "pages": [
+                  "zh/faqs/priority-fee",
+                  "zh/faqs/sender",
+                  "zh/faqs/enhanced-transactions"
+                ]
+              },
+              {
+                "group": "数据 API",
+                "pages": [
+                  "zh/faqs/das-api",
+                  "zh/faqs/zk-compression"
+                ]
+              }
+            ]
+          },
+          {
+            "anchor": "支持",
+            "icon": "headset",
+            "groups": [
+              {
+                "group": "支持",
+                "pages": [
+                  "zh/support",
+                  "zh/support/contact-support",
+                  "zh/support/status-page"
+                ]
+              }
+            ]
+          }
+        ]
+      }
     ],
     "global": {
       "anchors": []
@@ -609,49 +1159,65 @@
         "header": "Product",
         "items": [
           {
-            "label": "RPC Nodes",
+            "label": "Staked Connections",
             "href": "https://www.helius.dev/solana-rpc-nodes"
           },
           {
-            "label": "Geyser (gRPC)",
-            "href": "https://www.helius.dev/solana-grpc"
+            "label": "Sender",
+            "href": "https://www.helius.dev/sender"
           },
           {
-            "label": "Webhooks & WebSockets",
+            "label": "LaserStream",
+            "href": "https://www.helius.dev/laserstream"
+          },
+          {
+            "label": "Shred Delivery",
+            "href": "https://www.helius.dev/shreds"
+          },
+          {
+            "label": "Webhooks & Websockets",
             "href": "https://www.helius.dev/solana-webhooks-websockets"
-          },
-          {
-            "label": "NFT APIs",
-            "href": "https://www.helius.dev/solana-nft-apis"
           },
           {
             "label": "Token APIs",
             "href": "https://www.helius.dev/solana-token-apis"
           },
           {
-            "label": "Transaction APIs",
-            "href": "https://www.helius.dev/solana-transaction-apis"
+            "label": "RPC Nodes",
+            "href": "https://www.helius.dev/solana-rpc-nodes"
           },
           {
-            "label": "ZK Compression",
-            "href": "https://www.helius.dev/zk-compression"
+            "label": "Helius Validator",
+            "href": "https://www.helius.dev/validator"
+          },
+          {
+            "label": "Validator-as-a-Service",
+            "href": "https://www.helius.dev/validator-as-a-service"
           }
         ]
       },
       {
-        "header": "Validator",
+        "header": "Solutions",
         "items": [
           {
-            "label": "Validator",
-            "href": "https://www.helius.dev/validator"
+            "label": "Traders & MMs",
+            "href": "https://www.helius.dev/use-case/traders"
           },
           {
-            "label": "Stake with us",
-            "href": "https://www.helius.dev/stake"
+            "label": "Exchanges",
+            "href": "https://www.helius.dev/use-case/exchanges"
           },
           {
-            "label": "How to Buy hSOL",
-            "href": "https://www.helius.dev/blog/what-is-hsol"
+            "label": "Wallets",
+            "href": "https://www.helius.dev/use-case/wallets"
+          },
+          {
+            "label": "Fintech",
+            "href": "https://www.helius.dev/use-case/fintech"
+          },
+          {
+            "label": "DeFi",
+            "href": "https://www.helius.dev/use-case/defi"
           }
         ]
       },
@@ -675,12 +1241,20 @@
             "href": "https://www.helius.dev/pricing"
           },
           {
+            "label": "Stake with Us",
+            "href": "https://www.helius.dev/stake"
+          },
+          {
             "label": "Built with Helius",
             "href": "https://www.helius.dev/built-with-helius"
           },
           {
             "label": "Startup Launchpad",
             "href": "https://www.helius.dev/startup-launchpad"
+          },
+          {
+            "label": "Staking Calculator",
+            "href": "https://www.helius.dev/staking/calculator"
           }
         ]
       },
@@ -697,7 +1271,7 @@
           },
           {
             "label": "Support",
-            "href": "https://discord.com/invite/6GXdee3gBj"
+            "href": "https://www.helius.dev/docs/support"
           },
           {
             "label": "Media Kit",

@@ -1,0 +1,308 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "高级 Solana 程序账户索引 API，用于查询和过滤由特定程序拥有的账户，具有强大的数据过滤功能。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getProgramAccounts"
+      operationId: "getProgramAccounts"
+      description: "检索由特定Solana程序拥有的所有账户，具有强大的过滤功能。这个重要的API使开发人员能够高效地查询任何程序使用的链上数据结构，支持按账户大小、内存内容和其他标准进行高级过滤。非常适合索引NFT集合、DEX流动性池、借贷头寸、治理提案以及存储在Solana区块链上的其他协议特定数据。支持多种数据编码格式以实现最佳解析效率。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC协议版本。"
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的RPC方法名称。"
+                  enum:
+                    - "getProgramAccounts"
+                  example: "getProgramAccounts"
+                  default: "getProgramAccounts"
+                params:
+                  type: "array"
+                  description: "方法的参数。"
+                  default:
+                    - "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                  items:
+                    oneOf:
+                      - type: "string"
+                        description: "要查询账户的Solana程序公钥（地址），以base-58编码的字符串表示。"
+                        example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                      - type: "object"
+                        description: "用于优化程序账户查询的高级配置选项。"
+                        properties:
+                          commitment:
+                            type: "string"
+                            description: "请求的承诺级别。"
+                            enum:
+                              - "confirmed"
+                              - "finalized"
+                              - "processed"
+                            example: "finalized"
+                          minContextSlot:
+                            type: "integer"
+                            description: "请求可以评估的最小槽位。"
+                            example: 1000
+                          withContext:
+                            type: "boolean"
+                            description: "将结果包装在一个 RpcResponse JSON 对象中。"
+                            example: true
+                          encoding:
+                            type: "string"
+                            description: "返回账户数据的编码格式。"
+                            enum:
+                              - "jsonParsed"
+                              - "base58"
+                              - "base64"
+                              - "base64+zstd"
+                            example: "jsonParsed"
+                          dataSlice:
+                            type: "object"
+                            description: "请求账户数据的一个切片。"
+                            properties:
+                              length:
+                                type: "integer"
+                                description: "要返回的字节数。"
+                                example: 50
+                              offset:
+                                type: "integer"
+                                description: "开始读取的字节偏移量。"
+                                example: 0
+                          changedSinceSlot:
+                            type: "integer"
+                            description: "仅返回在此槽号之后被修改的账户。用于增量更新。"
+                            example: 464175999
+                          filters:
+                            type: "array"
+                            description: "强大的过滤系统，用于高效查询特定的Solana账户数据模式。"
+                            items:
+                              oneOf:
+                                - type: "object"
+                                  description: "通过其精确的数据大小（以字节为单位）过滤Solana账户。"
+                                  properties:
+                                    dataSize:
+                                      type: "integer"
+                                      description: "用于过滤的账户数据的精确大小（以字节为单位）。"
+                                      example: 17
+                                - type: "object"
+                                  description: "通过比较特定内存偏移处的数据来过滤Solana账户（最强大的过滤器）。"
+                                  properties:
+                                    memcmp:
+                                      type: "object"
+                                      description: "用于查找具有特定数据模式的账户的内存比较过滤器。"
+                                      properties:
+                                        offset:
+                                          type: "integer"
+                                          description: "在账户数据中执行比较的字节偏移量。"
+                                          example: 4
+                                        bytes:
+                                          type: "string"
+                                          description: "在指定偏移位置进行比较的Base-58编码数据。"
+                                          example: "3Mc6vR"
+      responses:
+        "200":
+          description: "成功检索到程序账户。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    description: "JSON-RPC协议版本。"
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    oneOf:
+                      - type: "array"
+                        description: "程序账户列表。"
+                        items:
+                          type: "object"
+                          properties:
+                            pubkey:
+                              type: "string"
+                              description: "账户公钥，作为 base-58 编码的字符串。"
+                              example: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
+                            account:
+                              type: "object"
+                              description: "账户的详细信息。"
+                              properties:
+                                lamports:
+                                  type: "integer"
+                                  description: "分配给此账户的 lamports 数量。"
+                                  example: 15298080
+                                owner:
+                                  type: "string"
+                                  description: "此账户所属程序的 base-58 编码公钥。"
+                                  example: "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T"
+                                data:
+                                  type: "array"
+                                  description: "账户数据，编码为二进制或 JSON 格式。"
+                                  items:
+                                    type: "string"
+                                  example:
+                                    - "2R9jLfiAQ9bgdcw6h8s44439"
+                                    - "base58"
+                                executable:
+                                  type: "boolean"
+                                  description: "指示账户是否包含程序。"
+                                  example: false
+                                rentEpoch:
+                                  type: "integer"
+                                  description: "此账户下次需要支付租金的纪元。"
+                                  example: 28
+                                space:
+                                  type: "integer"
+                                  description: "账户的数据大小。"
+                                  example: 42
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
+                  data: {}
+                id: "1"
+        "401":
+          description: "未授权 - API 密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                  data: {}
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                  data: {}
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                  data: {}
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                  data: {}
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                  data: {}
+                id: "1"

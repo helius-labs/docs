@@ -8,6 +8,8 @@ The [`getProgramAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/ge
 
 Due to the potentially large number of accounts a program might own, `getProgramAccounts` provides robust filtering capabilities to help you narrow down your search and retrieve only the data you need efficiently.
 
+For applications that need to query very large sets of program accounts, consider using [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2) which provides cursor-based pagination support with configurable page sizes up to 10,000 accounts per request.
+
 ## Common Use Cases
 
 *   **Finding All Token Accounts for a Mint:** Discover all holders of a specific SPL token.
@@ -264,9 +266,48 @@ console.log("Filtered program accounts data:", data);
 ## Developer Tips
 
 *   **Performance:** `getProgramAccounts` can be resource-intensive on RPC nodes, especially without filters or for programs with many accounts. Always use filters (`dataSize`, `memcmp`) and `dataSlice` where possible to reduce the query scope and response size.
-*   **No Pagination:** This method does not currently support pagination. If a query returns too many results, the response might be truncated or the request might time out. Design your queries carefully.
+*   **Large Result Sets:** For queries that return many results, the response might be truncated or time out. Use filtering to reduce scope, or consider [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2) for pagination support.
 *   **Rate Limits:** Be mindful of RPC provider rate limits, as frequent or heavy `getProgramAccounts` calls can hit these limits.
 *   **Data Layout Knowledge:** Effective use of `memcmp` requires understanding the byte layout of the account data you are querying.
 *   **`jsonParsed` Availability:** The `jsonParsed` encoding depends on the RPC node having a parser for the specific program's account types. It's widely supported for common programs like SPL Token.
 
-`getProgramAccounts` is an indispensable method for developers needing to query and interact with sets of accounts owned by a program. Mastering its filtering options is key to building efficient and robust Solana applications. 
+`getProgramAccounts` is an indispensable method for developers needing to query and interact with sets of accounts owned by a program. Mastering its filtering options is key to building efficient and robust Solana applications.
+
+## Pagination for Large Datasets
+
+For applications dealing with programs that own large numbers of accounts (10,000+), use [`getProgramAccountsV2`](/api-reference/rpc/http/getprogramaccountsv2) which provides:
+
+- **Cursor-based pagination**: Set `limit` (1-10,000) and use `paginationKey` to navigate through results
+- **Incremental updates**: Use `changedSinceSlot` to fetch only accounts modified since a specific slot
+- **Better performance**: Prevents timeouts and reduces memory usage
+- **Pagination behavior**: End of pagination is only indicated when no accounts are returned. Fewer accounts than the limit may be returned due to filtering - continue pagination until `paginationKey` is null
+
+```typescript
+// Example: Paginated query for all token accounts
+const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    jsonrpc: "2.0",
+    id: "1",
+    method: "getProgramAccountsV2",
+    params: [
+      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      {
+        encoding: "base64",
+        filters: [{ dataSize: 165 }],
+        limit: 5000
+      }
+    ]
+  })
+});
+
+const data = await response.json();
+console.log(`Found ${data.result.accounts.length} accounts`);
+if (data.result.paginationKey) {
+  console.log("More results available, use paginationKey for next page");
+  // Continue pagination even if fewer than limit accounts were returned
+} else {
+  console.log("End of pagination - no more accounts available");
+}
+``` 

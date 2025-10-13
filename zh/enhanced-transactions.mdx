@@ -1,0 +1,334 @@
+---
+title: Solana 增强型交易 API
+description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链交易转换为人类可读的数据。解析交易详情、获取历史记录，并了解链上活动，无需手动解码。
+---
+
+<CardGroup cols={2}>
+  <Card title="解析交易" icon="code" href="#概述">
+    解析单个或多个交易以获取人类可读的数据
+  </Card>
+  <Card title="交易历史" icon="clock-rotate-left" href="#概述">
+    获取任意地址的历史交易数据
+  </Card>
+</CardGroup>
+
+<Note>
+**快速参考**：
+- `/v0/transactions` - 解析单个或多个交易签名
+- `/v0/addresses/{address}/transactions` - 获取某个地址的交易历史
+- 使用 `type` 参数按交易类型进行筛选（例如，`NFT_SALE`、`SWAP`、`TRANSFER`）
+</Note>
+
+<Warning>
+**重要限制**：
+- 在我们开发 V2 版本时，增强型交易 API V1 将不会更新
+- 我们仅解析与 NFT、Jupiter 和 SPL 相关的交易
+- **不要依赖这些解析器处理 DeFi 或非 NFT、Jupiter 和 SPL 的交易**
+</Warning>
+
+## 概述
+
+增强型交易 API 将复杂的 Solana 交易转换为人类可读的数据。您无需处理原始指令数据和账户列表，而是可以获得以下结构化信息：
+
+- 交易中发生了什么（转账、兑换、NFT 活动）
+- 涉及的账户
+- 转移了多少 SOL 或代币
+- 时间戳和其他元数据
+
+## 快速入门
+
+### 解析单个交易
+
+通过单次 API 调用解析一个或多个交易签名或原始交易数据：
+
+<Tabs>
+  <Tab title="JavaScript">
+
+    ```javascript
+    const parseTransaction = async () => {
+      const url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY";
+    
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactions: ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"],
+        }),
+      });
+    
+      const data = await response.json();
+      console.log("Parsed transaction:", data);
+    };
+    
+    parseTransaction();
+    ```
+
+  </Tab>
+  <Tab title="Python">
+
+    ```python
+    import requests
+    import json
+    
+    def parse_transaction():
+        url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY"
+        
+        payload = {
+            "transactions": ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"]
+        }
+        
+        response = requests.post(url, json=payload)
+        data = response.json()
+        print("Parsed transaction:", data)
+        
+    parse_transaction()
+    ```
+
+  </Tab>
+</Tabs>
+
+<Card title="API 参考" horizontal icon="code" href="/zh/api-reference/enhanced-transactions/gettransactions">
+  查看解析交易的详细文档
+</Card>
+
+### 获取某个地址的交易历史
+
+检索任意 Solana 地址的交易历史：
+
+<Tabs>
+  <Tab title="JavaScript">
+
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+
+  </Tab>
+  <Tab title="Python">
+
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api.helius.xyz/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+
+  </Tab>
+</Tabs>
+
+<Card title="API 参考" horizontal icon="code" href="/zh/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  查看交易历史的详细文档
+</Card>
+
+<Warning>
+**处理不完整的交易集**
+
+有时，由于数据检索过程中发生内部超时，历史端点可能会返回不完整的交易集。
+
+为解决此问题：
+1. 首先，调用 `getSignaturesForAddress` 获取一批交易签名
+2. 接着，使用 `/v0/transactions` 端点与接收到的签名一起使用
+3. 如果响应中缺少任何交易，可以重试获取这些特定交易
+</Warning>
+
+## 常见用例
+
+### 完整分页示例
+
+对于高交易量的地址，实现分页以获取所有交易：
+
+```javascript
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before=${lastSignature}`;
+    }
+    
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
+      break;
+    }
+  }
+  
+  return allTransactions;
+};
+```
+
+### 按类型筛选交易
+
+仅获取特定类型的交易，例如 NFT 销售：
+
+<Tabs>
+  <Tab title="NFT 销售">
+
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+
+  </Tab>
+  <Tab title="代币转账">
+
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+
+  </Tab>
+  <Tab title="兑换">
+
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+## API 参考
+
+### 查询参数
+
+| 参数 | 描述 | 默认值 | 示例 |
+|-----------|-------------|---------|---------|
+| `limit` | 返回的交易数量 | 10 | `&limit=25` |
+| `before` | 获取此签名之前的交易 | - | `&before=sig123...` |
+| `until` | 获取此签名之前的交易 | - | `&until=sig456...` |
+| `type` | 按交易类型筛选 | - | `&type=NFT_SALE` |
+| `commitment` | 承诺级别 | `finalized` | `&commitment=confirmed` |
+
+### 响应示例
+
+增强的交易响应包括带有人类可读描述的结构化数据：
+
+```json
+{
+  "description": "Transfer 0.1 SOL to FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+  "type": "TRANSFER",
+  "source": "SYSTEM_PROGRAM",
+  "fee": 5000,
+  "feePayer": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+  "signature": "5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP",
+  "slot": 171341028,
+  "timestamp": 1674080473,
+  "nativeTransfers": [
+    {
+      "fromUserAccount": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "toUserAccount": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 100000000
+    }
+  ],
+  "events": {
+    "sol": {
+      "from": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "to": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 0.1
+    }
+  }
+}
+```
+
+## 最佳实践
+
+<CardGroup cols={2}>
+  <Card title="错误处理" icon="shield-check">
+    为生产应用程序实施适当的错误处理和重试机制
+  </Card>
+  <Card title="速率限制" icon="gauge-high">
+    使用分页和缓存策略以避免触发速率限制
+  </Card>
+</CardGroup>
+
+### 错误处理
+
+始终在代码中实施适当的错误处理：
+
+```javascript
+const fetchTransactions = async () => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+    // Implement retry logic or user-friendly error messages
+  }
+};
+```
+
+### 速率限制注意事项
+
+为了避免在使用 API 时触发速率限制：
+
+- 对大型数据集实施分页
+- 在适当情况下缓存响应
+- 为重试添加指数退避机制
+- 对于高流量应用程序，考虑升级您的 API 计划
+
+<Tip>
+对于高流量应用程序，建议使用 Redis 或类似技术实现缓存层，以减少冗余的 API 调用。
+</Tip>
+
+## 有问题吗？
+
+有关增强交易的常见问题，包括使用、身份验证、速率限制和故障排除，请访问我们的综合[增强交易常见问题解答](/zh/faqs/enhanced-transactions)。

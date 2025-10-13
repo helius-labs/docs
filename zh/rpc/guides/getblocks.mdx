@@ -1,0 +1,164 @@
+---
+title: 如何使用 getBlocks
+sidebarTitle: getBlocks
+description: 了解 getBlocks 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getBlocks`](https://www.helius.dev/docs/api-reference/rpc/http/getblocks) RPC 方法允许您检索指定起始槽和可选结束[槽](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)之间的已确认区块槽号列表。当您需要知道特定范围内哪些区块已被确认而不需要获取每个区块的完整内容时，这非常有用。
+
+## 常见用例
+
+*   **识别范围内的已确认区块：** 快速获取在账本中两个点之间成功确认的所有区块槽的列表。
+*   **遍历区块：** 使用返回的槽列表随后获取每个区块的详细信息，如果需要，可以使用`getBlock`。
+*   **基本区块审计：** 验证特定范围内的区块存在。
+
+## 请求参数
+
+`getBlocks` 方法接受以下参数：
+
+1.  **`start_slot`** (u64, 必需): 要考虑的范围的第一个槽（包含）。
+2.  **`end_slot`** (u64, 可选): 要考虑的范围的最后一个槽（包含）。
+    *   如果未提供，查询将返回从 `start_slot` 到最新确认槽的区块。
+    *   `start_slot` 和 `end_slot`（或如果省略 `end_slot` 则为最新槽）之间的范围**不得超过 500,000 个槽**。
+3.  **`commitment`** (string, 可选): 指定查询的承诺级别。如果省略，则使用节点的默认承诺。这作为配置对象中的唯一字段传递，作为最后一个参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个 u64 整数数组。数组中的每个整数表示指定范围内的已确认区块槽号。
+
+*   示例: `[5, 6, 7, 8, 9, 10]`
+
+## 示例
+
+### 1. 获取特定插槽范围内的区块
+
+此示例获取插槽 `250000000` 和 `250000010` 之间的已确认区块插槽列表。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      250000000,
+      250000010
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksInRange(startSlot, endSlot) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blocks = await connection.getBlocks(startSlot, endSlot);
+    console.log(`Confirmed blocks between slot ${startSlot} and ${endSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks:', error);
+  }
+}
+
+// Example usage:
+const startSlot = 250000000;
+const endSlot = 250000010;
+getBlocksInRange(startSlot, endSlot);
+```
+
+</CodeGroup>
+
+### 2. 从起始插槽获取到最新确认的区块
+
+此示例从 `260000000` 开始获取已确认的区块插槽，直到节点确认的最新区块（遵循从起始插槽开始的 500,000 插槽范围限制）。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      260000000 
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksFromStart(startSlot) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    // The endSlot parameter is omitted to fetch up to the latest confirmed block
+    const blocks = await connection.getBlocks(startSlot);
+    console.log(`Confirmed blocks from slot ${startSlot} to latest:`, blocks);
+    if (blocks.length > 0) {
+      console.log(`Latest block in range: ${blocks[blocks.length - 1]}`);
+    }
+  } catch (error) {
+    console.error('Error fetching blocks:', error);
+  }
+}
+
+// Example usage (ensure this doesn't exceed the 500,000 slot limit from latest block):
+const recentStartSlot = 260000000; 
+getBlocksFromStart(recentStartSlot);
+```
+
+</CodeGroup>
+
+### 3. 获取具有特定承诺级别的区块
+
+此示例使用 `confirmed` 承诺级别获取区块。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocks",
+    "params": [
+      270000000,
+      270000005,
+      { "commitment": "confirmed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js'); 
+
+async function getBlocksWithCommitment(startSlot, endSlot) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blocks = await connection.getBlocks(startSlot, endSlot, { commitment: 'confirmed' });
+    console.log(`Confirmed blocks (with 'confirmed' commitment) between slot ${startSlot} and ${endSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks with commitment:', error);
+  }
+}
+
+// Example usage:
+const commitStartSlot = 270000000;
+const commitEndSlot = 270000005;
+getBlocksWithCommitment(commitStartSlot, commitEndSlot);
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **范围限制：** 记住 500,000 插槽范围限制。请求更大的范围将导致错误。
+*   **节点数据可用性：** 节点可能不会保留所有历史插槽的信息。非常旧的 `start_slot` 值可能会返回空数组或错误，具体取决于节点的配置和账本保留。
+*   **区块确认：** 此方法返回*已确认*的区块。具体的区块集合可能会根据所选的 `commitment` 级别和查询的节点而略有不同，尤其是对于非常近期的插槽。
+*   **与 `getBlock` 的互补：** `getBlocks` 通常用作识别相关区块插槽的第一步，然后使用 `getBlock` 检索该列表中各个区块的完整详细信息。
+*   **分页替代方案：** 由于 `getBlocks` 有范围限制，如果需要扫描链的很大一部分，则需要多次调用 `getBlocks`，将所需的总范围分成不超过 500,000 插槽的段。
+
+本指南清晰概述了如何使用`getBlocks` RPC 方法列出 Solana 网络上已确认的区块槽位。

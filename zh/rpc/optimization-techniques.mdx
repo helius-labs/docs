@@ -1,0 +1,566 @@
+---
+title: Solana RPC 优化：性能与成本最佳实践
+sidebarTitle: 优化技术
+description: 优化 Solana RPC 性能，降低成本，提高可靠性。交易优化、数据检索模式和最佳实践指南。
+---
+
+优化 RPC 使用可以显著提高性能，降低成本，并增强用户体验。本指南涵盖了高效 Solana RPC 交互的验证技术。
+
+## 快速开始
+
+<CardGroup cols={2}>
+  <Card title="交易优化" icon="bolt" href="#交易优化">
+    优化计算单元、优先费用和交易发送
+  </Card>
+  <Card title="数据检索" icon="database" href="#数据检索优化">
+    高效获取账户和程序数据的模式
+  </Card>
+  <Card title="实时监控" icon="chart-line" href="#实时监控">
+    WebSocket 订阅和流数据优化
+  </Card>
+  <Card title="最佳实践" icon="shield-check" href="#最佳实践">
+    性能指南和资源管理
+  </Card>
+</CardGroup>
+
+## 交易优化
+
+### 计算单元管理
+
+**1. 模拟以确定实际使用情况：**
+
+```typescript
+const testTransaction = new VersionedTransaction(/* your transaction */);
+const simulation = await connection.simulateTransaction(testTransaction, {
+  replaceRecentBlockhash: true,
+  sigVerify: false
+});
+const unitsConsumed = simulation.value.unitsConsumed;
+```
+
+**2. 设置适当的限额并留有余量：**
+
+```typescript
+const computeUnitLimit = Math.ceil(unitsConsumed * 1.1);
+const computeUnitIx = ComputeBudgetProgram.setComputeUnitLimit({ 
+  units: computeUnitLimit 
+});
+instructions.unshift(computeUnitIx); // Add at beginning
+```
+
+### 优先费用优化
+
+**1. 获取动态费用估算：**
+
+```typescript
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    method: 'getPriorityFeeEstimate',
+    params: [{
+      accountKeys: ['11111111111111111111111111111112'], // System Program
+      options: { recommended: true }
+    }]
+  })
+});
+const { priorityFeeEstimate } = await response.json().result;
+```
+
+**2. 应用优先费用：**
+
+```typescript
+const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ 
+  microLamports: priorityFeeEstimate 
+});
+instructions.unshift(priorityFeeIx);
+```
+
+### 交易发送最佳实践
+
+<Tabs>
+  <Tab title="标准方法">
+
+    ```typescript
+    // Serialize and encode
+    const serializedTx = transaction.serialize();
+    const signature = await connection.sendRawTransaction(serializedTx, {
+      skipPreflight: true, // Saves ~100ms
+      maxRetries: 0 // Handle retries manually
+    });
+    ```
+
+  </Tab>
+  
+  <Tab title="带确认">
+
+    ```typescript
+    // Send and confirm with custom logic
+    const signature = await connection.sendRawTransaction(serializedTx);
+    
+    // Monitor confirmation
+    const confirmation = await connection.confirmTransaction({
+      signature,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+## 数据检索优化
+
+### 增强分页方法 (V2)
+
+**对于大规模数据查询，使用新的 V2 方法与基于游标的分页：**
+
+<Card title="⚡ 性能提升" icon="rocket" color="#E84125">
+  `getProgramAccountsV2` 和 `getTokenAccountsByOwnerV2` 为处理大型数据集的应用程序提供了显著的性能改进：
+  
+  - **可配置限制**：每个请求 1-10,000 个账户
+  - **基于游标的分页**：防止大查询时超时
+  - **增量更新**：使用 `changedSinceSlot` 进行实时同步
+  - **更好的内存使用**：流式传输数据而不是一次性加载所有数据
+</Card>
+
+**示例：高效的程序账户查询**
+
+```typescript
+// ❌ Old approach - could timeout with large datasets
+const allAccounts = await connection.getProgramAccounts(programId, {
+  encoding: 'base64',
+  filters: [{ dataSize: 165 }]
+});
+
+// ✅ New approach - paginated with better performance
+let allAccounts = [];
+let paginationKey = null;
+
+do {
+  const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'getProgramAccountsV2',
+      params: [
+        programId,
+        {
+          encoding: 'base64',
+          filters: [{ dataSize: 165 }],
+          limit: 5000,
+          ...(paginationKey && { paginationKey })
+        }
+      ]
+    })
+  });
+  
+  const data = await response.json();
+  allAccounts.push(...data.result.accounts);
+  paginationKey = data.result.paginationKey;
+} while (paginationKey);
+```
+
+**实时应用程序的增量更新：**
+
+```typescript
+// Get only accounts modified since a specific slot
+const incrementalUpdate = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: '1',
+    method: 'getProgramAccountsV2',
+    params: [
+      programId,
+      {
+        encoding: 'jsonParsed',
+        limit: 1000,
+        changedSinceSlot: lastProcessedSlot // Only get recent changes
+      }
+    ]
+  })
+});
+```
+
+## 数据检索优化
+
+### 高效账户查询
+
+<Tabs>
+  <Tab title="单个账户">
+
+    ```typescript
+    // Use dataSlice to reduce payload size
+    const accountInfo = await connection.getAccountInfo(pubkey, {
+      encoding: 'base64',
+      dataSlice: { offset: 0, length: 100 }, // Only get needed data
+      commitment: 'confirmed'
+    });
+    ```
+
+  </Tab>
+  
+  <Tab title="多个账户">
+
+    ```typescript
+    // Batch multiple account queries
+    const accounts = await connection.getMultipleAccountsInfo([
+      pubkey1, pubkey2, pubkey3
+    ], {
+      encoding: 'base64',
+      commitment: 'confirmed'
+    });
+    ```
+
+  </Tab>
+  
+  <Tab title="程序账户">
+
+    ```typescript
+    // Use filters to reduce data transfer
+    const accounts = await connection.getProgramAccounts(programId, {
+      filters: [
+        { dataSize: 165 }, // Token account size
+        { memcmp: { offset: 0, bytes: mintAddress }}
+      ],
+      encoding: 'jsonParsed'
+    });
+    ```
+
+  </Tab>
+</Tabs>
+
+### 代币余额查询
+
+<CodeGroup>
+
+```typescript ❌ Inefficient
+// Don't do this - requires N+1 RPC calls
+const tokenAccounts = await connection.getTokenAccountsByOwner(owner, {
+  programId: TOKEN_PROGRAM_ID
+});
+const balances = await Promise.all(
+  tokenAccounts.value.map(acc => 
+    connection.getTokenAccountBalance(acc.pubkey)
+  )
+);
+// ~500ms + (100ms * N accounts)
+```
+
+```typescript ✅ Optimized
+// Single call with parsed data
+const tokenAccounts = await connection.getTokenAccountsByOwner(owner, {
+  programId: TOKEN_PROGRAM_ID
+}, { encoding: 'jsonParsed' });
+
+const balances = tokenAccounts.value.map(acc => ({
+  mint: acc.account.data.parsed.info.mint,
+  amount: acc.account.data.parsed.info.tokenAmount.uiAmount
+}));
+// ~500ms total - 95% reduction for large wallets
+```
+
+</CodeGroup>
+
+### 交易历史
+
+<CodeGroup>
+
+```typescript ❌ Inefficient
+// Avoid sequential transaction fetching
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
+const transactions = await Promise.all(
+  signatures.map(sig => connection.getTransaction(sig.signature))
+);
+// ~1s + (200ms * 100 txs) = ~21s
+```
+
+```typescript ✅ Optimized
+// Use batch transaction fetching
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
+const transactions = await connection.getTransactions(
+  signatures.map(s => s.signature),
+  { maxSupportedTransactionVersion: 0 }
+);
+// ~2s total - 90% reduction
+```
+
+</CodeGroup>
+
+## 实时监控
+
+### 账户订阅
+
+<CodeGroup>
+
+```typescript ❌ Polling
+// Avoid polling - wastes resources
+setInterval(async () => {
+  const accountInfo = await connection.getAccountInfo(pubkey);
+  // Process updates...
+}, 1000);
+```
+
+```typescript ✅ WebSocket
+// Use WebSocket subscriptions for real-time updates
+const subscriptionId = connection.onAccountChange(
+  pubkey,
+  (accountInfo, context) => {
+    // Handle real-time updates
+    console.log('Account updated:', accountInfo);
+  },
+  'confirmed',
+  { encoding: 'base64', dataSlice: { offset: 0, length: 100 }}
+);
+```
+
+</CodeGroup>
+
+### 程序账户监控
+
+```typescript
+// Monitor specific program accounts with filters
+connection.onProgramAccountChange(
+  programId,
+  (accountInfo, context) => {
+    // Handle program account changes
+  },
+  'confirmed',
+  {
+    filters: [
+      { dataSize: 1024 },
+      { memcmp: { offset: 0, bytes: ACCOUNT_DISCRIMINATOR }}
+    ],
+    encoding: 'base64'
+  }
+);
+```
+
+### 交易监控
+
+```typescript
+// Subscribe to transaction logs for real-time monitoring
+const ws = new WebSocket(`wss://mainnet.helius-rpc.com/?api-key=${API_KEY}`);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'logsSubscribe',
+    params: [
+      { mentions: [programId] },
+      { commitment: 'confirmed' }
+    ]
+  }));
+});
+
+ws.on('message', (data) => {
+  const message = JSON.parse(data);
+  if (message.params) {
+    const signature = message.params.result.value.signature;
+    // Process transaction signature
+  }
+});
+```
+
+## 高级模式
+
+### 智能重试逻辑
+
+```typescript
+class RetryManager {
+  private backoff = new ExponentialBackoff({
+    min: 100,
+    max: 5000,
+    factor: 2,
+    jitter: 0.2
+  });
+
+  async executeWithRetry<T>(operation: () => Promise<T>): Promise<T> {
+    while (true) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (error.message.includes('429')) {
+          // Rate limit - wait and retry
+          await this.backoff.delay();
+          continue;
+        }
+        throw error;
+      }
+    }
+  }
+}
+```
+
+### 内存高效处理
+
+```typescript
+// Process large datasets in chunks
+function chunk<T>(array: T[], size: number): T[][] {
+  return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+    array.slice(i * size, i * size + size)
+  );
+}
+
+// Process program accounts in batches
+const allAccounts = await connection.getProgramAccounts(programId, {
+  dataSlice: { offset: 0, length: 32 }
+});
+
+const chunks = chunk(allAccounts, 100);
+for (const batch of chunks) {
+  const detailedAccounts = await connection.getMultipleAccountsInfo(
+    batch.map(acc => acc.pubkey)
+  );
+  // Process batch...
+}
+```
+
+### 连接池
+
+```typescript
+class ConnectionPool {
+  private connections: Connection[] = [];
+  private currentIndex = 0;
+
+  constructor(rpcUrls: string[]) {
+    this.connections = rpcUrls.map(url => new Connection(url));
+  }
+
+  getConnection(): Connection {
+    const connection = this.connections[this.currentIndex];
+    this.currentIndex = (this.currentIndex + 1) % this.connections.length;
+    return connection;
+  }
+}
+
+const pool = new ConnectionPool([
+  'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY',
+  'https://mainnet-backup.helius-rpc.com/?api-key=YOUR_API_KEY'
+]);
+```
+
+## 性能监控
+
+### 跟踪 RPC 使用
+
+```typescript
+class RPCMonitor {
+  private metrics = {
+    calls: 0,
+    errors: 0,
+    totalLatency: 0
+  };
+
+  async monitoredCall<T>(operation: () => Promise<T>): Promise<T> {
+    const start = Date.now();
+    this.metrics.calls++;
+    
+    try {
+      const result = await operation();
+      this.metrics.totalLatency += Date.now() - start;
+      return result;
+    } catch (error) {
+      this.metrics.errors++;
+      throw error;
+    }
+  }
+
+  getStats() {
+    return {
+      ...this.metrics,
+      averageLatency: this.metrics.totalLatency / this.metrics.calls,
+      errorRate: this.metrics.errors / this.metrics.calls
+    };
+  }
+}
+```
+
+## 最佳实践
+
+### 承诺级别
+
+<Tabs>
+  <Tab title="processed">
+    - **用途**：WebSocket 订阅、实时更新
+    - **延迟**：约 400ms
+    - **可靠性**：适用于大多数应用
+  </Tab>
+  
+  <Tab title="confirmed">
+    - **用途**：常规查询、账户信息
+    - **延迟**：约 1s
+    - **可靠性**：推荐用于大多数用例
+  </Tab>
+  
+  <Tab title="finalized">
+    - **用途**：最终结算、不可逆操作
+    - **延迟**：约 32s
+    - **可靠性**：最大确定性
+  </Tab>
+</Tabs>
+
+### 资源管理
+
+<CheckboxList>
+  - 使用 `dataSlice` 限制负载大小
+  - 使用 `memcmp` 和 `dataSize` 实现服务器端过滤
+  - 批量操作以减少往返次数
+  - 缓存结果以避免冗余调用
+  - 完成后关闭 WebSocket 订阅
+  - 实现断路器进行错误处理
+</CheckboxList>
+
+### 错误处理
+
+```typescript
+// Implement robust error handling
+async function robustRPCCall<T>(operation: () => Promise<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (error.code === -32602) {
+      // Invalid params - fix request
+      throw new Error('Invalid RPC parameters');
+    } else if (error.code === -32005) {
+      // Node behind - retry with different node
+      throw new Error('Node synchronization issue');
+    } else if (error.message.includes('429')) {
+      // Rate limit - implement backoff
+      throw new Error('Rate limited');
+    }
+    throw error;
+  }
+}
+```
+
+## 常见陷阱避免
+
+<Warning>
+  **避免这些常见错误：**
+  - 使用轮询而不是 WebSocket 订阅
+  - 获取完整账户数据而只需要部分数据
+  - 对多个查询不使用批处理操作
+  - 忽视速率限制且未实现适当的重试逻辑
+  - 在 `confirmed` 足够时使用 `finalized` 承诺
+  - 不关闭订阅，导致内存泄漏
+</Warning>
+
+## 总结
+
+通过实施这些优化技术，您可以实现：
+
+- **60-90% 的 API 调用量减少**
+- **显著降低的实时操作延迟**  
+- **通过有针对性的查询减少带宽使用**
+- **通过智能重试逻辑提高错误弹性**
+- **通过高效的资源使用降低运营成本**
+
+<Card title="下一步" icon="arrow-right">
+  准备好实施这些优化了吗？查看我们的[交易优化指南](/zh/sending-transactions/optimizing-transactions)以获取交易特定的最佳实践。
+</Card>
