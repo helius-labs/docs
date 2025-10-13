@@ -1,0 +1,851 @@
+---
+title: Solana 优先费用估算：序列化交易方法
+sidebarTitle: 使用序列化交易
+description: 使用 Helius 优先费用 API，通过序列化交易获取最准确的 Solana 优先费用估算。非常适合生产应用。
+---
+
+<Info>
+**最准确的方法**：通过分析您的确切交易获取最高精度的优先费用估算。推荐用于对准确性要求最高的生产应用。
+</Info>
+
+## 概述
+
+序列化交易提供最准确的费用估算，因为 API 可以分析将在您的交易中执行的确切账户和操作。
+
+<CardGroup cols={2}>
+  <Card title="为什么使用序列化交易" icon="bullseye">
+    - **最高准确性** - 分析确切操作
+    - **详细分析** - 指令特定模式
+    - **现实估算** - 反映实际交易
+    - **生产就绪** - 为关键应用构建
+  </Card>
+  <Card title="最佳适用场景" icon="bullseye-pointer">
+    - 生产应用
+    - 复杂交易
+    - 关键操作
+    - 需要最大准确性
+  </Card>
+</CardGroup>
+
+## 相较于账户密钥的优势
+
+<Tabs>
+  <Tab title="准确性优势">
+    <CardGroup cols={1}>
+      <Card title="指令特定分析" icon="code">
+        API 可以分析特定操作及其历史费用模式，而不仅仅是账户活动。
+      </Card>
+      <Card title="交易大小意识" icon="expand">
+        考虑到交易的实际大小和复杂性，以提供更准确的估算。
+      </Card>
+      <Card title="只读账户处理" icon="eye">
+        更好地分析交易上下文中的可写和只读账户。
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="实际应用优势">
+    **DeFi 交易**：为复杂的交换操作提供更准确的估算
+    
+    **NFT 铸造**：为带有特定元数据的铸造交易提供更好的估算
+    
+    **多指令交易**：为复杂的多步骤操作提供准确的费用
+    
+    **程序交互**：为特定程序调用提供更好的估算
+  </Tab>
+</Tabs>
+
+## 实施指南
+
+<Steps>
+  <Step title="构建您的交易">
+    创建包含所有指令的交易（优先费用除外）
+  </Step>
+  <Step title="序列化交易">
+    将您的交易转换为序列化格式
+  </Step>
+  <Step title="获取费用估算">
+    使用您的序列化交易调用优先费用 API
+  </Step>
+  <Step title="应用优先费用">
+    添加优先费用指令并发送您的交易
+  </Step>
+</Steps>
+
+### 快速入门示例
+
+<CodeGroup>
+
+```javascript JavaScript
+import { 
+  Connection, 
+  PublicKey, 
+  Transaction, 
+  SystemProgram, 
+  ComputeBudgetProgram 
+} from "@solana/web3.js";
+import bs58 from "bs58";
+
+const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
+
+// 1. Build your transaction (without priority fee)
+const transaction = new Transaction();
+const transferIx = SystemProgram.transfer({
+  fromPubkey: senderKeypair.publicKey,
+  toPubkey: recipientPublicKey,
+  lamports: 1000000, // 0.001 SOL
+});
+transaction.add(transferIx);
+
+// 2. Set required fields and serialize
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.feePayer = senderKeypair.publicKey;
+const serializedTx = bs58.encode(transaction.serialize());
+
+// 3. Get priority fee estimate
+const priorityFee = await getPriorityFeeEstimate(connection, serializedTx, "Medium");
+
+// 4. Add priority fee and send
+transaction.instructions = []; // Reset
+transaction.add(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }));
+transaction.add(transferIx);
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+transaction.sign(senderKeypair);
+```
+
+```python Python
+import requests
+import json
+from solana.transaction import Transaction
+from solana.system_program import transfer, TransferParams
+
+# Build and serialize transaction
+def get_serialized_transaction():
+    # Build your transaction here
+    # Return base58 encoded serialized transaction
+    pass
+
+# Get priority fee estimate
+def get_priority_fee_estimate(serialized_tx, priority_level="Medium"):
+    response = requests.post(
+        "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY",
+        json={
+            "jsonrpc": "2.0",
+            "id": "1",
+            "method": "getPriorityFeeEstimate",
+            "params": [{
+                "transaction": serialized_tx,
+                "options": {
+                    "priorityLevel": priority_level,
+                    "recommended": True
+                }
+            }]
+        }
+    )
+    return response.json()["result"]["priorityFeeEstimate"]
+
+# Usage
+serialized_tx = get_serialized_transaction()
+fee = get_priority_fee_estimate(serialized_tx, "High")
+print(f"Priority fee: {fee} micro-lamports")
+```
+
+</CodeGroup>
+
+## 核心实现功能
+
+这是一个用于从序列化交易中获取优先费用估算的可重用函数：
+
+```javascript
+async function getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel = "Medium") {
+  const response = await fetch(connection.rpcEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "1",
+      method: "getPriorityFeeEstimate",
+      params: [{
+        transaction: serializedTransaction,
+        options: { 
+          priorityLevel: priorityLevel,
+          recommended: true 
+        }
+      }]
+    })
+  });
+  
+  const result = await response.json();
+  
+  if (result.error) {
+    throw new Error(`Fee estimation failed: ${JSON.stringify(result.error)}`);
+  }
+  
+  return result.result.priorityFeeEstimate;
+}
+```
+
+## 完整实现示例
+
+<Tabs>
+  <Tab title="简单转账">
+    <Accordion title="展开查看完整示例">
+    
+
+    ```javascript
+    const { 
+      Connection, 
+      PublicKey, 
+      Transaction, 
+      SystemProgram, 
+      ComputeBudgetProgram, 
+      sendAndConfirmTransaction,
+      Keypair
+    } = require("@solana/web3.js");
+    const bs58 = require("bs58");
+
+    // Initialize connection and accounts
+    const connection = new Connection("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY");
+    const senderKeypair = Keypair.fromSecretKey(bs58.decode("YOUR_PRIVATE_KEY"));
+    const receiverPublicKey = new PublicKey("RECIPIENT_PUBLIC_KEY");
+
+    async function sendTransactionWithPriorityFee(amount, priorityLevel = "Medium") {
+      // 1. Create transaction with transfer instruction
+      const transaction = new Transaction();
+      const transferIx = SystemProgram.transfer({
+        fromPubkey: senderKeypair.publicKey,
+        toPubkey: receiverPublicKey,
+        lamports: amount,
+      });
+      transaction.add(transferIx);
+      
+      // 2. Set required fields for serialization
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.feePayer = senderKeypair.publicKey;
+      
+      // 3. Serialize the transaction
+      const serializedTransaction = bs58.encode(transaction.serialize());
+      
+      // 4. Get priority fee estimate
+      const priorityFee = await getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel);
+      console.log(`Estimated ${priorityLevel} priority fee: ${priorityFee} micro-lamports`);
+      
+      // 5. Reset transaction and add priority fee instruction first
+      transaction.instructions = [];
+      
+      // Add priority fee instruction
+      const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee
+      });
+      transaction.add(priorityFeeIx);
+      
+      // Re-add the original transfer instruction
+      transaction.add(transferIx);
+      
+      // 6. Update blockhash and sign
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.sign(senderKeypair);
+      
+      // 7. Send the transaction
+      try {
+        const signature = await sendAndConfirmTransaction(
+          connection,
+          transaction,
+          [senderKeypair],
+          { maxRetries: 0 } // Set to 0 for staked connection usage
+        );
+        console.log(`Transaction successful with signature: ${signature}`);
+        return signature;
+      } catch (error) {
+        console.error("Error sending transaction:", error);
+        throw error;
+      }
+    }
+
+    // Usage
+    sendTransactionWithPriorityFee(1000000, "High"); // Send 0.001 SOL with high priority
+    ```
+
+    
+    </Accordion>
+  </Tab>
+  
+  <Tab title="代币转账">
+    <Accordion title="展开查看完整示例">
+    
+
+    ```javascript
+    const { 
+      Connection, 
+      PublicKey, 
+      Transaction, 
+      ComputeBudgetProgram,
+      sendAndConfirmTransaction,
+      Keypair
+    } = require("@solana/web3.js");
+    const { 
+      createTransferInstruction,
+      getAssociatedTokenAddress,
+      TOKEN_PROGRAM_ID,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    } = require("@solana/spl-token");
+    const bs58 = require("bs58");
+
+    async function sendTokenWithPriorityFee(
+      connection,
+      senderKeypair,
+      recipientPublicKey,
+      mintAddress,
+      amount,
+      priorityLevel = "Medium"
+    ) {
+      // 1. Get token account addresses
+      const senderTokenAccount = await getAssociatedTokenAddress(
+        mintAddress,
+        senderKeypair.publicKey
+      );
+      
+      const recipientTokenAccount = await getAssociatedTokenAddress(
+        mintAddress,
+        recipientPublicKey
+      );
+      
+      // 2. Create transaction with token transfer instruction
+      const transaction = new Transaction();
+      const transferIx = createTransferInstruction(
+        senderTokenAccount,
+        recipientTokenAccount,
+        senderKeypair.publicKey,
+        amount,
+        [],
+        TOKEN_PROGRAM_ID
+      );
+      transaction.add(transferIx);
+      
+      // 3. Set required fields and serialize
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.feePayer = senderKeypair.publicKey;
+      const serializedTransaction = bs58.encode(transaction.serialize());
+      
+      // 4. Get priority fee estimate
+      const priorityFee = await getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel);
+      console.log(`Token transfer priority fee: ${priorityFee} micro-lamports`);
+      
+      // 5. Reset and rebuild transaction with priority fee
+      transaction.instructions = [];
+      
+      // Add priority fee instruction first
+      const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee
+      });
+      transaction.add(priorityFeeIx);
+      
+      // Re-add the transfer instruction
+      transaction.add(transferIx);
+      
+      // 6. Update blockhash and send
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.sign(senderKeypair);
+      
+      const signature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [senderKeypair],
+        { maxRetries: 0 }
+      );
+      
+      return signature;
+    }
+    ```
+
+    
+    </Accordion>
+  </Tab>
+  
+  <Tab title="复杂多指令">
+    <Accordion title="展开查看完整示例">
+    
+
+    ```javascript
+    async function complexTransactionWithPriorityFee(connection, keypair) {
+      // 1. Build complex transaction with multiple instructions
+      const transaction = new Transaction();
+      
+      // Add multiple instructions
+      const createAccountIx = SystemProgram.createAccount({
+        fromPubkey: keypair.publicKey,
+        newAccountPubkey: newAccountKeypair.publicKey,
+        lamports: await connection.getMinimumBalanceForRentExemption(165),
+        space: 165,
+        programId: TOKEN_PROGRAM_ID,
+      });
+      
+      const initializeAccountIx = createInitializeAccountInstruction(
+        newAccountKeypair.publicKey,
+        mintAddress,
+        keypair.publicKey,
+        TOKEN_PROGRAM_ID
+      );
+      
+      const transferIx = SystemProgram.transfer({
+        fromPubkey: keypair.publicKey,
+        toPubkey: recipientPublicKey,
+        lamports: 1000000,
+      });
+      
+      transaction.add(createAccountIx);
+      transaction.add(initializeAccountIx);
+      transaction.add(transferIx);
+      
+      // 2. Set required fields and serialize
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.feePayer = keypair.publicKey;
+      const serializedTransaction = bs58.encode(transaction.serialize());
+      
+      // 3. Get priority fee estimate for complex transaction
+      const priorityFee = await getPriorityFeeEstimate(connection, serializedTransaction, "High");
+      console.log(`Complex transaction priority fee: ${priorityFee} micro-lamports`);
+      
+      // 4. Rebuild transaction with priority fee
+      transaction.instructions = [];
+      
+      // Add priority fee instruction first
+      const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee
+      });
+      transaction.add(priorityFeeIx);
+      
+      // Optional: Set compute unit limit for complex transactions
+      const computeLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+        units: 400000 // Adjust based on your transaction complexity
+      });
+      transaction.add(computeLimitIx);
+      
+      // Re-add all original instructions
+      transaction.add(createAccountIx);
+      transaction.add(initializeAccountIx);
+      transaction.add(transferIx);
+      
+      // 5. Update blockhash and send
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      transaction.sign(keypair, newAccountKeypair);
+      
+      const signature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [keypair, newAccountKeypair],
+        { maxRetries: 0 }
+      );
+      
+      return signature;
+    }
+    ```
+
+    
+    </Accordion>
+  </Tab>
+</Tabs>
+
+## 高级配置选项
+
+<AccordionGroup>
+  <Accordion title="包含所有优先级别">
+    一次性获取所有优先级别的估算：
+
+    ```javascript
+    async function getAllPriorityLevels(connection, serializedTransaction) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            transaction: serializedTransaction,
+            options: { 
+              includeAllPriorityFeeLevels: true
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      return result.result.priorityFeeLevels;
+    }
+
+    // Usage
+    const allLevels = await getAllPriorityLevels(connection, serializedTransaction);
+    console.log("All priority levels:", allLevels);
+    /*
+    Output:
+    {
+      "min": 0,
+      "low": 1000, 
+      "medium": 5000,
+      "high": 15000,
+      "veryHigh": 50000,
+      "unsafeMax": 100000
+    }
+    */
+    ```
+
+  </Accordion>
+
+  <Accordion title="包含详细分析">
+    请求有关费用计算的详细信息：
+
+    ```javascript
+    async function getDetailedFeeAnalysis(connection, serializedTransaction) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            transaction: serializedTransaction,
+            options: { 
+              includeDetails: true,
+              priorityLevel: "Medium"
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      console.log("Detailed analysis:", result.result);
+      return result.result;
+    }
+    ```
+
+    这提供了关于费用计算的见解，包括每个账户的分析。
+  </Accordion>
+
+  <Accordion title="自定义回溯期">
+    调整分析的槽位数量：
+
+    ```javascript
+    async function getCustomLookbackEstimate(connection, serializedTransaction, lookbackSlots = 50) {
+      const response = await fetch(connection.rpcEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "1",
+          method: "getPriorityFeeEstimate",
+          params: [{
+            transaction: serializedTransaction,
+            options: { 
+              priorityLevel: "Medium",
+              lookbackSlots: lookbackSlots  // 1-150, default is 150
+            }
+          }]
+        })
+      });
+      
+      const result = await response.json();
+      return result.result.priorityFeeEstimate;
+    }
+
+    // Compare different lookback periods
+    const recentEstimate = await getCustomLookbackEstimate(connection, serializedTx, 30);
+    const longerEstimate = await getCustomLookbackEstimate(connection, serializedTx, 100);
+    
+    console.log(`Recent (30 slots): ${recentEstimate} micro-lamports`);
+    console.log(`Longer (100 slots): ${longerEstimate} micro-lamports`);
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## 最佳实践
+
+<CardGroup cols={1}>
+  <Card title="交易序列化" icon="code">
+    **始终序列化实际交易**，而不是简化版本
+    
+
+    ```javascript
+    // ✅ Good - serialize actual transaction
+    const transaction = new Transaction();
+    transaction.add(actualInstruction1);
+    transaction.add(actualInstruction2);
+    const serialized = bs58.encode(transaction.serialize());
+    ```
+
+  </Card>
+  
+  <Card title="指令顺序" icon="list">
+    **在估算交易中包含所有指令，除了优先费用**
+    
+
+    ```javascript
+    // ✅ Good - all business logic included
+    transaction.add(createAccountIx);
+    transaction.add(initializeIx);
+    transaction.add(transferIx);
+    
+    // ❌ Don't include priority fee in estimation
+    ```
+
+  </Card>
+</CardGroup>
+
+## 错误处理策略
+
+<Tabs>
+  <Tab title="健壮的错误处理">
+
+    ```javascript
+    class SerializedTransactionFeeEstimator {
+      constructor(connection) {
+        this.connection = connection;
+        this.fallbackFee = 10000; // 10k micro-lamports
+      }
+
+      async getEstimate(serializedTransaction, priorityLevel = "Medium") {
+        try {
+          // Primary attempt with serialized transaction
+          return await this.getPrimaryEstimate(serializedTransaction, priorityLevel);
+        } catch (error) {
+          console.warn("Serialized transaction estimate failed:", error.message);
+          
+          // Fallback to account-based estimation
+          try {
+            return await this.getFallbackEstimate(serializedTransaction, priorityLevel);
+          } catch (fallbackError) {
+            console.warn("Fallback estimate failed:", fallbackError.message);
+            return this.getFallbackFee(priorityLevel);
+          }
+        }
+      }
+
+      async getPrimaryEstimate(serializedTransaction, priorityLevel) {
+        const response = await fetch(this.connection.rpcEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getPriorityFeeEstimate",
+            params: [{
+              transaction: serializedTransaction,
+              options: { 
+                priorityLevel: priorityLevel,
+                recommended: true 
+              }
+            }]
+          })
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+        
+        return result.result.priorityFeeEstimate;
+      }
+
+      async getFallbackEstimate(serializedTransaction, priorityLevel) {
+        // Extract account keys from transaction and use account-based estimation
+        const transaction = Transaction.from(bs58.decode(serializedTransaction));
+        const accountKeys = transaction.instructions
+          .flatMap(ix => [ix.programId, ...ix.keys.map(k => k.pubkey)])
+          .map(key => key.toString());
+
+        const uniqueAccountKeys = [...new Set(accountKeys)];
+        
+        // Use account-based estimation as fallback
+        const response = await fetch(this.connection.rpcEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "1",
+            method: "getPriorityFeeEstimate",
+            params: [{
+              accountKeys: uniqueAccountKeys,
+              options: { 
+                priorityLevel: priorityLevel,
+                recommended: true 
+              }
+            }]
+          })
+        });
+
+        const result = await response.json();
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+        
+        return result.result.priorityFeeEstimate;
+      }
+
+      getFallbackFee(priorityLevel) {
+        const fallbacks = {
+          "Low": 1000,
+          "Medium": 5000,
+          "High": 15000,
+          "VeryHigh": 50000
+        };
+        
+        return fallbacks[priorityLevel] || 5000;
+      }
+    }
+
+    // Usage
+    const estimator = new SerializedTransactionFeeEstimator(connection);
+    const fee = await estimator.getEstimate(serializedTransaction, "High");
+    ```
+
+  </Tab>
+  
+  <Tab title="简单的错误处理">
+
+    ```javascript
+    async function safeGetPriorityFeeEstimate(connection, serializedTransaction, priorityLevel = "Medium") {
+      try {
+        return await getPriorityFeeEstimate(connection, serializedTransaction, priorityLevel);
+      } catch (error) {
+        console.warn(`Priority fee estimation failed: ${error.message}`);
+        
+        // Extract account keys and fall back to account-based estimation
+        try {
+          const transaction = Transaction.from(bs58.decode(serializedTransaction));
+          const accountKeys = transaction.instructions
+            .flatMap(ix => [ix.programId, ...ix.keys.map(k => k.pubkey)])
+            .map(key => key.toString());
+          
+          const uniqueAccountKeys = [...new Set(accountKeys)];
+          return await getAccountBasedEstimate(connection, uniqueAccountKeys, priorityLevel);
+        } catch (fallbackError) {
+          console.warn(`Fallback estimation failed: ${fallbackError.message}`);
+          
+          // Return reasonable fallback based on priority level
+          const fallbacks = {
+            "Low": 1000,
+            "Medium": 5000,
+            "High": 15000,
+            "VeryHigh": 50000
+          };
+          
+          return fallbacks[priorityLevel] || 5000;
+        }
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+## 常见问题与解决方案
+
+<AccordionGroup>
+  <Accordion title="交易序列化错误">
+    **问题**：序列化不完整交易时出错
+    
+    **解决方案**：在序列化之前始终设置所需字段：
+    
+
+    ```javascript
+    // ✅ Always set these fields
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.feePayer = keypair.publicKey;
+    
+    // Then serialize
+    const serialized = bs58.encode(transaction.serialize());
+    ```
+
+  </Accordion>
+
+  <Accordion title="过期的Blockhash问题">
+    **问题**：使用过期的blockhash导致交易失败
+    
+    **解决方案**：在最终发送之前始终获取新的blockhash：
+    
+
+    ```javascript
+    // Get estimate with temporary blockhash
+    const tempBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.recentBlockhash = tempBlockhash;
+    const serialized = bs58.encode(transaction.serialize());
+    
+    const priorityFee = await getPriorityFeeEstimate(connection, serialized, "Medium");
+    
+    // Reset and rebuild with fresh blockhash
+    transaction.instructions = [];
+    transaction.add(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: priorityFee }));
+    transaction.add(originalInstruction);
+    
+    // Get FRESH blockhash before sending
+    const freshBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    transaction.recentBlockhash = freshBlockhash;
+    ```
+
+  </Accordion>
+
+  <Accordion title="大型交易错误">
+    **问题**：交易过大无法序列化
+    
+    **解决方案**：使用版本化交易或分成多个交易：
+    
+
+    ```javascript
+    import { VersionedTransaction, TransactionMessage } from "@solana/web3.js";
+
+    // For large transactions, use versioned transactions
+    const messageV0 = new TransactionMessage({
+      payerKey: keypair.publicKey,
+      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+      instructions: [instruction1, instruction2, instruction3] // Many instructions
+    }).compileToV0Message();
+
+    const versionedTransaction = new VersionedTransaction(messageV0);
+    const serialized = bs58.encode(versionedTransaction.serialize());
+    ```
+
+  </Accordion>
+</AccordionGroup>
+
+## 何时使用 vs 账户密钥
+
+<CardGroup cols={2}>
+  <Card title="使用序列化事务" icon="check">
+    **生产应用**
+    - 需要最大精度
+    - 复杂的多指令事务
+    - 关键操作
+    - 对性能敏感的应用
+    
+    **开发场景**
+    - 最终集成测试
+    - 性能优化
+    - 生产部署
+  </Card>
+  
+  <Card title="使用账户密钥" icon="info">
+    **开发与原型设计**
+    - 开发期间的快速估算
+    - 简单事务
+    - 事务前规划
+    - 架构限制导致无法序列化
+    
+    **分析场景**
+    - 账户级费用模式分析
+    - 批量账户分析
+    - 快速市场研究
+  </Card>
+</CardGroup>
+
+## 相关资源
+
+<CardGroup cols={2}>
+  <Card title="账户密钥方法" icon="key" href="/zh/priority-fee/estimating-fees-using-account-keys">
+    使用账户密钥的高级方法，适用于特殊用例
+  </Card>
+  <Card title="API 参考" icon="book" href="/zh/api-reference/priority-fee/getpriorityfeeestimate">
+    完整的 API 文档和参数
+  </Card>
+</CardGroup>

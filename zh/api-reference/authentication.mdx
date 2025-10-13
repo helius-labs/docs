@@ -1,0 +1,289 @@
+---
+title: 认证
+description: 了解如何安全高效地认证您的 Helius API 请求
+---
+
+# 认证
+
+Helius API 使用 API 密钥来认证请求。每个 API 请求都必须包含您的 API 密钥以验证您的身份和权限。
+
+<Warning>
+您的 API 密钥是授予访问您 Helius 帐户的敏感信息。切勿在客户端代码、公共存储库或浏览器可访问的区域中暴露它。
+</Warning>
+
+## 入门
+
+### 1. 创建您的 API 密钥
+
+<Steps>
+  <Step title="注册或登录">
+    在 [Helius Dashboard](https://dashboard.helius.dev) 上创建一个帐户或登录到您现有的帐户。
+  </Step>
+  <Step title="导航到 API 密钥">
+    转到仪表板侧边栏中的 **API 密钥** 部分。
+  </Step>
+  <Step title="生成新密钥">
+    点击 **创建新 API 密钥** 并为您的项目提供一个描述性名称（例如，“生产应用程序”，“开发环境”）。
+  </Step>
+  <Step title="复制并保护您的密钥">
+    立即复制您的 API 密钥并安全存储。一旦您离开此页面，将无法再次查看。
+  </Step>
+</Steps>
+
+### 2. 使用您的 API 密钥
+
+在所有请求中将您的 API 密钥作为查询参数包含：
+
+<CodeGroup>
+
+```bash cURL
+curl "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getAccountInfo","params":["ACCOUNT_ADDRESS"]}'
+```
+
+```javascript JavaScript
+const url = `https://mainnet.helius-rpc.com/?api-key=${YOUR_API_KEY}`;
+const response = await fetch(url, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getAccountInfo',
+    params: ['ACCOUNT_ADDRESS']
+  })
+});
+```
+
+```python Python
+import requests
+
+url = f"https://mainnet.helius-rpc.com/?api-key={YOUR_API_KEY}"
+payload = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getAccountInfo",
+    "params": ["ACCOUNT_ADDRESS"]
+}
+response = requests.post(url, json=payload)
+```
+
+</CodeGroup>
+
+## 安全最佳实践
+
+<CardGroup cols={2}>
+  <Card title="环境变量" icon="shield-check">
+    将您的 API 密钥存储在环境变量中，而不是源代码中。
+
+    ```bash
+    export HELIUS_API_KEY="your-api-key-here"
+    ```
+
+  </Card>
+  <Card title="IP 限制" icon="globe">
+    在仪表板中为您的 API 密钥设置 IP 限制，以限制对特定 IP 地址或范围的访问。
+  </Card>
+  <Card title="分离密钥" icon="key">
+    为开发、暂存和生产环境使用不同的 API 密钥，以隔离使用并提高安全性。
+  </Card>
+  <Card title="监控使用情况" icon="chart-line">
+    定期检查仪表板中的 API 使用情况，以检测异常模式或潜在的安全问题。
+  </Card>
+</CardGroup>
+
+### 密钥管理
+
+<Tabs>
+  <Tab title="Node.js">
+
+    ```javascript
+    // Use environment variables
+    const apiKey = process.env.HELIUS_API_KEY;
+    
+    // Or use a secrets manager
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+    const client = new SecretManagerServiceClient();
+    
+    async function getApiKey() {
+      const [version] = await client.accessSecretVersion({
+        name: 'projects/PROJECT_ID/secrets/helius-api-key/versions/latest',
+      });
+      return version.payload.data.toString();
+    }
+    ```
+
+  </Tab>
+  <Tab title="Python">
+
+    ```python
+    import os
+    from dotenv import load_dotenv
+    
+    # Load environment variables
+    load_dotenv()
+    api_key = os.getenv('HELIUS_API_KEY')
+    
+    # Or use AWS Secrets Manager
+    import boto3
+    
+    def get_secret():
+        client = boto3.client('secretsmanager')
+        response = client.get_secret_value(SecretId='helius-api-key')
+        return response['SecretString']
+    ```
+
+  </Tab>
+  <Tab title="Docker">
+
+    ```dockerfile
+    # In your Dockerfile
+    ENV HELIUS_API_KEY=""
+    
+    # Or use Docker secrets
+    RUN --mount=type=secret,id=helius_key \
+        cat /run/secrets/helius_key > /app/api_key.txt
+    ```
+
+  </Tab>
+</Tabs>
+
+## 速率限制与使用
+
+<Note>
+速率限制因订阅计划而异。在 [Helius Dashboard](https://dashboard.helius.dev) 中监控您的使用情况，以确保您在分配的限制内。
+</Note>
+
+### 理解速率限制
+
+- **每秒请求数**：基于您的订阅等级
+- **每月请求配额**：每个计费周期允许的总请求数
+- **突发允许**：短期内超过基本速率限制的峰值
+
+### 速率限制头信息
+
+Helius 在响应头中包含速率限制信息：
+
+```http
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+### 处理速率限制
+
+<CodeGroup>
+
+```javascript JavaScript
+async function makeRequest(url, data) {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      console.log(`Rate limited. Retry after ${retryAfter} seconds`);
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      return makeRequest(url, data); // Retry
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
+}
+```
+
+```python Python
+import time
+import requests
+
+def make_request(url, data):
+    try:
+        response = requests.post(url, json=data)
+        
+        if response.status_code == 429:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            print(f"Rate limited. Waiting {retry_after} seconds...")
+            time.sleep(retry_after)
+            return make_request(url, data)  # Retry
+        
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        raise
+```
+
+</CodeGroup>
+
+## 故障排除
+
+<AccordionGroup>
+  <Accordion title="无效的 API 密钥错误">
+    **症状**：401 未授权或 "无效的 API 密钥" 错误
+    
+    **解决方案**：
+    - 验证您的 API 密钥是否正确且未被重新生成
+    - 检查您是否将 API 密钥作为查询参数包含：`?api-key=YOUR_KEY`
+    - 确保您的 API 密钥中没有多余的空格或字符
+    - 确认您的 API 密钥未过期或被撤销
+  </Accordion>
+  
+  <Accordion title="超出速率限制">
+    **症状**：429 请求过多错误
+    
+    **解决方案**：
+    - 在仪表板中检查您当前的使用情况
+    - 在重试逻辑中实现指数退避
+    - 考虑升级您的计划以获得更高的限制
+    - 优化您的请求以减少不必要的调用
+  </Accordion>
+  
+  <Accordion title="禁止访问">
+    **症状**：403 禁止错误
+    
+    **解决方案**：
+    - 验证 IP 限制是否未阻止您的请求
+    - 检查您的订阅是否包含对该端点的访问
+    - 确保您的 API 密钥具有必要的权限
+  </Accordion>
+</AccordionGroup>
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="快速入门指南" icon="rocket" href="/zh/quickstart">
+    开始使用 Helius 进行您的第一个 API 调用
+  </Card>
+  <Card title="API 参考" icon="book" href="/zh/api-reference">
+    探索所有可用的端点和方法
+  </Card>
+  <Card title="速率限制与计费" icon="credit-card" href="/zh/billing/plans-and-rate-limits">
+    了解定价和升级选项
+  </Card>
+  <Card title="仪表板" icon="chart-line" href="https://dashboard.helius.dev">
+    监控您的 API 使用情况并管理密钥
+  </Card>
+</CardGroup>
+
+## 支持
+
+需要帮助进行身份验证或对API密钥有疑问？
+
+<CardGroup cols={2}>
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入我们的 Discord 以获得实时帮助和社区支持
+  </Card>
+  <Card title="电子邮件支持" icon="envelope" href="mailto:support@helius.xyz">
+    直接联系我们的支持团队
+  </Card>
+</CardGroup>

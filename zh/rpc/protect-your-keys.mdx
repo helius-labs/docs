@@ -1,0 +1,274 @@
+---
+title: 保护您的 Solana API 密钥：安全最佳实践
+sidebarTitle: 保护您的密钥
+description: 保护您的 Helius Solana API 密钥免受恶意行为者的侵害。访问控制规则、RPC 代理和安全最佳实践，以防止未经授权的使用和费用。
+---
+
+<Warning>
+**API 密钥安全警告**：暴露的 API 密钥可能导致未经授权的使用、配额耗尽和意外费用。在生产应用中始终保护您的密钥。
+</Warning>
+
+## 为什么密钥保护很重要
+
+当您在客户端暴露 API 密钥时，恶意行为者可能会发现并滥用它们，可能会：
+
+<CardGroup cols={2}>
+  <Card title="耗尽您的配额" icon="gauge-high">
+    恶意使用可能会迅速消耗您的 API 限制并导致服务中断
+  </Card>
+  <Card title="增加您的账单" icon="credit-card">
+    未经授权的请求可能会触发自动扩展费用或超出计划限制
+  </Card>
+  <Card title="危害安全" icon="shield-exclamation">
+    暴露的密钥可能提供对敏感数据和操作的访问
+  </Card>
+  <Card title="损害性能" icon="triangle-exclamation">
+    高度未经授权的使用可能会影响您的应用程序性能
+  </Card>
+</CardGroup>
+
+## 保护方法
+
+Helius 提供多层保护以确保您的 API 密钥安全：
+
+<Tabs>
+  <Tab title="RPC 代理">
+    部署您自己的代理以实现最大安全性和控制。
+
+    <Card title="Helius RPC 代理" icon="github" href="https://github.com/helius-labs/helius-rpc-proxy">
+      一个简单的开源 RPC 代理，您可以一键部署到 Cloudflare。
+    </Card>
+
+    ### 使用代理的好处
+
+    <CardGroup cols={2}>
+      <Card title="完整的密钥保护" icon="lock">
+        您的 API 密钥保持在服务器端，永不暴露给客户端
+      </Card>
+      <Card title="自定义速率限制" icon="gauge">
+        实现您自己的速率限制和使用控制
+      </Card>
+      <Card title="请求过滤" icon="filter">
+        在请求到达 Helius 之前进行过滤和验证
+      </Card>
+      <Card title="使用分析" icon="chart-line">
+        监控和分析您的 API 使用模式
+      </Card>
+    </CardGroup>
+  </Tab>
+  <Tab title="访问控制规则">
+    在您的 Helius 仪表板中配置精确的访问控制以限制 API 使用。
+
+    <Frame caption="在仪表板的 Endpoints 部分配置 RPC 访问控制规则。">
+      <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="在仪表板的 Endpoints 部分配置 RPC 访问控制规则。" />
+    </Frame>
+
+    ### 可用的规则类型
+
+    <AccordionGroup>
+      <Accordion title="允许的域">
+        限制对特定域的访问 - 非常适合 Web 应用程序。
+
+        **使用案例：**
+        - 生产网站 (`yourdapp.com`)
+        - 开发环境 (`localhost:3000`)
+        - 预发布环境 (`staging.yourdapp.com`)
+
+        **示例配置：**
+
+        ```
+        yourdapp.com
+        www.yourdapp.com
+        localhost:3000
+        ```
+
+      </Accordion>
+
+      <Accordion title="允许的 IP">
+        限制对特定 IP 地址的访问 - 理想用于服务器应用程序。
+
+        **使用案例：**
+        - 具有静态 IP 的后端服务器
+        - CI/CD 管道
+        - 特定开发机器
+
+        **示例配置：**
+
+        ```
+        192.168.1.100
+        203.0.113.1
+        198.51.100.42
+        ```
+
+      </Accordion>
+
+      <Accordion title="允许的 CIDR">
+        使用 CIDR 表示法限制对 IP 范围的访问 - 非常适合企业网络。
+
+        **使用案例：**
+        - 企业网络
+        - 云提供商 IP 范围
+        - 私有网络
+
+        **示例配置：**
+
+        ```
+        192.168.0.0/16
+        10.0.0.0/8
+        172.16.0.0/12
+        ```
+
+      </Accordion>
+    </AccordionGroup>
+  </Tab>
+
+  <Tab title="安全 URL">
+    使用我们的安全 URL 进行前端应用程序，而不暴露您的 API 密钥。
+
+    <Info>
+    **速率限制**：安全 URL 限制为每个 IP 地址每秒 5 个事务 (TPS)，非常适合前端应用程序。
+    </Info>
+
+    ### 如何使用安全 URL
+
+    <Steps>
+      <Step title="获取您的安全 URL">
+        在 Helius 仪表板的 Endpoints 部分找到您的安全 URL
+      </Step>
+      <Step title="替换您的常规 RPC URL">
+        使用安全 URL 替换您的常规 RPC URL 和 API 密钥
+      </Step>
+      <Step title="无需 API 密钥">
+        安全 URL 不需要 API 密钥参数
+      </Step>
+    </Steps>
+
+    ```javascript
+    // Instead of this (exposes API key):
+    const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
+
+    // Use this (secure, no API key exposed):
+    const connection = new Connection('https://your-secure-url.helius-rpc.com');
+    ```
+
+    <Note>
+    **非常适合**：前端应用程序、移动应用程序以及任何无法隐藏 API 密钥的客户端代码。
+    </Note>
+  </Tab>
+</Tabs>
+
+## 最佳实践
+
+<CardGroup cols={1}>
+  <Card title="环境变量" icon="code">
+    切勿在源代码中硬编码API密钥。请改用环境变量。
+
+    ```javascript
+    // ❌ Don't do this
+    const apiKey = "your-api-key-here";
+
+    // ✅ Do this instead
+    const apiKey = process.env.HELIUS_API_KEY;
+    ```
+
+  </Card>
+
+  <Card title="不同环境的独立密钥" icon="layers">
+    为开发、预发布和生产环境使用不同的API密钥。
+
+    ```javascript
+    const getApiKey = () => {
+      switch (process.env.NODE_ENV) {
+        case 'production':
+          return process.env.HELIUS_API_KEY_PROD;
+        case 'staging':
+          return process.env.HELIUS_API_KEY_STAGING;
+        default:
+          return process.env.HELIUS_API_KEY_DEV;
+      }
+    };
+    ```
+
+  </Card>
+
+  <Card title="定期密钥轮换" icon="arrows-rotate">
+    定期轮换您的API密钥，如果怀疑密钥已泄露，请立即更换。
+
+    <Steps>
+      <Step title="生成新密钥">
+        在您的Helius仪表板中创建一个新的API密钥
+      </Step>
+      <Step title="更新应用程序">
+        更新所有应用程序以使用新密钥
+      </Step>
+      <Step title="彻底测试">
+        确保所有服务都能使用新密钥正常工作
+      </Step>
+      <Step title="撤销旧密钥">
+        从您的仪表板中删除旧密钥
+      </Step>
+    </Steps>
+  </Card>
+
+  <Card title="监控使用情况" icon="chart-line">
+    定期在Helius仪表板中检查您的API使用情况，以发现异常模式。
+
+    **需要注意的警示信号：**
+    - 使用量突然激增
+    - 来自意外位置的请求
+    - 高错误率
+    - 非工作时间的使用
+  </Card>
+</CardGroup>
+
+## 安全检查清单
+
+<AccordionGroup>
+  <Accordion title="✅ 开发安全">
+    - [ ] 使用环境变量存储API密钥
+    - [ ] 切勿将API密钥提交到版本控制
+    - [ ] 为不同环境使用不同的密钥
+    - [ ] 为开发域设置访问控制规则
+    - [ ] 为前端开发使用安全的URL
+  </Accordion>
+
+  <Accordion title="✅ 生产安全">
+    - [ ] 实施适当的访问控制规则
+    - [ ] 使用RPC代理以实现最大安全性
+    - [ ] 定期监控API使用情况
+    - [ ] 为异常使用模式设置警报
+    - [ ] 定期轮换密钥
+    - [ ] 记录您的安全程序
+  </Accordion>
+
+  <Accordion title="✅ 紧急响应">
+    - [ ] 准备好密钥轮换程序
+    - [ ] 知道如何快速撤销被泄露的密钥
+    - [ ] 监控安全漏洞
+    - [ ] 拥有Helius支持的联系信息
+    - [ ] 保留安全配置的备份
+  </Accordion>
+</AccordionGroup>
+
+## 常见错误避免
+
+<Warning>
+**避免这些常见的安全陷阱：**
+
+1. **在前端JavaScript中硬编码密钥** - 始终使用安全的URL或代理
+2. **将密钥提交到Git仓库** - 使用环境变量和`.gitignore`
+3. **在开发中使用生产密钥** - 为不同环境分配不同的密钥
+4. **未设置访问控制规则** - 始终配置域名/IP限制
+5. **忽视异常使用模式** - 定期监控您的仪表板
+</Warning>
+
+## 需要帮助？
+
+<CardGroup cols={2}>
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    从社区和Helius团队获取帮助
+  </Card>
+  <Card title="支持团队" icon="headset" href="/zh/support">
+    联系我们的支持团队以解决安全问题
+  </Card>
+</CardGroup>

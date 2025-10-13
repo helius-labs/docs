@@ -1,0 +1,129 @@
+---
+title: 如何使用 getBlockCommitment
+sidebarTitle: getBlockCommitment
+description: 了解 getBlockCommitment 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getBlockCommitment`](https://www.helius.dev/docs/api-reference/rpc/http/getblockcommitment) RPC 方法提供有关 Solana 分类账中特定区块的[承诺](https://www.helius.dev/blog/solana-commitment-levels)状态的信息。这对于了解一个区块的最终确定程度很有用，基于已对其投票的权益。
+
+## 常见用例
+
+*   **评估区块最终性：** 通过检查不同确认深度的权益加权投票，确定区块已达到的共识水平。
+*   **了解集群健康状况：** `totalStake` 提供了在区块处理时集群中总活跃权益的洞察。
+*   **高级确认逻辑：** 对于需要超出标准承诺级别（`confirmed`, `finalized`）的区块最终性提供非常具体保证的应用程序。
+
+## 参数
+
+1.  `slot` (number, required): 要查询承诺信息的区块的槽号 (u64)。
+
+## 响应
+
+JSON-RPC 响应的 `result` 字段将是一个包含以下内容的对象：
+
+*   `commitment` (array of u64 integers | null):
+    *   一个 u64 整数数组，其中每个整数表示在特定确认深度对区块投票的集群权益（以 lamports 为单位）。
+    *   该数组通常有 32 个元素（表示深度 0 到 `MAX_LOCKOUT_HISTORY`，即 31）。
+    *   数组的索引 `i` 显示对区块投票的权益，考虑到对区块本身及其后代的投票，深度可达 `i`。
+    *   如果找不到区块或其承诺信息不可用（例如，它太旧并从承诺跟踪中删除），此字段将为 `null`。
+*   `totalStake` (number):
+    *   在处理此区块的槽位中集群的总活跃权益（以 lamports 为单位）。此值用于计算已对区块承诺的权益百分比。
+
+## 开发者提示
+
+*   **解释`commitment`数组：**
+    *   `commitment`数组显示了在不同确认深度下为区块投票的权益（以lamports为单位）。在更深的索引处的较高值表示更强的最终性。
+    *   一个`null` `commitment`数组通常意味着节点没有该槽位的数据，可能是因为它太旧或被跳过。
+    *   如果`commitment[i] / totalStake >= 2/3`（超级多数），你可以在深度`i`评估最终性。
+*   **高级用例：** `getBlockCommitment`用于细致的最终性分析。对于大多数常见场景，依赖于标准承诺级别（`processed`, `confirmed`, 或 `finalized`）与其他RPC方法（如`getTransaction`或`getBlock`）更简单且足够。
+*   **理解承诺：** 要充分利用`getBlockCommitment`，对Solana的承诺级别有一个扎实的理解是必不可少的。参见[Solana承诺级别](https://www.helius.dev/blog/solana-commitment-levels)获取详细信息。
+*   **修剪：** 请注意，RPC节点可能会修剪旧的承诺信息，导致旧槽位的`null`结果。
+
+## 示例：获取区块承诺信息
+
+让我们尝试在Devnet上获取一个示例槽位号的承诺信息。
+**重要：** 槽位号处理速度很快。下面使用的槽位号（`250000000`）是一个占位符。当你运行示例时，应将其替换为你知道存在于目标网络（例如，Devnet或Mainnet）上的最近确认的槽位。你可以使用Solana区块浏览器找到最近的槽位号。
+
+**注意：** 在下面的示例中，将`YOUR_API_KEY`替换为你的实际Helius API密钥。
+
+<CodeGroup>
+
+```bash curl
+# Replace 250000000 with a valid, recent slot number on Devnet/Mainnet
+curl https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY -X POST -H "Content-Type: application/json" -d \
+'{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getBlockCommitment",
+  "params": [
+    250000000 
+  ]
+}'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlockCommitmentDetails() {
+  const rpcUrl = 'https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY'; // Replace YOUR_API_KEY
+  const connection = new Connection(rpcUrl, 'confirmed');
+  
+  // Replace with a valid, recent slot number on your target network
+  const slotToQuery = 250000000; 
+
+  try {
+    // Note: getBlockCommitment is not directly available in @solana/web3.js Connection object.
+    // You typically need to make a direct RPC call for this method.
+    // The example below shows how to construct and send such a raw request.
+    const response = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getBlockCommitment',
+        params: [slotToQuery],
+      }),
+    });
+    const result = await response.json();
+
+    if (result.error) {
+      console.error(`Error fetching block commitment for slot ${slotToQuery}:`, result.error.message);
+      return;
+    }
+
+    const blockCommitment = result.result;
+
+    if (blockCommitment) {
+      console.log(`Block Commitment for Slot ${slotToQuery}:`);
+      console.log(`   Total Stake (Lamports): ${blockCommitment.totalStake}`);
+      console.log(`   Commitment Array:`, blockCommitment.commitment ? blockCommitment.commitment : 'Not available/Unknown block');
+      // The commitment array shows lamports committed at different depths.
+      // A null commitment array usually means the block is not found or too old.
+      // A non-null array where later entries are higher indicates increasing finality.
+    } else {
+      console.log(`Block commitment data for slot ${slotToQuery} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error fetching block commitment for slot ${slotToQuery}:`, error);
+  }
+}
+
+getBlockCommitmentDetails();
+```
+
+```typescript Kit
+import { createSolanaRpc } from "@solana/kit";
+
+const rpc_url = "https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY";
+const rpc = createSolanaRpc(rpc_url);
+
+const slot_number = BigInt(5);
+
+let blockCommitment = await rpc.getBlockCommitment(slot_number).send();
+
+console.log("block commitment:", blockCommitment);
+```
+
+</CodeGroup>

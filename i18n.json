@@ -1,0 +1,137 @@
+{
+  "version": 0,
+  "locale": {
+    "source": "en",
+    "targets": [
+      "zh"
+    ]
+  },
+  "buckets": {
+    "mdx": {
+      "include": [
+        "[locale]/*.mdx",
+        "[locale]/*/*.mdx",
+        "[locale]/*/*/*.mdx",
+        "[locale]/*/*/*/*.mdx"
+      ],
+      "exclude": [
+        ".mintlify/*",
+        "node_modules/*",
+        "cn/*"
+      ],
+      "lockedKeys": [
+        "href",
+        "src",
+        "id",
+        "className",
+        "slug",
+        "canonical",
+        "icon",
+        "openapi",
+        "code",
+        "language",
+        "filename",
+        "lineNumbers"
+      ]
+    },
+    "yaml": {
+      "include": [
+        "[locale]/openapi/*/*.yaml",
+        "[locale]/openapi/*.yaml",
+        "[locale]/asyncapi/*.yaml"
+      ],
+      "exclude": [
+        ".mintlify/*",
+        "node_modules/*",
+        "cn/*"
+      ],
+      "lockedKeys": [
+        "openapi",
+        "info.version",
+        "info.license.url",
+        "servers.*.url",
+        "paths.*.*.operationId",
+        "paths.*.*.tags",
+        "paths.*.*.security",
+        "paths.*.*.requestBody.required",
+        "paths.*.*.requestBody.content",
+        "paths.*.*.requestBody.content.*",
+        "paths.*.*.requestBody.content.*.schema",
+        "paths.*.*.requestBody.content.*.schema.type",
+        "paths.*.*.requestBody.content.*.schema.properties",
+        "paths.*.*.requestBody.content.*.schema.properties.*",
+        "paths.*.*.requestBody.content.*.schema.properties.*.type",
+        "paths.*.*.requestBody.content.*.schema.properties.*.enum",
+        "paths.*.*.requestBody.content.*.schema.properties.*.default",
+        "paths.*.*.requestBody.content.*.schema.properties.*.example",
+        "paths.*.*.requestBody.content.*.schema.properties.*.$ref",
+        "paths.*.*.requestBody.content.*.schema.properties.*.description",
+        "paths.*.*.requestBody.content.*.schema.items",
+        "paths.*.*.requestBody.content.*.schema.items.*",
+        "paths.*.*.requestBody.content.*.schema.items.*.description",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf.*",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf.*.description",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf.*.properties",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf.*.properties.*",
+        "paths.*.*.requestBody.content.*.schema.items.*.oneOf.*.properties.*.description",
+        "paths.*.*.responses.*.content",
+        "paths.*.*.responses.*.content.*",
+        "paths.*.*.responses.*.content.*.schema",
+        "paths.*.*.responses.*.content.*.schema.type",
+        "paths.*.*.responses.*.content.*.schema.properties",
+        "paths.*.*.responses.*.content.*.schema.properties.*",
+        "paths.*.*.responses.*.content.*.schema.properties.*.description",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties.*",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties.*.description",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties.*.properties",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties.*.properties.*",
+        "paths.*.*.responses.*.content.*.schema.properties.*.properties.*.properties.*.description",
+        "paths.*.*.responses.*.content.*.schema.*.$ref",
+        "paths.*.*.responses.*.content.*.example",
+        "components.schemas",
+        "components.schemas.*",
+        "components.schemas.*.type",
+        "components.schemas.*.format",
+        "components.schemas.*.enum",
+        "components.schemas.*.required",
+        "components.schemas.*.properties",
+        "components.schemas.*.properties.*",
+        "components.schemas.*.properties.*.type",
+        "components.schemas.*.properties.*.format",
+        "components.schemas.*.properties.*.description",
+        "components.schemas.*.properties.*.$ref",
+        "components.schemas.*.properties.*.example",
+        "components.schemas.*.properties.*.enum",
+        "components.schemas.*.items",
+        "components.schemas.*.items.*",
+        "components.schemas.*.$ref",
+        "components.schemas.*.example",
+        "components.schemas.*.description",
+        "components.securitySchemes.*.type",
+        "components.securitySchemes.*.in",
+        "components.securitySchemes.*.name",
+        "*.type",
+        "*.format",
+        "*.enum",
+        "*.required",
+        "*.$ref",
+        "*.example",
+        "*.examples",
+        "*.default",
+        "*.minimum",
+        "*.items",
+        "*.additionalProperties",
+        "*.oneOf",
+        "*.properties"
+      ]
+    }
+  },
+  "$schema": "https://lingo.dev/schema/i18n.json",
+  "provider": {
+    "id": "openai",
+    "model": "gpt-4o",
+    "prompt": "You are a professional technical documentation translator. Translate from {source} to {target}. IMPORTANT: Preserve ALL markdown formatting, code blocks, URLs, and technical identifiers exactly. Only translate human-readable descriptions and explanations. Keep technical terms like API, JSON, HTTP, SDK in English. CRITICAL: Return ONLY valid JSON without any markdown code blocks, backticks, or formatting. Do not wrap your response in ```json or any other markdown."
+  }
+}

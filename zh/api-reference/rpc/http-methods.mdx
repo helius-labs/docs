@@ -1,0 +1,211 @@
+---
+title: HTTP RPC 方法
+sidebarTitle: 概述
+description: 本页面概述了所有可用于与 API 交互的 HTTP RPC 方法。
+---
+
+## 账户信息
+
+<CardGroup cols={2}>
+  <Card title="getAccountInfo" href="/zh/api-reference/rpc/http/getaccountinfo">
+    从区块链中检索账户信息。
+  </Card>
+  <Card title="getMultipleAccounts" href="/zh/api-reference/rpc/http/getmultipleaccounts">
+    在单个请求中检索多个账户的信息。
+  </Card>
+  <Card title="getProgramAccounts" href="/zh/api-reference/rpc/http/getprogramaccounts">
+    返回由特定程序拥有的所有账户。
+  </Card>
+  <Card title="getBalance" href="/zh/api-reference/rpc/http/getbalance">
+    返回账户在当前时间的余额。
+  </Card>
+  <Card title="getMinimumBalanceForRentExemption" href="/zh/api-reference/rpc/http/getminimumbalanceforrentexemption">
+    返回使账户免租所需的最低余额。
+  </Card>
+  <Card title="getLargestAccounts" href="/zh/api-reference/rpc/http/getlargestaccounts">
+    返回余额最大的账户。
+  </Card>
+</CardGroup>
+
+## 区块信息
+
+<CardGroup cols={2}>
+  <Card title="getBlock" href="/zh/api-reference/rpc/http/getblock">
+    返回已确认区块的身份和交易信息。
+  </Card>
+  <Card title="getBlocks" href="/zh/api-reference/rpc/http/getblocks">
+    返回两个插槽之间的已确认区块列表。
+  </Card>
+  <Card title="getBlocksWithLimit" href="/zh/api-reference/rpc/http/getblockswithlimit">
+    返回从给定插槽开始的有限数量的已确认区块列表。
+  </Card>
+  <Card title="getBlockHeight" href="/zh/api-reference/rpc/http/getblockheight">
+    返回节点的当前区块高度。
+  </Card>
+  <Card title="getBlockTime" href="/zh/api-reference/rpc/http/getblocktime">
+    返回区块的估计生产时间。
+  </Card>
+  <Card title="getBlockCommitment" href="/zh/api-reference/rpc/http/getblockcommitment">
+    返回区块的承诺信息。
+  </Card>
+  <Card title="getBlockProduction" href="/zh/api-reference/rpc/http/getblockproduction">
+    返回最近的区块生产信息。
+  </Card>
+  <Card title="getLatestBlockhash" href="/zh/api-reference/rpc/http/getlatestblockhash">
+    返回最新的区块哈希。
+  </Card>
+  <Card title="isBlockhashValid" href="/zh/api-reference/rpc/http/isblockhashvalid">
+    返回区块哈希是否仍然有效。
+  </Card>
+</CardGroup>
+
+## 交易信息
+
+<CardGroup cols={2}>
+  <Card title="getTransaction" href="/zh/api-reference/rpc/http/gettransaction">
+    返回已确认交易的交易详情。
+  </Card>
+  <Card title="getTransactionCount" href="/zh/api-reference/rpc/http/gettransactioncount">
+    返回分类账中的当前交易计数。
+  </Card>
+  <Card title="getSignaturesForAddress" href="/zh/api-reference/rpc/http/getsignaturesforaddress">
+    返回包含给定地址的已确认交易的签名。
+  </Card>
+  <Card title="getSignatureStatuses" href="/zh/api-reference/rpc/http/getsignaturestatuses">
+    返回签名列表的状态。
+  </Card>
+  <Card title="getFeeForMessage" href="/zh/api-reference/rpc/http/getfeeformessage">
+    返回消息的费用。
+  </Card>
+</CardGroup>
+
+## 代币信息
+
+<CardGroup cols={2}>
+  <Card title="getTokenAccountBalance" href="/zh/api-reference/rpc/http/gettokenaccountbalance">
+    返回账户的代币余额。
+  </Card>
+  <Card title="getTokenAccountsByOwner" href="/zh/api-reference/rpc/http/gettokenaccountsbyowner">
+    返回指定地址拥有的所有代币账户。
+  </Card>
+  <Card title="getTokenAccountsByDelegate" href="/zh/api-reference/rpc/http/gettokenaccountsbydelegate">
+    返回委托给指定地址的所有代币账户。
+  </Card>
+  <Card title="getTokenLargestAccounts" href="/zh/api-reference/rpc/http/gettokenlargestaccounts">
+    返回特定代币的最大账户。
+  </Card>
+  <Card title="getTokenSupply" href="/zh/api-reference/rpc/http/gettokensupply">
+    返回代币的总供应量。
+  </Card>
+</CardGroup>
+
+## 插槽信息
+
+<CardGroup cols={2}>
+  <Card title="getSlot" href="/zh/api-reference/rpc/http/getslot">
+    返回节点正在处理的当前插槽。
+  </Card>
+  <Card title="getSlotLeader" href="/zh/api-reference/rpc/http/getslotleader">
+    返回当前插槽领导者的身份。
+  </Card>
+  <Card title="getSlotLeaders" href="/zh/api-reference/rpc/http/getslotleaders">
+    返回插槽范围内的插槽领导者。
+  </Card>
+  <Card title="getMinimumLedgerSlot" href="/zh/api-reference/rpc/http/minimumledgerslot">
+    返回节点拥有信息的最低插槽。
+  </Card>
+  <Card title="getMaxRetransmitSlot" href="/zh/api-reference/rpc/http/getmaxretransmitslot">
+    返回从重传阶段看到的最大插槽。
+  </Card>
+  <Card title="getMaxShredInsertSlot" href="/zh/api-reference/rpc/http/getmaxshredinsertslot">
+    返回从碎片插入看到的最大插槽。
+  </Card>
+  <Card title="getHighestSnapshotSlot" href="/zh/api-reference/rpc/http/gethighestsnapshotslot">
+    返回最高可用的快照插槽。
+  </Card>
+</CardGroup>
+
+## 纪元信息
+
+<CardGroup cols={2}>
+  <Card title="getEpochInfo" href="/zh/api-reference/rpc/http/getepochinfo">
+    返回当前纪元的信息。
+  </Card>
+  <Card title="getEpochSchedule" href="/zh/api-reference/rpc/http/getepochschedule">
+    返回纪元计划信息。
+  </Card>
+  <Card title="getLeaderSchedule" href="/zh/api-reference/rpc/http/getleaderschedule">
+    返回纪元的领导者计划。
+  </Card>
+</CardGroup>
+
+## 通胀与奖励
+
+<CardGroup cols={2}>
+  <Card title="getInflationGovernor" href="/zh/api-reference/rpc/http/getinflationgovernor">
+    返回当前通胀管理参数。
+  </Card>
+  <Card title="getInflationRate" href="/zh/api-reference/rpc/http/getinflationrate">
+    返回当前纪元的具体通胀值。
+  </Card>
+  <Card title="getInflationReward" href="/zh/api-reference/rpc/http/getinflationreward">
+    返回纪元中一组地址的通胀奖励。
+  </Card>
+</CardGroup>
+
+## 系统信息
+
+<CardGroup cols={2}>
+  <Card title="getHealth" href="/zh/api-reference/rpc/http/gethealth">
+    返回节点的当前健康状态。
+  </Card>
+  <Card title="getIdentity" href="/zh/api-reference/rpc/http/getidentity">
+    返回当前节点的身份公钥。
+  </Card>
+  <Card title="getVersion" href="/zh/api-reference/rpc/http/getversion">
+    返回节点上运行的当前软件版本。
+  </Card>
+  <Card title="getClusterNodes" href="/zh/api-reference/rpc/http/getclusternodes">
+    返回集群中所有节点的信息。
+  </Card>
+  <Card title="getGenesisHash" href="/zh/api-reference/rpc/http/getgenesishash">
+    返回创世哈希。
+  </Card>
+  <Card title="getFirstAvailableBlock" href="/zh/api-reference/rpc/http/getfirstavailableblock">
+    返回节点拥有信息的最低插槽。
+  </Card>
+  <Card title="getRecentPerformanceSamples" href="/zh/api-reference/rpc/http/getrecentperformancesamples">
+    返回最近性能样本的列表。
+  </Card>
+  <Card title="getRecentPrioritizationFees" href="/zh/api-reference/rpc/http/getrecentprioritizationfees">
+    返回最近的区块哈希费用信息。
+  </Card>
+  <Card title="getVoteAccounts" href="/zh/api-reference/rpc/http/getvoteaccounts">
+    返回当前的投票账户。
+  </Card>
+  <Card title="getSupply" href="/zh/api-reference/rpc/http/getsupply">
+    返回当前供应的信息。
+  </Card>
+</CardGroup>
+
+## 质押信息
+
+<CardGroup cols={2}>
+  <Card title="getStakeMinimumDelegation" href="/zh/api-reference/rpc/http/getstakeminimumdelegation">
+    返回质押所需的最低委托量。
+  </Card>
+</CardGroup>
+
+## 交易提交
+
+<CardGroup cols={2}>
+  <Card title="sendTransaction" href="/zh/api-reference/rpc/http/sendtransaction">
+    提交已签名的交易到集群进行处理。
+  </Card>
+  <Card title="simulateTransaction" href="/zh/api-reference/rpc/http/simulatetransaction">
+    模拟交易的执行。
+  </Card>
+  <Card title="requestAirdrop" href="/zh/api-reference/rpc/http/requestairdrop">
+    请求向一个公钥空投lamports。
+  </Card>
+</CardGroup>

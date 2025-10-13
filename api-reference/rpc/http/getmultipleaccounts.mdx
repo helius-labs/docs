@@ -6,3 +6,7 @@ description: "Returns the account information for a list of Pubkeys."
 "og:description": "Get a free RPC and explore the getMultipleAccounts RPC Method. Includes request parameters, response examples, code snippets, and in-browser testing for both Solana Mainnet and Devnet."
 openapi: "/openapi/rpc-http/getMultipleAccounts.yaml POST /"
 ---
+
+<Info>
+**New Feature**: `getMultipleAccounts` now supports the `changedSinceSlot` parameter for incremental updates. When specified, the method returns only accounts that have been modified at or after the given slot number. For accounts that exist but haven't changed since the specified slot, the response will contain `status: "unchanged"`.
+</Info>

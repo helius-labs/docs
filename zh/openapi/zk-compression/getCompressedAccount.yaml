@@ -1,0 +1,298 @@
+openapi: "3.0.3"
+info:
+  title: "Solana 状态压缩 API"
+  description: "高级 Solana 索引器，使用零知识证明对压缩状态账户进行高效的数据存储和检索。
+
+    此 API 通过 Solana 的状态压缩技术实现成本高效的 NFT 和代币操作，
+
+    与传统账户相比，存储成本降低高达 1000 倍。\n"
+  license:
+    name: "Apache-2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "0.50.0"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网 RPC 端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网 RPC 端点"
+paths:
+  /:
+    summary: "getCompressedAccount"
+    post:
+      description: "使用状态压缩技术检索压缩 Solana 账户的详细数据。
+
+        此端点提供高效的链上数据存储访问，与常规 Solana 账户相比，
+
+        成本节省高达 1000 倍。通过地址或哈希查询压缩的 NFT 和代币账户，
+
+        以获取完整的账户信息、所有权详情和链上数据。
+
+
+        主要优势：
+
+        - 大幅降低 Solana NFT 项目和代币发行者的成本
+
+        - 为高流量应用减少存储费用
+
+        - 完全兼容 Solana 的安全性和共识模型
+
+        - 为大型 NFT 集合和代币集提供可扩展的解决方案
+
+        - 提高压缩资产操作的吞吐量\n"
+      operationId: "getCompressedAccount"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC 协议的版本。"
+                  enum:
+                    - "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "用于标识请求的 ID。"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的方法名称。"
+                  enum:
+                    - "getCompressedAccount"
+                  default: "getCompressedAccount"
+                params:
+                  type: "object"
+                  description: "用于检索 Solana 上压缩账户数据的请求参数，包括压缩 NFT 和代币的地址标识符或数据哈希"
+                  default:
+                    address: null
+                    hash: "11111111111111111111111111111111"
+                  properties:
+                    address:
+                      type: "string"
+                      allOf:
+                        - $ref: "#/components/schemas/SerializablePubkey"
+                      nullable: true
+                      description: "要检索数据的压缩账户的 Solana 公钥"
+                    hash:
+                      type: "string"
+                      allOf:
+                        - $ref: "#/components/schemas/Hash"
+                      nullable: true
+                      description: "如果地址不可用，则为压缩 Solana 账户的数据哈希标识符"
+                  additionalProperties: false
+                  example:
+                    address: null
+                    hash: "11111111111111111111111111111111"
+        required: true
+      responses:
+        "200":
+          description: "成功从 Solana 区块链检索到压缩账户数据"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                required:
+                  - "context"
+                properties:
+                  context:
+                    $ref: "#/components/schemas/Context"
+                  value:
+                    $ref: "#/components/schemas/Account"
+                additionalProperties: false
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API 密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+    Account:
+      type: "object"
+      required:
+        - "hash"
+        - "owner"
+        - "lamports"
+        - "tree"
+        - "leafIndex"
+        - "seq"
+        - "slotCreated"
+      properties:
+        address:
+          $ref: "#/components/schemas/SerializablePubkey"
+          description: "压缩 Solana 账户的唯一标识地址"
+        data:
+          $ref: "#/components/schemas/AccountData"
+          description: "存储在压缩 Solana 账户中的链上数据"
+        hash:
+          $ref: "#/components/schemas/Hash"
+          description: "用于验证的压缩账户数据的加密哈希"
+        lamports:
+          $ref: "#/components/schemas/UnsignedInteger"
+          description: "此压缩账户持有的 SOL 余额，以 lamports 为单位（1 SOL = 1,000,000,000 lamports）"
+        leafIndex:
+          $ref: "#/components/schemas/UnsignedInteger"
+          description: "此压缩账户存储在 merkle 树中的位置索引"
+        owner:
+          $ref: "#/components/schemas/SerializablePubkey"
+          description: "拥有此压缩账户的 Solana 程序（通常是压缩程序）"
+        seq:
+          $ref: "#/components/schemas/UnsignedInteger"
+          description: "用于跟踪此压缩账户更新的序列号"
+        slotCreated:
+          $ref: "#/components/schemas/UnsignedInteger"
+          description: "创建此压缩账户时的 Solana 区块链插槽"
+        tree:
+          $ref: "#/components/schemas/SerializablePubkey"
+          description: "存储此压缩账户的默克尔树地址"
+      additionalProperties: false
+    AccountData:
+      type: "object"
+      required:
+        - "discriminator"
+        - "data"
+        - "dataHash"
+      properties:
+        data:
+          $ref: "#/components/schemas/Base64String"
+        dataHash:
+          $ref: "#/components/schemas/Hash"
+        discriminator:
+          $ref: "#/components/schemas/UnsignedInteger"
+      additionalProperties: false
+    Base64String:
+      type: "string"
+      description: "一个 base64 编码的字符串，表示 Solana 上的压缩账户数据。"
+      default: "SGVsbG8sIFdvcmxkIQ=="
+      example: "SGVsbG8sIFdvcmxkIQ=="
+    Context:
+      type: "object"
+      required:
+        - "slot"
+      properties:
+        slot:
+          type: "integer"
+          default: 100
+          example: 100
+          description: "此请求的当前 Solana 区块链插槽上下文"
+    Hash:
+      type: "string"
+      description: "一个 32 字节的加密哈希，以 base58 字符串表示，用于 Solana 压缩账户验证。"
+      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+    SerializablePubkey:
+      type: "string"
+      description: "一个以 base58 编码字符串表示的 Solana 公钥，用于识别账户、程序和用户。"
+      default: "11111112D1oxKts8YPdTJRG5FzxTNpMtWmq8hkVx3"
+      example: "11111112D1oxKts8YPdTJRG5FzxTNpMtWmq8hkVx3"
+    UnsignedInteger:
+      type: "integer"
+      default: 100
+      example: 100
+      description: "用于 Solana 压缩账户中各种数值参数的非负整数值"

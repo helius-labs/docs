@@ -1,0 +1,119 @@
+---
+title: 如何使用 getBlocksWithLimit
+sidebarTitle: getBlocksWithLimit
+description: 了解 getBlocksWithLimit 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getBlocksWithLimit`](https://www.helius.dev/docs/api-reference/rpc/http/getblockswithlimit) RPC 方法允许您检索已确认的区块槽编号列表，从指定的槽开始并返回到给定的限制。这在您需要从分类账的某个点开始的特定数量的后续已确认[区块](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)时非常有用。
+
+## 常见用例
+
+*   **获取固定数量的后续区块：** 获取在特定起始槽之后确认的定义数量的区块槽。
+*   **分页区块探索：** 在分析区块链的某个部分时分块检索区块。
+*   **最近区块监控：** 从已知的最近槽获取最后 N 个区块。
+
+## 请求参数
+
+`getBlocksWithLimit` 方法接受以下参数：
+
+1.  **`start_slot`** (u64, 必需)：要考虑的第一个槽（包括在内）。
+2.  **`limit`** (u64, 必需)：要返回的最大区块槽数量。查询的槽总数（从 `start_slot` 到其后的 `limit` 区块）**不得超过 500,000 个槽**。
+3.  **`commitment`** (string, 可选)：指定查询的承诺级别。如果省略，则使用节点的默认承诺。这作为配置对象中的唯一字段传递，作为最后一个参数。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个 u64 整数数组。数组中的每个整数表示一个已确认的区块槽编号，从 `start_slot` 开始到指定的 `limit`。
+
+*   示例：如果 `start_slot` 是 5 且 `limit` 是 3，可能的结果是 `[5, 6, 7]`。
+
+## 示例
+
+### 1. 从起始槽获取有限数量的区块
+
+此示例从槽位 `280000000` 开始，获取最多 5 个已确认的区块槽位列表。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocksWithLimit",
+    "params": [
+      280000000, 
+      5 
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksWithLimitExample(startSlot, limit) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blocks = await connection.getBlocksWithLimit(startSlot, limit);
+    console.log(`Up to ${limit} confirmed blocks starting from slot ${startSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks with limit:', error);
+  }
+}
+
+// Example usage:
+const startSlot = 280000000;
+const limit = 5;
+getBlocksWithLimitExample(startSlot, limit);
+```
+
+</CodeGroup>
+
+### 2. 获取具有限制和特定确认级别的区块
+
+此示例从槽位 `290000000` 开始，使用 `confirmed` 确认级别获取最多 3 个区块。
+
+<CodeGroup>
+
+```bash cURL
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getBlocksWithLimit",
+    "params": [
+      290000000,
+      3,
+      { "commitment": "confirmed" }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getBlocksWithLimitAndCommitment(startSlot, limit) {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    const blocks = await connection.getBlocksWithLimit(startSlot, limit, { commitment: 'confirmed' });
+    console.log(`Up to ${limit} confirmed blocks (with 'confirmed' commitment) starting from slot ${startSlot}:`, blocks);
+  } catch (error) {
+    console.error('Error fetching blocks with limit and commitment:', error);
+  }
+}
+
+// Example usage:
+const commitStartSlot = 290000000;
+const commitLimit = 3;
+getBlocksWithLimitAndCommitment(commitStartSlot, commitLimit);
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **范围说明：** `limit` 参数决定返回的最大区块*槽位*数量。500,000 槽位限制适用于扫描的概念范围（即从 `start_slot` 到 `start_slot + limit - 1`）。确保此概念范围不超过 500,000 槽位，即使在该范围内找到并返回的实际区块较少。
+*   **节点数据可用性：** 节点可能不会保留所有历史槽位的信息。一个非常旧的 `start_slot` 可能返回的区块少于指定的 `limit`，或者返回空数组，这取决于节点的账本保留情况。
+*   **区块确认：** 此方法返回*已确认*的区块。具体的区块集合可能会根据所选的 `commitment` 级别和查询的节点而略有不同，尤其是对于非常近期的槽位。
+*   **用例特异性：** 当您知道起始点并需要固定数量的后续区块时，`getBlocksWithLimit` 是理想的选择。如果您需要已知槽位范围内的所有区块，`getBlocks` 可能更合适。
+
+本指南提供了如何使用 `getBlocksWithLimit` RPC 方法在 Solana 网络上列出特定数量的已确认区块槽位的清晰概述。

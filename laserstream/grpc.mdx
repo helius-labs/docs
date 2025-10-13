@@ -29,6 +29,7 @@ LaserStream is available in multiple regions worldwide. Choose the endpoint clos
 | **ewr** | Newark, NJ (near New York) | `https://laserstream-mainnet-ewr.helius-rpc.com` |
 | **pitt** | Pittsburgh, US (Central) | `https://laserstream-mainnet-pitt.helius-rpc.com` |
 | **slc** | Salt Lake City, US (West Coast) | `https://laserstream-mainnet-slc.helius-rpc.com` |
+| **lax** | Los Angeles, US (West Coast) | `https://laserstream-mainnet-lax.helius-rpc.com` |
 | **ams** | Amsterdam, Europe | `https://laserstream-mainnet-ams.helius-rpc.com` |
 | **fra** | Frankfurt, Europe | `https://laserstream-mainnet-fra.helius-rpc.com` |
 | **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
@@ -610,4 +611,8 @@ The output returns the max network capacity between your server and the Laserstr
 
 <Accordion title="Q: Can I subscribe to multiple types of data (e.g., accounts and transactions) in one request?">
   **A:** Yes, you can define filter configurations under multiple keys (e.g., `accounts`, `transactions`) within the same `SubscribeRequest` object.
+</Accordion>
+
+<Accordion title="Q: Does LaserStream support consumer groups?">
+  **A:** We don’t implement consumer groups. Instead, LaserStream delivers the same outcomes teams want: resume, replay, and multi-node reliability without a coordination layer (and the latency/overhead that comes with it). We believe consumer groups are not needed for most workloads and they add latency and operational overhead. As an example a single LaserStream gRPC connection can emit up to 10× Solana’s transaction + account data, and most clients subscribe to a small, filtered slice. Using consumer groups in this case burns performance headroom and introduces another point of failure.
 </Accordion>

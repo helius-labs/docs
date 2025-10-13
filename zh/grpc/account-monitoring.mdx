@@ -1,0 +1,415 @@
+---
+title: 使用 Yellowstone gRPC 进行账户监控
+sidebarTitle: 账户监控
+description: 通过高级过滤选项、数据切片和实用的实现模式，实时监控 Solana 账户的变化。
+---
+
+## 概述
+
+账户监控让您可以实时跟踪 Solana 上的余额变化、数据修改、所有权转移以及账户创建/删除事件。本指南涵盖了不同用例的过滤策略和实现模式。
+
+<Info>
+**先决条件：** 本指南假设您已完成 [Yellowstone gRPC 快速入门](/zh/grpc/quickstart) 并已设置好工作流。
+</Info>
+
+## 账户过滤选项
+
+<Tabs>
+  <Tab title="特定账户">
+    **通过公钥监控单个账户**
+    
+    当您确切知道要监控哪些账户时使用：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      accounts: {
+        accountSubscribe: {
+          account: [
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
+            "So11111111111111111111111111111111111111112"   // Wrapped SOL
+          ],
+          owner: [],
+          filters: []
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Note>
+    **最佳用途：** 监控特定代币铸造、已知钱包或关键程序账户
+    </Note>
+  </Tab>
+  
+  <Tab title="按所有者">
+    **监控特定程序拥有的所有账户**
+    
+    跟踪由某个程序拥有的所有账户（例如，特定铸造的所有代币账户）：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      accounts: {
+        accountSubscribe: {
+          account: [],
+          owner: [
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token Program
+            "11111111111111111111111111111111"              // System Program
+          ],
+          filters: []
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Warning>
+    **高数据量：** 所有者过滤器可能会生成大量数据。使用其他过滤器来缩小结果范围。
+    </Warning>
+  </Tab>
+  
+  <Tab title="高级过滤器">
+    **结合数据大小和内存比较过滤器**
+    
+    通过数据结构和内容过滤账户：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      accounts: {
+        accountSubscribe: {
+          account: [],
+          owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+          filters: [
+            // Only token accounts (165 bytes)
+            { dataSize: 165 },
+            // Only USDC token accounts (mint at offset 0)
+            { 
+              memcmp: { 
+                offset: 0, 
+                bytes: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" 
+              } 
+            }
+          ]
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Tip>
+    **高效过滤：** 结合大小和内容过滤器以最小化不必要的数据
+    </Tip>
+  </Tab>
+</Tabs>
+
+## 数据切片
+
+通过请求账户数据的特定字节范围来优化带宽：
+
+<CodeGroup>
+
+```typescript "Token Account Balance Only"
+// Only get the balance portion of token accounts (bytes 64-72)
+const subscribeRequest: SubscribeRequest = {
+  accounts: {
+    accountSubscribe: {
+      owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+      filters: [{ dataSize: 165 }]
+    }
+  },
+  accountsDataSlice: [
+    { offset: 64, length: 8 } // Token balance (u64)
+  ],
+  commitment: CommitmentLevel.CONFIRMED
+};
+```
+
+```typescript "Multiple Data Ranges"
+// Get mint (0-32) and balance (64-72) from token accounts
+const subscribeRequest: SubscribeRequest = {
+  accounts: {
+    accountSubscribe: {
+      owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+      filters: [{ dataSize: 165 }]
+    }
+  },
+  accountsDataSlice: [
+    { offset: 0, length: 32 },  // Mint public key
+    { offset: 64, length: 8 }   // Balance
+  ],
+  commitment: CommitmentLevel.CONFIRMED
+};
+```
+
+</CodeGroup>
+
+## 实用示例
+
+### 示例 1：监控大额代币持有者
+
+跟踪具有大量余额的 USDC 账户：
+
+```typescript
+import { StreamManager } from './stream-manager'; // From quickstart guide
+
+async function monitorLargeUSDCHolders() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleLargeHolderUpdate
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    accounts: {
+      accountSubscribe: {
+        owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+        filters: [
+          { dataSize: 165 }, // Token account size
+          { 
+            memcmp: { 
+              offset: 0, 
+              bytes: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" // USDC mint
+            } 
+          }
+        ]
+      }
+    },
+    accountsDataSlice: [
+      { offset: 32, length: 32 }, // Owner
+      { offset: 64, length: 8 }   // Balance
+    ],
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleLargeHolderUpdate(data: any): void {
+  if (data.account) {
+    const account = data.account.account;
+    
+    // Parse token account data
+    if (account.data && account.data.length >= 8) {
+      const balanceBuffer = Buffer.from(account.data.slice(64, 72), 'base64');
+      const balance = balanceBuffer.readBigUInt64LE();
+      const balanceInUSDC = Number(balance) / 1e6; // USDC has 6 decimals
+      
+      // Only log accounts with > 100,000 USDC
+      if (balanceInUSDC > 100000) {
+        console.log(`🐋 Large USDC Holder Update:`);
+        console.log(`  Account: ${account.pubkey}`);
+        console.log(`  Balance: ${balanceInUSDC.toLocaleString()} USDC`);
+        console.log(`  Slot: ${data.account.slot}`);
+      }
+    }
+  }
+}
+```
+
+### 示例 2：跟踪程序账户变化
+
+监控由特定程序拥有的所有账户：
+
+```typescript
+async function monitorProgramAccounts() {
+  const PROGRAM_ID = "YourProgramId"; // Replace with actual program ID
+  
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleProgramAccountUpdate
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    accounts: {
+      accountSubscribe: {
+        owner: [PROGRAM_ID],
+        filters: []
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleProgramAccountUpdate(data: any): void {
+  if (data.account) {
+    const account = data.account.account;
+    console.log(`📋 Program Account Update:`);
+    console.log(`  Account: ${account.pubkey}`);
+    console.log(`  Owner: ${account.owner}`);
+    console.log(`  Lamports: ${account.lamports}`);
+    console.log(`  Data Length: ${account.data?.length || 0} bytes`);
+    console.log(`  Executable: ${account.executable}`);
+    console.log(`  Rent Epoch: ${account.rentEpoch}`);
+  }
+}
+```
+
+### 示例 3：新账户创建监控
+
+跟踪新账户创建的时间：
+
+```typescript
+async function monitorNewAccounts() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleNewAccountCreation
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    accounts: {
+      accountSubscribe: {
+        owner: ["11111111111111111111111111111111"], // System Program
+        filters: []
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleNewAccountCreation(data: any): void {
+  if (data.account && data.account.account.lamports === 0) {
+    // New account creation typically starts with 0 lamports
+    const account = data.account.account;
+    console.log(`🆕 New Account Created:`);
+    console.log(`  Account: ${account.pubkey}`);
+    console.log(`  Owner: ${account.owner}`);
+    console.log(`  Slot: ${data.account.slot}`);
+  }
+}
+```
+
+## 过滤逻辑参考
+
+了解过滤器如何组合：
+
+<Accordion title="过滤器组合规则">
+  **账户级过滤器（AND 逻辑）：**
+  - 如果指定，`account` 和 `owner` 和 `filters` 必须全部匹配
+  
+  **在数组内（OR 逻辑）：**
+  - `account` 数组中的任何账户匹配
+  - `owner` 数组中的任何所有者匹配
+  
+  **在过滤器数组内（AND 逻辑）：**
+  - 所有 dataSize 和 memcmp 过滤器必须匹配
+  
+  **示例：**
+
+  ```typescript
+  {
+    account: ["A", "B"],      // Match account A OR B
+    owner: ["X", "Y"],        // AND owned by X OR Y  
+    filters: [
+      { dataSize: 100 },      // AND data size is 100
+      { memcmp: {...} }       // AND memcmp matches
+    ]
+  }
+  ```
+
+</Accordion>
+
+<Accordion title="常见过滤器模式">
+  **特定铸币的代币账户：**
+
+  ```typescript
+  {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [
+      { dataSize: 165 },
+      { memcmp: { offset: 0, bytes: "MINT_ADDRESS" } }
+    ]
+  }
+  ```
+
+  
+  **具有最低余额的 SPL 代币账户：**
+
+  ```typescript
+  {
+    owner: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+    filters: [
+      { dataSize: 165 },
+      { memcmp: { offset: 64, bytes: "MINIMUM_BALANCE_BYTES" } }
+    ]
+  }
+  ```
+
+  
+  **程序派生账户：**
+
+  ```typescript
+  {
+    owner: ["YOUR_PROGRAM_ID"],
+    filters: [
+      { dataSize: 200 }, // Your account size
+      { memcmp: { offset: 8, bytes: "DISCRIMINATOR" } }
+    ]
+  }
+  ```
+
+</Accordion>
+
+## 性能注意事项
+
+<CardGroup cols={2}>
+  <Card title="带宽优化" icon="gauge-high">
+    **使用数据切片** 仅请求所需字节
+    
+    **应用严格过滤器** 以减少不必要的更新
+    
+    **选择适当的承诺** 水平以适应您的用例
+  </Card>
+  
+  <Card title="规模管理" icon="chart-area">
+    **从特定账户开始** 然后使用所有者过滤器
+    
+    **监控订阅量** 并根据需要调整过滤器
+    
+    **实现背压处理** 以应对高流量流
+  </Card>
+</CardGroup>
+
+## 错误处理
+
+常见账户监控错误及解决方案：
+
+<Accordion title="过滤器过于宽泛">
+  **错误：** 接收到过多数据或达到速率限制
+  
+  **解决方案：** 添加更具体的过滤器：
+  - 使用 `dataSize` 匹配精确账户类型
+  - 添加 `memcmp` 过滤器以匹配特定数据模式
+  - 考虑使用 `accountsDataSlice` 以减少带宽
+</Accordion>
+
+<Accordion title="未收到更新">
+  **错误：** 流连接但没有账户更新出现
+  
+  **解决方案：** 
+  - 验证账户地址是否正确
+  - 检查账户是否实际频繁更改
+  - 尝试使用 `PROCESSED` 承诺以获得更频繁的更新
+  - 首先测试已知活跃账户
+</Accordion>
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="Transaction Monitoring" icon="receipt" href="/zh/grpc/transaction-monitoring">
+    学习如何将账户变动与交易数据关联
+  </Card>
+  <Card title="Advanced Patterns" icon="code" href="/zh/grpc/stream-pump-amm-data">
+    真实案例：监控 DeFi 协议
+  </Card>
+</CardGroup>

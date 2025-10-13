@@ -1,0 +1,271 @@
+---
+title: Solana 资产搜索：查找 NFT、代币和压缩资产
+sidebarTitle: 搜索资产
+description: 掌握 searchAssets 端点，发现 Solana 上的 NFT、压缩资产和可替代代币。高级过滤、分页和高效的资产发现。
+---
+
+<Card title="API 参考" horizontal icon="code" href="/zh/api-reference/das/searchassets">
+  查看 searchAssets 的详细文档
+</Card>
+
+## 快速开始
+
+<Callout type="warning">
+<strong>必需参数：</strong>每个 <code>searchAssets</code> 请求必须包含一个 <code>tokenType</code>。选择以下之一：
+<code>fungible</code>、<code>nonFungible</code>、<code>regularNft</code>、<code>compressedNft</code> 或 <code>all</code>。
+</Callout>
+
+```ts TypeScript
+// Replace YOUR_API_KEY with your Helius API key
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`;
+
+async function searchAssets(params) {
+  const body = {
+    jsonrpc: "2.0",
+    id: "search-assets-example",
+    method: "searchAssets",
+    params,
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
+  const { result } = await res.json();
+  return result;
+}
+
+// Example: fetch first 50 compressed NFTs in a wallet
+searchAssets({
+  ownerAddress: "86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY",
+  tokenType: "compressedNft",
+  limit: 50,
+}).then(console.log);
+```
+
+<Tip>
+<code>page</code> 参数从 <strong>1</strong> 开始。为了实现极快的无限滚动，请使用游标分页（<code>before</code>/<code>after</code>）。
+</Tip>
+
+---
+
+## 核心概念
+
+### 1. 选择 <code>tokenType</code>
+
+<ParamField body="tokenType" type="string" required>
+一个必需的字符串，指定您希望在响应中获得**哪种资产**。  
+可接受的值：<code>fungible</code>、<code>nonFungible</code>、<code>regularNft</code>、<code>compressedNft</code>、<code>all</code>。
+</ParamField>
+
+| tokenType | 您得到的内容 | 典型用例 |
+|-----------|--------------|------------------|
+| `fungible` | 仅限 SPL 和 Token-22 代币 | 钱包余额、代币门控 |
+| `nonFungible` | 所有 NFT（压缩**和**常规） | 投资组合概览 |
+| `regularNft` | 传统和 pNFT（未压缩） | 市场列表 |
+| `compressedNft` | 仅限 cNFT | 超低成本大规模铸造 |
+| `all` | 所有内容（代币**和**NFT） | 全面发现 |
+
+---
+
+### 2. 分页和排序
+
+Solana 钱包可以拥有数千个资产——高效的分页很重要。
+
+* **Page / Limit** – 经典分页（`page` 从 **1** 开始）。适用于静态视图。
+* **Cursor** – 传递上一个响应中的 `before` 或 `after` 值，以实现快速的无限滚动。
+
+<CodeGroup>
+
+```json5 sortBy
+"sortBy": {
+  "sortBy": "created",      // created | recent_action | updated | none
+  "sortDirection": "desc"   // asc | desc
+}
+```
+
+</CodeGroup>
+
+<Tip>
+有关 page/limit 和基于游标的策略的完整代码示例，请访问专门的[分页指南](/zh/das/pagination)。
+</Tip>
+
+### 3. 显示选项 (<code>options</code>)
+
+这些标志**添加元数据**；它们从不改变返回的资产。
+
+| 标志 | 效果 |
+|------|--------|
+| `showNativeBalance` | 包含钱包的 SOL 余额 |
+| `showCollectionMetadata` | 添加集合级别的 JSON 数据 |
+| `showGrandTotal` | 返回总匹配计数（较慢）|
+| `showInscription` | 附加铭文和 SPL-20 信息（实验性）|
+
+<CodeGroup>
+
+```json5 options
+"options": {
+  "showNativeBalance": true,
+  "showCollectionMetadata": true,
+  "showGrandTotal": true,
+  "showInscription": true
+}
+```
+
+</CodeGroup>
+
+## 代码示例
+
+### 搜索钱包中的所有可替代代币
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssets = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+        tokenType: 'fungible',
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssets();
+```
+
+### 搜索所有可替代代币（显示本机余额和代币信息）
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsTokenInfo = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '86xCnPeV69n6t3DnyGvkKobf9FdN2H9oiVDdaMpo2MMY',
+                tokenType: 'fungible',
+                displayOptions: {
+                    showNativeBalance: true,
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+
+    result.items.forEach(item => {
+      console.log(item.token_info);
+    });
+
+    console.log("Native Balance: ", result.nativeBalance);
+};
+
+searchAssetsTokenInfo();
+```
+
+### 搜索 vibhu.sol 拥有的 Drip NFT
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsDrip = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: 'BAVjpySHMMGDpq3whU7qaqCCRE8ksCeGwxa53Qv2i8jS',
+        grouping: ["collection", "DRiP2Pn2K6fuMLKQmt5rZWyHiUZ6WK3GChEySUpHSS4x"],
+        page: 1,
+        limit: 1000
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Drip Haus Assets: ", result);
+};
+searchAssetsDrip();
+```
+
+### 搜索钱包中的压缩资产
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsCompressed = async () => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'my-id',
+      method: 'searchAssets',
+      params: {
+        ownerAddress: '2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha',
+        compressed: true,
+      },
+    }),
+  });
+  const { result } = await response.json();
+  console.log("Search Assets: ", result);
+};
+searchAssetsCompressed();
+```
+
+### 搜索铭文和 SPL-20 数据
+
+```javascript
+const url = `https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY`
+
+const searchAssetsInscriptions = async () => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'my-id',
+            method: 'searchAssets',
+            params: {
+                ownerAddress: '6GmTFg5SCs4zGfDEidUAJjS5pSrXEPwW8Rpfs3RHrbc5',
+                tokenType: 'regularNft',
+                displayOptions: {
+                    showInscription: true,
+                },
+            },
+        }),
+    });
+
+    const { result } = await response.json();
+    console.log(result.items.map((i) => [i.id, i.inscription, i.spl20]));
+};
+searchAssetsInscriptions();
+```

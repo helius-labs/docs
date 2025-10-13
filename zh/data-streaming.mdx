@@ -1,0 +1,158 @@
+---
+title: Solana 数据流
+sidebarTitle: 概述
+description: 流式传输实时 Solana 区块、账户更新、交易数据和区块链事件。LaserStream gRPC、增强型 WebSockets 和
+  Webhooks 解决方案。
+---
+
+## 什么是 Solana 数据流？
+
+数据流允许应用程序在 Solana 区块链上发生事件时接收实时更新。与其反复轮询更新，不如建立持久连接，当交易被处理、账户发生变化或区块生成时，立即将数据推送到您的应用程序。
+
+这对于需要秒级数据的应用程序至关重要，例如：
+
+- **交易应用程序** 监控价格变化和清算
+- **DeFi 协议** 跟踪用户交互和状态变化
+- **NFT 市场** 检测销售、上市和转移
+- **分析平台** 收集全面的区块链指标
+- **钱包** 显示实时余额和交易更新
+
+## 为什么选择 Helius 进行数据流？
+
+<CardGroup cols={2}>
+  <Card title="超低延迟" icon="bolt">
+    直接连接到 Solana 领导者，确保亚秒级数据传输
+  </Card>
+  <Card title="企业级可靠性" icon="shield-check">
+    多节点冗余和自动故障转移，确保 99.9% 的正常运行时间
+  </Card>
+  <Card title="历史重播" icon="clock-rotate-left">
+    通过自动回填功能，确保数据不丢失
+  </Card>
+  <Card title="全球基础设施" icon="globe">
+    多个区域的端点，确保全球最佳性能
+  </Card>
+</CardGroup>
+
+## Helius 流解决方案
+
+我们提供多种流选项，以满足您应用程序的特定需求，从简单的 WebSocket 连接到用于算法交易操作的超低延迟原始数据流。
+
+### Shred Delivery (Beta)
+
+**超低延迟原始数据流**
+
+<Card title="Shred Delivery" icon="bolt" href="/zh/shred-delivery">
+  提供原始 Solana shreds 的顶级低延迟服务
+</Card>
+
+**主要特性：**
+- **最早访问**：原始碎片在网络生成时即被传送
+- **未处理数据**：原始格式允许根据您的交易策略进行定制处理
+- **验证者优势**：Helius是按权益排名的顶级验证者，比权益较少的验证者和未质押的RPC节点更快接收碎片
+- **白手套供应**：精心管理的访问，提供专门的工程支持
+- **仅限测试版访问**：目前仅限于合格的交易团队和算法交易操作
+
+**最佳适用对象：** 高频交易台、套利交易者、清算系统以及其他对延迟敏感的策略，其中毫秒决定盈利能力
+
+### LaserStream（开发者+ Devnet，专业+ Mainnet）
+
+**具有高级功能的下一代流媒体**
+
+<Card title="LaserStream" icon="rocket" href="/zh/laserstream">
+  使用 gRPC 协议的高性能流媒体，历史重播和多节点可靠性
+</Card>
+
+**关键特性：**
+- **历史重播**：自动回填多达 3000 个插槽（约 20 分钟）的丢失数据
+- **多协议支持**：gRPC 现已可用，WebSockets 即将推出
+- **自动重连**：内置连接管理，具有智能重试逻辑
+- **全球端点**：在全球 7 个以上地区可用，以实现最佳延迟
+- **即插即用替代**：兼容现有的 Yellowstone gRPC 实现
+
+**最佳适用对象：** 后端服务、高吞吐量应用程序、需要保证数据传输的关键任务系统
+
+### 增强型 WebSockets（商业+）
+
+**具有高级过滤功能的高性能 WebSockets**
+
+<Card title="Enhanced WebSockets" icon="signal-stream" href="/zh/enhanced-websockets">
+  更快的 WebSocket 连接，具有增强的账户和交易订阅
+</Card>
+
+**关键特性：**
+- **更快的响应时间**：优化以实现比标准 WebSockets 更低的延迟
+- **增强过滤**：高级订阅选项以精确定位数据
+- **账户和交易订阅**：监控特定账户或交易模式
+- **Atlas 基础设施**：由我们的高性能流媒体后端提供支持
+
+**最佳适用对象：** 实时前端应用程序、中等量后端、自定义过滤需求
+
+### 标准 WebSockets
+
+**与 Solana 兼容的 WebSocket API，具有 Helius 的可靠性**
+
+<Card title="Standard WebSockets" icon="wifi" href="/zh/rpc/websocket">
+  标准 Solana WebSocket 方法，增强了 Helius 基础设施的可靠性
+</Card>
+
+**关键特性：**
+- **完全兼容性**：适用于任何 Solana WebSocket 客户端库
+- **标准方法**：支持所有 Solana 订阅类型（账户、程序、日志、签名、插槽）
+- **多网络**：可用于主网和开发网
+- **Helius 可靠性**：在标准 RPC 节点上增强的正常运行时间和性能
+
+**最佳适用场景：** 现有应用程序、标准用例、广泛的兼容性要求
+
+### Webhooks
+
+**事件驱动的通知传递到您的端点**
+
+<Card title="Webhooks" icon="webhook" href="/zh/webhooks">
+  针对特定链上活动的服务器到服务器事件通知
+</Card>
+
+**关键特性：**
+- **解析的事件数据**：可读性强的交易数据用于销售、交换等
+- **多种类型**：增强型、原始型和 Discord webhook 选项
+- **交易过滤**：订阅特定事件类型和地址
+- **可靠的交付**：自动重试和交付确认
+
+**最佳适用场景：** 事件驱动的架构、通知系统、与外部服务的集成
+
+## 入门指南
+
+<Steps>
+  <Step title="选择您的解决方案">
+    选择最符合您的应用程序需求和基础设施的流方法。
+  </Step>
+  <Step title="获取您的 API 密钥">
+    在 [dashboard.helius.dev](https://dashboard.helius.dev) 注册并获取您的 API 密钥。
+  </Step>
+  <Step title="遵循快速入门指南">
+    每个解决方案都有专门的快速入门指南和代码示例。
+  </Step>
+  <Step title="监控与扩展">
+    使用 Helius 仪表板监控使用情况并根据需要扩展您的计划。
+  </Step>
+</Steps>
+
+<Card title="数据流快速入门" icon="play" href="/zh/data-streaming/quickstart">
+  在几分钟内启动并运行您的第一个流连接
+</Card>
+
+## 支持与社区
+
+<CardGroup cols={3}>
+  <Card title="文档" icon="book-open" href="/zh/api-reference">
+    所有流方法的全面 API 参考和指南
+  </Card>
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入数千名在 Solana 上使用 Helius 构建的开发者
+  </Card>
+  <Card title="企业支持" icon="headset" href="/zh/support">
+    为企业和专业客户提供优先支持渠道
+  </Card>
+</CardGroup>
+
+准备好开始流式传输 Solana 数据了吗？选择您喜欢的方法并深入文档！

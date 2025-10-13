@@ -1,0 +1,172 @@
+---
+title: 如何使用 getSignatureStatuses
+sidebarTitle: getSignatureStatuses
+description: 了解 getSignatureStatuses 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getSignatureStatuses`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturestatuses) RPC 方法允许您检索一组交易签名的处理和确认状态。这对于确定交易是否已被网络[处理、确认或最终确定](https://www.helius.dev/blog/solana-commitment-levels)非常有用。
+
+除非启用了`searchTransactionHistory`选项，否则此方法主要查询 RPC 节点上的最近状态缓存。对于较旧的交易，启用`searchTransactionHistory`至关重要。
+
+## 常见用例
+
+*   **确认交易最终性：** 验证提交的交易是否已达到所需的确认级别（例如，`confirmed`或`finalized`）。
+*   **批量状态查询：** 高效地一次检查多个交易的状态，例如在批量发送后。
+*   **根据交易状态更新 UI：** 向用户反映交易的实时状态。
+*   **错误检查：** 确定列表中的任何交易是否失败以及原因。
+
+## 请求参数
+
+1.  **`signatures`** (`array` of `string`): （必需）一个 base-58 编码的交易签名数组。您可以在单个请求中查询最多 256 个签名。
+2.  **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
+    *   **`searchTransactionHistory`** (`boolean`, 可选): 如果`true`，RPC 节点将搜索其完整的交易历史记录以查找签名。如果`false`（默认），则仅搜索最近的状态缓存。对于旧的或可能丢失的交易，将此设置为`true`。
+
+## 响应结构
+
+JSON-RPC 响应的`result`字段包含一个对象，其中有两个字段：
+
+*   **`context`** (`object`): 一个对象，包含：
+    *   **`slot`** (`u64`): RPC 节点处理此请求的插槽。
+*   **`value`** (`array` of `object` | `null`): 一个状态对象数组，对应于请求中签名的顺序。每个元素可以是：
+    *   如果找到签名，则为包含以下字段的**对象**：
+        *   **`slot`** (`u64`): 交易被处理的插槽。
+        *   **`confirmations`** (`number` | `null`): 自交易处理以来已确认的区块数。如果交易已最终确定（因为最终性意味着它不会被回滚，因此具体的确认计数不那么相关），则为`null`。
+        *   **`err`** (`object` | `null`): 如果交易失败（例如，`{"InstructionError":[0,{"Custom":1}]}`），则为错误对象；如果成功，则为`null`。
+        *   **`status`** (`object`): 一个指示交易执行状态的对象。通常为`{"Ok":null}`表示成功交易，或一个详细说明错误的对象表示失败交易。
+        *   **`confirmationStatus`** (`string` | `null`): 集群对交易的确认状态（例如，`processed`，`confirmed`，`finalized`）。如果状态在缓存中不可用且`searchTransactionHistory`为 false，则可以为`null`。
+    *   **`null`**: 如果在状态缓存中找不到签名且`searchTransactionHistory`为`false`（或即使进行历史记录搜索也确实不存在）。
+
+## 示例
+
+### 1. 获取签名列表的状态（最近缓存）
+
+此示例获取两个签名的状态，依赖于节点的最近缓存。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace with actual transaction signatures
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignatureStatuses",
+    "params": [
+      [
+        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+        "2x5YfV29N4p9K2kEFK2gFfC5T5acbs2z2MytTZqrgq17pYjCMfYjW4sAUpkWMkMzxGztD2Qv5v7n92uYJcQY9c7a" 
+      ]
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function checkRecentSignatures() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const signatures = [
+    '5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW',
+    '2x5YfV29N4p9K2kEFK2gFfC5T5acbs2z2MytTZqrgq17pYjCMfYjW4sAUpkWMkMzxGztD2Qv5v7n92uYJcQY9c7a' // Replace with another signature
+  ];
+
+  try {
+    const response = await connection.getSignatureStatuses(signatures);
+    console.log("RPC Response Context Slot:", response.context.slot);
+    response.value.forEach((status, index) => {
+      console.log(`--- Status for Signature ${index + 1} (${signatures[index].substring(0,10)}...) ---`);
+      if (status) {
+        console.log(`  Slot: ${status.slot}`);
+        console.log(`  Confirmations: ${status.confirmations === null ? 'Finalized (or N/A)' : status.confirmations}`);
+        console.log(`  Error: ${JSON.stringify(status.err)}`);
+        console.log(`  Execution Status: ${JSON.stringify(status.status)}`);
+        console.log(`  Confirmation Status: ${status.confirmationStatus}`);
+      } else {
+        console.log('  Status not found (likely not in recent cache or does not exist).');
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching signature statuses:', error);
+  }
+}
+
+checkRecentSignatures();
+```
+
+</CodeGroup>
+
+### 2. 使用交易历史搜索获取状态
+
+此示例获取签名的状态，并明确请求节点搜索其交易历史。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace with actual transaction signatures
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getSignatureStatuses",
+    "params": [
+      [
+        "3jPTfHcbzWHeD4jW8q4Y8g3h2D1aBwM81y1sHhDqYQ7Z9x5n7cVy2gD8QWbK9eXwSjJ6aA7FzV2kLpQoEwU9jX", 
+        "4SyzjM2fTALqTNjLKMM1yG1bW7kCFu2GvEkKcvKChG9o1KjQW8jLdZ6sWfN9mP1pU3rD7XvA6B2CjHkLwRzYxTnX"  
+      ],
+      {
+        "searchTransactionHistory": true
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function checkSignaturesWithHistory() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const signatures = [
+    // Replace with a signature you know is older or might have been dropped
+    '3jPTfHcbzWHeD4jW8q4Y8g3h2D1aBwM81y1sHhDqYQ7Z9x5n7cVy2gD8QWbK9eXwSjJ6aA7FzV2kLpQoEwU9jX',
+    // Replace with another valid signature
+    '4SyzjM2fTALqTNjLKMM1yG1bW7kCFu2GvEkKcvKChG9o1KjQW8jLdZ6sWfN9mP1pU3rD7XvA6B2CjHkLwRzYxTnX' 
+  ];
+
+  try {
+    const response = await connection.getSignatureStatuses(signatures, { searchTransactionHistory: true });
+    console.log("RPC Response Context Slot:", response.context.slot);
+    response.value.forEach((status, index) => {
+      console.log(`--- Status for Signature ${index + 1} (${signatures[index].substring(0,10)}...) ---`);
+      if (status) {
+        console.log(`  Slot: ${status.slot}`);
+        console.log(`  Confirmations: ${status.confirmations === null ? 'Finalized (or N/A)' : status.confirmations}`);
+        console.log(`  Error: ${JSON.stringify(status.err)}`);
+        console.log(`  Execution Status: ${JSON.stringify(status.status)}`);
+        console.log(`  Confirmation Status: ${status.confirmationStatus}`);
+      } else {
+        console.log('  Status not found (even with history search, it might not exist or is too old).');
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching signature statuses with history:', error);
+  }
+}
+
+checkSignaturesWithHistory();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **`searchTransactionHistory`:** 对于可靠性至关重要。如果 `false`（默认），该方法仅检查有限的最近缓存。如果交易较旧或可能被丢弃且不在此缓存中，它将返回该签名状态的 `null`。如果需要确认可能不是非常近期的交易状态，请始终设置为 `true`。
+*   **签名限制：** 每次调用最多可以查询256个签名。
+*   **`null` 状态：** 在给定签名的 `value` 数组中，`null` 表示未找到其状态。这可能是因为它不在最近缓存中（如果 `searchTransactionHistory` 为 false），交易从未发生，或者即使使用 `searchTransactionHistory: true`，它也太旧而不在节点的历史中。
+*   **`confirmations: null`：** 这通常意味着交易已达到 `finalized` 状态。在这一点上，特定确认次数的概念不再那么相关，因为该区块被认为是不可逆的。
+*   **错误处理：** 检查每个状态对象中的 `err` 字段以查看交易是否失败。`status` 字段也将提供详细信息（例如，`{"Err":...}`）。
+
+使用 `getSignatureStatuses` 是监控多个 Solana 交易状态的有效方法。记得使用 `searchTransactionHistory: true` 进行稳健的状态检查。

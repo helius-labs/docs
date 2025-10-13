@@ -1,0 +1,152 @@
+---
+title: 如何使用 getRecentPrioritizationFees
+sidebarTitle: getRecentPrioritizationFees
+description: 了解 getRecentPrioritizationFees 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getRecentPrioritizationFees`](https://www.helius.dev/docs/api-reference/rpc/http/getrecentprioritizationfees) RPC 方法提供了对 Solana 网络中最近区块中支付的优先费用的洞察。通过检查这些费用，开发人员可以更好地决定在其交易中附加多少额外费用（[优先费用](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics)），以提高其交易在高网络活动期间被及时处理的可能性。
+
+节点通常会缓存多达最近 150 个区块的优先费用数据。
+
+## 常见用例
+
+*   **动态费用估算：** 通过观察最近成功的费用，确定交易的竞争性优先费用。
+*   **拥堵分析：** 通过查看支付的优先费用水平，了解当前网络拥堵状态。
+*   **钱包集成：** 允许钱包根据最近的网络状况向用户建议适当的优先费用。
+*   **套利机器人：** 对于像套利这样的时间敏感操作，设置最佳优先费用对于及时执行至关重要。
+
+## 请求参数
+
+1.  **`lockedWritableAccounts`** (`array` of `string`, 可选):
+    *   一个 base-58 编码的公钥数组，表示您的交易打算写锁的账户。
+    *   最多可以提供 128 个地址。
+    *   如果提供，该方法返回锁定**所有**指定账户为可写的交易所支付的优先费用。
+    *   如果省略或传递空数组，该方法返回最近区块中观察到的更一般的优先费用视图，而不是特定于任何特定账户集。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段是一个优先费用对象的数组。每个对象详细说明了来自特定最近槽位的费用，其结构如下：
+
+*   **`slot`** (`u64`): 处理此费用数据的交易所在的槽号。
+*   **`prioritizationFee`** (`u64`): 在此槽中至少有一个交易支付的最低优先费用（以每计算单元的微Lamports计），并符合 `lockedWritableAccounts` 过滤器（如果有）。值为 `0` 通常意味着在该槽中（符合条件的）交易没有支付超出基础费用的额外优先费用，或者节点没有观察到给定账户的任何交易。
+
+## 示例
+
+### 1. 获取最近的全局优先费用
+
+此示例获取最近优先费用的一般列表，而不指定任何锁定账户。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPrioritizationFees",
+    "params": [[]] # Empty array for global fees
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchGlobalPrioritizationFees() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  try {
+    // Pass an empty array or omit the parameter for global fees
+    const fees = await connection.getRecentPrioritizationFees([]); 
+    if (fees && fees.length > 0) {
+      console.log(`Fetched ${fees.length} recent prioritization fee samples (global):`);
+      fees.forEach((feeInfo, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${feeInfo.slot}`);
+        console.log(`  Prioritization Fee (micro-lamports/CU): ${feeInfo.prioritizationFee}`);
+      });
+      // Example: Calculate the median of non-zero fees
+      const nonZeroFees = fees.filter(f => f.prioritizationFee > 0).map(f => f.prioritizationFee).sort((a,b) => a - b);
+      if (nonZeroFees.length > 0) {
+        const mid = Math.floor(nonZeroFees.length / 2);
+        const medianFee = nonZeroFees.length % 2 !== 0 ? nonZeroFees[mid] : (nonZeroFees[mid - 1] + nonZeroFees[mid]) / 2;
+        console.log(`\nMedian non-zero priority fee: ${medianFee} micro-lamports/CU`);
+      }
+    } else {
+      console.log('No recent prioritization fee data returned.');
+    }
+  } catch (error) {
+    console.error('Error fetching global prioritization fees:', error);
+  }
+}
+
+fetchGlobalPrioritizationFees();
+```
+
+</CodeGroup>
+
+### 2. 获取特定可写账户的最近优先费用
+
+此示例获取与需要写锁定两个特定账户的交易相关的优先费用。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+# Replace with actual public keys you are interested in
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getRecentPrioritizationFees",
+    "params": [[
+      "Vote111111111111111111111111111111111111111", 
+      "Stake11111111111111111111111111111111111111"
+    ]]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+async function fetchPrioritizationFeesForAccounts() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  
+  // Replace with actual public keys your transaction will lock
+  const accountsToLock = [
+    new PublicKey('Vote111111111111111111111111111111111111111'),
+    new PublicKey('Stake11111111111111111111111111111111111111')
+  ];
+
+  try {
+    const fees = await connection.getRecentPrioritizationFees(accountsToLock.map(pk => pk.toBase58()));
+    if (fees && fees.length > 0) {
+      console.log(`Fetched ${fees.length} recent prioritization fee samples for specified accounts:`);
+      fees.forEach((feeInfo, index) => {
+        console.log(`--- Sample ${index + 1} ---`);
+        console.log(`  Slot: ${feeInfo.slot}`);
+        console.log(`  Prioritization Fee (micro-lamports/CU): ${feeInfo.prioritizationFee}`);
+      });
+    } else {
+      console.log('No recent prioritization fee data returned for the specified accounts.');
+    }
+  } catch (error) {
+    console.error('Error fetching prioritization fees for accounts:', error);
+  }
+}
+
+fetchPrioritizationFeesForAccounts();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **费用单位：** 优先费用以每计算单元（CU）的微Lamports（0.000001 Lamports）表示。
+*   **缓存窗口：** RPC节点通常会缓存这些费用大约150个区块。这意味着您查看的是一个相对较短的历史窗口（大约1-2分钟）。
+*   **零费用：** `prioritizationFee` 为 `0` 并不一定意味着没有支付费用，而是对于给定的槽和账户，采样的交易不包括优先费用，或者低于节点认为重要的阈值。
+*   **战略使用：** 不要只选择最近的最高费用。分析分布（例如，中位数，非零费用的第75百分位数）以做出成本效益的选择。如果区块已经充满高优先级交易，超额支付并不能保证更快的包含。
+*   **计算单元：** 您的交易的总优先费用将是 `prioritizationFee_per_CU * your_transaction_compute_units`。您还需要为您的交易设置计算单元限制（`ComputeBudgetProgram.setComputeUnitLimit`）和价格（`ComputeBudgetProgram.setComputeUnitPrice`）。
+
+在动态网络条件下，有效使用`getRecentPrioritizationFees`可以显著提高交易确认的可靠性。

@@ -1,0 +1,218 @@
+asyncapi: "3.0.0"
+info:
+  title: "Helius LaserStream WebSocket API"
+  version: "1.0.0"
+channels:
+  accountSubscribe:
+    title: "账户订阅"
+    description: "订阅一个账户，以便在给定账户公钥的lamports或数据发生变化时接收通知。"
+    address: "/"
+    messages:
+      accountSubscribeRequest:
+        $ref: "#/components/messages/AccountSubscribeRequest"
+      accountSubscribeResponse:
+        $ref: "#/components/messages/AccountSubscribeResponse"
+      accountNotification:
+        $ref: "#/components/messages/AccountNotification"
+servers:
+  mainnet:
+    host: "laserstream-mainnet.helius-rpc.com"
+    protocol: "wss"
+    description: "生产Solana主网环境"
+    security:
+      - $ref: "#/components/securitySchemes/ApiKeyQuery"
+  devnet:
+    host: "laserstream-devnet.helius-rpc.com"
+    protocol: "wss"
+    description: "用于测试的Solana开发网环境"
+    security:
+      - $ref: "#/components/securitySchemes/ApiKeyQuery"
+operations:
+  accountSubscribeMessage:
+    action: "receive"
+    channel:
+      $ref: "#/channels/accountSubscribe"
+    messages:
+      - $ref: "#/channels/accountSubscribe/messages/accountSubscribeRequest"
+  receiveAccountSubscribeResponse:
+    action: "send"
+    channel:
+      $ref: "#/channels/accountSubscribe"
+    messages:
+      - $ref: "#/channels/accountSubscribe/messages/accountSubscribeResponse"
+  receiveAccountNotification:
+    action: "send"
+    channel:
+      $ref: "#/channels/accountSubscribe"
+    messages:
+      - $ref: "#/channels/accountSubscribe/messages/accountNotification"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "httpApiKey"
+      name: "api-key"
+      in: "query"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    AccountSubscribeParams:
+      type: "array"
+      items:
+        oneOf:
+          - type: "string"
+            description: "账户公钥，作为 base-58 编码字符串"
+            examples:
+              - "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
+            default: "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
+          - type: "object"
+            properties:
+              encoding:
+                type: "string"
+                enum:
+                  - "base58"
+                  - "base64"
+                  - "base64+zstd"
+                  - "jsonParsed"
+                description: "账户数据的编码格式"
+              commitment:
+                type: "string"
+                enum:
+                  - "finalized"
+                  - "confirmed"
+                  - "processed"
+                description: "订阅的承诺级别"
+            examples:
+              - encoding: "jsonParsed"
+                commitment: "finalized"
+    AccountValue:
+      type: "object"
+      properties:
+        data:
+          oneOf:
+            - type: "array"
+              description: "用于 base58/base64 编码"
+            - type: "object"
+              description: "用于 jsonParsed 编码"
+        executable:
+          type: "boolean"
+        lamports:
+          type: "integer"
+        owner:
+          type: "string"
+        rentEpoch:
+          type: "integer"
+        space:
+          type: "integer"
+      examples:
+        - data:
+            parsed:
+              /* parsed account data */: null
+          executable: false
+          lamports: 3486960
+          owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          rentEpoch: 361
+          space: 165
+  messages:
+    AccountSubscribeRequest:
+      title: "账户订阅请求"
+      summary: "请求订阅账户以在其更改时接收通知"
+      description: "发送此消息以订阅一个或多个账户的更新"
+      payload:
+        type: "object"
+        properties:
+          jsonrpc:
+            type: "string"
+            const: "2.0"
+            default: "2.0"
+          id:
+            type: "integer"
+            default: 1
+          method:
+            type: "string"
+            const: "accountSubscribe"
+            default: "accountSubscribe"
+          params:
+            $ref: "#/components/schemas/AccountSubscribeParams"
+        required:
+          - "jsonrpc"
+          - "id"
+          - "method"
+          - "params"
+        examples:
+          - jsonrpc: "2.0"
+            id: 1
+            method: "accountSubscribe"
+            params:
+              - "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
+    AccountSubscribeResponse:
+      title: "账户订阅响应"
+      summary: "包含订阅ID的响应"
+      description: "响应消息，包含您需要跟踪更新的订阅ID"
+      payload:
+        type: "object"
+        properties:
+          jsonrpc:
+            type: "string"
+            const: "2.0"
+          id:
+            type: "integer"
+          result:
+            type: "integer"
+            description: "订阅ID（取消订阅时需要）"
+        required:
+          - "jsonrpc"
+          - "result"
+          - "id"
+        examples:
+          - jsonrpc: "2.0"
+            id: 1
+            result: 23784
+    AccountNotification:
+      title: "账户通知"
+      summary: "当账户发生变化时发送的通知"
+      description: "每当订阅的账户发生变化时，您将收到此消息"
+      payload:
+        type: "object"
+        properties:
+          jsonrpc:
+            type: "string"
+            const: "2.0"
+          method:
+            type: "string"
+            const: "accountNotification"
+          params:
+            type: "object"
+            properties:
+              result:
+                type: "object"
+                properties:
+                  context:
+                    type: "object"
+                    properties:
+                      slot:
+                        type: "integer"
+                  value:
+                    $ref: "#/components/schemas/AccountValue"
+              subscription:
+                type: "integer"
+                description: "订阅 ID"
+        required:
+          - "jsonrpc"
+          - "method"
+          - "params"
+        examples:
+          - jsonrpc: "2.0"
+            method: "accountNotification"
+            params:
+              result:
+                context:
+                  slot: 1122334
+                value:
+                  data:
+                    parsed:
+                      /* parsed account data */: null
+                  executable: false
+                  lamports: 3486960
+                  owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                  rentEpoch: 361
+                  space: 165
+              subscription: 23784

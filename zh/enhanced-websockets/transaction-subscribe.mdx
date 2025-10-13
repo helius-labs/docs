@@ -1,0 +1,381 @@
+---
+title: Transaction Subscribe
+sidebarTitle: Transaction Subscribe
+description: 通过交易订阅流式传输Solana实时交易更新。监控区块链活动，按账户过滤，并接收即时通知。
+---
+
+## 交易订阅
+
+transactionSubscribe websocket 方法启用实时交易事件。要使用它，请提供一个`TransactionSubscribeFilter`，并可选地包括`TransactionSubscribeOptions`以进行进一步自定义。
+
+### **TransactionSubscribeFilter**
+
+`vote`: 一个布尔标志，用于包含/排除与投票相关的交易。
+
+`failed`: 一个布尔标志，用于包含/排除失败的交易。
+
+`signature`: 根据其签名过滤特定交易的更新。
+
+`accountInclude`: 您希望接收交易更新的账户列表。这意味着交易更新中只需包含其中一个账户（例如，账户1或账户2）。
+
+`accountExclude`: 您希望从交易更新中排除的账户列表。
+
+`accountRequired`: 交易必须涉及这些指定账户才能包含在更新中。这意味着交易更新中必须包含所有账户（例如，账户1和账户2）。
+
+<Tip>
+您可以在accountsInclude、accountExclude和accountRequired数组中包含最多50,000个地址。
+</Tip>
+
+### **TransactionSubscribeOptions（可选）**
+
+`commitment`: 指定获取数据的承诺级别，决定在交易生命周期的哪个阶段发送更新。可能的值是**processed**、**confirmed**和**finalized**
+
+`encoding`: 设置返回交易数据的编码格式。可能的值是**base58**、**base64**和**jsonParsed**
+
+`transactionDetails` : 确定返回交易数据的详细程度。可能的值是**full, signatures, accounts**和**none**
+
+`showRewards`: 一个布尔标志，指示是否应在交易更新中包含奖励数据。
+
+`maxSupportedTransactionVersion`: 指定您希望接收更新的最高交易版本。要获取版本化交易，请将值设置为1。
+
+<Info>
+`maxSupportedTransactionVersion` 是返回给定交易的账户和完整级别详细信息所必需的（即，`transactionDetails: "accounts" | "full"`）。
+</Info>
+
+## 示例
+
+### 基本交易订阅示例
+
+<AccordionGroup>
+<Accordion title="代码示例">
+在此示例中，我们订阅包含 Raydium 账户 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 的交易。每当发生包含 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 在交易的 `accountKeys` 中的交易时，我们将收到一个 websocket 通知。
+
+根据订阅选项，交易通知将在 `processed` 承诺级别，`jsonParsed` 编码，`full` 交易详细信息，并显示奖励。
+
+```javascript
+const WebSocket = require('ws');
+
+// Create a WebSocket connection
+const ws = new WebSocket('wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>');
+
+// Function to send a request to the WebSocket server
+function sendRequest(ws) {
+    const request = {
+        jsonrpc: "2.0",
+        id: 420,
+        method: "transactionSubscribe",
+        params: [
+            {
+                accountInclude: ["675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"]
+            },
+            {
+                commitment: "processed",
+                encoding: "jsonParsed",
+                transactionDetails: "full",
+                showRewards: true,
+                maxSupportedTransactionVersion: 0
+            }
+        ]
+    };
+    ws.send(JSON.stringify(request));
+}
+
+// Function to send a ping to the WebSocket server
+function startPing(ws) {
+    setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            console.log('Ping sent');
+        }
+    }, 30000); // Ping every 30 seconds
+}
+
+// Define WebSocket event handlers
+
+ws.on('open', function open() {
+    console.log('WebSocket is open');
+    sendRequest(ws);  // Send a request once the WebSocket is open
+    startPing(ws);    // Start sending pings
+});
+
+ws.on('message', function incoming(data) {
+    const messageStr = data.toString('utf8');
+    try {
+        const messageObj = JSON.parse(messageStr);
+        console.log('Received:', messageObj);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+    }
+});
+
+ws.on('error', function error(err) {
+    console.error('WebSocket error:', err);
+});
+
+ws.on('close', function close() {
+    console.log('WebSocket is closed');
+});
+```
+
+</Accordion>
+<Accordion title="示例通知">
+
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "transactionNotification",
+    "params": {
+        "subscription": 4743323479349712,
+        "result": {
+            "transaction": {
+                "transaction": [
+                    "Ae6zfSExLsJ/E1+q0jI+3ueAtSoW+6HnuDohmuFwagUo2BU4OpkSdUKYNI1dJfMOonWvjaumf4Vv1ghn9f3Avg0BAAEDGycH0OcYRpfnPNuu0DBQxTYPWpmwHdXPjb8y2P200JgK3hGiC2JyC9qjTd2lrug7O4cvSRUVWgwohbbefNgKQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0HcpwKokfYDDAJTaF/TWRFWm0Gz5/me17PRnnywHurMBAgIAAQwCAAAAoIYBAAAAAAA=",
+                    "base64"
+                ],
+                "meta": {
+                    "err": null,
+                    "status": {
+                        "Ok": null
+                    },
+                    "fee": 5000,
+                    "preBalances": [
+                        28279852264,
+                        158122684,
+                        1
+                    ],
+                    "postBalances": [
+                        28279747264,
+                        158222684,
+                        1
+                    ],
+                    "innerInstructions": [],
+                    "logMessages": [
+                        "Program 11111111111111111111111111111111 invoke [1]",
+                        "Program 11111111111111111111111111111111 success"
+                    ],
+                    "preTokenBalances": [],
+                    "postTokenBalances": [],
+                    "rewards": null,
+                    "loadedAddresses": {
+                        "writable": [],
+                        "readonly": []
+                    },
+                    "computeUnitsConsumed": 0
+                }
+            },
+            "signature": "5moMXe6VW7L7aQZskcAkKGQ1y19qqUT1teQKBNAAmipzdxdqVLAdG47WrsByFYNJSAGa9TByv15oygnqYvP6Hn2p",
+            "slot": 224341380
+        }
+    }
+}
+```
+
+</Accordion>
+</AccordionGroup>
+
+### 使用 Transaction Subscribe + getAsset 监控新的 Jupiter DCA
+
+<AccordionGroup>
+<Accordion title="代码示例">
+
+```javascript
+const WebSocket = require('ws');   
+const bs58      = require('bs58').default;
+
+/* ───────────────────── 1.  CONFIG ──────────────────────────── */
+const API_KEY   = process.env.HELIUS_API_KEY || (() => { throw new Error('Set HELIUS_API_KEY'); })();
+const HELIUS_WS  = `wss://atlas-mainnet.helius-rpc.com?api-key=${API_KEY}`;
+const HELIUS_RPC = `https://mainnet.helius-rpc.com/?api-key=${API_KEY}`;
+const DCA_PROGRAM_ID = 'DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M';
+
+/* ───────────────────── 2.  BINARY DECODER ──────────────────── */
+function decodeOpenDcaV2(base58Data) {
+  const buf = Buffer.from(bs58.decode(base58Data));
+  return {
+    appIdx:    buf.readBigUInt64LE(8), // Application Index
+    inAmount:  buf.readBigUInt64LE(16), // Input Amount
+    perCycle:  buf.readBigUInt64LE(24), // Per Cycle
+    interval:  buf.readBigUInt64LE(32) // Interval
+  };
+}
+
+const TOKEN_META = new Map();   // mint → { symbol, decimals }
+/**
+ * Fetch symbol & decimals for a mint once then cache.
+ * Uses Helius getAsset DAS method.
+ */
+async function getMeta(mint) {
+  if (TOKEN_META.has(mint)) return TOKEN_META.get(mint);
+
+  const body = {
+    jsonrpc: '2.0',
+    id:      'meow',
+    method:  'getAsset',
+    params:  { id: mint, displayOptions: { showFungible: true } }
+  };
+
+  const { result } = await fetch(HELIUS_RPC, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body)
+  }).then(r => r.json());
+
+  const tokenInfo = result.token_info || {};
+  const metadata = { symbol: tokenInfo.symbol || '?', decimals: tokenInfo.decimals ?? 0 };
+  TOKEN_META.set(mint, metadata);
+  return metadata;
+}
+
+/* ───────────────────── 4.  PRETTY HELPERS ──────────────────── */
+function formatTimestamp(unixSeconds) {
+    return new Date(Number(unixSeconds) * 1_000)
+             .toISOString()
+             .replace('T', ' ')
+             .replace('.000Z', ' UTC');
+}
+function formatInterval(seconds) {
+    if (seconds % 86_400 === 0) return `every ${seconds / 86_400}d`;
+    if (seconds %  3_600 === 0) return `every ${seconds /  3_600}h`;
+    if (seconds %     60 === 0) return `every ${seconds /     60}m`;
+    return `every ${seconds}s`;
+  }
+
+  function formatAmount(raw, decimals, symbol) {
+    const ui = Number(raw) / 10 ** decimals;
+    return `${ui} ${symbol}`;
+  }
+/* ───────────────────── 5.  WEBSOCKET SETUP ─────────────────── */
+const ws = new WebSocket(HELIUS_WS);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id:      1,
+    method:  'transactionSubscribe',
+    params: [
+      { failed: false, accountInclude: [DCA_PROGRAM_ID] },
+      {
+        commitment: 'confirmed',
+        encoding:   'jsonParsed',
+        transactionDetails: 'full',
+        maxSupportedTransactionVersion: 0
+      }
+    ]
+  }));
+
+  setInterval(() => ws.ping(), 10_000);
+});
+
+/* ───────────────────── 6.  MAIN MESSAGE HANDLER ────────────── */
+ws.on('message', async raw => {
+  const payload = JSON.parse(raw);
+  const result  = payload.params?.result;
+  if (!result) return;
+
+  // Look for the `OpenDcaV2` log message
+  const logs = result.transaction.meta.logMessages || [];
+  if (!logs.some(l => l.includes('OpenDcaV2'))) return;
+
+  // loop through all instructions in the transaction to find the DCA instruction
+  for (const ix of result.transaction.transaction.message.instructions) {
+    if (ix.programId !== DCA_PROGRAM_ID) continue;
+
+    try {
+      // 1) decode binary payload
+      const d = decodeOpenDcaV2(ix.data);
+
+      // 2) fetch token symbols / decimals (cached)
+      const [inMeta, outMeta] = await Promise.all([
+        getMeta(ix.accounts[3]),   // input mint
+        getMeta(ix.accounts[4])    // output mint
+      ]);
+
+      // 3) create a nice looking table
+      console.table({
+        user:        ix.accounts[2],
+        pair:        `${inMeta.symbol} → ${outMeta.symbol}`,
+        opened:      formatTimestamp(d.appIdx),
+        'total in':  formatAmount(d.inAmount,  inMeta.decimals, inMeta.symbol),
+        'per cycle': formatAmount(d.perCycle,  inMeta.decimals, inMeta.symbol),
+        interval:    formatInterval(Number(d.interval))
+      });
+    } catch (e) {}
+  }
+});
+
+ws.on('error', console.error);
+
+ws.on('close', () => process.exit(1));
+```
+
+</Accordion>
+<Accordion title="示例通知">
+<Frame>
+  <img src="/images/enhanced-websockets-example-1.png" />
+</Frame>
+</Accordion>
+</AccordionGroup>
+
+### 使用 Transaction Subscribe 监控新的 pump.fun 代币
+
+<AccordionGroup>
+<Accordion title="代码示例">
+
+```javascript
+const WebSocket = require('ws');
+
+const KEY    = process.env.HELIUS_API_KEY ?? (() => { throw new Error('Set HELIUS_API_KEY'); })();
+const WS_URL = `wss://atlas-mainnet.helius-rpc.com?api-key=${KEY}`;
+const PUMP_FUN_PROG = '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P';
+
+/* ────────── 2.  OPEN WEBSOCKET & SUBSCRIBE ──────────────────── */
+const ws = new WebSocket(WS_URL);
+
+ws.on('open', () => {
+  ws.send(JSON.stringify({
+    jsonrpc : '2.0',
+    id      : 1,
+    method  : 'transactionSubscribe',
+    params  : [
+      { failed:false, accountInclude:[PUMP_FUN_PROG] },
+      { commitment:'confirmed', encoding:'jsonParsed',
+        transactionDetails:'full', maxSupportedTransactionVersion:0 }
+    ]
+  }));
+  // ping every 10 s so Atlas doesn't drop us
+  setInterval(() => ws.ping(), 10_000);
+});
+
+/* ────────── 3.  MESSAGE HANDLER ─────────────────────────────── */
+ws.on('message', raw => {
+  const payload = JSON.parse(raw);
+  const result  = payload.params?.result;
+  if (!result) return;
+
+  const logs = result.transaction.meta.logMessages || [];
+  // filter for the pump.fun "InitializeMint2" log
+  if (!logs.some(l => l.includes('Instruction: InitializeMint2'))) return;
+
+  const sig   = result.signature;    // transaction signature
+  const keys  = result.transaction.transaction.message.accountKeys
+                             .map(k => k.pubkey);
+  //   keys[0] → creator wallet
+  //   keys[1] → the new token
+  console.table({
+    tx:      sig,
+    creator: keys[0],
+    token:   keys[1]
+  });
+});
+
+ws.on('error', console.error);
+ws.on('close', () => process.exit(1));  
+```
+
+</Accordion>
+<Accordion title="通知示例">
+<Frame>
+  <img src="/images/enhanced-websockets-example-2.png" />
+</Frame>
+</Accordion>
+</AccordionGroup>

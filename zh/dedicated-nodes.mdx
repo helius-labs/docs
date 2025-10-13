@@ -1,0 +1,50 @@
+---
+title: Solana 专用节点：高性能 gRPC 流式传输
+sidebarTitle: 概览
+description: 专为 gRPC 流式传输应用优化的 Solana 专用节点。为交易、分析和实时监控提供超低延迟的区块链数据。
+---
+
+<Note>
+**考虑流式数据？** [LaserStream](/zh/laserstream) 是我们针对大多数流式用例推荐的解决方案。它提供增强的可靠性、历史回放、自动重连以及多节点故障切换，无需基础设施管理。[比较 LaserStream 与专用节点](/zh/laserstream/laserstream-vs-dedicated-nodes) 以选择适合您需求的解决方案。
+</Note>
+
+**专用节点专为 gRPC 流式传输应用设计**，应与共享计划结合使用，以满足全面的 Solana 开发需求：
+
+- **gRPC 流式传输**：超低延迟的实时区块链数据流
+- **数据监控**：通过 Yellowstone Geyser 获取账户、交易和区块更新
+- **交易应用**：为算法交易提供高频数据流
+- **分析**：实时区块链分析和监控
+
+## 节点选项
+
+- AMD EPYC 7443p
+- AMD EPYC 7543p（适合资源密集型 RPC 调用）
+- AMD EPYC 9254（适合资源密集型 RPC 调用）
+
+## 访问内容包括
+
+- 通过 [Yellowstone Geyser 插件](/zh/grpc) 的 **gRPC 流式传输**（主要用途）
+- 标准 RPC 和 WebSocket 方法（仅提供基本功能）
+- 高级支持
+- 节点客户端 — 推荐使用 Agave 或 Jito Labs
+
+## 限制
+
+<Note>
+**重要提示**：专用节点有特定限制，不适合作为独立解决方案：
+
+- **`sendTransaction` 低落地率**：虽然支持，但未优化 - 大多数交易不会落地
+- **无存档数据**：无法访问历史数据
+- **`getProgramAccounts` 性能风险**：虽然支持，但高强度使用可能影响节点性能或导致节点故障
+- **无平台功能**：API、webhooks 和质押连接需要共享计划
+
+**推荐**：将专用节点与共享付费计划结合使用，以实现全面的功能。
+</Note>
+
+## 专用集群
+
+如果您的团队需要一个由多个专用节点组成的集群，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。我们会审核您的需求，并为您提供定制解决方案。
+
+<Card title="准备好开始了吗？" icon="rocket">
+  要了解如何订购专用节点，请参阅[如何订购](/zh/dedicated-nodes/getting-started)。
+</Card>

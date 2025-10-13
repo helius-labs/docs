@@ -1,0 +1,461 @@
+---
+title: 使用 Yellowstone gRPC 进行交易监控
+sidebarTitle: 交易监控
+description: 通过程序过滤、执行细节和代币余额变化跟踪，实时流式传输 Solana 交易。
+---
+
+## 概述
+
+交易监控使您能够实时跟踪 Solana 上的交易执行、成功/失败状态、程序交互和代币余额变化。本指南涵盖了不同交易监控用例的过滤策略和实际实现。
+
+<Info>
+**先决条件：** 本指南假设您已完成 [Yellowstone gRPC 快速入门](/zh/grpc/quickstart) 并已设置好工作流。
+</Info>
+
+## 交易过滤选项
+
+<Tabs>
+  <Tab title="程序过滤">
+    **监控涉及特定程序的交易**
+    
+    跟踪所有与您的程序交互的交易：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      transactions: {
+        client: {
+          accountInclude: [
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA", // Token Program
+            "11111111111111111111111111111111",              // System Program
+            "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8"  // Your program
+          ],
+          accountExclude: [],
+          accountRequired: [],
+          vote: false,
+          failed: false
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Note>
+    **最佳用途：** 程序特定监控、DeFi 协议跟踪、智能合约交互
+    </Note>
+  </Tab>
+  
+  <Tab title="特定账户">
+    **监控影响特定账户的交易**
+    
+    跟踪修改特定账户的交易：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      transactions: {
+        client: {
+          accountInclude: [
+            "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint
+            "YourWalletAddress"                                // Your wallet
+          ],
+          vote: false,
+          failed: true // Include failures to track errors
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Tip>
+    **用例：** 钱包监控、代币铸造跟踪、特定账户活动
+    </Tip>
+  </Tab>
+  
+  <Tab title="高级过滤">
+    **结合多个过滤条件**
+    
+    使用必需账户和排除项进行精确过滤：
+    
+
+    ```typescript
+    const subscribeRequest: SubscribeRequest = {
+      transactions: {
+        client: {
+          accountInclude: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+          accountRequired: ["YourProgramId"], // Must include this program
+          accountExclude: ["VoteProgram"],     // Exclude vote-related txs
+          vote: false,
+          failed: false
+        }
+      },
+      commitment: CommitmentLevel.CONFIRMED
+    };
+    ```
+
+    
+    <Warning>
+    **过滤逻辑：** accountInclude (或) AND accountRequired (与) AND NOT accountExclude
+    </Warning>
+  </Tab>
+</Tabs>
+
+## 实用示例
+
+### 示例 1：监控 DEX 交易
+
+跟踪所有涉及流行 DEX 程序的交易：
+
+```typescript
+import { StreamManager } from './stream-manager'; // From quickstart guide
+
+async function monitorDEXTransactions() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleDEXTransaction
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: [
+          "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V4
+          "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8", // Raydium V5
+          "CAMMCzo5YL8w4VFF8KVHrK22GGUQpMpTFb6xRmpLFGNnSm", // Raydium CLMM
+          "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"   // Jupiter
+        ],
+        vote: false,
+        failed: false
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleDEXTransaction(data: any): void {
+  if (data.transaction?.transaction) {
+    const tx = data.transaction.transaction;
+    console.log(`\n🔄 DEX Transaction:`);
+    console.log(`  Signature: ${tx.signature}`);
+    console.log(`  Slot: ${data.transaction.slot}`);
+    console.log(`  Status: ${tx.meta?.err ? 'Failed' : 'Success'}`);
+    console.log(`  Fee: ${tx.meta?.fee || 0} lamports`);
+    console.log(`  Compute Units: ${tx.meta?.computeUnitsConsumed || 0}`);
+    
+    // Show token balance changes
+    if (tx.meta?.preTokenBalances?.length > 0) {
+      console.log(`  Token Balance Changes:`);
+      tx.meta.preTokenBalances.forEach((preBalance: any, index: number) => {
+        const postBalance = tx.meta.postTokenBalances[index];
+        if (preBalance && postBalance) {
+          const change = postBalance.uiTokenAmount.uiAmount - preBalance.uiTokenAmount.uiAmount;
+          if (change !== 0) {
+            console.log(`    ${preBalance.mint}: ${change > 0 ? '+' : ''}${change}`);
+          }
+        }
+      });
+    }
+  }
+}
+```
+
+### 示例 2：监控失败的交易
+
+跟踪失败的交易以识别问题：
+
+```typescript
+async function monitorFailedTransactions() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleFailedTransaction
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: ["YourProgramId"], // Your program
+        vote: false,
+        failed: true // Only failed transactions
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleFailedTransaction(data: any): void {
+  if (data.transaction?.transaction?.meta?.err) {
+    const tx = data.transaction.transaction;
+    console.log(`\n❌ Failed Transaction:`);
+    console.log(`  Signature: ${tx.signature}`);
+    console.log(`  Slot: ${data.transaction.slot}`);
+    console.log(`  Error: ${JSON.stringify(tx.meta.err)}`);
+    console.log(`  Fee: ${tx.meta.fee} lamports`);
+    console.log(`  Compute Units: ${tx.meta.computeUnitsConsumed || 0}`);
+    
+    // Log instruction details for debugging
+    if (tx.transaction?.message?.instructions) {
+      console.log(`  Instructions:`);
+      tx.transaction.message.instructions.forEach((inst: any, i: number) => {
+        console.log(`    ${i}: Program ${inst.programIdIndex}, Data: ${inst.data}`);
+      });
+    }
+  }
+}
+```
+
+### 示例 3：监控高价值交易
+
+跟踪具有显著 SOL 转移的交易：
+
+```typescript
+async function monitorHighValueTransactions() {
+  const streamManager = new StreamManager(
+    "your-grpc-endpoint",
+    "your-api-key",
+    handleHighValueTransaction
+  );
+
+  const subscribeRequest: SubscribeRequest = {
+    transactions: {
+      client: {
+        accountInclude: ["11111111111111111111111111111111"], // System Program
+        vote: false,
+        failed: false
+      }
+    },
+    commitment: CommitmentLevel.CONFIRMED
+  };
+
+  await streamManager.connect(subscribeRequest);
+}
+
+function handleHighValueTransaction(data: any): void {
+  if (data.transaction?.transaction?.meta) {
+    const tx = data.transaction.transaction;
+    const preBalances = tx.meta.preBalances || [];
+    const postBalances = tx.meta.postBalances || [];
+    
+    // Calculate largest balance change
+    let maxChange = 0;
+    preBalances.forEach((preBalance: number, index: number) => {
+      const postBalance = postBalances[index] || 0;
+      const change = Math.abs(postBalance - preBalance);
+      maxChange = Math.max(maxChange, change);
+    });
+    
+    // Only log transactions with > 10 SOL moved
+    const changeInSOL = maxChange / 1e9;
+    if (changeInSOL > 10) {
+      console.log(`\n💰 High-Value Transaction:`);
+      console.log(`  Signature: ${tx.signature}`);
+      console.log(`  Slot: ${data.transaction.slot}`);
+      console.log(`  Max SOL Transfer: ${changeInSOL.toFixed(2)} SOL`);
+      console.log(`  Fee: ${tx.meta.fee / 1e9} SOL`);
+      console.log(`  Accounts: ${tx.transaction?.message?.accountKeys?.length || 0}`);
+    }
+  }
+}
+```
+
+## 交易数据结构
+
+理解交易数据结构有助于提取相关信息：
+
+<Accordion title="交易消息结构">
+  **核心交易数据：**
+
+  ```typescript
+  {
+    signature: string;
+    isVote: boolean;
+    transaction: {
+      message: {
+        accountKeys: string[];        // All accounts involved
+        instructions: Instruction[];  // Program instructions
+        recentBlockhash: string;     // Recent blockhash used
+      };
+      signatures: string[];          // Transaction signatures
+    };
+    meta: {
+      err: any;                      // Error details if failed
+      fee: number;                   // Transaction fee in lamports
+      computeUnitsConsumed: number;  // Compute units used
+      preBalances: number[];         // Account balances before
+      postBalances: number[];        // Account balances after
+      preTokenBalances: TokenBalance[];
+      postTokenBalances: TokenBalance[];
+      logMessages: string[];         // Program log messages
+    };
+  }
+  ```
+
+</Accordion>
+
+<Accordion title="代币余额变化">
+  **代币余额结构：**
+
+  ```typescript
+  {
+    accountIndex: number;
+    mint: string;                   // Token mint address
+    owner: string;                  // Account owner
+    uiTokenAmount: {
+      amount: string;               // Raw token amount
+      decimals: number;             // Token decimals
+      uiAmount: number;             // Human-readable amount
+      uiAmountString: string;       // String representation
+    };
+  }
+  ```
+
+</Accordion>
+
+<Accordion title="指令详情">
+  **程序指令结构：**
+
+  ```typescript
+  {
+    programIdIndex: number;         // Index in accountKeys array
+    accounts: number[];             // Account indices involved
+    data: string;                   // Instruction data (base58)
+  }
+  ```
+
+</Accordion>
+
+## 过滤逻辑参考
+
+<CardGroup cols={2}>
+  <Card title="包含逻辑 (OR)" icon="plus">
+    **accountInclude:** 交易必须涉及这些账户中的任意一个
+    
+    **示例：** `["A", "B"]` 匹配涉及账户A或账户B的交易
+  </Card>
+  
+  <Card title="必需逻辑 (AND)" icon="check">
+    **accountRequired:** 交易必须涉及所有这些账户
+    
+    **示例：** `["A", "B"]` 匹配涉及账户A和账户B的交易
+  </Card>
+  
+  <Card title="排除逻辑 (NOT)" icon="minus">
+    **accountExclude:** 交易不得涉及任何这些账户
+    
+    **示例：** `["A", "B"]` 排除涉及账户A或账户B的交易
+  </Card>
+  
+  <Card title="组合逻辑" icon="code">
+    **最终过滤器：** `(accountInclude OR empty) AND (accountRequired AND all) AND NOT (accountExclude OR any)`
+  </Card>
+</CardGroup>
+
+## 性能考虑
+
+<Tabs>
+  <Tab title="流量管理">
+    **交易流可能是高流量的**
+    
+    - 从特定程序过滤器开始
+    - 适当地使用承诺级别
+    - 监控您的处理能力
+    - 实施背压处理
+    
+
+    ```typescript
+    // Rate limiting example
+    let transactionCount = 0;
+    const startTime = Date.now();
+    
+    function handleTransaction(data: any): void {
+      transactionCount++;
+      
+      if (transactionCount % 100 === 0) {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const rate = transactionCount / elapsed;
+        console.log(`Processing ${rate.toFixed(1)} tx/sec`);
+      }
+      
+      // Your transaction processing logic
+    }
+    ```
+
+  </Tab>
+  
+  <Tab title="数据处理">
+    **优化数据提取**
+    
+    - 异步处理数据
+    - 仅提取所需字段
+    - 使用高效的数据结构
+    - 考虑批量更新
+    
+
+    ```typescript
+    // Efficient data extraction
+    function extractTransactionData(tx: any) {
+      return {
+        signature: tx.signature,
+        slot: tx.slot,
+        success: !tx.meta?.err,
+        fee: tx.meta?.fee || 0,
+        computeUnits: tx.meta?.computeUnitsConsumed || 0,
+        tokenChanges: extractTokenChanges(tx.meta)
+      };
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+## 错误处理
+
+常见的交易监控错误及解决方案：
+
+<Accordion title="交易过多">
+  **错误：** 交易量过大
+  
+  **解决方案：**
+  - 添加更具体的过滤器（accountRequired, accountExclude）
+  - 使用更高的承诺级别以减少流量
+  - 实施采样或速率限制
+  - 异步处理交易
+</Accordion>
+
+<Accordion title="交易缺失">
+  **错误：** 预期的交易未出现
+  
+  **解决方案：**
+  - 验证程序地址是否正确
+  - 检查交易是否实际发生
+  - 尝试使用PROCESSED承诺以获得更快的更新
+  - 确保过滤器不过于严格
+</Accordion>
+
+<Accordion title="解析错误">
+  **错误：** 无法解析交易数据
+  
+  **解决方案：**
+  - 优雅地处理缺失字段
+  - 在处理之前验证数据结构
+  - 记录有问题的交易以便调试
+  - 在解析逻辑周围使用 try-catch 块
+</Accordion>
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="插槽和区块监控" icon="cube" href="/zh/grpc/slot-and-block-monitoring">
+    学习监控网络共识和区块生产
+  </Card>
+  <Card title="高级模式" icon="chart-line" href="/zh/grpc/stream-pump-amm-data">
+    真实案例：监控 Pump AMM 数据
+  </Card>
+</CardGroup>

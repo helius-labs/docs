@@ -1,0 +1,49 @@
+---
+title: Sender 常见问题
+description: 获取关于 Helius Sender 的最常见问题的答案，包括功能、配置和速率限制
+---
+
+## 使用 Sender
+
+<Accordion title="什么是 Sender，为什么它比其他交易发送服务更快？">
+Sender 是一个专门用于超低延迟交易提交的服务。它通过同时发送到 Solana 验证器和 [Jito](https://docs.jito.wtf/) 来优化交易延迟，为您的交易提供多种被包含在区块中的途径。
+
+通过七个区域端点，典型的着陆时间为 ≤ 1.5 个槽位。
+</Accordion>
+
+<Accordion title="我可以获得比每秒 6 笔交易 (TPS) 更高的 Sender API 限制吗？">
+可以！虽然标准限制是每个区域 6 TPS，但您可以请求更高的限制。[联系支持](/zh/support/contact-support) 以根据您的具体用例需求讨论自定义速率限制。对于需要增加吞吐量的应用程序，可以提供更高的限制。
+</Accordion>
+
+<Accordion title="如何使用 Sender 设置小费和优先费用？">
+通过 Sender 发送的所有交易都必须包括小费和优先费用以获得最佳性能：
+
+**小费**：参与 Jito 拍卖至少需要 0.001 SOL。小费使您能够访问 Jito 的 MEV 基础设施和基于拍卖的交易包含。
+
+**优先费用**：使用 `ComputeBudgetProgram.setComputeUnitPrice` 在验证器队列中优先处理您的交易。使用 [Priority Fee API](/zh/priority-fee-api) 获取实时费用建议。
+
+**为什么两者都需要**：小费使您能够访问 Jito 的 MEV 拍卖，而优先费用提高了您在验证器中的交易优先级——两者结合最大化了包含概率。
+
+请参阅 [Sender 文档](/zh/sending-transactions/sender) 以获取详细的代码示例和实施指南。
+</Accordion>
+
+---
+
+## 需要更多帮助？
+
+<CardGroup cols={2}>
+  <Card
+    title="联系支持"
+    icon="headset"
+    href="/zh/support/contact-support"
+  >
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+  </Card>
+  <Card
+    title="状态页面"
+    icon="wave-pulse"
+    href="/zh/support/status-page"
+  >
+    查看实时服务可用性和性能信息。
+  </Card>
+</CardGroup>

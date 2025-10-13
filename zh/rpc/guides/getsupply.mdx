@@ -1,0 +1,153 @@
+---
+title: 如何使用 getSupply
+sidebarTitle: getSupply
+description: 了解 getSupply 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getSupply`](https://www.helius.dev/docs/api-reference/rpc/http/getsupply) RPC 方法提供关于 Solana 网络上当前 SOL 供应的信息。它详细说明了总供应量、流通供应量、非流通供应量，并可以选择列出非流通账户。
+
+## 常见使用案例
+
+*   **了解 SOL 代币经济学：** 获取当前 SOL 分布的快照。
+*   **经济分析：** 跟踪供应指标随时间的变化。
+*   **显示网络统计：** 在仪表板或浏览器中为用户提供最新的 SOL 供应信息。
+*   **通货膨胀监测：** 尽管 `getInflationRate` 和 `getInflationGovernor` 提供更直接的通胀数据，`getSupply` 可以提供更广泛的背景。
+
+## 请求参数
+
+`getSupply` 方法接受一个可选的配置对象，具有以下字段：
+
+1.  **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺。
+2.  **`excludeNonCirculatingAccountsList`**（布尔值，可选）：如果设置为 `true`，则响应中将排除 `nonCirculatingAccounts` 数组。默认为 `false`。如果不需要单个非流通账户的列表，这可以用于减少响应大小。
+
+**示例配置：**
+
+```json
+{
+  "commitment": "finalized",
+  "excludeNonCirculatingAccountsList": true
+}
+```
+
+## 响应结构
+
+响应是一个 JSON 对象，具有以下字段：
+
+*   **`value`**：包含供应信息的对象：
+    *   **`total`**（u64）：以 lamports 为单位的 SOL 总供应量。
+    *   **`circulating`**（u64）：以 lamports 为单位的流通 SOL 供应量。
+    *   **`nonCirculating`**（u64）：以 lamports 为单位的非流通 SOL 供应量。
+    *   **`nonCirculatingAccounts`**（字符串数组，可选）：持有非流通 SOL 的账户的公钥数组（以 base58 编码的字符串）。如果请求中 `excludeNonCirculatingAccountsList` 设置为 `true`，则此字段被省略。
+*   **`context`**：包含以下内容的对象：
+    *   **`slot`**（u64）：检索信息时的槽位。
+
+**示例响应（带有`excludeNonCirculatingAccountsList: false`）：**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 169890374
+    },
+    "value": {
+      "circulating": 423105827585008800,
+      "nonCirculating": 123456789012345678, // Example value
+      "nonCirculatingAccounts": [
+        "Stake11111111111111111111111111111111111111",
+        "Vote11111111111111111111111111111111111111",
+        // ... other non-circulating accounts
+      ],
+      "total": 546562616597354478
+    }
+  },
+  "id": 1
+}
+```
+
+**示例响应（带有`excludeNonCirculatingAccountsList: true`）：**
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "context": {
+      "slot": 169890380
+    },
+    "value": {
+      "circulating": 423105830000000000,
+      "nonCirculating": 123456780000000000, // Example value
+      "total": 546562610000000000
+      // nonCirculatingAccounts field is absent
+    }
+  },
+  "id": 1
+}
+```
+
+## 代码示例
+
+<CodeGroup>
+
+```bash cURL
+# Basic Request:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply"}' \
+  <YOUR_RPC_URL>
+
+# Request with excludeNonCirculatingAccountsList:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply", "params": [{"excludeNonCirculatingAccountsList": true}]}' \
+  <YOUR_RPC_URL>
+
+# Request with commitment:
+curl -X POST -H "Content-Type: application/json" -d \
+  '{"jsonrpc":"2.0","id":1,"method":"getSupply", "params": [{"commitment": "confirmed", "excludeNonCirculatingAccountsList": false}]}' \
+  <YOUR_RPC_URL>
+```
+
+```javascript JavaScript (using @solana/web3.js)
+const { Connection } = require('@solana/web3.js');
+
+async function getNetworkSupply() {
+  // Replace with your RPC endpoint
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+
+  try {
+    const supplyInfo = await connection.getSupply();
+    console.log('Supply Information:', supplyInfo.value);
+    console.log('Total SOL:', supplyInfo.value.total / 1_000_000_000); // Convert lamports to SOL
+    console.log('Circulating SOL:', supplyInfo.value.circulating / 1_000_000_000);
+    console.log('Non-Circulating SOL:', supplyInfo.value.nonCirculating / 1_000_000_000);
+
+    if (supplyInfo.value.nonCirculatingAccounts) {
+      console.log('Non-circulating accounts count:', supplyInfo.value.nonCirculatingAccounts.length);
+    }
+
+    // Example with options
+    const supplyInfoWithoutAccountsList = await connection.getSupply({
+      commitment: 'finalized',
+      excludeNonCirculatingAccountsList: true,
+    });
+    console.log('\nSupply Information (excluding non-circulating accounts list):');
+    console.log('Total SOL:', supplyInfoWithoutAccountsList.value.total / 1_000_000_000);
+    console.log('Circulating SOL:', supplyInfoWithoutAccountsList.value.circulating / 1_000_000_000);
+
+  } catch (error) {
+    console.error('Error getting supply information:', error);
+  }
+}
+
+getNetworkSupply();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **Lamports vs. SOL：** 金额以 lamports 返回。记得除以`1,000,000,000`（1 SOL = 10^9 lamports）以转换为 SOL。
+*   **数据新鲜度：** 数据反映了在`context`对象中指示的槽位的状态，并基于使用的承诺级别。
+*   **`excludeNonCirculatingAccountsList`：** 如果您只需要汇总供应数字以优化响应大小和处理时间，尤其是在非流通账户列表非常长的情况下，请使用此选项。
+*   **动态值：** 由于代币发行（通胀）和销毁机制，供应数据可能会频繁变化。
+
+本指南应帮助您有效使用`getSupply` RPC 方法查询 Solana 的供应数据。

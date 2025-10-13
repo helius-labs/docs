@@ -1,0 +1,120 @@
+---
+title: 如何使用 getMinimumBalanceForRentExemption
+sidebarTitle: getMinimumBalanceForRentExemption
+description: 了解 getMinimumBalanceForRentExemption 的使用案例、代码示例、请求参数、响应结构和提示。
+---
+
+[`getMinimumBalanceForRentExemption`](https://www.helius.dev/docs/api-reference/rpc/http/getminimumbalanceforrentexemption) RPC 方法允许您计算特定数据大小的账户成为免租金所需的最低 lamport 余额。
+
+在 Solana 中，账户必须保持最低余额以覆盖随时间推移的存储成本，这一概念称为租金。持有相当于两年租金支付余额的账户被视为“免租金”，其余额不会因[租金](https://www.helius.dev/blog/solana-executive-overview)而减少。
+
+## 常见用例
+
+*   **账户创建：** 在创建新账户（例如，用于新代币账户、程序派生地址或自定义数据存储）之前，使用此方法确定所需的 lamports 以使其从一开始就免租金。这可以防止账户因余额过低而被垃圾回收。
+*   **动态账户大小调整：** 如果您的应用程序处理的数据大小可能增长的账户，您可以使用此方法定期检查是否需要额外的 lamports 以保持免租金状态。
+*   **成本估算：** 估算部署程序或创建各种大小数据账户的 SOL 成本。
+*   **钱包和 SDK 集成：** 钱包和 SDK 使用此方法确保它们适当地为新账户提供资金。
+
+## 请求参数
+
+1.  **`dataLength`** (`usize`, 必需): 账户数据的长度（以字节为单位）。这是决定免租金最低限额的主要因素。
+    *   示例：`165`（用于标准 SPL 代币账户）。
+
+2.  **`commitment`** (`object`, 可选): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺。
+    *   字段：
+        *   `commitment` (字符串): 例如，`"finalized"`, `"confirmed"`, 或 `"processed"`。
+
+## 响应结构
+
+JSON-RPC 响应的 `result` 字段将是一个 `u64`（无符号 64 位整数），表示具有指定 `dataLength` 的账户所需的最低 lamports 数量，以免租金。
+
+## 示例
+
+### 1. 获取标准代币账户的租金豁免（165 字节）
+
+此示例查询典型 SPL 代币账户（数据大小为 165 字节）所需的最低余额，以免租金。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMinimumBalanceForRentExemption",
+    "params": [
+      165
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMinimumBalanceForRentExemption() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const dataLength = 165; // Data length for a typical SPL token account
+
+  try {
+    const lamports = await connection.getMinimumBalanceForRentExemption(dataLength);
+    console.log(`Minimum lamports for rent exemption (data length ${dataLength} bytes): ${lamports} SOL: (${lamports / 1_000_000_000})`);
+  } catch (error) {
+    console.error(`Error fetching minimum balance for rent exemption for data length ${dataLength}:`, error);
+  }
+}
+
+fetchMinimumBalanceForRentExemption();
+```
+
+</CodeGroup>
+
+### 2. 获取零字节账户的租金豁免
+
+这显示了没有数据的账户的基本租金豁免，通常是任何账户的绝对最低限度。
+
+<CodeGroup>
+
+```bash cURL
+# Replace <api-key> with your Helius API key
+curl https://mainnet.helius-rpc.com/?api-key=<api-key> -X POST -H "Content-Type: application/json" -d \
+  '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "getMinimumBalanceForRentExemption",
+    "params": [
+      0
+    ]
+  }'
+```
+
+```javascript JavaScript (using @solana/web3.js)
+// Replace <api-key> with your Helius API key
+const { Connection } = require('@solana/web3.js');
+
+async function fetchMinimumBalanceForZeroByteAccount() {
+  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
+  const dataLength = 0;
+
+  try {
+    const lamports = await connection.getMinimumBalanceForRentExemption(dataLength);
+    console.log(`Minimum lamports for rent exemption (data length ${dataLength} bytes): ${lamports} SOL: (${lamports / 1_000_000_000})`);
+  } catch (error) {
+    console.error(`Error fetching minimum balance for rent exemption for data length ${dataLength}:`, error);
+  }
+}
+
+fetchMinimumBalanceForZeroByteAccount();
+```
+
+</CodeGroup>
+
+## 开发者提示
+
+*   **租金随数据大小而变化：** 账户数据越大，租金豁免的最低限度就越高。
+*   **网络参数：** 租金的基础成本（每字节年 lamports）是一个网络参数，理论上可以通过集群投票更改，尽管这很少见。`getMinimumBalanceForRentExemption` 方法将始终根据集群的状态返回当前值。
+*   **Lamports 与 SOL：** 响应以 lamports 为单位。请记住，1 SOL = 1,000,000,000 lamports。
+*   **对持久性至关重要：** 确保账户免租金对于 Solana 区块链上数据的长期持久性至关重要。
+
+本指南帮助您理解和使用 `getMinimumBalanceForRentExemption` RPC 方法，以便在您的 Solana 应用程序中有效管理账户租金。

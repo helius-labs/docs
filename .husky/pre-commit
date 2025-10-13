@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check if any .mdx files were changed
+changed_mdx=$(git diff --cached --name-only | grep "\.mdx$" | head -1)
+
+if [ -n "$changed_mdx" ]; then
+  echo "📝 MDX files changed, running translation..."
+  
+  # Load environment variables if .env exists
+  if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+  fi
+  
+  # Run translation
+  npm run i18n
+  
+  # Stage the translation changes
+  git add zh/ i18n.lock
+  
+  echo "✅ Chinese translations updated"
+fi

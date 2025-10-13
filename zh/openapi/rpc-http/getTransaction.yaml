@@ -1,0 +1,299 @@
+openapi: "3.1.0"
+info:
+  title: "Solana RPC API"
+  version: "1.0.0"
+  description: "高级Solana交易检索API，用于访问Solana区块链的详细交易数据、签名和执行结果。"
+  license:
+    name: "Apache 2.0"
+    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - "RPC"
+      summary: "getTransaction"
+      operationId: "getTransaction"
+      description: "通过交易签名从Solana区块链检索全面的交易详情。访问完整数据，包括账户变更、指令详情、代币转移、程序日志和执行状态。支持解析数据、多种编码格式和交易版本。"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  enum:
+                    - "2.0"
+                  description: "JSON-RPC协议版本。"
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "请求的唯一标识符。"
+                  example: "1"
+                  default: "1"
+                method:
+                  type: "string"
+                  enum:
+                    - "getTransaction"
+                  description: "要调用的RPC方法名称。"
+                  example: "getTransaction"
+                  default: "getTransaction"
+                params:
+                  type: "array"
+                  description: "通过签名查询Solana交易的参数。"
+                  default:
+                    - "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"
+                  items:
+                    oneOf:
+                      - type: "string"
+                        description: "Solana交易签名，作为base-58编码字符串用于查找。"
+                        example: "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"
+                      - type: "string"
+                        description: "返回的Solana交易数据的编码格式。"
+                        enum:
+                          - "json"
+                          - "jsonParsed"
+                          - "base64"
+                          - "base58"
+                        example: "json"
+                      - type: "object"
+                        description: "Solana交易检索的高级配置选项。"
+                        properties:
+                          commitment:
+                            type: "string"
+                            description: "用于交易最终性验证的区块链承诺级别。"
+                            enum:
+                              - "confirmed"
+                              - "finalized"
+                            example: "finalized"
+                          maxSupportedTransactionVersion:
+                            type: "integer"
+                            description: "响应中返回的最大Solana交易版本（用于版本化交易支持）。"
+                            example: 0
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getTransaction"
+              params:
+                - "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
+                - commitment: "finalized"
+      responses:
+        "200":
+          description: "成功检索到详细的Solana交易数据。"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  jsonrpc:
+                    type: "string"
+                    enum:
+                      - "2.0"
+                    description: "JSON-RPC协议版本。"
+                    example: "2.0"
+                  id:
+                    type: "string"
+                    description: "与请求匹配的标识符。"
+                    example: "1"
+                  result:
+                    type: "object"
+                    description: "完整的Solana交易详情，包括执行数据。"
+                    properties:
+                      slot:
+                        type: "integer"
+                        description: "处理此交易时的Solana区块链槽号。"
+                        example: 430
+                      transaction:
+                        type: "object"
+                        description: "全面的Solana交易对象，包含所有交易详情。"
+                        properties:
+                          message:
+                            type: "object"
+                            description: "包含详细执行指令的Solana交易消息。"
+                            properties:
+                              accountKeys:
+                                type: "array"
+                                description: "交易中涉及的Solana账户公钥列表。"
+                                items:
+                                  type: "string"
+                                  example: "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe"
+                              header:
+                                type: "object"
+                                description: "包含访问控制信息的Solana交易头元数据。"
+                                properties:
+                                  numReadonlySignedAccounts:
+                                    type: "integer"
+                                    description: "交易中只读签名的Solana账户数量。"
+                                    example: 0
+                                  numReadonlyUnsignedAccounts:
+                                    type: "integer"
+                                    description: "交易中只读未签名的Solana账户数量。"
+                                    example: 3
+                                  numRequiredSignatures:
+                                    type: "integer"
+                                    description: "Solana交易验证所需的签名数量。"
+                                    example: 1
+                              instructions:
+                                type: "array"
+                                description: "在Solana交易中执行的程序指令列表。"
+                                items:
+                                  type: "object"
+                                  properties:
+                                    accounts:
+                                      type: "array"
+                                      description: "此指令访问的Solana账户的索引列表。"
+                                      items:
+                                        type: "integer"
+                                        example: 1
+                                    data:
+                                      type: "string"
+                                      description: "传递给 Solana 程序的编码指令数据。"
+                                      example: "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1"
+                                    programIdIndex:
+                                      type: "integer"
+                                      description: "处理此指令的 Solana 程序的索引。"
+                                      example: 4
+                              recentBlockhash:
+                                type: "string"
+                                description: "用于交易有效性窗口的最近 Solana 区块哈希。"
+                                example: "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
+                          signatures:
+                            type: "array"
+                            description: "验证 Solana 交易的加密签名列表。"
+                            items:
+                              type: "string"
+                              example: "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
+                      meta:
+                        type: "object"
+                        description: "Solana 交易执行元数据和结果。"
+                        properties:
+                          err:
+                            oneOf:
+                              - type: "object"
+                              - type: "null"
+                            description: "如果 Solana 交易失败，则为错误信息；成功则为 null。"
+                            example: null
+                          fee:
+                            type: "integer"
+                            description: "以 Solana lamports 支付的交易费用（1 SOL = 1,000,000,000 lamports）。"
+                            example: 5000
+                          innerInstructions:
+                            type: "array"
+                            description: "Solana 交易执行期间生成的内部指令列表。"
+                            items:
+                              type: "object"
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
+                id: "1"
+        "401":
+          description: "未授权 - API 密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                id: "1"
+        "429":
+          description: "请求过多 - 超出速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

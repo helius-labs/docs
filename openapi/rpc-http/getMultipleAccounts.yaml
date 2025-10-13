@@ -141,6 +141,10 @@ paths:
                               - base64
                               - base64+zstd
                             example: base58
+                          changedSinceSlot:
+                            type: integer
+                            description: Only return accounts that have been modified at or after this slot number. For accounts that exist but haven't changed since the specified slot, the response will contain status as "unchanged".
+                            example: 464175999
       responses:
         200:
           description: Successfully retrieved the account details.
@@ -213,6 +217,15 @@ paths:
                                   type: integer
                                   description: Data size of the account.
                                   example: 0
+                            - type: object
+                              description: Status-only response when account exists but hasn't changed since the specified slot.
+                              properties:
+                                status:
+                                  type: string
+                                  description: Status indicating the account hasn't changed since the specified slot.
+                                  enum:
+                                    - "unchanged"
+                                  example: "unchanged"
         400:
           description: Bad Request - Invalid request parameters or malformed request.
           content:

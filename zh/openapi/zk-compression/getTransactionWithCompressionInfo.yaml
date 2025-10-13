@@ -1,0 +1,291 @@
+openapi: "3.0.3"
+info:
+  title: "photon-indexer"
+  description: "用于一般压缩的Solana索引器"
+  license:
+    name: "Apache-2.0"
+  version: "0.50.0"
+servers:
+  - url: "https://mainnet.helius-rpc.com"
+    description: "主网RPC端点"
+  - url: "https://devnet.helius-rpc.com"
+    description: "开发网RPC端点"
+paths:
+  /:
+    summary: "getTransactionWithCompressionInfo"
+    post:
+      description: "检索getTransactionWithCompressionInfo信息"
+      operationId: "getTransactionWithCompressionInfo"
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "jsonrpc"
+                - "id"
+                - "method"
+                - "params"
+              properties:
+                jsonrpc:
+                  type: "string"
+                  description: "JSON-RPC协议的版本。"
+                  enum:
+                    - "2.0"
+                  default: "2.0"
+                id:
+                  type: "string"
+                  description: "用于标识请求的ID。"
+                  default: "1"
+                method:
+                  type: "string"
+                  description: "要调用的方法名称。"
+                  enum:
+                    - "getTransactionWithCompressionInfo"
+                  default: "getTransactionWithCompressionInfo"
+                params:
+                  type: "object"
+                  required:
+                    - "signature"
+                  properties:
+                    signature:
+                      $ref: "#/components/schemas/SerializableSignature"
+                  additionalProperties: false
+        required: true
+      responses:
+        "200":
+          description: "成功从Solana区块链检索到带有压缩信息的交易"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                description: "一个包含额外压缩信息的Solana交易"
+                properties:
+                  compression_info:
+                    type: "object"
+                    required:
+                      - "closedAccounts"
+                      - "openedAccounts"
+                    properties:
+                      closedAccounts:
+                        type: "array"
+                        items:
+                          $ref: "#/components/schemas/AccountWithOptionalTokenData"
+                      openedAccounts:
+                        type: "array"
+                        items:
+                          $ref: "#/components/schemas/AccountWithOptionalTokenData"
+                    additionalProperties: false
+                  transaction:
+                    type: "object"
+                    description: "一个带有状态元数据的编码确认交易"
+        "400":
+          description: "错误请求 - 请求参数无效或请求格式错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        "401":
+          description: "未授权 - API密钥无效或缺失。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        "429":
+          description: "请求过多 - 超过速率限制。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        "500":
+          description: "内部服务器错误 - 服务器发生错误。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        "503":
+          description: "服务不可用 - 服务暂时不可用。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        "504":
+          description: "网关超时 - 请求超时。"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: "apiKey"
+      in: "query"
+      name: "api-key"
+      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+  schemas:
+    Account:
+      type: "object"
+      required:
+        - "hash"
+        - "owner"
+        - "lamports"
+        - "tree"
+        - "leafIndex"
+        - "seq"
+        - "slotCreated"
+      properties:
+        address:
+          $ref: "#/components/schemas/SerializablePubkey"
+        data:
+          $ref: "#/components/schemas/AccountData"
+        hash:
+          $ref: "#/components/schemas/Hash"
+        lamports:
+          $ref: "#/components/schemas/UnsignedInteger"
+        leafIndex:
+          $ref: "#/components/schemas/UnsignedInteger"
+        owner:
+          $ref: "#/components/schemas/SerializablePubkey"
+        seq:
+          $ref: "#/components/schemas/UnsignedInteger"
+        slotCreated:
+          $ref: "#/components/schemas/UnsignedInteger"
+        tree:
+          $ref: "#/components/schemas/SerializablePubkey"
+      additionalProperties: false
+    AccountData:
+      type: "object"
+      required:
+        - "discriminator"
+        - "data"
+        - "dataHash"
+      properties:
+        data:
+          $ref: "#/components/schemas/Base64String"
+        dataHash:
+          $ref: "#/components/schemas/Hash"
+        discriminator:
+          $ref: "#/components/schemas/UnsignedInteger"
+      additionalProperties: false
+    AccountState:
+      type: "string"
+      enum:
+        - "initialized"
+        - "frozen"
+    AccountWithOptionalTokenData:
+      type: "object"
+      required:
+        - "account"
+      properties:
+        account:
+          $ref: "#/components/schemas/Account"
+        optionalTokenData:
+          $ref: "#/components/schemas/TokenData"
+      additionalProperties: false
+    Base64String:
+      type: "string"
+      description: "一个 base 64 编码的字符串。"
+      default: "SGVsbG8sIFdvcmxkIQ=="
+      example: "SGVsbG8sIFdvcmxkIQ=="
+    Hash:
+      type: "string"
+      description: "一个32字节的哈希，以base58字符串表示。"
+      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+    SerializablePubkey:
+      type: "string"
+      description: "一个Solana公钥，以base58字符串表示。"
+      default: "11111116djSnXB2wXVGT4xDLsfTnkp1p4cCxHAfRq"
+      example: "11111116djSnXB2wXVGT4xDLsfTnkp1p4cCxHAfRq"
+    SerializableSignature:
+      type: "string"
+      description: "一个Solana交易签名。"
+      default: "5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c"
+      example: "5J8H5sTvEhnGcB4R8K1n7mfoiWUD9RzPVGES7e3WxC7c"
+    TokenData:
+      type: "object"
+      required:
+        - "mint"
+        - "owner"
+        - "amount"
+        - "state"
+      properties:
+        amount:
+          $ref: "#/components/schemas/UnsignedInteger"
+        delegate:
+          $ref: "#/components/schemas/SerializablePubkey"
+        mint:
+          $ref: "#/components/schemas/SerializablePubkey"
+        owner:
+          $ref: "#/components/schemas/SerializablePubkey"
+        state:
+          $ref: "#/components/schemas/AccountState"
+        tlv:
+          $ref: "#/components/schemas/Base64String"
+    UnsignedInteger:
+      type: "integer"
+      default: 100
+      example: 100
+    ErrorResponse:
+      type: "object"
+      properties:
+        jsonrpc:
+          type: "string"
+          description: "JSON-RPC 协议版本。"
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "integer"
+              description: "错误代码。"
+              example: -32602
+            message:
+              type: "string"
+              description: "错误信息。"
+            data:
+              type: "object"
+              description: "关于错误的附加数据。"
+        id:
+          type: "string"
+          description: "与请求匹配的标识符。"
+          example: "1"
