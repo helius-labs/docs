@@ -12,7 +12,7 @@ description: "Helius-exclusive RPC method for advanced transaction history queri
 
 `getTransactionsForAddress` is an enhanced transaction history API that overcomes the limitations of Solana's standard `getSignaturesForAddress` method. It provides advanced filtering, bidirectional sorting, efficient pagination, and optional full transaction data retrieval.
 
-The method supports advanced filtering by slot ranges and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
+The method supports advanced filtering by time ranges, slots, and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
 
 ---
 
@@ -27,7 +27,7 @@ The method supports advanced filtering by slot ranges and signatures. You can so
 <Tabs>
   <Tab title="Enhanced Capabilities">
     - **Bidirectional sorting**: Query from the beginning forward or newest first  
-    - **Advanced filtering**: Slot ranges, signature filtering
+    - **Advanced filtering**: Time ranges, slot ranges, signature filtering
     - **Full transaction data**: Get complete details in one call
     - **Efficient pagination**: Faster keyset pagination with slot:position keys
   </Tab>
@@ -181,9 +181,9 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         {
           "transactionDetails": "full",
           "filters": {
-            "slot": {
-              "gte": 150000000,  // Specific slot range
-              "lte": 150000100 
+            "blockTime": {
+              "gte": 1640995200,  // Specific time window
+              "lte": 1640995260 
             }
           },
           "sortOrder": "asc",  // Chronological for MEV analysis
@@ -216,11 +216,14 @@ The API also supports **Audit & Compliance** workflows by generating transaction
     </Warning>
   </Tab>
 
-  <Tab title="Slot-Based Analytics">
-    **Generate transaction reports for specific slot ranges:**
+  <Tab title="Time-Based Analytics">
+    **Generate monthly transaction reports:**
 
     ```javascript
-    // Get all transactions for a specific slot range
+    // Get all successful transactions for January 2024
+    const startTime = Math.floor(new Date('2024-01-01').getTime() / 1000);
+    const endTime = Math.floor(new Date('2024-02-01').getTime() / 1000);
+
     {
       "jsonrpc": "2.0",
       "id": 1,
@@ -230,9 +233,9 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         {
           "transactionDetails": "signatures",
           "filters": {
-            "slot": {
-              "gte": 150000000,
-              "lt": 151000000
+            "blockTime": {
+              "gte": startTime,
+              "lt": endTime
             }
           },
           "limit": 1000
@@ -243,14 +246,14 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 
     **Process for analytics:**
     ```javascript
-    // Calculate transaction counts by slot ranges
-    const slotRangeStats = {};
+    // Calculate daily transaction volume
+    const dailyStats = {};
     response.result.data.forEach(tx => {
-      const slotRange = Math.floor(tx.slot / 1000) * 1000; // Group by 1K slot ranges
-      slotRangeStats[slotRange] = (slotRangeStats[slotRange] || 0) + 1;
+      const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
+      dailyStats[date] = (dailyStats[date] || 0) + 1;
     });
 
-    console.log('Transaction Counts by Slot Range:', slotRangeStats);
+    console.log('Daily Transaction Counts:', dailyStats);
     ```
   </Tab>
 </Tabs>
@@ -259,7 +262,7 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 
 ## Filter Operators
 
-When using filters for `slot` or `signature`, you can use these comparison operators:
+When using filters for `slot`, `blockTime`, or `signature`, you can use these comparison operators:
 
 <Note>
 These operators work like database queries to give you precise control over your data range.
@@ -268,15 +271,16 @@ These operators work like database queries to give you precise control over your
 | Operator | Full Name | Description | Example |
 |----------|-----------|-------------|---------|
 | `gte` | Greater Than or Equal | Include values ≥ specified value | `slot: { gte: 100 }` |
-| `gt` | Greater Than | Include values > specified value | `slot: { gt: 150000000 }` |
+| `gt` | Greater Than | Include values > specified value | `blockTime: { gt: 1641081600 }` |
 | `lte` | Less Than or Equal | Include values ≤ specified value | `slot: { lte: 2000 }` |
-| `lt` | Less Than | Include values < specified value | `slot: { lt: 160000000 }` |
+| `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
 | `eq` | Equal | Include values exactly equal | `slot: { eq: 150 }` |
 
 **Combined Filters Example:**
 ```javascript
 "filters": {
-  "slot": { "gte": 150000000, "lte": 151000000 }     // Between specific slot range
+  "slot": { "gte": 1000, "lte": 2000 },     // Between slots 1000-2000
+  "blockTime": { "gt": 1641081600 }          // After specific timestamp
 }
 ```
 
@@ -405,6 +409,7 @@ These operators work like database queries to give you precise control over your
 <ParamField body="filters" type="object">
   Advanced filtering options:
   - `slot`: Filter by slot number with comparison operators
+  - `blockTime`: Filter by Unix timestamp with comparison operators  
   - `signature`: Filter by signature with comparison operators
 </ParamField>
 
@@ -473,11 +478,11 @@ These operators work like database queries to give you precise control over your
 
 <Tabs>
   <Tab title="Performance">
-    For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by specific slots for more targeted queries.
+    For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by time ranges or specific slots for more targeted queries.
   </Tab>
   
   <Tab title="Filtering">
-    Start with broad filters and narrow down progressively to find the data you need. Use slot-based filters for targeting specific blockchain periods. You can combine multiple filters for precise queries that target specific transaction types or slot ranges.
+    Start with broad filters and narrow down progressively to find the data you need. Use time-based filters for analytics and reporting workflows. You can combine multiple filters for precise queries that target specific transaction types or time periods.
   </Tab>
   
   <Tab title="Pagination">
@@ -540,9 +545,9 @@ These operators work like database queries to give you precise control over your
         {
           "sortOrder": "asc",  // Not possible with getSignaturesForAddress
           "filters": {
-            "slot": {             // Not possible with standard RPC
-              "gte": 150000000,
-              "lte": 151000000
+            "blockTime": {             // Not possible with standard RPC
+              "gte": 1640995200,
+              "lte": 1641081600
             }
           }
         }
