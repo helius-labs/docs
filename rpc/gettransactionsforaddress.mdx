@@ -4,40 +4,53 @@ sidebarTitle: "getTransactionsForAddress"
 description: "Learn how to query Solana transaction history with advanced filtering, bidirectional sorting, and efficient pagination using this Helius-exclusive RPC method."
 ---
 
-<Info>
+
+<Tip>
 **Helius Exclusive Feature** - `getTransactionsForAddress` is only available through Helius RPC nodes and is not part of standard Solana RPC. This enhanced API addresses key limitations of `getSignaturesForAddress` with advanced filtering and sorting capabilities.
-</Info>
+</Tip>
 
 ## Overview
 
-`getTransactionsForAddress` is an enhanced transaction history API that overcomes the limitations of Solana's standard `getSignaturesForAddress` method. It provides advanced filtering, bidirectional sorting, efficient pagination, and optional full transaction data retrieval.
+[`getTransactionsForAddress`](/api-reference/rpc/http/gettransactionsforaddress) is an enhanced transaction history API that overcomes the limitations of Solana's standard `getSignaturesForAddress` method.
 
 The method supports advanced filtering by time ranges, slots, and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
 
 ---
 
-## Advantages Over getSignaturesForAddress
+## What are the advantages of getTransactionsForAddress vs getSignaturesForAddress?
 
-<Note>
-**Problem with Standard RPC**: `getSignaturesForAddress` only supports reverse chronological order, requires additional `getTransaction` calls for details, and uses confusing before/until pagination.
-</Note>
+The standard `getSignaturesForAddress` method has significant limitations: it only supports reverse chronological order, requires additional `getTransaction` calls to fetch transaction details, and uses confusing before/until pagination. This results in multiple API calls and slower performance when analyzing transaction history.
 
-**What getTransactionsForAddress Solves:**
+### Enhanced Capabilities
 
-<Tabs>
-  <Tab title="Enhanced Capabilities">
-    - **Bidirectional sorting**: Query from the beginning forward or newest first  
-    - **Advanced filtering**: Time ranges, slot ranges, signature filtering
-    - **Full transaction data**: Get complete details in one call
-    - **Efficient pagination**: Faster keyset pagination with slot:position keys
-  </Tab>
-  
-  <Tab title="Performance Benefits">
-    - **Reduced API Calls**: Single call vs `getSignaturesForAddress` + multiple `getTransaction` calls
-    - **Faster Pagination**: Direct keyset pagination saves 20-60ms per request vs before/until lookups
-    - **Precise Filtering**: Server-side filtering reduces bandwidth and processing
-  </Tab>
-</Tabs>
+<CardGroup cols={2}>
+  <Card title="Bidirectional sorting" icon="arrows-up-down">
+    Query from the beginning forward or newest first
+  </Card>
+  <Card title="Advanced filtering" icon="filter">
+    Time ranges, slot ranges, and signature filtering
+  </Card>
+  <Card title="Full transaction data" icon="database">
+    Get complete transaction details in one call
+  </Card>
+  <Card title="Efficient pagination" icon="layer-group">
+    Faster keyset pagination with slot:position keys
+  </Card>
+</CardGroup>
+
+### Performance Benefits
+
+<CardGroup cols={3}>
+  <Card title="Reduced API calls" icon="minus-circle">
+    Single call vs getSignaturesForAddress + multiple getTransaction calls
+  </Card>
+  <Card title="Faster pagination" icon="bolt">
+    Direct keyset pagination saves 20-60ms per request vs before/until lookups
+  </Card>
+  <Card title="Precise filtering" icon="magnifying-glass-chart">
+    Server-side filtering reduces bandwidth and processing
+  </Card>
+</CardGroup>
 
 ---
 
@@ -102,190 +115,188 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 
 ## Practical Examples
 
-<Tabs>
-  <Tab title="Token Mint Creation">
-    **Find the mint creation transaction for a specific token:**
+### Token Mint Creation
 
-    ```javascript
+Find the mint creation transaction for a specific token:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": "find-first-mints",
+  "method": "getTransactionsForAddress",
+  "params": [
+    MINT_ADDRESS, // Token mint address
     {
-      "jsonrpc": "2.0",
-      "id": "find-first-mints",
-      "method": "getTransactionsForAddress",
-      "params": [
-        MINT_ADDRESS, // Token mint address
-        {
-          "encoding": "jsonParsed",
-          "maxSupportedTransactionVersion": 0,
-          "sortOrder": "asc",  // Chronological order from the beginning
-          "limit": 10,
-          "transactionDetails": "full"
-        }
-      ]
+      "encoding": "jsonParsed",
+      "maxSupportedTransactionVersion": 0,
+      "sortOrder": "asc",  // Chronological order from the beginning
+      "limit": 10,
+      "transactionDetails": "full"
     }
-    ```
+  ]
+}
+```
 
-    **For Liquidity Pool creation, query the pool address:**
-    ```javascript
+For Liquidity Pool creation, query the pool address:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress", 
+  "params": [
+    "POOL_ADDRESS_HERE", // Raydium/Meteora pool address
     {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getTransactionsForAddress", 
-      "params": [
-        "POOL_ADDRESS_HERE", // Raydium/Meteora pool address
-        {
-          "transactionDetails": "full",
-          "sortOrder": "asc",  // First transaction is usually pool creation
-          "limit": 1
-        }
-      ]
+      "transactionDetails": "full",
+      "sortOrder": "asc",  // First transaction is usually pool creation
+      "limit": 1
     }
-    ```
+  ]
+}
+```
 
-    <Note>
-    **Use Case**: Find the exact moment when a token mint or liquidity pool was created, including the creator address and initial parameters.
-    </Note>
-  </Tab>
+<Note>
+**Use Case**: Find the exact moment when a token mint or liquidity pool was created, including the creator address and initial parameters.
+</Note>
 
-  <Tab title="Funding Transactions">
-    **Find who funded a specific address:**
+### Funding Transactions
 
-    ```javascript
+Find who funded a specific address:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "TARGET_WALLET_ADDRESS",
     {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getTransactionsForAddress",
-      "params": [
-        "TARGET_WALLET_ADDRESS",
-        {
-          "transactionDetails": "full",
-          "sortOrder": "asc",  // Oldest first
-          "limit": 10
-        }
-      ]
+      "transactionDetails": "full",
+      "sortOrder": "asc",  // Oldest first
+      "limit": 10
     }
-    ```
+  ]
+}
+```
 
-    **Then analyze the transaction data to find SOL transfers:**
-    ```javascript
-    response.result.data.forEach(tx => {
-      // Look for SOL transfers in preBalances/postBalances
-      const balanceChanges = tx.meta.preBalances.map((pre, index) => 
-        tx.meta.postBalances[index] - pre
-      );
-      
-      // Positive balance change = incoming SOL
-      balanceChanges.forEach((change, index) => {
-        if (change > 0) {
-          console.log(`Received ${change} lamports from ${tx.transaction.message.accountKeys[index]}`);
-        }
-      });
-    });
-    ```
+Then analyze the transaction data to find SOL transfers:
 
-    <Note>
-    The first few transactions often reveal the funding source and can help identify related addresses or funding patterns.
-    </Note>
-  </Tab>
+```javascript
+response.result.data.forEach(tx => {
+  // Look for SOL transfers in preBalances/postBalances
+  const balanceChanges = tx.meta.preBalances.map((pre, index) => 
+    tx.meta.postBalances[index] - pre
+  );
+  
+  // Positive balance change = incoming SOL
+  balanceChanges.forEach((change, index) => {
+    if (change > 0) {
+      console.log(`Received ${change} lamports from ${tx.transaction.message.accountKeys[index]}`);
+    }
+  });
+});
+```
 
-  <Tab title="MEV Analysis">
-    **Track sandwich attacks and arbitrage opportunities:**
+<Note>
+The first few transactions often reveal the funding source and can help identify related addresses or funding patterns.
+</Note>
 
-    ```javascript
+### MEV Analysis
+
+Track sandwich attacks and arbitrage opportunities:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "AMM_PROGRAM_ADDRESS", // e.g., Raydium, Pump
     {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getTransactionsForAddress",
-      "params": [
-        "AMM_PROGRAM_ADDRESS", // e.g., Raydium, Pump
-        {
-          "transactionDetails": "full",
-          "filters": {
-            "blockTime": {
-              "gte": 1640995200,  // Specific time window
-              "lte": 1640995260 
-            }
-          },
-          "sortOrder": "asc",  // Chronological for MEV analysis
-          "limit": 100
+      "transactionDetails": "full",
+      "filters": {
+        "blockTime": {
+          "gte": 1640995200,  // Specific time window
+          "lte": 1640995260 
         }
-      ]
+      },
+      "sortOrder": "asc",  // Chronological for MEV analysis
+      "limit": 100
     }
-    ```
+  ]
+}
+```
 
-    **Analyze for MEV patterns:**
-    ```javascript
-    // Look for transactions in same block with similar accounts
-    const transactionsByBlock = {};
-    response.result.data.forEach(tx => {
-      const slot = tx.slot;
-      if (!transactionsByBlock[slot]) transactionsByBlock[slot] = [];
-      transactionsByBlock[slot].push(tx);
-    });
+Analyze for MEV patterns:
 
-    // Find potential sandwich attacks (3+ txs in same block)
-    Object.entries(transactionsByBlock).forEach(([slot, txs]) => {
-      if (txs.length >= 3) {
-        console.log(`Potential MEV activity in slot ${slot}: ${txs.length} transactions`);
-      }
-    });
-    ```
+```javascript
+// Look for transactions in same block with similar accounts
+const transactionsByBlock = {};
+response.result.data.forEach(tx => {
+  const slot = tx.slot;
+  if (!transactionsByBlock[slot]) transactionsByBlock[slot] = [];
+  transactionsByBlock[slot].push(tx);
+});
 
-    <Warning>
-    **Analysis Note**: MEV detection requires analyzing multiple transactions within the same block and comparing account overlaps and balance changes.
-    </Warning>
-  </Tab>
+// Find potential sandwich attacks (3+ txs in same block)
+Object.entries(transactionsByBlock).forEach(([slot, txs]) => {
+  if (txs.length >= 3) {
+    console.log(`Potential MEV activity in slot ${slot}: ${txs.length} transactions`);
+  }
+});
+```
 
-  <Tab title="Time-Based Analytics">
-    **Generate monthly transaction reports:**
+<Warning>
+**Analysis Note**: MEV detection requires analyzing multiple transactions within the same block and comparing account overlaps and balance changes.
+</Warning>
 
-    ```javascript
-    // Get all successful transactions for January 2025
-    const startTime = Math.floor(new Date('2025-01-01').getTime() / 1000);
-    const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
+### Time-Based Analytics
 
+Generate monthly transaction reports:
+
+```javascript
+// Get all successful transactions for January 2025
+const startTime = Math.floor(new Date('2025-01-01').getTime() / 1000);
+const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "WALLET_OR_PROGRAM_ADDRESS",
     {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "method": "getTransactionsForAddress",
-      "params": [
-        "WALLET_OR_PROGRAM_ADDRESS",
-        {
-          "transactionDetails": "signatures",
-          "filters": {
-            "blockTime": {
-              "gte": startTime,
-              "lt": endTime
-            }
-          },
-          "limit": 1000
+      "transactionDetails": "signatures",
+      "filters": {
+        "blockTime": {
+          "gte": startTime,
+          "lt": endTime
         }
-      ]
+      },
+      "limit": 1000
     }
-    ```
+  ]
+}
+```
 
-    **Process for analytics:**
-    ```javascript
-    // Calculate daily transaction volume
-    const dailyStats = {};
-    response.result.data.forEach(tx => {
-      const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
-      dailyStats[date] = (dailyStats[date] || 0) + 1;
-    });
+Process for analytics:
 
-    console.log('Daily Transaction Counts:', dailyStats);
-    ```
-  </Tab>
-</Tabs>
+```javascript
+// Calculate daily transaction volume
+const dailyStats = {};
+response.result.data.forEach(tx => {
+  const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
+  dailyStats[date] = (dailyStats[date] || 0) + 1;
+});
+
+console.log('Daily Transaction Counts:', dailyStats);
+```
 
 ---
 
 ## Filter Operators
 
-When using filters for `slot`, `blockTime`, or `signature`, you can use these comparison operators:
-
-<Note>
-These operators work like database queries to give you precise control over your data range.
-</Note>
+When using filters for `slot`, `blockTime`, or `signature`, you can use these comparison operators. These operators work like database queries to give you precise control over your data range.
 
 | Operator | Full Name | Description | Example |
 |----------|-----------|-------------|---------|
@@ -307,91 +318,87 @@ These operators work like database queries to give you precise control over your
 
 ## Pagination
 
-<Tabs>
-  <Tab title="Keyset Pagination">
-    **Efficient pagination using slot:position keys:**
+<Note>
+**Performance**: Keyset pagination is faster than offset-based pagination and maintains consistent performance regardless of page depth. The pagination key format `slot:position` is more intuitive and eliminates the need for the RPC to lookup signature positions, saving 20-60ms per request.
+</Note>
 
-    ```javascript
-    // First request
-    let paginationKey = null;
-    let allTransactions = [];
+### Keyset Pagination
 
-    const getNextPage = async (paginationKey = null) => {
-      const params = [
-        'ADDRESS',
-        {
-          transactionDetails: 'signatures',
-          limit: 100,
-          ...(paginationKey && { paginationKey })
-        }
-      ];
+Efficient pagination using slot:position keys:
 
-      const response = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getTransactionsForAddress',
-          params
-        })
-      });
+```javascript
+// First request
+let paginationKey = null;
+let allTransactions = [];
 
-      const data = await response.json();
-      return data.result;
-    };
-
-    // Paginate through all results
-    do {
-      const result = await getNextPage(paginationKey);
-      allTransactions.push(...result.data);
-      paginationKey = result.paginationKey;
-      
-      console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
-    } while (paginationKey);
-    ```
-
-    <Note>
-    **Performance**: Keyset pagination is faster than offset-based pagination and maintains consistent performance regardless of page depth.
-    </Note>
-  </Tab>
-
-  <Tab title="vs Before/Until">
-    **Standard getSignaturesForAddress pagination:**
-    ```javascript
-    // Confusing and slower
+const getNextPage = async (paginationKey = null) => {
+  const params = [
+    'ADDRESS',
     {
-      "method": "getSignaturesForAddress", 
-      "params": [
-        "ADDRESS",
-        {
-          "before": "SIGNATURE_STRING",  // Hard to keep track
-          "limit": 100
-        }
-      ]
+      transactionDetails: 'signatures',
+      limit: 100,
+      ...(paginationKey && { paginationKey })
     }
-    ```
+  ];
 
-    **Enhanced getTransactionsForAddress pagination:**
-    ```javascript
-    // Clear and faster
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getTransactionsForAddress',
+      params
+    })
+  });
+
+  const data = await response.json();
+  return data.result;
+};
+
+// Paginate through all results
+do {
+  const result = await getNextPage(paginationKey);
+  allTransactions.push(...result.data);
+  paginationKey = result.paginationKey;
+  
+  console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
+} while (paginationKey);
+```
+
+### Comparison with Before/Until Pagination
+
+Standard getSignaturesForAddress pagination:
+
+```javascript
+// Confusing and slower
+{
+  "method": "getSignaturesForAddress", 
+  "params": [
+    "ADDRESS",
     {
-      "method": "getTransactionsForAddress",
-      "params": [
-        "ADDRESS", 
-        {
-          "paginationKey": "1500:10",  // Clear slot:position format
-          "limit": 100
-        }
-      ]
+      "before": "SIGNATURE_STRING",  // Hard to keep track
+      "limit": 100
     }
-    ```
+  ]
+}
+```
 
-    <Note>
-    The pagination key format `slot:position` is more intuitive and eliminates the need for the RPC to lookup signature positions, saving 20-60ms per request.
-    </Note>
-  </Tab>
-</Tabs>
+Enhanced getTransactionsForAddress pagination:
+
+```javascript
+// Clear and faster
+{
+  "method": "getTransactionsForAddress",
+  "params": [
+    "ADDRESS", 
+    {
+      "paginationKey": "1500:10",  // Clear slot:position format
+      "limit": 100
+    }
+  ]
+}
+```
 
 ---
 
@@ -495,92 +502,92 @@ These operators work like database queries to give you precise control over your
 
 ## Best Practices
 
-<Tabs>
-  <Tab title="Performance">
-    For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by time ranges or specific slots for more targeted queries.
-  </Tab>
-  
-  <Tab title="Filtering">
-    Start with broad filters and narrow down progressively to find the data you need. Use time-based filters for analytics and reporting workflows. You can combine multiple filters for precise queries that target specific transaction types or time periods.
-  </Tab>
-  
-  <Tab title="Pagination">
-    Store pagination keys when you need to resume large queries later. Monitor pagination depth for performance planning, and use ascending order for scenarios where you need to replay historical events in chronological order.
-  </Tab>
-  
-  <Tab title="Error Handling">
-    Handle rate limits gracefully with exponential backoff strategies. Always validate addresses before making requests, and cache results when appropriate to reduce API usage and improve application performance.
-  </Tab>
-</Tabs>
+### Performance
+
+For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by time ranges or specific slots for more targeted queries.
+
+### Filtering
+
+Start with broad filters and narrow down progressively to find the data you need. Use time-based filters for analytics and reporting workflows. You can combine multiple filters for precise queries that target specific transaction types or time periods.
+
+### Pagination
+
+Store pagination keys when you need to resume large queries later. Monitor pagination depth for performance planning, and use ascending order for scenarios where you need to replay historical events in chronological order.
+
+### Error Handling
+
+Handle rate limits gracefully with exponential backoff strategies. Always validate addresses before making requests, and cache results when appropriate to reduce API usage and improve application performance.
 
 ---
 
 ## Migration from getSignaturesForAddress
 
-<Tabs>
-  <Tab title="Basic Migration">
-    **Before (Standard RPC):**
-    ```javascript
-    // Old way - limited and requires additional calls
-    const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
-    
-    // Need additional calls for transaction details
-    const transactions = await Promise.all(
-      signatures.map(sig => connection.getTransaction(sig.signature))
-    );
-    ```
+### Basic Migration
 
-    **After (Helius Enhanced):**
-    ```javascript
-    // New way - get everything in one call
-    const response = await fetch(heliusRpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'getTransactionsForAddress',
-        params: [
-          address,
-          {
-            transactionDetails: 'full',  // Get complete data
-            limit: 100
-          }
-        ]
-      })
-    });
-    ```
-  </Tab>
+Before (Standard RPC):
 
-  <Tab title="Advanced Features">
-    **Enhanced Capabilities Not Available in Standard RPC:**
+```javascript
+// Old way - limited and requires additional calls
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
 
-    ```javascript
-    // Historical replay from the beginning
+// Need additional calls for transaction details
+const transactions = await Promise.all(
+  signatures.map(sig => connection.getTransaction(sig.signature))
+);
+```
+
+After (Helius Enhanced):
+
+```javascript
+// New way - get everything in one call
+const response = await fetch(heliusRpcUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getTransactionsForAddress',
+    params: [
+      address,
+      {
+        transactionDetails: 'full',  // Get complete data
+        limit: 100
+      }
+    ]
+  })
+});
+```
+
+### Advanced Features
+
+Enhanced capabilities not available in standard RPC:
+
+```javascript
+// Historical replay from the beginning
+{
+  "method": "getTransactionsForAddress",
+  "params": [
+    address,
     {
-      "method": "getTransactionsForAddress",
-      "params": [
-        address,
-        {
-          "sortOrder": "asc",  // Not possible with getSignaturesForAddress
-          "filters": {
-            "blockTime": {             // Not possible with standard RPC
-              "gte": 1640995200,
-              "lte": 1641081600
-            }
-          }
+      "sortOrder": "asc",  // Not possible with getSignaturesForAddress
+      "filters": {
+        "blockTime": {             // Not possible with standard RPC
+          "gte": 1640995200,
+          "lte": 1641081600
         }
-      ]
+      }
     }
-    ```
+  ]
+}
+```
 
-    This approach is faster with single API calls versus multiple requests, provides precise server-side filtering, offers flexible bidirectional sorting, and enables powerful analytics capabilities not available in the standard RPC.
-  </Tab>
-</Tabs>
+This approach is faster with single API calls versus multiple requests, provides precise server-side filtering, offers flexible bidirectional sorting, and enables powerful analytics capabilities not available in the standard RPC.
 
-<Note>
-Ready to get started? Generate your API key at the [Helius Dashboard](https://dashboard.helius.dev/api-keys) and start building advanced transaction analysis tools with `getTransactionsForAddress`.
-</Note>
+---
+
+## Get Started
+
+Ready to access advanced transaction history? Generate your API key at the [Helius Dashboard](https://dashboard.helius.dev/api-keys) and start building powerful transaction analysis tools with [`getTransactionsForAddress`](/api-reference/rpc/http/gettransactionsforaddress).
 
 ---
 
