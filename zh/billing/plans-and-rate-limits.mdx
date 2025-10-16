@@ -109,53 +109,54 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
   </Card>
 </CardGroup>
 
-### LaserStream Plus 附加组件
+### 数据附加包
 
-将您的专业计划的按使用付费模式转变为可预测的成本，包含每月的数据配额和降低的超额费率。
+将您的专业计划的按使用付费模式转变为可预测的成本，包含每月的数据配额。仅适用于专业计划，涵盖 LaserStream gRPC 和增强型 WebSockets 的数据使用。
 
 <Tabs>
+  <Tab title="5 TB">
+    **$500/月**
+    
+    **包含：** 每月 5 TB 数据配额  
+    **超额费率：** 每 0.1 MB 3 个积分
+  </Tab>
+  <Tab title="10 TB">
+    **$900/月**
+    
+    **包含：** 每月 10 TB 数据配额  
+    **超额费率：** 每 0.1 MB 3 个积分
+  </Tab>
+  <Tab title="25 TB">
+    **$2,000/月**
+    
+    **包含：** 每月 25 TB 数据配额  
+    **超额费率：** 每 0.1 MB 3 个积分
+  </Tab>
   <Tab title="50 TB">
     **$2,500/月**
     
     **包含：** 每月 50 TB 数据配额  
-    **超额费率：** 每 0.1 MB 2 个积分（相比专业计划的 3 个积分节省 33%）
+    **超额费率：** 每 0.1 MB 3 个积分
   </Tab>
   <Tab title="100 TB">
     **$4,500/月**
     
     **包含：** 每月 100 TB 数据配额  
-    **超额费率：** 每 0.1 MB 2 个积分（相比专业计划的 3 个积分节省 33%）
-  </Tab>
-  <Tab title="150 TB">
-    **$6,500/月**
-    
-    **包含：** 每月 150 TB 数据配额  
-    **超额费率：** 每 0.1 MB 2 个积分（相比专业计划的 3 个积分节省 33%）
-  </Tab>
-  <Tab title="200 TB">
-    **$8,500/月**
-    
-    **包含：** 每月 200 TB 数据配额  
-    **超额费率：** 每 0.1 MB 2 个积分（相比专业计划的 3 个积分节省 33%）
-  </Tab>
-  <Tab title="250 TB">
-    **$10,500/月**
-    
-    **包含：** 每月 250 TB 数据配额  
-    **超额费率：** 每 0.1 MB 2 个积分（相比专业计划的 3 个积分节省 33%）
+    **超额费率：** 每 0.1 MB 3 个积分
   </Tab>
 </Tabs>
 
 <Note>
-**定价模型比较：**
-- **专业计划**：从第一个字节开始每 0.1 MB 支付 3 个积分
-- **LaserStream Plus**：固定月费 + 包含的数据配额 + 降低的超额费率
-- 所有专业计划功能仍包含在附加组件中
+**数据附加包**：仅适用于专业计划。提供固定的每月成本，包含的数据配额（5TB-100TB）。适用于 LaserStream 和增强型 WebSockets 的使用。
 </Note>
+
+<Info>
+**需要超过 100 TB 吗？** [联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ) 以获取具有自定义数据配额的企业解决方案。
+</Info>
 
 ## 企业计划
 
-<Card title="高容量应用的定制解决方案" icon="building">
+<Card title="高流量应用的定制解决方案" icon="building">
   企业计划为有特定需求的组织提供定制解决方案。
   
   **主要优势：**
@@ -174,7 +175,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
 ## 速率限制
 
 <Info>
-速率限制控制您每秒可以发出的请求数量。当超过限制时，您将收到一个 HTTP 429 响应。
+速率限制控制您每秒可以发出的请求数量。超出时，您将收到 HTTP 429 响应。
 </Info>
 
 ### 标准速率限制
@@ -186,7 +187,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <th width="200">计划</th>
       <th width="150">RPC 速率限制</th>
-      <th width="200">DAS & 增强型 API</th>
+      <th width="200">DAS 和增强型 API</th>
     </tr>
   </thead>
   <tbody>
@@ -219,7 +220,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
 </table>
 
 <Info>
-**需要更高的 RPC 速率限制？** 专业计划的团队可以以 $100/月的价格购买额外的 100 RPS。如果您需要在发布前自定义速率限制，请[联系销售团队](https://form.typeform.com/to/KiacmxpZ)。
+**需要更高的 RPC 速率限制？** 专业计划的团队可以以每月 100 美元的价格购买额外的 100 RPS。如果您在发布前需要自定义速率限制，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。
 </Info>
 
 ### 特殊限制
@@ -264,11 +265,11 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     </table>
     
     <Note>
-      **需要更高的交易发送限制吗？** 如果您使用的是专业计划并需要增加您的sendTransaction速率限制，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。专业计划用户还可以[请求Sender的显著速率限制升级](https://form.typeform.com/to/FuvpgSNt)，以支持高吞吐量交易应用。
+      **需要更高的交易发送限制？** 如果您是专业计划用户并需要增加 sendTransaction 速率限制，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。专业计划用户还可以[请求显著提高 Sender 的速率限制](https://form.typeform.com/to/FuvpgSNt)以支持高吞吐量交易应用。
     </Note>
   </Tab>
 
-  <Tab title="高复杂度调用">
+  <Tab title="高复杂性调用">
     <table>
       <thead align="left">
         <tr>
@@ -304,7 +305,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       </thead>
       <tbody>
         <tr>
-          <td>Photon API</td>
+          <td>Photon APIs</td>
           <td>2/秒</td>
           <td>10/秒</td>
           <td>50/秒</td>
@@ -417,7 +418,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <td><strong>标准 RPC 调用</strong></td>
       <td style={{textAlign: 'center'}}>1</td>
-      <td>除单独列出的以外的所有 RPC 调用</td>
+      <td>除单独列出的 RPC 调用外的所有调用</td>
     </tr>
     <tr>
       <td><strong>simulateBundle</strong></td>
@@ -435,19 +436,19 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       <td>每个由 Helius 发送的事件，无论端点响应成功或失败</td>
     </tr>
     <tr>
-      <td><strong>LaserStream gRPC (Devnet)</strong></td>
+      <td><strong>LaserStream gRPC</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
       <td>每 0.1 MB 的流数据（未压缩）</td>
     </tr>
     <tr>
-      <td><strong>LaserStream gRPC (Mainnet)</strong></td>
+      <td><strong>增强 WebSockets</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
-      <td>每 0.1 MB 的流数据（未压缩）</td>
+      <td>每 0.1 MB 的流数据（未压缩）。适用于 2025 年 10 月 16 日后升级到商业或专业计划的用户</td>
     </tr>
     <tr>
-      <td><strong>LaserStream Plus 附加组件</strong></td>
-      <td style={{textAlign: 'center'}}>2</td>
-      <td>在包含的数据配额（50TB、100TB、150TB、200TB 或 250TB）之后的每 0.1 MB</td>
+      <td><strong>数据附加包（仅限专业版）</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强 WebSockets 的使用。查看 <a href="#data-add-ons">数据附加包</a> 以了解定价层级</td>
     </tr>
     <tr>
       <td><strong>getProgramAccounts</strong></td>
@@ -472,7 +473,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <td><strong>Webhook 管理</strong></td>
       <td style={{textAlign: 'center'}}>100</td>
-      <td>创建、编辑、删除 Webhooks</td>
+      <td>创建、编辑、删除 webhooks</td>
     </tr>
     <tr>
       <td><strong>getValidityProofs</strong></td>
@@ -483,11 +484,11 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
 </table>
 
 <Note>
-**LaserStream 计费指南**：
-- **开发者和商业计划**：所有 LaserStream devnet 使用每 0.1 MB 支付 3 个积分。
-- **专业计划**：所有 LaserStream devnet 和 mainnet 使用每 0.1 MB 支付 3 个积分。
-- **LaserStream Plus 附加组件**：提供 50TB (\$2,500)、100TB (\$4,500)、150TB (\$6,500)、200TB (\$8,500) 或 250TB (\$10,500) 层级。在包含的数据用完后，每 0.1 MB 仅需支付 2 个积分（节省 33%）。
-- **数据大小**：计费基于未压缩的 gRPC 消息大小。典型大小：区块（约 4MB）、账户（约 0.0004MB）、交易（约 0.0006MB）。
+**数据流计费指南**：
+- **增强型 WebSockets**：适用于商业和专业计划。2025年10月16日后升级的用户每0.1 MB支付3个积分。在此日期之前的用户不计量。
+- **LaserStream**：仅适用于专业计划。所有用户每0.1 MB使用支付3个积分。
+- **数据附加包**：适用于专业计划。查看[数据附加包](#data-add-ons)以获取包含数据配额的定价层（5TB-100TB）。超出部分按每0.1 MB计费3个积分。适用于LaserStream和增强型WebSockets。
+- **数据大小**：计费基于未压缩的消息大小。典型大小：区块（约4MB）、账户（约0.0004MB）、交易（约0.0006MB）。
 </Note>
 
 <Tabs>
@@ -516,12 +517,12 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     </table>
     
     <Info>
-      **质押交易现在是所有付费计划的默认设置**：所有通过 `mainnet.helius-rpc.com` 的交易自动使用质押连接以获得最高成功率。
+      **质押交易现在是所有付费计划的默认设置**：所有通过`mainnet.helius-rpc.com`的交易自动使用质押连接以获得最高成功率。
     </Info>
   </Tab>
 
      <Tab title="历史数据">
-     所有存档调用每次花费 **10 个积分**：
+     所有存档调用每次花费**10个积分**：
      
      <CardGroup cols={2}>
        <Card title="区块数据">
@@ -538,7 +539,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
    </Tab>
 
    <Tab title="DAS API">
-     所有 DAS API 调用每次花费 **10 个积分**：
+     所有DAS API调用每次花费**10个积分**：
      
      <CardGroup cols={2}>
        <Card title="资产信息">
@@ -574,7 +575,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     根据需要自动添加积分，以应对流量高峰并确保服务不中断。
   </Card>
   <Card title="Helius 仪表板" icon="chart-line" href="https://dashboard.helius.dev/">
-    监控实时使用情况，设置警报，并通过详细分析跟踪消费模式。
+    通过详细的分析监控实时使用情况、设置警报和跟踪消费模式。
   </Card>
 </CardGroup>
 
