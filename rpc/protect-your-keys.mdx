@@ -88,30 +88,38 @@ Helius provides multiple layers of protection to secure your API keys:
         **Use cases:**
         - Backend servers with static IPs
         - CI/CD pipelines
-        - Specific development machines
+        - Cloud-hosted services
 
         **Example configuration:**
         ```
-        192.168.1.100
         203.0.113.1
         198.51.100.42
+        185.199.108.153
         ```
+
+        <Note>
+        Only public IP addresses work here. Private/local IPs (like 192.168.x.x or 10.x.x.x) won't work because they're behind NAT and the server only sees your public IP.
+        </Note>
       </Accordion>
 
       <Accordion title="Allowed CIDRs">
         Restrict access to IP ranges using CIDR notation - great for enterprise networks.
 
         **Use cases:**
-        - Corporate networks
+        - Corporate public IP ranges
         - Cloud provider IP ranges
-        - Private networks
+        - Data center IP blocks
 
         **Example configuration:**
         ```
-        192.168.0.0/16
-        10.0.0.0/8
-        172.16.0.0/12
+        203.0.113.0/24
+        198.51.100.0/24
+        185.199.108.0/22
         ```
+
+        <Note>
+        Only public IP ranges work here. Private CIDR blocks (192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12) won't work because they're behind NAT.
+        </Note>
       </Accordion>
     </AccordionGroup>
   </Tab>
