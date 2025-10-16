@@ -71,15 +71,19 @@ Helius provides multiple layers of protection to secure your API keys:
 
         **Use cases:**
         - Production websites (`yourdapp.com`)
-        - Development environments (`localhost:3000`)
         - Staging environments (`staging.yourdapp.com`)
+        - Preview deployments (`preview.yourdapp.com`)
 
         **Example configuration:**
         ```
         yourdapp.com
         www.yourdapp.com
-        localhost:3000
+        staging.yourdapp.com
         ```
+
+        <Note>
+        Localhost domains won't work here. For local development, use the Secure URL feature or deploy a development version to a public domain.
+        </Note>
       </Accordion>
 
       <Accordion title="Allowed IPs">
