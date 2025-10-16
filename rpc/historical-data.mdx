@@ -11,7 +11,9 @@ description: "Learn how historical data works on Solana, explore common use case
 
 ---
 
-## Why Helius for Historical Data?
+## Why Helius for historical data?
+
+Unlike providers relying on shared BigTable infrastructure, Helius maintains dedicated archival nodes optimized for fast historical data retrieval. This architecture delivers superior performance and reliability for time-critical applications.
 
 <CardGroup cols={3}>
   <Card title="Independent Infrastructure" icon="server">
@@ -24,10 +26,6 @@ description: "Learn how historical data works on Solana, explore common use case
     No shared infrastructure bottlenecks. Consistent performance even during network peaks
   </Card>
 </CardGroup>
-
-<Info>
-**Performance Advantage**: Unlike providers relying on shared BigTable infrastructure, Helius maintains dedicated archival nodes optimized for fast historical data retrieval. This architecture delivers superior performance and reliability for time-critical applications.
-</Info>
 
 ---
 
@@ -43,7 +41,12 @@ description: "Learn how historical data works on Solana, explore common use case
   - Full transaction data in single requests
   - Support for versioned transactions
   
-  **Perfect for:** Token launch analysis, wallet history, MEV research, compliance reporting, and portfolio tracking.
+  **Perfect for:**
+  - Token launch analysis
+  - Wallet history
+  - MEV research
+  - Compliance reporting
+  - Portfolio tracking
 </Card>
 
 <CardGroup cols={2}>
@@ -61,75 +64,84 @@ description: "Learn how historical data works on Solana, explore common use case
 
 Access historical blockchain data with these standard RPC methods. All archival calls cost 10 credits. [View detailed pricing →](/billing/plans-and-rate-limits#credit-system)
 
-<Tabs>
-  <Tab title="Block Data">
-    Query historical block information and metadata.
-    
-    <AccordionGroup>
-      <Accordion title="getBlock" icon="cube">
-        Retrieve complete block data including all transactions and metadata for a specific slot.
-        
-        **Use cases:** Block explorers, audit tools, historical analysis
-        
-        [View getBlock guide →](/rpc/guides/getblock)
-      </Accordion>
-      
-      <Accordion title="getBlocks" icon="cubes">
-        Get a list of confirmed blocks between two slots.
-        
-        **Use cases:** Gap detection, block range analysis, indexing
-        
-        [View getBlocks guide →](/rpc/guides/getblocks)
-      </Accordion>
-      
-      <Accordion title="getBlockTime" icon="clock">
-        Get the estimated production time of a block as Unix timestamp.
-        
-        **Use cases:** Time-based analytics, event correlation
-        
-        [View getBlockTime guide →](/rpc/guides/getblocktime)
-      </Accordion>
-    </AccordionGroup>
-  </Tab>
-  
-  <Tab title="Transaction History">
-    Access historical transaction data and signatures.
-    
-    <AccordionGroup>
-      <Accordion title="getTransaction" icon="file-lines">
-        Retrieve full transaction details for a specific signature.
-        
-        **Use cases:** Transaction verification, detailed analysis, debugging
-        
-        [View getTransaction guide →](/rpc/guides/gettransaction)
-      </Accordion>
-      
-      <Accordion title="getSignaturesForAddress" icon="signature">
-        Get confirmed signatures for transactions involving an address.
-        
-        **Use cases:** Basic transaction history, signature collection
-        
-        <Note>
-        For advanced filtering and sorting, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) instead.
-        </Note>
-        
-        [View getSignaturesForAddress guide →](/rpc/guides/getsignaturesforaddress)
-      </Accordion>
-      
-      <Accordion title="getInflationReward" icon="coins">
-        Get inflation reward for a list of addresses for an epoch.
-        
-        **Use cases:** Validator rewards, staking analytics
-        
-        [View getInflationReward guide →](/rpc/guides/getinflationreward)
-      </Accordion>
-    </AccordionGroup>
-  </Tab>
-</Tabs>
+### Block Data Methods
+
+Query historical block information and metadata.
+
+#### getBlock
+
+Retrieve complete block data including all transactions and metadata for a specific slot.
+
+**Use cases:**
+- Block explorers
+- Audit tools
+- Historical analysis
+
+<Card title="View getBlock guide" icon="book-open" href="/rpc/guides/getblock" horizontal />
+
+#### getBlocks
+
+Get a list of confirmed blocks between two slots.
+
+**Use cases:**
+- Gap detection
+- Block range analysis
+- Indexing
+
+<Card title="View getBlocks guide" icon="book-open" href="/rpc/guides/getblocks" horizontal />
+
+#### getBlockTime
+
+Get the estimated production time of a block as Unix timestamp.
+
+**Use cases:**
+- Time-based analytics
+- Event correlation
+
+<Card title="View getBlockTime guide" icon="book-open" href="/rpc/guides/getblocktime" horizontal />
+
+### Transaction History Methods
+
+Access historical transaction data and signatures.
+
+#### getTransaction
+
+Retrieve full transaction details for a specific signature.
+
+**Use cases:**
+- Transaction verification
+- Detailed analysis
+- Debugging
+
+<Card title="View getTransaction guide" icon="book-open" href="/rpc/guides/gettransaction" horizontal />
+
+#### getSignaturesForAddress
+
+Get confirmed signatures for transactions involving an address.
+
+**Use cases:**
+- Basic transaction history
+- Signature collection
+
+<Note>
+For advanced filtering and sorting, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) instead.
+</Note>
+
+<Card title="View getSignaturesForAddress guide" icon="book-open" href="/rpc/guides/getsignaturesforaddress" horizontal />
+
+#### getInflationReward
+
+Get inflation reward for a list of addresses for an epoch.
+
+**Use cases:**
+- Validator rewards
+- Staking analytics
+
+<Card title="View getInflationReward guide" icon="book-open" href="/rpc/guides/getinflationreward" horizontal />
 
 ---
 
-## Use Cases
+## Solana Archival Use Cases
 
 <CardGroup cols={2}>
   <Card title="Token Launch Analysis" icon="rocket">
@@ -159,47 +171,21 @@ Access historical blockchain data with these standard RPC methods. All archival 
 
 ---
 
-## Data Availability
+## What historical data is available?
 
-<Steps>
-  <Step title="Complete Coverage">
-    Historical data from Solana genesis to present, continuously updated in real-time.
-  </Step>
-  
-  <Step title="Optimized Storage">
-    Indexed and structured for fast retrieval. Query years of on-chain activity efficiently.
-  </Step>
-  
-  <Step title="Modern Features">
-    Full support for versioned transactions and all Solana program types.
-  </Step>
-</Steps>
+Helius provides complete historical data from Solana genesis to present, continuously updated in real-time. Our indexed and structured storage enables fast retrieval, allowing you to query years of on-chain activity efficiently.
 
-<Note>
-Helius maintains all historical data on independent archival infrastructure. Unlike shared BigTable systems, our dedicated architecture delivers consistent performance without bottlenecks or reliability issues.
-</Note>
+All historical data includes full support for versioned transactions and all Solana program types. Helius maintains this data on independent archival infrastructure, delivering consistent performance without the bottlenecks or reliability issues common to shared BigTable systems.
 
 ---
 
 ## Get Started
 
-<CardGroup cols={2}>
-  <Card title="Try getTransactionsForAddress" icon="code" href="/rpc/gettransactionsforaddress">
-    Start with our enhanced transaction history API
-  </Card>
-  
-  <Card title="View API Reference" icon="book-open" href="/api-reference">
-    Explore all available archival methods
-  </Card>
-  
-  <Card title="Get API Key" icon="key" href="https://dashboard.helius.dev/api-keys">
-    Sign up and start querying historical data
-  </Card>
-  
-  <Card title="View Pricing" icon="credit-card" href="/billing/plans-and-rate-limits#credit-system">
-    Understand archival method costs (10 credits each)
-  </Card>
-</CardGroup>
+Ready to access Solana's complete historical data? Here's how to begin:
+
+- **[Try getTransactionsForAddress](/rpc/gettransactionsforaddress)** - Start with our enhanced transaction history API
+- **[Get your API key](https://dashboard.helius.dev/api-keys)** - Sign up and start querying historical data today
+- **[View pricing](/billing/plans-and-rate-limits#credit-system)** - All archival methods cost 10 credits per call
 
 ---
 
