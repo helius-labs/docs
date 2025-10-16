@@ -1275,6 +1275,57 @@ export { sendWithSender };
 - **No Credit Usage**: Sender transactions don't consume API credits from your plan
 - **Professional Plan Upgrades**: Professional plan users can request significant rate limit increases to support high-throughput trading applications
 
+### Custom TPS with API Key Authentication
+
+<Info>
+This section is only relevant if you have been granted increased TPS limits and received an API key from the Helius team. Standard users can skip this section.
+</Info>
+
+If you have been approved for higher TPS limits, you will receive a dedicated API key for Sender. To use it, append the API key as a query parameter to your endpoint URL:
+
+<Tabs>
+  <Tab title="Frontend/Browser Applications">
+    ```
+    https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+  </Tab>
+  <Tab title="Backend/Server Applications">
+    ```
+    http://slc-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ewr-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://lon-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://fra-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ams-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://sg-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://tyo-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+  </Tab>
+</Tabs>
+
+**Example Usage:**
+
+```typescript
+const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY';
+
+const response = await fetch(SENDER_ENDPOINT, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: Date.now().toString(),
+    method: 'sendTransaction',
+    params: [
+      base64Transaction,
+      { encoding: 'base64', skipPreflight: true, maxRetries: 0 }
+    ]
+  })
+});
+```
+
+<Note>
+Don't have a custom TPS limit yet? [Request higher limits here](https://form.typeform.com/to/FuvpgSNt) if you need more than 15 TPS for your application.
+</Note>
+
 ## Support and Scaling
 
 For production deployments requiring higher throughput:
