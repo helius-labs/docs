@@ -247,17 +247,17 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 <CardGroup cols={2}>
   <Card title="默认双重路由" icon="arrows-split-up-and-left">
-    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 小费。
+    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 的小费。
   </Card>
-  <Card title="仅 SWQOS 替代方案" icon="dollar-sign">
-    对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.0005 SOL。
+  <Card title="仅限 SWQOS 的替代方案" icon="dollar-sign">
+    对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.000005 SOL。
   </Card>
 </CardGroup>
 
 ## 要求
 
 <Warning>
-**强制性要求**：所有交易必须包含小费（最低0.001 SOL，或仅限SWQOS的0.0005 SOL）、优先费用，并跳过预检检查。
+**强制要求**：所有交易必须包含小费（最低 0.001 SOL，或仅限 SWQOS 的 0.000005 SOL）、优先费用，并跳过预检检查。
 </Warning>
 
 ### 1. 跳过预检（强制）
@@ -278,7 +278,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 通过Sender提交的所有交易**必须同时包含小费和优先费用**：
 
-- **小费**：最低0.001 SOL转账到指定的小费账户（或仅限SWQOS的0.0005 SOL）
+- **小费**：最低 0.001 SOL 转账到指定的小费账户（或仅限 SWQOS 的 0.000005 SOL）
 
 <Accordion title="指定小费账户（mainnet-beta）">
 
