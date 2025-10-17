@@ -246,14 +246,14 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
     Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
   </Card>
   <Card title="SWQOS-Only Alternative" icon="dollar-sign">
-    For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.0005 SOL minimum tip requirement.
+    For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.000005 SOL minimum tip requirement.
   </Card>
 </CardGroup>
 
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.0005 SOL for SWQOS-only), priority fees, and skip preflight checks.
+**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.000005 SOL for SWQOS-only), priority fees, and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -274,7 +274,7 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 All transactions submitted through Sender **must include both tips and priority fees**:
 
-- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.0005 SOL for SWQOS-only)
+- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.000005 SOL for SWQOS-only)
 
 <Accordion title="Designated Tip Accounts (mainnet-beta)">
 ```text
