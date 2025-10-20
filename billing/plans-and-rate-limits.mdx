@@ -459,7 +459,7 @@ Some endpoints have special restrictions due to their computational requirements
     <tr>
       <td><strong>Historical Data (Archival)</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
-      <td>RPC calls that query historical blockchain data (see <a href="#historical-data">Historical Data table</a> below)</td>
+      <td>RPC calls that query historical blockchain data: <code>getTransaction</code>, <code>getSignaturesForAddress</code>, <code>getBlock</code>. For complete list, see <a href="#historical-data">Historical Data table</a> below</td>
     </tr>
     <tr>
       <td><strong>ZK Compression API</strong></td>
@@ -531,18 +531,52 @@ Some endpoints have special restrictions due to their computational requirements
      <div id="historical-data"></div>
      Historical data queries (sometimes called archival calls) cost **10 credits** each:
      
-     <CardGroup cols={2}>
-       <Card title="Block Data">
-         - `getBlock`
-         - `getBlocks`
-         - `getBlockTime`
-       </Card>
-       <Card title="Transaction History">
-         - `getTransaction`
-         - `getSignaturesForAddress`
-         - `getInflationReward`
-       </Card>
-     </CardGroup>
+     <table>
+       <thead>
+         <tr>
+           <th style={{width: '300px'}}>Method</th>
+           <th>Description</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr>
+           <td><code>getBlock</code></td>
+           <td>Retrieve block data and transactions for a confirmed block</td>
+         </tr>
+         <tr>
+           <td><code>getBlocks</code></td>
+           <td>Get list of confirmed blocks between two slots</td>
+         </tr>
+         <tr>
+           <td><code>getBlocksWithLimit</code></td>
+           <td>Get confirmed blocks starting at a given slot with limit</td>
+         </tr>
+         <tr>
+           <td><code>getSignaturesForAddress</code></td>
+           <td>Get transaction signatures for an address</td>
+         </tr>
+         <tr>
+           <td><code>getTransaction</code></td>
+           <td>Retrieve transaction details for a confirmed transaction</td>
+         </tr>
+         <tr>
+           <td><code>getBlockTime</code></td>
+           <td>Get estimated production time of a block</td>
+         </tr>
+         <tr>
+           <td><code>getSignatureStatuses</code></td>
+           <td>Get statuses for transaction signatures. Cost depends on <code>searchTransactionHistory</code> parameter: 10 credits when enabled (searches historical data), 1 credit when disabled (searches recent blocks only)</td>
+         </tr>
+         <tr>
+           <td><code>getInflationReward</code></td>
+           <td>Get inflation reward for a list of addresses for an epoch</td>
+         </tr>
+       </tbody>
+     </table>
+     
+     <Note>
+     **getSignatureStatuses pricing**: This method costs 10 credits only when the `searchTransactionHistory` parameter is set to `true` to search historical data. When `false` or omitted (searches only recent blocks), it costs 1 credit like other standard RPC calls.
+     </Note>
    </Tab>
 
    <Tab title="DAS API">
