@@ -8,11 +8,6 @@ on:
       - 'docs.json'
       - 'i18n.json'
       - '.github/workflows/i18n.yml'
-  pull_request:
-    paths:
-      - '**.mdx'
-      - 'docs.json'
-      - 'i18n.json'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -61,7 +56,7 @@ jobs:
           fi
           
       - name: Close old translation PRs
-        if: steps.changes.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.changes.outputs.changes == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -83,7 +78,7 @@ jobs:
             }
 
       - name: Create Pull Request
-        if: steps.changes.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.changes.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -110,16 +105,6 @@ jobs:
           delete-branch: true
           reviewers: guneysol
           add-paths: |
-            zh/
-            i18n.lock
-            sitemap.xml
-          
-      - name: Upload translation artifacts (PR only)
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: translations-and-sitemap
-          path: |
             zh/
             i18n.lock
             sitemap.xml
