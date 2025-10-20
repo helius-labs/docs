@@ -86,29 +86,42 @@ function generateSitemap() {
     sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
     sitemap += '        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
 
+    // Generate a <url> entry for each language version of each page
     for (const page of Array.from(uniquePages).sort()) {
-      const primaryUrl = `${BASE_URL}/${page}`;
-      
-      // Get last modified date from git for the actual file
-      const mdxPath = path.join(docsRoot, `${page}.mdx`);
-      const lastmod = getFileLastModified(mdxPath);
-      
-      sitemap += '  <url>\n';
-      sitemap += `    <loc>${primaryUrl}</loc>\n`;
-      sitemap += `    <lastmod>${lastmod}</lastmod>\n`;
-
       for (const [langCode, langConfig] of Object.entries(LANGUAGES)) {
-        if (allLanguages[langCode].includes(page)) {
-          const hrefUrl = langConfig.urlPrefix 
-            ? `${BASE_URL}${langConfig.urlPrefix}/${page}`
-            : `${BASE_URL}/${page}`;
-          sitemap += `    <xhtml:link rel="alternate" hreflang="${langConfig.code}" href="${hrefUrl}"/>\n`;
-        }
-      }
+        // Only generate URL entry if this language has this page
+        if (!allLanguages[langCode].includes(page)) continue;
 
-      const defaultUrl = `${BASE_URL}/${page}`;
-      sitemap += `    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultUrl}"/>\n`;
-      sitemap += '  </url>\n';
+        // Build the URL for this specific language version
+        const locUrl = langConfig.urlPrefix 
+          ? `${BASE_URL}${langConfig.urlPrefix}/${page}`
+          : `${BASE_URL}/${page}`;
+        
+        // Get last modified date from git for this language's file
+        const mdxPath = langConfig.urlPrefix
+          ? path.join(docsRoot, langConfig.urlPrefix.substring(1), `${page}.mdx`)
+          : path.join(docsRoot, `${page}.mdx`);
+        const lastmod = getFileLastModified(mdxPath);
+        
+        sitemap += '  <url>\n';
+        sitemap += `    <loc>${locUrl}</loc>\n`;
+        sitemap += `    <lastmod>${lastmod}</lastmod>\n`;
+
+        // Add alternate links for all available language versions
+        for (const [altLangCode, altLangConfig] of Object.entries(LANGUAGES)) {
+          if (allLanguages[altLangCode].includes(page)) {
+            const hrefUrl = altLangConfig.urlPrefix 
+              ? `${BASE_URL}${altLangConfig.urlPrefix}/${page}`
+              : `${BASE_URL}/${page}`;
+            sitemap += `    <xhtml:link rel="alternate" hreflang="${altLangConfig.code}" href="${hrefUrl}"/>\n`;
+          }
+        }
+
+        // x-default always points to English version
+        const defaultUrl = `${BASE_URL}/${page}`;
+        sitemap += `    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultUrl}"/>\n`;
+        sitemap += '  </url>\n';
+      }
     }
 
     sitemap += '</urlset>\n';
@@ -122,7 +135,14 @@ function generateSitemap() {
     // Check if anything actually changed (ignoring just date changes on unchanged files)
     const changed = oldSitemap !== sitemap;
     
-    console.log(`✓ Sitemap generated: ${uniquePages.size} pages`);
+    // Count total URL entries across all languages
+    let totalUrlEntries = 0;
+    for (const [langCode] of Object.entries(LANGUAGES)) {
+      totalUrlEntries += allLanguages[langCode].length;
+    }
+    
+    console.log(`✓ Sitemap generated: ${uniquePages.size} unique pages`);
+    console.log(`✓ URL entries: ${totalUrlEntries} (across ${Object.keys(LANGUAGES).length} languages)`);
     console.log(`✓ Languages: ${Object.keys(LANGUAGES).join(', ')}`);
     console.log(`✓ Changed: ${changed ? 'Yes' : 'No (dates preserved)'}`);
     
@@ -130,11 +150,11 @@ function generateSitemap() {
     const urlCount = (sitemap.match(/<url>/g) || []).length;
     const hreflangCount = (sitemap.match(/hreflang="/g) || []).length;
     
-    if (urlCount === uniquePages.size && hreflangCount >= urlCount * 2) {
+    if (urlCount === totalUrlEntries && hreflangCount >= urlCount * 2) {
       console.log('✓ Validation passed');
       return true;
     } else {
-      console.error('❌ Validation failed');
+      console.error(`❌ Validation failed: expected ${totalUrlEntries} URLs, got ${urlCount}`);
       return false;
     }
   } catch (error) {
