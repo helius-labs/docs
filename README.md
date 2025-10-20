@@ -49,8 +49,6 @@ The sitemap regenerates automatically when:
 - Translations run via GitHub Actions
 - You can also run manually after adding/removing pages
 
-See [SITEMAP_README.md](./SITEMAP_README.md) for detailed documentation.
-
 ## Available Scripts
 
 - `npm run dev` - Start Mintlify development server
