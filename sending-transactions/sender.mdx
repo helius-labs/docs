@@ -20,7 +20,7 @@ Helius Sender is a specialized service for ultra-low latency transaction submiss
     Available on all plans without consuming API credits
   </Card>
   <Card title="High Throughput" icon="gauge-high" href="https://form.typeform.com/to/FuvpgSNt">
-    Default 6 TPS, request higher limits for your needs
+    Default 15 TPS, request higher limits for your needs
   </Card>
 </CardGroup>
 
@@ -246,14 +246,14 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
     Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
   </Card>
   <Card title="SWQOS-Only Alternative" icon="dollar-sign">
-    For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.0005 SOL minimum tip requirement.
+    For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.000005 SOL minimum tip requirement.
   </Card>
 </CardGroup>
 
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.0005 SOL for SWQOS-only), priority fees, and skip preflight checks.
+**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.000005 SOL for SWQOS-only), priority fees, and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -274,7 +274,7 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 All transactions submitted through Sender **must include both tips and priority fees**:
 
-- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.0005 SOL for SWQOS-only)
+- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.000005 SOL for SWQOS-only)
 
 <Accordion title="Designated Tip Accounts (mainnet-beta)">
 ```text
@@ -1271,15 +1271,67 @@ export { sendWithSender };
 
 ## Rate Limits and Scaling
 
-- **Default Rate Limit**: 6 transactions per second
+- **Default Rate Limit**: 15 transactions per second
 - **No Credit Usage**: Sender transactions don't consume API credits from your plan
+- **Professional Plan Upgrades**: Professional plan users can request significant rate limit increases to support high-throughput trading applications
+
+### Custom TPS with API Key Authentication
+
+<Info>
+This section is only relevant if you have been granted increased TPS limits and received an API key from the Helius team. Standard users can skip this section.
+</Info>
+
+If you have been approved for higher TPS limits, you will receive a dedicated API key for Sender. To use it, append the API key as a query parameter to your endpoint URL:
+
+<Tabs>
+  <Tab title="Frontend/Browser Applications">
+    ```
+    https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+  </Tab>
+  <Tab title="Backend/Server Applications">
+    ```
+    http://slc-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ewr-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://lon-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://fra-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ams-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://sg-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://tyo-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+  </Tab>
+</Tabs>
+
+**Example Usage:**
+
+```typescript
+const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY';
+
+const response = await fetch(SENDER_ENDPOINT, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: Date.now().toString(),
+    method: 'sendTransaction',
+    params: [
+      base64Transaction,
+      { encoding: 'base64', skipPreflight: true, maxRetries: 0 }
+    ]
+  })
+});
+```
+
+<Note>
+Don't have a custom TPS limit yet? [Request higher limits here](https://form.typeform.com/to/FuvpgSNt) if you need more than 15 TPS for your application.
+</Note>
 
 ## Support and Scaling
 
 For production deployments requiring higher throughput:
 
 <Card title="Request Higher TPS Limits" icon="rocket" href="https://form.typeform.com/to/FuvpgSNt">
-Need more than 6 TPS? Fill out our request form.
+Need more than 15 TPS? Fill out our request form. Professional plan users can access significant rate limit upgrades for high-frequency trading applications.
 </Card>
 
 Additional support options:

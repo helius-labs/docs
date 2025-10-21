@@ -16,11 +16,11 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
   <Card title="全球端点" icon="globe">
     HTTPS端点自动路由到最近的位置用于前端，区域HTTP用于后端
   </Card>
-  <Card title="无需积分" icon="coins">
+  <Card title="无积分" icon="coins">
     所有计划均可使用且不消耗API积分
   </Card>
   <Card title="高吞吐量" icon="gauge-high" href="https://form.typeform.com/to/FuvpgSNt">
-    默认6 TPS，可根据需要请求更高限制
+    默认15 TPS，可根据需要请求更高限制
   </Card>
 </CardGroup>
 
@@ -247,17 +247,17 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 <CardGroup cols={2}>
   <Card title="默认双重路由" icon="arrows-split-up-and-left">
-    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 小费。
+    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 的小费。
   </Card>
-  <Card title="仅 SWQOS 替代方案" icon="dollar-sign">
-    对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.0005 SOL。
+  <Card title="仅限 SWQOS 的替代方案" icon="dollar-sign">
+    对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.000005 SOL。
   </Card>
 </CardGroup>
 
 ## 要求
 
 <Warning>
-**强制性要求**：所有交易必须包含小费（最低0.001 SOL，或仅限SWQOS的0.0005 SOL）、优先费用，并跳过预检检查。
+**强制要求**：所有交易必须包含小费（最低 0.001 SOL，或仅限 SWQOS 的 0.000005 SOL）、优先费用，并跳过预检检查。
 </Warning>
 
 ### 1. 跳过预检（强制）
@@ -278,7 +278,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 通过Sender提交的所有交易**必须同时包含小费和优先费用**：
 
-- **小费**：最低0.001 SOL转账到指定的小费账户（或仅限SWQOS的0.0005 SOL）
+- **小费**：最低 0.001 SOL 转账到指定的小费账户（或仅限 SWQOS 的 0.000005 SOL）
 
 <Accordion title="指定小费账户（mainnet-beta）">
 
@@ -1292,18 +1292,74 @@ export { sendWithSender };
 
 ## 速率限制和扩展
 
-- **默认速率限制**：每秒 6 笔交易
-- **无信用使用**：发送者交易不消耗您计划中的 API 信用
+- **默认速率限制**：每秒15笔交易
+- **无积分消耗**：发送方交易不消耗计划中的API积分
+- **专业计划升级**：专业计划用户可以请求显著的速率限制增加，以支持高吞吐量交易应用
+
+### 使用 API 密钥认证的自定义 TPS
+
+<Info>
+本节仅在您获得了更高的 TPS 限制并从 Helius 团队收到 API 密钥时相关。标准用户可以跳过本节。
+</Info>
+
+如果您已获得更高的 TPS 限制批准，您将收到一个专用的 Sender API 密钥。要使用它，请将 API 密钥作为查询参数附加到您的端点 URL：
+
+<Tabs>
+  <Tab title="前端/浏览器应用程序">
+
+    ```
+    https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+
+  </Tab>
+  <Tab title="后端/服务器应用程序">
+
+    ```
+    http://slc-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ewr-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://lon-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://fra-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://ams-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://sg-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    http://tyo-sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY
+    ```
+
+  </Tab>
+</Tabs>
+
+**示例用法：**
+
+```typescript
+const SENDER_ENDPOINT = 'https://sender.helius-rpc.com/fast?api-key=YOUR_SENDER_API_KEY';
+
+const response = await fetch(SENDER_ENDPOINT, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: Date.now().toString(),
+    method: 'sendTransaction',
+    params: [
+      base64Transaction,
+      { encoding: 'base64', skipPreflight: true, maxRetries: 0 }
+    ]
+  })
+});
+```
+
+<Note>
+还没有自定义 TPS 限制？如果您的应用程序需要超过 15 TPS，请[在此请求更高的限制](https://form.typeform.com/to/FuvpgSNt)。
+</Note>
 
 ## 支持和扩展
 
 对于需要更高吞吐量的生产部署：
 
-<Card title="请求更高的TPS限制" icon="rocket" href="https://form.typeform.com/to/FuvpgSNt">
-需要超过6 TPS？请填写我们的请求表格。
+<Card title="请求更高的 TPS 限制" icon="rocket" href="https://form.typeform.com/to/FuvpgSNt">
+需要超过 15 TPS？请填写我们的请求表格。专业计划用户可以获得高频交易应用程序的显著速率限制升级。
 </Card>
 
 其他支持选项：
 
-* 通过[Helius Dashboard](https://dashboard.helius.dev)联系支持
-* 加入我们的[Discord社区](https://discord.com/invite/6GXdee3gBj)以获得实时帮助
+* 通过 [Helius Dashboard](https://dashboard.helius.dev) 联系支持
+* 加入我们的 [Discord 社区](https://discord.com/invite/6GXdee3gBj) 以获得实时帮助

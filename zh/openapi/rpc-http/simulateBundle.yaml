@@ -84,96 +84,189 @@ paths:
                 params:
                   type: "array"
                   description: "用于模拟 JITO 包的参数。"
-                  default:
-                    - encodedTransactions:
-                        - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
                   items:
                     type: "object"
                     description: "包模拟配置对象。"
                     required:
-                      - "encodedTransactions"
+                      - "params[0]"
                     properties:
-                      encodedTransactions:
-                        type: "array"
-                        description: "用于模拟的一个或多个 base64 编码的序列化交易数组。"
-                        items:
-                          type: "string"
-                          description: "Base64 编码的序列化交易。"
-                          example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
-                      simulationBank:
-                        type: "string"
-                        description: "可选的银行，用于运行模拟。"
-                        example: "Bank12345"
-                      skipSigVerify:
-                        type: "boolean"
-                        description: "是否在模拟前跳过签名验证。"
-                        example: false
-                      replaceRecentBlockhash:
-                        type: "boolean"
-                        description: "是否用最新的区块哈希替换模拟交易的最近区块哈希。"
-                        example: false
-                      accounts:
+                      params[0]:
                         type: "object"
-                        description: "要返回的账户数据配置。"
+                        description: "第一个配置对象。包含用于模拟的编码交易。"
                         properties:
-                          addresses:
+                          encodedTransactions:
                             type: "array"
-                            description: "要返回的账户数组，以 base-58 编码的字符串形式。"
+                            description: "用于模拟的编码、序列化交易数组。编码由 `transactionEncoding` 字段决定（默认为 base-64）。"
                             items:
                               type: "string"
-                              example: "F6Su1HvqZk8ee1WsjZLAa1AGXk4R2TPsovynZ8kgNB6t"
-                          encoding:
+                              description: "编码的序列化交易。"
+                              example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                      params[1]:
+                        type: "object"
+                        description: "第二个配置对象。可选。"
+                        required:
+                          - "preExecutionAccountsConfigs"
+                          - "postExecutionAccountsConfigs"
+                        properties:
+                          preExecutionAccountsConfigs:
+                            type: "array"
+                            description: "指定在模拟期间要捕获的账户。
+
+
+                              这会捕获交易执行*之前*的账户状态。
+
+
+                              数组中某个索引处的元素配置与包中相同索引处的交易。
+
+
+                              对于包中的每个交易：
+
+                              \  - 如果不希望返回任何账户状态，请传递 `null`。
+
+                              \  - 或者，提供一个对象描述要返回的账户。
+
+
+                              数组长度必须等于包中交易的数量。\n"
+                            items:
+                              type:
+                                - "object"
+                                - "null"
+                              required:
+                                - "addresses"
+                              properties:
+                                addresses:
+                                  type: "array"
+                                  description: "将捕获其状态的 base-58 编码账户地址列表。"
+                                  items:
+                                    type: "string"
+                                    description: "base-58 编码的账户地址。"
+                                    example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                encoding:
+                                  type: "string"
+                                  description: "返回捕获的账户数据的编码。\n"
+                                  default: "base64"
+                                  enum:
+                                    - "binary"
+                                    - "base58"
+                                    - "base64"
+                                    - "jsonParsed"
+                                    - "base64+zstd"
+                                  example: "base64"
+                          postExecutionAccountsConfigs:
+                            type: "array"
+                            description: "指定在模拟期间要捕获的账户。
+
+
+                              这会捕获交易执行后*的账户状态。
+
+
+                              数组中某个索引的元素配置与捆绑包中相同索引的交易。
+
+
+                              对于捆绑包中的每个交易：
+
+                              \  - 如果不希望返回任何账户状态，请传递 `null`。
+
+                              \  - 或者，提供一个对象描述要返回的账户。
+
+
+                              数组长度必须等于捆绑包中的交易数量。\n"
+                            items:
+                              type:
+                                - "object"
+                                - "null"
+                              required:
+                                - "addresses"
+                              properties:
+                                addresses:
+                                  type: "array"
+                                  description: "将捕获其状态的 base-58 编码账户地址列表。"
+                                  items:
+                                    type: "string"
+                                    description: "base-58 编码账户地址。"
+                                    example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                encoding:
+                                  type: "string"
+                                  description: "返回捕获的账户数据的编码格式。\n"
+                                  default: "base64"
+                                  enum:
+                                    - "binary"
+                                    - "base58"
+                                    - "base64"
+                                    - "jsonParsed"
+                                    - "base64+zstd"
+                                  example: "base64"
+                          transactionEncoding:
                             type: "string"
-                            description: "账户数据的编码格式。"
+                            description: "在 `encodedTransactions` 中使用的交易编码。"
                             enum:
-                              - "base58"
                               - "base64"
-                              - "base64+zstd"
-                              - "jsonParsed"
-                            example: "base64"
-                      preExecutionAccountsConfigs:
-                        type: "array"
-                        description: "指定执行前的账户状态配置。"
-                        items:
-                          type:
-                            - "object"
-                            - "null"
-                          properties:
-                            accountIndex:
-                              type: "integer"
-                              description: "交易中账户的索引。"
-                              example: 0
-                            addresses:
-                              type: "array"
-                              description: "执行前要监控的账户地址列表。"
-                              items:
-                                type: "string"
-                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      postExecutionAccountsConfigs:
-                        type: "array"
-                        description: "指定执行后账户状态配置。"
-                        items:
-                          type:
-                            - "object"
-                            - "null"
-                          properties:
-                            accountIndex:
-                              type: "integer"
-                              description: "交易中账户的索引。"
-                              example: 0
-                            addresses:
-                              type: "array"
-                              description: "执行后要监控的账户地址列表。"
-                              items:
-                                type: "string"
-                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                              - "base58"
+                            default: "base64"
+                          simulationBank:
+                            description: "指定要运行模拟的银行。可以是 tip、一个 slot 或一个承诺级别。"
+                            oneOf:
+                              - type: "string"
+                                description: "使用 RPC 的最高 slot 的银行，即工作银行。"
+                                example: "tip"
+                              - type: "object"
+                                description: "在提供的 slot 的银行上进行模拟（可能不可用）。"
+                                properties:
+                                  slot:
+                                    type: "integer"
+                                    example: 373976835
+                                required:
+                                  - "slot"
+                              - type: "object"
+                                description: "定义一个承诺级别进行模拟。"
+                                properties:
+                                  commitment:
+                                    type: "object"
+                                    properties:
+                                      commitment:
+                                        type: "string"
+                                        enum:
+                                          - "processed"
+                                          - "confirmed"
+                                          - "finalized"
+                                        description: "用于模拟的承诺级别。"
+                                        example: "processed"
+                                    required:
+                                      - "commitment"
+                                required:
+                                  - "commitment"
+                          skipSigVerify:
+                            type: "boolean"
+                            description: "是否在模拟之前跳过签名验证。"
+                            default: false
+                          replaceRecentBlockhash:
+                            type: "boolean"
+                            description: "是否用最新的区块哈希替换模拟交易的最近区块哈希。"
+                            default: false
             example:
               jsonrpc: "2.0"
               id: "1"
               method: "simulateBundle"
               params:
                 - encodedTransactions:
-                    - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                    - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhC v82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7X rKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                    - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhC v82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7X rKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                - preExecutionAccountsConfigs:
+                    - addresses:
+                        - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      encoding: "base64"
+                    - null
+                  postExecutionAccountsConfigs:
+                    - addresses:
+                        - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      encoding: "base64"
+                    - null
+                  skipSigVerify: true
+                  simulationBank:
+                    commitment:
+                      commitment: "processed"
+                  transactionEncoding: "base64"
+                  replaceRecentBlockhash: false
       responses:
         "200":
           description: "成功模拟了捆绑。"
@@ -203,132 +296,170 @@ paths:
                           apiVersion:
                             type: "string"
                             description: "API版本。"
-                            example: "1.16.3"
+                            example: "2.30.10"
                           slot:
                             type: "integer"
                             description: "数据处理的槽位。"
-                            example: 203841925
-                      err:
-                        type:
-                          - "object"
-                          - "null"
-                        description: "如果包失败则为错误，成功则为null。"
-                        example: null
-                      logs:
-                        type:
-                          - "array"
-                          - "null"
-                        description: "来自事务执行的日志消息数组。"
-                        items:
-                          type: "string"
-                          example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
-                      preExecutionAccounts:
-                        type:
-                          - "array"
-                          - "null"
-                        description: "包执行前的账户状态。"
-                        items:
-                          type:
-                            - "object"
-                            - "null"
-                          properties:
-                            lamports:
-                              type: "integer"
-                              description: "分配给此账户的 lamports 数量。"
-                              example: 1500000000
-                            owner:
-                              type: "string"
-                              description: "此账户分配到的程序的 Base-58 编码公钥。"
-                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                            data:
-                              type: "string"
-                              description: "与账户关联的数据。"
-                              example: ""
-                            executable:
-                              type: "boolean"
-                              description: "账户是否包含程序。"
-                              example: false
-                            rentEpoch:
-                              type: "integer"
-                              description: "此账户下次需要支付租金的纪元。"
-                              example: 324
-                      postExecutionAccounts:
-                        type:
-                          - "array"
-                          - "null"
-                        description: "捆绑执行后的账户状态。"
-                        items:
-                          type:
-                            - "object"
-                            - "null"
-                          properties:
-                            lamports:
-                              type: "integer"
-                              description: "分配给此账户的 lamports 数量。"
-                              example: 997000000
-                            owner:
-                              type: "string"
-                              description: "此账户分配到的程序的 Base-58 编码公钥。"
-                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                            data:
-                              type: "string"
-                              description: "与账户关联的数据。"
-                              example: ""
-                            executable:
-                              type: "boolean"
-                              description: "账户是否包含程序。"
-                              example: false
-                            rentEpoch:
-                              type: "integer"
-                              description: "此账户将在该纪元下次欠租。"
-                              example: 324
-                      unitsConsumed:
-                        type: "integer"
-                        description: "处理期间消耗的计算预算单位数量。"
-                        example: 200000
-                      returnData:
-                        type:
-                          - "object"
-                          - "null"
-                        description: "指令生成的最新返回数据。"
+                            example: 373999891
+                      value:
+                        type: "object"
+                        description: "模拟捆绑结果的详细信息。"
                         properties:
-                          programId:
+                          summary:
                             type: "string"
-                            description: "生成返回数据的程序。"
-                            example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
-                          data:
-                            type: "string"
-                            description: "以base-64编码的二进制数据形式返回的数据。"
-                            example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                            description: "模拟结果的摘要。"
+                            example: "succeeded"
+                          transactionResults:
+                            type: "array"
+                            description: "捆绑中每个交易的结果数组。"
+                            items:
+                              type: "object"
+                              properties:
+                                err:
+                                  type:
+                                    - "object"
+                                    - "null"
+                                  description: "如果交易失败则为错误，成功则为`null`。"
+                                logs:
+                                  type:
+                                    - "array"
+                                    - "null"
+                                  description: "来自交易执行的日志消息数组。"
+                                  items:
+                                    type: "string"
+                                    example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
+                                preExecutionAccounts:
+                                  type:
+                                    - "array"
+                                    - "null"
+                                  description: "交易执行前的账户状态。"
+                                  items:
+                                    type: "object"
+                                    properties:
+                                      data:
+                                        type: "string"
+                                        description: "与账户关联的数据。"
+                                      executable:
+                                        type: "boolean"
+                                        description: "账户是否包含程序。"
+                                        example: false
+                                      lamports:
+                                        type: "integer"
+                                        description: "分配给此账户的 lamports 数量。"
+                                        example: 1500000000
+                                      owner:
+                                        type: "string"
+                                        description: "拥有此账户的程序的地址。"
+                                        example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                                      rentEpoch:
+                                        type: "integer"
+                                        description: "此账户下次需要支付租金的纪元。"
+                                        example: 324
+                                      space:
+                                        type: "integer"
+                                        description: "账户的数据大小。"
+                                        example: 1024
+                                postExecutionAccounts:
+                                  type:
+                                    - "array"
+                                    - "null"
+                                  description: "交易执行后的账户状态。"
+                                  items:
+                                    type: "object"
+                                    properties:
+                                      data:
+                                        type: "string"
+                                        description: "与账户关联的数据。"
+                                      executable:
+                                        type: "boolean"
+                                        description: "账户是否包含程序。"
+                                        example: false
+                                      lamports:
+                                        type: "integer"
+                                        description: "分配给此账户的 lamports 数量。"
+                                        example: 1500000000
+                                      owner:
+                                        type: "string"
+                                        description: "拥有此账户的程序的地址。"
+                                        example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                                      rentEpoch:
+                                        type: "integer"
+                                        description: "此账户下次需要支付租金的纪元。"
+                                        example: 324
+                                      space:
+                                        type: "integer"
+                                        description: "账户的数据大小。"
+                                        example: 1024
+                                unitsConsumed:
+                                  type: "integer"
+                                  description: "处理期间消耗的计算预算单位数量。"
+                                  example: 200000
+                                returnData:
+                                  type:
+                                    - "object"
+                                    - "null"
+                                  description: "指令生成的最新返回数据。"
+                                  properties:
+                                    programId:
+                                      type: "string"
+                                      description: "生成返回数据的程序。"
+                                      example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                                    data:
+                                      type: "string"
+                                      description: "以 base-64 编码的二进制数据形式返回的数据。"
+                                      example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
               example:
                 jsonrpc: "2.0"
                 id: "1"
                 result:
                   context:
-                    apiVersion: "1.16.3"
-                    slot: 203841925
-                  err: null
-                  logs:
-                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
-                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R success"
-                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ invoke [1]"
-                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ success"
-                  preExecutionAccounts:
-                    - lamports: 1500000000
-                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      data: ""
-                      executable: false
-                      rentEpoch: 324
-                  postExecutionAccounts:
-                    - lamports: 997000000
-                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      data: ""
-                      executable: false
-                      rentEpoch: 324
-                  unitsConsumed: 300000
-                  returnData:
-                    programId: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
-                    data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                    apiVersion: "2.30.10"
+                    slot: 373999891
+                  value:
+                    summary: "成功"
+                    transactionResults:
+                      - err: null
+                        logs:
+                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
+                          - "程序 ComputeBudget111111111111111111111111111111 成功"
+                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
+                          - "程序 ComputeBudget111111111111111111111111111111 成功"
+                          - "程序 11111111111111111111111111111111 调用 [1]"
+                          - "程序 11111111111111111111111111111111 成功"
+                        preExecutionAccounts:
+                          - data:
+                              - ""
+                              - "base64"
+                            executable: true
+                            lamports: 5299606121
+                            owner: "BPFLoader2111111111111111111111111111111111"
+                            rentEpoch: 324
+                            space: 134080
+                        postExecutionAccounts:
+                          - data:
+                              - ""
+                              - "base64"
+                            executable: true
+                            lamports: 5299606121
+                            owner: "BPFLoader2111111111111111111111111111111111"
+                            rentEpoch: 324
+                            space: 134080
+                        returnData:
+                          programId: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                          data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                        unitsConsumed: 450
+                      - err: null
+                        logs:
+                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
+                          - "程序 ComputeBudget111111111111111111111111111111 成功"
+                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
+                          - "程序 ComputeBudget111111111111111111111111111111 成功"
+                          - "程序 11111111111111111111111111111111 调用 [1]"
+                          - "程序 11111111111111111111111111111111 成功"
+                        postExecutionAccounts: null
+                        preExecutionAccounts: null
+                        returnData: null
+                        unitsConsumed: 450
         "400":
           description: "错误请求 - 请求参数无效或请求格式错误。"
           content:
