@@ -418,7 +418,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <td><strong>标准 RPC 调用</strong></td>
       <td style={{textAlign: 'center'}}>1</td>
-      <td>除单独列出的以外的所有 RPC 调用</td>
+      <td>除单独列出的所有 RPC 调用</td>
     </tr>
     <tr>
       <td><strong>simulateBundle</strong></td>
@@ -448,7 +448,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <td><strong>数据附加组件（仅限专业版）</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
-      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强型 WebSockets 的使用。定价层级请参见<a href="#data-add-ons">数据附加组件</a></td>
+      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强型 WebSockets 使用。查看<a href="#data-add-ons">数据附加组件</a>以了解定价层级</td>
     </tr>
     <tr>
       <td><strong>getProgramAccounts</strong></td>
@@ -456,15 +456,12 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       <td>获取由程序拥有的所有账户/数据</td>
     </tr>
     <tr>
-      <td><strong>历史数据（存档）</strong></td>
+      <td><strong>归档</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
-        <td>
-         查询历史区块链数据的 RPC 调用，包括 <code>getTransaction</code>、<code>getSignaturesForAddress</code>、<code>getBlock</code>。<br />
-         完整列表请参见下方的<a href="#historical-data">表格</a>
-       </td>
+      <td>获取除单独列出的所有归档 RPC 调用</td>
     </tr>
     <tr>
-      <td><strong>ZK Compression API</strong></td>
+      <td><strong>ZK 压缩 API</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
       <td>ZK 压缩 RPC 调用</td>
     </tr>
@@ -530,51 +527,20 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
   </Tab>
 
      <Tab title="历史数据">
-     <div id="historical-data"></div>
-     历史数据查询（有时称为存档调用）每次消耗 **10 积分**：
+     所有存档调用每次花费**10个积分**：
      
-     <table>
-       <thead>
-         <tr>
-           <th style={{width: '300px'}}>方法</th>
-           <th>描述</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td><code>getBlock</code></td>
-           <td>检索指定槽位的区块数据和交易</td>
-         </tr>
-         <tr>
-           <td><code>getBlocks</code></td>
-           <td>获取两个槽位之间的区块列表</td>
-         </tr>
-         <tr>
-           <td><code>getBlocksWithLimit</code></td>
-           <td>从给定槽位开始获取区块，带有限制</td>
-         </tr>
-         <tr>
-           <td><code>getSignaturesForAddress</code></td>
-           <td>获取某个地址的交易签名</td>
-         </tr>
-         <tr>
-           <td><code>getTransaction</code></td>
-           <td>检索指定签名的交易详情</td>
-         </tr>
-         <tr>
-           <td><code>getBlockTime</code></td>
-           <td>获取区块的预计生产时间</td>
-         </tr>
-         <tr>
-           <td><code>getSignatureStatuses</code></td>
-           <td>获取交易签名的状态。费用取决于 <code>searchTransactionHistory</code> 参数：启用时（搜索历史数据）为 10 积分，禁用时（仅搜索最近区块）为 1 积分</td>
-         </tr>
-         <tr>
-           <td><code>getInflationReward</code></td>
-           <td>获取某个纪元的地址列表的通胀奖励</td>
-         </tr>
-       </tbody>
-     </table>
+     <CardGroup cols={2}>
+       <Card title="区块数据">
+         - `getBlock`
+         - `getBlocks`
+         - `getBlockTime`
+       </Card>
+       <Card title="交易历史">
+         - `getTransaction`
+         - `getSignaturesForAddress`
+         - `getInflationReward`
+       </Card>
+     </CardGroup>
    </Tab>
 
    <Tab title="DAS API">
