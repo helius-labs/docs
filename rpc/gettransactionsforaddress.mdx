@@ -6,49 +6,27 @@ description: "Learn how to query Solana transaction history with advanced filter
 
 
 <Tip>
-**Helius Exclusive Feature** - `getTransactionsForAddress` is only available through Helius RPC nodes and is not part of standard Solana RPC. This enhanced API addresses key limitations of `getSignaturesForAddress` with advanced filtering and sorting capabilities.
+**Helius Exclusive Feature** - `getTransactionsForAddress` is only available through Helius RPC nodes and is not part of standard Solana RPC.
 </Tip>
 
 ## Overview
 
-[`getTransactionsForAddress`](/api-reference/rpc/http/gettransactionsforaddress) is an enhanced transaction history API that overcomes the limitations of Solana's standard `getSignaturesForAddress` method.
+[`getTransactionsForAddress`](/api-reference/rpc/http/gettransactionsforaddress) provides powerful transaction history queries with advanced filtering, flexible sorting, and efficient pagination.
 
-The method supports advanced filtering by time ranges, slots, and signatures. You can sort transactions chronologically or in reverse order, use efficient keyset-based pagination, and optionally retrieve complete transaction data without additional API calls.
-
----
-
-## What are the advantages of getTransactionsForAddress vs getSignaturesForAddress?
-
-The standard `getSignaturesForAddress` method has significant limitations: it only supports reverse chronological order, requires additional `getTransaction` calls to fetch transaction details, and uses confusing before/until pagination. This results in multiple API calls and slower performance when analyzing transaction history.
-
-### Enhanced Capabilities
+### Key Features
 
 <CardGroup cols={2}>
-  <Card title="Bidirectional sorting" icon="arrows-up-down">
-    Query from the beginning forward or newest first
+  <Card title="Flexible sorting" icon="arrows-up-down">
+    Sort chronologically (oldest first) or reverse (newest first)
   </Card>
   <Card title="Advanced filtering" icon="filter">
-    Time ranges, slot ranges, and signature filtering
+    Filter by time ranges, slots, signatures, and transaction status
   </Card>
   <Card title="Full transaction data" icon="database">
     Get complete transaction details in one call
   </Card>
-  <Card title="Efficient pagination" icon="layer-group">
-    Faster keyset pagination with slot:position keys
-  </Card>
-</CardGroup>
-
-### Performance Benefits
-
-<CardGroup cols={3}>
-  <Card title="Reduced API calls" icon="minus-circle">
-    Single call vs getSignaturesForAddress + multiple getTransaction calls
-  </Card>
-  <Card title="Faster pagination" icon="bolt">
-    Direct keyset pagination saves 20-60ms per request vs before/until lookups
-  </Card>
-  <Card title="Precise filtering" icon="magnifying-glass-chart">
-    Server-side filtering reduces bandwidth and processing
+  <Card title="Simple pagination" icon="layer-group">
+    Easy pagination with slot:position tokens
   </Card>
 </CardGroup>
 
@@ -56,9 +34,9 @@ The standard `getSignaturesForAddress` method has significant limitations: it on
 
 ## Common Use Cases
 
-This method is particularly useful for several scenarios. **Token Launch Analysis** helps track first mint transactions and early token holders for new projects. **Wallet Funding History** allows you to identify funding sources and transaction patterns for specific addresses. For **MEV Bot Tracking**, you can monitor arbitrage and sandwich attack patterns with precise timing.
+This method is particularly useful for several scenarios. **Token Launch Analysis** helps track first mint transactions and early token holders for new projects. **Wallet Funding History** allows you to identify funding sources and transaction patterns for specific addresses. **Transaction Analysis** lets you filter by success/failure status to focus on completed transactions and exclude failed attempts.
 
-The API also supports **Audit & Compliance** workflows by generating transaction reports for specific time periods and statuses. **Analytics Dashboards** can leverage the historical replay functionality to build comprehensive transaction analytics. Finally, **Portfolio Tracking** applications can access complete transaction history for DeFi portfolio management.
+The API also supports **Audit & Compliance** workflows by generating transaction reports for specific time periods with status filtering. **Analytics Dashboards** can leverage the historical replay functionality to build comprehensive transaction analytics. Finally, **Portfolio Tracking** applications can access complete successful transaction history for DeFi portfolio management.
 
 ---
 
@@ -70,10 +48,10 @@ The API also supports **Audit & Compliance** workflows by generating transaction
   </Step>
   
   <Step title="Query with Advanced Features">
-    Get the earliest transactions with full details in one call - something not possible with standard `getSignaturesForAddress`:
+    Get all successful transactions for a wallet between two dates, sorted chronologically:
     
     ```javascript
-    // Get oldest transactions with complete data and time filtering
+    // Get successful transactions between Jan 1-31, 2025 in chronological order
     const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -84,13 +62,15 @@ The API also supports **Audit & Compliance** workflows by generating transaction
         params: [
           'YOUR_ADDRESS_HERE',
           {
-            transactionDetails: 'full',  // Get complete tx data in one call
-            sortOrder: 'asc',            // Chronological order (oldest first)
-            limit: 10,
+            transactionDetails: 'full',
+            sortOrder: 'asc',
+            limit: 100,
             filters: {
               blockTime: {
-                gte: 1735689600          // After Jan 1, 2025
-              }
+                gte: 1735689600,   // Jan 1, 2025
+                lte: 1738368000    // Jan 31, 2025
+              },
+              status: 'succeeded'  // Only successful transactions
             }
           }
         ]
@@ -98,22 +78,65 @@ The API also supports **Audit & Compliance** workflows by generating transaction
     });
     
     const data = await response.json();
-    console.log('First 10 transactions:', data.result.data);
+    console.log('Successful transactions in January:', data.result.data);
     ```
   </Step>
   
-  <Step title="Understand the Advantages">
-    This single call demonstrates features not available in `getSignaturesForAddress`:
-    - **Chronological sorting** (`sortOrder: 'asc'`)
-    - **Time-based filtering** (after specific date)
-    - **Full transaction data** without additional `getTransaction` calls
-    - **Efficient pagination** with slot:position keys
+  <Step title="Understand the Parameters">
+    This example shows key features:
+    - **transactionDetails**: Set to `'full'` to get complete transaction data in one call
+    - **sortOrder**: Use `'asc'` for chronological order (oldest first) or `'desc'` for newest first
+    - **filters.blockTime**: Set time ranges with `gte` (greater than or equal) and `lte` (less than or equal)
+    - **filters.status**: Filter to only `'succeeded'` or `'failed'` transactions
   </Step>
 </Steps>
 
 ---
 
 ## Practical Examples
+
+### Time-Based Analytics
+
+Generate monthly transaction reports:
+
+```javascript
+// Get all successful transactions for January 2025
+const startTime = Math.floor(new Date('2025-01-01').getTime() / 1000);
+const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "WALLET_OR_PROGRAM_ADDRESS",
+    {
+      "transactionDetails": "signatures",
+      "filters": {
+        "blockTime": {
+          "gte": startTime,
+          "lt": endTime
+        },
+        "status": "succeeded"
+      },
+      "limit": 1000
+    }
+  ]
+}
+```
+
+Process for analytics:
+
+```javascript
+// Calculate daily transaction volume
+const dailyStats = {};
+response.result.data.forEach(tx => {
+  const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
+  dailyStats[date] = (dailyStats[date] || 0) + 1;
+});
+
+console.log('Daily Transaction Counts:', dailyStats);
+```
 
 ### Token Mint Creation
 
@@ -201,205 +224,6 @@ response.result.data.forEach(tx => {
 The first few transactions often reveal the funding source and can help identify related addresses or funding patterns.
 </Note>
 
-### MEV Analysis
-
-Track sandwich attacks and arbitrage opportunities:
-
-```javascript
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "getTransactionsForAddress",
-  "params": [
-    "AMM_PROGRAM_ADDRESS", // e.g., Raydium, Pump
-    {
-      "transactionDetails": "full",
-      "filters": {
-        "blockTime": {
-          "gte": 1640995200,  // Specific time window
-          "lte": 1640995260 
-        }
-      },
-      "sortOrder": "asc",  // Chronological for MEV analysis
-      "limit": 100
-    }
-  ]
-}
-```
-
-Analyze for MEV patterns:
-
-```javascript
-// Look for transactions in same block with similar accounts
-const transactionsByBlock = {};
-response.result.data.forEach(tx => {
-  const slot = tx.slot;
-  if (!transactionsByBlock[slot]) transactionsByBlock[slot] = [];
-  transactionsByBlock[slot].push(tx);
-});
-
-// Find potential sandwich attacks (3+ txs in same block)
-Object.entries(transactionsByBlock).forEach(([slot, txs]) => {
-  if (txs.length >= 3) {
-    console.log(`Potential MEV activity in slot ${slot}: ${txs.length} transactions`);
-  }
-});
-```
-
-<Warning>
-**Analysis Note**: MEV detection requires analyzing multiple transactions within the same block and comparing account overlaps and balance changes.
-</Warning>
-
-### Time-Based Analytics
-
-Generate monthly transaction reports:
-
-```javascript
-// Get all successful transactions for January 2025
-const startTime = Math.floor(new Date('2025-01-01').getTime() / 1000);
-const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
-
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "getTransactionsForAddress",
-  "params": [
-    "WALLET_OR_PROGRAM_ADDRESS",
-    {
-      "transactionDetails": "signatures",
-      "filters": {
-        "blockTime": {
-          "gte": startTime,
-          "lt": endTime
-        }
-      },
-      "limit": 1000
-    }
-  ]
-}
-```
-
-Process for analytics:
-
-```javascript
-// Calculate daily transaction volume
-const dailyStats = {};
-response.result.data.forEach(tx => {
-  const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
-  dailyStats[date] = (dailyStats[date] || 0) + 1;
-});
-
-console.log('Daily Transaction Counts:', dailyStats);
-```
-
----
-
-## Filter Operators
-
-When using filters for `slot`, `blockTime`, or `signature`, you can use these comparison operators. These operators work like database queries to give you precise control over your data range.
-
-| Operator | Full Name | Description | Example |
-|----------|-----------|-------------|---------|
-| `gte` | Greater Than or Equal | Include values ≥ specified value | `slot: { gte: 100 }` |
-| `gt` | Greater Than | Include values > specified value | `blockTime: { gt: 1641081600 }` |
-| `lte` | Less Than or Equal | Include values ≤ specified value | `slot: { lte: 2000 }` |
-| `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
-| `eq` | Equal | Include values exactly equal | `slot: { eq: 150 }` |
-
-**Combined Filters Example:**
-```javascript
-"filters": {
-  "slot": { "gte": 1000, "lte": 2000 },     // Between slots 1000-2000
-  "blockTime": { "gt": 1641081600 }          // After specific timestamp
-}
-```
-
----
-
-## Pagination
-
-<Note>
-**Performance**: Keyset pagination is faster than offset-based pagination and maintains consistent performance regardless of page depth. The pagination key format `slot:position` is more intuitive and eliminates the need for the RPC to lookup signature positions, saving 20-60ms per request.
-</Note>
-
-### Keyset Pagination
-
-Efficient pagination using slot:position keys:
-
-```javascript
-// First request
-let paginationKey = null;
-let allTransactions = [];
-
-const getNextPage = async (paginationKey = null) => {
-  const params = [
-    'ADDRESS',
-    {
-      transactionDetails: 'signatures',
-      limit: 100,
-      ...(paginationKey && { paginationKey })
-    }
-  ];
-
-  const response = await fetch(rpcUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'getTransactionsForAddress',
-      params
-    })
-  });
-
-  const data = await response.json();
-  return data.result;
-};
-
-// Paginate through all results
-do {
-  const result = await getNextPage(paginationKey);
-  allTransactions.push(...result.data);
-  paginationKey = result.paginationKey;
-  
-  console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
-} while (paginationKey);
-```
-
-### Comparison with Before/Until Pagination
-
-Standard getSignaturesForAddress pagination:
-
-```javascript
-// Confusing and slower
-{
-  "method": "getSignaturesForAddress", 
-  "params": [
-    "ADDRESS",
-    {
-      "before": "SIGNATURE_STRING",  // Hard to keep track
-      "limit": 100
-    }
-  ]
-}
-```
-
-Enhanced getTransactionsForAddress pagination:
-
-```javascript
-// Clear and faster
-{
-  "method": "getTransactionsForAddress",
-  "params": [
-    "ADDRESS", 
-    {
-      "paginationKey": "1500:10",  // Clear slot:position format
-      "limit": 100
-    }
-  ]
-}
-```
-
 ---
 
 ## Request Parameters
@@ -424,8 +248,8 @@ Enhanced getTransactionsForAddress pagination:
   Maximum transactions to return (1-1000)
 </ParamField>
 
-<ParamField body="paginationKey" type="string">
-  Pagination key from previous response (format: "slot:position")
+<ParamField body="pagination_token" type="string">
+  Pagination token from previous response (format: `"slot:position"`)
 </ParamField>
 
 <ParamField body="commitment" type="string" default="confirmed">
@@ -433,10 +257,46 @@ Enhanced getTransactionsForAddress pagination:
 </ParamField>
 
 <ParamField body="filters" type="object">
-  Advanced filtering options:
-  - `slot`: Filter by slot number with comparison operators
-  - `blockTime`: Filter by Unix timestamp with comparison operators  
-  - `signature`: Filter by signature with comparison operators
+  Advanced filtering options for narrowing down results.
+</ParamField>
+
+<ParamField body="filters.slot" type="object">
+  Filter by slot number using comparison operators: `gte`, `gt`, `lte`, `lt`
+  
+  Example: `{ "slot": { "gte": 1000, "lte": 2000 } }`
+</ParamField>
+
+<ParamField body="filters.blockTime" type="object">
+  Filter by Unix timestamp using comparison operators: `gte`, `gt`, `lte`, `lt`, `eq`
+  
+  Example: `{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
+</ParamField>
+
+<ParamField body="filters.signature" type="object">
+  Filter by transaction signature using comparison operators: `gte`, `gt`, `lte`, `lt`
+  
+  Example: `{ "signature": { "lt": "SIGNATURE_STRING" } }`
+</ParamField>
+
+<ParamField body="filters.status" type="string">
+  Filter by transaction success/failure status:
+  - `succeeded`: Only successful transactions
+  - `failed`: Only failed transactions
+  - `all`: Both successful and failed (default)
+  
+  Example: `{ "status": "succeeded" }`
+</ParamField>
+
+<ParamField body="encoding" type="string">
+  Encoding format for transaction data (only applies when `transactionDetails: "full"`). Same as `getTransaction` API. Options: `json`, `jsonParsed`, `base64`, `base58`
+</ParamField>
+
+<ParamField body="maxSupportedTransactionVersion" type="number">
+  Set the max transaction version to return. If omitted, only legacy transactions will be returned. Set to `0` to include all versioned transactions.
+</ParamField>
+
+<ParamField body="minContextSlot" type="number">
+  The minimum slot that the request can be evaluated at
 </ParamField>
 
 ---
@@ -460,7 +320,7 @@ Enhanced getTransactionsForAddress pagination:
             "confirmationStatus": "finalized"
           }
         ],
-        "paginationKey": "1055:5"
+        "pagination_token": "1055:5"
       }
     }
     ```
@@ -491,7 +351,7 @@ Enhanced getTransactionsForAddress pagination:
             }
           }
         ],
-        "paginationKey": "1055:5"
+        "pagination_token": "1055:5"
       }
     }
     ```
@@ -500,11 +360,108 @@ Enhanced getTransactionsForAddress pagination:
 
 ---
 
+## Filter Operators
+
+When using filters, you can use comparison operators for `slot`, `blockTime`, or `signature`, plus a special `status` filter. These operators work like database queries to give you precise control over your data range.
+
+### Comparison Operators
+
+| Operator | Full Name | Description | Example |
+|----------|-----------|-------------|---------|
+| `gte` | Greater Than or Equal | Include values ≥ specified value | `slot: { gte: 100 }` |
+| `gt` | Greater Than | Include values > specified value | `blockTime: { gt: 1641081600 }` |
+| `lte` | Less Than or Equal | Include values ≤ specified value | `slot: { lte: 2000 }` |
+| `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
+| `eq` | Equal | Include values exactly equal (only `blockTime`) | `blockTime: { eq: 1641081600 }` |
+
+### Status Filter
+
+| Filter | Description | Values |
+|--------|-------------|--------|
+| `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `all` |
+
+**Combined Filters Examples:**
+```javascript
+// Time range with successful transactions only
+"filters": {
+  "blockTime": {
+    "gte": 1640995200,
+    "lte": 1641081600
+  },
+  "status": "succeeded"
+}
+
+// Slot range
+"filters": {
+  "slot": {
+    "gte": 1000,
+    "lte": 2000
+  }
+}
+
+// Only failed transactions
+"filters": {
+  "status": "failed"
+}
+```
+
+---
+
+## Pagination
+
+When you have more transactions than your limit, use the `pagination_token` from the response to fetch the next page. The token is a simple string in the format `"slot:position"` that tells the API where to continue from.
+
+### How to Paginate
+
+Use the pagination token from each response to fetch the next page:
+
+```javascript
+// First request
+let paginationToken = null;
+let allTransactions = [];
+
+const getNextPage = async (paginationToken = null) => {
+  const params = [
+    'ADDRESS',
+    {
+      transactionDetails: 'signatures',
+      limit: 100,
+      ...(paginationToken && { pagination_token: paginationToken })
+    }
+  ];
+
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getTransactionsForAddress',
+      params
+    })
+  });
+
+  const data = await response.json();
+  return data.result;
+};
+
+// Paginate through all results
+do {
+  const result = await getNextPage(paginationToken);
+  allTransactions.push(...result.data);
+  paginationToken = result.pagination_token;
+  
+  console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
+} while (paginationToken);
+```
+
+---
+
 ## Best Practices
 
 ### Performance
 
-For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes between 100-1000 for better response times, and consider filtering by time ranges or specific slots for more targeted queries.
+For optimal performance, use `transactionDetails: "signatures"` when you don't need full transaction data. Implement reasonable page sizes better response times, and consider filtering by time ranges or specific slots for more targeted queries.
 
 ### Filtering
 
@@ -520,26 +477,27 @@ Handle rate limits gracefully with exponential backoff strategies. Always valida
 
 ---
 
-## Migration from getSignaturesForAddress
+## How is this different from getSignaturesForAddress?
 
-### Basic Migration
+If you're familiar with the standard `getSignaturesForAddress` method, here are the key differences:
 
-Before (Standard RPC):
+### Get Full Transactions in One Call
+
+With `getSignaturesForAddress`, you need two steps:
 
 ```javascript
-// Old way - limited and requires additional calls
+// Step 1: Get signatures
 const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
 
-// Need additional calls for transaction details
+// Step 2: Get transaction details (100 additional calls!)
 const transactions = await Promise.all(
   signatures.map(sig => connection.getTransaction(sig.signature))
 );
 ```
 
-After (Helius Enhanced):
+With `getTransactionsForAddress`, it's one call:
 
 ```javascript
-// New way - get everything in one call
 const response = await fetch(heliusRpcUrl, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -550,7 +508,7 @@ const response = await fetch(heliusRpcUrl, {
     params: [
       address,
       {
-        transactionDetails: 'full',  // Get complete data
+        transactionDetails: 'full',
         limit: 100
       }
     ]
@@ -558,36 +516,22 @@ const response = await fetch(heliusRpcUrl, {
 });
 ```
 
-### Advanced Features
+### Additional Capabilities
 
-Enhanced capabilities not available in standard RPC:
-
-```javascript
-// Historical replay from the beginning
-{
-  "method": "getTransactionsForAddress",
-  "params": [
-    address,
-    {
-      "sortOrder": "asc",  // Not possible with getSignaturesForAddress
-      "filters": {
-        "blockTime": {             // Not possible with standard RPC
-          "gte": 1640995200,
-          "lte": 1641081600
-        }
-      }
-    }
-  ]
-}
-```
-
-This approach is faster with single API calls versus multiple requests, provides precise server-side filtering, offers flexible bidirectional sorting, and enables powerful analytics capabilities not available in the standard RPC.
-
----
-
-## Get Started
-
-Ready to access advanced transaction history? Generate your API key at the [Helius Dashboard](https://dashboard.helius.dev/api-keys) and start building powerful transaction analysis tools with [`getTransactionsForAddress`](/api-reference/rpc/http/gettransactionsforaddress).
+<CardGroup cols={2}>
+  <Card title="Chronological sorting" icon="arrow-up">
+    Sort transactions from oldest to newest with `sortOrder: 'asc'`
+  </Card>
+  <Card title="Time-based filtering" icon="clock">
+    Filter by time ranges using `blockTime` filters
+  </Card>
+  <Card title="Status filtering" icon="filter">
+    Get only successful or failed transactions with `status` filter
+  </Card>
+  <Card title="Simpler pagination" icon="list">
+    Use `pagination_token` instead of confusing `before`/`until` signatures
+  </Card>
+</CardGroup>
 
 ---
 
