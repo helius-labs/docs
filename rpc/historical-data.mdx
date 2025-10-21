@@ -55,7 +55,7 @@ Unlike providers relying on shared BigTable infrastructure, Helius maintains ded
 
 ## Standard Archival Methods
 
-Access historical blockchain data with these standard RPC methods. All archival calls cost 10 credits. [View detailed pricing →](/billing/plans-and-rate-limits#credit-system)
+Access historical blockchain data with these standard RPC methods.
 
 ### Block Data Methods
 
@@ -122,6 +122,18 @@ For advanced filtering and sorting, use [`getTransactionsForAddress`](/rpc/gettr
 
 <Card title="View getSignaturesForAddress guide" icon="book-open" href="/rpc/guides/getsignaturesforaddress" horizontal />
 
+#### getTransactionsForAddress
+
+Enhanced transaction history with advanced filtering, bidirectional sorting, and efficient pagination. **Costs 100 credits per request.**
+
+**Use cases:**
+- Time-based transaction analysis
+- Status filtering (succeeded/failed)
+- Chronological historical replay
+- Complete transaction data in one call
+
+<Card title="View getTransactionsForAddress guide" icon="book-open" href="/rpc/gettransactionsforaddress" horizontal />
+
 #### getInflationReward
 
 Get inflation reward for a list of addresses for an epoch.
@@ -178,7 +190,7 @@ Ready to access Solana's complete historical data? Here's how to begin:
 
 - **[Try getTransactionsForAddress](/rpc/gettransactionsforaddress)** - Start with our enhanced transaction history API
 - **[Get your API key](https://dashboard.helius.dev/api-keys)** - Sign up and start querying historical data today
-- **[View pricing](/billing/plans-and-rate-limits#credit-system)** - All archival methods cost 10 credits per call
+- **[View pricing](/billing/plans-and-rate-limits#credit-system)** - See credit costs for all methods
 
 ---
 
