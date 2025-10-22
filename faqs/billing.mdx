@@ -73,21 +73,40 @@ Crypto downgrades happen immediately. You'll receive a prorated credit as a disc
 You can cancel your subscription from the [billing dashboard](https://dashboard.helius.dev/billing). Your service will continue until the end of your current billing period, then revert to free tier limits.
 </Accordion>
 
-## Autscaling
+## Credits
 
-<Accordion title="How do I enable autoscaling?">
-Enable autoscaling in your [project settings](https://dashboard.helius.dev/settings) under the autoscaling section. This automatically purchases additional credits when you exceed your plan limits. See our [autoscaling guide](https://www.helius.dev/docs/billing/autoscaling) for details.
+<Accordion title="What happens if I run out of credits?">
+If you have consumed all of your credits, you won't be able to make new API requests until you have added more credits to your account through autoscaling or prepaid credits. Otherwise, a request will result in a 429 max usage reached error.
+</Accordion>
+
+<Accordion title="How do I buy more credits?">
+The method depends on your payment type:
+
+- **Fiat payments**: Credits are purchased through [autoscaling](https://www.helius.dev/docs/billing/autoscaling), which automatically adds credits as needed, up to a cap  
+- **Crypto payments**: You'll need to [purchase prepaid credits](https://www.helius.dev/docs/billing/autoscaling#crypto-plans) manually
+</Accordion>
+
+<Accordion title="What is autoscaling?">
+Autoscaling is a credit management system that automatically purchases additional credits when you have used up your monthly allocation. This happens on-demand, meaning that credits are only purchased if they are needed to complete your requests. This ensures that your application continues running without interruption. Autoscaling is only available to fiat users. If you pay with crypto, you must purchase prepaid credits. See our [autoscaling guide](https://www.helius.dev/docs/billing/autoscaling) or guide on [buying prepaid credits](https://www.helius.dev/docs/billing/autoscaling#crypto-plans) for details.
+</Accordion>
+
+<Accordion title="How do I turn on autoscaling?">
+Enable autoscaling in your [project settings](https://dashboard.helius.dev/project-settings) at the very bottom under the “Autoscaling” section. Autoscaling is only available to fiat users.
 </Accordion>
 
 <Accordion title="Why did I get an invoice for overages when I enabled autoscaling?">
-Autoscaling purchases additional credits when you exceed your plan limits, which appear as overages on your invoice. This is expected behavior - autoscaling prevents service interruption by automatically buying the credits you need.
+Autoscaling purchases additional credits when you exceed your plan’s limits, which appear as overages on your invoice. This is expected behavior — autoscaling prevents service interruption by automatically buying the credits you need.
 </Accordion>
 
-## Overages
-
-<Accordion title="What happens if I exceed my credit limit?">
-If you exceed your credit limit, you can enable autoscaling or purchase additional prepaid credits. Learn more on the [**Additional Credits**](https://www.helius.dev/docs/billing/autoscaling) page.
+<Accordion title="What are prepaid credits?">
+Unlike autoscaling, prepaid credits are credits you purchase in advance of their usage. You manually purchase a specific amount whenever you need to add credits to your account. This is only available to crypto users. Read this [guide on prepaid credits](https://www.helius.dev/docs/billing/autoscaling#crypto-plans) for more details.
 </Accordion>
+
+<Accordion title="How do I buy prepaid credits?">
+Go to the Helius [Dashboard](https://dashboard.helius.dev/dashboard). On the main page, click on “Buy More Credits”. Select the amount you want to buy and make the purchase. Prepaid credits are only available to crypto users. If you pay with fiat, please set up autoscaling.
+</Accordion>
+
+## Unexpected Usage
 
 <Accordion title="Why is my project consuming credits even though I'm not using any Helius endpoints?">
 Check for active webhooks, automated scripts, or background processes that might be making API calls. Review your [usage dashboard](https://dashboard.helius.dev/usage) to identify the source of credit consumption.
