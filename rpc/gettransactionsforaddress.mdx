@@ -252,7 +252,7 @@ The first few transactions often reveal the funding source and can help identify
   Pagination token from previous response (format: `"slot:position"`)
 </ParamField>
 
-<ParamField body="commitment" type="string" default="confirmed">
+<ParamField body="commitment" type="string" default="finalized">
   Commitment level: `finalized`, `confirmed`, or `processed`
 </ParamField>
 
@@ -282,7 +282,7 @@ The first few transactions often reveal the funding source and can help identify
   Filter by transaction success/failure status:
   - `succeeded`: Only successful transactions
   - `failed`: Only failed transactions
-  - `all`: Both successful and failed (default)
+  - `any`: Both successful and failed (default)
   
   Example: `{ "status": "succeeded" }`
 </ParamField>
@@ -378,7 +378,7 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
 
 | Filter | Description | Values |
 |--------|-------------|--------|
-| `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `all` |
+| `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `any` |
 
 **Combined Filters Examples:**
 ```javascript

@@ -133,8 +133,12 @@ paths:
                               - confirmed
                               - finalized
                               - processed
-                            default: confirmed
-                            example: confirmed
+                            default: finalized
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: Minimum context slot to use for request (optional).
+                            example: 1000
                           limit:
                             type: integer
                             description: Maximum number of transactions to return in a single request (1-1,000).
@@ -142,9 +146,9 @@ paths:
                             maximum: 1000
                             default: 1000
                             example: 100
-                          paginationKey:
+                          paginationToken:
                             type: string
-                            description: Pagination key from previous response to get next page of results (format "slot:position").
+                            description: Pagination token from previous response to get next page of results (format "slot:position").
                             example: "1053:13"
                           encoding:
                             type: string
@@ -230,8 +234,8 @@ paths:
                                 enum:
                                   - succeeded
                                   - failed
-                                  - all
-                                default: all
+                                  - any
+                                default: any
                                 example: succeeded
       responses:
         200:
@@ -302,12 +306,12 @@ paths:
                                 - type: "null"
                               description: Transaction's cluster confirmation status.
                               example: finalized
-                      paginationKey:
+                      paginationToken:
                         oneOf:
                           - type: string
-                            description: Key for retrieving the next page of results
+                            description: Token for retrieving the next page of results
                           - type: "null"
-                        description: Pagination key for next page, or null if no more results.
+                        description: Pagination token for next page, or null if no more results.
                         example: "1055:5"
               examples:
                 signaturesResponse:
@@ -329,7 +333,7 @@ paths:
                           memo: null
                           blockTime: 1641038460
                           confirmationStatus: "finalized"
-                      paginationKey: "1055:5"
+                      paginationToken: "1055:5"
             application/json; schema=examples/request:
               examples:
                 basicRequest:
@@ -358,7 +362,7 @@ paths:
                           slot:
                             gte: 1000
                             lt: 2000
-                        paginationKey: "1500:10"
+                        paginationToken: "1500:10"
         400:
           description: Bad Request - Invalid request parameters or malformed request.
           content:
