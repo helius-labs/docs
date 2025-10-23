@@ -248,7 +248,7 @@ The first few transactions often reveal the funding source and can help identify
   Maximum transactions to return (1-1000)
 </ParamField>
 
-<ParamField body="pagination_token" type="string">
+<ParamField body="paginationToken" type="string">
   Pagination token from previous response (format: `"slot:position"`)
 </ParamField>
 
@@ -320,7 +320,7 @@ The first few transactions often reveal the funding source and can help identify
             "confirmationStatus": "finalized"
           }
         ],
-        "pagination_token": "1055:5"
+        "paginationToken": "1055:5"
       }
     }
     ```
@@ -351,7 +351,7 @@ The first few transactions often reveal the funding source and can help identify
             }
           }
         ],
-        "pagination_token": "1055:5"
+        "paginationToken": "1055:5"
       }
     }
     ```
@@ -409,7 +409,7 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
 
 ## Pagination
 
-When you have more transactions than your limit, use the `pagination_token` from the response to fetch the next page. The token is a simple string in the format `"slot:position"` that tells the API where to continue from.
+When you have more transactions than your limit, use the `paginationToken` from the response to fetch the next page. The token is a simple string in the format `"slot:position"` that tells the API where to continue from.
 
 ### How to Paginate
 
@@ -426,7 +426,7 @@ const getNextPage = async (paginationToken = null) => {
     {
       transactionDetails: 'signatures',
       limit: 100,
-      ...(paginationToken && { pagination_token: paginationToken })
+      ...(paginationToken && { paginationToken })
     }
   ];
 
@@ -449,7 +449,7 @@ const getNextPage = async (paginationToken = null) => {
 do {
   const result = await getNextPage(paginationToken);
   allTransactions.push(...result.data);
-  paginationToken = result.pagination_token;
+  paginationToken = result.paginationToken;
   
   console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
 } while (paginationToken);
@@ -529,7 +529,7 @@ const response = await fetch(heliusRpcUrl, {
     Get only successful or failed transactions with `status` filter
   </Card>
   <Card title="Simpler pagination" icon="list">
-    Use `pagination_token` instead of confusing `before`/`until` signatures
+    Use `paginationToken` instead of confusing `before`/`until` signatures
   </Card>
 </CardGroup>
 
