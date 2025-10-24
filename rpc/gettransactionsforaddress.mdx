@@ -93,6 +93,187 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 
 ---
 
+## Request Parameters
+
+<ParamField body="address" type="string" required>
+  Base-58 encoded public key of the account to query transaction history for
+</ParamField>
+
+<ParamField body="transactionDetails" type="string" default="signatures">
+  Level of transaction detail to return:
+  - `signatures`: Basic signature info (faster)
+  - `full`: Complete transaction data (eliminates need for getTransaction calls, requires limit ≤ 100)
+</ParamField>
+
+<ParamField body="sortOrder" type="string" default="desc">
+  Sort order for results:
+  - `desc`: Newest first (default)
+  - `asc`: Oldest first (chronological, great for historical analysis)
+</ParamField>
+
+<ParamField body="limit" type="number" default="1000">
+  Maximum transactions to return (1-1000)
+</ParamField>
+
+<ParamField body="paginationToken" type="string">
+  Pagination token from previous response (format: `"slot:position"`)
+</ParamField>
+
+<ParamField body="commitment" type="string" default="finalized">
+  Commitment level: `finalized`, `confirmed`, or `processed`
+</ParamField>
+
+<ParamField body="filters" type="object">
+  Advanced filtering options for narrowing down results.
+</ParamField>
+
+<ParamField body="filters.slot" type="object">
+  Filter by slot number using comparison operators: `gte`, `gt`, `lte`, `lt`
+  
+  Example: `{ "slot": { "gte": 1000, "lte": 2000 } }`
+</ParamField>
+
+<ParamField body="filters.blockTime" type="object">
+  Filter by Unix timestamp using comparison operators: `gte`, `gt`, `lte`, `lt`, `eq`
+  
+  Example: `{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
+</ParamField>
+
+<ParamField body="filters.signature" type="object">
+  Filter by transaction signature using comparison operators: `gte`, `gt`, `lte`, `lt`
+  
+  Example: `{ "signature": { "lt": "SIGNATURE_STRING" } }`
+</ParamField>
+
+<ParamField body="filters.status" type="string">
+  Filter by transaction success/failure status:
+  - `succeeded`: Only successful transactions
+  - `failed`: Only failed transactions
+  - `any`: Both successful and failed (default)
+  
+  Example: `{ "status": "succeeded" }`
+</ParamField>
+
+<ParamField body="encoding" type="string">
+  Encoding format for transaction data (only applies when `transactionDetails: "full"`). Same as `getTransaction` API. Options: `json`, `jsonParsed`, `base64`, `base58`
+</ParamField>
+
+<ParamField body="maxSupportedTransactionVersion" type="number">
+  Set the max transaction version to return. If omitted, only legacy transactions will be returned. Set to `0` to include all versioned transactions.
+</ParamField>
+
+<ParamField body="minContextSlot" type="number">
+  The minimum slot that the request can be evaluated at
+</ParamField>
+
+---
+
+## Filter Operators
+
+When using filters, you can use comparison operators for `slot`, `blockTime`, or `signature`, plus a special `status` filter. These operators work like database queries to give you precise control over your data range.
+
+### Comparison Operators
+
+| Operator | Full Name | Description | Example |
+|----------|-----------|-------------|---------|
+| `gte` | Greater Than or Equal | Include values ≥ specified value | `slot: { gte: 100 }` |
+| `gt` | Greater Than | Include values > specified value | `blockTime: { gt: 1641081600 }` |
+| `lte` | Less Than or Equal | Include values ≤ specified value | `slot: { lte: 2000 }` |
+| `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
+| `eq` | Equal | Include values exactly equal (only `blockTime`) | `blockTime: { eq: 1641081600 }` |
+
+### Status Filter
+
+| Filter | Description | Values |
+|--------|-------------|--------|
+| `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `any` |
+
+**Combined Filters Examples:**
+```javascript
+// Time range with successful transactions only
+"filters": {
+  "blockTime": {
+    "gte": 1640995200,
+    "lte": 1641081600
+  },
+  "status": "succeeded"
+}
+
+// Slot range
+"filters": {
+  "slot": {
+    "gte": 1000,
+    "lte": 2000
+  }
+}
+
+// Only failed transactions
+"filters": {
+  "status": "failed"
+}
+```
+
+---
+
+## Response Format
+
+<Tabs>
+  <Tab title="Signatures Response">
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "data": [
+          {
+            "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
+            "slot": 1054,
+            "err": null,
+            "memo": null,
+            "blockTime": 1641038400,
+            "confirmationStatus": "finalized"
+          }
+        ],
+        "paginationToken": "1055:5"
+      }
+    }
+    ```
+  </Tab>
+
+  <Tab title="Full Transaction Response">
+    ```json
+    {
+      "jsonrpc": "2.0", 
+      "id": 1,
+      "result": {
+        "data": [
+          {
+            "slot": 1054,
+            "transaction": {
+              "signatures": ["5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"],
+              "message": {
+                "accountKeys": ["...", "..."],
+                "instructions": [...],
+                // Complete transaction structure
+              }
+            },
+            "meta": {
+              "fee": 5000,
+              "preBalances": [1000000, 2000000],
+              "postBalances": [999995000, 2000000],
+              // Complete metadata
+            }
+          }
+        ],
+        "paginationToken": "1055:5"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
 ## Practical Examples
 
 ### Time-Based Analytics
@@ -223,187 +404,6 @@ response.result.data.forEach(tx => {
 <Note>
 The first few transactions often reveal the funding source and can help identify related addresses or funding patterns.
 </Note>
-
----
-
-## Request Parameters
-
-<ParamField body="address" type="string" required>
-  Base-58 encoded public key of the account to query transaction history for
-</ParamField>
-
-<ParamField body="transactionDetails" type="string" default="signatures">
-  Level of transaction detail to return:
-  - `signatures`: Basic signature info (faster)
-  - `full`: Complete transaction data (eliminates need for getTransaction calls, requires limit ≤ 100)
-</ParamField>
-
-<ParamField body="sortOrder" type="string" default="desc">
-  Sort order for results:
-  - `desc`: Newest first (default)
-  - `asc`: Oldest first (chronological, great for historical analysis)
-</ParamField>
-
-<ParamField body="limit" type="number" default="1000">
-  Maximum transactions to return (1-1000)
-</ParamField>
-
-<ParamField body="paginationToken" type="string">
-  Pagination token from previous response (format: `"slot:position"`)
-</ParamField>
-
-<ParamField body="commitment" type="string" default="finalized">
-  Commitment level: `finalized`, `confirmed`, or `processed`
-</ParamField>
-
-<ParamField body="filters" type="object">
-  Advanced filtering options for narrowing down results.
-</ParamField>
-
-<ParamField body="filters.slot" type="object">
-  Filter by slot number using comparison operators: `gte`, `gt`, `lte`, `lt`
-  
-  Example: `{ "slot": { "gte": 1000, "lte": 2000 } }`
-</ParamField>
-
-<ParamField body="filters.blockTime" type="object">
-  Filter by Unix timestamp using comparison operators: `gte`, `gt`, `lte`, `lt`, `eq`
-  
-  Example: `{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
-</ParamField>
-
-<ParamField body="filters.signature" type="object">
-  Filter by transaction signature using comparison operators: `gte`, `gt`, `lte`, `lt`
-  
-  Example: `{ "signature": { "lt": "SIGNATURE_STRING" } }`
-</ParamField>
-
-<ParamField body="filters.status" type="string">
-  Filter by transaction success/failure status:
-  - `succeeded`: Only successful transactions
-  - `failed`: Only failed transactions
-  - `any`: Both successful and failed (default)
-  
-  Example: `{ "status": "succeeded" }`
-</ParamField>
-
-<ParamField body="encoding" type="string">
-  Encoding format for transaction data (only applies when `transactionDetails: "full"`). Same as `getTransaction` API. Options: `json`, `jsonParsed`, `base64`, `base58`
-</ParamField>
-
-<ParamField body="maxSupportedTransactionVersion" type="number">
-  Set the max transaction version to return. If omitted, only legacy transactions will be returned. Set to `0` to include all versioned transactions.
-</ParamField>
-
-<ParamField body="minContextSlot" type="number">
-  The minimum slot that the request can be evaluated at
-</ParamField>
-
----
-
-## Response Format
-
-<Tabs>
-  <Tab title="Signatures Response">
-    ```json
-    {
-      "jsonrpc": "2.0",
-      "id": 1,
-      "result": {
-        "data": [
-          {
-            "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
-            "slot": 1054,
-            "err": null,
-            "memo": null,
-            "blockTime": 1641038400,
-            "confirmationStatus": "finalized"
-          }
-        ],
-        "paginationToken": "1055:5"
-      }
-    }
-    ```
-  </Tab>
-
-  <Tab title="Full Transaction Response">
-    ```json
-    {
-      "jsonrpc": "2.0", 
-      "id": 1,
-      "result": {
-        "data": [
-          {
-            "slot": 1054,
-            "transaction": {
-              "signatures": ["5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"],
-              "message": {
-                "accountKeys": ["...", "..."],
-                "instructions": [...],
-                // Complete transaction structure
-              }
-            },
-            "meta": {
-              "fee": 5000,
-              "preBalances": [1000000, 2000000],
-              "postBalances": [999995000, 2000000],
-              // Complete metadata
-            }
-          }
-        ],
-        "paginationToken": "1055:5"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Filter Operators
-
-When using filters, you can use comparison operators for `slot`, `blockTime`, or `signature`, plus a special `status` filter. These operators work like database queries to give you precise control over your data range.
-
-### Comparison Operators
-
-| Operator | Full Name | Description | Example |
-|----------|-----------|-------------|---------|
-| `gte` | Greater Than or Equal | Include values ≥ specified value | `slot: { gte: 100 }` |
-| `gt` | Greater Than | Include values > specified value | `blockTime: { gt: 1641081600 }` |
-| `lte` | Less Than or Equal | Include values ≤ specified value | `slot: { lte: 2000 }` |
-| `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
-| `eq` | Equal | Include values exactly equal (only `blockTime`) | `blockTime: { eq: 1641081600 }` |
-
-### Status Filter
-
-| Filter | Description | Values |
-|--------|-------------|--------|
-| `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `any` |
-
-**Combined Filters Examples:**
-```javascript
-// Time range with successful transactions only
-"filters": {
-  "blockTime": {
-    "gte": 1640995200,
-    "lte": 1641081600
-  },
-  "status": "succeeded"
-}
-
-// Slot range
-"filters": {
-  "slot": {
-    "gte": 1000,
-    "lte": 2000
-  }
-}
-
-// Only failed transactions
-"filters": {
-  "status": "failed"
-}
-```
 
 ---
 
