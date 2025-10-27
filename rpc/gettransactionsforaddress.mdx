@@ -112,7 +112,9 @@ The API also supports **Audit & Compliance** workflows by generating transaction
 </ParamField>
 
 <ParamField body="limit" type="number" default="1000">
-  Maximum transactions to return (1-1000)
+  Maximum transactions to return:
+  - Up to 1000 when `transactionDetails: "signatures"`
+  - Up to 100 when `transactionDetails: "full"`
 </ParamField>
 
 <ParamField body="paginationToken" type="string">
