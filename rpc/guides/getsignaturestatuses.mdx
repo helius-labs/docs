@@ -8,6 +8,12 @@ The [`getSignatureStatuses`](https://www.helius.dev/docs/api-reference/rpc/http/
 
 Unless the `searchTransactionHistory` option is enabled, this method primarily queries a recent status cache on the RPC node. For older transactions, enabling `searchTransactionHistory` is crucial.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 10 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Confirming Transaction Finality:** Verifying if a submitted transaction has reached a desired level of confirmation (e.g., `confirmed` or `finalized`).

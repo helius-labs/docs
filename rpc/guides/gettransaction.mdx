@@ -6,6 +6,12 @@ description: "Learn getTransaction use cases, code examples, request parameters,
 
 The [`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettransaction) RPC method allows you to retrieve detailed information about a confirmed transaction by providing its signature. This includes the transaction's slot, block time, metadata (like fees, status, and balance changes), and the transaction structure itself.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 100 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Transaction Verification:** Confirming that a transaction has been processed and checking its outcome (success or failure).

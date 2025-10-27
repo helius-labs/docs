@@ -6,6 +6,12 @@ description: "Learn getBlocksWithLimit use cases, code examples, request paramet
 
 The [`getBlocksWithLimit`](https://www.helius.dev/docs/api-reference/rpc/http/getblockswithlimit) RPC method allows you to retrieve a list of confirmed block slot numbers, starting from a specified slot and returning up to a given limit. This is useful when you need a specific number of subsequent confirmed [blocks](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) from a certain point in the ledger.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 10 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Fetching a Fixed Number of Subsequent Blocks:** Get a defined number of block slots that were confirmed after a particular start slot.

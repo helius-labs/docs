@@ -8,6 +8,12 @@ The [`getInflationReward`](https://www.helius.dev/docs/api-reference/rpc/http/ge
 
 This is useful for verifying rewards received by stake accounts or any account that might have received inflation rewards.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 10 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Verify Staking Rewards:** Check if a stake account received the expected rewards for a past epoch.
