@@ -6,7 +6,7 @@ description: "Get answers to the most common questions about WebSockets includin
 ## Billing and Rate Limits
 
 <Accordion title="How many credits does WebSocket events consume?">
-WebSocket events do not consume credits. Both standard WebSockets and Enhanced WebSockets are included with your plan without additional credit costs.
+Opening a new WebSocket connection costs 1 credit. Streaming data through Standard WebSockets is free for any amount of data. For Enhanced WebSockets, your data consumption is metered and costs 3 credits per 0.1 MB.  
 </Accordion>
 
 <Accordion title="How much faster are Enhanced Websockets vs. normal WebSockets?">
@@ -26,6 +26,20 @@ Implement reconnection and ping logic as shown in our documentation, then add yo
 </Accordion>
 
 ## Using WebSockets
+
+<Accordion title="What is the maximum number of active WebSocket connections?">
+On the Free plan, you can make 5 simultaneous WebSocket connections. On the Developer Plan, 150 connections are possible. For Business and Professional, you can make 250 WebSocket connections.
+</Accordion>
+
+<Accordion title="Why is my client not receiving some WebSocket updates?">
+The client needs to keep up with the rate of incoming messages from the WebSocket server.
+
+Common causes of your client missing WebSocket updates include: insufficient network bandwidth, too slow client-side processing (e.g. a too slow programming language), or processing logic that blocks the main thread.
+</Accordion>
+
+<Accordion title="Can I subscribe to multiple accounts using the same WebSocket connection?">
+Yes, you can create multiple subscriptions to `accountSubscribe` using the same WebSocket connection.
+</Accordion>
 
 <Accordion title="How do I subscribe to full transactions using WebSockets?">
 **For Enhanced WebSockets**, set `transactionDetails: "full"` in your subscription options:

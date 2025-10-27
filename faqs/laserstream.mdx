@@ -55,6 +55,26 @@ No, "processed" is already the fastest commitment level available on Solana (~40
 Yes, you can subscribe to multiple data types in a single `SubscribeRequest`. Add separate filter configs (such as `accounts` and `transactions`) to receive both account updates and transaction data in one stream.
 </Accordion>
 
+## Order of Messages
+
+<Accordion title="Does LaserStream guarantee the order in which messages are sent?">
+No, LaserStream does not guarantee message ordering. You may receive transactions and account updates out of order, even within the same slot.
+</Accordion>
+
+<Accordion title="Does LaserStream stream accounts in the order that they're written to?">
+No, LaserStream does not stream accounts in the same order that they’re written to. Account updates may arrive in a different sequence than they were written to the ledger.
+</Accordion>
+
+<Accordion title="How do I stream LaserStream transactions in order?">
+You can’t stream transactions in order, but you can reconstruct the order on the client. You can do it like this:
+
+1. Buffer messages on the client side  
+2. Extract the `slot` and `index` fields included in each message  
+3. Sort the transactions based on these fields
+
+The `slot` field indicates which slot a transaction belongs to, and the `index` field indicates its position within that slot. By using both, you can reconstruct the order.
+</Accordion>
+
 ## Troubleshooting LaserStream
 
 <Accordion title="Why is my LaserStream connection experiencing lag or slow performance?">

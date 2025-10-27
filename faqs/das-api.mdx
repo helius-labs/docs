@@ -33,6 +33,10 @@ Multiply the token's circulating supply by its current price (from `getAsset`). 
 Subscribe to account changes using WebSockets or LaserStream, filtering for the wallet's token accounts. You can also use webhooks with account monitoring for real-time balance change notifications.
 </Accordion>
 
+<Accordion title="What is the relationship between DAS rate limits and RPC rate limits?">
+DAS rate limits and RPC rate limits are independent of each other. For example, if your plan has a DAS rate limit of 10 and a RPC rate limit of 50, this allows you to make 10 getAsset **and** 50 getBlock calls per second.
+</Accordion>
+
 ## Troubleshooting DAS API
 
 <Accordion title="Why does getAsset sometimes lack price?">
