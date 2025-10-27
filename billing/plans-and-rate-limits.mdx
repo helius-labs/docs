@@ -585,6 +585,37 @@ Some endpoints have special restrictions due to their computational requirements
      <Note>
      **getTransactionsForAddress costs 100 credits** per request due to its enhanced capabilities (advanced filtering, sorting, and full transaction data). See the main credit costs table above for details.
      </Note>
+     
+     ### Batch Request Limits
+     
+     When making batch requests for historical data methods, the following limits apply:
+     
+     <table>
+       <thead>
+         <tr>
+           <th style={{width: '300px'}}>Method</th>
+           <th style={{width: '150px'}}>Max Batch Size</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr>
+           <td><code>getTransaction</code></td>
+           <td>100 items per request</td>
+         </tr>
+         <tr>
+           <td>All other historical methods</td>
+           <td>10 items per request</td>
+         </tr>
+         <tr>
+           <td><code>getTransactionsForAddress</code></td>
+           <td>No batch requests allowed</td>
+         </tr>
+       </tbody>
+     </table>
+     
+     <Warning>
+     Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
+     </Warning>
    </Tab>
 
    <Tab title="DAS API">
