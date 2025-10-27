@@ -6,6 +6,12 @@ description: "Learn getSignaturesForAddress use cases, code examples, request pa
 
 The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
 
+<Warning>
+**Batching Not Supported**
+
+This archival method does not support batching. Make individual requests only.
+</Warning>
+
 ## Common Use Cases
 
 *   **Account Transaction History:** Displaying the past transactions for a user's wallet. For more advanced parsing of transaction history, consider using Helius's [Enhanced Transactions API](https://www.helius.dev/docs/enhanced-transactions).

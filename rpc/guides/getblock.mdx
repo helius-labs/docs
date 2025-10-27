@@ -6,6 +6,12 @@ description: "Learn getBlock use cases, code examples, request parameters, respo
 
 The [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC method allows you to retrieve detailed information about a confirmed block in the Solana ledger. This is essential for block explorers, transaction history analysis, and understanding the state of the chain at a specific point in time.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 10 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Inspecting Block Contents:** View all transactions included in a specific [block](https://www.helius.dev/blog/solana-slots-blocks-and-epochs).
