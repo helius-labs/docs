@@ -37,6 +37,30 @@ Staked connections 将您的交易直接路由到当前和即将到来的区块�
 标准RPC计划提供对所有历史Solana数据的访问。专用节点仅维护约48小时的历史记录。
 </Accordion>
 
+<Accordion title="如何尽快完成我的交易？">
+使用[Helius Sender](https://www.helius.dev/docs/sending-transactions/sender)。它同时通过Helius的质押连接和Jito Block Engines路由您的交易，以实现最大速度和着陆概率。
+</Accordion>
+
+<Accordion title="如何将我的请求路由到离我最近的服务器？">
+通过共享计划上的标准RPC URL发送的所有RPC请求都会自动路由到最近的服务器。您无需采取任何行动。
+</Accordion>
+
+<Accordion title="你们的RPC服务器位于哪里？">
+我们在全球运营RPC节点，包括：亚洲（东京、新加坡）、北美（匹兹堡、纽瓦克、盐湖城、洛杉矶、温哥华）和欧洲（都柏林、伦敦、阿姆斯特丹、法兰克福）。
+</Accordion>
+
+<Accordion title="RPC速率限制如何运作？">
+您的RPC速率限制适用于所有RPC方法的总和，而不是单独适用于每一个。例如，如果您的RPC速率限制是100，并且您每秒进行50次getAccountInfo请求，那么您只能额外进行50次getTransaction请求。
+</Accordion>
+
+<Accordion title="特殊限制如何影响RPC速率限制？">
+由于计算要求，一些方法如getProgramAccounts有特殊的速率限制。然而，它们仍然计入总的RPC速率限制。详情请阅读我们的[特殊速率限制指南](https://www.helius.dev/docs/billing/plans-and-rate-limits#special-limits)。
+</Accordion>
+
+<Accordion title="RPC速率限制与DAS速率限制之间的关系是什么？">
+RPC速率限制和DAS速率限制是相互独立的。例如，如果您的计划有50的RPC速率限制和10的DAS速率限制，这允许您每秒进行50次getBlock和10次getAsset调用。
+</Accordion>
+
 ---
 
 ## 需要更多帮助？
@@ -47,7 +71,7 @@ Staked connections 将您的交易直接路由到当前和即将到来的区块�
     icon="headset"
     href="/zh/support/contact-support"
   >
-    通过Discord、聊天或电子邮件支持从我们的团队获取帮助。
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
   </Card>
   <Card
     title="状态页面"
