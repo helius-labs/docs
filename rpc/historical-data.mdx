@@ -1,0 +1,207 @@
+---
+title: "Solana Historical Data Overview & Tutorials"
+sidebarTitle: "Overview"
+description: "Learn how historical data works on Solana, explore common use cases, and get tutorials for common archival RPC methods like getBlock and getSignatureForAddress."
+---
+
+## Why Helius for historical data?
+
+Unlike providers relying on shared BigTable infrastructure, Helius maintains dedicated archival nodes optimized for fast historical data retrieval. This architecture delivers superior performance and reliability for time-critical applications.
+
+<CardGroup cols={3}>
+  <Card title="Independent Infrastructure" icon="server">
+    Helius runs its own archival system, not shared BigTable like other providers
+  </Card>
+  <Card title="Faster Queries" icon="bolt">
+    Direct access to optimized storage means faster response times for historical queries
+  </Card>
+  <Card title="Higher Reliability" icon="shield-check">
+    No shared infrastructure bottlenecks. Consistent performance even during network peaks
+  </Card>
+</CardGroup>
+
+---
+
+## Featured Method: getTransactionsForAddress
+
+<Card title="Advanced Transaction History API" icon="clock-rotate-left" href="/rpc/gettransactionsforaddress">
+  Our enhanced method that goes beyond standard Solana RPC capabilities. Query transaction history with powerful filtering, bidirectional sorting, and efficient pagination.
+  
+  **What makes it special:**
+  - Time-based and slot-based filtering
+  - Bidirectional sorting (oldest-first or newest-first)
+  - Efficient keyset pagination
+  - Full transaction data in single requests
+  - Support for versioned transactions
+  
+  **Perfect for:**
+  - Token launch analysis
+  - Wallet history
+  - MEV research
+  - Compliance reporting
+  - Portfolio tracking
+</Card>
+
+<CardGroup cols={2}>
+  <Card title="View Full Documentation" icon="book" href="/rpc/gettransactionsforaddress">
+    Complete guide with examples and best practices
+  </Card>
+  <Card title="Get Your API Key" icon="key" href="https://dashboard.helius.dev/api-keys">
+    Start building with historical data today
+  </Card>
+</CardGroup>
+
+---
+
+## Standard Archival Methods
+
+Access historical blockchain data with these standard RPC methods.
+
+### Block Data Methods
+
+Query historical block information and metadata.
+
+#### getBlock
+
+Retrieve complete block data including all transactions and metadata for a specific slot.
+
+**Use cases:**
+- Block explorers
+- Audit tools
+- Historical analysis
+
+<Card title="View getBlock guide" icon="book-open" href="/rpc/guides/getblock" horizontal />
+
+#### getBlocks
+
+Get a list of confirmed blocks between two slots.
+
+**Use cases:**
+- Gap detection
+- Block range analysis
+- Indexing
+
+<Card title="View getBlocks guide" icon="book-open" href="/rpc/guides/getblocks" horizontal />
+
+#### getBlockTime
+
+Get the estimated production time of a block as Unix timestamp.
+
+**Use cases:**
+- Time-based analytics
+- Event correlation
+
+<Card title="View getBlockTime guide" icon="book-open" href="/rpc/guides/getblocktime" horizontal />
+
+### Transaction History Methods
+
+Access historical transaction data and signatures.
+
+#### getTransaction
+
+Retrieve full transaction details for a specific signature.
+
+**Use cases:**
+- Transaction verification
+- Detailed analysis
+- Debugging
+
+<Card title="View getTransaction guide" icon="book-open" href="/rpc/guides/gettransaction" horizontal />
+
+#### getSignaturesForAddress
+
+Get confirmed signatures for transactions involving an address.
+
+**Use cases:**
+- Basic transaction history
+- Signature collection
+
+<Note>
+For advanced filtering and sorting, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) instead.
+</Note>
+
+<Card title="View getSignaturesForAddress guide" icon="book-open" href="/rpc/guides/getsignaturesforaddress" horizontal />
+
+#### getTransactionsForAddress
+
+Enhanced transaction history with advanced filtering, bidirectional sorting, and efficient pagination. **Costs 100 credits per request.**
+
+**Use cases:**
+- Time-based transaction analysis
+- Status filtering (succeeded/failed)
+- Chronological historical replay
+- Complete transaction data in one call
+
+<Card title="View getTransactionsForAddress guide" icon="book-open" href="/rpc/gettransactionsforaddress" horizontal />
+
+#### getInflationReward
+
+Get inflation reward for a list of addresses for an epoch.
+
+**Use cases:**
+- Validator rewards
+- Staking analytics
+
+<Card title="View getInflationReward guide" icon="book-open" href="/rpc/guides/getinflationreward" horizontal />
+
+---
+
+## Solana Archival Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Token Launch Analysis" icon="rocket">
+    Track mint creation and early holder activity. Identify project origins and initial distribution patterns.
+  </Card>
+  
+  <Card title="Wallet Forensics" icon="magnifying-glass">
+    Build complete transaction timelines. Discover funding sources and transaction patterns over time.
+  </Card>
+  
+  <Card title="MEV Research" icon="chart-line">
+    Analyze historical arbitrage and sandwich attacks. Study MEV opportunities with precise timing data.
+  </Card>
+  
+  <Card title="Compliance & Auditing" icon="clipboard-check">
+    Generate comprehensive transaction reports. Support regulatory compliance with complete historical records.
+  </Card>
+  
+  <Card title="Portfolio Tracking" icon="wallet">
+    Access complete DeFi transaction history. Build accurate portfolio analytics and performance tracking.
+  </Card>
+  
+  <Card title="Block Explorers" icon="globe">
+    Display complete blockchain history. Provide users with detailed block and transaction information.
+  </Card>
+</CardGroup>
+
+---
+
+## What historical data is available?
+
+Helius provides complete historical data from Solana genesis to present, continuously updated in real-time. Our indexed and structured storage enables fast retrieval, allowing you to query years of on-chain activity efficiently.
+
+All historical data includes full support for versioned transactions and all Solana program types. Helius maintains this data on independent archival infrastructure, delivering consistent performance without the bottlenecks or reliability issues common to shared BigTable systems.
+
+---
+
+## Get Started
+
+Ready to access Solana's complete historical data? Here's how to begin:
+
+- **[Try getTransactionsForAddress](/rpc/gettransactionsforaddress)** - Start with our enhanced transaction history API
+- **[Get your API key](https://dashboard.helius.dev/api-keys)** - Sign up and start querying historical data today
+- **[View pricing](/billing/plans-and-rate-limits#credit-system)** - See credit costs for all methods
+
+---
+
+## Support & Community
+
+<CardGroup cols={2}>
+  <Card title="Contact Support" icon="headset" href="/support">
+    Get help from our team for technical questions and issues
+  </Card>
+  <Card title="Discord Community" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    Join thousands of developers building on Solana with Helius
+  </Card>
+</CardGroup>
+

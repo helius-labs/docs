@@ -1,0 +1,437 @@
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  description: Advanced Solana transaction history API with powerful filtering, sorting, and pagination capabilities for retrieving comprehensive transaction data for any address.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: Mainnet RPC endpoint
+  - url: https://devnet.helius-rpc.com
+    description: Devnet RPC endpoint
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Your Helius API key. You can get one for free in the [dashboard](https://dashboard.helius.dev/api-keys).
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getTransactionsForAddress
+      operationId: getTransactionsForAddress
+      description: |
+        Enhanced transaction history API that provides powerful filtering, sorting, and pagination capabilities 
+        for retrieving transaction data associated with any Solana address. This advanced method overcomes the 
+        limitations of getSignaturesForAddress by offering:
+        
+        - Bidirectional sorting (ascending/descending chronological order)
+        - Advanced filtering by slot, time, signature, and transaction status
+        - Efficient keyset pagination using slot-based keys
+        - Option to return full transaction details or just signatures
+        - Support for time range queries and status filtering
+        
+        Perfect for building comprehensive wallet histories, analytics dashboards, audit trails, 
+        and any application requiring detailed transaction analysis with precise control over data retrieval.
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  example: "2.0"
+                  description: The JSON-RPC protocol version.
+                  default: "2.0"
+                id:
+                  type: string
+                  example: "1"
+                  description: A unique identifier for the request.
+                  default: "1"
+                method:
+                  type: string
+                  enum:
+                    - "getTransactionsForAddress"
+                  example: "getTransactionsForAddress"
+                  description: The name of the RPC method to invoke.
+                  default: "getTransactionsForAddress"
+                params:
+                  type: array
+                  description: Array containing the required account address and optional configuration object.
+                  default: ["Vote111111111111111111111111111111111111111"]
+                  items:
+                    oneOf:
+                      - type: string
+                        description: Solana account address to retrieve transaction history for (wallet, token, program, NFT, etc.).
+                        example: "Vote111111111111111111111111111111111111111"
+                      - type: object
+                        description: Advanced query configuration for filtering, sorting, and pagination.
+                        properties:
+                          transactionDetails:
+                            type: string
+                            description: Level of transaction detail to return.
+                            enum:
+                              - signatures
+                              - full
+                            default: signatures
+                            example: signatures
+                          sortOrder:
+                            type: string
+                            description: Sort order for returned transactions.
+                            enum:
+                              - asc
+                              - desc
+                            default: desc
+                            example: desc
+                          commitment:
+                            type: string
+                            description: The commitment level for the request.
+                            enum:
+                              - confirmed
+                              - finalized
+                              - processed
+                            default: finalized
+                            example: finalized
+                          minContextSlot:
+                            type: integer
+                            description: Minimum context slot to use for request (optional).
+                            example: 1000
+                          limit:
+                            type: integer
+                            description: Maximum number of transactions to return in a single request (1-1,000).
+                            minimum: 1
+                            maximum: 1000
+                            default: 1000
+                            example: 100
+                          paginationToken:
+                            type: string
+                            description: Pagination token from previous response to get next page of results (format "slot:position").
+                            example: "1053:13"
+                          encoding:
+                            type: string
+                            description: Encoding format for transaction data (applies only when transactionDetails=full).
+                            enum:
+                              - json
+                              - jsonParsed
+                              - base58
+                              - base64
+                            default: json
+                            example: json
+                          maxSupportedTransactionVersion:
+                            type: integer
+                            description: Maximum transaction version to return (applies only when transactionDetails=full).
+                            example: 0
+                          filters:
+                            type: object
+                            description: Advanced filters to narrow down transaction results.
+                            properties:
+                              slot:
+                                type: object
+                                description: Filter by slot number.
+                                properties:
+                                  gte:
+                                    type: integer
+                                    description: Greater than or equal to slot number.
+                                    example: 100
+                                  gt:
+                                    type: integer
+                                    description: Greater than slot number.
+                                    example: 100
+                                  lte:
+                                    type: integer
+                                    description: Less than or equal to slot number.
+                                    example: 200
+                                  lt:
+                                    type: integer
+                                    description: Less than slot number.
+                                    example: 200
+                                  eq:
+                                    type: integer
+                                    description: Equal to slot number.
+                                    example: 150
+                              blockTime:
+                                type: object
+                                description: Filter by block timestamp (Unix timestamp).
+                                properties:
+                                  gte:
+                                    type: integer
+                                    description: Greater than or equal to timestamp.
+                                    example: 1640995200
+                                  gt:
+                                    type: integer
+                                    description: Greater than timestamp.
+                                    example: 1640995200
+                                  lte:
+                                    type: integer
+                                    description: Less than or equal to timestamp.
+                                    example: 1641081600
+                                  lt:
+                                    type: integer
+                                    description: Less than timestamp.
+                                    example: 1641081600
+                                  eq:
+                                    type: integer
+                                    description: Equal to timestamp.
+                                    example: 1641038400
+                              signature:
+                                type: object
+                                description: Filter by transaction signature.
+                                properties:
+                                  lt:
+                                    type: string
+                                    description: Get transactions before this signature.
+                                    example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                  gt:
+                                    type: string
+                                    description: Get transactions after this signature.
+                                    example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                              status:
+                                type: string
+                                description: Filter by transaction status.
+                                enum:
+                                  - succeeded
+                                  - failed
+                                  - any
+                                default: any
+                                example: succeeded
+      responses:
+        200:
+          description: Successfully retrieved transactions for the specified address.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    example: "2.0"
+                    description: The JSON-RPC protocol version.
+                  id:
+                    type: string
+                    example: "1"
+                    description: Identifier matching the request.
+                  result:
+                    type: object
+                    description: Transaction data and pagination information.
+                    properties:
+                      data:
+                        type: array
+                        description: List of transaction information.
+                        items:
+                          type: object
+                          description: Transaction details (format depends on transactionDetails parameter).
+                          properties:
+                            signature:
+                              type: string
+                              description: Transaction signature as a base-58 encoded string.
+                              example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                            slot:
+                              type: integer
+                              description: The slot that contains the block with the transaction.
+                              example: 1054
+                            err:
+                              oneOf:
+                                - type: object
+                                  description: Error if the transaction failed
+                                - type: "null"
+                              description: Error if the transaction failed, or null if successful.
+                              example: null
+                            memo:
+                              oneOf:
+                                - type: string
+                                  description: Memo associated with the transaction
+                                - type: "null"
+                              description: Memo associated with the transaction, or null if none.
+                              example: null
+                            blockTime:
+                              oneOf:
+                                - type: integer
+                                  description: Estimated production time as Unix timestamp
+                                - type: "null"
+                              description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
+                              example: 1641038400
+                            confirmationStatus:
+                              oneOf:
+                                - type: string
+                                  enum:
+                                    - processed
+                                    - confirmed
+                                    - finalized
+                                  description: Transaction's cluster confirmation status
+                                - type: "null"
+                              description: Transaction's cluster confirmation status.
+                              example: finalized
+                      paginationToken:
+                        oneOf:
+                          - type: string
+                            description: Token for retrieving the next page of results
+                          - type: "null"
+                        description: Pagination token for next page, or null if no more results.
+                        example: "1055:5"
+              examples:
+                signaturesResponse:
+                  summary: Response with signature details only
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    result:
+                      data:
+                        - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                          slot: 1054
+                          err: null
+                          memo: null
+                          blockTime: 1641038400
+                          confirmationStatus: "finalized"
+                        - signature: "kwjd820slPK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                          slot: 1055
+                          err: null
+                          memo: null
+                          blockTime: 1641038460
+                          confirmationStatus: "finalized"
+                      paginationToken: "1055:5"
+            application/json; schema=examples/request:
+              examples:
+                basicRequest:
+                  summary: Basic request for signatures
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    method: "getTransactionsForAddress"
+                    params:
+                      - "Vote111111111111111111111111111111111111111"
+                      - transactionDetails: "signatures"
+                        limit: 10
+                filteredRequest:
+                  summary: Request with filters and pagination
+                  value:
+                    jsonrpc: "2.0"
+                    id: "1"
+                    method: "getTransactionsForAddress"
+                    params:
+                      - "Vote111111111111111111111111111111111111111"
+                      - transactionDetails: "full"
+                        sortOrder: "asc"
+                        limit: 50
+                        filters:
+                          status: "succeeded"
+                          slot:
+                            gte: 1000
+                            lt: 2000
+                        paginationToken: "1500:10"
+        400:
+          description: Bad Request - Invalid request parameters or malformed request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid params"
+                id: "1"
+        401:
+          description: Unauthorized - Invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "Unauthorized"
+                id: "1"
+        429:
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        500:
+          description: Internal Server Error - An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        503:
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        504:
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                id: "1"
