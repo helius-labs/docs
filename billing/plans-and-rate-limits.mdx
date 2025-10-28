@@ -467,7 +467,7 @@ Some endpoints have special restrictions due to their computational requirements
     <tr>
       <td><strong>getTransactionsForAddress</strong></td>
       <td style={{textAlign: 'center'}}>100</td>
-      <td>Enhanced transaction history with advanced filtering and sorting</td>
+      <td>Enhanced transaction history with advanced filtering and sorting. Requires Developer plan or higher</td>
     </tr>
     <tr>
       <td><strong>ZK Compression API</strong></td>
@@ -543,48 +543,62 @@ Some endpoints have special restrictions due to their computational requirements
        <thead>
          <tr>
            <th style={{width: '300px'}}>Method</th>
+           <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
            <th>Description</th>
          </tr>
        </thead>
        <tbody>
          <tr>
            <td><code>getBlock</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Retrieve block data and transactions for a specified slot</td>
          </tr>
          <tr>
            <td><code>getBlocks</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Get list of blocks between two slots</td>
          </tr>
          <tr>
            <td><code>getBlocksWithLimit</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Get blocks starting at a given slot with limit</td>
          </tr>
          <tr>
            <td><code>getSignaturesForAddress</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Get transaction signatures for an address</td>
          </tr>
          <tr>
            <td><code>getTransaction</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Retrieve transaction details for a specified signature</td>
          </tr>
          <tr>
            <td><code>getBlockTime</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Get estimated production time of a block</td>
          </tr>
          <tr>
            <td><code>getSignatureStatuses</code></td>
+           <td style={{textAlign: 'center'}}>10 / 1</td>
            <td>Get statuses for transaction signatures. Cost depends on <code>searchTransactionHistory</code> parameter: 10 credits when enabled (searches historical data), 1 credit when disabled (searches recent blocks only)</td>
          </tr>
          <tr>
            <td><code>getInflationReward</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>Get inflation reward for a list of addresses for an epoch</td>
+         </tr>
+         <tr>
+           <td><code>getTransactionsForAddress</code></td>
+           <td style={{textAlign: 'center'}}>100</td>
+           <td>Enhanced transaction history with advanced filtering, sorting, and full transaction data. Requires Developer plan or higher</td>
          </tr>
        </tbody>
      </table>
      
-     <Note>
-     **getTransactionsForAddress costs 100 credits** per request due to its enhanced capabilities (advanced filtering, sorting, and full transaction data). See the main credit costs table above for details.
-     </Note>
+     <Warning>
+     **Plan Requirement**: `getTransactionsForAddress` is only available on Developer plans and above. Free plan users will receive an error when attempting to use this endpoint.
+     </Warning>
      
      ### Batch Request Limits
      
