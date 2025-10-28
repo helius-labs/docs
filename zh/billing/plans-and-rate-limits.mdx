@@ -448,7 +448,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     <tr>
       <td><strong>数据附加组件（仅限专业版）</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
-      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强型 WebSockets 的使用。定价层级请参见<a href="#data-add-ons">数据附加组件</a></td>
+      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强型 WebSockets 的使用。查看 <a href="#data-add-ons">数据附加组件</a> 以了解定价层级</td>
     </tr>
     <tr>
       <td><strong>getProgramAccounts</strong></td>
@@ -460,8 +460,13 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       <td style={{textAlign: 'center'}}>10</td>
         <td>
          查询历史区块链数据的 RPC 调用，包括 <code>getTransaction</code>、<code>getSignaturesForAddress</code>、<code>getBlock</code>。<br />
-         完整列表请参见下方的<a href="#historical-data">表格</a>
+         完整列表请参见下方的 <a href="#historical-data">表格</a>
        </td>
+    </tr>
+    <tr>
+      <td><strong>getTransactionsForAddress</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>具有高级过滤和排序功能的增强型交易历史。需要开发者计划或更高</td>
     </tr>
     <tr>
       <td><strong>ZK Compression API</strong></td>
@@ -531,50 +536,99 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
 
      <Tab title="历史数据">
      <div id="historical-data"></div>
-     历史数据查询（有时称为存档调用）每次花费 **10 积分**：
+     历史数据查询（有时称为存档调用）每次花费**10个积分**：
      
      <table>
        <thead>
          <tr>
            <th style={{width: '300px'}}>方法</th>
+           <th style={{width: '100px', textAlign: 'center'}}>积分</th>
            <th>描述</th>
          </tr>
        </thead>
        <tbody>
          <tr>
            <td><code>getBlock</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>检索指定槽位的区块数据和交易</td>
          </tr>
          <tr>
            <td><code>getBlocks</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>获取两个槽位之间的区块列表</td>
          </tr>
          <tr>
            <td><code>getBlocksWithLimit</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>从给定槽位开始获取区块，带有限制</td>
          </tr>
          <tr>
            <td><code>getSignaturesForAddress</code></td>
-           <td>获取地址的交易签名</td>
+           <td style={{textAlign: 'center'}}>10</td>
+           <td>获取某个地址的交易签名</td>
          </tr>
          <tr>
            <td><code>getTransaction</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>检索指定签名的交易详情</td>
          </tr>
          <tr>
            <td><code>getBlockTime</code></td>
+           <td style={{textAlign: 'center'}}>10</td>
            <td>获取区块的预计生产时间</td>
          </tr>
          <tr>
            <td><code>getSignatureStatuses</code></td>
-           <td>获取交易签名的状态。费用取决于 <code>searchTransactionHistory</code> 参数：启用时（搜索历史数据）为 10 积分，禁用时（仅搜索最近区块）为 1 积分</td>
+           <td style={{textAlign: 'center'}}>10 / 1</td>
+           <td>获取交易签名的状态。费用取决于<code>searchTransactionHistory</code>参数：启用时（搜索历史数据）为10个积分，禁用时（仅搜索最近区块）为1个积分</td>
          </tr>
          <tr>
            <td><code>getInflationReward</code></td>
-           <td>获取一个纪元中一组地址的通胀奖励</td>
+           <td style={{textAlign: 'center'}}>10</td>
+           <td>获取某个纪元的地址列表的通胀奖励</td>
+         </tr>
+         <tr>
+           <td><code>getTransactionsForAddress</code></td>
+           <td style={{textAlign: 'center'}}>100</td>
+           <td>增强的交易历史，具有高级过滤、排序和完整交易数据。需要开发者计划或更高</td>
          </tr>
        </tbody>
      </table>
+     
+     <Warning>
+     **计划要求**：`getTransactionsForAddress`仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
+     </Warning>
+     
+     ### 批量请求限制
+     
+     在对历史数据方法进行批量请求时，适用以下限制：
+     
+     <table>
+       <thead>
+         <tr>
+           <th style={{width: '300px'}}>方法</th>
+           <th style={{width: '150px'}}>最大批量大小</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr>
+           <td><code>getTransaction</code></td>
+           <td>每个请求100项</td>
+         </tr>
+         <tr>
+           <td>所有其他历史方法</td>
+           <td>每个请求10项</td>
+         </tr>
+         <tr>
+           <td><code>getTransactionsForAddress</code></td>
+           <td>不允许批量请求</td>
+         </tr>
+       </tbody>
+     </table>
+     
+     <Warning>
+     超过批量限制将导致错误响应。对于`getTransactionsForAddress`，每个地址必须在单独的请求中查询。
+     </Warning>
    </Tab>
 
    <Tab title="DAS API">

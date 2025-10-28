@@ -1,0 +1,207 @@
+---
+title: Solana 历史数据概览与教程
+sidebarTitle: 概览
+description: 了解 Solana 上的历史数据如何运作，探索常见用例，并获取常见归档 RPC 方法的教程，如 getBlock 和
+  getSignatureForAddress。
+---
+
+## 为什么选择 Helius 进行历史数据查询？
+
+与依赖共享 BigTable 基础设施的提供商不同，Helius 维护专用的归档节点，优化用于快速历史数据检索。这种架构为时间关键型应用程序提供了卓越的性能和可靠性。
+
+<CardGroup cols={3}>
+  <Card title="独立基础设施" icon="server">
+    Helius 运行自己的归档系统，而不是像其他提供商那样共享 BigTable
+  </Card>
+  <Card title="更快的查询" icon="bolt">
+    直接访问优化的存储意味着历史查询的响应时间更快
+  </Card>
+  <Card title="更高的可靠性" icon="shield-check">
+    无共享基础设施瓶颈。即使在网络高峰期也能保持一致的性能
+  </Card>
+</CardGroup>
+
+---
+
+## 特色方法：getTransactionsForAddress
+
+<Card title="高级交易历史 API" icon="clock-rotate-left" href="/zh/rpc/gettransactionsforaddress">
+  我们的增强方法超越了标准的 Solana RPC 功能。通过强大的过滤、双向排序和高效分页查询交易历史。
+  
+  **特别之处在于：**
+  - 基于时间和槽位的过滤
+  - 双向排序（最旧优先或最新优先）
+  - 高效的键集分页
+  - 单次请求中的完整交易数据
+  - 支持版本化交易
+  
+  **完美适用于：**
+  - 代币发行分析
+  - 钱包历史
+  - MEV 研究
+  - 合规报告
+  - 投资组合跟踪
+</Card>
+
+<CardGroup cols={2}>
+  <Card title="查看完整文档" icon="book" href="/zh/rpc/gettransactionsforaddress">
+    包含示例和最佳实践的完整指南
+  </Card>
+  <Card title="获取您的 API 密钥" icon="key" href="https://dashboard.helius.dev/api-keys">
+    今天开始使用历史数据进行构建
+  </Card>
+</CardGroup>
+
+---
+
+## 标准归档方法
+
+使用这些标准 RPC 方法访问历史区块链数据。
+
+### 区块数据方法
+
+查询历史区块信息和元数据。
+
+#### getBlock
+
+检索完整的区块数据，包括特定插槽的所有交易和元数据。
+
+**用例：**
+- 区块浏览器
+- 审计工具
+- 历史分析
+
+<Card title="查看 getBlock 指南" icon="book-open" href="/zh/rpc/guides/getblock" horizontal />
+
+#### getBlocks
+
+获取两个插槽之间的已确认区块列表。
+
+**用例：**
+- 间隙检测
+- 区块范围分析
+- 索引
+
+<Card title="查看 getBlocks 指南" icon="book-open" href="/zh/rpc/guides/getblocks" horizontal />
+
+#### getBlockTime
+
+获取区块的估计生产时间，以 Unix 时间戳表示。
+
+**用例：**
+- 基于时间的分析
+- 事件关联
+
+<Card title="查看 getBlockTime 指南" icon="book-open" href="/zh/rpc/guides/getblocktime" horizontal />
+
+### 交易历史方法
+
+访问历史交易数据和签名。
+
+#### getTransaction
+
+检索特定签名的完整交易详情。
+
+**用例：**
+- 交易验证
+- 详细分析
+- 调试
+
+<Card title="查看 getTransaction 指南" icon="book-open" href="/zh/rpc/guides/gettransaction" horizontal />
+
+#### getSignaturesForAddress
+
+获取涉及某个地址的交易的已确认签名。
+
+**用例：**
+- 基本交易历史
+- 签名收集
+
+<Note>
+对于高级过滤和排序，请使用 [`getTransactionsForAddress`](/zh/rpc/gettransactionsforaddress) 代替。
+</Note>
+
+<Card title="查看 getSignaturesForAddress 指南" icon="book-open" href="/zh/rpc/guides/getsignaturesforaddress" horizontal />
+
+#### getTransactionsForAddress
+
+增强的交易历史，具有高级过滤、双向排序和高效分页功能。**每个请求花费 100 积分。**
+
+**用例：**
+- 基于时间的交易分析
+- 状态过滤（成功/失败）
+- 按时间顺序的历史重放
+- 一次调用中获取完整的交易数据
+
+<Card title="查看 getTransactionsForAddress 指南" icon="book-open" href="/zh/rpc/gettransactionsforaddress" horizontal />
+
+#### getInflationReward
+
+获取一个纪元中一组地址的通胀奖励。
+
+**用例：**
+- 验证者奖励
+- 质押分析
+
+<Card title="查看 getInflationReward 指南" icon="book-open" href="/zh/rpc/guides/getinflationreward" horizontal />
+
+---
+
+## Solana 归档用例
+
+<CardGroup cols={2}>
+  <Card title="代币发行分析" icon="rocket">
+    跟踪铸币创建和早期持有者活动。识别项目起源和初始分配模式。
+  </Card>
+  
+  <Card title="钱包取证" icon="magnifying-glass">
+    构建完整的交易时间线。发现资金来源和随时间变化的交易模式。
+  </Card>
+  
+  <Card title="MEV 研究" icon="chart-line">
+    分析历史套利和夹心攻击。研究具有精确时间数据的 MEV 机会。
+  </Card>
+  
+  <Card title="合规与审计" icon="clipboard-check">
+    生成全面的交易报告。通过完整的历史记录支持监管合规。
+  </Card>
+  
+  <Card title="投资组合跟踪" icon="wallet">
+    访问完整的 DeFi 交易历史。构建准确的投资组合分析和绩效跟踪。
+  </Card>
+  
+  <Card title="区块浏览器" icon="globe">
+    显示完整的区块链历史。为用户提供详细的区块和交易信息。
+  </Card>
+</CardGroup>
+
+---
+
+## 可用的历史数据是什么？
+
+Helius 提供从 Solana 创世到现在的完整历史数据，并实时持续更新。我们的索引和结构化存储支持快速检索，使您能够高效查询多年的链上活动。
+
+所有历史数据完全支持版本化交易和所有 Solana 程序类型。Helius 在独立的归档基础设施上维护这些数据，提供一致的性能，没有共享 BigTable 系统常见的瓶颈或可靠性问题。
+
+---
+
+## 开始使用
+
+准备好访问 Solana 的完整历史数据了吗？以下是开始的方法：
+
+- **[尝试 getTransactionsForAddress](/zh/rpc/gettransactionsforaddress)** - 从我们增强的交易历史 API 开始
+- **[获取您的 API 密钥](https://dashboard.helius.dev/api-keys)** - 注册并开始查询历史数据
+- **[查看定价](/zh/billing/plans-and-rate-limits#credit-system)** - 查看所有方法的信用成本
+
+---
+
+## 支持与社区
+
+<CardGroup cols={2}>
+  <Card title="联系支持" icon="headset" href="/zh/support">
+    获取我们团队的帮助，解决技术问题和疑问
+  </Card>
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入数千名在 Solana 上使用 Helius 构建的开发者
+  </Card>
+</CardGroup>

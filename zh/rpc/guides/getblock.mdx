@@ -6,33 +6,39 @@ description: 了解 getBlock 的使用案例、代码示例、请求参数、响
 
 [`getBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getblock) RPC 方法允许您检索 Solana 分类账中已确认区块的详细信息。这对于区块浏览器、交易历史分析以及在特定时间点了解链的状态至关重要。
 
+<Warning>
+**避免批处理以提高性能**
+
+批处理归档方法会显著增加延迟。不允许超过10个请求的批处理。
+</Warning>
+
 ## 常见用例
 
-*   **检查区块内容：** 查看特定[区块](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)中包含的所有交易。
-*   **检索区块哈希：** 获取给定插槽的区块哈希、其父区块哈希及其父插槽。
-*   **检查区块高度和时间：** 找出区块的高度（其序列号）及其估计的生产时间。
-*   **分析交易详情：** 使用适当的参数，您可以获取完整的交易数据，包括费用、状态、前/后余额和内部指令等元数据。
-*   **获取奖励：** 可选择性地包括区块的奖励信息。
+* **检查区块内容：** 查看特定[区块](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)中包含的所有交易。
+* **检索区块哈希：** 获取给定插槽的区块哈希，其父区块哈希及其父插槽。
+* **检查区块高度和时间：** 找出区块的高度（其序列号）及其估计的生产时间。
+* **分析交易详情：** 使用适当的参数，您可以获取完整的交易数据，包括费用、状态、前/后余额和内部指令等元数据。
+* **获取奖励：** 可选择性地包括区块的奖励信息。
 
 ## 参数
 
-1.  `slot` (number, required): 要查询的区块的插槽编号 (u64)。
+1. `slot`（数字，必需）：要查询的区块的插槽编号（u64）。
 
-2.  `config` (object, optional): 一个配置对象，包含以下字段：
-    *   `commitment` (string, optional): 指定要使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。`processed` 不支持此方法。默认为 `finalized`。
-    *   `encoding` (string, optional): 交易数据的编码。默认为 `json` 如果 `transactionDetails` 是 `full` 或 `accounts`，否则为 `base64`。
-        *   `json`: 以 JSON 格式返回交易和账户数据（建议使用 `jsonParsed` 代替）。
-        *   `jsonParsed`: 以解析的 JSON 返回交易和账户数据。建议使用此选项，因为它包括所有交易账户密钥（包括来自地址查找表的密钥）。
-        *   `base58` (slow)
-        *   `base64`
-        *   `base64+zstd`
-    *   `transactionDetails` (string, optional): 指定要返回的交易详细级别。默认为 `full`。
-        *   `full`: 返回完整的交易详情，包括交易元数据。
-        *   `accounts`: 返回每笔交易中详细的账户列表，但不包括完整的交易数据或元数据。
-        *   `signatures`: 仅返回交易签名。
-        *   `none`: 不返回交易详情。
-    *   `rewards` (boolean, optional): 是否在响应中包含奖励数组。默认为 `false`。
-    *   `maxSupportedTransactionVersion` (number, optional): 要返回的最大交易版本。如果区块包含更高版本的交易，则返回错误。如果省略，则仅返回传统交易，且包含任何版本化交易的区块将导致错误。设置为 `0` 以包括使用地址查找表的版本化交易。
+2. `config`（对象，可选）：一个包含以下字段的配置对象：
+ * `commitment`（字符串，可选）：指定要使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。`processed`不支持此方法。默认为`finalized`。
+ * `encoding`（字符串，可选）：交易数据的编码。如果`transactionDetails`是`full`或`accounts`，则默认为`json`，否则为`base64`。
+ * `json`：以JSON格式返回交易和账户数据（建议使用`jsonParsed`替代）。
+ * `jsonParsed`：以解析的JSON格式返回交易和账户数据。建议使用此选项，因为它包括所有交易账户密钥（包括来自地址查找表的密钥）。
+ * `base58`（慢）
+ * `base64`
+ * `base64+zstd`
+ * `transactionDetails`（字符串，可选）：指定要返回的交易详细信息级别。默认为`full`。
+ * `full`：返回完整的交易详情，包括交易元数据。
+ * `accounts`：返回每笔交易中详细列出的账户列表，但不包括完整的交易数据或元数据。
+ * `signatures`：仅返回交易签名。
+ * `none`：不返回交易详情。
+ * `rewards`（布尔值，可选）：是否在响应中包含奖励数组。默认为`false`。
+ * `maxSupportedTransactionVersion`（数字，可选）：要返回的最大交易版本。如果区块包含更高版本的交易，则返回错误。如果省略，则仅返回传统交易，包含任何版本化交易的区块将导致错误。设置为`0`以包括使用地址查找表的版本化交易。
 
 ## 响应
 
@@ -40,21 +46,21 @@ description: 了解 getBlock 的使用案例、代码示例、请求参数、响
 
 区块对象中的关键字段包括：
 
-*   `blockhash` (字符串)：此区块的 base-58 编码的区块哈希。
-*   `previousBlockhash` (字符串)：前一个区块的 base-58 编码的区块哈希。如果父区块不可用（由于账本清理），这可能是系统程序 ID。
-*   `parentSlot` (数字)：父区块的槽号。
-*   `transactions` (数组)：包含在区块中的交易对象数组。这些对象的结构取决于 `encoding` 和 `transactionDetails` 参数。
-    *   每个交易对象通常包含 `meta`（如费用、状态、日志、前/后余额的元数据）和 `transaction`（实际交易数据，包括消息和签名）。
-*   `rewards` (数组，可选)：奖励对象数组，如果指定了 `rewards: true` 则存在。每个对象详细说明 `pubkey`，`lamports`，`postBalance`，`rewardType`，以及可能的 `commission`。
-*   `blockTime` (数字 | null)：区块的估计生产时间，以 Unix 时间戳表示（自纪元以来的秒数），或 `null` 如果不可用。
-*   `blockHeight` (数字 | null)：此区块的高度（从槽 0 开始的链中在其之前的区块数），或 `null` 如果不可用。
+* `blockhash` (字符串)：此区块的 base-58 编码的区块哈希。
+* `previousBlockhash` (字符串)：前一个区块的 base-58 编码的区块哈希。如果父区块不可用（由于账本清理），这可能是系统程序 ID。
+* `parentSlot` (数字)：父区块的槽号。
+* `transactions` (数组)：包含在区块中的交易对象数组。这些对象的结构取决于 `encoding` 和 `transactionDetails` 参数。
+    * 每个交易对象通常包含 `meta`（如费用、状态、日志、前/后余额的元数据）和 `transaction`（实际交易数据，包括消息和签名）。
+* `rewards` (数组，可选)：奖励对象数组，如果指定了 `rewards: true` 则存在。每个对象详细说明 `pubkey`，`lamports`，`postBalance`，`rewardType`，以及可能的 `commission`。
+* `blockTime` (数字 | null)：区块的估计生产时间，以 Unix 时间戳表示（自纪元以来的秒数），如果不可用则为 `null`。
+* `blockHeight` (数字 | null)：此区块的高度（从槽 0 开始的链中在其之前的区块数），如果不可用则为 `null`。
 
 请参阅官方 Solana RPC 文档以获取响应中交易和元对象的完整详细结构。
 
 ## 示例：获取区块信息
 
 让我们尝试在 Devnet 上获取一个示例槽号的信息。
-**重要：** 槽号处理速度很快。下面使用的槽号（`250000000`）是一个占位符。运行示例时，应将其替换为您知道存在于目标网络（例如，Devnet 或 Mainnet）上的最近确认槽。您可以使用 Solana 区块浏览器找到最近的槽号。
+**重要：**槽号处理速度很快。下面使用的槽号（`250000000`）是一个占位符。运行示例时，应将其替换为您知道存在于目标网络（例如，Devnet 或 Mainnet）上的最近确认槽。您可以使用 Solana 区块浏览器找到最近的槽号。
 
 **注意：** 在下面的示例中，将`YOUR_API_KEY`替换为您实际的Helius API密钥。
 
@@ -177,14 +183,14 @@ async fn main() -> Result<()> {
 
 ## 开发者提示
 
-*   **Slot vs. Block Height：** 请记住，`getBlock`接受一个`slot`数字作为输入，不一定是区块高度。虽然slots是顺序的，但有些slots可能会被领导者跳过。响应中的`blockHeight`字段表示在此之前的实际区块数量。
-*   **`maxSupportedTransactionVersion`至关重要：** 要检查带有版本化交易的区块（现在是标准并使用地址查找表），您**必须**设置`maxSupportedTransactionVersion: 0`（或更高版本，如果出现新标准）。忘记这一点将导致大多数现代区块出现错误。
+*   **槽位与区块高度：** 请记住，`getBlock`接受一个`slot`数字作为输入，不一定是区块高度。虽然槽位是顺序的，但某些槽位可能会被领导者跳过。响应中的`blockHeight`字段表示在此之前的实际区块数量。
+*   **`maxSupportedTransactionVersion`至关重要：** 要检查带有版本化交易的区块（现在是标准并使用地址查找表），您**必须**设置`maxSupportedTransactionVersion: 0`（或更高版本，如果出现新标准）。忘记这一点会导致大多数现代区块出现错误。
 *   **选择`transactionDetails`：** 
-    *   `full`需要用于大多数详细分析，但返回的数据最多。
+    *   `full`对于大多数详细分析是必需的，但返回的数据最多。
     *   `signatures`在您只需要列出区块中的交易时很有用。
     *   `accounts`可以是一个中间选择，如果您需要查看涉及哪些账户而不获取所有指令数据。
-    *   `none`很少见，但如果您只关心区块级元数据，如`blockhash`或`rewards`，可以使用。
+    *   `none`很少见，但如果您只关心区块级元数据，如`blockhash`或`rewards`，则可以使用。
 *   **推荐使用`jsonParsed`进行编码：** 在请求交易详情时，`jsonParsed`提供了最适合开发者的输出，并正确解析了地址查找表中的账户，而`json`（已弃用）则没有。
-*   **区块不可用：** `null`结果意味着在该slot的区块未找到。这可能是因为slot被跳过，区块尚未确认到您指定的`commitment`级别，或者RPC节点已从其账本中修剪了该历史区块（对于较旧的slots很常见）。
+*   **区块不可用：** `null`结果意味着在该槽位的区块未找到。这可能是因为槽位被跳过，区块尚未确认到您指定的`commitment`级别，或者RPC节点已从其账本中修剪了该历史区块（对于较旧的槽位很常见）。
 *   **奖励信息：** 设置`rewards: true`是查看区块奖励分配给验证者（以及可能的质押者，取决于奖励类型）所必需的。这会增加响应的大小。
-*   **理解区块结构：** 要更深入地了解区块如何融入Solana的架构，请参阅[理解Solana上的Slots、Blocks和Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)。
+*   **理解区块结构：** 要更深入地了解区块如何融入Solana的架构，请参阅[理解Solana上的槽位、区块和纪元](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)。
