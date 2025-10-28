@@ -33,14 +33,18 @@ description: 获取关于数字资产标准 API 的最常见问题的答案，�
 使用 WebSockets 或 LaserStream 订阅账户变化，过滤钱包的代币账户。您还可以使用带有账户监控的 webhooks 进行实时余额变化通知。
 </Accordion>
 
-## DAS API 故障排除
-
-<Accordion title="为什么 getAsset 有时没有价格？">
-我们为24小时交易量排名前1万的代币提供价格数据。超出此范围的代币将没有价格信息。
+<Accordion title="DAS速率限制与RPC速率限制之间有什么关系？">
+DAS速率限制和RPC速率限制是相互独立的。例如，如果您的计划有一个DAS速率限制为10和一个RPC速率限制为50，这允许您每秒进行10次getAsset **和** 50次getBlock调用。
 </Accordion>
 
-<Accordion title="为什么我的 TOKEN_MINT webhook 没有返回所有代币铸造？">
-TOKEN_MINT webhooks 仅捕获特定的代币创建模式和程序。有些代币可能通过自定义程序或不在标准 webhook 过滤器覆盖范围内的方法铸造。考虑使用账户监控或交易过滤来进行全面的代币跟踪。
+## DAS API故障排除
+
+<Accordion title="为什么getAsset有时没有价格？">
+我们为24小时交易量前10,000的代币提供价格数据。超出此范围的代币将没有价格信息。
+</Accordion>
+
+<Accordion title="为什么我的TOKEN_MINT webhook没有返回所有代币铸造？">
+TOKEN_MINT webhooks仅捕获特定的代币创建模式和程序。一些代币可能通过自定义程序或不在标准webhook过滤器覆盖范围内的方法铸造。考虑使用账户监控或交易过滤来全面跟踪代币。
 </Accordion>
 
 ---
@@ -53,7 +57,7 @@ TOKEN_MINT webhooks 仅捕获特定的代币创建模式和程序。有些代币
     icon="headset"
     href="/zh/support/contact-support"
   >
-    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
+    通过Discord、聊天或电子邮件支持从我们的团队获取帮助。
   </Card>
   <Card
     title="状态页面"
