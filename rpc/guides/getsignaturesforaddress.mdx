@@ -6,11 +6,9 @@ description: "Learn getSignaturesForAddress use cases, code examples, request pa
 
 The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
 
-<Warning>
-**Batching Not Supported**
-
-This archival method does not support batching. Make individual requests only.
-</Warning>
+<Tip>
+**Try `getTransactionsForAddress`**: Our new [`getTransactionsForAddress`](https://www.helius.dev/docs/rpc/gettransactionsforaddress) method combines `getSignaturesForAddress` and `getTransaction` into a single call, and includes powerful new features including reverse search, time-based filters, and cursor-based pagination.
+</Tip>
 
 ## Common Use Cases
 
@@ -28,6 +26,12 @@ This archival method does not support batching. Make individual requests only.
     *   **`until`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will search for transactions until this signature is reached (exclusive).
     *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
     *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This is not a filter on historical transactions but sets the minimum slot for the node's context.
+
+<Warning>
+**Batching Not Supported**
+
+This archival method does not support batching. Make individual requests only.
+</Warning>
 
 ## Response Structure
 
