@@ -1,0 +1,555 @@
+---
+title: getTransactionsForAddress 概述和教程
+sidebarTitle: getTransactionsForAddress
+description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过滤、双向排序和高效分页查询 Solana 交易历史。
+---
+
+<Tip>
+**Helius 独有功能** - `getTransactionsForAddress` 仅通过 Helius RPC 节点提供，并不是标准 Solana RPC 的一部分。此端点需要 [开发者计划](/zh/billing/plans-and-rate-limits) 或更高版本，并且每次请求花费 100 积分。
+</Tip>
+
+## 概述
+
+[`getTransactionsForAddress`](/zh/api-reference/rpc/http/gettransactionsforaddress) 提供强大的交易历史查询功能，具有高级过滤、灵活排序和高效分页。
+
+### 主要功能
+
+<CardGroup cols={2}>
+  <Card title="灵活排序" icon="arrows-up-down">
+    按时间顺序排序（最早优先）或反向排序（最新优先）
+  </Card>
+  <Card title="高级过滤" icon="filter">
+    按时间范围、槽位、签名和交易状态进行过滤
+  </Card>
+  <Card title="完整交易数据" icon="database">
+    一次调用获取完整的交易详情
+  </Card>
+  <Card title="简单分页" icon="layer-group">
+    使用 slot:position 令牌轻松分页
+  </Card>
+</CardGroup>
+
+---
+
+## 常见用例
+
+此方法在多个场景中特别有用。**代币发行分析**有助于跟踪新项目的首次铸币交易和早期代币持有者。**钱包资金历史**允许您识别特定地址的资金来源和交易模式。**交易分析**让您可以按成功/失败状态进行过滤，专注于已完成的交易并排除失败的尝试。
+
+该 API 还支持 **审计与合规** 工作流，通过状态过滤为特定时间段生成交易报告。**分析仪表板**可以利用历史重播功能构建全面的交易分析。最后，**投资组合跟踪**应用程序可以访问完整的成功交易历史，用于 DeFi 投资组合管理。
+
+---
+
+## 快速开始
+
+<Steps>
+  <Step title="获取您的 API 密钥">
+    从 [Helius Dashboard](https://dashboard.helius.dev/api-keys) 获取您的 API 密钥。
+  </Step>
+  
+  <Step title="使用高级功能查询">
+    获取在两个日期之间按时间顺序排序的钱包的所有成功交易：
+    
+
+    ```javascript
+    // Get successful transactions between Jan 1-31, 2025 in chronological order
+    const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTransactionsForAddress',
+        params: [
+          'YOUR_ADDRESS_HERE',
+          {
+            transactionDetails: 'full',
+            sortOrder: 'asc',
+            limit: 100,
+            filters: {
+              blockTime: {
+                gte: 1735689600,   // Jan 1, 2025
+                lte: 1738368000    // Jan 31, 2025
+              },
+              status: 'succeeded'  // Only successful transactions
+            }
+          }
+        ]
+      })
+    });
+    
+    const data = await response.json();
+    console.log('Successful transactions in January:', data.result.data);
+    ```
+
+  </Step>
+  
+  <Step title="了解参数">
+    此示例展示了关键特性：
+    - **transactionDetails**: 设置为`'full'`以在一次调用中获取完整的交易数据
+    - **sortOrder**: 使用`'asc'`按时间顺序（最早的优先）或`'desc'`按最新的优先
+    - **filters.blockTime**: 使用`gte`（大于或等于）和`lte`（小于或等于）设置时间范围
+    - **filters.status**: 仅过滤`'succeeded'`或`'failed'`交易
+  </Step>
+</Steps>
+
+---
+
+## 请求参数
+
+<ParamField body="address" type="string" required>
+  要查询交易历史的账户的Base-58编码公钥
+</ParamField>
+
+<ParamField body="transactionDetails" type="string" default="signatures">
+  返回的交易详细级别：
+  - `signatures`: 基本签名信息（更快）
+  - `full`: 完整的交易数据（消除对getTransaction调用的需求，要求限制≤100）
+</ParamField>
+
+<ParamField body="sortOrder" type="string" default="desc">
+  结果的排序顺序：
+  - `desc`: 最新的优先（默认）
+  - `asc`: 最早的优先（按时间顺序，适合历史分析）
+</ParamField>
+
+<ParamField body="limit" type="number" default="1000">
+  返回的最大交易数：
+  - 当`transactionDetails: "signatures"`时最多1000
+  - 当`transactionDetails: "full"`时最多100
+</ParamField>
+
+<ParamField body="paginationToken" type="string">
+  上一个响应的分页令牌（格式：`"slot:position"`）
+</ParamField>
+
+<ParamField body="commitment" type="string" default="finalized">
+  承诺级别：`finalized`, `confirmed`, 或 `processed`
+</ParamField>
+
+<ParamField body="filters" type="object">
+  用于缩小结果范围的高级过滤选项。
+</ParamField>
+
+<ParamField body="filters.slot" type="object">
+  使用比较运算符按槽号过滤：`gte`, `gt`, `lte`, `lt`
+  
+  示例：`{ "slot": { "gte": 1000, "lte": 2000 } }`
+</ParamField>
+
+<ParamField body="filters.blockTime" type="object">
+  使用比较运算符按Unix时间戳过滤：`gte`, `gt`, `lte`, `lt`, `eq`
+  
+  示例：`{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
+</ParamField>
+
+<ParamField body="filters.signature" type="object">
+  使用比较运算符按交易签名过滤：`gte`, `gt`, `lte`, `lt`
+  
+  示例：`{ "signature": { "lt": "SIGNATURE_STRING" } }`
+</ParamField>
+
+<ParamField body="filters.status" type="string">
+  按交易成功/失败状态过滤：
+  - `succeeded`: 仅成功的交易
+  - `failed`: 仅失败的交易
+  - `any`: 成功和失败的交易（默认）
+  
+  示例：`{ "status": "succeeded" }`
+</ParamField>
+
+<ParamField body="encoding" type="string">
+  交易数据的编码格式（仅在`transactionDetails: "full"`时适用）。与`getTransaction` API 相同。选项：`json`, `jsonParsed`, `base64`, `base58`
+</ParamField>
+
+<ParamField body="maxSupportedTransactionVersion" type="number">
+  设置返回的最大交易版本。如果省略，则仅返回旧版交易。设置为`0`以包含所有版本的交易。
+</ParamField>
+
+<ParamField body="minContextSlot" type="number">
+  请求可以评估的最小槽位
+</ParamField>
+
+---
+
+## 过滤器操作符
+
+使用过滤器时，可以对`slot`, `blockTime`或`signature`使用比较操作符，以及一个特殊的`status`过滤器。这些操作符的工作方式类似于数据库查询，能够精确控制数据范围。
+
+### 比较操作符
+
+| 操作符 | 全名 | 描述 | 示例 |
+|----------|-----------|-------------|---------|
+| `gte` | 大于或等于 | 包含值 ≥ 指定值 | `slot: { gte: 100 }` |
+| `gt` | 大于 | 包含值 > 指定值 | `blockTime: { gt: 1641081600 }` |
+| `lte` | 小于或等于 | 包含值 ≤ 指定值 | `slot: { lte: 2000 }` |
+| `lt` | 小于 | 包含值 < 指定值 | `blockTime: { lt: 1641168000 }` |
+| `eq` | 等于 | 包含值完全等于（仅`blockTime`） | `blockTime: { eq: 1641081600 }` |
+
+### 状态过滤器
+
+| 过滤器 | 描述 | 值 |
+|--------|-------------|--------|
+| `status` | 按成功/失败过滤交易 | `succeeded`, `failed`, 或 `any` |
+
+**组合过滤器示例：**
+
+```javascript
+// Time range with successful transactions only
+"filters": {
+  "blockTime": {
+    "gte": 1640995200,
+    "lte": 1641081600
+  },
+  "status": "succeeded"
+}
+
+// Slot range
+"filters": {
+  "slot": {
+    "gte": 1000,
+    "lte": 2000
+  }
+}
+
+// Only failed transactions
+"filters": {
+  "status": "failed"
+}
+```
+
+---
+
+## 响应格式
+
+<Tabs>
+  <Tab title="签名响应">
+
+    ```json
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "data": [
+          {
+            "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
+            "slot": 1054,
+            "err": null,
+            "memo": null,
+            "blockTime": 1641038400,
+            "confirmationStatus": "finalized"
+          }
+        ],
+        "paginationToken": "1055:5"
+      }
+    }
+    ```
+
+  </Tab>
+
+  <Tab title="完整交易响应">
+
+    ```json
+    {
+      "jsonrpc": "2.0", 
+      "id": 1,
+      "result": {
+        "data": [
+          {
+            "slot": 1054,
+            "transaction": {
+              "signatures": ["5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"],
+              "message": {
+                "accountKeys": ["...", "..."],
+                "instructions": [...],
+                // Complete transaction structure
+              }
+            },
+            "meta": {
+              "fee": 5000,
+              "preBalances": [1000000, 2000000],
+              "postBalances": [999995000, 2000000],
+              // Complete metadata
+            }
+          }
+        ],
+        "paginationToken": "1055:5"
+      }
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 实用示例
+
+### 基于时间的分析
+
+生成每月交易报告：
+
+```javascript
+// Get all successful transactions for January 2025
+const startTime = Math.floor(new Date('2025-01-01').getTime() / 1000);
+const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "WALLET_OR_PROGRAM_ADDRESS",
+    {
+      "transactionDetails": "signatures",
+      "filters": {
+        "blockTime": {
+          "gte": startTime,
+          "lt": endTime
+        },
+        "status": "succeeded"
+      },
+      "limit": 1000
+    }
+  ]
+}
+```
+
+分析过程：
+
+```javascript
+// Calculate daily transaction volume
+const dailyStats = {};
+response.result.data.forEach(tx => {
+  const date = new Date(tx.blockTime * 1000).toISOString().split('T')[0];
+  dailyStats[date] = (dailyStats[date] || 0) + 1;
+});
+
+console.log('Daily Transaction Counts:', dailyStats);
+```
+
+### 代币铸造创建
+
+查找特定代币的铸造创建交易：
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": "find-first-mints",
+  "method": "getTransactionsForAddress",
+  "params": [
+    MINT_ADDRESS, // Token mint address
+    {
+      "encoding": "jsonParsed",
+      "maxSupportedTransactionVersion": 0,
+      "sortOrder": "asc",  // Chronological order from the beginning
+      "limit": 10,
+      "transactionDetails": "full"
+    }
+  ]
+}
+```
+
+对于流动性池创建，查询池地址：
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress", 
+  "params": [
+    "POOL_ADDRESS_HERE", // Raydium/Meteora pool address
+    {
+      "transactionDetails": "full",
+      "sortOrder": "asc",  // First transaction is usually pool creation
+      "limit": 1
+    }
+  ]
+}
+```
+
+<Note>
+**用例**：查找代币铸造或流动性池创建的确切时刻，包括创建者地址和初始参数。
+</Note>
+
+### 资金交易
+
+查找谁为特定地址提供资金：
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "getTransactionsForAddress",
+  "params": [
+    "TARGET_WALLET_ADDRESS",
+    {
+      "transactionDetails": "full",
+      "sortOrder": "asc",  // Oldest first
+      "limit": 10
+    }
+  ]
+}
+```
+
+然后分析交易数据以查找SOL转账：
+
+```javascript
+response.result.data.forEach(tx => {
+  // Look for SOL transfers in preBalances/postBalances
+  const balanceChanges = tx.meta.preBalances.map((pre, index) => 
+    tx.meta.postBalances[index] - pre
+  );
+  
+  // Positive balance change = incoming SOL
+  balanceChanges.forEach((change, index) => {
+    if (change > 0) {
+      console.log(`Received ${change} lamports from ${tx.transaction.message.accountKeys[index]}`);
+    }
+  });
+});
+```
+
+<Note>
+最初的几笔交易通常会揭示资金来源，并有助于识别相关地址或资金模式。
+</Note>
+
+---
+
+## 分页
+
+当交易数量超过限制时，使用响应中的`paginationToken`获取下一页。该令牌是一个简单的字符串，格式为`"slot:position"`，指示API从何处继续。
+
+### 如何分页
+
+使用每个响应中的分页令牌获取下一页：
+
+```javascript
+// First request
+let paginationToken = null;
+let allTransactions = [];
+
+const getNextPage = async (paginationToken = null) => {
+  const params = [
+    'ADDRESS',
+    {
+      transactionDetails: 'signatures',
+      limit: 100,
+      ...(paginationToken && { paginationToken })
+    }
+  ];
+
+  const response = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getTransactionsForAddress',
+      params
+    })
+  });
+
+  const data = await response.json();
+  return data.result;
+};
+
+// Paginate through all results
+do {
+  const result = await getNextPage(paginationToken);
+  allTransactions.push(...result.data);
+  paginationToken = result.paginationToken;
+  
+  console.log(`Fetched ${result.data.length} transactions, total: ${allTransactions.length}`);
+} while (paginationToken);
+```
+
+---
+
+## 最佳实践
+
+### 性能
+
+为获得最佳性能，当不需要完整交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽位进行过滤以进行更有针对性的查询。
+
+### 过滤
+
+从广泛的过滤器开始，逐步缩小范围以找到所需的数据。使用基于时间的过滤器进行分析和报告工作流。您可以结合多个过滤器进行精确查询，以定位特定的交易类型或时间段。
+
+### 分页
+
+在需要稍后恢复大型查询时存储分页键。监控分页深度以进行性能规划，并在需要按时间顺序重放历史事件的场景中使用升序。
+
+### 错误处理
+
+使用指数退避策略优雅地处理速率限制。在发出请求之前始终验证地址，并在适当时缓存结果以减少API使用并提高应用程序性能。
+
+---
+
+## 这与getSignaturesForAddress有何不同？
+
+如果您熟悉标准`getSignaturesForAddress`方法，以下是主要区别：
+
+### 一次调用获取完整交易
+
+使用`getSignaturesForAddress`，您需要两个步骤：
+
+```javascript
+// Step 1: Get signatures
+const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
+
+// Step 2: Get transaction details (100 additional calls!)
+const transactions = await Promise.all(
+  signatures.map(sig => connection.getTransaction(sig.signature))
+);
+```
+
+使用`getTransactionsForAddress`，只需一次调用：
+
+```javascript
+const response = await fetch(heliusRpcUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getTransactionsForAddress',
+    params: [
+      address,
+      {
+        transactionDetails: 'full',
+        limit: 100
+      }
+    ]
+  })
+});
+```
+
+### 额外功能
+
+<CardGroup cols={2}>
+  <Card title="按时间顺序排序" icon="arrow-up">
+    使用`sortOrder: 'asc'`从最旧到最新排序交易
+  </Card>
+  <Card title="基于时间的过滤" icon="clock">
+    使用`blockTime`过滤器按时间范围过滤
+  </Card>
+  <Card title="状态过滤" icon="filter">
+    使用`status`过滤器仅获取成功或失败的交易
+  </Card>
+  <Card title="更简单的分页" icon="list">
+    使用`paginationToken`代替复杂的`before`/`until`签名
+  </Card>
+</CardGroup>
+
+---
+
+## 支持与社区
+
+<CardGroup cols={2}>
+  <Card title="联系支持" icon="headset" href="/zh/support">
+    获取我们团队的技术问题和问题帮助
+  </Card>
+  <Card title="Discord社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入数千名在Solana上使用Helius构建的开发者
+  </Card>
+</CardGroup>

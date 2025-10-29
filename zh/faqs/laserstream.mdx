@@ -55,14 +55,34 @@ LaserStream Plus 附加组件将您的专业计划的按使用付费模式转变
 可以，您可以在单个`SubscribeRequest`中订阅多种数据类型。添加单独的过滤器配置（例如`accounts`和`transactions`）以在一个流中接收账户更新和交易数据。
 </Accordion>
 
-## LaserStream故障排除
+## 消息顺序
 
-<Accordion title="为什么我的LaserStream连接会出现延迟或性能缓慢？">
-• **客户端瓶颈**：JavaScript客户端在负载过重时可能会出现延迟。缩小您的过滤器或切换到更快的语言。
+<Accordion title="LaserStream 是否保证消息发送的顺序？">
+不，LaserStream 不保证消息的顺序。您可能会收到乱序的交易和账户更新，即使在同一个槽中也是如此。
+</Accordion>
 
-• **本地带宽限制**：大量订阅可能会使慢速链接饱和。监控网络使用或升级您的连接。
+<Accordion title="LaserStream 是否按账户写入的顺序进行流式传输？">
+不，LaserStream 不按账户写入的顺序进行流式传输。账户更新可能会以不同于写入账本的顺序到达。
+</Accordion>
 
-• **地理距离**：选择离您最近的LaserStream端点；长距离路由会丢包并增加延迟。
+<Accordion title="如何按顺序流式传输 LaserStream 交易？">
+您无法按顺序流式传输交易，但可以在客户端重建顺序。您可以这样做：
+
+1. 在客户端缓冲消息  
+2. 提取每条消息中包含的`slot`和`index`字段  
+3. 根据这些字段对交易进行排序
+
+`slot`字段指示交易所属的槽，`index`字段指示其在该槽中的位置。通过使用这两个字段，您可以重建顺序。
+</Accordion>
+
+## LaserStream 故障排除
+
+<Accordion title="为什么我的 LaserStream 连接出现延迟或性能缓慢？">
+• **客户端瓶颈**：JavaScript 客户端在负载过重时可能会出现延迟。缩小过滤器范围或切换到更快的语言。
+
+• **本地带宽限制**：大量订阅可能会使慢速链接饱和。监控网络使用情况或升级您的连接。
+
+• **地理距离**：选择离您最近的 LaserStream 端点；长距离路由会丢包并增加延迟。
 
 • **处理逻辑**：避免阻塞主线程；使用异步队列或工作线程。
 
@@ -75,12 +95,12 @@ helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_K
 
 </Accordion>
 
-<Accordion title="如何检查我的LaserStream连接是否有错误？">
-验证您的x-token和端点，确保允许出站gRPC。检查您的仪表板以获取连接状态，并在您的应用程序中查看错误日志以查找身份验证或网络问题。
+<Accordion title="如何检查我的 LaserStream 连接是否有错误？">
+验证您的 x-token 和端点，确保允许出站 gRPC。检查您的仪表板以获取连接状态，并查看应用程序中的错误日志以查找身份验证或网络问题。
 </Accordion>
 
 <Accordion title="为什么我的 LaserStream 过滤器没有按预期工作？">
-确认公钥和承诺级别，并查看您的 `AND`/`OR` 逻辑。过滤器的评估方式如 [文档](https://www.helius.dev/docs/laserstream/grpc#subscribe-request) 中所述。
+确认公钥和承诺级别，并检查您的 `AND`/`OR` 逻辑。过滤器的评估方式如 [文档](https://www.helius.dev/docs/laserstream/grpc#subscribe-request) 中所述。
 </Accordion>
 
 <Accordion title="为什么 LaserStream 每 15 秒发送一个空事件？">

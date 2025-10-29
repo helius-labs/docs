@@ -8,33 +8,39 @@ description: 了解 getSignatureStatuses 的使用案例、代码示例、请求
 
 除非启用了`searchTransactionHistory`选项，否则此方法主要查询 RPC 节点上的最近状态缓存。对于较旧的交易，启用`searchTransactionHistory`至关重要。
 
+<Warning>
+**避免批处理以提高性能**
+
+批处理归档方法会显著增加延迟。不允许超过10个请求的批处理。
+</Warning>
+
 ## 常见用例
 
-*   **确认交易最终性：** 验证提交的交易是否已达到所需的确认级别（例如，`confirmed`或`finalized`）。
-*   **批量状态查询：** 高效地一次检查多个交易的状态，例如在批量发送后。
-*   **根据交易状态更新 UI：** 向用户反映交易的实时状态。
-*   **错误检查：** 确定列表中的任何交易是否失败以及原因。
+* **确认交易最终性：** 验证已提交的交易是否已达到所需的确认级别（例如，`confirmed` 或 `finalized`）。
+* **批量状态查询：** 高效地一次检查多个交易的状态，例如，在批量发送后。
+* **根据交易状态更新UI：** 向用户反映交易的实时状态。
+* **错误检查：** 确定列表中的任何交易是否失败以及原因。
 
 ## 请求参数
 
-1.  **`signatures`** (`array` of `string`): （必需）一个 base-58 编码的交易签名数组。您可以在单个请求中查询最多 256 个签名。
-2.  **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
-    *   **`searchTransactionHistory`** (`boolean`, 可选): 如果`true`，RPC 节点将搜索其完整的交易历史记录以查找签名。如果`false`（默认），则仅搜索最近的状态缓存。对于旧的或可能丢失的交易，将此设置为`true`。
+1. **`signatures`** (`array` of `string`): （必需）一个base-58编码的交易签名数组。您可以在单个请求中查询最多256个签名。
+2. **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
+ * **`searchTransactionHistory`** (`boolean`, 可选): 如果是 `true`，RPC节点将搜索其完整的交易历史以查找签名。如果是 `false`（默认），则仅搜索最近的状态缓存。对于旧的或可能被丢弃的交易，将此设置为 `true`。
 
 ## 响应结构
 
-JSON-RPC 响应的`result`字段包含一个对象，其中有两个字段：
+JSON-RPC响应的`result`字段包含一个对象，该对象有两个字段：
 
-*   **`context`** (`object`): 一个对象，包含：
-    *   **`slot`** (`u64`): RPC 节点处理此请求的插槽。
-*   **`value`** (`array` of `object` | `null`): 一个状态对象数组，对应于请求中签名的顺序。每个元素可以是：
-    *   如果找到签名，则为包含以下字段的**对象**：
-        *   **`slot`** (`u64`): 交易被处理的插槽。
-        *   **`confirmations`** (`number` | `null`): 自交易处理以来已确认的区块数。如果交易已最终确定（因为最终性意味着它不会被回滚，因此具体的确认计数不那么相关），则为`null`。
-        *   **`err`** (`object` | `null`): 如果交易失败（例如，`{"InstructionError":[0,{"Custom":1}]}`），则为错误对象；如果成功，则为`null`。
-        *   **`status`** (`object`): 一个指示交易执行状态的对象。通常为`{"Ok":null}`表示成功交易，或一个详细说明错误的对象表示失败交易。
-        *   **`confirmationStatus`** (`string` | `null`): 集群对交易的确认状态（例如，`processed`，`confirmed`，`finalized`）。如果状态在缓存中不可用且`searchTransactionHistory`为 false，则可以为`null`。
-    *   **`null`**: 如果在状态缓存中找不到签名且`searchTransactionHistory`为`false`（或即使进行历史记录搜索也确实不存在）。
+* **`context`** (`object`): 一个包含以下内容的对象：
+ * **`slot`** (`u64`): RPC节点处理此请求的槽位。
+* **`value`** (`array` of `object` | `null`): 一个状态对象数组，对应于请求中签名的顺序。每个元素可以是：
+ * 如果找到签名，则为包含以下字段的**对象**：
+ * **`slot`** (`u64`): 交易被处理的槽位。
+ * **`confirmations`** (`number` | `null`): 自交易处理以来已确认的区块数。如果交易已完成，则为`null`（因为最终性意味着它不会被回滚，因此具体的确认计数不那么相关）。
+ * **`err`** (`object` | `null`): 如果交易失败，则为错误对象（例如，`{"InstructionError":[0,{"Custom":1}]}`），如果成功则为`null`。
+ * **`status`** (`object`): 一个指示交易执行状态的对象。通常为成功交易的`{"Ok":null}`或详细说明错误的对象。
+ * **`confirmationStatus`** (`string` | `null`): 集群对交易的确认状态（例如，`processed`, `confirmed`, `finalized`）。如果状态在缓存中不可用且`searchTransactionHistory`为false，则可以为`null`。
+ * **`null`**: 如果在状态缓存中找不到签名且`searchTransactionHistory`为`false`（或即使进行历史搜索也确实不存在）。
 
 ## 示例
 
@@ -163,10 +169,10 @@ checkSignaturesWithHistory();
 
 ## 开发者提示
 
-*   **`searchTransactionHistory`:** 对于可靠性至关重要。如果 `false`（默认），该方法仅检查有限的最近缓存。如果交易较旧或可能被丢弃且不在此缓存中，它将返回该签名状态的 `null`。如果需要确认可能不是非常近期的交易状态，请始终设置为 `true`。
-*   **签名限制：** 每次调用最多可以查询256个签名。
-*   **`null` 状态：** 在给定签名的 `value` 数组中，`null` 表示未找到其状态。这可能是因为它不在最近缓存中（如果 `searchTransactionHistory` 为 false），交易从未发生，或者即使使用 `searchTransactionHistory: true`，它也太旧而不在节点的历史中。
-*   **`confirmations: null`：** 这通常意味着交易已达到 `finalized` 状态。在这一点上，特定确认次数的概念不再那么相关，因为该区块被认为是不可逆的。
-*   **错误处理：** 检查每个状态对象中的 `err` 字段以查看交易是否失败。`status` 字段也将提供详细信息（例如，`{"Err":...}`）。
+* **`searchTransactionHistory`:** 对于可靠性至关重要。如果 `false`（默认），该方法仅检查有限的最近缓存。如果交易较旧或可能被丢弃且不在此缓存中，它将返回该签名状态的 `null`。如果需要确认可能不是非常近期的交易状态，请始终设置为 `true`。
+* **签名限制：** 每次调用最多可以查询256个签名。
+* **`null` 状态：** 给定签名的 `value` 数组中的 `null` 表示未找到其状态。这可能是因为它不在最近缓存中（如果 `searchTransactionHistory` 为 false），交易从未落地，或者即使使用 `searchTransactionHistory: true` 也太旧而无法在节点历史中找到。
+* **`confirmations: null`:** 这通常意味着交易已达到 `finalized` 状态。此时，特定确认次数的概念不再那么重要，因为区块被认为是不可逆的。
+* **错误处理：** 检查每个状态对象中的 `err` 字段以查看交易是否失败。`status` 字段也将提供详细信息（例如，`{"Err":...}`）。
 
-使用 `getSignatureStatuses` 是监控多个 Solana 交易状态的有效方法。记得使用 `searchTransactionHistory: true` 进行稳健的状态检查。
+使用 `getSignatureStatuses` 是监控多个 Solana 交易状态的有效方法。请记住使用 `searchTransactionHistory: true` 进行稳健的状态检查。
