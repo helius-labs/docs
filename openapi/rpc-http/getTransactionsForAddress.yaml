@@ -101,15 +101,163 @@ paths:
                 params:
                   type: array
                   description: Array containing the required account address and optional configuration object.
-                  default: ["Vote111111111111111111111111111111111111111"]
-                  items:
-                    oneOf:
-                      - type: string
-                        description: Solana account address to retrieve transaction history for (wallet, token, program, NFT, etc.).
-                        example: "Vote111111111111111111111111111111111111111"
-                      - type: object
-                        description: Advanced query configuration for filtering, sorting, and pagination.
-                        properties:
+                  minItems: 1
+                  maxItems: 2
+                  prefixItems:
+                    - type: string
+                      description: Solana account address to retrieve transaction history for (wallet, token, program, NFT, etc.).
+                      example: "Vote111111111111111111111111111111111111111"
+                    - type: object
+                      description: Advanced query configuration for filtering, sorting, and pagination.
+                      properties:
+                        transactionDetails:
+                          type: string
+                          description: Level of transaction detail to return.
+                          enum:
+                            - signatures
+                            - full
+                          default: signatures
+                          example: signatures
+                        sortOrder:
+                          type: string
+                          description: Sort order for returned transactions.
+                          enum:
+                            - asc
+                            - desc
+                          default: desc
+                          example: desc
+                        commitment:
+                          type: string
+                          description: The commitment level for the request.
+                          enum:
+                            - confirmed
+                            - finalized
+                            - processed
+                          default: finalized
+                          example: finalized
+                        minContextSlot:
+                          type: integer
+                          description: Minimum context slot to use for request (optional).
+                          example: 1000
+                        limit:
+                          type: integer
+                          description: Maximum number of transactions to return in a single request (1-1,000).
+                          minimum: 1
+                          maximum: 1000
+                          default: 1000
+                          example: 100
+                        paginationToken:
+                          type: string
+                          description: Pagination token from previous response to get next page of results (format "slot:position").
+                          example: "1053:13"
+                        encoding:
+                          type: string
+                          description: Encoding format for transaction data (applies only when transactionDetails=full).
+                          enum:
+                            - json
+                            - jsonParsed
+                            - base58
+                            - base64
+                          default: json
+                          example: json
+                        maxSupportedTransactionVersion:
+                          type: integer
+                          description: Maximum transaction version to return (applies only when transactionDetails=full).
+                          example: 0
+                        filters:
+                          type: object
+                          description: Advanced filters to narrow down transaction results.
+                          properties:
+                            slot:
+                              type: object
+                              description: Filter by slot number.
+                              properties:
+                                gte:
+                                  type: integer
+                                  description: Greater than or equal to slot number.
+                                  example: 100
+                                gt:
+                                  type: integer
+                                  description: Greater than slot number.
+                                  example: 100
+                                lte:
+                                  type: integer
+                                  description: Less than or equal to slot number.
+                                  example: 200
+                                lt:
+                                  type: integer
+                                  description: Less than slot number.
+                                  example: 200
+                                eq:
+                                  type: integer
+                                  description: Equal to slot number.
+                                  example: 150
+                            blockTime:
+                              type: object
+                              description: Filter by block timestamp (Unix timestamp).
+                              properties:
+                                gte:
+                                  type: integer
+                                  description: Greater than or equal to timestamp.
+                                  example: 1640995200
+                                gt:
+                                  type: integer
+                                  description: Greater than timestamp.
+                                  example: 1640995200
+                                lte:
+                                  type: integer
+                                  description: Less than or equal to timestamp.
+                                  example: 1641081600
+                                lt:
+                                  type: integer
+                                  description: Less than timestamp.
+                                  example: 1641081600
+                                eq:
+                                  type: integer
+                                  description: Equal to timestamp.
+                                  example: 1641038400
+                            signature:
+                              type: object
+                              description: Filter by transaction signature.
+                              properties:
+                                lt:
+                                  type: string
+                                  description: Get transactions before this signature.
+                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                gt:
+                                  type: string
+                                  description: Get transactions after this signature.
+                                  example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                            status:
+                              type: string
+                              description: Filter by transaction status.
+                              enum:
+                                - succeeded
+                                - failed
+                                - any
+                              default: any
+                              example: succeeded
+                  items: false
+                  default:
+                    - "Vote111111111111111111111111111111111111111"
+                    - transactionDetails: signatures
+                      limit: 50
+                      sortOrder: desc
+                      filters:
+                        status: succeeded
+                        slot:
+                          gte: 1000
+                          lt: 2000
+                  example:
+                    - "Vote111111111111111111111111111111111111111"
+                    - transactionDetails: signatures
+                      limit: 50
+                      sortOrder: desc
+                      filters:
+                        status: succeeded
+                        slot:
+                          gte: 1000
+                          lt: 2000
                           transactionDetails:
                             type: string
                             description: Level of transaction detail to return.
@@ -237,6 +385,14 @@ paths:
                                   - any
                                 default: any
                                 example: succeeded
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "getTransactionsForAddress"
+              params:
+                - "Vote111111111111111111111111111111111111111"
+                - transactionDetails: "signatures"
+                  limit: 10
       responses:
         200:
           description: Successfully retrieved transactions for the specified address.
