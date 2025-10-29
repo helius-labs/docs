@@ -7,3 +7,236 @@ og:description: 获取免费的 RPC 并探索 getTransactionsForAddress RPC
   方法。高级交易历史查询，具有过滤、排序和分页功能。包括请求参数、响应示例、代码片段，以及 Solana 主网和 Devnet 的浏览器内测试。
 openapi: /zh/openapi/rpc-http/getTransactionsForAddress.yaml POST /
 ---
+
+## 请求参数
+
+<ParamField path="params[0]" type="string" required>
+Solana账户地址，用于检索交易历史（钱包、代币、程序、NFT等）。
+</ParamField>
+
+<ParamField path="params[1]" type="object">
+用于过滤、排序和分页的高级查询配置。
+
+<Expandable title="基本参数">
+  <ParamField path="transactionDetails" type="string" default="signatures">
+  返回的交易详细程度。
+  
+  - `"signatures"` - 仅返回签名元数据（默认）
+  - `"full"` - 返回完整的交易数据
+  </ParamField>
+  
+  <ParamField path="limit" type="integer" default="1000">
+  单个请求中返回的最大交易数量。范围：1-1,000。
+  </ParamField>
+  
+  <ParamField path="sortOrder" type="string" default="desc">
+  返回交易的排序顺序。
+  - `"desc"` - 最新交易优先（默认）
+  - `"asc"` - 最早交易优先
+  </ParamField>
+  
+  <ParamField path="paginationToken" type="string">
+  从上一个响应中获取的分页令牌，用于获取下一页结果。格式：`"slot:position"`。
+  </ParamField>
+</Expandable>
+
+<Expandable title="承诺与上下文">
+  <ParamField path="commitment" type="string" default="finalized">
+  请求的承诺级别。
+  - `"processed"` - 节点已看到交易
+  - `"confirmed"` - 交易已被集群确认
+  - `"finalized"` - 交易已被集群最终确定（默认）
+  </ParamField>
+  
+  <ParamField path="minContextSlot" type="integer">
+  用于请求的最小上下文槽（可选）。
+  </ParamField>
+</Expandable>
+
+<Expandable title="完整交易参数">
+  <ParamField path="encoding" type="string" default="json">
+  交易数据的编码格式（仅在`transactionDetails="full"`时适用）。
+  
+  - `"json"` - JSON编码（默认）
+  - `"jsonParsed"` - 解析后的JSON编码
+  - `"base58"` - Base58编码
+  - `"base64"` - Base64编码
+  </ParamField>
+  
+  <ParamField path="maxSupportedTransactionVersion" type="integer">
+  返回的最大交易版本（仅在`transactionDetails="full"`时适用）。
+  </ParamField>
+</Expandable>
+
+<Expandable title="过滤选项">
+  <ParamField path="filters" type="object">
+  用于缩小交易结果的高级过滤器。
+  
+  <Expandable title="槽过滤器">
+    <ParamField path="filters.slot" type="object">
+    按槽号过滤交易。支持多种比较运算符。
+    
+    <ParamField path="filters.slot.gte" type="integer">
+    包含槽大于或等于此值的交易。
+    </ParamField>
+    
+    <ParamField path="filters.slot.gt" type="integer">
+    包含槽大于此值的交易。
+    </ParamField>
+    
+    <ParamField path="filters.slot.lte" type="integer">
+    包含槽小于或等于此值的交易。
+    </ParamField>
+    
+    <ParamField path="filters.slot.lt" type="integer">
+    包含槽小于此值的交易。
+    </ParamField>
+    
+    <ParamField path="filters.slot.eq" type="integer">
+    包含槽等于此值的交易。
+    </ParamField>
+    </ParamField>
+  </Expandable>
+  
+  <Expandable title="区块时间过滤器">
+    <ParamField path="filters.blockTime" type="object">
+    按区块时间戳（Unix时间戳）过滤交易。支持多种比较运算符。
+    
+    <ParamField path="filters.blockTime.gte" type="integer">
+    包含区块时间大于或等于此Unix时间戳的交易。
+    </ParamField>
+    
+    <ParamField path="filters.blockTime.gt" type="integer">
+    包含区块时间大于此Unix时间戳的交易。
+    </ParamField>
+    
+    <ParamField path="filters.blockTime.lte" type="integer">
+    包含区块时间小于或等于此Unix时间戳的交易。
+    </ParamField>
+    
+    <ParamField path="filters.blockTime.lt" type="integer">
+    包含区块时间小于此Unix时间戳的交易。
+    </ParamField>
+    
+    <ParamField path="filters.blockTime.eq" type="integer">
+    包含区块时间等于此Unix时间戳的交易。
+    </ParamField>
+    </ParamField>
+  </Expandable>
+  
+  <Expandable title="签名过滤器">
+    <ParamField path="filters.signature" type="object">
+    按交易签名过滤交易，用于分页。
+    
+    <ParamField path="filters.signature.lt" type="string">
+    获取此签名之前的交易（时间较早）。
+    </ParamField>
+    
+    <ParamField path="filters.signature.gt" type="string">
+    获取此签名之后的交易（时间较晚）。
+    </ParamField>
+    </ParamField>
+  </Expandable>
+  
+  <Expandable title="状态过滤器">
+    <ParamField path="filters.status" type="string" default="any">
+    按成功或失败状态过滤交易。
+    
+    - `"succeeded"` - 仅包含成功的交易
+    - `"failed"` - 仅包含失败的交易
+    - `"any"` - 包含所有交易，无论状态如何（默认）
+    </ParamField>
+  </Expandable>
+  </ParamField>
+</Expandable>
+</ParamField>
+
+## 响应字段
+
+<ResponseField name="data" type="array" required>
+交易信息列表。格式取决于`transactionDetails`参数。
+
+<Expandable title="签名格式 (transactionDetails='signatures')">
+  <ResponseField name="signature" type="string" required>
+  交易签名，作为base-58编码的字符串。
+  </ResponseField>
+  
+  <ResponseField name="slot" type="integer" required>
+  包含交易的区块的槽位。
+  </ResponseField>
+  
+  <ResponseField name="err" type="object | null">
+  如果交易失败则为错误对象，成功则为null。
+  </ResponseField>
+  
+  <ResponseField name="memo" type="string | null">
+  与交易相关的备忘录，如果没有则为null。
+  </ResponseField>
+  
+  <ResponseField name="blockTime" type="integer | null">
+  估计的生产时间，以Unix时间戳（自纪元以来的秒数）表示，如果不可用则为null。
+  </ResponseField>
+  
+  <ResponseField name="confirmationStatus" type="string | null">
+  交易的集群确认状态。值为：`"processed"`, `"confirmed"`, 或 `"finalized"`。
+  </ResponseField>
+</Expandable>
+
+<Expandable title="完整交易格式 (transactionDetails='full')">
+  <ResponseField name="signature" type="string" required>
+  交易签名，作为base-58编码的字符串。
+  </ResponseField>
+
+  <ResponseField name="slot" type="integer" required>
+  处理交易的槽位。
+  </ResponseField>
+
+  <ResponseField name="blockTime" type="integer | null">
+  估计的生产时间，以Unix时间戳（自纪元以来的秒数）表示，如果不可用则为null。
+  </ResponseField>
+
+  <ResponseField name="transaction" type="object" required>
+  完整的交易负载，与`getTransaction`响应匹配。
+
+  <Expandable title="transaction.signatures">
+    <ResponseField name="transaction.signatures[]" type="string" required>
+    授权交易的加密签名。
+    </ResponseField>
+  </Expandable>
+
+  <Expandable title="transaction.message">
+    <ResponseField name="transaction.message.accountKeys[]" type="string" required>
+    交易引用的账户公钥的有序列表。
+    </ResponseField>
+
+    <ResponseField name="transaction.message.header" type="object" required>
+    定义签名者和只读账户数量的交易头。
+    </ResponseField>
+
+    <ResponseField name="transaction.message.instructions[]" type="object" required>
+    交易执行的程序指令。每个条目公开`programIdIndex`, `accounts`, 和`data`字段。
+    </ResponseField>
+
+    <ResponseField name="transaction.message.recentBlockhash" type="string" required>
+    锚定交易有效性窗口的最近区块哈希。
+    </ResponseField>
+  </Expandable>
+  </ResponseField>
+
+  <ResponseField name="meta" type="object | null">
+  由`getTransaction`返回的执行元数据。包括：
+  - `err`: 执行失败时的错误对象（成功时为null）
+  - `fee`: 为交易支付的lamports
+  - `logMessages`: 程序日志字符串数组（如果可用）
+  - `preBalances` / `postBalances`: 执行前后每个账户的lamport余额
+  - `preTokenBalances` / `postTokenBalances`: 执行前后的SPL代币余额
+  - `innerInstructions`: 执行期间发出的嵌套程序指令
+  - `loadedAddresses`: 查找表账户（用于版本化交易）
+  - `rewards`: 存在时的验证者奖励信息
+  </ResponseField>
+</Expandable>
+</ResponseField>
+
+<ResponseField name="paginationToken" type="string | null">
+用于下一页的分页令牌，如果没有更多结果则为 null。格式：`"slot:position"`。
+</ResponseField>
