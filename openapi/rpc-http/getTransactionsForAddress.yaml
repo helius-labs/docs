@@ -141,7 +141,7 @@ paths:
                           example: 1000
                         limit:
                           type: integer
-                          description: Maximum number of transactions to return in a single request (1-1,000).
+                          description: Maximum number of transactions per request. Use 1–1000 for transactionDetails:"signatures" and 1–100 for transactionDetails:"full".
                           minimum: 1
                           maximum: 1000
                           default: 1000
@@ -188,10 +188,7 @@ paths:
                                   type: integer
                                   description: Less than slot number.
                                   example: 200
-                                eq:
-                                  type: integer
-                                  description: Equal to slot number.
-                                  example: 150
+                              additionalProperties: false
                             blockTime:
                               type: object
                               description: Filter by block timestamp (Unix timestamp).
@@ -216,18 +213,28 @@ paths:
                                   type: integer
                                   description: Equal to timestamp.
                                   example: 1641038400
+                              additionalProperties: false
                             signature:
                               type: object
                               description: Filter by transaction signature.
                               properties:
-                                lt:
+                                gte:
                                   type: string
-                                  description: Get transactions before this signature.
-                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                  description: Get transactions with signatures greater than or equal to this value.
+                                  example: "4h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                                 gt:
                                   type: string
                                   description: Get transactions after this signature.
                                   example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                lte:
+                                  type: string
+                                  description: Get transactions with signatures less than or equal to this value.
+                                  example: "6k7xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                lt:
+                                  type: string
+                                  description: Get transactions before this signature.
+                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                              additionalProperties: false
                             status:
                               type: string
                               description: Filter by transaction status.
@@ -237,6 +244,7 @@ paths:
                                 - any
                               default: any
                               example: succeeded
+                          additionalProperties: false
                   items: false
                   default:
                     - "Vote111111111111111111111111111111111111111"
@@ -258,133 +266,6 @@ paths:
                         slot:
                           gte: 1000
                           lt: 2000
-                          transactionDetails:
-                            type: string
-                            description: Level of transaction detail to return.
-                            enum:
-                              - signatures
-                              - full
-                            default: signatures
-                            example: signatures
-                          sortOrder:
-                            type: string
-                            description: Sort order for returned transactions.
-                            enum:
-                              - asc
-                              - desc
-                            default: desc
-                            example: desc
-                          commitment:
-                            type: string
-                            description: The commitment level for the request.
-                            enum:
-                              - confirmed
-                              - finalized
-                              - processed
-                            default: finalized
-                            example: finalized
-                          minContextSlot:
-                            type: integer
-                            description: Minimum context slot to use for request (optional).
-                            example: 1000
-                          limit:
-                            type: integer
-                            description: Maximum number of transactions to return in a single request (1-1,000).
-                            minimum: 1
-                            maximum: 1000
-                            default: 1000
-                            example: 100
-                          paginationToken:
-                            type: string
-                            description: Pagination token from previous response to get next page of results (format "slot:position").
-                            example: "1053:13"
-                          encoding:
-                            type: string
-                            description: Encoding format for transaction data (applies only when transactionDetails=full).
-                            enum:
-                              - json
-                              - jsonParsed
-                              - base58
-                              - base64
-                            default: json
-                            example: json
-                          maxSupportedTransactionVersion:
-                            type: integer
-                            description: Maximum transaction version to return (applies only when transactionDetails=full).
-                            example: 0
-                          filters:
-                            type: object
-                            description: Advanced filters to narrow down transaction results.
-                            properties:
-                              slot:
-                                type: object
-                                description: Filter by slot number.
-                                properties:
-                                  gte:
-                                    type: integer
-                                    description: Greater than or equal to slot number.
-                                    example: 100
-                                  gt:
-                                    type: integer
-                                    description: Greater than slot number.
-                                    example: 100
-                                  lte:
-                                    type: integer
-                                    description: Less than or equal to slot number.
-                                    example: 200
-                                  lt:
-                                    type: integer
-                                    description: Less than slot number.
-                                    example: 200
-                                  eq:
-                                    type: integer
-                                    description: Equal to slot number.
-                                    example: 150
-                              blockTime:
-                                type: object
-                                description: Filter by block timestamp (Unix timestamp).
-                                properties:
-                                  gte:
-                                    type: integer
-                                    description: Greater than or equal to timestamp.
-                                    example: 1640995200
-                                  gt:
-                                    type: integer
-                                    description: Greater than timestamp.
-                                    example: 1640995200
-                                  lte:
-                                    type: integer
-                                    description: Less than or equal to timestamp.
-                                    example: 1641081600
-                                  lt:
-                                    type: integer
-                                    description: Less than timestamp.
-                                    example: 1641081600
-                                  eq:
-                                    type: integer
-                                    description: Equal to timestamp.
-                                    example: 1641038400
-                              signature:
-                                type: object
-                                description: Filter by transaction signature.
-                                properties:
-                                  lt:
-                                    type: string
-                                    description: Get transactions before this signature.
-                                    example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                                  gt:
-                                    type: string
-                                    description: Get transactions after this signature.
-                                    example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                              status:
-                                type: string
-                                description: Filter by transaction status.
-                                enum:
-                                  - succeeded
-                                  - failed
-                                  - any
-                                default: any
-                                example: succeeded
             example:
               jsonrpc: "2.0"
               id: "1"
@@ -419,49 +300,76 @@ paths:
                         type: array
                         description: List of transaction information.
                         items:
-                          type: object
-                          description: Transaction details (format depends on transactionDetails parameter).
-                          properties:
-                            signature:
-                              type: string
-                              description: Transaction signature as a base-58 encoded string.
-                              example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                            slot:
-                              type: integer
-                              description: The slot that contains the block with the transaction.
-                              example: 1054
-                            err:
-                              oneOf:
-                                - type: object
-                                  description: Error if the transaction failed
-                                - type: "null"
-                              description: Error if the transaction failed, or null if successful.
-                              example: null
-                            memo:
-                              oneOf:
-                                - type: string
-                                  description: Memo associated with the transaction
-                                - type: "null"
-                              description: Memo associated with the transaction, or null if none.
-                              example: null
-                            blockTime:
-                              oneOf:
-                                - type: integer
-                                  description: Estimated production time as Unix timestamp
-                                - type: "null"
-                              description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
-                              example: 1641038400
-                            confirmationStatus:
-                              oneOf:
-                                - type: string
-                                  enum:
-                                    - processed
-                                    - confirmed
-                                    - finalized
-                                  description: Transaction's cluster confirmation status
-                                - type: "null"
-                              description: Transaction's cluster confirmation status.
-                              example: finalized
+                          oneOf:
+                            - type: object
+                              description: Signature-level transaction summary (when transactionDetails is "signatures").
+                              properties:
+                                signature:
+                                  type: string
+                                  description: Transaction signature as a base-58 encoded string.
+                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                slot:
+                                  type: integer
+                                  description: The slot that contains the block with the transaction.
+                                  example: 1054
+                                err:
+                                  oneOf:
+                                    - type: object
+                                      description: Error if the transaction failed
+                                    - type: "null"
+                                  description: Error if the transaction failed, or null if successful.
+                                  example: null
+                                memo:
+                                  oneOf:
+                                    - type: string
+                                      description: Memo associated with the transaction
+                                    - type: "null"
+                                  description: Memo associated with the transaction, or null if none.
+                                  example: null
+                                blockTime:
+                                  oneOf:
+                                    - type: integer
+                                      description: Estimated production time as Unix timestamp
+                                    - type: "null"
+                                  description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
+                                  example: 1641038400
+                                confirmationStatus:
+                                  oneOf:
+                                    - type: string
+                                      enum:
+                                        - processed
+                                        - confirmed
+                                        - finalized
+                                      description: Transaction's cluster confirmation status
+                                    - type: "null"
+                                  description: Transaction's cluster confirmation status.
+                                  example: finalized
+                              required:
+                                - signature
+                                - slot
+                              additionalProperties: false
+                            - type: object
+                              description: Full transaction with status metadata (when transactionDetails is "full").
+                              properties:
+                                slot:
+                                  type: integer
+                                  description: The slot that contains the block with the transaction.
+                                  example: 1054
+                                transaction:
+                                  type: object
+                                  description: Encoded or parsed transaction object per the selected encoding.
+                                meta:
+                                  type: object
+                                  description: Transaction status metadata.
+                                blockTime:
+                                  oneOf:
+                                    - type: integer
+                                      description: Estimated production time as Unix timestamp
+                                    - type: "null"
+                                  description: Estimated production time as Unix timestamp (seconds since epoch), or null if not available.
+                              required:
+                                - slot
+                                - transaction
                       paginationToken:
                         oneOf:
                           - type: string
@@ -490,35 +398,27 @@ paths:
                           blockTime: 1641038460
                           confirmationStatus: "finalized"
                       paginationToken: "1055:5"
-            application/json; schema=examples/request:
-              examples:
-                basicRequest:
-                  summary: Basic request for signatures
+                fullResponse:
+                  summary: Response with full transaction details
                   value:
                     jsonrpc: "2.0"
                     id: "1"
-                    method: "getTransactionsForAddress"
-                    params:
-                      - "Vote111111111111111111111111111111111111111"
-                      - transactionDetails: "signatures"
-                        limit: 10
-                filteredRequest:
-                  summary: Request with filters and pagination
-                  value:
-                    jsonrpc: "2.0"
-                    id: "1"
-                    method: "getTransactionsForAddress"
-                    params:
-                      - "Vote111111111111111111111111111111111111111"
-                      - transactionDetails: "full"
-                        sortOrder: "asc"
-                        limit: 50
-                        filters:
-                          status: "succeeded"
-                          slot:
-                            gte: 1000
-                            lt: 2000
-                        paginationToken: "1500:10"
+                    result:
+                      data:
+                        - slot: 1054
+                          transaction:
+                            signatures:
+                              - "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                            message:
+                              accountKeys: ["...", "..."]
+                              instructions: ["..."]
+                          meta:
+                            fee: 5000
+                            preBalances: [1000000, 2000000]
+                            postBalances: [999995000, 2000000]
+                          blockTime: 1641038400
+                      paginationToken: "1055:5"
+
         400:
           description: Bad Request - Invalid request parameters or malformed request.
           content:
