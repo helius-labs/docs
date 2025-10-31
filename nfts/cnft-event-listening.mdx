@@ -260,7 +260,7 @@ curl -X POST \
     "txnStatus": "all",
     "encoding": "jsonParsed"
   }' \
-  "https://api.helius.xyz/v0/webhooks?api-key=<YOUR_API_KEY>"
+  "https://api-mainnet.helius-rpc.com/v0/webhooks?api-key=<YOUR_API_KEY>"
 ```
 
 **JavaScript Example:**
@@ -279,7 +279,7 @@ async function createCNFTWebhook() {
     encoding: 'jsonParsed'
   };
 
-  const response = await fetch('https://api.helius.xyz/v0/webhooks?api-key=<YOUR_API_KEY>', {
+  const response = await fetch('https://api-mainnet.helius-rpc.com/v0/webhooks?api-key=<YOUR_API_KEY>', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -540,7 +540,7 @@ Helius offers an **Enhanced** Transaction API. It automatically decodes NFT, SPL
 
 **Endpoint**:
 
-* **Mainnet**: `https://api.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>`
+* **Mainnet**: `https://api-mainnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>`
 * **Devnet**: `https://api-devnet.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>`
 
 You send up to **100** transaction signatures in the request body, and Helius returns an **array** of parsed transactions.
@@ -549,7 +549,7 @@ You send up to **100** transaction signatures in the request body, and Helius re
 
 ```js [expandable]
 async function parseMultipleTransactions(signatures) {
-  const url = 'https://api.helius.xyz/v0/transactions?api-key=<YOUR_API_KEY>';
+  const url = 'https://api-mainnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>';
 
   const response = await fetch(url, {
     method: 'POST',
@@ -600,7 +600,7 @@ Within each parsed transaction, you may find a `compressed` object under `events
 
 If you want **parsed** transactions for a **specific** address—say a **Merkle tree** or **user wallet**—you can call:
 
-* **Mainnet**: `https://api.helius.xyz/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
+* **Mainnet**: `https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
 * **Devnet**: `https://api-devnet.helius.xyz/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
 
 **Example**:
@@ -608,7 +608,7 @@ If you want **parsed** transactions for a **specific** address—say a **Merkle 
 ```js [expandable]
 async function getParsedHistoryForAddress(address) {
   // Add pagination support and error handling
-  const url = `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=<YOUR_API_KEY>&limit=50`;
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${address}/transactions?api-key=<YOUR_API_KEY>&limit=50`;
 
   const response = await fetch(url);
   if (!response.ok) {
