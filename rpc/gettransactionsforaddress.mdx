@@ -457,6 +457,44 @@ do {
 } while (paginationToken);
 ```
 
+### Multiple Addresses
+
+You cannot query multiple addresses in a single request. To fetch transactions for multiple addresses, query each address within the same time or slot window, then merge and sort:
+
+```javascript
+const addresses = ['Address1...', 'Address2...', 'Address3...'];
+
+// Query all addresses in parallel with slot filter
+const results = await Promise.all(
+  addresses.map(address => 
+    fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTransactionsForAddress',
+        params: [address, {
+          sortOrder: 'desc',
+          filters: { slot: { gt: 250000000 } }
+        }]
+      })
+    }).then(r => r.json())
+  )
+);
+
+// Merge and sort by slot
+const allTransactions = results
+  .flatMap(r => r.result.data)
+  .sort((a, b) => b.slot - a.slot);
+```
+
+For larger history scans, iterate through time or slot windows (e.g., 1000 slots at a time) and repeat this pattern.
+
+<Note>
+Each address query counts as a separate API request (100 credits per address).
+</Note>
+
 ---
 
 ## Best Practices
