@@ -43,7 +43,7 @@ console.log('Transaction data:', data);
 const API_KEY = 'YOUR_API_KEY';
 const WALLET_ADDRESS = 'DjPi9wgUDTtYuuL6ZNvhgKJgC8gHaRKtHq6K5ESWbGKt';
 
-const response = await fetch(`https://api.helius.xyz/v0/addresses/${WALLET_ADDRESS}/transactions?api-key=${API_KEY}&limit=10`, {
+const response = await fetch(`https://api-mainnet.helius-rpc.com/v0/addresses/${WALLET_ADDRESS}/transactions?api-key=${API_KEY}&limit=10`, {
   method: 'GET',
 });
 const transactions = await response.json();
