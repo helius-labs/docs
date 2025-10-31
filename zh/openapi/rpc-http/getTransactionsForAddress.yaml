@@ -143,7 +143,7 @@ paths:
                           example: 1000
                         limit:
                           type: "integer"
-                          description: "单个请求中返回的最大交易数量（1-1,000）。"
+                          description: "每个请求的最大交易数量。对于 transactionDetails:\"signatures\" 使用 1–1000，对于 transactionDetails:\"full\" 使用 1–100。"
                           minimum: 1
                           maximum: 1000
                           default: 1000
@@ -190,10 +190,7 @@ paths:
                                   type: "integer"
                                   description: "小于槽号。"
                                   example: 200
-                                eq:
-                                  type: "integer"
-                                  description: "等于槽号。"
-                                  example: 150
+                              additionalProperties: false
                             blockTime:
                               type: "object"
                               description: "按区块时间戳（Unix时间戳）过滤。"
@@ -218,18 +215,28 @@ paths:
                                   type: "integer"
                                   description: "等于时间戳。"
                                   example: 1641038400
+                              additionalProperties: false
                             signature:
                               type: "object"
                               description: "按交易签名过滤。"
                               properties:
-                                lt:
+                                gte:
                                   type: "string"
-                                  description: "获取此签名之前的交易。"
-                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                  description: "获取签名大于或等于此值的交易。"
+                                  example: "4h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                                 gt:
                                   type: "string"
                                   description: "获取此签名之后的交易。"
                                   example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                lte:
+                                  type: "string"
+                                  description: "获取签名小于或等于此值的交易。"
+                                  example: "6k7xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                lt:
+                                  type: "string"
+                                  description: "获取此签名之前的交易。"
+                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                              additionalProperties: false
                             status:
                               type: "string"
                               description: "按交易状态过滤。"
@@ -239,6 +246,7 @@ paths:
                                 - "any"
                               default: "any"
                               example: "succeeded"
+                          additionalProperties: false
                   items: false
                   default:
                     - "Vote111111111111111111111111111111111111111"
@@ -260,133 +268,6 @@ paths:
                         slot:
                           gte: 1000
                           lt: 2000
-                          transactionDetails:
-                            type: "string"
-                            description: "返回的交易详情级别。"
-                            enum:
-                              - "signatures"
-                              - "full"
-                            default: "signatures"
-                            example: "signatures"
-                          sortOrder:
-                            type: "string"
-                            description: "返回交易的排序顺序。"
-                            enum:
-                              - "asc"
-                              - "desc"
-                            default: "desc"
-                            example: "desc"
-                          commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
-                            enum:
-                              - "confirmed"
-                              - "finalized"
-                              - "processed"
-                            default: "finalized"
-                            example: "finalized"
-                          minContextSlot:
-                            type: "integer"
-                            description: "用于请求的最小上下文槽（可选）。"
-                            example: 1000
-                          limit:
-                            type: "integer"
-                            description: "单个请求中返回的最大交易数量（1-1,000）。"
-                            minimum: 1
-                            maximum: 1000
-                            default: 1000
-                            example: 100
-                          paginationToken:
-                            type: "string"
-                            description: "从上一个响应中获取下一页结果的分页令牌（格式为\"slot:position\"）。"
-                            example: "1053:13"
-                          encoding:
-                            type: "string"
-                            description: "交易数据的编码格式（仅在transactionDetails=full时适用）。"
-                            enum:
-                              - "json"
-                              - "jsonParsed"
-                              - "base58"
-                              - "base64"
-                            default: "json"
-                            example: "json"
-                          maxSupportedTransactionVersion:
-                            type: "integer"
-                            description: "返回的最大交易版本（仅在transactionDetails=full时适用）。"
-                            example: 0
-                          filters:
-                            type: "object"
-                            description: "高级过滤器以缩小交易结果范围。"
-                            properties:
-                              slot:
-                                type: "object"
-                                description: "按插槽编号过滤。"
-                                properties:
-                                  gte:
-                                    type: "integer"
-                                    description: "大于或等于插槽编号。"
-                                    example: 100
-                                  gt:
-                                    type: "integer"
-                                    description: "大于插槽编号。"
-                                    example: 100
-                                  lte:
-                                    type: "integer"
-                                    description: "小于或等于插槽编号。"
-                                    example: 200
-                                  lt:
-                                    type: "integer"
-                                    description: "小于插槽编号。"
-                                    example: 200
-                                  eq:
-                                    type: "integer"
-                                    description: "等于插槽编号。"
-                                    example: 150
-                              blockTime:
-                                type: "object"
-                                description: "按区块时间戳（Unix时间戳）过滤。"
-                                properties:
-                                  gte:
-                                    type: "integer"
-                                    description: "大于或等于时间戳。"
-                                    example: 1640995200
-                                  gt:
-                                    type: "integer"
-                                    description: "大于时间戳。"
-                                    example: 1640995200
-                                  lte:
-                                    type: "integer"
-                                    description: "小于或等于时间戳。"
-                                    example: 1641081600
-                                  lt:
-                                    type: "integer"
-                                    description: "小于时间戳。"
-                                    example: 1641081600
-                                  eq:
-                                    type: "integer"
-                                    description: "等于时间戳。"
-                                    example: 1641038400
-                              signature:
-                                type: "object"
-                                description: "按交易签名过滤。"
-                                properties:
-                                  lt:
-                                    type: "string"
-                                    description: "获取此签名之前的交易。"
-                                    example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                                  gt:
-                                    type: "string"
-                                    description: "获取此签名之后的交易。"
-                                    example: "3jweEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                              status:
-                                type: "string"
-                                description: "按交易状态过滤。"
-                                enum:
-                                  - "succeeded"
-                                  - "failed"
-                                  - "any"
-                                default: "any"
-                                example: "succeeded"
             example:
               jsonrpc: "2.0"
               id: "1"
@@ -421,49 +302,76 @@ paths:
                         type: "array"
                         description: "交易信息列表。"
                         items:
-                          type: "object"
-                          description: "交易详情（格式取决于transactionDetails参数）。"
-                          properties:
-                            signature:
-                              type: "string"
-                              description: "交易签名，作为base-58编码的字符串。"
-                              example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
-                            slot:
-                              type: "integer"
-                              description: "包含交易的区块所在的槽。"
-                              example: 1054
-                            err:
-                              oneOf:
-                                - type: "object"
-                                  description: "如果交易失败，则返回错误"
-                                - type: "null"
-                              description: "如果交易失败，则返回错误；如果成功，则返回null。"
-                              example: null
-                            memo:
-                              oneOf:
-                                - type: "string"
-                                  description: "与交易相关的备注"
-                                - type: "null"
-                              description: "与交易相关的备注，如果没有则为null。"
-                              example: null
-                            blockTime:
-                              oneOf:
-                                - type: "integer"
-                                  description: "估计的生产时间，以Unix时间戳表示"
-                                - type: "null"
-                              description: "估计的生产时间，以Unix时间戳（自纪元以来的秒数）表示，如果不可用则为null。"
-                              example: 1641038400
-                            confirmationStatus:
-                              oneOf:
-                                - type: "string"
-                                  enum:
-                                    - "processed"
-                                    - "confirmed"
-                                    - "finalized"
-                                  description: "交易的集群确认状态"
-                                - type: "null"
-                              description: "交易的集群确认状态。"
-                              example: "finalized"
+                          oneOf:
+                            - type: "object"
+                              description: "签名级别的交易摘要（当 transactionDetails 为 \"signatures\" 时）。"
+                              properties:
+                                signature:
+                                  type: "string"
+                                  description: "交易签名，作为 base-58 编码的字符串。"
+                                  example: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                                slot:
+                                  type: "integer"
+                                  description: "包含交易的区块的插槽。"
+                                  example: 1054
+                                err:
+                                  oneOf:
+                                    - type: "object"
+                                      description: "如果交易失败则返回错误"
+                                    - type: "null"
+                                  description: "如果交易失败则返回错误，成功则为 null。"
+                                  example: null
+                                memo:
+                                  oneOf:
+                                    - type: "string"
+                                      description: "与交易相关的备注"
+                                    - type: "null"
+                                  description: "与交易相关的备注，如果没有则为 null。"
+                                  example: null
+                                blockTime:
+                                  oneOf:
+                                    - type: "integer"
+                                      description: "估计的生产时间，作为 Unix 时间戳"
+                                    - type: "null"
+                                  description: "估计的生产时间，以Unix时间戳表示（自纪元以来的秒数），如果不可用则为null。"
+                                  example: 1641038400
+                                confirmationStatus:
+                                  oneOf:
+                                    - type: "string"
+                                      enum:
+                                        - "processed"
+                                        - "confirmed"
+                                        - "finalized"
+                                      description: "交易的集群确认状态"
+                                    - type: "null"
+                                  description: "交易的集群确认状态。"
+                                  example: "finalized"
+                              required:
+                                - "signature"
+                                - "slot"
+                              additionalProperties: false
+                            - type: "object"
+                              description: "带有状态元数据的完整交易（当transactionDetails为\"full\"时）。"
+                              properties:
+                                slot:
+                                  type: "integer"
+                                  description: "包含交易的区块的槽位。"
+                                  example: 1054
+                                transaction:
+                                  type: "object"
+                                  description: "根据所选编码编码或解析的交易对象。"
+                                meta:
+                                  type: "object"
+                                  description: "交易状态元数据。"
+                                blockTime:
+                                  oneOf:
+                                    - type: "integer"
+                                      description: "估计的生产时间，以Unix时间戳表示"
+                                    - type: "null"
+                                  description: "估计的生产时间，以Unix时间戳表示（自纪元以来的秒数），如果不可用则为null。"
+                              required:
+                                - "slot"
+                                - "transaction"
                       paginationToken:
                         oneOf:
                           - type: "string"
@@ -492,35 +400,33 @@ paths:
                           blockTime: 1641038460
                           confirmationStatus: "已完成"
                       paginationToken: "1055:5"
-            application/json; schema=examples/request:
-              examples:
-                basicRequest:
-                  summary: "签名的基本请求"
+                fullResponse:
+                  summary: "包含完整交易详情的响应"
                   value:
                     jsonrpc: "2.0"
                     id: "1"
-                    method: "getTransactionsForAddress"
-                    params:
-                      - "Vote111111111111111111111111111111111111111"
-                      - transactionDetails: "signatures"
-                        limit: 10
-                filteredRequest:
-                  summary: "带有过滤器和分页的请求"
-                  value:
-                    jsonrpc: "2.0"
-                    id: "1"
-                    method: "getTransactionsForAddress"
-                    params:
-                      - "Vote111111111111111111111111111111111111111"
-                      - transactionDetails: "full"
-                        sortOrder: "asc"
-                        limit: 50
-                        filters:
-                          status: "succeeded"
-                          slot:
-                            gte: 1000
-                            lt: 2000
-                        paginationToken: "1500:10"
+                    result:
+                      data:
+                        - slot: 1054
+                          transaction:
+                            signatures:
+                              - "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
+                            message:
+                              accountKeys:
+                                - "..."
+                                - "..."
+                              instructions:
+                                - "..."
+                          meta:
+                            fee: 5000
+                            preBalances:
+                              - 1000000
+                              - 2000000
+                            postBalances:
+                              - 999995000
+                              - 2000000
+                          blockTime: 1641038400
+                      paginationToken: "1055:5"
         "400":
           description: "错误请求 - 请求参数无效或请求格式错误。"
           content:

@@ -292,36 +292,6 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     </table>
   </Tab>
 
-  <Tab title="ZK 压缩">
-    <table>
-      <thead align="left">
-        <tr>
-          <th width="200">服务</th>
-          <th width="100">免费</th>
-          <th width="100">开发者</th>
-          <th width="100">商业</th>
-          <th width="100">专业</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Photon APIs</td>
-          <td>2/秒</td>
-          <td>10/秒</td>
-          <td>50/秒</td>
-          <td>100/秒</td>
-        </tr>
-        <tr>
-          <td><code>getValidityProof</code></td>
-          <td>1/秒</td>
-          <td>5/秒</td>
-          <td>10/秒</td>
-          <td>20/秒</td>
-        </tr>
-      </tbody>
-    </table>
-  </Tab>
-
   <Tab title="LaserStream">
     <table>
       <thead align="left">
@@ -388,6 +358,66 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       </tbody>
     </table>
   </Tab>
+
+  <Tab title="WebSockets">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">资源</th>
+          <th width="100">免费</th>
+          <th width="100">开发者</th>
+          <th width="100">商业</th>
+          <th width="100">专业</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>并发连接数</td>
+          <td>5</td>
+          <td>150</td>
+          <td>250</td>
+          <td>250</td>
+        </tr>
+        <tr>
+          <td>WebSocket 类型</td>
+          <td>标准</td>
+          <td>标准</td>
+          <td>标准 + 增强</td>
+          <td>标准 + 增强</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
+
+    <Tab title="ZK Compression">
+    <table>
+      <thead align="left">
+        <tr>
+          <th width="200">服务</th>
+          <th width="100">免费</th>
+          <th width="100">开发者</th>
+          <th width="100">商业</th>
+          <th width="100">专业</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Photon APIs</td>
+          <td>2/秒</td>
+          <td>10/秒</td>
+          <td>50/秒</td>
+          <td>100/秒</td>
+        </tr>
+        <tr>
+          <td><code>getValidityProof</code></td>
+          <td>1/秒</td>
+          <td>5/秒</td>
+          <td>10/秒</td>
+          <td>20/秒</td>
+        </tr>
+      </tbody>
+    </table>
+  </Tab>
 </Tabs>
 
 ## 信用系统
@@ -410,7 +440,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
   <thead>
     <tr>
       <th style={{width: '300px'}}>服务</th>
-      <th style={{width: '100px', textAlign: 'center'}}>积分</th>
+      <th style={{width: '100px', textAlign: 'center'}}>信用额度</th>
       <th>备注</th>
     </tr>
   </thead>
@@ -441,37 +471,37 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       <td>每 0.1 MB 的流数据（未压缩）</td>
     </tr>
     <tr>
-      <td><strong>增强型 WebSockets</strong></td>
+      <td><strong>增强 WebSockets</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
       <td>每 0.1 MB 的流数据（未压缩）。适用于 2025 年 10 月 16 日后升级到商业或专业计划的用户</td>
     </tr>
     <tr>
-      <td><strong>数据附加组件（仅限专业版）</strong></td>
+      <td><strong>数据附加包（仅限专业）</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
-      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强型 WebSockets 的使用。查看 <a href="#data-add-ons">数据附加组件</a> 以了解定价层级</td>
+      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强 WebSockets 的使用。查看 <a href="#data-add-ons">数据附加包</a> 以获取定价层级</td>
     </tr>
     <tr>
       <td><strong>getProgramAccounts</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
-      <td>获取由程序拥有的所有账户/数据</td>
+      <td>获取程序拥有的所有账户/数据</td>
     </tr>
     <tr>
       <td><strong>历史数据（存档）</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
         <td>
          查询历史区块链数据的 RPC 调用，包括 <code>getTransaction</code>、<code>getSignaturesForAddress</code>、<code>getBlock</code>。<br />
-         完整列表请参见下方的 <a href="#historical-data">表格</a>
+         完整列表请参见下表 <a href="#historical-data">表格</a>
        </td>
     </tr>
     <tr>
       <td><strong>getTransactionsForAddress</strong></td>
       <td style={{textAlign: 'center'}}>100</td>
-      <td>具有高级过滤和排序功能的增强型交易历史。需要开发者计划或更高</td>
+      <td>增强的交易历史，具有高级过滤和排序功能。需要开发者计划或更高</td>
     </tr>
     <tr>
       <td><strong>ZK Compression API</strong></td>
       <td style={{textAlign: 'center'}}>10</td>
-      <td>ZK 压缩 RPC 调用</td>
+      <td>ZK Compression RPC 调用</td>
     </tr>
     <tr>
       <td><strong>DAS API</strong></td>
@@ -479,9 +509,9 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
       <td>所有 DAS 端点</td>
     </tr>
     <tr>
-      <td><strong>增强型交易</strong></td>
+      <td><strong>增强交易</strong></td>
       <td style={{textAlign: 'center'}}>100</td>
-      <td>增强型交易解析</td>
+      <td>增强的交易解析</td>
     </tr>
     <tr>
       <td><strong>Webhook 管理</strong></td>
@@ -530,13 +560,13 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     </table>
     
     <Info>
-      **质押交易现在是所有付费计划的默认设置**：所有通过`mainnet.helius-rpc.com`的交易自动使用质押连接以获得最高成功率。
+      **质押交易现在是所有付费计划的默认设置**：通过`mainnet.helius-rpc.com`的所有交易自动使用质押连接以获得最高成功率。
     </Info>
   </Tab>
 
      <Tab title="历史数据">
      <div id="historical-data"></div>
-     历史数据查询（有时称为存档调用）每次花费 **10 积分**：
+     历史数据查询（有时称为存档调用）每次花费**10个积分**：
      
      <table>
        <thead>
@@ -565,7 +595,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
          <tr>
            <td><code>getSignaturesForAddress</code></td>
            <td style={{textAlign: 'center'}}>10</td>
-           <td>获取某个地址的交易签名</td>
+           <td>获取地址的交易签名</td>
          </tr>
          <tr>
            <td><code>getTransaction</code></td>
@@ -575,17 +605,17 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
          <tr>
            <td><code>getBlockTime</code></td>
            <td style={{textAlign: 'center'}}>10</td>
-           <td>获取区块的预计生成时间</td>
+           <td>获取区块的预计生产时间</td>
          </tr>
          <tr>
            <td><code>getSignatureStatuses</code></td>
            <td style={{textAlign: 'center'}}>10 / 1</td>
-           <td>获取交易签名的状态。费用取决于 <code>searchTransactionHistory</code> 参数：启用时（搜索历史数据）为 10 积分，禁用时（仅搜索最近区块）为 1 积分</td>
+           <td>获取交易签名的状态。费用取决于<code>searchTransactionHistory</code>参数：启用时（搜索历史数据）为10个积分，禁用时（仅搜索最近区块）为1个积分</td>
          </tr>
          <tr>
            <td><code>getInflationReward</code></td>
            <td style={{textAlign: 'center'}}>10</td>
-           <td>获取某个纪元中一组地址的通胀奖励</td>
+           <td>获取一个纪元中一组地址的通胀奖励</td>
          </tr>
          <tr>
            <td><code>getTransactionsForAddress</code></td>
@@ -596,12 +626,12 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
      </table>
      
      <Warning>
-     **计划要求**：`getTransactionsForAddress` 仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
+     **计划要求**：`getTransactionsForAddress`仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
      </Warning>
      
      ### 批量请求限制
      
-     在对历史数据方法进行批量请求时，适用以下限制：
+     在进行历史数据方法的批量请求时，适用以下限制：
      
      <table>
        <thead>
@@ -613,11 +643,11 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
        <tbody>
          <tr>
            <td><code>getTransaction</code></td>
-           <td>每个请求 100 项</td>
+           <td>每个请求100项</td>
          </tr>
          <tr>
            <td>所有其他历史方法</td>
-           <td>每个请求 10 项</td>
+           <td>每个请求10项</td>
          </tr>
          <tr>
            <td><code>getTransactionsForAddress</code></td>
@@ -627,12 +657,12 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
      </table>
      
      <Warning>
-     超出批量限制将导致错误响应。对于 `getTransactionsForAddress`，每个地址必须在单独的请求中查询。
+     超出批量限制将导致错误响应。对于`getTransactionsForAddress`，每个地址必须在单独的请求中查询。
      </Warning>
    </Tab>
 
    <Tab title="DAS API">
-     所有DAS API调用每次花费**10个积分**：
+     所有 DAS API 调用每次消耗 **10 积分**：
      
      <CardGroup cols={2}>
        <Card title="资产信息">
@@ -668,7 +698,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
     根据需要自动添加积分，以应对流量高峰并确保服务不中断。
   </Card>
   <Card title="Helius 仪表板" icon="chart-line" href="https://dashboard.helius.dev/">
-    通过详细的分析监控实时使用情况、设置警报和跟踪消费模式。
+    监控实时使用情况，设置警报，并通过详细分析跟踪消费模式。
   </Card>
 </CardGroup>
 

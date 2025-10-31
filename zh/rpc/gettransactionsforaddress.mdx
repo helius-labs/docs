@@ -463,21 +463,59 @@ do {
 } while (paginationToken);
 ```
 
+### 多个地址
+
+您不能在单个请求中查询多个地址。要获取多个地址的交易，请在相同的时间或槽窗口内查询每个地址，然后合并和排序：
+
+```javascript
+const addresses = ['Address1...', 'Address2...', 'Address3...'];
+
+// Query all addresses in parallel with slot filter
+const results = await Promise.all(
+  addresses.map(address => 
+    fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTransactionsForAddress',
+        params: [address, {
+          sortOrder: 'desc',
+          filters: { slot: { gt: 250000000 } }
+        }]
+      })
+    }).then(r => r.json())
+  )
+);
+
+// Merge and sort by slot
+const allTransactions = results
+  .flatMap(r => r.result.data)
+  .sort((a, b) => b.slot - a.slot);
+```
+
+对于较大的历史扫描，通过时间或槽窗口进行迭代（例如，每次1000个槽），并重复此模式。
+
+<Note>
+每个地址查询计为一个单独的API请求（每个地址100个积分）。
+</Note>
+
 ---
 
 ## 最佳实践
 
 ### 性能
 
-为获得最佳性能，当不需要完整交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽位进行过滤以进行更有针对性的查询。
+为了获得最佳性能，当您不需要完整的交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽进行过滤以进行更有针对性的查询。
 
 ### 过滤
 
-从广泛的过滤器开始，逐步缩小范围以找到所需的数据。使用基于时间的过滤器进行分析和报告工作流。您可以结合多个过滤器进行精确查询，以定位特定的交易类型或时间段。
+从广泛的过滤器开始，并逐步缩小范围以找到所需的数据。使用基于时间的过滤器进行分析和报告工作流。您可以结合多个过滤器进行精确查询，以定位特定的交易类型或时间段。
 
 ### 分页
 
-在需要稍后恢复大型查询时存储分页键。监控分页深度以进行性能规划，并在需要按时间顺序重放历史事件的场景中使用升序。
+在需要稍后恢复大型查询时存储分页键。监控分页深度以进行性能规划，并在需要按时间顺序重播历史事件的情况下使用升序。
 
 ### 错误处理
 
@@ -487,7 +525,7 @@ do {
 
 ## 这与getSignaturesForAddress有何不同？
 
-如果您熟悉标准`getSignaturesForAddress`方法，以下是主要区别：
+如果您熟悉标准的`getSignaturesForAddress`方法，以下是主要区别：
 
 ### 一次调用获取完整交易
 
@@ -524,11 +562,11 @@ const response = await fetch(heliusRpcUrl, {
 });
 ```
 
-### 额外功能
+### 其他功能
 
 <CardGroup cols={2}>
   <Card title="按时间顺序排序" icon="arrow-up">
-    使用`sortOrder: 'asc'`从最旧到最新排序交易
+    使用`sortOrder: 'asc'`将交易从最早到最新排序
   </Card>
   <Card title="基于时间的过滤" icon="clock">
     使用`blockTime`过滤器按时间范围过滤
@@ -549,7 +587,7 @@ const response = await fetch(heliusRpcUrl, {
   <Card title="联系支持" icon="headset" href="/zh/support">
     获取我们团队的技术问题和问题帮助
   </Card>
-  <Card title="Discord社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
-    加入数千名在Solana上使用Helius构建的开发者
+  <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
+    加入数千名在 Solana 上使用 Helius 构建的开发者
   </Card>
 </CardGroup>

@@ -24,7 +24,7 @@ Helius 提供两种主要的事件监听方法：
   <Step title="创建一个 Webhook">
 
     ```bash
-    curl -X POST 'https://api.helius.xyz/v0/webhooks' \
+    curl -X POST 'https://api-mainnet.helius-rpc.com/v0/webhooks' \
       -H 'Content-Type: application/json' \
       -d '{
         "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
@@ -66,7 +66,7 @@ Helius 提供两种主要的事件监听方法：
     const WebSocket = require('ws');
 
     // Connect to Helius WebSocket endpoint
-    const ws = new WebSocket('wss://api.helius.xyz/v0/webhook-events?api-key=YOUR_API_KEY');
+    const ws = new WebSocket('wss://api-mainnet.helius-rpc.com/v0/webhook-events?api-key=YOUR_API_KEY');
     ```
 
   </Step>
