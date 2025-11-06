@@ -435,7 +435,7 @@ Some endpoints have special restrictions due to their computational requirements
   </Card>
 </CardGroup>
 
-### Credit Costs
+### Standard Credit Costs
 
 <table>
   <thead>
@@ -535,160 +535,157 @@ Some endpoints have special restrictions due to their computational requirements
 - **Data Size**: Billing based on uncompressed message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
 </Note>
 
-<Tabs>
+### Sender and Staked Connections Credit Costs
 
-  <Tab title="Transaction Submission">
-    <table>
-      <thead>
-        <tr>
-          <th style={{width: '300px'}}>Method</th>
-          <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Sender</strong></td>
-          <td style={{textAlign: 'center'}}>0</td>
-          <td>Ultra-low latency submission</td>
-        </tr>
-        <tr>
-          <td><strong>Staked Connections</strong></td>
-          <td style={{textAlign: 'center'}}>1</td>
-          <td>Highest reliability (default)</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <Info>
-      **Staked Transactions Are Now Default for All Paid Plans**: All transactions via `mainnet.helius-rpc.com` automatically use staked connections for highest success rates.
-    </Info>
-  </Tab>
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>Method</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Sender</strong></td>
+      <td style={{textAlign: 'center'}}>0</td>
+      <td>Ultra-low latency submission</td>
+    </tr>
+    <tr>
+      <td><strong>Staked Connections</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>Highest reliability (default)</td>
+    </tr>
+  </tbody>
+</table>
 
-     <Tab title="Historical Data">
-     <div id="historical-data"></div>
-     Historical data queries (sometimes called archival calls) cost **10 credits** each:
-     
-     <table>
-       <thead>
-         <tr>
-           <th style={{width: '300px'}}>Method</th>
-           <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
-           <th>Description</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td><code>getBlock</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Retrieve block data and transactions for a specified slot</td>
-         </tr>
-         <tr>
-           <td><code>getBlocks</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Get list of blocks between two slots</td>
-         </tr>
-         <tr>
-           <td><code>getBlocksWithLimit</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Get blocks starting at a given slot with limit</td>
-         </tr>
-         <tr>
-           <td><code>getSignaturesForAddress</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Get transaction signatures for an address</td>
-         </tr>
-         <tr>
-           <td><code>getTransaction</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Retrieve transaction details for a specified signature</td>
-         </tr>
-         <tr>
-           <td><code>getBlockTime</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Get estimated production time of a block</td>
-         </tr>
-         <tr>
-           <td><code>getSignatureStatuses</code></td>
-           <td style={{textAlign: 'center'}}>10 / 1</td>
-           <td>Get statuses for transaction signatures. Cost depends on <code>searchTransactionHistory</code> parameter: 10 credits when enabled (searches historical data), 1 credit when disabled (searches recent blocks only)</td>
-         </tr>
-         <tr>
-           <td><code>getInflationReward</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>Get inflation reward for a list of addresses for an epoch</td>
-         </tr>
-         <tr>
-           <td><code>getTransactionsForAddress</code></td>
-           <td style={{textAlign: 'center'}}>100</td>
-           <td>Enhanced transaction history with advanced filtering, sorting, and full transaction data. Requires Developer plan or higher</td>
-         </tr>
-       </tbody>
-     </table>
-     
-     <Warning>
-     **Plan Requirement**: `getTransactionsForAddress` is only available on Developer plans and above. Free plan users will receive an error when attempting to use this endpoint.
-     </Warning>
-     
-     ### Batch Request Limits
-     
-     When making batch requests for historical data methods, the following limits apply:
-     
-     <table>
-       <thead>
-         <tr>
-           <th style={{width: '300px'}}>Method</th>
-           <th style={{width: '150px'}}>Max Batch Size</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td><code>getTransaction</code></td>
-           <td>100 items per request</td>
-         </tr>
-         <tr>
-           <td>All other historical methods</td>
-           <td>10 items per request</td>
-         </tr>
-         <tr>
-           <td><code>getTransactionsForAddress</code></td>
-           <td>No batch requests allowed</td>
-         </tr>
-       </tbody>
-     </table>
-     
-     <Warning>
-     Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
-     </Warning>
-   </Tab>
+<Info>
+  **Staked Transactions Are Now Default for All Paid Plans**: All transactions via `mainnet.helius-rpc.com` automatically use staked connections for highest success rates.
+</Info>
 
-   <Tab title="DAS API">
-     All DAS API calls cost **10 credits** each:
-     
-     <CardGroup cols={2}>
-       <Card title="Asset Information">
-         - `getAsset`
-         - `getAssetProof`
-         - `getAssetProofBatch`
-         - `getNftEditions`
-       </Card>
-       <Card title="Asset Discovery">
-         - `getAssetsByOwner`
-         - `getAssetsByAuthority`
-         - `getAssetsByCreator`
-         - `getAssetsByGroup`
-         - `searchAssets`
-         - `getAssetBatch`
-       </Card>
-       <Card title="Transaction History">
-         - `getSignaturesForAsset`
-       </Card>
-       <Card title="Account Information">
-         - `getTokenAccounts`
-       </Card>
-     </CardGroup>
-   </Tab>
- </Tabs>
+### Historical API Credit Costs
+
+<div id="historical-data"></div>
+Historical data queries (sometimes called archival calls) cost **10 credits** each:
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>Method</th>
+      <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getBlock</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Retrieve block data and transactions for a specified slot</td>
+    </tr>
+    <tr>
+      <td><code>getBlocks</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Get list of blocks between two slots</td>
+    </tr>
+    <tr>
+      <td><code>getBlocksWithLimit</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Get blocks starting at a given slot with limit</td>
+    </tr>
+    <tr>
+      <td><code>getSignaturesForAddress</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Get transaction signatures for an address</td>
+    </tr>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Retrieve transaction details for a specified signature</td>
+    </tr>
+    <tr>
+      <td><code>getBlockTime</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Get estimated production time of a block</td>
+    </tr>
+    <tr>
+      <td><code>getSignatureStatuses</code></td>
+      <td style={{textAlign: 'center'}}>10 / 1</td>
+      <td>Get statuses for transaction signatures. Cost depends on <code>searchTransactionHistory</code> parameter: 10 credits when enabled (searches historical data), 1 credit when disabled (searches recent blocks only)</td>
+    </tr>
+    <tr>
+      <td><code>getInflationReward</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>Get inflation reward for a list of addresses for an epoch</td>
+    </tr>
+    <tr>
+      <td><code>getTransactionsForAddress</code></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>Enhanced transaction history with advanced filtering, sorting, and full transaction data. Requires Developer plan or higher</td>
+    </tr>
+  </tbody>
+</table>
+
+<Warning>
+**Plan Requirement**: `getTransactionsForAddress` is only available on Developer plans and above. Free plan users will receive an error when attempting to use this endpoint.
+</Warning>
+  
+#### Batch Request Limits
+  
+When making batch requests for historical data methods, the following limits apply:
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>Method</th>
+      <th style={{width: '150px'}}>Max Batch Size</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td>100 items per request</td>
+    </tr>
+    <tr>
+      <td>All other historical methods</td>
+      <td>10 items per request</td>
+    </tr>
+    <tr>
+      <td><code>getTransactionsForAddress</code></td>
+      <td>No batch requests allowed</td>
+    </tr>
+  </tbody>
+</table>
+
+<Warning>
+Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
+</Warning>
+
+### DAS API Credit Costs
+
+All DAS API calls cost **10 credits** each:
+
+<CardGroup cols={2}>
+  <Card title="Asset Information">
+    - `getAsset`
+    - `getAssetProof`
+    - `getAssetProofBatch`
+    - `getNftEditions`
+  </Card>
+  <Card title="Asset Discovery">
+    - `getAssetsByOwner`
+    - `getAssetsByAuthority`
+    - `getAssetsByCreator`
+    - `getAssetsByGroup`
+    - `searchAssets`
+    - `getAssetBatch`
+  </Card>
+  <Card title="Transaction History">
+    - `getSignaturesForAsset`
+  </Card>
+  <Card title="Account Information">
+    - `getTokenAccounts`
+  </Card>
+</CardGroup>
 
 ---
 
