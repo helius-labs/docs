@@ -4,6 +4,7 @@ sidebarTitle: "Rate Limits"
 description: "Complete guide to Helius rate limits across all plams and products."
 ---
 
+## What are rate limits?
 Rate limits control how many requests you can make per second. When rate limits are exceeded, you'll receive an HTTP 429 response.
 
 ## Standard Rate Limits
@@ -48,7 +49,9 @@ Your plan has two standard rate limit groups: one for RPC requests, and one for 
 </table>
 
 ### Increase Rate Limits
-Teams on Professional Plans can purchase an extra 100 RPS for $100/month. If you need custom rate limits ahead of launches, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). 
+Teams on Professional plans can purchase an extra 100 RPS for $100/month. If you need custom rate limits ahead of launches, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). 
+
+If you are on Developer or Business tier, please upgrade your plan to increase your rate limits.
 
 ## Special Rate Limits
 
@@ -89,15 +92,12 @@ Some endpoints and Helius products have special rate limits due to their computa
       </tr>
     </tbody>
   </table>
-    
-<Note>
-**Need higher limits for sending transactions?** If you are on a Professional plan and need to increase your `sendTransaction` rate limits, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). Professional plan users can also [request significant rate limit upgrades for Sender](https://form.typeform.com/to/FuvpgSNt) to support high-throughput trading applications.
-</Note>
 
-     
-<Warning>
-Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
-</Warning>
+#### Increase Limits for Sending Transactions
+
+If you are on a Professional plan and need to increase your `sendTransaction` rate limits, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). 
+
+Professional plan users can also [request significant rate limit upgrades for Sender](https://form.typeform.com/to/FuvpgSNt) to support high-throughput trading applications.
 
 ### Complex RPC Calls
   <table>
@@ -147,6 +147,10 @@ When making batch requests for historical data methods, the following limits app
      </tbody>
    </table>
 
+<Warning>
+Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
+</Warning>
+
 ### LaserStream
   <table>
     <thead align="left">
@@ -164,7 +168,7 @@ When making batch requests for historical data methods, the following limits app
         <td>—</td>
         <td>Devnet</td>
         <td>Devnet</td>
-        <td>Devnet + Mainnet</td>
+        <td>Devnet, Mainnet</td>
       </tr>
       <tr>
         <td>Max Pubkeys</td>
@@ -206,8 +210,8 @@ When making batch requests for historical data methods, the following limits app
         <td>WebSocket Types</td>
         <td>Standard</td>
         <td>Standard</td>
-        <td>Standard + Enhanced</td>
-        <td>Standard + Enhanced</td>
+        <td>Standard, Enhanced</td>
+        <td>Standard, Enhanced</td>
       </tr>
     </tbody>
   </table>
