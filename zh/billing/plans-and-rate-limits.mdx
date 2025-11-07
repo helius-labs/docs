@@ -434,7 +434,7 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
   </Card>
 </CardGroup>
 
-### 信用成本
+### 标准信用成本
 
 <table>
   <thead>
@@ -534,168 +534,165 @@ description: Helius Solana API 定价的完整指南，包含免费层。为开�
 - **数据大小**：计费基于未压缩的消息大小。典型大小：区块（约4MB）、账户（约0.0004MB）、交易（约0.0006MB）。
 </Note>
 
-<Tabs>
+### 发送者和质押连接
 
-  <Tab title="交易提交">
-    <table>
-      <thead>
-        <tr>
-          <th style={{width: '300px'}}>方法</th>
-          <th style={{width: '100px', textAlign: 'center'}}>积分</th>
-          <th>描述</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>发送者</strong></td>
-          <td style={{textAlign: 'center'}}>0</td>
-          <td>超低延迟提交</td>
-        </tr>
-        <tr>
-          <td><strong>质押连接</strong></td>
-          <td style={{textAlign: 'center'}}>1</td>
-          <td>最高可靠性（默认）</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    <Info>
-      **质押交易现在是所有付费计划的默认设置**：通过`mainnet.helius-rpc.com`的所有交易自动使用质押连接以获得最高成功率。
-    </Info>
-  </Tab>
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>方法</th>
+      <th style={{width: '100px', textAlign: 'center'}}>信用</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>发送者</strong></td>
+      <td style={{textAlign: 'center'}}>0</td>
+      <td>超低延迟提交</td>
+    </tr>
+    <tr>
+      <td><strong>质押连接</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>最高可靠性（默认）</td>
+    </tr>
+  </tbody>
+</table>
 
-     <Tab title="历史数据">
-     <div id="historical-data"></div>
-     历史数据查询（有时称为存档调用）每次花费**10个积分**：
-     
-     <table>
-       <thead>
-         <tr>
-           <th style={{width: '300px'}}>方法</th>
-           <th style={{width: '100px', textAlign: 'center'}}>积分</th>
-           <th>描述</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td><code>getBlock</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>检索指定槽位的区块数据和交易</td>
-         </tr>
-         <tr>
-           <td><code>getBlocks</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>获取两个槽位之间的区块列表</td>
-         </tr>
-         <tr>
-           <td><code>getBlocksWithLimit</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>从给定槽位开始获取区块，带有限制</td>
-         </tr>
-         <tr>
-           <td><code>getSignaturesForAddress</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>获取地址的交易签名</td>
-         </tr>
-         <tr>
-           <td><code>getTransaction</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>检索指定签名的交易详情</td>
-         </tr>
-         <tr>
-           <td><code>getBlockTime</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>获取区块的预计生产时间</td>
-         </tr>
-         <tr>
-           <td><code>getSignatureStatuses</code></td>
-           <td style={{textAlign: 'center'}}>10 / 1</td>
-           <td>获取交易签名的状态。费用取决于<code>searchTransactionHistory</code>参数：启用时（搜索历史数据）为10个积分，禁用时（仅搜索最近区块）为1个积分</td>
-         </tr>
-         <tr>
-           <td><code>getInflationReward</code></td>
-           <td style={{textAlign: 'center'}}>10</td>
-           <td>获取一个纪元中一组地址的通胀奖励</td>
-         </tr>
-         <tr>
-           <td><code>getTransactionsForAddress</code></td>
-           <td style={{textAlign: 'center'}}>100</td>
-           <td>增强的交易历史，具有高级过滤、排序和完整交易数据。需要开发者计划或更高</td>
-         </tr>
-       </tbody>
-     </table>
-     
-     <Warning>
-     **计划要求**：`getTransactionsForAddress`仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
-     </Warning>
-     
-     ### 批量请求限制
-     
-     在进行历史数据方法的批量请求时，适用以下限制：
-     
-     <table>
-       <thead>
-         <tr>
-           <th style={{width: '300px'}}>方法</th>
-           <th style={{width: '150px'}}>最大批量大小</th>
-         </tr>
-       </thead>
-       <tbody>
-         <tr>
-           <td><code>getTransaction</code></td>
-           <td>每个请求100项</td>
-         </tr>
-         <tr>
-           <td>所有其他历史方法</td>
-           <td>每个请求10项</td>
-         </tr>
-         <tr>
-           <td><code>getTransactionsForAddress</code></td>
-           <td>不允许批量请求</td>
-         </tr>
-       </tbody>
-     </table>
-     
-     <Warning>
-     超过批量限制将导致错误响应。对于`getTransactionsForAddress`，每个地址必须在单独的请求中查询。
-     </Warning>
-   </Tab>
+<Info>
+  **质押交易现在是所有付费计划的默认设置**：所有通过`mainnet.helius-rpc.com`的交易自动使用质押连接以获得最高成功率。
+</Info>
 
-   <Tab title="DAS API">
-     所有 DAS API 调用每次消耗 **10 积分**：
-     
-     <CardGroup cols={2}>
-       <Card title="资产信息">
-         - `getAsset`
-         - `getAssetProof`
-         - `getAssetProofBatch`
-         - `getNftEditions`
-       </Card>
-       <Card title="资产发现">
-         - `getAssetsByOwner`
-         - `getAssetsByAuthority`
-         - `getAssetsByCreator`
-         - `getAssetsByGroup`
-         - `searchAssets`
-         - `getAssetBatch`
-       </Card>
-       <Card title="交易历史">
-         - `getSignaturesForAsset`
-       </Card>
-       <Card title="账户信息">
-         - `getTokenAccounts`
-       </Card>
-     </CardGroup>
-   </Tab>
- </Tabs>
+### 历史 API
+
+<div id="historical-data"></div>
+历史数据查询（有时称为存档调用）每次花费**10个信用**：
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>方法</th>
+      <th style={{width: '100px', textAlign: 'center'}}>信用</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getBlock</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>检索指定槽位的区块数据和交易</td>
+    </tr>
+    <tr>
+      <td><code>getBlocks</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>获取两个槽位之间的区块列表</td>
+    </tr>
+    <tr>
+      <td><code>getBlocksWithLimit</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>从给定槽位开始获取区块，带有限制</td>
+    </tr>
+    <tr>
+      <td><code>getSignaturesForAddress</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>获取某个地址的交易签名</td>
+    </tr>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>检索指定签名的交易详情</td>
+    </tr>
+    <tr>
+      <td><code>getBlockTime</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>获取区块的预计生产时间</td>
+    </tr>
+    <tr>
+      <td><code>getSignatureStatuses</code></td>
+      <td style={{textAlign: 'center'}}>10 / 1</td>
+      <td>获取交易签名的状态。成本取决于<code>searchTransactionHistory</code>参数：启用时（搜索历史数据）为10个信用，禁用时（仅搜索最近区块）为1个信用</td>
+    </tr>
+    <tr>
+      <td><code>getInflationReward</code></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>获取某个纪元的地址列表的通胀奖励</td>
+    </tr>
+    <tr>
+      <td><code>getTransactionsForAddress</code></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>增强的交易历史，具有高级过滤、排序和完整交易数据。需要开发者计划或更高</td>
+    </tr>
+  </tbody>
+</table>
+
+<Warning>
+**计划要求**：`getTransactionsForAddress` 仅在开发者计划及以上可用。免费计划用户在尝试使用此端点时将收到错误。
+</Warning>
+
+#### 批量请求限制
+
+在进行历史数据方法的批量请求时，适用以下限制：
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '300px'}}>方法</th>
+      <th style={{width: '150px'}}>最大批量大小</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>getTransaction</code></td>
+      <td>每个请求100项</td>
+    </tr>
+    <tr>
+      <td>所有其他历史方法</td>
+      <td>每个请求10项</td>
+    </tr>
+    <tr>
+      <td><code>getTransactionsForAddress</code></td>
+      <td>不允许批量请求</td>
+    </tr>
+  </tbody>
+</table>
+
+<Warning>
+超出批量限制将导致错误响应。对于 `getTransactionsForAddress`，每个地址必须在单独的请求中查询。
+</Warning>
+
+### DAS API
+
+所有 DAS API 调用每次消耗 **10 个积分**：
+
+<CardGroup cols={2}>
+  <Card title="资产信息">
+    - `getAsset`
+    - `getAssetProof`
+    - `getAssetProofBatch`
+    - `getNftEditions`
+  </Card>
+  <Card title="资产发现">
+    - `getAssetsByOwner`
+    - `getAssetsByAuthority`
+    - `getAssetsByCreator`
+    - `getAssetsByGroup`
+    - `searchAssets`
+    - `getAssetBatch`
+  </Card>
+  <Card title="交易历史">
+    - `getSignaturesForAsset`
+  </Card>
+  <Card title="账户信息">
+    - `getTokenAccounts`
+  </Card>
+</CardGroup>
 
 ---
 
-## 管理您的使用情况
+## 管理您的使用
 
 <CardGroup cols={2}>
   <Card title="配置自动扩展" icon="arrow-trend-up" href="/zh/billing/autoscaling">
-    根据需要自动添加积分，以应对流量高峰并确保服务不中断。
+    根据需要自动添加积分，以处理流量高峰并确保服务不中断。
   </Card>
   <Card title="Helius 仪表板" icon="chart-line" href="https://dashboard.helius.dev/">
     监控实时使用情况，设置警报，并通过详细分析跟踪消费模式。
