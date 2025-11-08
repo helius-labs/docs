@@ -9,17 +9,13 @@ og:description: 获取免费 RPC 并探索具有分页支持的 getTokenAccounts
 openapi: /zh/openapi/rpc-http/getTokenAccountsByOwnerV2.yaml POST /
 ---
 
-<Warning>
-**测试版发布**：请注意，`getTokenAccountsByOwnerV2` 可供早期使用。如遇到任何问题，请联系支持。
-</Warning>
-
 ## 概述
 
 `getTokenAccountsByOwnerV2` 是标准 `getTokenAccountsByOwner` 方法的增强版本，专为高效查询代币组合和处理拥有大量代币的钱包而设计。此方法引入了基于游标的分页和增量更新功能。
 
 <Info>
-**V2 中的新功能：**
-- **基于游标的分页**：每次请求可配置从 1 到 10,000 个代币账户的限制
+**V2 的新功能：**
+- **基于游标的分页**：每个请求可配置从 1 到 10,000 个代币账户的限制
 - **增量更新**：使用 `changedSinceSlot` 仅获取最近修改的代币账户
 - **组合可扩展性**：高效处理拥有数千个代币账户的钱包
 - **向后兼容性**：支持所有现有的 `getTokenAccountsByOwner` 参数和过滤器
@@ -43,10 +39,10 @@ openapi: /zh/openapi/rpc-http/getTokenAccountsByOwnerV2.yaml POST /
 ## 分页最佳实践
 
 <Warning>
-**重要的分页行为**：分页结束仅在**未返回代币账户**时指示。由于过滤，API 可能返回的账户少于您的限制 - 始终继续分页，直到 `paginationKey` 是 `null`。
+**重要的分页行为**：分页结束仅在**没有返回代币账户**时指示。由于过滤，API 可能返回少于您限制的账户 - 始终继续分页，直到 `paginationKey` 是 `null`。
 </Warning>
 
-### 基本投资组合查询
+### 基本组合查询
 
 ```typescript
 // Get all SPL Token accounts for a wallet
@@ -81,7 +77,7 @@ do {
 console.log(`Total token accounts: ${allTokenAccounts.length}`);
 ```
 
-### 增量投资组合更新
+### 增量组合更新
 
 ```typescript
 // Get only token accounts modified since a specific slot
@@ -108,7 +104,7 @@ const portfolioUpdates = await fetch(`https://mainnet.helius-rpc.com/?api-key=${
 ## 代币程序支持
 
 <Tip>
-**Token-2022 支持**：使用 `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb` 作为 `programId` 来查询具有扩展功能的 Token-2022 账户，例如转账费用、计息代币等。
+**Token-2022 支持**：使用 `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb` 作为 `programId` 查询具有扩展功能的 Token-2022 账户，如转账费用、计息代币等。
 </Tip>
 
 ```typescript
