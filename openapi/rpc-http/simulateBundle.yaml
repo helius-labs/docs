@@ -304,12 +304,30 @@ paths:
                         description: Details of the simulated bundle result.
                         properties:
                           summary:
-                            type: "string"
-                            description: Summary of the simulation result.
-                            example: "succeeded"
+                            description: |
+                              Summary of the bundle simulation result.
+
+                              If the simulation succeeded, this is set to `"succeeded"`.
+
+                              If the simulation failed, this is set to an object with a single field `failed` that contains details on that failure.
+                            oneOf:
+                              - type: string
+                                example: succeeded
+                              - type: object
+                                required: [failed]
+                                properties:
+                                  failed:
+                                    type: object
+                                    required: [error]
+                                    properties:
+                                      error:
+                                        description: Value containing details on the error. Structure may vary.
+                                      tx_signature:
+                                        type: string
+                                        description: Signature of the failed transaction in base58. May be `null` if not applicable.
                           transactionResults:
                             type: array
-                            description: Array of results for each transaction in the bundle.
+                            description: Array of results for each transaction in the bundle. Can be empty if there was an error.
                             items:
                               type: object
                               properties:
