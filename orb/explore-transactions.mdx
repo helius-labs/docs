@@ -4,43 +4,61 @@ sidebarTitle: "Explore Transactions"
 description: "Learn how to use Orb, a new Solana block explorer, to research transactions, including summaries, balances, inner instructions, and raw JSON."
 ---
 
-Most users turn to block explorers to view and analyze transactions, allowing them to see what's happening on-chain. Wallets and DeFi applications integrate with block explorers to let their users confirm transaction status, view transaction histories, and better understand what's happening on-chain.
+Most people use Solana block explorers to view and analyze transactions, allowing them to see what's happening on-chain. 
 
-To [look up a Solana transaction](https://orb.helius.dev/) on Orb, simply copy your transaction signature from your wallet or app's UI and paste it into Orb's search bar.
+Wallets and DeFi applications integrate with block explorers to let their users confirm transaction status, view transaction histories, and better understand what's happening on-chain.
 
-Let's look at a typical token swap. In this example, [USDC is swapped for ORE](https://orb.helius.dev/tx/52Vrdcyxp9TsfWByYdJ6nrufSBNi17oX6EmkftVcLd9YV2o4A86n8ZQCQpkvm68UyFX5eKUFfAm9PqPk5Pa7ZhXa?cluster=mainnet-beta&tab=summary) through Jupiter.
+To [look up a Solana transaction on Orb](https://orb.helius.dev/), simply copy your transaction signature from your wallet or app's UI and paste it into Orb's search bar.
+
+Let's look at a typical token swap. 
+
+In this example, [USDC is swapped for ORE](https://orb.helius.dev/tx/52Vrdcyxp9TsfWByYdJ6nrufSBNi17oX6EmkftVcLd9YV2o4A86n8ZQCQpkvm68UyFX5eKUFfAm9PqPk5Pa7ZhXa?cluster=mainnet-beta&tab=summary) through Jupiter.
 
 ## AI Overview and Summary
 
 If all you need is basic transaction information, read the summary or click the "Explain with AI" button to get a high-level overview of what happened in this transaction.
 
-For example, clicking the **Explain with AI** button shows that this transaction involved swapping \$83,188 USDC for 546.97 \$ORE using the Jupiter Aggregator v6 program.
+For example, clicking the **Explain with AI** button shows that this transaction involved swapping \$83,188 \$USDC for 546.97 \$ORE using the [Jupiter Aggregator v6 program](https://orb.helius.dev/address/JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4/history?cluster=mainnet-beta).
 
-<Frame>
-<img src="/images/orb/explore-transactions/solana-transaction-summary-explained-with-ai-on-the-orb-explorer.jpg" alt="AI summary explaining a complex multi-hop token swap routing ORE for USDC via Jupiter" />
+<Frame caption="AI summary explains this transaction as a multi-hop token swap routing ORE for USDC via Jupiter.">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-summary-explained-with-ai-on-the-orb-explorer.jpg"
+    alt="AI summary explaining a complex multi-hop token swap routing ORE for USDC via Jupiter"
+    title=""
+    className="mx-auto"
+  />
 </Frame>
-
 
 ## Instruction Summary and Details
 
-Scrolling down the page, the **Instruction Summary** shows all intermediate steps, such as transferring USDC from the owner's wallet to the Jupiter Aggregator Authority account.
+Scrolling down the page, the **Instruction Summary** shows all intermediate steps, such as transferring \$USDC from the owner's wallet to the Jupiter Aggregator Authority account.
 
-<Frame>
-<img src="/images/orb/explore-transactions/solana-transaction-instruction-summary-on-orb.jpg" alt="Instruction summary showing intermediate transaction steps" />
+<Frame caption="Summary list of instructions involved in the multi-hop swap on Jupiter.">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-instruction-summary-on-orb.jpg"
+    alt="Instruction summary showing intermediate transaction steps"
+    className="mx-auto"
+  />
 </Frame>
 
-Next, we see the summary **details** section, which includes the signer, fees, slot, status, and timestamp.
+Next, we see the summary **details** section:
 
-<Frame>
-<img src="/images/orb/explore-transactions/solana-transaction-details-summary-on-orb-explorer.jpg" alt="Solana transaction details, including fees, fee payer, compute units consumed, confirmation, timestamp, and slot" />
+<Frame caption="Solana transaction details, including base fees, priority fees, fee payer, compute units consumed, confirmation, timestamp, and slot.">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-details-summary-on-orb-explorer.jpg"
+    alt="Solana transaction details, including fees, fee payer, compute units consumed, confirmation, timestamp, and slot"
+    className="mx-auto"
+  />
 </Frame>
 
 ## Transaction Balances
 
-Clicking into the **Balances** tab, we can see a clear summary of the token balance changes for each address and market. We see the original wallet `3AWDT…WgBCu` is swapping USDC for ORE across multiple markets, including Orca, Goonfi, and Meteora DLMM, which processed parts of the trade.
+Clicking into the **Balances** tab, we can see a clear summary of the token balance changes for each address and market. 
 
-<Frame>
-<img src="/images/orb/explore-transactions/solana-transaction-token-summary-on-the-orb-blockchain-explorer.jpg" alt="Balance summary changes, including the owner's wallet, liquidity pools, and prop AMMs involved in the transaction" />
+We see the original wallet `3AWDT…WgBCu` is swapping USDC for ORE across multiple markets, including Orca, Goonfi, and Meteora DLMM, which processed parts of the trade.
+
+<Frame caption="Balance summary changes, including the owner’s wallet, liquidity pools, and prop AMMs (e.g., Goonfi) involved in the transaction.">
+  ![Balance summary changes, including the owner's wallet, liquidity pools, and prop AMMs involved in the transaction](/images/orb/explore-transactions/solana-transaction-token-summary-on-the-orb-blockchain-explorer.jpg)
 </Frame>
 
 ## Transaction Instructions
@@ -50,42 +68,45 @@ Clicking into the **Instructions** tab, we can see that the transaction included
 Expanding the Jupiter program, we see 15+ inner instructions, including invoking Solana's token program, Orca's Whirlpool Program, Meteora's DLMM Program, and the GoonFi program (a [Solana Prop AMM](https://www.helius.dev/blog/solanas-proprietary-amm-revolution)).
 
 <Frame>
-<img src="/images/orb/explore-transactions/list-of-solana-inner-instructions-for-a-jupiter-swap-on-the-orb-explorer.jpg" alt="Inner instructions showing program invocations" />
+  ![Inner instructions showing program invocations](/images/orb/explore-transactions/list-of-solana-inner-instructions-for-a-jupiter-swap-on-the-orb-explorer.jpg)
 </Frame>
 
 Looking at a single inner instruction (3.2), we see a Swap V2 action from the Orca Whirlpool Program involving 19945154880 tokens and a list of accounts involved in the transaction, including account 6 (the \$ORE token) and account 7 (the \$USDC token).
 
-<Frame>
-<img src="/images/orb/explore-transactions/orca-whirlpool-program-instructions-on-orb-solana-explorer.jpg" alt="The second inner instruction involving Jupiter's Aggregator v6 program invoking a swap between USDC and ORE on Orca's Whirlpool Program" />
+<Frame caption="The second inner instruction involves Jupiter’s Aggregator v6 program, invoking a swap between $USDC and $ORE on Orca’s Whirlpool Program.">
+  ![The second inner instruction involving Jupiter's Aggregator v6 program invoking a swap between USDC and ORE on Orca's Whirlpool Program](/inner-instructions-from-a-transaction-shown-on-the-orb-block-explorer-for-solana.jpg)
 </Frame>
 
-The second inner instruction involves Jupiter's Aggregator v6 program, invoking a swap between USDC and ORE on Orca's Whirlpool Program.
+Looking at instruction 3.3, we see that the 19945154880 tokens translate to \$19,945.154880 USDC (because the \$USDC token has 6 decimals), and instruction 3.4 shows a token amount of 132.03968385902 \$ORE.
 
-Looking at instruction 3.3, we see that the 19945154880 tokens translate to \$19,945.154880 USDC (because the USDC token has 6 decimals), and instruction 3.4 shows a token amount of 132.03968385902 \$ORE.
-
-The third and fourth inner instructions show the Transfer Checked action from Solana's token program.
+<Frame caption="The third and fourth inner instructions show the Transfer Checked action from Solana's token program for USDC and ORE respectively.">
+  ![Solana Transaction Inner Instruction On The Orb Explorer Jp](/images/solana-transaction-inner-instruction-on-the-orb-explorer.jpg)
+</Frame>
 
 ## Transaction Instruction Logs
 
 To inspect the transaction logs, click the **Logs** tab. Here we can view the logs emitted by each program, which typically display the name of the called instruction, the status (i.e., success/failure), and the number of compute units consumed.
 
-<Frame>
-<img src="/images/orb/explore-transactions/solana-program-instruction-logs-on-the-orb-block-explorer.jpg" alt="View of the Orca Whirlpool Program SwapV2 instruction logs" />
+<Frame caption="View of the Orca Whirlpool Program SwapV2 instruction logs.">
+  ![View of the Orca Whirlpool Program SwapV2 instruction logs](/images/orb/explore-transactions/solana-program-instruction-logs-on-the-orb-block-explorer.jpg)
 </Frame>
 
 ## Raw Transaction JSON
 
-For the most granular output, click the **Raw** tab. Here, you can see each instruction either as raw JSON output, which can be made more human-readable by enabling the "Helius Enhanced" toggle.
+For the most granular output, click the **Raw** tab. 
 
-<Frame>
-<img src="/images/orb/explore-transactions/enhanced-raw-json-instruction-details-for-a-solana-transaction-on-the-orb-block-explorer.jpg" alt="Helius Enhanced JSON transaction outputs" />
+Here, you can see each instruction either as raw JSON output, which can be made more human-readable by enabling the "Helius Enhanced" toggle.
+
+<Frame caption="Helius Enhanced JSON transaction outputs.">
+  ![Helius Enhanced JSON transaction outputs](/images/orb/explore-transactions/enhanced-raw-json-instruction-details-for-a-solana-transaction-on-the-orb-block-explorer.jpg)
 </Frame>
 
 <Tip>
-Low-level instruction logs and raw outputs are most useful for developers debugging programs and for analysts trying to understand how programs work.
+  Low-level instruction logs and raw outputs are most useful for developers debugging programs and for analysts trying to understand how programs work.
 </Tip>
 
 ## Conclusion
 
-Inspecting Solana transactions is a key use case for a blockchain explorer like Orb. From high-level confirmation statuses to low-level raw JSON outputs for debugging transactions, block explorers like Orb give everyone the tools they need to read and analyze transactions on Solana.
+Inspecting Solana transactions is a key use case for a blockchain explorer like [Orb](https://orb.helius.dev). 
 
+From high-level confirmation statuses to low-level raw JSON outputs for debugging transactions, [top block explorers](https://www.helius.dev/blog/top-solana-block-explorers) like Orb give everyone the tools they need to read and analyze transactions on Solana.
