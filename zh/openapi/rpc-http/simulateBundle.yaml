@@ -306,12 +306,33 @@ paths:
                         description: "模拟捆绑结果的详细信息。"
                         properties:
                           summary:
-                            type: "string"
-                            description: "模拟结果的摘要。"
-                            example: "succeeded"
+                            description: "捆绑模拟结果的摘要。
+
+
+                              如果模拟成功，此值设置为 `\"succeeded\"`。
+
+
+                              如果模拟失败，此值设置为一个包含单个字段 `failed` 的对象，其中包含有关该失败的详细信息。\n"
+                            oneOf:
+                              - type: "string"
+                                example: "succeeded"
+                              - type: "object"
+                                required:
+                                  - "failed"
+                                properties:
+                                  failed:
+                                    type: "object"
+                                    required:
+                                      - "error"
+                                    properties:
+                                      error:
+                                        description: "包含错误详细信息的值。结构可能有所不同。"
+                                      tx_signature:
+                                        type: "string"
+                                        description: "以 base58 格式表示的失败交易签名。如果不适用，可能为 `null`。"
                           transactionResults:
                             type: "array"
-                            description: "捆绑中每个交易的结果数组。"
+                            description: "每个捆绑交易结果的数组。如果出现错误，可能为空。"
                             items:
                               type: "object"
                               properties:

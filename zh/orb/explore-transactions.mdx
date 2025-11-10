@@ -1,0 +1,123 @@
+---
+title: 如何跟踪 Solana 交易
+sidebarTitle: 探索交易
+description: 了解如何使用 Orb，一个新的 Solana 区块浏览器，研究交易，包括摘要、余额、内部指令和原始 JSON。
+---
+大多数人使用 Solana 区块浏览器来查看和分析交易，使他们能够看到链上发生的事情。
+
+钱包和 DeFi 应用程序与区块浏览器集成，让用户确认交易状态、查看交易历史，并更好地理解链上发生的事情。
+
+要[在 Orb 上查找 Solana 交易](https://orb.helius.dev/)，只需从您的钱包或应用程序的 UI 中复制交易签名并将其粘贴到 Orb 的搜索栏中。
+
+让我们看看一个典型的代币交换。
+
+在此示例中，[USDC 通过 Jupiter 交换为 ORE](https://orb.helius.dev/tx/52Vrdcyxp9TsfWByYdJ6nrufSBNi17oX6EmkftVcLd9YV2o4A86n8ZQCQpkvm68UyFX5eKUFfAm9PqPk5Pa7ZhXa?cluster=mainnet-beta&tab=summary)。
+
+## AI 概览和摘要
+
+如果您只需要基本的交易信息，请阅读摘要或点击“AI 解释”按钮以获得此交易的高级概览。
+
+例如，点击 **AI 解释** 按钮显示此交易涉及使用 [Jupiter Aggregator v6 程序](https://orb.helius.dev/address/JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4/history?cluster=mainnet-beta) 将 83,188 美元 USDC 交换为 546.97 美元 ORE。
+
+<Frame caption="AI 摘要将此交易解释为通过 Jupiter 路由 ORE 换取 USDC 的多跳代币交换。">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-summary-explained-with-ai-on-the-orb-explorer.jpg"
+    alt="AI 摘要解释通过 Jupiter 路由 ORE 换取 USDC 的复杂多跳代币交换"
+    title=""
+    className="mx-auto"
+  />
+</Frame>
+
+## 指令摘要和详情
+
+向下滚动页面，**指令摘要** 显示所有中间步骤，例如将 USDC 从所有者的钱包转移到 Jupiter Aggregator Authority 账户。
+
+<Frame caption="Jupiter 上多跳交换所涉及指令的摘要列表。">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-instruction-summary-on-orb.jpg"
+    alt="指令摘要显示中间交易步骤"
+    className="mx-auto"
+  />
+</Frame>
+
+接下来，我们看到摘要**详细信息**部分：
+
+<Frame caption="Solana 交易详情，包括基础费用、优先费用、费用支付者、消耗的计算单元、确认、时间戳和插槽。">
+  <img
+    src="/images/orb/explore-transactions/solana-transaction-details-summary-on-orb-explorer.jpg"
+    alt="Solana 交易详情，包括费用、费用支付者、消耗的计算单元、确认、时间戳和插槽"
+    className="mx-auto"
+  />
+</Frame>
+
+## 交易余额
+
+点击进入**余额**选项卡，我们可以清楚地看到每个地址和市场的代币余额变化摘要。
+
+我们看到原始钱包 `3AWDT…WgBCu` 正在多个市场中交换 USDC 为 ORE，包括 Orca、Goonfi 和 Meteora DLMM，这些市场处理了部分交易。
+
+<Frame caption="余额变化摘要，包括交易中涉及的所有者钱包、流动性池和专有 AMM（例如 Goonfi）。">
+
+  ![余额变化摘要，包括交易中涉及的所有者钱包、流动性池和专有 AMM](/images/orb/explore-transactions/solana-transaction-token-summary-on-the-orb-blockchain-explorer.jpg)
+
+</Frame>
+
+## 交易指令
+
+点击进入**指令**选项卡，我们可以看到交易包括调用计算预算程序和 Jupiter Aggregator v6 程序。
+
+展开 Jupiter 程序，我们看到 15 个以上的内部指令，包括调用 Solana 的代币程序、Orca 的 Whirlpool 程序、Meteora 的 DLMM 程序和 GoonFi 程序（一个 [Solana 专有 AMM](https://www.helius.dev/blog/solanas-proprietary-amm-revolution)）。
+
+<Frame>
+
+  ![显示程序调用的内部指令](/images/orb/explore-transactions/list-of-solana-inner-instructions-for-a-jupiter-swap-on-the-orb-explorer.jpg)
+
+</Frame>
+
+查看单个内部指令（3.2），我们看到来自 Orca Whirlpool 程序的 Swap V2 操作，涉及 19945154880 个代币和交易中涉及的账户列表，包括账户 6（\$ORE 代币）和账户 7（\$USDC 代币）。
+
+<Frame caption="第二个内部指令涉及 Jupiter 的 Aggregator v6 程序，调用 Orca 的 Whirlpool 程序上的 \$USDC 和 \$ORE 之间的交换。">
+
+  ![第二个内部指令涉及木星的Aggregator v6程序在Orca的Whirlpool程序上调用USDC和ORE之间的交换](/zh/inner-instructions-from-a-transaction-shown-on-the-orb-block-explorer-for-solana.jpg)
+
+</Frame>
+
+查看指令3.3，我们看到19945154880个代币转换为19,945.154880美元USDC（因为USDC代币有6位小数），而指令3.4显示了132.03968385902美元ORE的代币数量。
+
+<Frame caption="第三和第四个内部指令显示了Solana的代币程序中USDC和ORE的Transfer Checked操作。">
+
+  ![Solana交易内部指令在Orb Explorer上](/images/solana-transaction-inner-instruction-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 交易指令日志
+
+要检查交易日志，请点击**日志**选项卡。在这里，我们可以查看每个程序发出的日志，通常显示调用的指令名称、状态（即成功/失败）以及消耗的计算单元数量。
+
+<Frame caption="Orca Whirlpool程序SwapV2指令日志视图。">
+
+  ![Orca Whirlpool程序SwapV2指令日志视图](/images/orb/explore-transactions/solana-program-instruction-logs-on-the-orb-block-explorer.jpg)
+
+</Frame>
+
+## 原始交易JSON
+
+要获取最详细的输出，请点击**原始**选项卡。
+
+在这里，您可以看到每个指令作为原始JSON输出，通过启用"Helius Enhanced"切换，可以使其更易于阅读。
+
+<Frame caption="Helius Enhanced JSON交易输出。">
+
+  ![Helius Enhanced JSON交易输出](/images/orb/explore-transactions/enhanced-raw-json-instruction-details-for-a-solana-transaction-on-the-orb-block-explorer.jpg)
+
+</Frame>
+
+<Tip>
+  低级指令日志和原始输出对于调试程序的开发人员和试图理解程序如何工作的分析师最有用。
+</Tip>
+
+## 结论
+
+检查Solana交易是像[Orb](https://orb.helius.dev)这样的区块链浏览器的一个关键用例。
+
+从高级确认状态到用于调试交易的低级原始JSON输出，像Orb这样的[顶级区块浏览器](https://www.helius.dev/blog/top-solana-block-explorers)为每个人提供了读取和分析Solana交易所需的工具。
