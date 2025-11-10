@@ -1,0 +1,96 @@
+---
+title: 如何查找Solana程序的IDL
+sidebarTitle: 探索程序
+description: 了解如何使用Orb，一个新的Solana区块浏览器，研究程序，包括交易、IDL、验证状态、升级权限等。
+---
+IDL代表接口定义语言。
+
+在Solana中，IDL描述了链上程序的结构，并表达了其他链上程序如何与它们组合。Orb已标记了超过350个Solana程序，以便更容易找到并与它们组合。
+
+在这个例子中，我们使用[DFlow的v4聚合器程序](https://orb.helius.dev/address/DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH/history?cluster=mainnet-beta)。
+
+要查找Solana程序，请访问Orb的主页，并在搜索栏中按名称搜索程序，然后点击结果。
+
+<Frame caption="Orb搜索结果，包括DFlow聚合器v4程序。">
+
+  ![Orb搜索结果，包括DFlow聚合器v4程序](/images/orb/explore-programs/search-for-solana-programs-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 程序历史
+
+在**历史**部分，您将看到所有最近的交易。有关[如何使用区块浏览器检查交易](/zh/orb/explore-transactions)的更多详细信息，请参阅我们的交易探索指南。
+
+<Frame caption="DFlow聚合器v4程序的最近交易历史。">
+
+  ![DFlow聚合器v4程序的最近交易历史](/images/orb/explore-programs/dflow-program-transaction-history-tab-in-orb.jpg)
+
+</Frame>
+
+在本指南中，我们将直接进入**IDL**选项卡。
+
+## 程序IDL
+
+IDL查看器显示了解析的指令、账户、类型、事件和错误。要查看原始JSON输出，请点击右上角的“显示JSON”切换按钮。
+
+展开下拉菜单可以显示所有必需的参数和详细信息。
+
+例如，展开**类型**部分会显示与各种DEX相关的交换操作列表，如WhirlpoolsSwap、ClearpoolsSwap和RaydiumAmmSwap。
+
+<Frame caption="DFlow Aggregator v4 程序 IDL。">
+
+  ![DFlow Aggregator v4 程序 IDL](/images/orb/explore-programs/solana-program-idl-viewer-with-json-parsed-results.jpg)
+
+</Frame>
+
+## 程序验证
+
+在 Solana 上，[已验证的程序](https://solana.com/docs/programs/verified-builds)是一个已部署的程序，其链上二进制文件与公开可用的源代码完全匹配。这通常使用像 Ellipsis Labs 的[verified build CLI](https://github.com/Ellipsis-Labs/solana-verifiable-build)工具来完成。
+
+在这个例子中，我们将使用 [Privacy Cash](https://orb.helius.dev/address/9fhQBbumKEFuXtMBDw8AaQyAjCorLGJQiS3skWZdQyQD/history?cluster=mainnet-beta)，这是一个用于私密代币转移的 Solana 程序。
+
+要查看验证状态、哈希、日期、签名者或仓库，请点击 **Verification** 标签。
+
+<Frame caption="Orb 上 Privacy Cash 的已验证构建页面">
+
+  ![Orb 上 Privacy Cash 的已验证构建页面](/images/orb/explore-programs/verified-solana-progam-build-on-the-orb-block-explorer.jpg)
+
+</Frame>
+
+欲了解更多详情，请点击 **Show Structure** 按钮以查看仓库布局。此视图引入了已验证的构建，使您能够在 Orb 上查看完整的仓库结构。
+
+<Frame caption="Orb 上 Privacy Cash 的已验证程序仓库结构，lib.rs 文件已打开。">
+
+  ![Orb 上 Privacy Cash 的已验证程序仓库结构，lib.rs 文件已打开](/images/orb/explore-programs/solana-program-github-repository-structure-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 程序 Security.txt
+
+一个 `security.txt` 文件是 Solana 程序开发者定义其安全策略、提供安全审计员联系信息以及建立报告安全漏洞的明确指南的标准化方式。
+
+下面的例子来自 Ellipsis Labs 构建的 [Phoenix Program](https://orb.helius.dev/address/PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY/security-txt?cluster=mainnet-beta)。
+
+<Frame caption="Phoenix Program 的 Security.txt 文件，包括安全联系人、政策链接和源代码。">
+
+  ![Solana 上由 Ellipsis Labs 构建的 Phoenix Program 的 Security.txt 文件](/images/orb/explore-programs/solana-program-security-txt-file-example-phoenix-program-on-orb-explorer.jpg)
+
+</Frame>
+
+## 程序权限
+
+在 Solana 上，程序默认是可升级的，升级程序代码的权力在于其升级权限。
+
+查看 DFlow 的 Aggregator v4 程序中的 **Authority** 标签，我们看到升级权限是一个 Squads 多重签名，具有 2/2 的阈值（即，必须有恰好 2 个签名者签署程序升级交易）。
+
+<Frame caption="DFlow Aggregator v4 升级权限页面。">
+
+  ![DFlow Aggregator v4 升级权限页面](/images/orb/explore-programs/solana-program-multisig-authority-viewer-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 结论
+
+可组合性是 Solana 的最大优势之一。通过在链上发布 IDL 并验证构建，任何在 Solana 上构建的公司都可以无权限地与链上部署的任何其他程序进行交互。
+
+要开始，请立即尝试 [Orb](https://orb.helius.dev/)。

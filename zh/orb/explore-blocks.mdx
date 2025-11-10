@@ -1,0 +1,61 @@
+---
+title: 如何在 Solana 上探索区块
+sidebarTitle: 探索区块
+description: 了解如何使用 Orb，一个新的 Solana 区块浏览器，研究区块，包括已执行的交易、程序、区块奖励、计算单元等。
+---
+
+每 400 毫秒，[Solana 上的验证者](https://www.helius.dev/validator)会生成一个新区块，其中包含数千笔交易，涉及数十个程序并执行数百万个计算单元。
+
+无论您是想分析区块奖励和交易详情的验证者操作员，还是探索链上数据的研究人员，Orb 的区块页面都提供了全面的可见性。
+
+让我们看看一个由 [Bitwise Onchain Solutions 验证者](https://orb.helius.dev/address/8GbwASqdpw4dVcwbWUxbHXMrjyQx2aKkoBR5H1GJF8iD/history?cluster=mainnet-beta)执行的[示例区块](https://orb.helius.dev/block/378183037) (378,183,037)，由 Helius 提供支持。
+
+## 区块信息
+
+在 **Blocks** 页面顶部是关于区块领导者、时间戳、纪元、总交易数（成功和失败）、CUs 和区块奖励的详细信息。
+
+<Frame caption="在槽位 378,183,037 中生成的 Solana 区块的详细信息。">
+
+  ![在槽位 378,183,037 中生成的 Solana 区块的详细信息](/images/orb/explore-blocks/solana-block-details-on-the-orb-explorer.jpg)
+
+</Frame>
+
+<Note>
+  关于区块奖励的详细信息也可以在 **Rewards** 标签中找到。
+</Note>
+
+## 区块交易
+
+要检查区块中包含的每笔交易，请选择 **Transactions** 标签。在这里，您可以看到交易类型列表、调用的程序以及交易签名的链接。
+
+<Frame caption="槽位 378,183,037 中包含的 Solana 交易的列表视图。">
+
+  ![槽位 378,183,037 中包含的 Solana 交易的列表视图](/images/orb/explore-blocks/all-solana-transactions-in-a-block-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 区块程序
+
+要查看给定区块中的程序统计信息，请单击 **Programs** 标签。
+
+在这里，您可以看到区块中执行的所有程序，以及它们的总交易数、指令百分比和成功率。
+
+<Frame caption="Solana 区块中所有程序、交易计数和成功率的列表。">
+
+  ![Solana 区块中所有程序、交易计数和成功率的列表](/images/orb/explore-blocks/all-solana-programs-executed-in-a-solana-block-in-the-orb-explorer.jpg)
+
+</Frame>
+
+上面的截图显示，在此区块的总计 1,086 笔交易中，864 笔（74.93%）是投票交易，剩下 222 笔是非投票交易。
+
+点击右上角的图表图标以图形格式查看信息。
+
+<Frame caption="按交易计数过滤的 Solana 程序在插槽 378,183,037 中执行的图表。">
+
+  ![在 Orb Explorer 上的区块中执行的 Solana 程序的图表](/images/graph-of-solana-programs-executed-in-a-block-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 结论
+
+检查 Solana 上的区块是像 Orb 这样的区块链浏览器最基本的用例之一。要开始，请在 [Orb](https://orb.helius.dev/) 上查找一个区块，或在 Orb 的 [Solana 统计页面](https://orb.helius.dev/stats?cluster=mainnet-beta) 上查看最新区块的流。
