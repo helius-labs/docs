@@ -1,11 +1,15 @@
 ---
 title: "Helius Credits"
 sidebarTitle: "Credits"
-description: "Complete guide to Helius credits including credit costs, how credits work, and credits for data streaming."
+description: "Complete guide to Helius credits including credit costs, how credits work, and credits for data streaming solutions."
 ---
 
 ## What are credits?
-Credits are a unit of account that we use to bill usage for RPCs, API requests, and data streaming. Every plan has a base number of credits, and every API call has an assigned credit cost. Below, we outline the credits per plan, credit costs by API, and credits for data streaming products.
+Credits are a unit of account that we use to bill usage for RPCs, API requests, and data streaming products like LaserStream and Enhanced WebSockets. 
+
+Every plan has a base number of credits, and every API call has an assigned credit cost. 
+
+Below, we outline the credits per plan, credit costs by API, and credits for streaming data.
 
 <CardGroup cols={3}>
   <Card title="Monthly Allocation" icon="calendar">
@@ -22,7 +26,9 @@ Credits are a unit of account that we use to bill usage for RPCs, API requests, 
 ---
 
 ## Base Credits by Plan
-Here is a breakdown of the total number of credits that are included by default in each plan. If you need more credits, upgrade your plan, enable [autoscaling](/billing/autoscaling), purchase prepaid credits, or contact sales to discuss enterprise options.
+Here is a breakdown of the total number of credits that are included by default in each plan. 
+
+If you need more credits, upgrade your plan, enable [autoscaling](/billing/autoscaling), purchase prepaid credits, or contact sales to discuss enterprise options.
 
 For more information, read our [plans and pricing guide](/billing/plans)
 
@@ -62,7 +68,7 @@ For more information, read our [plans and pricing guide](/billing/plans)
     <tr>
       <th style={{width: '200px'}}>Service</th>
       <th style={{width: '50px'}}>Credits</th>
-      <th>Notes</th>
+      <th style={{width: '470px'}}>Notes</th>
     </tr>
   </thead>
   <tbody>
@@ -101,7 +107,9 @@ For more information, read our [plans and pricing guide](/billing/plans)
 
 ## Historical Data Credits
 <div id="historical-data"></div>
-[Historical data queries](/rpc/guides/overview#historical-data-archival), sometimes called archival calls, cost **10 credits** each except for [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) which costs **100 credits**.
+[Historical data queries](/rpc/guides/overview#historical-data-archival), sometimes called archival calls, cost **10 credits** each.
+
+One exception is [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) which costs **100 credits**.
      
  <table>
    <thead align="left">
@@ -155,7 +163,7 @@ For more information, read our [plans and pricing guide](/billing/plans)
      <tr>
        <td><code>getTransactionsForAddress</code></td>
        <td style={{textAlign: 'center'}}>100</td>
-       <td>Enhanced transaction history with advanced filtering, sorting, and full transaction data. Requires Developer plan or higher</td>
+       <td>Enhanced transaction history with advanced filtering, sorting, and full transaction data.</td>
      </tr>
    </tbody>
  </table>
@@ -171,8 +179,8 @@ Unlike regular credits that assign credits per call, data streaming products lik
   <thead>
     <tr>
       <th style={{width: '200px'}}>Service</th>
-      <th style={{width: '50px', textAlign: 'center'}}>Credits</th>
-      <th>Notes</th>
+      <th style={{width: '50px'}}>Credits</th>
+      <th style={{width: '470px'}}Notes</th>
     </tr>
   </thead>
   <tbody>
@@ -187,7 +195,7 @@ Unlike regular credits that assign credits per call, data streaming products lik
       <td>Per 0.1 MB of streamed data (uncompressed). For users who upgrade to Business or Professional plans after October 16, 2025</td>
     </tr>
     <tr>
-      <td><strong>Data Add-on (Professional only)</strong></td>
+      <td><strong>Data Add-on (Pro Plan only)</strong></td>
       <td style={{textAlign: 'center'}}>3</td>
       <td>Per 0.1 MB after included allowance (5-100TB). Applies to LaserStream and Enhanced WebSockets usage.</td>
     </tr>
@@ -195,16 +203,32 @@ Unlike regular credits that assign credits per call, data streaming products lik
 </table>
 
 ### Enhanced WebSockets
-[Enhanced WebSockets](/enhanced-websockets) are available on Business and Professional plans. Users who upgrade after October 16, 2025 pay 3 credits per 0.1 MB. Users on these plans before this date remain unmetered.
+[Enhanced WebSockets](/enhanced-websockets) are available on Business and Professional plans. 
+
+Users who upgrade after October 16, 2025 pay 3 credits per 0.1 MB. Users on these plans before this date remain unmetered.
 
 ### LaserStream
-[LaserStream](/laserstream) is available on Professional plans only for accessing Solana Mainnet-beta. LaserStream access for Solana Devnet is available on Developer and Business plans. All users pay 3 credits per 0.1 MB usage.
+[LaserStream](/laserstream) is available on Professional plans only for accessing Solana Mainnet-beta. 
+
+LaserStream access for Solana Devnet is available on Developer and Business plans. 
+
+All users pay 3 credits per 0.1 MB usage.
 
 ### Data Add-ons
-If you're on a Professional plan, you may purchase [Data Add-ons](/billing/plans#data-add-ons) between 5TB-100TB per month to be used for both Enhanced WebSockets and LaserStream. Overages will be billed at 3 credits per 0.1 MB.
+If you're on a Professional plan, you may purchase [Data Add-ons](/billing/plans#data-add-ons) between 5TB-100TB per month to be used for both Enhanced WebSockets and LaserStream. 
+
+Overages will be billed at 3 credits per 0.1 MB.
 
 ### Data Size 
-Billing for data streaming products is based on uncompressed message size. Typical sizes: Block (~4MB), Account (~0.0004MB), Transaction (~0.0006MB).
+Billing for data streaming products is based on uncompressed message size. 
+
+Typical sizes include: 
+
+<ul>
+  <li>Block (~4MB)</li>
+  <li>Account (~0.0004MB)</li>
+  <li>Transaction (~0.0006MB)</li>
+</ul>
 
 ## Transaction Submission Credits
 Helius offers two primary transaction submission methods: [Sender](/sending-transactions/sender), our specialized transaction landing service for traders and low-latency applications; and [Staked Connections](/sending-transactions/overview) (default) for fast, reliable landing rates.
@@ -212,8 +236,8 @@ Helius offers two primary transaction submission methods: [Sender](/sending-tran
     <thead>
       <tr>
         <th style={{width: '300px'}}>Method</th>
-        <th style={{width: '100px', textAlign: 'center'}}>Credits</th>
-        <th>Description</th>
+        <th style={{width: '100px'}}>Credits</th>
+        <th style={{width: '320px'}}>Description</th>
       </tr>
     </thead>
     <tbody>
@@ -268,8 +292,8 @@ All [DAS API](/api-reference/das) requests cost **10 credits** each:
   <thead>
     <tr>
       <th style={{width: '200px'}}>Service</th>
-      <th style={{width: '50px', textAlign: 'center'}}>Credits</th>
-      <th>Notes</th>
+      <th style={{width: '50px'}}>Credits</th>
+      <th style={{width: '470px'}}Notes</th>
     </tr>
   </thead>
   <tbody>
@@ -290,14 +314,16 @@ For more information on using webhooks, read our [quickstart guide](/webhooks).
 
 ## ZK Compression Credits
 
-All [ZK Compression API](/api-reference/zk-compression) calls cost **10 credits** each, except for `getValidityProof` because it is computationally intensive.
+All [ZK Compression API](/api-reference/zk-compression) calls cost **10 credits** each. 
+
+One exception is `getValidityProof` which costs 100 credits per request because it is computationally intensive.
 
 <table>
   <thead>
     <tr>
       <th style={{width: '200px'}}>Service</th>
-      <th style={{width: '50px', textAlign: 'center'}}>Credits</th>
-      <th>Notes</th>
+      <th style={{width: '50px'}}>Credits</th>
+      <th style={{width: '470px'}}Notes</th>
     </tr>
   </thead>
   <tbody>
