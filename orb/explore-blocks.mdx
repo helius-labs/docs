@@ -1,0 +1,53 @@
+---
+title: "How to Explore Blocks on Solana"
+sidebarTitle: "Explore Blocks"
+description: "Learn how to use Orb, a new Solana block explorer, to research blocks including executed transactions, programs, block rewards, compute units, and more."
+---
+
+Every 400ms, a [validator on Solana](https://www.helius.dev/validator) produces a new block that contains thousands of transactions, touching dozens of programs and executing millions of compute units.
+
+Whether you're a validator operator wanting to analyze block rewards and transaction details or a researcher exploring on-chain data, Orb's block pages provide comprehensive visibility.
+
+Let's look at an [example block](https://orb.helius.dev/block/378183037) (378,183,037) that was executed by the [Bitwise Onchain Slutions validator](https://orb.helius.dev/address/8GbwASqdpw4dVcwbWUxbHXMrjyQx2aKkoBR5H1GJF8iD/history?cluster=mainnet-beta), powered by Helius.
+
+## Block Info
+
+At the top of the **Blocks** page are details about the block leader, timestamp, epoch, total transactions (successful and failed), CUs, and block rewards.
+
+<Frame caption="Details of the Solana block produced in slot 378,183,037.">
+  ![Details of the Solana block produced in slot 378,183,037](/images/orb/explore-blocks/solana-block-details-on-the-orb-explorer.jpg)
+</Frame>
+
+<Note>
+  Details about block rewards can also be found in the **Rewards** tab.
+</Note>
+
+## Block Transactions
+
+To inspect each transaction included in a block, select the **Transactions** tab. Here, you can see a list of transaction types, the programs invoked, and a link to the transaction signature.
+
+<Frame caption="List view of Solana transactions included in slot 378,183,037.">
+  ![List view of Solana transactions included in slot 378,183,037](/images/orb/explore-blocks/all-solana-transactions-in-a-block-on-the-orb-explorer.jpg)
+</Frame>
+
+## Block Programs
+
+To view the program statistics in a given block, click the **Programs** tab. 
+
+Here, you can see all the programs executed in the block, along with their total number of transactions, instruction percentage, and success rate.
+
+<Frame caption="List of all programs, transaction counts, and success rates in a Solana block.">
+  ![List of all programs, transaction counts, and success rates in a Solana block](/images/orb/explore-blocks/all-solana-programs-executed-in-a-solana-block-in-the-orb-explorer.jpg)
+</Frame>
+
+The above screenshot shows that of the total 1,086 transactions in this block, 864 (74.93%) were vote transactions, leaving 222 non-vote transactions.
+
+Click the chart icon in the top right corner to view the information in graph format.
+
+<Frame caption="Chart of Solana programs executed during slot 378,183,037 filtered by transaction count.">
+  ![Graph Of Solana Programs Executed In A Block On The Orb Explorer Jp](/images/graph-of-solana-programs-executed-in-a-block-on-the-orb-explorer.jpg)
+</Frame>
+
+## Conclusion
+
+Inspecting a block on Solana is one of the most fundamental use cases for a blockchain explorer like Orb. To get started, look up a block on [Orb](https://orb.helius.dev/), or view a stream of the most recent blocks on Orb's [Solana statistics page](https://orb.helius.dev/stats?cluster=mainnet-beta).

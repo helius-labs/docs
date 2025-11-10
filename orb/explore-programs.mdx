@@ -1,0 +1,83 @@
+---
+title: "How to Find the IDL for a Solana Program"
+sidebarTitle: "Explore Programs"
+description: "Learn how to use Orb, a new Solana block explorer, to research programs including transactions, IDLs, verification status, upgrade authority, and more."
+---
+
+IDL stands for Interface Definition Language. 
+
+In Solana, IDLs describe the structure of an on-chain program and express how other on-chain programs can compose with them. Orb has tagged over 350 Solana programs to make it easier to find and compose with them.
+
+For this example, let's use [DFlow's v4 aggregator program](https://orb.helius.dev/address/DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH/history?cluster=mainnet-beta). 
+
+To find a Solana program, go to Orb's home page and search for the program by name in the search bar, and then click on the result.
+
+<Frame caption="Orb search results for DFlow, including the DFlow Aggregator v4 program.">
+  ![Orb search results for DFlow, including the DFlow Aggregator v4 program](/images/orb/explore-programs/search-for-solana-programs-on-the-orb-explorer.jpg)
+</Frame>
+
+## Program History
+
+In the **History** section, you'll see all of the recent transactions. For more details on [how to inspect a transaction using a block explorer](/orb/explore-transactions), see our transaction exploration guide.
+
+<Frame caption="Recent transaction history for the DFlow Aggregator v4 program.">
+  ![Recent transaction history for the DFlow Aggregator v4 program](/images/orb/explore-programs/dflow-program-transaction-history-tab-in-orb.jpg)
+</Frame>
+
+For the purposes of this guide, we'll dive straight to the **IDL** tab.
+
+## Program IDL
+
+The IDL viewer shows the parsed instructions, accounts, types, events, and errors. To view the raw JSON output, click the "Show JSON" toggle in the top right corner.
+
+Expanding the dropdown menu reveals all required parameters and details.
+
+For example, expanding the **Types** section reveals a list of swap actions related to various DEXs, such as WhirlpoolsSwap, ClearpoolsSwap, and RaydiumAmmSwap.
+
+<Frame caption="DFlow Aggregator v4 program IDL.">
+  ![DFlow Aggregator v4 program IDL](/images/orb/explore-programs/solana-program-idl-viewer-with-json-parsed-results.jpg)
+</Frame>
+
+## Program Verification
+
+A [verified program](https://solana.com/docs/programs/verified-builds) on Solana is a deployed program whose on-chain binary exactly matches the publicly available source code. This is typically done using tools like Ellipsis Labs' [verified build CLI](https://github.com/Ellipsis-Labs/solana-verifiable-build) tool.
+
+For this example, we'll use [Privacy Cash](https://orb.helius.dev/address/9fhQBbumKEFuXtMBDw8AaQyAjCorLGJQiS3skWZdQyQD/history?cluster=mainnet-beta), a Solana program for private token transfers. 
+
+To view the verification status, hash, date, signer, or repo, click the **Verification** tab.
+
+<Frame caption="Verified build page for Privacy Cash on Orb">
+  ![Verified build page for Privacy Cash on Orb](/images/orb/explore-programs/verified-solana-progam-build-on-the-orb-block-explorer.jpg)
+</Frame>
+
+For more details, click the **Show Structure** button to view the repository layout. This view pulls in the verified build and enables you to see the full repo structure on Orb.
+
+<Frame caption="Privacy Cash’s verified program repository structure on Orb with the lib.rs file open.">
+  ![Privacy Cash's verified program repository structure on Orb with the lib.rs file open](/images/orb/explore-programs/solana-program-github-repository-structure-on-the-orb-explorer.jpg)
+</Frame>
+
+## Program Security.txt
+
+A `security.txt` file is a standardized way for Solana program developers to define their security policies, provide contact information for security auditors, and establish clear guidelines for reporting security vulnerabilities.
+
+The below example is from the [Phoenix Program](https://orb.helius.dev/address/PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY/security-txt?cluster=mainnet-beta), built by Ellipsis Labs.
+
+<Frame caption="Security.txt file for the Phoenix Program including security contacts, policy links, and source code.">
+  ![Security.txt file for the Phoenix program (built by Ellipsis Labs) on Solana](/images/orb/explore-programs/solana-program-security-txt-file-example-phoenix-program-on-orb-explorer.jpg)
+</Frame>
+
+## Program Authority
+
+On Solana, programs are upgradeable by default, and the power to upgrade a program's code lies with its upgrade authority. 
+
+Looking at the **Authority** tab in DFlow's Aggregator v4 program, we see that the upgrade authority is a Squads multisig with a 2/2 threshold (i.e., exactly 2 signers must sign program upgrade transactions).
+
+<Frame caption="DFlow Aggregator v4 upgrade authority page.">
+  ![DFlow Aggregator v4 upgrade authority page](/images/orb/explore-programs/solana-program-multisig-authority-viewer-on-the-orb-explorer.jpg)
+</Frame>
+
+## Conclusion
+
+Composability is one of Solana's greatest strengths. By publishing IDLs on-chain and verifying builds, any company building on Solana can permissionlessly interact with any other program deployed on-chain.
+
+To get started, try [Orb](https://orb.helius.dev/) today.
