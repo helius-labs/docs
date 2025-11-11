@@ -1,0 +1,273 @@
+---
+title: Helius 速率限制
+sidebarTitle: 速率限制
+description: Helius 各计划和产品的速率限制完整指南。
+---
+
+## 什么是速率限制？
+速率限制控制您每秒可以发出的请求数量。当超过速率限制时，您将收到 HTTP 429 响应。
+
+## 标准速率限制
+
+您的计划有两个标准速率限制组：一个用于 RPC 请求，另一个用于 DAS API 请求。以下是每个 Helius 计划的基本速率限制：
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="200">计划</th>
+      <th width="260">RPC 速率限制</th>
+      <th width="260">DAS 和增强型 API</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>免费</strong></td>
+      <td>10 请求/秒</td>
+      <td>2 请求/秒</td>
+    </tr>
+    <tr>
+      <td><strong>开发者</strong></td>
+      <td>50 请求/秒</td>
+      <td>10 请求/秒</td>
+    </tr>
+    <tr>
+      <td><strong>商业</strong></td>
+      <td>200 请求/秒</td>
+      <td>50 请求/秒</td>
+    </tr>
+    <tr>
+      <td><strong>专业</strong></td>
+      <td>500 请求/秒</td>
+      <td>100 请求/秒</td>
+    </tr>
+    <tr>
+      <td><strong>企业</strong></td>
+      <td>自定义</td>
+      <td>自定义</td>
+    </tr>
+  </tbody>
+</table>
+
+### 增加速率限制
+专业计划的团队可以以每月 100 美元的价格购买额外的 100 RPS。
+
+如果您需要在发布前自定义速率限制，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。如果您处于开发者或商业层级，请升级您的计划以增加速率限制。
+
+## 特殊速率限制
+
+由于计算要求，一些端点和专门的 Helius 产品有特殊的速率限制。
+
+### 发送交易
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">端点</th>
+        <th width="100">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="100">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Sender</code></td>
+        <td>15/秒</td>
+        <td>15/秒</td>
+        <td>15/秒</td>
+        <td>15/秒</td>
+      </tr>
+      <tr>
+        <td><code>sendTransaction</code></td>
+        <td>1/秒</td>
+        <td>5/秒</td>
+        <td>50/秒</td>
+        <td>100/秒</td>
+      </tr>
+      <tr>
+        <td><code>simulateBundle</code></td>
+        <td>10/秒</td>
+        <td>50/秒</td>
+        <td>200/秒</td>
+        <td>500/秒</td>
+      </tr>
+    </tbody>
+  </table>
+
+如果您处于专业计划并需要增加您的`sendTransaction`速率限制，请[联系我们的销售团队](https://form.typeform.com/to/KiacmxpZ)。
+
+专业计划用户还可以[请求显著的Sender速率限制升级](https://form.typeform.com/to/FuvpgSNt)，以支持高吞吐量的交易应用。
+
+### 复杂的RPC调用
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">端点</th>
+        <th width="100">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="100">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>getProgramAccounts</code></td>
+        <td>5/秒</td>
+        <td>25/秒</td>
+        <td>50/秒</td>
+        <td>75/秒</td>
+      </tr>
+    </tbody>
+  </table>
+
+### 历史数据
+在批量请求历史数据方法时，适用以下限制：
+     
+   <table>
+    <thead align="left">
+       <tr>
+         <th style={{width: '300px'}}>方法</th>
+         <th style={{width: '300px'}}>最大批量大小</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td><code>getTransaction</code></td>
+         <td>每个请求100项</td>
+       </tr>
+       <tr>
+         <td><code>getTransactionsForAddress</code></td>
+         <td>不允许批量请求</td>
+       </tr>
+       <tr>
+         <td>所有其他历史方法</td>
+         <td>每个请求10项</td>
+       </tr>
+     </tbody>
+   </table>
+
+<Warning>
+超过批量限制将导致错误响应。对于`getTransactionsForAddress`，每个地址必须在单独的请求中查询。
+</Warning>
+
+### LaserStream
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">资源</th>
+        <th width="50">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="150">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>网络</td>
+        <td>—</td>
+        <td>Devnet</td>
+        <td>Devnet</td>
+        <td>Devnet, Mainnet</td>
+      </tr>
+      <tr>
+        <td>最大公钥数</td>
+        <td>—</td>
+        <td>10M</td>
+        <td>10M</td>
+        <td>10M</td>
+      </tr>
+      <tr>
+        <td>活动连接数</td>
+        <td>—</td>
+        <td>100</td>
+        <td>100</td>
+        <td>100</td>
+      </tr>
+    </tbody>
+  </table>
+
+### WebSockets
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">资源</th>
+        <th width="100">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="100">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>并发连接数</td>
+        <td>5</td>
+        <td>150</td>
+        <td>250</td>
+        <td>250</td>
+      </tr>
+      <tr>
+        <td>WebSocket类型</td>
+        <td>标准</td>
+        <td>标准</td>
+        <td>标准, 增强</td>
+        <td>标准, 增强</td>
+      </tr>
+    </tbody>
+  </table>
+
+### Webhooks
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">资源</th>
+        <th width="100">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="100">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>最大Webhooks数</td>
+        <td>5</td>
+        <td>50</td>
+        <td>50</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>每个Webhook的地址数</td>
+        <td>100k</td>
+        <td>100k</td>
+        <td>100k</td>
+        <td>100k</td>
+      </tr>
+    </tbody>
+  </table>
+
+### ZK压缩
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">服务</th>
+        <th width="100">免费</th>
+        <th width="100">开发者</th>
+        <th width="100">商业</th>
+        <th width="100">专业</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Photon APIs</td>
+        <td>2/秒</td>
+        <td>10/秒</td>
+        <td>50/秒</td>
+        <td>100/秒</td>
+      </tr>
+      <tr>
+        <td><code>getValidityProof</code></td>
+        <td>1/秒</td>
+        <td>5/秒</td>
+        <td>10/秒</td>
+        <td>20/秒</td>
+      </tr>
+    </tbody>
+  </table>
