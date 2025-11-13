@@ -35,34 +35,34 @@ description: 在使用 Helius RPC 端点时排查 HTTP 错误代码 - 识别并�
   <Info>有关详细的身份验证设置，请参阅我们的 [身份验证](/zh/api-reference/authentication) 指南。</Info>
 </Accordion>
 
-<Accordion title="为什么我会收到 429 错误？">
+<Accordion title="为什么我会收到429错误？">
   
   ## 这意味着什么
   <Warning>**429 请求过多** - 您已超出计划的速率限制。</Warning>
   
   ## 常见原因
-  - 请求速度超过计划允许的范围
+  - 发出请求的速度超过了您的计划允许的速度
   - 突发流量超过瞬时限制
-  - 多个应用程序共享同一个 API 密钥
-  - 代码效率低下导致冗余请求
+  - 多个应用程序共享同一个API密钥
+  - 低效的代码导致冗余请求
   
   ## 解决方案
   
   1. **监控您的使用情况**
-     - 查看 [仪表板](https://dashboard.helius.dev/usage) 中的 `Rate Limited Requests` 图表
-     - 查看哪些端点达到了限制
+     - 查看您的[仪表板](https://dashboard.helius.dev/usage)中的`Rate Limited Requests`图表
+     - 检查哪些端点达到了限制
   
   2. **优化您的请求**
      - 尽可能缓存响应
-     - 将多个操作批量处理为单个调用
+     - 将多个操作合并为单个调用
      - 删除不必要的轮询或重复请求
   
   3. **实施速率限制**
-     - 在应用程序中添加请求之间的延迟
+     - 在您的应用程序中添加请求之间的延迟
      - 对重试使用指数退避
   
   4. **考虑升级**
-     - 查看 [计划和速率限制](/zh/billing/plans-and-rate-limits) 以获取更高的级别
+     - 查看更高等级的[计划和速率限制](/zh/billing/plans)
   
   <Tip>速率限制每分钟重置一次，因此临时限制通常会很快解决。</Tip>
 </Accordion>

@@ -5,8 +5,8 @@ description: 获取关于 Solana RPC 节点、方法、速率限制和故障排�
 
 ## 计费和速率限制
 
-<Accordion title="为什么在我的计划速率限制以下，我的 getProgramAccounts 会被限速？">
-`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数之外，还有额外的速率限制。请考虑过滤参数，或将大型查询分解为较小的块以保持在[限制](/zh/billing/plans-and-rate-limits#high-complexity-calls)内。
+<Accordion title="为什么 getProgramAccounts 在低于我计划的速率限制时会受到速率限制？">
+`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数限制外，还有额外的速率限制。请考虑使用过滤参数，或将大型查询分解为较小的部分以保持在[限制](/zh/billing/rate-limits)内。
 </Accordion>
 
 <Accordion title="我可以为我的 RPC 端点获取特定区域吗？">
@@ -53,8 +53,8 @@ Staked connections 将您的交易直接路由到当前和即将到来的区块�
 您的RPC速率限制适用于所有RPC方法的总和，而不是单独适用于每一个。例如，如果您的RPC速率限制是100，并且您每秒进行50次getAccountInfo请求，那么您只能额外进行50次getTransaction请求。
 </Accordion>
 
-<Accordion title="特殊限制如何影响RPC速率限制？">
-由于计算要求，一些方法如getProgramAccounts有特殊的速率限制。然而，它们仍然计入总的RPC速率限制。详情请阅读我们的[特殊速率限制指南](https://www.helius.dev/docs/billing/plans-and-rate-limits#special-limits)。
+<Accordion title="特殊限制如何影响 RPC 速率限制？">
+由于计算要求，一些方法如 getProgramAccounts 有特殊的速率限制。然而，它们仍然计入总的 RPC 速率限制。详情请阅读我们的[特殊速率限制指南](https://www.helius.dev/docs/billing/rate-limits)。
 </Accordion>
 
 <Accordion title="RPC速率限制和DAS速率限制之间的关系是什么？">

@@ -1,0 +1,343 @@
+---
+title: Helius 额度
+sidebarTitle: 额度
+description: Helius 额度的完整指南，包括额度成本、额度的工作原理以及数据流解决方案的额度。
+---
+
+## 什么是额度？
+额度是我们用于计费 RPC、API 请求和数据流产品（如 LaserStream 和增强型 WebSockets）使用情况的计量单位。
+
+每个计划都有一个基本额度数，每个 API 调用都有一个指定的额度成本。
+
+下面，我们概述了每个计划的额度、API 的额度成本以及数据流的额度。
+
+<CardGroup cols={3}>
+  <Card title="每月分配" icon="calendar">
+    额度每月重置
+  </Card>
+  <Card title="额度优先级" icon="arrow-down">
+    额度消耗顺序：每月、预付、自动扩展
+  </Card>
+  <Card title="灵活计费" icon="credit-card">
+    需要时支付额外额度
+  </Card>
+</CardGroup>
+
+---
+
+## 各计划的基本额度
+以下是每个计划默认包含的总额度数的详细信息。
+
+如果您需要更多额度，请升级您的计划，启用[自动扩展](/zh/billing/autoscaling)，购买预付额度，或联系销售讨论企业选项。
+
+欲了解更多信息，请阅读我们的[计划和定价指南](/zh/billing/plans)
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="160">功能</th>
+      <th width="140">免费</th>
+      <th width="140">开发者</th>
+      <th width="140">商业</th>
+      <th width="140">专业</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>定价</strong></td>
+      <td>\$0/月</td>
+      <td>\$49/月</td>
+      <td>\$499/月</td>
+      <td>\$999/月</td>
+    </tr>
+    <tr>
+      <td><strong>每月额度</strong></td>
+      <td>1M</td>
+      <td>10M</td>
+      <td>100M</td>
+      <td>200M</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 标准额度
+<table>
+  <thead align="left">
+    <tr>
+      <th style={{width: '200px'}}>服务</th>
+      <th style={{width: '50px'}}>额度</th>
+      <th style={{width: '470px'}}>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>标准 RPC 调用</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>除单独列出的以外的所有 RPC 调用</td>
+    </tr>
+    <tr>
+      <td><strong>getProgramAccounts</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>获取由程序拥有的所有账户/数据</td>
+    </tr>
+    <tr>
+      <td><strong>simulateBundle</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>模拟 Jito Bundles</td>
+    </tr>
+    <tr>
+      <td><strong>Priority Fee API</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>估算优先费用</td>
+    </tr>
+    <tr>
+      <td><strong>DAS API</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>所有 DAS 端点</td>
+    </tr>
+    <tr>
+      <td><strong>增强型交易</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>增强型交易解析</td>
+    </tr>
+  </tbody>
+</table>
+
+## 历史数据积分
+<div id="historical-data"></div>
+[历史数据查询](/zh/rpc/guides/overview#historical-data-archival)，有时称为存档调用，每次消耗 **10 积分**。
+
+一个例外是 [`getTransactionsForAddress`](/zh/rpc/gettransactionsforaddress)，其消耗 **100 积分**。
+
+<table>
+   <thead align="left">
+     <tr>
+       <th style={{width: '200px'}}>方法</th>
+       <th style={{width: '100px', textAlign: 'center'}}>积分</th>
+       <th>描述</th>
+     </tr>
+   </thead>
+   <tbody>
+     <tr>
+       <td><code>getBlock</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>检索指定槽位的区块数据和交易</td>
+     </tr>
+     <tr>
+       <td><code>getBlocks</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取两个槽位之间的区块列表</td>
+     </tr>
+     <tr>
+       <td><code>getBlocksWithLimit</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>从给定槽位开始获取区块，带有限制</td>
+     </tr>
+     <tr>
+       <td><code>getSignaturesForAddress</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取地址的交易签名</td>
+     </tr>
+     <tr>
+       <td><code>getTransaction</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>检索指定签名的交易详情</td>
+     </tr>
+     <tr>
+       <td><code>getBlockTime</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取区块的预计生成时间</td>
+     </tr>
+     <tr>
+       <td><code>getSignatureStatuses</code></td>
+       <td style={{textAlign: 'center'}}>10 / 1</td>
+       <td>获取交易签名的状态。费用取决于 <code>searchTransactionHistory</code> 参数：启用时（搜索历史数据）为 10 积分，禁用时（仅搜索最近区块）为 1 积分</td>
+     </tr>
+     <tr>
+       <td><code>getInflationReward</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取一个纪元内一组地址的通胀奖励</td>
+     </tr>
+     <tr>
+       <td><code>getTransactionsForAddress</code></td>
+       <td style={{textAlign: 'center'}}>100</td>
+       <td>增强的交易历史，具有高级过滤和排序功能。返回 100 个完整交易或 1,000 个签名。</td>
+     </tr>
+   </tbody>
+ </table>
+
+<Warning>
+**计划要求**：`getTransactionsForAddress` 仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
+</Warning>
+
+## 数据流积分
+与每次调用分配积分的常规积分不同，数据流产品如增强 WebSockets 和 LaserStream 按消耗的数据量分配积分。
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '200px'}}>服务</th>
+      <th style={{width: '50px'}}>积分</th>
+      <th style={{width: '470px'}}>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>LaserStream gRPC</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>每 0.1 MB 流数据（未压缩）</td>
+    </tr>
+    <tr>
+      <td><strong>增强 WebSockets</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>每 0.1 MB 流数据（未压缩）。适用于 2025 年 10 月 16 日后升级到商业或专业计划的用户</td>
+    </tr>
+    <tr>
+      <td><strong>数据附加包（仅限专业计划）</strong></td>
+      <td style={{textAlign: 'center'}}>3</td>
+      <td>超过包含的配额（5-100TB）后的每 0.1 MB。适用于 LaserStream 和增强 WebSockets 的使用。</td>
+    </tr>
+  </tbody>
+</table>
+
+### 增强型 WebSockets
+[增强型 WebSockets](/zh/enhanced-websockets) 可在商业和专业计划中使用。
+
+2025年10月16日之后升级的用户每0.1 MB支付3个积分。在此日期之前的用户仍然不计量。
+
+### LaserStream
+[LaserStream](/zh/laserstream) 仅在专业计划中可用于访问 Solana Mainnet-beta。
+
+Solana Devnet 的 LaserStream 访问可在开发者和商业计划中使用。
+
+所有用户每使用0.1 MB支付3个积分。
+
+### 数据附加包
+如果您使用的是专业计划，您可以购买每月5TB-100TB的[数据附加包](/zh/billing/plans#data-add-ons)，用于增强型 WebSockets 和 LaserStream。
+
+超出部分将按每0.1 MB 3个积分计费。
+
+### 数据大小
+数据流产品的计费基于未压缩的消息大小。
+
+典型大小包括：
+
+<ul>
+  <li>区块（约4MB）</li>
+  <li>账户（约0.0004MB）</li>
+  <li>交易（约0.0006MB）</li>
+</ul>
+
+## 交易提交积分
+Helius 提供两种主要的交易提交方法：[Sender](/zh/sending-transactions/sender)，我们为交易者和低延迟应用提供的专用交易着陆服务；以及 [Staked Connections](/zh/sending-transactions/overview)（默认）用于快速、可靠的着陆率。
+  <table>
+    <thead>
+      <tr>
+        <th style={{width: '300px'}}>方法</th>
+        <th style={{width: '100px'}}>积分</th>
+        <th style={{width: '320px'}}>描述</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sender</strong></td>
+        <td style={{textAlign: 'center'}}>0</td>
+        <td>超低延迟提交</td>
+      </tr>
+      <tr>
+        <td><strong>Staked Connections</strong></td>
+        <td style={{textAlign: 'center'}}>1</td>
+        <td>最高可靠性（默认）</td>
+      </tr>
+    </tbody>
+  </table>
+    
+<Info>
+**所有付费计划现在默认使用 Staked Transactions**：所有通过 `mainnet.helius-rpc.com` 的交易自动使用 staked connections 以获得最高成功率。
+</Info>
+
+## DAS API 积分
+所有 [DAS API](/zh/api-reference/das) 请求每次花费 **10 个积分**：
+     
+  <CardGroup cols={2}>
+       <Card title="资产信息">
+         - `getAsset`
+         - `getAssetProof`
+         - `getAssetProofBatch`
+         - `getNftEditions`
+       </Card>
+       <Card title="资产发现">
+         - `getAssetsByOwner`
+         - `getAssetsByAuthority`
+         - `getAssetsByCreator`
+         - `getAssetsByGroup`
+         - `searchAssets`
+         - `getAssetBatch`
+       </Card>
+       <Card title="交易历史">
+         - `getSignaturesForAsset`
+       </Card>
+       <Card title="账户信息">
+         - `getTokenAccounts`
+       </Card>
+     </CardGroup>
+
+---
+
+## Webhook 积分
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '200px'}}>服务</th>
+      <th style={{width: '50px'}}>积分</th>
+      <th style={{width: '470px'}}>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Webhook 事件</strong></td>
+      <td style={{textAlign: 'center'}}>1</td>
+      <td>每个由 Helius 发送的事件，无论端点响应成功或失败</td>
+    </tr>
+    <tr>
+      <td><strong>Webhook 管理</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>创建、编辑、删除 webhooks</td>
+    </tr>
+  </tbody>
+</table>
+
+有关使用 webhooks 的更多信息，请阅读我们的[快速入门指南](/zh/webhooks)。
+
+## ZK 压缩积分
+
+所有 [ZK Compression API](/zh/api-reference/zk-compression) 调用每次消耗 **10 积分**。
+
+一个例外是 `getValidityProof`，每次请求消耗 100 积分，因为它计算量大。
+
+<table>
+  <thead>
+    <tr>
+      <th style={{width: '200px'}}>服务</th>
+      <th style={{width: '50px'}}>积分</th>
+      <th style={{width: '470px'}}>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr>
+      <td><strong>ZK Compression API</strong></td>
+      <td style={{textAlign: 'center'}}>10</td>
+      <td>ZK 压缩 RPC 调用</td>
+   </tr>
+   <tr>
+      <td><strong>getValidityProofs</strong></td>
+      <td style={{textAlign: 'center'}}>100</td>
+      <td>计算 ZK 证明</td>
+    </tr>
+  </tbody>
+</table>
+
+---
