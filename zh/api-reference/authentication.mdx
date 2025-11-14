@@ -164,16 +164,6 @@ response = requests.post(url, json=payload)
 - **每月请求配额**：每个计费周期允许的总请求数
 - **突发允许**：短期内超过基本速率限制的峰值
 
-### 速率限制头信息
-
-Helius 在响应头中包含速率限制信息：
-
-```http
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1640995200
-```
-
 ### 处理速率限制
 
 <CodeGroup>
@@ -232,7 +222,7 @@ def make_request(url, data):
     **症状**：401 未授权或 "无效的 API 密钥" 错误
     
     **解决方案**：
-    - 验证您的 API 密钥是否正确且未被重新生成
+    - 验证您的 API 密钥是否正确且未重新生成
     - 检查您是否将 API 密钥作为查询参数包含：`?api-key=YOUR_KEY`
     - 确保您的 API 密钥中没有多余的空格或字符
     - 确认您的 API 密钥未过期或被撤销
@@ -262,13 +252,13 @@ def make_request(url, data):
 
 <CardGroup cols={2}>
   <Card title="快速入门指南" icon="rocket" href="/zh/quickstart">
-    开始使用 Helius 进行您的第一个 API 调用
+    开始使用 Helius 进行您的首次 API 调用
   </Card>
   <Card title="API 参考" icon="book" href="/zh/api-reference">
     探索所有可用的端点和方法
   </Card>
-  <Card title="速率限制与计费" icon="credit-card" href="/zh/billing/plans-and-rate-limits">
-    了解定价和升级选项
+  <Card title="速率限制" icon="credit-card" href="/zh/billing/rate-limits">
+    了解速率限制和升级选项
   </Card>
   <Card title="仪表板" icon="chart-line" href="https://dashboard.helius.dev">
     监控您的 API 使用情况并管理密钥
@@ -277,7 +267,7 @@ def make_request(url, data):
 
 ## 支持
 
-需要帮助进行身份验证或对API密钥有疑问？
+需要帮助进行身份验证或对 API 密钥有疑问？
 
 <CardGroup cols={2}>
   <Card title="Discord 社区" icon="discord" href="https://discord.com/invite/6GXdee3gBj">
