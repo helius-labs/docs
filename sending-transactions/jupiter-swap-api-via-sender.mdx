@@ -164,7 +164,7 @@ Combining these two tools enables traders to seize trading opportunities before 
       const transferIx = SystemProgram.transfer({
         fromPubkey: user_wallet.publicKey,
         toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]!),
-        lamports: 0.001 * LAMPORTS_PER_SOL,
+        lamports: 0.0002 * LAMPORTS_PER_SOL,
       })
 
       decompiledMessage.instructions.push(transferIx);
@@ -272,7 +272,7 @@ Confirmed
 
 ### Dynamic tipping using the Jito API
 
-Right now, the tip amount is hardcoded at the minimum 0.001 SOL. However, this may not be enough to win the Jito auction for highly contested accounts. For these cases, use the [Jito API](https://docs.jito.wtf/lowlatencytxnsend/#tip-amount) to dynamically compute the Sender tip:
+Right now, the tip amount is hardcoded at the minimum 0.0002 SOL. However, this may not be enough to win the Jito auction for highly contested accounts. For these cases, use the [Jito API](https://docs.jito.wtf/lowlatencytxnsend/#tip-amount) to dynamically compute the Sender tip:
 
 ```ts
 async function getDynamicTipAmount(): Promise<number> {
@@ -282,15 +282,15 @@ async function getDynamicTipAmount(): Promise<number> {
 
         if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
             const tip75th = data[0].landed_tips_75th_percentile;
-            // Use 75th percentile but minimum 0.001 SOL
-            return Math.max(tip75th, 0.001);
+            // Use 75th percentile but minimum 0.0002 SOL
+            return Math.max(tip75th, 0.0002);
         }
 
         // Fallback if API fails or data is invalid
-        return 0.001;
+        return 0.0002;
     } catch (error) {
         console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-        return 0.001; // Fallback to minimum
+        return 0.0002; // Fallback to minimum
     }
 }
 ```

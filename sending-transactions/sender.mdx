@@ -84,7 +84,7 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
                 SystemProgram.transfer({
                   fromPubkey: keypair.publicKey,
                   toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-                  lamports: 0.001 * LAMPORTS_PER_SOL,
+                  lamports: 0.0002 * LAMPORTS_PER_SOL,
                 })
               ],
               payerKey: keypair.publicKey,
@@ -188,7 +188,7 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
                 getTransferSolInstruction({
                   source: ownerSigner,
                   destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-                  amount: lamports(1_000_000n), // 0.001 SOL
+                  amount: lamports(200_000n), // 0.0002 SOL
                 }),
                 m
               )
@@ -231,7 +231,7 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
     You've successfully submitted a transaction via Sender! Here's what made it work:
     - **No credits consumed**: Sender is free for all users
     - **Dual routing**: Your transaction was sent to both validators and Jito simultaneously
-    - **Required tip**: The 0.001 SOL tip enables Jito's auction participation
+    - **Required tip**: The 0.0002 SOL tip enables Jito's auction participation
     - **Priority fee**: Signals validators your willingness to pay for priority processing
     - **Skipped preflight**: Optimizes for speed over validation
   </Step>
@@ -243,7 +243,7 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
 
 <CardGroup cols={2}>
   <Card title="Default Dual Routing" icon="arrows-split-up-and-left">
-    Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.001 SOL tip.
+    Sends transactions to both Solana validators and Jito infrastructure simultaneously for maximum inclusion probability. Requires minimum 0.0002 SOL tip.
   </Card>
   <Card title="SWQOS-Only Alternative" icon="dollar-sign">
     For cost-optimized trading, add `?swqos_only=true` to any endpoint URL. Routes exclusively through SWQOS infrastructure with a lower 0.000005 SOL minimum tip requirement.
@@ -253,7 +253,7 @@ Ready to submit your first ultra-low latency Solana transaction? This guide will
 ## Requirements
 
 <Warning>
-**Mandatory Requirements**: All transactions must include tips (0.001 SOL minimum, or 0.000005 SOL for SWQOS-only), priority fees, and skip preflight checks.
+**Mandatory Requirements**: All transactions must include tips (0.0002 SOL minimum, or 0.000005 SOL for SWQOS-only), priority fees, and skip preflight checks.
 </Warning>
 
 ### 1. Skip Preflight (Mandatory)
@@ -274,7 +274,7 @@ Since preflight checks are skipped, ensure your transactions are properly constr
 
 All transactions submitted through Sender **must include both tips and priority fees**:
 
-- **Tips**: Minimum 0.001 SOL transfer to a designated tip account (or 0.000005 SOL for SWQOS-only)
+- **Tips**: Minimum 0.0002 SOL transfer to a designated tip account (or 0.000005 SOL for SWQOS-only)
 
 <Accordion title="Designated Tip Accounts (mainnet-beta)">
 ```text
@@ -301,7 +301,7 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 #### Tip and Priority Fee Guidelines
 
-**Jito Tips**: Minimum 0.001 SOL is mandatory for auction participation. For current best-practice tip sizing, see the [Jito tip guidelines](https://docs.jito.wtf/lowlatencytxnsend/#tips).
+**Jito Tips**: Minimum 0.0002 SOL is mandatory for auction participation. For current best-practice tip sizing, see the [Jito tip guidelines](https://docs.jito.wtf/lowlatencytxnsend/#tips).
 
 **Priority Fees**: Use the [Helius Priority Fee API](/priority-fee-api) for real-time fee recommendations.
 
@@ -480,7 +480,7 @@ The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruct
             SystemProgram.transfer({
               fromPubkey: keypair.publicKey,
               toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-              lamports: 0.001 * LAMPORTS_PER_SOL,
+              lamports: 0.0002 * LAMPORTS_PER_SOL,
             })
           ],
           payerKey: keypair.publicKey,
@@ -611,7 +611,7 @@ The `BASE64_ENCODED_TRANSACTION` above must contain both a SOL transfer instruct
             getTransferSolInstruction({
               source: ownerSigner,
               destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-              amount: lamports(1_000_000n), // 0.001 SOL
+              amount: lamports(200_000n), // 0.0002 SOL
             }),
             m
           )
@@ -710,15 +710,15 @@ async function getDynamicTipAmount(): Promise<number> {
     
     if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
       const tip75th = data[0].landed_tips_75th_percentile;
-      // Use 75th percentile but minimum 0.001 SOL
-      return Math.max(tip75th, 0.001);
+      // Use 75th percentile but minimum 0.0002 SOL
+      return Math.max(tip75th, 0.0002);
     }
     
     // Fallback if API fails or data is invalid
-    return 0.001;
+    return 0.0002;
   } catch (error) {
     console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-    return 0.001; // Fallback to minimum
+    return 0.0002; // Fallback to minimum
   }
 }
 
@@ -739,7 +739,7 @@ async function sendWithSender(
   // Create copy of instructions to avoid modifying the original array
   const allInstructions = [...instructions];
   
-  // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+  // Get dynamic tip amount from Jito API (75th percentile, minimum 0.0002 SOL)
   const tipAmountSOL = await getDynamicTipAmount();
   const tipAccount = new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]);
   
@@ -997,15 +997,15 @@ export { sendWithSender };
         
         if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
           const tip75th = data[0].landed_tips_75th_percentile;
-          // Use 75th percentile but minimum 0.001 SOL
-          return Math.max(tip75th, 0.001);
+          // Use 75th percentile but minimum 0.0002 SOL
+          return Math.max(tip75th, 0.0002);
         }
         
         // Fallback if API fails or data is invalid
-        return 0.001;
+        return 0.0002;
       } catch (error) {
         console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-        return 0.001; // Fallback to minimum
+        return 0.0002; // Fallback to minimum
       }
     }
 
@@ -1021,7 +1021,7 @@ export { sendWithSender };
       // Build user instructions
       const userInstructions = instructionBuilders.map(builder => builder(ownerSigner));
       
-      // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+      // Get dynamic tip amount from Jito API (75th percentile, minimum 0.0002 SOL)
       const tipAmountSOL = await getDynamicTipAmount();
       const tipAccount = TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)];
       
@@ -1265,7 +1265,7 @@ export { sendWithSender };
 ### Transaction Setup
 - Use `skipPreflight: true` and `maxRetries: 0`
 - Implement your own retry logic
-- Include minimum 0.001 SOL tip to designated accounts
+- Include minimum 0.0002 SOL tip to designated accounts
 - Fetch blockhash with `'confirmed'` commitment
 - Set appropriate compute unit limits
 
