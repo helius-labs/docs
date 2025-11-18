@@ -168,7 +168,7 @@ Jupiter 的 Swap API 允许您为交换找到最具价格效率的路径，并�
       const transferIx = SystemProgram.transfer({
         fromPubkey: user_wallet.publicKey,
         toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]!),
-        lamports: 0.001 * LAMPORTS_PER_SOL,
+        lamports: 0.0002 * LAMPORTS_PER_SOL,
       })
 
       decompiledMessage.instructions.push(transferIx);
@@ -279,7 +279,7 @@ Confirmed
 
 ### 使用 Jito API 的动态小费
 
-目前，小费金额硬编码为最低 0.001 SOL。然而，这可能不足以赢得竞争激烈账户的 Jito 拍卖。对于这些情况，使用 [Jito API](https://docs.jito.wtf/lowlatencytxnsend/#tip-amount) 动态计算 Sender 小费：
+目前，小费金额被硬编码为最低的0.0002 SOL。然而，这可能不足以赢得竞争激烈账户的Jito拍卖。对于这些情况，请使用[Jito API](https://docs.jito.wtf/lowlatencytxnsend/#tip-amount)动态计算发送者小费：
 
 ```ts
 async function getDynamicTipAmount(): Promise<number> {
@@ -289,15 +289,15 @@ async function getDynamicTipAmount(): Promise<number> {
 
         if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
             const tip75th = data[0].landed_tips_75th_percentile;
-            // Use 75th percentile but minimum 0.001 SOL
-            return Math.max(tip75th, 0.001);
+            // Use 75th percentile but minimum 0.0002 SOL
+            return Math.max(tip75th, 0.0002);
         }
 
         // Fallback if API fails or data is invalid
-        return 0.001;
+        return 0.0002;
     } catch (error) {
         console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-        return 0.001; // Fallback to minimum
+        return 0.0002; // Fallback to minimum
     }
 }
 ```

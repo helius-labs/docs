@@ -85,7 +85,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
                 SystemProgram.transfer({
                   fromPubkey: keypair.publicKey,
                   toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-                  lamports: 0.001 * LAMPORTS_PER_SOL,
+                  lamports: 0.0002 * LAMPORTS_PER_SOL,
                 })
               ],
               payerKey: keypair.publicKey,
@@ -191,7 +191,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
                 getTransferSolInstruction({
                   source: ownerSigner,
                   destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-                  amount: lamports(1_000_000n), // 0.001 SOL
+                  amount: lamports(200_000n), // 0.0002 SOL
                 }),
                 m
               )
@@ -232,11 +232,11 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
     </Tabs>
   </Step>
   <Step title="成功！了解发生了什么">
-    您已通过 Sender 成功提交了一笔交易！以下是其成功的原因：
-    - **不消耗积分**：Sender 对所有用户免费
-    - **双重路由**：您的交易同时发送到验证者和 Jito
-    - **必需的小费**：0.001 SOL 小费使 Jito 的拍卖参与成为可能
-    - **优先费用**：向验证者表明您愿意为优先处理付费
+    你已通过 Sender 成功提交了一笔交易！以下是其成功的原因：
+    - **无消耗积分**：Sender 对所有用户免费
+    - **双重路由**：你的交易同时发送给验证者和 Jito
+    - **必要的小费**：0.0002 SOL 的小费使 Jito 能参与拍卖
+    - **优先费用**：向验证者表明你愿意支付以获得优先处理
     - **跳过预检**：优化速度而非验证
   </Step>
 </Steps>
@@ -247,9 +247,9 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 <CardGroup cols={2}>
   <Card title="默认双重路由" icon="arrows-split-up-and-left">
-    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.001 SOL 的小费。
+    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.0002 SOL 的小费。
   </Card>
-  <Card title="仅限 SWQOS 的替代方案" icon="dollar-sign">
+  <Card title="仅 SWQOS 替代方案" icon="dollar-sign">
     对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.000005 SOL。
   </Card>
 </CardGroup>
@@ -257,7 +257,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 ## 要求
 
 <Warning>
-**强制要求**：所有交易必须包含小费（最低 0.001 SOL，或仅限 SWQOS 的 0.000005 SOL）、优先费用，并跳过预检检查。
+**强制要求**：所有交易必须包含小费（最低 0.0002 SOL，或仅 SWQOS 为 0.000005 SOL）、优先费用，并跳过预检检查。
 </Warning>
 
 ### 1. 跳过预检（强制）
@@ -278,7 +278,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 通过Sender提交的所有交易**必须同时包含小费和优先费用**：
 
-- **小费**：最低 0.001 SOL 转账到指定的小费账户（或仅限 SWQOS 的 0.000005 SOL）
+- **小费**：最低 0.0002 SOL 转账到指定的小费账户（或仅 SWQOS 为 0.000005 SOL）
 
 <Accordion title="指定小费账户（mainnet-beta）">
 
@@ -307,7 +307,7 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 #### 小费和优先费用指南
 
-**Jito小费**：最低0.001 SOL是参与拍卖的强制要求。有关当前最佳实践小费大小，请参阅[Jito小费指南](https://docs.jito.wtf/lowlatencytxnsend/#tips)。
+**Jito 小费**：参与拍卖的最低要求是 0.0002 SOL。有关当前最佳实践小费大小，请参阅 [Jito 小费指南](https://docs.jito.wtf/lowlatencytxnsend/#tips)。
 
 **优先费用**：使用[Helius优先费用API](/zh/priority-fee-api)获取实时费用建议。
 
@@ -495,7 +495,7 @@ Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以�
             SystemProgram.transfer({
               fromPubkey: keypair.publicKey,
               toPubkey: new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-              lamports: 0.001 * LAMPORTS_PER_SOL,
+              lamports: 0.0002 * LAMPORTS_PER_SOL,
             })
           ],
           payerKey: keypair.publicKey,
@@ -628,7 +628,7 @@ Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以�
             getTransferSolInstruction({
               source: ownerSigner,
               destination: address(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]),
-              amount: lamports(1_000_000n), // 0.001 SOL
+              amount: lamports(200_000n), // 0.0002 SOL
             }),
             m
           )
@@ -729,15 +729,15 @@ async function getDynamicTipAmount(): Promise<number> {
     
     if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
       const tip75th = data[0].landed_tips_75th_percentile;
-      // Use 75th percentile but minimum 0.001 SOL
-      return Math.max(tip75th, 0.001);
+      // Use 75th percentile but minimum 0.0002 SOL
+      return Math.max(tip75th, 0.0002);
     }
     
     // Fallback if API fails or data is invalid
-    return 0.001;
+    return 0.0002;
   } catch (error) {
     console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-    return 0.001; // Fallback to minimum
+    return 0.0002; // Fallback to minimum
   }
 }
 
@@ -758,7 +758,7 @@ async function sendWithSender(
   // Create copy of instructions to avoid modifying the original array
   const allInstructions = [...instructions];
   
-  // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+  // Get dynamic tip amount from Jito API (75th percentile, minimum 0.0002 SOL)
   const tipAmountSOL = await getDynamicTipAmount();
   const tipAccount = new PublicKey(TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)]);
   
@@ -1018,15 +1018,15 @@ export { sendWithSender };
         
         if (data && data[0] && typeof data[0].landed_tips_75th_percentile === 'number') {
           const tip75th = data[0].landed_tips_75th_percentile;
-          // Use 75th percentile but minimum 0.001 SOL
-          return Math.max(tip75th, 0.001);
+          // Use 75th percentile but minimum 0.0002 SOL
+          return Math.max(tip75th, 0.0002);
         }
         
         // Fallback if API fails or data is invalid
-        return 0.001;
+        return 0.0002;
       } catch (error) {
         console.warn('Failed to fetch dynamic tip amount, using fallback:', error);
-        return 0.001; // Fallback to minimum
+        return 0.0002; // Fallback to minimum
       }
     }
 
@@ -1042,7 +1042,7 @@ export { sendWithSender };
       // Build user instructions
       const userInstructions = instructionBuilders.map(builder => builder(ownerSigner));
       
-      // Get dynamic tip amount from Jito API (75th percentile, minimum 0.001 SOL)
+      // Get dynamic tip amount from Jito API (75th percentile, minimum 0.0002 SOL)
       const tipAmountSOL = await getDynamicTipAmount();
       const tipAccount = TIP_ACCOUNTS[Math.floor(Math.random() * TIP_ACCOUNTS.length)];
       
@@ -1284,10 +1284,10 @@ export { sendWithSender };
 - 在高频交易会话开始前预热连接
 
 ### 交易设置
-- 使用`skipPreflight: true`和`maxRetries: 0`
-- 实施您自己的重试逻辑
-- 向指定账户至少包含 0.001 SOL 的提示
-- 使用`'confirmed'`承诺获取区块哈希
+- 使用 `skipPreflight: true` 和 `maxRetries: 0`
+- 实现你自己的重试逻辑
+- 向指定账户包含至少 0.0002 SOL 的小费
+- 使用 `'confirmed'` 承诺获取区块哈希
 - 设置适当的计算单元限制
 
 ## 速率限制和扩展
