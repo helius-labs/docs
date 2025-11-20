@@ -1,9 +1,9 @@
 ---
-title: "How to Use Orb to Explore Solana Devnet"
+title: "How to Use the Orb Solana Devnet Explorer"
 description: "Learn how to use Orb, a new block explorer for Solana Devnet to analyze blocks, inspect on-chain programs, and debug transactions."
 ---
 
-While new tools like [<u>Surfpool</u>](https://www.helius.dev/blog/surfpool) help accelerate local development, Solana’s Devnet environment is still a critical part of the Solana development workflow. 
+Solana’s Devnet environment is a critical part of the Solana development workflow. 
 
 This article covers the basics of using Orb, our new [Solana block explorer on Devnet](https://orb.helius.dev), including finding programs, inspecting transactions, and debugging errors. 
 
@@ -29,7 +29,7 @@ Alternatively, you can append the correct URL parameter to the end of your URL:
 
 ## How to Find a Token Mint Address on Devnet
 
-When testing programs on Solana Devnet, you’ll need to [<u>get Devnet SOL</u>](https://www.helius.dev/docs/rpc/devnet-sol) from a Solana Devnet faucet, or by calling the airdrop method from the Solana CLI.
+When testing programs on Solana Devnet, you’ll need to [<u>get Devnet SOL</u>](https://www.helius.dev/docs/rpc/devnet-sol) from a Solana Devnet faucet, or by calling the airdrop method from the Solana CLI. You'll also need a [Solana Devnet RPC endpoint](https://www.helius.dev/docs/api-reference/endpoints), which you can get for free in your Helius Dashboard.
 
 Besides Devnet SOL, you may need other tokens, such as [<u>Devnet USDC</u>](https://orb.helius.dev/address/4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU/history?cluster=devnet). To find a Solana token mint address on Devnet, enter the token’s name in the search bar.
 
@@ -37,7 +37,9 @@ Besides Devnet SOL, you may need other tokens, such as [<u>Devnet USDC</u>](http
   ![Find Solana Devnet Tokens On The Orb Explorer Jp](/images/find-solana-devnet-tokens-on-the-orb-explorer.jpg)
 </Frame>
 
-In case there are duplicates, verify the token address is correct on the issuer’s documentation, for example, Circle’s [<u>USDC token mint address list</u>](https://developers.circle.com/stablecoins/usdc-contract-addresses#testnet) for all their supported networks and clusters.
+In case there are duplicates, verify the token address is correct on the issuer’s documentation, for example, Circle’s [<u>USDC token mint address list</u>](https://developers.circle.com/stablecoins/usdc-contract-addresses#testnet) has all their supported networks and clusters.
+
+On Solana Devnet, the USDC mint address is: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
 
 If you’re testing custom token functionality, you will likely need to mint your own tokens using the [<u>Solana Token Program (Devnet)</u>](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet) or [<u>Token 2022 Program (Devnet)</u>](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet).
 
@@ -146,3 +148,5 @@ Just like researching Solana programs on Mainnet-beta, Orb's Devnet program view
 Deploying programs, testing transactions, and debugging errors on Solana Devnet is a critical step in the Solana development lifecycle. Orb is a fast, human-readable [devnet block explorer](https://orb.helius.dev) that makes it easy for developers to understand what is happening on-chain, find issues, and fix them.
 
 For more information about Orb, read our [<u>announcement</u>](https://www.helius.dev/blog/orb-block-explorer) and [<u>user guides</u>](https://www.helius.dev/docs/orb).
+
+For Solana Devnet alternatives, explore new developer tools like [<u>Surfpool</u>](https://www.helius.dev/blog/surfpool).
