@@ -1,5 +1,138 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "How to Use Orb as a Solana Wallet Explorer"
+description: "Learn how to use Orb, a new Solana block explorer, to track, analyze, and check Solana wallets, including transaction history, balances, funding, SNS domain names, and more."
 ---
 
+Orb is fast, human-readable blockchain explorer that can be used as a [<u>Solana wallet explorer</u>](https://orb.helius.dev). 
+
+With Orb, you can look up any wallet address, see who funded it, find any SNS domains, view token accounts, balances, NFTs, transaction histories, and more.
+
+This tutorial will cover all of the ways you can use Orb to track, analyze, and explore Solana wallets.
+
+### How to Explore Solana Wallets
+
+The primary functions of a Solana wallet explorer are to easily find tokens, balances, collectibles, and transaction histories. 
+
+Wallet explorers are also valuable tools for finding specific historical transactions for filing taxes, determining the dates assets were purchased, calculating PnLs, and more.
+
+### Wallet Overview
+
+To find a wallet on Orb, enter the wallet address or decentralized domain name in the search bar. Once you click the result, you’ll be taken to the wallet explorer page.
+
+At the top of the page, you’ll see the wallet’s address and a summary for the wallet, including its total value, SOL balance, and token balance denominated in both SOL and USD. 
+
+<Frame caption="Solana wallet summary section on the Orb explorer">
+  ![Solana Wallet Explorer Summary Jp](/images/solana-wallet-explorer-summary.jpg)
+</Frame>
+
+### Find Who Funded a Solana Wallet
+
+To the right of the Solana wallet address on Orb, you'll find a section labeled **Funded by**. This shows which wallet or tagged exchange account funded the wallet, along with the date. 
+
+<Frame caption="Explore the address that originally funded your Solana wallet">
+  ![Solana Wallet Explorer Wallet Funding History Jp](/images/solana-wallet-explorer-wallet-funding-history.jpg)
+</Frame>
+
+To visit the funding address, click the address or the tagged exchange account’s name. To view the funding transaction, click the “open in new window” icon. 
+
+This feature is particularly useful when you’re trying to connect suspicious activity. For example, if you notice inorganic trading on a token, you can see where the funds originated from. 
+
+In some cases, you can identify a single origin wallet that is connected to multiple different wallets trading on a single token.
+
+### Find Solana Domain Names
+
+Solana domains make sending and receiving assets on Solana easier by registering a wallet’s public key with a human-readable .sol address. 
+
+Instead of copying/pasting the full wallet address into apps, you can simply type the .sol domain or AllDomains ID and it will resolve to its registered wallet address.
+
+In the top-right corner of the wallet explorer page, you can find all of the SNS domains registered to the current wallet. For this example, we’re using god.sol, a well-known Solana memecoin trader.
+
+<Frame caption="Explore Solana domain names registered to your wallet">
+  ![Solana Wallet Explorer Sns Domain Names Jp](/images/solana-wallet-explorer-sns-domain-names.jpg)
+</Frame>
+
+### Find Your Wallet’s Tokens and Balances
+
+A primary use case for wallet explorers on Solana is to view the tokens your wallet holds, their quantities, and their values. To do this on Orb, click the **Tokens** tab. 
+
+In this section, you will find the token name, icon, and mint address, balance, value, and price. Expanding the drop-down menu, you can see the wallets' most recent transactions for each token.
+
+<Frame caption="Orb’s Solana wallet explorer landing page">
+  ![Solana Wallet Explorer Token List Balances And Prices Jp](/images/solana-wallet-explorer-token-list-balances-and-prices.jpg)
+</Frame>
+
+Orb’s wallet explorer automatically filters out non-verified tokens. This is particularly useful if your wallet contains a lot of spam tokens, which may artificially inflate the total value of your wallet. To see unverified tokens, simply deselect the verified option.
+
+For a deeper dive on using Orb to [<u>explore Solana tokens</u>](https://www.helius.dev/docs/orb/explore-tokens), read our token tutorial.
+
+### Find NFTs in Your Wallet
+
+Click the **NFTs** tab to view the NFTs in your wallet, and use filters to remove spam. To filter your view more, enable the Metaplex verified toggle or choose a collection from the dropdown menu.
+
+<Frame caption="Solana NFT filtering options in Orb">
+  ![The Orb Solana Nft Explorer Filter List Jp](/images/the-orb-solana-nft-explorer-filter-list.jpg)
+</Frame>
+
+To explore NFT metadata and histories, click into one of your NFTs.
+
+<Frame caption="Orb’s Solana NFT explorer page for Mad Lad #5566">
+  ![Explore Solana Nfts On Orb Mad Lad Asset Page Jp](/images/explore-solana-nfts-on-orb-mad-lad-asset-page.jpg)
+</Frame>
+
+### Find Wallet Stake Accounts
+
+To see if your wallet has any stake accounts, click the **Stake** tab. 
+
+This section will show your wallet’s total stake, staking status (e.g., active, activating, deactivating, inactive), the validator you’re staking to, stake amount, and the validator’s commission rate.
+
+<Frame caption="Explore Solana stake accounts for wallet 4Yjnk…uY7ke">
+  ![The Orb Solana Wallet Explorer To Find Sol Stake Accounts Jp](/images/the-orb-solana-wallet-explorer-to-find-sol-stake-accounts.jpg)
+</Frame>
+
+For more on staking, use our free [<u>SOL yield calculator</u>](https://www.helius.dev/staking/calculator) and [<u>compare SOL staking providers</u>](https://www.helius.dev/staking/rewards). 
+
+To stake SOL with Helius, Solana’s #1 validator, visit the [<u>Orb staking portal</u>](https://orb.helius.dev/stake).
+
+### Explore Wallet Transaction History
+
+Orb’s wallet explorer also contains a history of transactions and transfers so you can look at recent history. To find specific transactions, apply one of Orb’s many wallet filtering options:
+
+- Transfer Direction: incoming or outgoing
+- Date Range: look at transactions from a specific period
+- To/From: limit results to or from a specific address
+- Tokens: filter transactions by specific tokens
+- Programs: filter transactions by programs
+- Spam: hide spam transfers and transactions
+- Show Oldest First: look up results in reverse 
+
+<Frame caption="List of wallet transfer and transaction filters on the Orb explorer">
+  ![Solana Wallet Transfer History Filters On The Orb Explorer Jp](/images/solana-wallet-transfer-history-filters-on-the-orb-explorer.jpg)
+</Frame>
+
+For a deeper dive on using Orb to [<u>explore Solana transactions</u>](https://www.helius.dev/docs/orb/explore-transactions), read our transactions tutorial.
+
+#### Transaction Heatmaps
+
+To see a calendar view of all the days your wallet transacted on Solana, click the **Heatmap** tab. 
+
+Like the GitHub contribution graph, Orb’s transaction heatmap shows the last 6 months of activity with more active days in a bright orange and less active days in lighter shades of orange.
+
+<Frame caption="Transaction heatmap viewer on the Orb Solana wallet explorer">
+  ![Solana Wallet Explorer Transaction Heatmap Jp](/images/solana-wallet-explorer-transaction-heatmap.jpg)
+</Frame>
+
+Hover over any day to see the total transactions, and click it to view a filtered list of that day’s transactions.
+
+<Note>
+  **Note: **Transaction heatmaps have a limit of 5,000 transactions per account. 
+</Note>
+
+### Conclusion
+
+[Orb](https://orb.helius.dev) is a fast, human-readable Solana wallet explorer that makes it easy to view wallet transactions, tokens, token accounts, balances, digital collectibles, stake accounts, and more. 
+
+For more tutorials on using Orb, check out these guides:
+
+1. [<u>How to Use Orb as a Solana Program Explorer</u>](https://www.helius.dev/docs/orb/explore-programs)
+2. [<u>How to Use Orb to Find Solana Mint Addresses</u>](https://www.helius.dev/docs/orb/explore-mint-addresses)
+3. [<u>How to Use Orb to Find Solana Token Authorities</u>](https://www.helius.dev/docs/orb/explore-authorities)
