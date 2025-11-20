@@ -1,0 +1,123 @@
+---
+title: 如何查找 Solana 的 Mint、Freeze 和 Update Authority
+sidebarTitle: 探索权限
+description: 了解如何使用 Orb，一个新的 Solana 区块浏览器，查找 Solana 代币和链上程序的 mint、freeze 和 update authority。
+---
+
+Orb 是一个快速且易于阅读的 Solana 区块浏览器，也可以用作 [Solana 代币浏览器](https://orb.helius.dev/) 来查找数字资产的 mint、freeze 和 update authority。
+
+## 什么是 Solana 代币的 Mint Authority？
+
+mint authority 控制新代币的发行。
+
+对于使用 [Token Program](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=mainnet-beta) 或 [Token 2022 Program](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=mainnet-beta) 创建的代币，代币的 mint authority 在代币的 mint 账户初始化时设置。
+
+要在将来更改 mint authority，当前所有者必须使用 `SetAuthority` 指令并指定新地址。
+
+如果 authority 设置为 `null`，mint authority 将被永久撤销。
+
+如果您使用像 Pump.fun 或 LetsBonk 这样的代币启动平台，mint authority 配置将为您处理，在这两种情况下，它都设置为 `null`。这确保了启动代币的创建者不能随意发行新代币。
+
+### 如何在 Orb 上查找代币的 Mint Authority
+
+打开 Orb，按名称或 [代币的 mint 地址](https://www.helius.dev/docs/orb/explore-mint-addresses) 搜索您的代币，然后点击结果进入代币页面。
+
+在代币页面上，点击 **Authority** 标签以查找 mint authority。
+
+<Frame caption="Orb 浏览器的 Authority 标签上的 Solana 代币 mint authority。">
+
+  ![Orb 浏览器上的 Solana 代币 mint authority 部分](/images/solana-token-mint-authority-section-on-the-orb-explorer.jpg)
+
+</Frame>
+
+或者，您可以点击**元数据**选项卡并向下滚动到**权限**部分：
+
+<Frame caption="Helius Staked Sol (hSOL) LST 的 Solana 代币铸造权限">
+
+  ![Solana Token Mint Authority Metadata On The Orb Explorer Jp](/images/solana-token-mint-authority-metadata-on-the-orb-explorer.jpg)
+
+</Frame>
+
+### 铸造权限最佳实践
+
+每种代币在管理铸造权限方面都有不同的需求。
+
+例如，像 MetaDAO 这样的 ICO 启动平台保留全部权限，以防初创公司需要发行更多代币进行治理。
+
+同样，像 Circle、Paxos、Brale 和 m0 这样的稳定币发行者必须保留他们的铸造权限，以便在现金进出网络时铸造和销毁稳定币。
+
+相比之下，像 Pump.fun 这样的 memecoin 启动平台将铸造权限设置为**null**，以防止 rug pulls（即防止 memecoin 创建者铸造新代币并提取流动性）。
+
+## 什么是 Solana 代币的冻结权限？
+
+冻结权限使所有者能够**冻结**或**解冻**（解冻）单个代币账户，防止代币从他们的钱包中转出。
+
+冻结权限是安全和合规用例的重要机制，例如防止恶意行为者转移被盗资产（例如 USDC）。
+
+冻结权限可能被恶意使用来创建蜜罐：毫无戒心的买家购买代币，但由于他们的账户被冻结而无法出售。
+
+### 如何在 Orb 上查找代币的冻结权限
+
+要查找 Solana 代币的冻结权限，[访问代币的页面](https://www.helius.dev/docs/orb/explore-tokens)并点击**权限**选项卡。
+
+在概览部分，您会看到**冻结权限**和地址的行。如果没有冻结权限的行，意味着该资产没有冻结权限。
+
+<Frame caption="Circle 的 USDC 代币在 Solana 上的冻结权限">
+
+  ![Freeze Authority For Circle Usdc Token On Solana Orb Explorer Jp](/images/freeze-authority-for-circle-usdc-token-on-solana-orb-explorer.jpg)
+
+</Frame>
+
+### 冻结权限最佳实践
+
+对于安全性和合规性重要的代币，如稳定币和现实世界资产（RWAs），维护冻结权限很重要。最佳实践是用多重签名控制此权限。这样，任何单一方都无法控制冻结资金。
+
+对于模因币，最佳实践是在代币发布后立即撤销冻结权限。这为持有者提供了代币不会被冻结的保证。
+
+如果代币的冻结权限未被撤销，创建者可能会阻止持有者出售其代币并取回资金。
+
+## 什么是 Solana 代币的更新权限？
+
+更新权限是 [Metaplex 代币元数据程序](https://orb.helius.dev/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s/history?cluster=mainnet-beta) 和 2022 年代币程序中的元数据扩展的一部分，允许权限更新代币的名称、符号和标志。
+
+### 如何在 Orb 上找到更新权限
+
+要确定 Solana 代币的元数据是否可以更新，请点击 **Metadata** 标签。
+
+在概览部分，您将看到一行 **Mutable**，其值设置为 true 或 false。
+
+如果值为 true，则代币的元数据可以更改。如果为 false，则更新权限已被撤销。
+
+<Frame caption="具有可变元数据的 Solana 代币示例">
+
+  ![Solana Token Mutability Json Metadata On The Orb Explorer Jp](/images/solana-token-mutability-json-metadata-on-the-orb-explorer.jpg)
+
+</Frame>
+
+或者，您可以从 **Authority** 标签中找到代币的可变性信息：
+
+<Frame caption="Solana 代币的更新权限不可变的示例">
+
+  ![在 Orb Explorer 上不可变的 Solana 代币更新权限](/images/immutable-solana-token-update-authority-on-the-orb-explorer.jpg)
+
+</Frame>
+
+#### 更新权限最佳实践
+
+对于大多数代币，维护更新权限很重要，以防您的公司更改其徽标、名称、网站或公司描述。
+
+对于元币，元数据可能被用来误导交易者提供虚假信息和钓鱼链接，撤销更新权限是最佳实践。
+
+例如，撤销代币的更新权限是所有新 Pump.fun 代币的默认设置。
+
+### 结论
+
+[Orb](https://orb.helius.dev) 是一个快速且易于阅读的 Solana 区块浏览器，使查找 Solana 代币的铸造、冻结和更新权限变得简单。
+
+现在您知道在哪里可以找到这些信息，研究代币、验证其权限并做出更明智的决策将变得更容易。
+
+有关使用 Orb 的更多教程，请查看以下文章：
+
+1. [如何在 Orb 上探索 Solana 程序](https://www.helius.dev/docs/orb/explore-programs)
+2. [如何在 Orb 上探索 Solana 交易](https://www.helius.dev/docs/orb/explore-transactions)
+3. [如何在 Orb 上探索 Solana 钱包](https://www.helius.dev/docs/orb/explore-wallets)

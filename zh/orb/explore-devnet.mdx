@@ -1,0 +1,164 @@
+---
+title: 如何使用 Orb Solana Devnet Explorer
+sidebarTitle: 探索 Devnet
+description: 了解如何使用 Orb，一个新的 Solana Devnet 区块浏览器，来分析区块、检查链上程序和调试交易。
+---
+Solana 的 Devnet 环境是 Solana 开发工作流程的重要组成部分。
+
+本文介绍了使用 Orb，我们的新 [Solana Devnet 区块浏览器](https://orb.helius.dev) 的基础知识，包括查找程序、检查交易和调试错误。
+
+## Solana Devnet Explorer
+
+Orb 浏览器支持所有三个 Solana 集群：
+
+1. [Mainnet-beta](https://orb.helius.dev/?cluster=mainnet-beta)
+2. [Devnet](https://orb.helius.dev/?cluster=devnet)
+3. [Testnet](https://orb.helius.dev/?cluster=testnet)
+
+要访问这些集群，请在用户界面右上角选择您的集群。
+
+<Frame caption="在 Orb 上将 Solana 集群更改为 Devnet">
+
+  ![The Orb Solana Devnet Explorer Jp](/images/the-orb-solana-devnet-explorer.jpg)
+
+</Frame>
+
+或者，您可以在 URL 的末尾附加集群的参数：
+
+- `?cluster=mainnet-beta`
+- `?cluster=devnet`
+- `?cluster=testnet`
+
+## 如何在 Solana Devnet 上查找代币铸造地址
+
+在 Solana Devnet 上测试程序时，您需要从 Solana Devnet 水龙头获取 [Devnet SOL](https://www.helius.dev/docs/rpc/devnet-sol)，或者通过调用 Solana CLI 的空投方法获取。您还需要一个 [Solana Devnet RPC 端点](https://www.helius.dev/docs/api-reference/endpoints)，您可以在您的 Helius Dashboard 中免费获取。
+
+除了 Devnet SOL，您可能还需要其他代币，例如 [Devnet USDC](https://orb.helius.dev/address/4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU/history?cluster=devnet)。要在 Devnet 上找到 Solana 代币铸造地址，请在搜索栏中输入代币的名称。
+
+<Frame caption="在 Orb 上搜索 Solana Devnet 代币">
+
+  ![Find Solana Devnet Tokens On The Orb Explorer Jp](/images/find-solana-devnet-tokens-on-the-orb-explorer.jpg)
+
+</Frame>
+
+如果有重复项，请在发行方的文档中验证代币地址是否正确，例如，Circle 的 [USDC 代币铸造地址列表](https://developers.circle.com/stablecoins/usdc-contract-addresses#testnet) 包含了他们支持的所有网络和集群。
+
+Solana Devnet USDC 铸币地址是：`4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
+
+如果您正在测试自定义代币功能，您可能需要使用[Solana Token Program (Devnet)](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)或[Token 2022 Program (Devnet)](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)铸造您自己的代币。
+
+## 如何调试 Solana Devnet 上的失败交易
+
+Solana 上 Devnet 探索器的一个常见用例是在将程序部署到 Mainnet-beta 之前，先在 Devnet 上对其进行交易故障排除。
+
+在这个例子中，我们来看一个涉及包装 SOL 的随机[失败交易](https://orb.helius.dev/tx/CHJMcFR5z2VzAe2P3Enu5TpuvtJjRYqNDp6SDxEU3xruF6hXZbcFn7YaxcCDNbKkvhFD4XzSuE4PHLC4ho4E78c?cluster=devnet&tab=instructions)。
+
+### 使用 AI 解释
+
+点击“使用 AI 解释”按钮，我们看到使用[Raydium CP Swap Program](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet)程序 (`DRay…Wpyb`) 的交换由于“资金不足”错误 (`0x1`) 而失败，该错误发生在代币转移期间。
+
+<Frame caption="使用 Orb 的 AI 解释器理解 Solana Devnet 上的失败交易">
+
+  ![Ai Explanation Of A Failed Solana Devnet Transaction On The Orb Explorer Jp](/images/ai-explanation-of-a-failed-solana-devnet-transaction-on-the-orb-explorer.jpg)
+
+</Frame>
+
+### 检查日志
+
+要进一步调试交易，请点击**日志**选项卡。此视图显示了交易期间调用的程序列表、它们调用的指令、消耗的计算单元数量及其状态（即成功或失败）。
+
+<Frame caption="在 Orb 的 Solana Devnet 探索器上查找失败的交易日志">
+
+  ![Debug On Chain Program Errors On The Orb Solana Devnet Explorer Jp](/images/debug-on-chain-program-errors-on-the-orb-solana-devnet-explorer.jpg)
+
+</Frame>
+
+在这个特定的例子中，我们看到在 Token Program 的 `TransferChecked` 指令期间，程序记录了一个“资金不足”错误并返回了 `0x1` 错误。
+
+### 检查原始输出
+
+为了进一步调试，让我们查看原始输出以确定哪个钱包有问题，他们试图转移的代币以及交易前的余额。
+
+<Frame caption="在 Orb 上读取 Solana Devnet 交易的原始 JSON 输出">
+
+  ![Solana Devnet 代币转移原始指令日志在 Orb Explorer Jp 上](/images/solana-devnet-token-transfer-raw-instruction-logs-on-the-orb-explorer.jpg)
+
+</Frame>
+
+在这里，我们可以看到 `innerInstruction`（索引 2，或第 3 条指令）是类型 `TransferChecked`，它试图从 `GVBbU...5TUP` 代币账户将 26,874,347.041642 单位的 `DaHE...8R8i` 代币（野生动物保护币）从 `Bzi4...tuvF` 钱包发送到 `2yXu...qsTP` 目标代币账户。
+
+向下滚动，我们可以看到指令日志确认索引 2 的内部指令在代币程序的 `TransferChecked` 指令上记录了资金不足错误。
+
+<Frame caption="在 Orb Devnet 探索器上找到 Solana 的代币程序记录的“资金不足”错误">
+
+  ![在 Orb Solana Devnet 探索器上解析的原始 Json 指令日志 Jp](/images/raw-json-parsed-instruction-logs-on-the-orb-solana-devnet-explorer.jpg)
+
+</Frame>
+
+因为我们知道 `DRay…WpYb` 是 [<u>Raydium CP Swap Program</u>](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet) 程序，我们可以假设持有 `DaHE...8R8i` 代币的流动性池没有足够的资金来完成请求的交换量。
+
+## 如何查找 Solana Devnet 程序地址
+
+Solana Devnet 探索器的另一个常见用例是查找为测试目的而部署在 Devnet 上的程序的 Program ID。
+
+就像[探索 Solana Mainnet-beta 上的程序](https://www.helius.dev/docs/explore-programs)一样，只需将集群更改为 Devnet，按名称查找程序，然后点击结果。
+
+如果您要查找的程序尚未标记，请联系我们的团队。
+
+### **核心 Solana Devnet 程序 ID**
+
+以下是部署在 Devnet 上的一些最重要的核心 Solana 程序：
+
+| 程序名称                                                                                                                           | Solana 程序 ID                              |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [系统程序](https://orb.helius.dev/address/11111111111111111111111111111111/history?cluster=devnet)                               | `1111111111111111111111111111111`              |
+| [代币程序](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)                     | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  |
+| [代币 2022 程序](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)                | `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`  |
+| [投票程序](https://orb.helius.dev/address/Vote111111111111111111111111111111111111111/history?cluster=devnet)                      | `Vote111111111111111111111111111111111111111`  |
+| [计算预算程序](https://orb.helius.dev/address/ComputeBudget111111111111111111111111111111/history?cluster=devnet)            | `ComputeBudget111111111111111111111111111111`  |
+| [关联代币账户程序](https://orb.helius.dev/address/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL/history?cluster=devnet) | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` |
+| [地址查找表程序](https://orb.helius.dev/address/AddressLookupTab1e1111111111111111111111111/history?cluster=devnet)      | `AddressLookupTab1e1111111111111111111111111`  |
+| [备忘录程序](https://orb.helius.dev/address/MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr/history?cluster=devnet)                      | `MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr`  |
+| [备忘录程序 V1](https://orb.helius.dev/address/Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo/history?cluster=devnet)                   | `Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo`  |
+| [配置程序](https://orb.helius.dev/address/Config1111111111111111111111111111111111111/history?cluster=devnet)                    | `Config111111111111111111111111111111111111`   |
+| [Ed25519 SigVerify 预编译](https://orb.helius.dev/address/Ed25519SigVerify111111111111111111111111111/history?cluster=devnet)      | `Ed25519SigVerify111111111111111111111111111`  |
+| [Secp256k1 SigVerify 预编译](https://orb.helius.dev/address/KeccakSecp256k11111111111111111111111111111/history?cluster=devnet)    | `KeccakSecp256k11111111111111111111111111111`  |
+| [质押程序](https://orb.helius.dev/address/Stake11111111111111111111111111111111111111/history?cluster=devnet)                     | `Stake11111111111111111111111111111111111111`  |
+| [质押池程序](https://orb.helius.dev/address/SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy/history?cluster=devnet)                | `SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy`  |
+
+### **Solana Devnet 应用程序 ID**
+
+为了测试集成，开发者还希望测试流行的链上程序，如 Metaplex、Jupiter、Pyth、Wormhole、Pump.fun 等。
+
+以下是一些最流行的 Solana Devnet 程序 ID：
+
+| **程序名称**                                                                                                                      | **Solana 程序 ID**                          |
+| :------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- |
+| [CCTP Message Minter](https://orb.helius.dev/address/CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3/history?cluster=devnet)             | `CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3` |
+| [Circle CCTP Message Transmitter](https://orb.helius.dev/address/CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd/history?cluster=devnet) | `CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd` |
+| [Chainlink OCR2 Oracle Program](https://orb.helius.dev/address/cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ/history?cluster=devnet)    | `cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ`  |
+| [Metaplex Program](https://orb.helius.dev/address/p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98/history?cluster=devnet)                 | `p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98`  |
+| [Metaplex Token Metadata Program](https://orb.helius.dev/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s/history?cluster=devnet)  | `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`  |
+| [Name Service Program](https://orb.helius.dev/address/namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX/history?cluster=devnet)             | `namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX`  |
+| [NFT Candy Machine Program V2](https://orb.helius.dev/address/cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ/history?cluster=devnet)     | `cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ`  |
+| [Pump.fun AMM](https://orb.helius.dev/address/pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA/history?cluster=devnet)                     | `pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA`  |
+| [Pyth Oracle Program](https://orb.helius.dev/address/gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s/history?cluster=devnet)              | `gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s`  |
+| [State Compression Program](https://orb.helius.dev/address/cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK/history?cluster=devnet)        | `cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK`  |
+| [Wormhole Core Bridge](https://orb.helius.dev/address/HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ/history?cluster=devnet)            | `HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ` |
+| [Wormhole Token Bridge](https://orb.helius.dev/address/DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe/history?cluster=devnet)           | `DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe` |
+
+就像在 Mainnet-beta 上研究 Solana 程序一样，Orb 的 Devnet 程序查看器提供交易历史、IDL、验证详情、安全信息和权限。
+
+<Frame caption="在 Orb 探索器中部署在 Solana Devnet 上的 Wormhole 核心桥接程序的 IDL">
+
+  ![Solana Devnet Program Idl Explorer On Orb For The Wormhole Core Bridge Contract Jp](/images/solana-devnet-program-idl-explorer-on-orb-for-the-wormhole-core-bridge-contract.jpg)
+
+</Frame>
+
+## 结论
+
+在 Solana Devnet 上部署程序和调试错误是 Solana 开发生命周期中的关键步骤。Orb 是一个快速且人性化的 [Solana Devnet 区块链浏览器](https://orb.helius.dev)，使开发者能够轻松理解链上发生的事情，发现问题并加以解决。
+
+有关 Orb 的更多信息，请阅读我们的[公告](https://www.helius.dev/blog/orb-block-explorer)和[用户指南](https://www.helius.dev/docs/orb)。
+
+对于 Solana Devnet 的替代方案，请探索新的开发者工具，如 [Surfpool](https://www.helius.dev/blog/surfpool)。
