@@ -52,7 +52,21 @@ Webhooks send notifications immediately after a matching transaction is confirme
 ## Retries
 
 <Accordion title="What is the retry policy for webhooks?">
-Helius retries unacknowledged webhook events up to 3 times with a 1-minute interval between attempts. We also offer customizable retry policies for enterprise plans.
+Helius will re-attempt delivery if your server errors or times out.
+
+Your endpoint should return a 200 status code to acknowledge successful receipt. If your endpoint returns an error status code or fails to respond at all, we will retry the delivery up to 3 times with a 1-minute interval between attempts. If all retry attempts fail, the webhook event will be dropped.
+
+Monitor your webhook logs in the [Helius Dashboard](https://dashboard.helius.dev/webhooks) to identify delivery failures and investigate endpoint issues.
+
+We also offer customizable retry policies for enterprise plans.
+</Accordion>
+
+<Accordion title="Is a webhook event delivered exactly once?">
+Helius may deliver the same webhook event multiple times. This may happen due to retry logic or network issues.
+
+Your webhook handler must be prepared to handle duplicates gracefully — processing the same event multiple times should produce the same result as processing it once.
+
+To handle duplicates, use the transaction signature or a unique event identifier to track which events you've already processed.
 </Accordion>
 
 <Accordion title="Do webhooks post failed transactions?">
