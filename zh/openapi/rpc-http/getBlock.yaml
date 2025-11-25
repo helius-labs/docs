@@ -1,46 +1,46 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "高级 Solana 区块数据检索 API，用于访问全面的区块链区块信息，包括交易、签名和奖励，并具有可配置的详细级别。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 高级 Solana 区块数据检索 API，用于访问全面的区块链区块信息，包括交易、签名和奖励，并具有可配置的详细级别。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
+          type: string
           enum:
             - "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
+              type: integer
             message:
-              type: "string"
+              type: string
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getBlock"
-      operationId: "getBlock"
-      description: "检索指定槽号的详细 Solana 区块信息。访问完整的区块数据，包括交易、签名、账户变更、奖励和时间信息。根据您的特定应用需求配置交易详细级别和编码格式。"
+        - RPC
+      summary: getBlock
+      operationId: getBlock
+      description: 检索指定槽号的详细 Solana 区块信息。访问完整的区块数据，包括交易、签名、账户变更、奖励和时间信息。根据您的特定应用需求配置交易详细级别和编码格式。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -48,194 +48,194 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议版本。"
+                  description: JSON-RPC协议版本。
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getBlock"
-                  description: "要调用的RPC方法名称。"
-                  default: "getBlock"
+                    - getBlock
+                  description: 要调用的RPC方法名称。
+                  default: getBlock
                 params:
-                  type: "array"
-                  description: "请求的参数。"
+                  type: array
+                  description: 请求的参数。
                   default:
                     - 430
                   items:
                     oneOf:
-                      - type: "integer"
-                        description: "作为`u64`整数的槽号。"
+                      - type: integer
+                        description: 作为`u64`整数的槽号。
                         example: 430
-                      - type: "object"
-                        description: "请求的附加配置选项。"
+                      - type: object
+                        description: 请求的附加配置选项。
                         properties:
                           commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
+                            type: string
+                            description: 请求的承诺级别。
                             enum:
-                              - "finalized"
-                            default: "finalized"
+                              - finalized
+                            default: finalized
                           encoding:
-                            type: "string"
-                            description: "每个返回交易的编码格式。"
+                            type: string
+                            description: 每个返回交易的编码格式。
                             enum:
-                              - "json"
-                              - "jsonParsed"
-                              - "base58"
-                              - "base64"
-                            default: "json"
+                              - json
+                              - jsonParsed
+                              - base58
+                              - base64
+                            default: json
                           transactionDetails:
-                            type: "string"
-                            description: "返回的交易细节级别。如果请求账户，交易细节仅包括每笔交易中的签名和账户的注释列表。交易元数据仅包括：fee、err、pre_balances、post_balances、pre_token_balances 和 post_token_balances。"
+                            type: string
+                            description: 返回的交易细节级别。如果请求账户，交易细节仅包括每笔交易中的签名和账户的注释列表。交易元数据仅包括：fee、err、pre_balances、post_balances、pre_token_balances 和 post_token_balances。
                             enum:
-                              - "full"
-                              - "accounts"
-                              - "signatures"
-                              - "none"
-                            default: "full"
+                              - full
+                              - accounts
+                              - signatures
+                              - none
+                            default: full
                           maxSupportedTransactionVersion:
-                            type: "integer"
-                            description: "响应中返回的最大交易版本。如果请求的区块包含更高版本的交易，将返回错误。如果省略，则仅返回传统交易。"
+                            type: integer
+                            description: 响应中返回的最大交易版本。如果请求的区块包含更高版本的交易，将返回错误。如果省略，则仅返回传统交易。
                           rewards:
-                            type: "boolean"
-                            description: "是否填充奖励数组。"
+                            type: boolean
+                            description: 是否填充奖励数组。
                             default: true
       responses:
         "200":
-          description: "成功检索到区块详情。"
+          description: 成功检索到区块详情。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
                   id:
-                    type: "string"
+                    type: string
                   result:
-                    type: "object"
+                    type: object
                     properties:
                       blockhash:
-                        type: "string"
-                        description: "此区块的 blockhash（base-58 编码字符串）。"
-                        example: "DUCT8VSgk2BXkMhQfxKVYfikEZCQf4dZ4ioPdGdaVxMN"
+                        type: string
+                        description: 此区块的 blockhash（base-58 编码字符串）。
+                        example: DUCT8VSgk2BXkMhQfxKVYfikEZCQf4dZ4ioPdGdaVxMN
                       previousBlockhash:
-                        type: "string"
-                        description: "区块父级的 blockhash。"
-                        example: "HA2fJgGqmQezCXJRVNZAWPbRMXCPjUyo7VjRF47JGdYs"
+                        type: string
+                        description: 区块父级的 blockhash。
+                        example: HA2fJgGqmQezCXJRVNZAWPbRMXCPjUyo7VjRF47JGdYs
                       parentSlot:
-                        type: "integer"
-                        description: "此区块父级的槽位索引。"
+                        type: integer
+                        description: 此区块父级的槽位索引。
                         example: 429
                       transactions:
-                        type: "array"
-                        description: "交易详情数组。"
+                        type: array
+                        description: 交易详情数组。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             meta:
-                              type: "object"
+                              type: object
                               nullable: true
-                              description: "与交易相关的元数据。"
+                              description: 与交易相关的元数据。
                             transaction:
-                              type: "object"
-                              description: "交易详情。"
+                              type: object
+                              description: 交易详情。
                               properties:
                                 message:
-                                  type: "object"
+                                  type: object
                                   properties:
                                     accountKeys:
-                                      type: "array"
-                                      description: "此交易中使用的账户公钥数组。"
+                                      type: array
+                                      description: 此交易中使用的账户公钥数组。
                                       items:
-                                        type: "string"
+                                        type: string
                                     header:
-                                      type: "object"
+                                      type: object
                                       properties:
                                         numReadonlySignedAccounts:
-                                          type: "integer"
-                                          description: "只读签名账户的数量。"
+                                          type: integer
+                                          description: 只读签名账户的数量。
                                         numReadonlyUnsignedAccounts:
-                                          type: "integer"
-                                          description: "只读未签名账户的数量。"
+                                          type: integer
+                                          description: 只读未签名账户的数量。
                                         numRequiredSignatures:
-                                          type: "integer"
-                                          description: "所需签名的数量。"
+                                          type: integer
+                                          description: 所需签名的数量。
                                     instructions:
-                                      type: "array"
-                                      description: "程序指令数组。"
+                                      type: array
+                                      description: 程序指令数组。
                                       items:
-                                        type: "object"
+                                        type: object
                                         properties:
                                           accounts:
-                                            type: "array"
-                                            description: "账户索引数组。"
+                                            type: array
+                                            description: 账户索引数组。
                                             items:
-                                              type: "integer"
+                                              type: integer
                                           data:
-                                            type: "string"
-                                            description: "程序输入数据以base58编码。"
+                                            type: string
+                                            description: 程序输入数据以base58编码。
                                           programIdIndex:
-                                            type: "integer"
-                                            description: "accountKeys数组中程序ID的索引。"
+                                            type: integer
+                                            description: accountKeys数组中程序ID的索引。
                                           stackHeight:
-                                            type: "integer"
+                                            type: integer
                                             nullable: true
-                                            description: "堆栈高度。"
+                                            description: 堆栈高度。
                                     recentBlockhash:
-                                      type: "string"
-                                      description: "此交易中使用的最近区块哈希。"
+                                      type: string
+                                      description: 此交易中使用的最近区块哈希。
                                 signatures:
-                                  type: "array"
-                                  description: "此交易的签名数组（base-58编码）。"
+                                  type: array
+                                  description: 此交易的签名数组（base-58编码）。
                                   items:
-                                    type: "string"
+                                    type: string
                       blockTime:
-                        type: "integer"
+                        type: integer
                         nullable: true
-                        description: "估计的生产时间，以Unix时间戳表示。"
+                        description: 估计的生产时间，以Unix时间戳表示。
                         example: null
                       blockHeight:
-                        type: "integer"
+                        type: integer
                         nullable: true
-                        description: "在此区块下的区块数量。"
+                        description: 在此区块下的区块数量。
                         example: null
                       rewards:
-                        type: "array"
-                        description: "区块的奖励。"
+                        type: array
+                        description: 区块的奖励。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             pubkey:
-                              type: "string"
-                              description: "接收奖励的账户的公钥。"
+                              type: string
+                              description: 接收奖励的账户的公钥。
                             lamports:
-                              type: "integer"
-                              description: "奖励的lamports数量，可能是贷记或借记。"
+                              type: integer
+                              description: 奖励的lamports数量，可能是贷记或借记。
                             rewardType:
-                              type: "string"
+                              type: string
                               nullable: true
-                              description: "奖励类型（例如，“fee”，“rent”）。"
+                              description: 奖励类型（例如，“fee”，“rent”）。
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
@@ -244,10 +244,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
-                  message: "参数无效"
+                  message: 参数无效
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
@@ -256,10 +256,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
-                  message: "未授权"
+                  message: 未授权
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
@@ -268,10 +268,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
-                  message: "请求过多"
+                  message: 请求过多
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
@@ -280,10 +280,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
-                  message: "内部错误"
+                  message: 内部错误
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
@@ -292,10 +292,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
-                  message: "服务不可用"
+                  message: 服务不可用
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
@@ -304,5 +304,5 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32003
-                  message: "网关超时"
+                  message: 网关超时
                 id: "1"

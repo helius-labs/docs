@@ -1,64 +1,62 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于检索创建和签署区块链交易所需的最新有效区块哈希的基本Solana交易准备API。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于检索创建和签署区块链交易所需的最新有效区块哈希的基本Solana交易准备API。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getLatestBlockhash"
-      operationId: "getLatestBlockhash"
-      description: "从Solana区块链中检索最新有效的blockhash，这是创建交易所必需的。
-
+        - RPC
+      summary: getLatestBlockhash
+      operationId: getLatestBlockhash
+      description: |
+        从Solana区块链中检索最新有效的blockhash，这是创建交易所必需的。
         这个基本的API提供当前的blockhash及其有效期，这是构建任何Solana交易时所需的
-
         组件。blockhash既作为最近状态的参考，又作为重放保护机制。每笔交易必须包含一个最近的blockhash
-
-        才能被网络视为有效。对于钱包提供商、DApps和任何提交交易到Solana区块链的服务来说都是至关重要的。\n"
+        才能被网络视为有效。对于钱包提供商、DApps和任何提交交易到Solana区块链的服务来说都是至关重要的。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -66,93 +64,93 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
+                - jsonrpc
+                - id
+                - method
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC协议版本。"
+                  type: string
+                  description: JSON-RPC协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的RPC方法名称。"
+                  type: string
+                  description: 要调用的RPC方法名称。
                   enum:
-                    - "getLatestBlockhash"
-                  example: "getLatestBlockhash"
-                  default: "getLatestBlockhash"
+                    - getLatestBlockhash
+                  example: getLatestBlockhash
+                  default: getLatestBlockhash
                 params:
-                  type: "array"
-                  description: "请求的可选配置对象。"
+                  type: array
+                  description: 请求的可选配置对象。
                   items:
-                    type: "object"
+                    type: object
                     properties:
                       commitment:
-                        type: "string"
-                        description: "请求的承诺级别。"
+                        type: string
+                        description: 请求的承诺级别。
                         enum:
-                          - "confirmed"
-                          - "最终确定"
-                          - "已处理"
-                        example: "已处理"
+                          - confirmed
+                          - 最终确定
+                          - 已处理
+                        example: 已处理
                       minContextSlot:
-                        type: "integer"
-                        description: "请求可以评估的最小槽位。"
+                        type: integer
+                        description: 请求可以评估的最小槽位。
                         example: 1000
       responses:
         "200":
-          description: "成功检索到最新的区块哈希信息。"
+          description: 成功检索到最新的区块哈希信息。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC协议版本。"
+                    type: string
+                    description: JSON-RPC协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "包含区块哈希信息的RpcResponse。"
+                    type: object
+                    description: 包含区块哈希信息的RpcResponse。
                     properties:
                       context:
-                        type: "object"
-                        description: "响应的上下文。"
+                        type: object
+                        description: 响应的上下文。
                         properties:
                           slot:
-                            type: "integer"
-                            description: "获取数据的槽位。"
+                            type: integer
+                            description: 获取数据的槽位。
                             example: 2792
                       value:
-                        type: "object"
-                        description: "区块哈希及其有效性详细信息。"
+                        type: object
+                        description: 区块哈希及其有效性详细信息。
                         properties:
                           blockhash:
-                            type: "string"
-                            description: "最新的Solana区块哈希，编码为base-58字符串，创建交易时需要。"
-                            example: "EkSnNWid2cvwEVnVx9aBqawnmiCNiDgp3gUdkDPTKN1N"
+                            type: string
+                            description: 最新的Solana区块哈希，编码为base-58字符串，创建交易时需要。
+                            example: EkSnNWid2cvwEVnVx9aBqawnmiCNiDgp3gUdkDPTKN1N
                           lastValidBlockHeight:
-                            type: "integer"
-                            description: "此区块哈希将在交易中被接受的最后一个 Solana 区块高度。"
+                            type: integer
+                            description: 此区块哈希将在交易中被接受的最后一个 Solana 区块高度。
                             example: 3090
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
@@ -161,10 +159,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
-                  message: "参数无效"
+                  message: 参数无效
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
@@ -173,10 +171,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
-                  message: "未授权"
+                  message: 未授权
                 id: "1"
         "429":
-          description: "请求过多 - 超过速率限制。"
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
@@ -185,10 +183,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
-                  message: "请求过多"
+                  message: 请求过多
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
@@ -197,10 +195,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
-                  message: "内部错误"
+                  message: 内部错误
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
@@ -209,10 +207,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
-                  message: "服务不可用"
+                  message: 服务不可用
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
@@ -221,5 +219,5 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32003
-                  message: "网关超时"
+                  message: 网关超时
                 id: "1"

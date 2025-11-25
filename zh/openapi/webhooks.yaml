@@ -1,45 +1,45 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  description: "Helius 的全面 webhook API 文档 - 为 Solana 开发者提供领先的实时区块链通知服务。通过可自定义的实时触发器设置强大的事件驱动应用程序。访问 <a href=https://helius.xyz>helius.xyz</a> 了解有关我们企业级基础设施的更多信息。"
-  version: "1.0.1"
-  title: "Helius API"
+  description: Helius 的全面 webhook API 文档 - 为 Solana 开发者提供领先的实时区块链通知服务。通过可自定义的实时触发器设置强大的事件驱动应用程序。访问 <a href=https://helius.xyz>helius.xyz</a> 了解有关我们企业级基础设施的更多信息。
+  version: 1.0.1
+  title: Helius API
   contact:
-    email: "mert@helius.xyz"
+    email: mert@helius.xyz
   license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://api-mainnet.helius-rpc.com"
+  - url: https://api-mainnet.helius-rpc.com
 security:
   - ApiKeyQuery: []
 tags:
-  - name: "NFTs"
-    description: "访问全面的 NFT 数据，包括事件、集合聚合、实时统计和 Solana 上的完整历史活动。"
-  - name: "Tokens"
-    description: "完整的代币账户数据、链上和链下元数据，以及详细的可替代和不可替代 Solana 代币信息。"
-  - name: "Transactions"
-    description: "增强且易于阅读的交易历史，包含解码的指令数据和详细的上下文。"
-  - name: "Addresses"
-    description: "增强的链上身份数据，包含完整的钱包活动和所有权信息。"
-  - name: "Webhooks"
-    description: "为任何 Solana 地址、交易类型或链上事件配置实时区块链通知，并提供可自定义的交付选项。"
+  - name: NFTs
+    description: 访问全面的 NFT 数据，包括事件、集合聚合、实时统计和 Solana 上的完整历史活动。
+  - name: Tokens
+    description: 完整的代币账户数据、链上和链下元数据，以及详细的可替代和不可替代 Solana 代币信息。
+  - name: Transactions
+    description: 增强且易于阅读的交易历史，包含解码的指令数据和详细的上下文。
+  - name: Addresses
+    description: 增强的链上身份数据，包含完整的钱包活动和所有权信息。
+  - name: Webhooks
+    description: 为任何 Solana 地址、交易类型或链上事件配置实时区块链通知，并提供可自定义的交付选项。
 paths:
   /v0/webhooks:
     get:
       tags:
-        - "Webhooks"
-      summary: "返回所有 webhooks。"
-      operationId: "getWebhooks"
-      description: "检索为您的 API 密钥配置的所有 webhooks 的完整列表，包含详细的配置信息，包括触发条件、交付端点和状态。"
+        - Webhooks
+      summary: 返回所有 webhooks。
+      operationId: getWebhooks
+      description: 检索为您的 API 密钥配置的所有 webhooks 的完整列表，包含详细的配置信息，包括触发条件、交付端点和状态。
       parameters:
         - $ref: "#/components/parameters/apiKeyParam"
       responses:
         "200":
-          description: "给定 API 密钥的 webhooks。"
+          description: 给定 API 密钥的 webhooks。
           content:
             application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/Webhook"
         "400":
@@ -59,17 +59,17 @@ paths:
         "504":
           $ref: "#/components/responses/504-GatewayTimeout"
       x-amazon-apigateway-integration:
-        httpMethod: "GET"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
     post:
       tags:
-        - "Webhooks"
-      summary: "创建一个 webhook。"
-      operationId: "createWebhook"
-      description: "创建一个新的 webhook，用于 Solana 区块链的实时通知。根据地址、交易类型或特定链上事件配置触发器。自定义交付选项和通知格式，以便与您的应用程序无缝集成。"
+        - Webhooks
+      summary: 创建一个 webhook。
+      operationId: createWebhook
+      description: 创建一个新的 webhook，用于 Solana 区块链的实时通知。根据地址、交易类型或特定链上事件配置触发器。自定义交付选项和通知格式，以便与您的应用程序无缝集成。
       parameters:
         - $ref: "#/components/parameters/apiKeyParam"
       requestBody:
@@ -80,7 +80,7 @@ paths:
               $ref: "#/components/schemas/CreateWebhookRequest"
       responses:
         "200":
-          description: "已创建的 webhook。"
+          description: 已创建的 webhook。
           content:
             application/json:
               schema:
@@ -98,36 +98,36 @@ paths:
         "504":
           $ref: "#/components/responses/504-GatewayTimeout"
       x-amazon-apigateway-integration:
-        httpMethod: "POST"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: POST
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
     options:
       responses:
         "200":
           $ref: "#/components/responses/200-NoContent"
       x-amazon-apigateway-integration:
-        httpMethod: "OPTIONS"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: OPTIONS
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
   /v0/webhooks/{webhookID}:
     get:
       tags:
-        - "Webhooks"
-      summary: "返回指定的Webhook。"
-      operationId: "getWebhook"
-      description: "通过其唯一ID检索特定webhook配置的详细信息。
-
-        访问完整的webhook设置，包括触发条件、传递端点和状态指标。\n"
+        - Webhooks
+      summary: 返回指定的Webhook。
+      operationId: getWebhook
+      description: |
+        通过其唯一ID检索特定webhook配置的详细信息。
+        访问完整的webhook设置，包括触发条件、传递端点和状态指标。
       parameters:
         - $ref: "#/components/parameters/webhookIDParam"
         - $ref: "#/components/parameters/apiKeyParam"
       responses:
         "200":
-          description: "返回有关给定webhook ID的详细信息。"
+          description: 返回有关给定webhook ID的详细信息。
           content:
             application/json:
               schema:
@@ -149,19 +149,19 @@ paths:
         "504":
           $ref: "#/components/responses/504-GatewayTimeout"
       x-amazon-apigateway-integration:
-        httpMethod: "GET"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: GET
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
         requestParameters:
-          integration.request.path.webhookID: "method.request.path.webhookID"
+          integration.request.path.webhookID: method.request.path.webhookID
     put:
       tags:
-        - "Webhooks"
-      summary: "编辑一个 webhook。"
-      operationId: "editWebhook"
-      description: "使用新的触发条件、交付端点或通知格式更新现有的 webhook 配置。修改您的实时区块链通知设置，以适应不断变化的应用程序需求，而不会中断服务。"
+        - Webhooks
+      summary: 编辑一个 webhook。
+      operationId: editWebhook
+      description: 使用新的触发条件、交付端点或通知格式更新现有的 webhook 配置。修改您的实时区块链通知设置，以适应不断变化的应用程序需求，而不会中断服务。
       parameters:
         - $ref: "#/components/parameters/webhookIDParam"
         - $ref: "#/components/parameters/apiKeyParam"
@@ -173,7 +173,7 @@ paths:
               $ref: "#/components/schemas/CreateWebhookRequest"
       responses:
         "200":
-          description: "已编辑的 webhook。"
+          description: 已编辑的 webhook。
           content:
             application/json:
               schema:
@@ -195,19 +195,19 @@ paths:
         "504":
           $ref: "#/components/responses/504-GatewayTimeout"
       x-amazon-apigateway-integration:
-        httpMethod: "PUT"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: PUT
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
         requestParameters:
-          integration.request.path.webhookID: "method.request.path.webhookID"
+          integration.request.path.webhookID: method.request.path.webhookID
     delete:
       tags:
-        - "Webhooks"
-      summary: "删除一个 webhook。"
-      operationId: "deleteWebhook"
-      description: "从您的账户中永久移除一个 webhook 配置。立即停止接收指定 webhook 触发条件的通知，并释放资源以供其他 webhook 配置使用。"
+        - Webhooks
+      summary: 删除一个 webhook。
+      operationId: deleteWebhook
+      description: 从您的账户中永久移除一个 webhook 配置。立即停止接收指定 webhook 触发条件的通知，并释放资源以供其他 webhook 配置使用。
       parameters:
         - $ref: "#/components/parameters/webhookIDParam"
         - $ref: "#/components/parameters/apiKeyParam"
@@ -231,117 +231,117 @@ paths:
         "504":
           $ref: "#/components/responses/504-GatewayTimeout"
       x-amazon-apigateway-integration:
-        httpMethod: "DELETE"
-        type: "http_proxy"
-        uri: "http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}"
-        connectionType: "VPC_LINK"
-        connectionId: "PLACEHOLDER_VPC_LINK_ID"
+        httpMethod: DELETE
+        type: http_proxy
+        uri: http://PLACEHOLDER_VIEW_LAYER_DNS_NAME/webhooks/{webhookID}
+        connectionType: VPC_LINK
+        connectionId: PLACEHOLDER_VPC_LINK_ID
         requestParameters:
-          integration.request.path.webhookID: "method.request.path.webhookID"
+          integration.request.path.webhookID: method.request.path.webhookID
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   parameters:
     limitParam:
-      name: "limit"
-      in: "query"
-      description: "要返回的最大项目数。"
+      name: limit
+      in: query
+      description: 要返回的最大项目数。
       required: false
       schema:
-        type: "integer"
-        format: "int32"
+        type: integer
+        format: int32
         minimum: 1
         maximum: 1000
         default: 100
     beforeParam:
-      name: "before"
-      in: "query"
-      description: "从此交易签名开始向后搜索。"
+      name: before
+      in: query
+      description: 从此交易签名开始向后搜索。
       required: false
       schema:
-        type: "string"
+        type: string
     untilParam:
-      name: "until"
-      in: "query"
-      description: "搜索直到此交易签名。"
+      name: until
+      in: query
+      description: 搜索直到此交易签名。
       required: false
       schema:
-        type: "string"
+        type: string
     commitmentParam:
-      name: "commitment"
-      in: "query"
-      description: "区块必须达到的最终状态才能被包含在搜索中。如果未提供，将默认为“finalized”承诺。请注意，不支持“processed”级别的承诺。"
+      name: commitment
+      in: query
+      description: 区块必须达到的最终状态才能被包含在搜索中。如果未提供，将默认为“finalized”承诺。请注意，不支持“processed”级别的承诺。
       required: false
       schema:
         $ref: "#/components/schemas/Commitment"
     addressParam:
-      name: "address"
-      in: "path"
-      description: "要查询的地址。"
+      name: address
+      in: path
+      description: 要查询的地址。
       required: true
       schema:
-        type: "string"
+        type: string
     webhookIDParam:
-      name: "webhookID"
-      in: "path"
-      description: "Webhook ID — 唯一标识该 webhook 的 UUIDv4。"
+      name: webhookID
+      in: path
+      description: Webhook ID — 唯一标识该 webhook 的 UUIDv4。
       required: true
       schema:
-        type: "string"
-        example: "123e4567-e89b-12d3-a456-426614174000"
+        type: string
+        example: 123e4567-e89b-12d3-a456-426614174000
     pageNumberParam:
-      name: "pageNumber"
-      in: "query"
-      description: "用于分页的页码。"
+      name: pageNumber
+      in: query
+      description: 用于分页的页码。
       required: false
       schema:
-        type: "number"
+        type: number
     transactionIdParam:
-      name: "transaction-id"
-      in: "path"
-      description: "要查询的交易签名。"
+      name: transaction-id
+      in: path
+      description: 要查询的交易签名。
       required: true
       schema:
-        type: "string"
+        type: string
     transactionSourceParam:
-      name: "source"
-      in: "query"
-      description: "要过滤的 TransactionSource。有关可能选项的列表，请参见交易类型部分。"
+      name: source
+      in: query
+      description: 要过滤的 TransactionSource。有关可能选项的列表，请参见交易类型部分。
       required: false
       schema:
         $ref: "#/components/schemas/TransactionSource"
     transactionTypeParam:
-      name: "type"
-      in: "query"
-      description: "要过滤的 TransactionType。有关可能选项的列表，请参见交易类型部分。"
+      name: type
+      in: query
+      description: 要过滤的 TransactionType。有关可能选项的列表，请参见交易类型部分。
       required: false
       schema:
         $ref: "#/components/schemas/TransactionType"
     limitNewParam:
-      name: "limit"
-      in: "query"
-      description: "要检索的交易数量。值应在1到100之间。"
+      name: limit
+      in: query
+      description: 要检索的交易数量。值应在1到100之间。
       required: false
       schema:
-        type: "integer"
+        type: integer
         minimum: 1
         maximum: 100
   responses:
     200-NoContent:
-      description: "无内容。"
+      description: 无内容。
       content:
         application/json:
           schema:
-            type: "object"
+            type: object
             properties:
               message:
-                type: "string"
+                type: string
     400-BadRequest:
-      description: "请求无效。"
+      description: 请求无效。
       content:
         application/json:
           schema:
@@ -350,10 +350,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32602
-              message: "参数无效"
+              message: 参数无效
             id: "1"
     401-Unauthorized:
-      description: "未经授权的请求。"
+      description: 未经授权的请求。
       content:
         application/json:
           schema:
@@ -362,10 +362,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32001
-              message: "未授权"
+              message: 未授权
             id: "1"
     403-Forbidden:
-      description: "请求被禁止。"
+      description: 请求被禁止。
       content:
         application/json:
           schema:
@@ -374,10 +374,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32003
-              message: "禁止"
+              message: 禁止
             id: "1"
     404-NotFound:
-      description: "未找到指定的资源。"
+      description: 未找到指定的资源。
       content:
         application/json:
           schema:
@@ -386,10 +386,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32601
-              message: "方法未找到"
+              message: 方法未找到
             id: "1"
     429-TooManyRequests:
-      description: "超出速率限制。"
+      description: 超出速率限制。
       content:
         application/json:
           schema:
@@ -398,10 +398,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32005
-              message: "超出速率限制"
+              message: 超出速率限制
             id: "1"
     500-InternalServerError:
-      description: "服务器遇到意外情况，无法完成请求。"
+      description: 服务器遇到意外情况，无法完成请求。
       content:
         application/json:
           schema:
@@ -410,10 +410,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32603
-              message: "内部错误"
+              message: 内部错误
             id: "1"
     503-ServiceUnavailable:
-      description: "服务暂时不可用。"
+      description: 服务暂时不可用。
       content:
         application/json:
           schema:
@@ -422,10 +422,10 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32002
-              message: "服务不可用"
+              message: 服务不可用
             id: "1"
     504-GatewayTimeout:
-      description: "请求超时。"
+      description: 请求超时。
       content:
         application/json:
           schema:
@@ -434,1033 +434,1033 @@ components:
             jsonrpc: "2.0"
             error:
               code: -32003
-              message: "网关超时"
+              message: 网关超时
             id: "1"
   schemas:
     Webhook:
-      type: "object"
+      type: object
       properties:
         webhookID:
-          type: "string"
+          type: string
         wallet:
-          type: "string"
+          type: string
         webhookURL:
-          type: "string"
+          type: string
         transactionTypes:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TransactionType"
         accountAddresses:
-          type: "array"
+          type: array
           items:
-            type: "string"
+            type: string
         webhookType:
           $ref: "#/components/schemas/WebhookType"
         authHeader:
-          type: "string"
+          type: string
     WebhookType:
-      type: "string"
+      type: string
       enum:
-        - "enhanced"
-        - "raw"
-        - "discord"
-        - "enhancedDevnet"
-        - "rawDevnet"
-        - "discordDevnet"
+        - enhanced
+        - raw
+        - discord
+        - enhancedDevnet
+        - rawDevnet
+        - discordDevnet
     TransactionType:
-      type: "string"
+      type: string
       enum:
-        - "任意"
-        - "接受托管艺术家"
-        - "接受托管用户"
-        - "接受提案"
-        - "接受请求艺术家"
-        - "激活提案"
-        - "激活交易"
-        - "激活保险库"
-        - "添加权限"
-        - "增加余额流动性"
-        - "添加批量交易"
-        - "增加不平衡流动性"
-        - "添加指令"
-        - "添加项目"
-        - "增加流动性"
-        - "通过策略增加流动性"
-        - "通过单侧策略增加流动性"
-        - "通过权重增加流动性"
-        - "单侧增加流动性"
-        - "单侧精确增加流动性"
-        - "添加成员"
-        - "添加成员并更改阈值"
-        - "添加元数据"
-        - "添加支付铸造支付方式"
-        - "向银行添加稀有物品"
-        - "添加奖励"
-        - "添加支出限额"
-        - "添加到池"
-        - "添加到白名单"
-        - "添加代币到保险库"
-        - "添加特征冲突"
-        - "管理员同步流动性"
-        - "批准"
-        - "批准提案"
-        - "批准交易"
-        - "附加元数据"
-        - "拍卖行创建"
-        - "拍卖经理认领出价"
-        - "授权资助者"
-        - "回填总区块"
-        - "开始特征更新"
-        - "开始变体更新"
-        - "引导流动性"
-        - "借用CNFT永久"
-        - "借用FOX"
-        - "借入义务流动性"
-        - "借入永久"
-        - "借入SOL换取NFT"
-        - "借入质押BANX永久"
-        - "机器人认领销售"
-        - "机器人下架"
-        - "机器人清算"
-        - "机器人清算出售"
-        - "机器人解冻"
-        - "绑定HADO市场到FRAKT市场"
-        - "销毁"
-        - "销毁NFT"
-        - "销毁支付"
-        - "销毁支付树"
-        - "购买物品"
-        - "购买贷款"
-        - "购买订阅"
-        - "购买票"
-        - "取消"
-        - "取消所有并下单"
-        - "取消所有订单"
-        - "取消托管"
-        - "取消贷款请求"
-        - "取消多个订单"
-        - "取消报价"
-        - "取消订单"
-        - "通过客户端订单ID取消订单"
-        - "取消提案"
-        - "取消奖励"
-        - "取消交换"
-        - "取消交易"
-        - "取消至"
-        - "取消更新"
-        - "糖果机路线"
-        - "糖果机解包"
-        - "糖果机更新"
-        - "糖果机包装"
-        - "更改区块构建器"
-        - "更改漫画状态"
-        - "更改费用接收者"
-        - "更改市场状态"
-        - "更改席位状态"
-        - "更改阈值"
-        - "更改小费接收者"
-        - "声明权限"
-        - "声明CNFT永久贷款"
-        - "声明费用"
-        - "声明NFT"
-        - "通过贷款人CNFT声明NFT"
-        - "通过贷款人PNFT声明NFT"
-        - "领取永久贷款"
-        - "领取奖励"
-        - "领取奖励"
-        - "领取销售"
-        - "领取小费"
-        - "清理"
-        - "关闭账户"
-        - "关闭批量账户"
-        - "关闭捆绑头寸"
-        - "关闭索赔状态"
-        - "关闭配置"
-        - "关闭配置交易账户"
-        - "关闭托管账户"
-        - "关闭项目"
-        - "关闭市场"
-        - "关闭未结订单账户"
-        - "关闭未结订单索引器"
-        - "关闭订单"
-        - "关闭池"
-        - "关闭头寸"
-        - "关闭预设参数"
-        - "关闭小费分配账户"
-        - "关闭保险库批量交易账户"
-        - "关闭保险库交易账户"
-        - "收取费用"
-        - "收集奖励"
-        - "压缩NFT"
-        - "压缩NFT销毁"
-        - "压缩NFT取消兑换"
-        - "压缩NFT委托"
-        - "压缩NFT铸造"
-        - "压缩NFT兑换"
-        - "压缩NFT设置验证集合"
-        - "压缩NFT转移"
-        - "压缩NFT取消验证集合"
-        - "压缩NFT取消验证创建者"
-        - "压缩NFT更新元数据"
-        - "压缩NFT验证集合"
-        - "压缩NFT验证创建者"
-        - "消费事件"
-        - "消费给定事件"
-        - "复制集群信息"
-        - "复制Gossip联系信息"
-        - "复制小费分配账户"
-        - "复制投票账户"
-        - "曲柄"
-        - "曲柄事件队列"
-        - "创建"
-        - "创建AMM"
-        - "创建评估"
-        - "创建头像"
-        - "创建头像类"
-        - "创建批次"
-        - "创建投注"
-        - "创建债券并出售给报价"
-        - "创建债券并出售给报价CNFT"
-        - "创建债券并出售给测试报价"
-        - "创建标准债券报价"
-        - "创建集合"
-        - "创建配置"
-        - "创建配置交易"
-        - "创建托管"
-        - "创建锁定托管"
-        - "创建市场"
-        - "创建主版本"
-        - "创建Merkle树"
-        - "创建铸币元数据"
-        - "创建多重签名"
-        - "创建开放订单账户"
-        - "创建开放订单索引器"
-        - "创建订单"
-        - "创建支付方式"
-        - "创建永久债券报价"
-        - "创建池"
-        - "创建提案"
-        - "创建抽奖"
-        - "创建统计"
-        - "创建商店"
-        - "创建代币池"
-        - "创建特征"
-        - "创建交易"
-        - "创建未检查"
-        - "创建保险库交易"
-        - "取消授权资助者"
-        - "解压NFT"
-        - "减少流动性"
-        - "委托Merkle树"
-        - "删除集合"
-        - "删除位置捆绑"
-        - "删除推荐人状态和短网址"
-        - "删除代币徽章"
-        - "下架物品"
-        - "下架NFT"
-        - "存款"
-        - "存入分数池"
-        - "存入宝石"
-        - "存入义务抵押品"
-        - "存入储备流动性"
-        - "存入储备流动性和义务抵押品"
-        - "存入SOL到闪贷池"
-        - "存入到债券报价标准"
-        - "存入到农场保险库"
-        - "存入到奖励保险库"
-        - "分配压缩奖励"
-        - "编辑订单"
-        - "编辑挂钩订单"
-        - "清空支付账户"
-        - "启用或禁用池"
-        - "装备特性"
-        - "装备特性权限"
-        - "驱逐席位"
-        - "执行批处理交易"
-        - "执行配置交易"
-        - "执行指令"
-        - "执行贷款"
-        - "执行抵押"
-        - "执行交易"
-        - "执行保险库交易"
-        - "退出验证并出售给债券报价V2"
-        - "到期"
-        - "延长贷款"
-        - "扩展执行"
-        - "填充订单"
-        - "完成程序指令"
-        - "完成HADO市场"
-        - "修复池"
-        - "闪电借用储备流动性"
-        - "闪电偿还储备流动性"
-        - "强制取消订单"
-        - "止赎贷款"
-        - "分割"
-        - "冻结"
-        - "资金奖励"
-        - "融合"
-        - "获取池信息"
-        - "转到一个箱子"
-        - "收获奖励"
-        - "IDL缺失类型"
-        - "增加流动性"
-        - "增加预言机长度"
-        - "初始化拍卖管理器V2"
-        - "初始化银行"
-        - "初始化集群历史账户"
-        - "初始化配置"
-        - "初始化配置扩展"
-        - "初始化可定制的无许可恒定产品池"
-        - "初始化农场"
-        - "初始化农民"
-        - "为储备初始化农场"
-        - "初始化费用等级"
-        - "初始化借贷市场"
-        - "初始化债务"
-        - "为储备初始化债务农场"
-        - "初始化有权限池"
-        - "初始化带配置的无权限恒定产品池"
-        - "初始化带配置的无权限恒定产品池2"
-        - "初始化无权限池"
-        - "初始化带费率等级的无权限池"
-        - "初始化池"
-        - "初始化池V2"
-        - "初始化位置捆绑"
-        - "初始化带元数据的位置捆绑"
-        - "初始化推荐人状态和短网址"
-        - "初始化推荐人代币状态"
-        - "初始化租赁"
-        - "初始化储备"
-        - "初始化奖励"
-        - "初始化奖励V2"
-        - "初始化质押"
-        - "初始化交换"
-        - "初始化刻度数组"
-        - "初始化小费分配账户"
-        - "初始化代币徽章"
-        - "初始化用户元数据"
-        - "初始化验证器历史账户"
-        - "初始化保险库"
-        - "初始化"
-        - "初始化账户"
-        - "初始化二进制数组"
-        - "初始化二进制数组位图扩展"
-        - "初始化可定制无许可LB对"
-        - "初始化农场"
-        - "初始化委托农场"
-        - "初始化闪贷池"
-        - "初始化全局配置"
-        - "初始化HADO市场"
-        - "初始化LB对"
-        - "初始化市场"
-        - "初始化许可LB对"
-        - "初始化仓位"
-        - "通过操作员初始化仓位"
-        - "初始化仓位PDA"
-        - "初始化预设参数"
-        - "初始化奖励"
-        - "初始化用户"
-        - "即时再融资永久贷款"
-        - "踢出项目"
-        - "为NFT借贷"
-        - "限价单"
-        - "清算"
-        - "在拍卖中清算债券CNFT"
-        - "在拍卖中清算债券PNFT"
-        - "清算债务并赎回储备抵押品"
-        - "列出项目"
-        - "列出NFT"
-        - "贷款"
-        - "贷款FOX"
-        - "锁定"
-        - "锁定奖励"
-        - "记录"
-        - "创建永久市场"
-        - "将BANX映射到积分"
-        - "合并条件代币"
-        - "合并股份"
-        - "迁移BIN数组"
-        - "迁移头寸"
-        - "迁移到PNFT"
-        - "铸造到"
-        - "指定继任者"
-        - "NFT拍卖取消"
-        - "NFT拍卖创建"
-        - "NFT拍卖更新"
-        - "NFT出价"
-        - "NFT出价取消"
-        - "NFT取消上市"
-        - "NFT_GLOBAL_BID"
-        - "NFT_GLOBAL_BID_CANCELLED"
-        - "NFT_LISTING"
-        - "NFT_MINT"
-        - "NFT_MINT_REJECTED"
-        - "NFT_PARTICIPATION_REWARD"
-        - "NFT_RENT_ACTIVATE"
-        - "NFT_RENT_CANCEL_LISTING"
-        - "NFT_RENT_END"
-        - "NFT_RENT_LISTING"
-        - "NFT_RENT_UPDATE_LISTING"
-        - "NFT_SALE"
-        - "OFFER_LOAN"
-        - "OPEN_BUNDLED_POSITION"
-        - "OPEN_POSITION"
-        - "OPEN_POSITION_WITH_METADATA"
-        - "OVERRIDE_CURVE_PARAM"
-        - "PARTNER_CLAIM_FEE"
-        - "PATCH_BROKEN_USER_STAKES"
-        - "PAUSE"
-        - "PAYOUT"
-        - "PLACE_AND_TAKE_PERP_ORDER"
-        - "PLACE_BET"
-        - "PLACE_MULTIPLE_POST_ONLY_ORDERS"
-        - "PLACE_ORDER"
-        - "下单挂钩"
-        - "下订单"
-        - "下SOL赌注"
-        - "下达接受订单"
-        - "平台费用"
-        - "取消提案池"
-        - "发布多PYTH"
-        - "发布PYTH"
-        - "程序配置初始化"
-        - "程序配置设置授权"
-        - "程序配置设置创建费"
-        - "程序配置设置国库"
-        - "提议贷款"
-        - "修剪订单"
-        - "重新分配集群历史账户"
-        - "重新分配验证者历史账户"
-        - "为NFT重新借入SOL"
-        - "记录稀有度点数"
-        - "赎回条件代币"
-        - "赎回费用"
-        - "赎回储备抵押品"
-        - "减少订单"
-        - "补充"
-        - "通过贷方再融资FBOND"
-        - "再融资永久贷款"
-        - "再融资到债券报价V2"
-        - "再融资到债券报价V2 CNFT"
-        - "刷新农场"
-        - "刷新农民"
-        - "刷新义务"
-        - "刷新储备的义务农场"
-        - "刷新储备"
-        - "批量刷新储备"
-        - "刷新用户状态"
-        - "拒绝提案"
-        - "拒绝交换"
-        - "拒绝交易"
-        - "移除所有流动性"
-        - "移除余额流动性"
-        - "移除债券报价V2"
-        - "从池中移除"
-        - "从白名单中移除"
-        - "移除流动性"
-        - "按范围移除流动性"
-        - "单侧移除流动性"
-        - "移除成员"
-        - "移除成员并更改阈值"
-        - "移除永久报价"
-        - "移除支出限制"
-        - "移除特征"
-        - "移除特征权限"
-        - "偿还"
-        - "偿还CNFT永久贷款"
-        - "偿还压缩"
-        - "偿还FBOND以进行交易"
-        - "偿还FBOND以进行交易CNFT"
-        - "偿还闪电贷款"
-        - "偿还贷款"
-        - "偿还义务流动性"
-        - "部分偿还永久贷款"
-        - "偿还永久贷款"
-        - "偿还质押BANX"
-        - "偿还质押BANX永久贷款"
-        - "请求提升组"
-        - "请求贷款"
-        - "请求PNFT迁移"
-        - "请求席位"
-        - "请求授权席位"
-        - "撤销贷款"
-        - "撤销"
-        - "一次性奖励用户"
-        - "出售贷款"
-        - "出售NFT"
-        - "出售质押BANX以获取报价"
-        - "设置激活点"
-        - "设置权限"
-        - "设置银行标志"
-        - "设置收集协议费用权限"
-        - "设置配置权限"
-        - "设置配置扩展权限"
-        - "设置默认费率"
-        - "设置默认协议费率"
-        - "设置委托"
-        - "设置费用权限"
-        - "设置费率"
-        - "设置市场过期"
-        - "设置新管理员"
-        - "设置新预言机权限"
-        - "设置新小费分配程序"
-        - "设置参数"
-        - "设置池费用"
-        - "设置预激活持续时间"
-        - "设置预激活交换地址"
-        - "设置协议费率"
-        - "设置租金收集器"
-        - "设置奖励权限"
-        - "通过超级权限设置奖励权限"
-        - "设置奖励发放"
-        - "设置奖励发放超级权限"
-        - "设置奖励发放V2"
-        - "设置委托权益"
-        - "设置时间锁"
-        - "设置代币徽章权限"
-        - "设置保险库锁"
-        - "设置白名单保险库"
-        - "结算条件保险库"
-        - "结算资金"
-        - "结算过期资金"
-        - "结算盈亏"
-        - "社交化损失"
-        - "拆分权益"
-        - "权益"
-        - "权益BANX"
-        - "权益SOL"
-        - "权益代币"
-        - "开始PNFT迁移"
-        - "构建存根ID"
-        - "关闭存根预言机"
-        - "创建存根预言机"
-        - "设置存根预言机"
-        - "交换"
-        - "精确输出交换"
-        - "带价格影响的交换"
-        - "清除费用"
-        - "切换FOX"
-        - "切换狐狸请求"
-        - "同步流动性"
-        - "获取压缩贷款"
-        - "获取闪电贷款"
-        - "获取贷款"
-        - "获取抵押贷款"
-        - "终止永久贷款"
-        - "解冻"
-        - "切换交易对状态"
-        - "代币铸造"
-        - "充值"
-        - "转账"
-        - "转移所有权"
-        - "转移支付"
-        - "转移支付树"
-        - "转移接收者"
-        - "解冻"
-        - "未知"
-        - "未标记"
-        - "取消暂停"
-        - "取消质押"
-        - "取消质押BANX"
-        - "取消质押SOL"
-        - "取消质押代币"
-        - "取消订阅或收获周"
-        - "取消订阅或收获周增强"
-        - "更新"
-        - "更新激活点"
-        - "更新银行经理"
-        - "更新债券优惠标准"
-        - "更新类变体权限"
-        - "更新类变体元数据"
-        - "更新集合"
-        - "更新集合或创建者"
-        - "更新配置"
-        - "更新外部价格账户"
-        - "更新农场"
-        - "更新农场管理员"
-        - "更新农场配置"
-        - "更新费用参数"
-        - "更新费用和奖励"
-        - "更新底价"
-        - "更新全局配置"
-        - "更新全局配置管理员"
-        - "更新HADO市场费用"
-        - "更新永久市场利息"
-        - "更新项目"
-        - "更新借贷市场"
-        - "更新借贷市场所有者"
-        - "更新报价"
-        - "更新订单"
-        - "更新永久市场"
-        - "更新永久报价"
-        - "更新池"
-        - "更新池集合"
-        - "更新池抵押"
-        - "更新池状态"
-        - "更新池白名单"
-        - "更新位置操作员"
-        - "更新定价V2"
-        - "更新初级销售元数据"
-        - "更新抽奖"
-        - "更新记录权限数据"
-        - "更新储备配置"
-        - "更新奖励期限"
-        - "更新奖励资助者"
-        - "更新质押历史"
-        - "更新质押设置"
-        - "更新统计数据"
-        - "更新特征变体"
-        - "更新特征变体权限"
-        - "更新特征变体元数据"
-        - "更新可用金额"
-        - "更新变体"
-        - "更新保险库所有者"
-        - "升级_FOX"
-        - "升级_FOX_请求"
-        - "升级_程序_指令"
-        - "上传_默克尔_根"
-        - "使用_支出_限额"
-        - "验证_安全_存款_箱_V2"
-        - "验证_支付_铸币"
-        - "验证_支付_铸币_测试"
-        - "投票"
-        - "白名单_创建者"
-        - "提取"
-        - "从_标准_债券_报价_中_提取"
-        - "从_农场_保险库_中_提取"
-        - "提取_宝石"
-        - "提取_不合格_奖励"
-        - "提取_流动性"
-        - "提取_义务_抵押品"
-        - "提取_义务_抵押品_并_赎回_储备_抵押品"
-        - "提取_协议_费用"
-        - "提取_协议_费用_总额"
-        - "提取_推荐人_费用"
-        - "提取_奖励"
-        - "从_保险库_中_提取_奖励"
-        - "提取_削减_金额"
-        - "从_闪贷_池_中_提取_SOL"
-        - "提取国库"
-        - "提取未质押存款"
+        - 任意
+        - 接受托管艺术家
+        - 接受托管用户
+        - 接受提案
+        - 接受请求艺术家
+        - 激活提案
+        - 激活交易
+        - 激活保险库
+        - 添加权限
+        - 增加余额流动性
+        - 添加批量交易
+        - 增加不平衡流动性
+        - 添加指令
+        - 添加项目
+        - 增加流动性
+        - 通过策略增加流动性
+        - 通过单侧策略增加流动性
+        - 通过权重增加流动性
+        - 单侧增加流动性
+        - 单侧精确增加流动性
+        - 添加成员
+        - 添加成员并更改阈值
+        - 添加元数据
+        - 添加支付铸造支付方式
+        - 向银行添加稀有物品
+        - 添加奖励
+        - 添加支出限额
+        - 添加到池
+        - 添加到白名单
+        - 添加代币到保险库
+        - 添加特征冲突
+        - 管理员同步流动性
+        - 批准
+        - 批准提案
+        - 批准交易
+        - 附加元数据
+        - 拍卖行创建
+        - 拍卖经理认领出价
+        - 授权资助者
+        - 回填总区块
+        - 开始特征更新
+        - 开始变体更新
+        - 引导流动性
+        - 借用CNFT永久
+        - 借用FOX
+        - 借入义务流动性
+        - 借入永久
+        - 借入SOL换取NFT
+        - 借入质押BANX永久
+        - 机器人认领销售
+        - 机器人下架
+        - 机器人清算
+        - 机器人清算出售
+        - 机器人解冻
+        - 绑定HADO市场到FRAKT市场
+        - 销毁
+        - 销毁NFT
+        - 销毁支付
+        - 销毁支付树
+        - 购买物品
+        - 购买贷款
+        - 购买订阅
+        - 购买票
+        - 取消
+        - 取消所有并下单
+        - 取消所有订单
+        - 取消托管
+        - 取消贷款请求
+        - 取消多个订单
+        - 取消报价
+        - 取消订单
+        - 通过客户端订单ID取消订单
+        - 取消提案
+        - 取消奖励
+        - 取消交换
+        - 取消交易
+        - 取消至
+        - 取消更新
+        - 糖果机路线
+        - 糖果机解包
+        - 糖果机更新
+        - 糖果机包装
+        - 更改区块构建器
+        - 更改漫画状态
+        - 更改费用接收者
+        - 更改市场状态
+        - 更改席位状态
+        - 更改阈值
+        - 更改小费接收者
+        - 声明权限
+        - 声明CNFT永久贷款
+        - 声明费用
+        - 声明NFT
+        - 通过贷款人CNFT声明NFT
+        - 通过贷款人PNFT声明NFT
+        - 领取永久贷款
+        - 领取奖励
+        - 领取奖励
+        - 领取销售
+        - 领取小费
+        - 清理
+        - 关闭账户
+        - 关闭批量账户
+        - 关闭捆绑头寸
+        - 关闭索赔状态
+        - 关闭配置
+        - 关闭配置交易账户
+        - 关闭托管账户
+        - 关闭项目
+        - 关闭市场
+        - 关闭未结订单账户
+        - 关闭未结订单索引器
+        - 关闭订单
+        - 关闭池
+        - 关闭头寸
+        - 关闭预设参数
+        - 关闭小费分配账户
+        - 关闭保险库批量交易账户
+        - 关闭保险库交易账户
+        - 收取费用
+        - 收集奖励
+        - 压缩NFT
+        - 压缩NFT销毁
+        - 压缩NFT取消兑换
+        - 压缩NFT委托
+        - 压缩NFT铸造
+        - 压缩NFT兑换
+        - 压缩NFT设置验证集合
+        - 压缩NFT转移
+        - 压缩NFT取消验证集合
+        - 压缩NFT取消验证创建者
+        - 压缩NFT更新元数据
+        - 压缩NFT验证集合
+        - 压缩NFT验证创建者
+        - 消费事件
+        - 消费给定事件
+        - 复制集群信息
+        - 复制Gossip联系信息
+        - 复制小费分配账户
+        - 复制投票账户
+        - 曲柄
+        - 曲柄事件队列
+        - 创建
+        - 创建AMM
+        - 创建评估
+        - 创建头像
+        - 创建头像类
+        - 创建批次
+        - 创建投注
+        - 创建债券并出售给报价
+        - 创建债券并出售给报价CNFT
+        - 创建债券并出售给测试报价
+        - 创建标准债券报价
+        - 创建集合
+        - 创建配置
+        - 创建配置交易
+        - 创建托管
+        - 创建锁定托管
+        - 创建市场
+        - 创建主版本
+        - 创建Merkle树
+        - 创建铸币元数据
+        - 创建多重签名
+        - 创建开放订单账户
+        - 创建开放订单索引器
+        - 创建订单
+        - 创建支付方式
+        - 创建永久债券报价
+        - 创建池
+        - 创建提案
+        - 创建抽奖
+        - 创建统计
+        - 创建商店
+        - 创建代币池
+        - 创建特征
+        - 创建交易
+        - 创建未检查
+        - 创建保险库交易
+        - 取消授权资助者
+        - 解压NFT
+        - 减少流动性
+        - 委托Merkle树
+        - 删除集合
+        - 删除位置捆绑
+        - 删除推荐人状态和短网址
+        - 删除代币徽章
+        - 下架物品
+        - 下架NFT
+        - 存款
+        - 存入分数池
+        - 存入宝石
+        - 存入义务抵押品
+        - 存入储备流动性
+        - 存入储备流动性和义务抵押品
+        - 存入SOL到闪贷池
+        - 存入到债券报价标准
+        - 存入到农场保险库
+        - 存入到奖励保险库
+        - 分配压缩奖励
+        - 编辑订单
+        - 编辑挂钩订单
+        - 清空支付账户
+        - 启用或禁用池
+        - 装备特性
+        - 装备特性权限
+        - 驱逐席位
+        - 执行批处理交易
+        - 执行配置交易
+        - 执行指令
+        - 执行贷款
+        - 执行抵押
+        - 执行交易
+        - 执行保险库交易
+        - 退出验证并出售给债券报价V2
+        - 到期
+        - 延长贷款
+        - 扩展执行
+        - 填充订单
+        - 完成程序指令
+        - 完成HADO市场
+        - 修复池
+        - 闪电借用储备流动性
+        - 闪电偿还储备流动性
+        - 强制取消订单
+        - 止赎贷款
+        - 分割
+        - 冻结
+        - 资金奖励
+        - 融合
+        - 获取池信息
+        - 转到一个箱子
+        - 收获奖励
+        - IDL缺失类型
+        - 增加流动性
+        - 增加预言机长度
+        - 初始化拍卖管理器V2
+        - 初始化银行
+        - 初始化集群历史账户
+        - 初始化配置
+        - 初始化配置扩展
+        - 初始化可定制的无许可恒定产品池
+        - 初始化农场
+        - 初始化农民
+        - 为储备初始化农场
+        - 初始化费用等级
+        - 初始化借贷市场
+        - 初始化债务
+        - 为储备初始化债务农场
+        - 初始化有权限池
+        - 初始化带配置的无权限恒定产品池
+        - 初始化带配置的无权限恒定产品池2
+        - 初始化无权限池
+        - 初始化带费率等级的无权限池
+        - 初始化池
+        - 初始化池V2
+        - 初始化位置捆绑
+        - 初始化带元数据的位置捆绑
+        - 初始化推荐人状态和短网址
+        - 初始化推荐人代币状态
+        - 初始化租赁
+        - 初始化储备
+        - 初始化奖励
+        - 初始化奖励V2
+        - 初始化质押
+        - 初始化交换
+        - 初始化刻度数组
+        - 初始化小费分配账户
+        - 初始化代币徽章
+        - 初始化用户元数据
+        - 初始化验证器历史账户
+        - 初始化保险库
+        - 初始化
+        - 初始化账户
+        - 初始化二进制数组
+        - 初始化二进制数组位图扩展
+        - 初始化可定制无许可LB对
+        - 初始化农场
+        - 初始化委托农场
+        - 初始化闪贷池
+        - 初始化全局配置
+        - 初始化HADO市场
+        - 初始化LB对
+        - 初始化市场
+        - 初始化许可LB对
+        - 初始化仓位
+        - 通过操作员初始化仓位
+        - 初始化仓位PDA
+        - 初始化预设参数
+        - 初始化奖励
+        - 初始化用户
+        - 即时再融资永久贷款
+        - 踢出项目
+        - 为NFT借贷
+        - 限价单
+        - 清算
+        - 在拍卖中清算债券CNFT
+        - 在拍卖中清算债券PNFT
+        - 清算债务并赎回储备抵押品
+        - 列出项目
+        - 列出NFT
+        - 贷款
+        - 贷款FOX
+        - 锁定
+        - 锁定奖励
+        - 记录
+        - 创建永久市场
+        - 将BANX映射到积分
+        - 合并条件代币
+        - 合并股份
+        - 迁移BIN数组
+        - 迁移头寸
+        - 迁移到PNFT
+        - 铸造到
+        - 指定继任者
+        - NFT拍卖取消
+        - NFT拍卖创建
+        - NFT拍卖更新
+        - NFT出价
+        - NFT出价取消
+        - NFT取消上市
+        - NFT_GLOBAL_BID
+        - NFT_GLOBAL_BID_CANCELLED
+        - NFT_LISTING
+        - NFT_MINT
+        - NFT_MINT_REJECTED
+        - NFT_PARTICIPATION_REWARD
+        - NFT_RENT_ACTIVATE
+        - NFT_RENT_CANCEL_LISTING
+        - NFT_RENT_END
+        - NFT_RENT_LISTING
+        - NFT_RENT_UPDATE_LISTING
+        - NFT_SALE
+        - OFFER_LOAN
+        - OPEN_BUNDLED_POSITION
+        - OPEN_POSITION
+        - OPEN_POSITION_WITH_METADATA
+        - OVERRIDE_CURVE_PARAM
+        - PARTNER_CLAIM_FEE
+        - PATCH_BROKEN_USER_STAKES
+        - PAUSE
+        - PAYOUT
+        - PLACE_AND_TAKE_PERP_ORDER
+        - PLACE_BET
+        - PLACE_MULTIPLE_POST_ONLY_ORDERS
+        - PLACE_ORDER
+        - 下单挂钩
+        - 下订单
+        - 下SOL赌注
+        - 下达接受订单
+        - 平台费用
+        - 取消提案池
+        - 发布多PYTH
+        - 发布PYTH
+        - 程序配置初始化
+        - 程序配置设置授权
+        - 程序配置设置创建费
+        - 程序配置设置国库
+        - 提议贷款
+        - 修剪订单
+        - 重新分配集群历史账户
+        - 重新分配验证者历史账户
+        - 为NFT重新借入SOL
+        - 记录稀有度点数
+        - 赎回条件代币
+        - 赎回费用
+        - 赎回储备抵押品
+        - 减少订单
+        - 补充
+        - 通过贷方再融资FBOND
+        - 再融资永久贷款
+        - 再融资到债券报价V2
+        - 再融资到债券报价V2 CNFT
+        - 刷新农场
+        - 刷新农民
+        - 刷新义务
+        - 刷新储备的义务农场
+        - 刷新储备
+        - 批量刷新储备
+        - 刷新用户状态
+        - 拒绝提案
+        - 拒绝交换
+        - 拒绝交易
+        - 移除所有流动性
+        - 移除余额流动性
+        - 移除债券报价V2
+        - 从池中移除
+        - 从白名单中移除
+        - 移除流动性
+        - 按范围移除流动性
+        - 单侧移除流动性
+        - 移除成员
+        - 移除成员并更改阈值
+        - 移除永久报价
+        - 移除支出限制
+        - 移除特征
+        - 移除特征权限
+        - 偿还
+        - 偿还CNFT永久贷款
+        - 偿还压缩
+        - 偿还FBOND以进行交易
+        - 偿还FBOND以进行交易CNFT
+        - 偿还闪电贷款
+        - 偿还贷款
+        - 偿还义务流动性
+        - 部分偿还永久贷款
+        - 偿还永久贷款
+        - 偿还质押BANX
+        - 偿还质押BANX永久贷款
+        - 请求提升组
+        - 请求贷款
+        - 请求PNFT迁移
+        - 请求席位
+        - 请求授权席位
+        - 撤销贷款
+        - 撤销
+        - 一次性奖励用户
+        - 出售贷款
+        - 出售NFT
+        - 出售质押BANX以获取报价
+        - 设置激活点
+        - 设置权限
+        - 设置银行标志
+        - 设置收集协议费用权限
+        - 设置配置权限
+        - 设置配置扩展权限
+        - 设置默认费率
+        - 设置默认协议费率
+        - 设置委托
+        - 设置费用权限
+        - 设置费率
+        - 设置市场过期
+        - 设置新管理员
+        - 设置新预言机权限
+        - 设置新小费分配程序
+        - 设置参数
+        - 设置池费用
+        - 设置预激活持续时间
+        - 设置预激活交换地址
+        - 设置协议费率
+        - 设置租金收集器
+        - 设置奖励权限
+        - 通过超级权限设置奖励权限
+        - 设置奖励发放
+        - 设置奖励发放超级权限
+        - 设置奖励发放V2
+        - 设置委托权益
+        - 设置时间锁
+        - 设置代币徽章权限
+        - 设置保险库锁
+        - 设置白名单保险库
+        - 结算条件保险库
+        - 结算资金
+        - 结算过期资金
+        - 结算盈亏
+        - 社交化损失
+        - 拆分权益
+        - 权益
+        - 权益BANX
+        - 权益SOL
+        - 权益代币
+        - 开始PNFT迁移
+        - 构建存根ID
+        - 关闭存根预言机
+        - 创建存根预言机
+        - 设置存根预言机
+        - 交换
+        - 精确输出交换
+        - 带价格影响的交换
+        - 清除费用
+        - 切换FOX
+        - 切换狐狸请求
+        - 同步流动性
+        - 获取压缩贷款
+        - 获取闪电贷款
+        - 获取贷款
+        - 获取抵押贷款
+        - 终止永久贷款
+        - 解冻
+        - 切换交易对状态
+        - 代币铸造
+        - 充值
+        - 转账
+        - 转移所有权
+        - 转移支付
+        - 转移支付树
+        - 转移接收者
+        - 解冻
+        - 未知
+        - 未标记
+        - 取消暂停
+        - 取消质押
+        - 取消质押BANX
+        - 取消质押SOL
+        - 取消质押代币
+        - 取消订阅或收获周
+        - 取消订阅或收获周增强
+        - 更新
+        - 更新激活点
+        - 更新银行经理
+        - 更新债券优惠标准
+        - 更新类变体权限
+        - 更新类变体元数据
+        - 更新集合
+        - 更新集合或创建者
+        - 更新配置
+        - 更新外部价格账户
+        - 更新农场
+        - 更新农场管理员
+        - 更新农场配置
+        - 更新费用参数
+        - 更新费用和奖励
+        - 更新底价
+        - 更新全局配置
+        - 更新全局配置管理员
+        - 更新HADO市场费用
+        - 更新永久市场利息
+        - 更新项目
+        - 更新借贷市场
+        - 更新借贷市场所有者
+        - 更新报价
+        - 更新订单
+        - 更新永久市场
+        - 更新永久报价
+        - 更新池
+        - 更新池集合
+        - 更新池抵押
+        - 更新池状态
+        - 更新池白名单
+        - 更新位置操作员
+        - 更新定价V2
+        - 更新初级销售元数据
+        - 更新抽奖
+        - 更新记录权限数据
+        - 更新储备配置
+        - 更新奖励期限
+        - 更新奖励资助者
+        - 更新质押历史
+        - 更新质押设置
+        - 更新统计数据
+        - 更新特征变体
+        - 更新特征变体权限
+        - 更新特征变体元数据
+        - 更新可用金额
+        - 更新变体
+        - 更新保险库所有者
+        - 升级_FOX
+        - 升级_FOX_请求
+        - 升级_程序_指令
+        - 上传_默克尔_根
+        - 使用_支出_限额
+        - 验证_安全_存款_箱_V2
+        - 验证_支付_铸币
+        - 验证_支付_铸币_测试
+        - 投票
+        - 白名单_创建者
+        - 提取
+        - 从_标准_债券_报价_中_提取
+        - 从_农场_保险库_中_提取
+        - 提取_宝石
+        - 提取_不合格_奖励
+        - 提取_流动性
+        - 提取_义务_抵押品
+        - 提取_义务_抵押品_并_赎回_储备_抵押品
+        - 提取_协议_费用
+        - 提取_协议_费用_总额
+        - 提取_推荐人_费用
+        - 提取_奖励
+        - 从_保险库_中_提取_奖励
+        - 提取_削减_金额
+        - 从_闪贷_池_中_提取_SOL
+        - 提取国库
+        - 提取未质押存款
     NFTEventType:
-      type: "string"
+      type: string
       enum:
-        - "NFT出价"
-        - "NFT出价取消"
-        - "NFT全局出价"
-        - "NFT全局出价取消"
-        - "NFT挂牌"
-        - "NFT取消挂牌"
-        - "NFT销售"
-        - "NFT铸造"
-        - "NFT铸造被拒绝"
-        - "NFT拍卖创建"
-        - "NFT拍卖更新"
-        - "NFT拍卖取消"
-        - "NFT参与奖励"
-        - "销毁NFT"
-        - "NFT租赁挂牌"
-        - "NFT租赁取消挂牌"
-        - "NFT租赁更新挂牌"
-        - "NFT租赁激活"
-        - "NFT租赁结束"
-        - "附加元数据"
-        - "迁移到PNFT"
-        - "创建池"
+        - NFT出价
+        - NFT出价取消
+        - NFT全局出价
+        - NFT全局出价取消
+        - NFT挂牌
+        - NFT取消挂牌
+        - NFT销售
+        - NFT铸造
+        - NFT铸造被拒绝
+        - NFT拍卖创建
+        - NFT拍卖更新
+        - NFT拍卖取消
+        - NFT参与奖励
+        - 销毁NFT
+        - NFT租赁挂牌
+        - NFT租赁取消挂牌
+        - NFT租赁更新挂牌
+        - NFT租赁激活
+        - NFT租赁结束
+        - 附加元数据
+        - 迁移到PNFT
+        - 创建池
     CompressedNFTEventType:
-      type: "string"
+      type: string
       enum:
-        - "创建默克尔树"
-        - "压缩NFT铸造"
-        - "压缩NFT转移"
-        - "压缩NFT赎回"
-        - "压缩NFT取消赎回"
-        - "压缩NFT销毁"
-        - "压缩NFT委托"
+        - 创建默克尔树
+        - 压缩NFT铸造
+        - 压缩NFT转移
+        - 压缩NFT赎回
+        - 压缩NFT取消赎回
+        - 压缩NFT销毁
+        - 压缩NFT委托
     TransactionSource:
-      type: "string"
+      type: string
       enum:
-        - "FORM_FUNCTION"
-        - "EXCHANGE_ART"
-        - "CANDY_MACHINE_V3"
-        - "CANDY_MACHINE_V2"
-        - "CANDY_MACHINE_V1"
-        - "未知"
-        - "SOLANART"
-        - "SOLSEA"
-        - "MAGIC_EDEN"
-        - "HOLAPLEX"
-        - "METAPLEX"
-        - "OPENSEA"
-        - "SOLANA_PROGRAM_LIBRARY"
-        - "ANCHOR"
-        - "PHANTOM"
-        - "SYSTEM_PROGRAM"
-        - "STAKE_PROGRAM"
-        - "COINBASE"
-        - "CORAL_CUBE"
-        - "HEDGE"
-        - "LAUNCH_MY_NFT"
-        - "GEM_BANK"
-        - "GEM_FARM"
-        - "DEGODS"
-        - "BSL"
-        - "YAWWW"
-        - "ATADIA"
-        - "DIGITAL_EYES"
-        - "HYPERSPACE"
-        - "TENSOR"
-        - "BIFROST"
-        - "JUPITER"
-        - "MERCURIAL"
-        - "SABER"
-        - "SERUM"
-        - "STEP_FINANCE"
-        - "CROPPER"
-        - "RAYDIUM"
-        - "ALDRIN"
-        - "CREMA"
-        - "LIFINITY"
-        - "CYKURA"
-        - "ORCA"
-        - "MARINADE"
-        - "STEPN"
-        - "SENCHA"
-        - "SAROS"
-        - "ENGLISH_AUCTION"
-        - "FOXY"
-        - "HADESWAP"
-        - "FOXY_STAKING"
-        - "FOXY_RAFFLE"
-        - "FOXY_TOKEN_MARKET"
-        - "FOXY_MISSIONS"
-        - "FOXY_MARMALADE"
-        - "FOXY_COINFLIP"
-        - "FOXY_AUCTION"
-        - "CITRUS"
-        - "ZETA"
-        - "ELIXIR"
-        - "ELIXIR_LAUNCHPAD"
-        - "CARDINAL_RENT"
-        - "CARDINAL_STAKING"
-        - "BPF_LOADER"
-        - "BPF_UPGRADEABLE_LOADER"
-        - "SQUADS"
-        - "SHARKY_FI"
-        - "OPEN_CREATOR_PROTOCOL"
-        - "BUBBLEGUM"
-        - "NOVA"
-        - "D_READER"
-        - "RAINDROPS"
-        - "W_SOL"
-        - "DUST"
-        - "SOLI"
-        - "USDC"
-        - "FLWR"
-        - "HDG"
-        - "MEAN"
-        - "UXD"
-        - "SHDW"
-        - "POLIS"
-        - "ATLAS"
-        - "USH"
-        - "TRTLS"
-        - "RUNNER"
-        - "INVICTUS"
+        - FORM_FUNCTION
+        - EXCHANGE_ART
+        - CANDY_MACHINE_V3
+        - CANDY_MACHINE_V2
+        - CANDY_MACHINE_V1
+        - 未知
+        - SOLANART
+        - SOLSEA
+        - MAGIC_EDEN
+        - HOLAPLEX
+        - METAPLEX
+        - OPENSEA
+        - SOLANA_PROGRAM_LIBRARY
+        - ANCHOR
+        - PHANTOM
+        - SYSTEM_PROGRAM
+        - STAKE_PROGRAM
+        - COINBASE
+        - CORAL_CUBE
+        - HEDGE
+        - LAUNCH_MY_NFT
+        - GEM_BANK
+        - GEM_FARM
+        - DEGODS
+        - BSL
+        - YAWWW
+        - ATADIA
+        - DIGITAL_EYES
+        - HYPERSPACE
+        - TENSOR
+        - BIFROST
+        - JUPITER
+        - MERCURIAL
+        - SABER
+        - SERUM
+        - STEP_FINANCE
+        - CROPPER
+        - RAYDIUM
+        - ALDRIN
+        - CREMA
+        - LIFINITY
+        - CYKURA
+        - ORCA
+        - MARINADE
+        - STEPN
+        - SENCHA
+        - SAROS
+        - ENGLISH_AUCTION
+        - FOXY
+        - HADESWAP
+        - FOXY_STAKING
+        - FOXY_RAFFLE
+        - FOXY_TOKEN_MARKET
+        - FOXY_MISSIONS
+        - FOXY_MARMALADE
+        - FOXY_COINFLIP
+        - FOXY_AUCTION
+        - CITRUS
+        - ZETA
+        - ELIXIR
+        - ELIXIR_LAUNCHPAD
+        - CARDINAL_RENT
+        - CARDINAL_STAKING
+        - BPF_LOADER
+        - BPF_UPGRADEABLE_LOADER
+        - SQUADS
+        - SHARKY_FI
+        - OPEN_CREATOR_PROTOCOL
+        - BUBBLEGUM
+        - NOVA
+        - D_READER
+        - RAINDROPS
+        - W_SOL
+        - DUST
+        - SOLI
+        - USDC
+        - FLWR
+        - HDG
+        - MEAN
+        - UXD
+        - SHDW
+        - POLIS
+        - ATLAS
+        - USH
+        - TRTLS
+        - RUNNER
+        - INVICTUS
     SaleType:
-      type: "string"
+      type: string
       enum:
-        - "拍卖"
-        - "即时销售"
-        - "报价"
-        - "GLOBAL_OFFER"
-        - "MINT"
-        - "UNKNOWN"
+        - 拍卖
+        - 即时销售
+        - 报价
+        - GLOBAL_OFFER
+        - MINT
+        - UNKNOWN
     Token:
-      type: "object"
+      type: object
       properties:
         mint:
-          type: "string"
-          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
-          description: "代币的铸造账户。"
+          type: string
+          example: DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx
+          description: 代币的铸造账户。
         tokenStandard:
           $ref: "#/components/schemas/TokenStandard"
     TokenStandard:
-      type: "string"
+      type: string
       enum:
-        - "NonFungible"
-        - "FungibleAsset"
-        - "Fungible"
-        - "NonFungibleEdition"
+        - NonFungible
+        - FungibleAsset
+        - Fungible
+        - NonFungibleEdition
     TokenTransfer:
-      type: "object"
+      type: object
       properties:
         fromUserAccount:
-          type: "string"
-          description: "发送代币的用户账户。"
+          type: string
+          description: 发送代币的用户账户。
         toUserAccount:
-          type: "string"
-          description: "接收代币的用户账户。"
+          type: string
+          description: 接收代币的用户账户。
         fromTokenAccount:
-          type: "string"
-          description: "发送代币的代币账户。"
+          type: string
+          description: 发送代币的代币账户。
         toTokenAccount:
-          type: "string"
-          description: "接收代币的代币账户。"
+          type: string
+          description: 接收代币的代币账户。
         tokenAmount:
-          type: "number"
-          description: "发送的代币数量。"
+          type: number
+          description: 发送的代币数量。
         mint:
-          type: "string"
-          description: "该代币的铸币账户。"
-          example: "DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx"
+          type: string
+          description: 该代币的铸币账户。
+          example: DsfCsbbPH77p6yeLS1i4ag9UA5gP9xWSvdCx72FJjLsx
     NativeTransfer:
-      type: "object"
+      type: object
       properties:
         fromUserAccount:
-          type: "string"
-          description: "发送 sol 的用户账户。"
+          type: string
+          description: 发送 sol 的用户账户。
         toUserAccount:
-          type: "string"
-          description: "接收 sol 的用户账户。"
+          type: string
+          description: 接收 sol 的用户账户。
         amount:
-          type: "integer"
-          description: "发送的 sol 数量（以 lamports 为单位）。"
+          type: integer
+          description: 发送的 sol 数量（以 lamports 为单位）。
     TokenMetadataResponse:
-      type: "object"
-      description: "Metaplex 元数据存储在链上和链下。"
+      type: object
+      description: Metaplex 元数据存储在链上和链下。
       properties:
         mint:
-          type: "string"
+          type: string
         onChainData:
           $ref: "#/components/schemas/OnChainMetadata"
         offChainData:
           $ref: "#/components/schemas/OffChainMetadata"
     OnChainMetadata:
-      type: "object"
-      description: "存储在链上的 Metaplex 元数据。"
+      type: object
+      description: 存储在链上的 Metaplex 元数据。
       properties:
         key:
-          type: "string"
+          type: string
         mint:
-          type: "string"
+          type: string
         updateAuthority:
-          type: "string"
+          type: string
         data:
-          type: "object"
+          type: object
           properties:
             name:
-              type: "string"
+              type: string
             symbol:
-              type: "string"
+              type: string
             uri:
-              type: "string"
+              type: string
             sellerFeeBasisPoints:
-              type: "integer"
+              type: integer
             creators:
-              type: "array"
+              type: array
               items:
-                type: "object"
+                type: object
                 properties:
                   address:
-                    type: "string"
+                    type: string
                   share:
-                    type: "string"
+                    type: string
                   verified:
-                    type: "boolean"
+                    type: boolean
         tokenStandard:
-          type: "string"
+          type: string
         primarySaleHappened:
-          type: "boolean"
+          type: boolean
         isMutable:
-          type: "boolean"
+          type: boolean
         editionNonce:
-          type: "integer"
+          type: integer
         collection:
-          type: "object"
+          type: object
           properties:
             key:
-              type: "string"
+              type: string
             verified:
-              type: "boolean"
+              type: boolean
         collectionDetails:
-          type: "object"
+          type: object
           properties:
             size:
-              type: "integer"
+              type: integer
         uses:
-          type: "object"
+          type: object
           properties:
             useMethod:
-              type: "string"
+              type: string
             remaining:
-              type: "integer"
+              type: integer
             total:
-              type: "integer"
+              type: integer
     OffChainMetadata:
-      type: "object"
-      description: "存储在链外的Metaplex元数据。"
+      type: object
+      description: 存储在链外的Metaplex元数据。
       properties:
         name:
-          type: "string"
+          type: string
         symbol:
-          type: "string"
+          type: string
         attributes:
-          type: "array"
+          type: array
           items:
             properties:
               traitType:
-                type: "string"
+                type: string
               value:
-                type: "string"
+                type: string
         sellerFeeBasisPoints:
-          type: "integer"
+          type: integer
         image:
-          type: "字符串"
+          type: 字符串
         properties:
-          type: "对象"
+          type: 对象
           properties:
             category:
-              type: "字符串"
+              type: 字符串
             files:
-              type: "数组"
+              type: 数组
               items:
                 properties:
                   uri:
-                    type: "字符串"
+                    type: 字符串
                   type:
-                    type: "字符串"
+                    type: 字符串
             creators:
-              type: "数组"
+              type: 数组
               items:
                 properties:
                   address:
-                    type: "字符串"
+                    type: 字符串
                   share:
-                    type: "字符串"
+                    type: 字符串
     RawTransaction:
-      type: "对象"
+      type: 对象
       properties:
         slot:
-          type: "整数"
+          type: 整数
         blocktime:
-          type: "整数"
+          type: 整数
         transaction:
           $ref: "#/components/schemas/InnerTransaction"
         meta:
           $ref: "#/components/schemas/Meta"
     InnerTransaction:
-      type: "对象"
+      type: 对象
       properties:
         signatures:
-          type: "数组"
+          type: 数组
           items:
-            type: "字符串"
+            type: 字符串
         message:
-          type: "对象"
+          type: 对象
           properties:
             accountKeys:
-              type: "数组"
+              type: 数组
               items:
-                type: "字符串"
+                type: 字符串
             header:
-              type: "对象"
+              type: 对象
             recentBlockhash:
-              type: "字符串"
+              type: 字符串
             instructions:
-              type: "数组"
+              type: 数组
               items:
-                type: "对象"
+                type: 对象
                 properties:
                   programIdIndex:
-                    type: "整数"
+                    type: 整数
                   accounts:
-                    type: "array"
+                    type: array
                     items:
-                      type: "integer"
+                      type: integer
                   data:
-                    type: "string"
+                    type: string
     Meta:
-      type: "object"
+      type: object
       properties:
         err:
-          type: "object"
+          type: object
         fee:
-          type: "integer"
+          type: integer
         preBalances:
-          type: "array"
+          type: array
           items:
-            type: "integer"
+            type: integer
         postBalances:
-          type: "array"
+          type: array
           items:
-            type: "integer"
+            type: integer
         preTokenBalances:
-          type: "array"
+          type: array
           items:
-            type: "integer"
+            type: integer
         postTokenBalances:
-          type: "array"
+          type: array
           items:
-            type: "integer"
+            type: integer
         logMessages:
-          type: "array"
+          type: array
           items:
-            type: "string"
+            type: string
         rewards:
-          type: "array"
+          type: array
           items:
-            type: "object"
+            type: object
         loadedAddresses:
-          type: "object"
+          type: object
     EnhancedTransaction:
-      type: "object"
+      type: object
       properties:
         description:
-          type: "string"
-          example: "交易的人类可读解释"
+          type: string
+          example: 交易的人类可读解释
         type:
           $ref: "#/components/schemas/TransactionType"
         source:
           $ref: "#/components/schemas/TransactionSource"
         fee:
-          type: "integer"
+          type: integer
           example: 5000
         feePayer:
-          type: "string"
-          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+          type: string
+          example: 8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y
         signature:
-          type: "string"
-          example: "yy5BT9benHhx8fGCvhcAfTtLEHAtRJ3hRTzVL16bdrTCWm63t2vapfrZQZLJC3RcuagekaXjSs2zUGQvbcto8DK"
+          type: string
+          example: yy5BT9benHhx8fGCvhcAfTtLEHAtRJ3hRTzVL16bdrTCWm63t2vapfrZQZLJC3RcuagekaXjSs2zUGQvbcto8DK
         slot:
-          type: "integer"
+          type: integer
           example: 148277128
         timestamp:
-          type: "integer"
+          type: integer
           example: 1656442333
         nativeTransfers:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NativeTransfer"
         tokenTransfers:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenTransfer"
         accountData:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/AccountData"
         transactionError:
-          type: "object"
+          type: object
           properties:
             error:
-              type: "string"
+              type: string
         instructions:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/Instruction"
         events:
-          type: "object"
+          type: object
           properties:
             nft:
               $ref: "#/components/schemas/NFTEvent"
@@ -1472,438 +1472,438 @@ components:
               $ref: "#/components/schemas/DistributeCompressionRewardsEvent"
             setAuthority:
               $ref: "#/components/schemas/SetAuthorityEvent"
-          description: "与此交易相关的事件。这些事件提供了有关交易的详细信息。它们与事件API返回的类型相匹配。"
+          description: 与此交易相关的事件。这些事件提供了有关交易的详细信息。它们与事件API返回的类型相匹配。
     Instruction:
-      type: "object"
-      description: "交易中的单个指令数据。"
+      type: object
+      description: 交易中的单个指令数据。
       properties:
         accounts:
-          type: "array"
-          description: "指令中使用的账户。"
+          type: array
+          description: 指令中使用的账户。
           items:
-            type: "string"
-            example: "8uX6yiUuH4UjUb1gMGJAdkXorSuKshqsFGDCFShcK88B"
+            type: string
+            example: 8uX6yiUuH4UjUb1gMGJAdkXorSuKshqsFGDCFShcK88B
         data:
-          type: "string"
-          description: "传入指令的数据"
-          example: "kdL8HQJrbbvQRGXmoadaja1Qvs"
+          type: string
+          description: 传入指令的数据
+          example: kdL8HQJrbbvQRGXmoadaja1Qvs
         programId:
-          type: "string"
-          description: "指令中使用的程序"
-          example: "MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8"
+          type: string
+          description: 指令中使用的程序
+          example: MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8
         innerInstructions:
-          type: "array"
-          description: "指令中使用的内部指令"
+          type: array
+          description: 指令中使用的内部指令
           items:
             $ref: "#/components/schemas/InnerInstruction"
     InnerInstruction:
-      type: "object"
-      description: "每个指令的内部指令"
+      type: object
+      description: 每个指令的内部指令
       properties:
         accounts:
-          type: "array"
+          type: array
           items:
-            type: "string"
+            type: string
         data:
-          type: "string"
+          type: string
         programId:
-          type: "string"
+          type: string
     AccountData:
-      type: "object"
-      description: "涉及账户的Sol和代币转移在此对象中引用。"
+      type: object
+      description: 涉及账户的Sol和代币转移在此对象中引用。
       properties:
         account:
-          type: "string"
-          description: "提供此数据的账户。"
+          type: string
+          description: 提供此数据的账户。
         nativeBalanceChange:
-          type: "number"
-          description: "账户的本地（SOL）余额变化。"
+          type: number
+          description: 账户的本地（SOL）余额变化。
         tokenBalanceChanges:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenBalanceChange"
-          description: "账户的代币余额变动。"
+          description: 账户的代币余额变动。
     NFTEvent:
-      type: "object"
+      type: object
       properties:
         description:
-          type: "string"
-          description: "交易的人类可读解释"
+          type: string
+          description: 交易的人类可读解释
         type:
           $ref: "#/components/schemas/NFTEventType"
         source:
           $ref: "#/components/schemas/TransactionSource"
         amount:
-          type: "integer"
+          type: integer
           example: 1000000
-          description: "NFT交易的金额（以lamports为单位）。"
+          description: NFT交易的金额（以lamports为单位）。
         fee:
-          type: "integer"
+          type: integer
           example: 5000
         feePayer:
-          type: "string"
-          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+          type: string
+          example: 8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y
         signature:
-          type: "string"
-          example: "4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf"
+          type: string
+          example: 4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf
         slot:
-          type: "integer"
+          type: integer
           example: 148277128
         timestamp:
-          type: "integer"
+          type: integer
           example: 1656442333
         saleType:
           $ref: "#/components/schemas/SaleType"
         buyer:
-          type: "string"
-          description: "NFT的买家。"
+          type: string
+          description: NFT的买家。
         seller:
-          type: "string"
-          description: "NFT的卖家。"
+          type: string
+          description: NFT的卖家。
         staker:
-          type: "string"
-          description: "NFT的质押者。"
+          type: string
+          description: NFT的质押者。
         nfts:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/Token"
-          description: "属于此NFT事件的NFT。"
+          description: 属于此NFT事件的NFT。
     CompressedNFTEvent:
-      type: "object"
+      type: object
       properties:
         type:
           $ref: "#/components/schemas/CompressedNFTEventType"
         treeId:
-          type: "string"
-          description: "相关默克尔树的地址。"
+          type: string
+          description: 相关默克尔树的地址。
         assetId:
-          type: "string"
-          description: "压缩NFT的ID。"
+          type: string
+          description: 压缩NFT的ID。
         leafIndex:
-          type: "integer"
-          description: "正在附加或修改的叶子的索引。"
+          type: integer
+          description: 正在附加或修改的叶子的索引。
         instructionIndex:
-          type: "integer"
-          description: "交易中解析指令的索引。"
+          type: integer
+          description: 交易中解析指令的索引。
         innerInstructionIndex:
-          type: "integer"
-          description: "交易中解析内部指令的索引。"
+          type: integer
+          description: 交易中解析内部指令的索引。
         newLeafOwner:
-          type: "string"
-          description: "叶子的新的所有者。"
+          type: string
+          description: 叶子的新的所有者。
         oldLeafOwner:
-          type: "string"
-          description: "叶子的前任所有者。"
+          type: string
+          description: 叶子的前任所有者。
     DistributeCompressionRewardsEvent:
-      type: "object"
+      type: object
       properties:
         amount:
-          type: "integer"
-          description: "在DistributeCompressionRewardsV0指令中转移的金额。"
+          type: integer
+          description: 在DistributeCompressionRewardsV0指令中转移的金额。
     SetAuthorityEvent:
-      type: "object"
+      type: object
       properties:
         account:
-          type: "string"
-          description: "权限正在更改的账户。"
+          type: string
+          description: 权限正在更改的账户。
         from:
-          type: "string"
-          description: "当前权限。"
+          type: string
+          description: 当前权限。
         to:
-          type: "string"
-          description: "新权限。"
+          type: string
+          description: 新权限。
         instructionIndex:
-          type: "integer"
-          description: "交易中解析指令的索引。"
+          type: integer
+          description: 交易中解析指令的索引。
         innerInstructionIndex:
-          type: "integer"
-          description: "交易中解析内部指令的索引。"
+          type: integer
+          description: 交易中解析内部指令的索引。
     SwapEvent:
-      type: "object"
+      type: object
       properties:
         nativeInput:
           $ref: "#/components/schemas/NativeBalanceChange"
-          description: "交换中的本地输入，以Lamports为单位。"
+          description: 交换中的本地输入，以Lamports为单位。
         nativeOutput:
           $ref: "#/components/schemas/NativeBalanceChange"
-          description: "交换的本地输出，以Lamports为单位。"
+          description: 交换的本地输出，以Lamports为单位。
         tokenInputs:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenBalanceChange"
-          description: "交换的代币输入。"
+          description: 交换的代币输入。
         tokenOutputs:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenBalanceChange"
-          description: "交换的代币输出。"
+          description: 交换的代币输出。
         tokenFees:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenBalanceChange"
-          description: "账户支付的代币费用。"
+          description: 账户支付的代币费用。
         nativeFees:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NativeBalanceChange"
-          description: "账户支付的本地费用。"
+          description: 账户支付的本地费用。
         innerSwaps:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenSwap"
-          description: "为实现此交换而发生的内部交换。例如，wSOL <-> USDC 的交换可能由多个交换组成，如 wSOL <-> DUST, DUST <-> USDC"
+          description: 为实现此交换而发生的内部交换。例如，wSOL <-> USDC 的交换可能由多个交换组成，如 wSOL <-> DUST, DUST <-> USDC
     TokenSwap:
-      type: "object"
+      type: object
       properties:
         tokenInputs:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenTransfer"
-          description: "此交换的代币输入。"
+          description: 此交换的代币输入。
         tokenOutputs:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenTransfer"
-          description: "此交换的代币输出。"
+          description: 此交换的代币输出。
         tokenFees:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenTransfer"
-          description: "此交换中以代币收取的费用。"
+          description: 此交换中以代币收取的费用。
         nativeFees:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NativeTransfer"
-          description: "此交换中以 SOL 收取的费用。"
+          description: 此交换中以 SOL 收取的费用。
         programInfo:
           $ref: "#/components/schemas/ProgramInfo"
-          description: "创建此交换的程序信息。"
+          description: 创建此交换的程序信息。
     ProgramInfo:
-      type: "object"
+      type: object
       properties:
         source:
-          type: "string"
-          example: "ORCA"
+          type: string
+          example: ORCA
         account:
-          type: "string"
-          description: "程序的账户"
-          example: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+          type: string
+          description: 程序的账户
+          example: whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc
         programName:
-          type: "string"
-          description: "程序的名称"
-          example: "ORCA_WHIRLPOOLS"
+          type: string
+          description: 程序的名称
+          example: ORCA_WHIRLPOOLS
         instructionName:
-          type: "string"
-          description: "创建此交换的指令名称。如果可用，它是来自 Anchor IDL 的指令名称的值。"
-          example: "whirlpoolSwap"
+          type: string
+          description: 创建此交换的指令名称。如果可用，它是来自 Anchor IDL 的指令名称的值。
+          example: whirlpoolSwap
     NativeBalanceChange:
-      type: "object"
+      type: object
       properties:
         account:
-          type: "string"
-          description: "本地余额变动所针对的账户"
-          example: "2uySTNgvGT2kwqpfgLiSgeBLR3wQyye1i1A2iQWoPiFr"
+          type: string
+          description: 本地余额变动所针对的账户
+          example: 2uySTNgvGT2kwqpfgLiSgeBLR3wQyye1i1A2iQWoPiFr
         amount:
-          type: "string"
-          description: "余额变动的金额，作为字符串"
+          type: string
+          description: 余额变动的金额，作为字符串
           example: "100000000"
     TokenBalanceChange:
-      type: "object"
+      type: object
       properties:
         userAccount:
-          type: "string"
-          example: "F54ZGuxyb2gA7vRjzWKLWEMQqCfJxDY1whtqtjdq4CJ"
+          type: string
+          example: F54ZGuxyb2gA7vRjzWKLWEMQqCfJxDY1whtqtjdq4CJ
         tokenAccount:
-          type: "string"
-          example: "2kvmbRybhrcptDnwyNv6oiFGFEnRVv7MvVyqsxkirgdn"
+          type: string
+          example: 2kvmbRybhrcptDnwyNv6oiFGFEnRVv7MvVyqsxkirgdn
         mint:
-          type: "string"
-          example: "DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ"
+          type: string
+          example: DUSTawucrTsGU8hcqRdHDCbuYhCPADMLM2VcCb8VnFnQ
         rawTokenAmount:
           $ref: "#/components/schemas/RawTokenAmount"
     RawTokenAmount:
-      type: "object"
+      type: object
       properties:
         tokenAmount:
-          type: "string"
+          type: string
         decimals:
-          type: "integer"
+          type: integer
     NamesResponse:
-      type: "object"
+      type: object
       properties:
         domainNames:
-          type: "array"
+          type: array
           items:
-            type: "string"
+            type: string
     BalancesResponse:
-      type: "object"
+      type: object
       properties:
         tokens:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/Balance"
         nativeBalance:
-          type: "number"
-          description: "以 Lamports 为单位"
+          type: number
+          description: 以 Lamports 为单位
     Balance:
-      type: "object"
+      type: object
       properties:
         mint:
-          type: "string"
+          type: string
         amount:
-          type: "number"
+          type: number
         decimals:
-          type: "number"
+          type: number
         tokenAccount:
-          type: "string"
+          type: string
     NFTsResponse:
-      type: "object"
+      type: object
       properties:
         numberOfPages:
-          type: "number"
+          type: number
         nfts:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/Asset"
     Asset:
-      type: "object"
+      type: object
       properties:
         name:
-          type: "string"
+          type: string
         tokenAddress:
-          type: "string"
+          type: string
         collectionAddress:
-          type: "string"
+          type: string
         collectionName:
-          type: "string"
+          type: string
         imageURL:
-          type: "string"
+          type: string
         traits:
-          type: "array"
+          type: array
           items:
-            type: "object"
+            type: object
             properties:
               trait_type:
-                type: "string"
+                type: string
               value:
-                type: "string"
+                type: string
     Commitment:
-      type: "string"
+      type: string
       enum:
-        - "已完成"
-        - "confirmed"
+        - 已完成
+        - confirmed
     TokensMetadataRequest:
-      type: "object"
+      type: object
       properties:
         mintAccounts:
-          type: "array"
+          type: array
           items:
-            type: "string"
-            description: "要检索元数据的代币的铸造账户。"
+            type: string
+            description: 要检索元数据的代币的铸造账户。
           maxItems: 100
     ParseTransactionsRequest:
-      type: "object"
+      type: object
       properties:
         transactions:
-          type: "array"
+          type: array
           items:
-            type: "string"
-            description: "要解析的交易ID/签名。"
+            type: string
+            description: 要解析的交易ID/签名。
           maxItems: 100
     CreateWebhookRequest:
-      type: "object"
+      type: object
       properties:
         webhookURL:
-          type: "string"
+          type: string
         transactionTypes:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TransactionType"
         accountAddresses:
-          type: "array"
+          type: array
           items:
-            type: "string"
-          maxItems: "100_000"
+            type: string
+          maxItems: 100_000
         webhookType:
           $ref: "#/components/schemas/WebhookType"
         authHeader:
-          type: "string"
+          type: string
         encoding:
-          type: "string"
+          type: string
         txnStatus:
-          type: "string"
+          type: string
     RpcProxyRequest:
-      type: "object"
+      type: object
       properties:
         method:
-          type: "string"
-          description: "要调用的方法名称"
-          example: "getBlock"
+          type: string
+          description: 要调用的方法名称
+          example: getBlock
         params:
-          type: "array"
+          type: array
           items:
             anyOf:
-              - type: "string"
-              - type: "number"
-              - type: "integer"
-              - type: "boolean"
-              - type: "array"
+              - type: string
+              - type: number
+              - type: integer
+              - type: boolean
+              - type: array
                 items: {}
-              - type: "object"
-          description: "要传递的参数。请参阅 Solana JSON-RPC 文档。"
+              - type: object
+          description: 要传递的参数。请参阅 Solana JSON-RPC 文档。
     QueryNftEventsRequest:
-      type: "object"
+      type: object
       properties:
         query:
-          type: "object"
+          type: object
           properties:
             accounts:
-              type: "array"
+              type: array
               items:
-                type: "string"
-                example: "79FjnnXFpSajugwpx3FfQbV7hJJTe7QXAusF7R4CMf6c"
+                type: string
+                example: 79FjnnXFpSajugwpx3FfQbV7hJJTe7QXAusF7R4CMf6c
                 maxItems: 100
             types:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/NFTEventType"
             sources:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/TransactionSource"
             startSlot:
-              type: "integer"
+              type: integer
               example: 162368570
-              description: "查询中要包含的最早槽位（包括在内）。不能与 \"startTime\" 结合使用。"
+              description: 查询中要包含的最早槽位（包括在内）。不能与 "startTime" 结合使用。
             endSlot:
-              type: "integer"
+              type: integer
               example: 162368580
-              description: "查询中要包含的最新槽位（包括在内）。不能与 \"endTime\" 结合使用。"
+              description: 查询中要包含的最新槽位（包括在内）。不能与 "endTime" 结合使用。
             startTime:
-              type: "integer"
+              type: integer
               example: 1669055189
-              description: "最早的事件时间（unix 秒）。不能与 \"startSlot\" 结合使用。"
+              description: 最早的事件时间（unix 秒）。不能与 "startSlot" 结合使用。
             endTime:
-              type: "integer"
+              type: integer
               example: 1669070189
-              description: "最新的事件时间（unix 秒）。不能与 \"endSlot\" 结合使用。"
+              description: 最新的事件时间（unix 秒）。不能与 "endSlot" 结合使用。
             nftCollectionFilters:
-              type: "object"
+              type: object
               properties:
                 firstVerifiedCreator:
-                  type: "array"
+                  type: array
                   items:
                     $ref: "#/components/schemas/FirstVerifiedCreator"
                 verifiedCollectionAddress:
-                  type: "array"
+                  type: array
                   items:
                     $ref: "#/components/schemas/VerifiedCollectionAddress"
         options:
-          type: "object"
+          type: object
           properties:
             limit:
-              type: "integer"
-              description: "返回的最大项目数。必须在1到1000之间。默认是100。"
+              type: integer
+              description: 返回的最大项目数。必须在1到1000之间。默认是100。
               minimum: 1
               maximum: 1000
               default: 100
@@ -1912,25 +1912,25 @@ components:
             paginationToken:
               $ref: "#/components/schemas/PaginationToken"
     QueryNftEventsResponse:
-      type: "object"
+      type: object
       properties:
         result:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NftEventV2"
         paginationToken:
           $ref: "#/components/schemas/PaginationToken"
     DescribeNftsRequest:
-      type: "object"
+      type: object
       properties:
         mints:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NftMintAccount"
     DescribeNftsResponse:
-      type: "array"
+      type: array
       items:
-        type: "object"
+        type: object
         properties:
           mint:
             $ref: "#/components/schemas/NftMintAccount"
@@ -1943,41 +1943,41 @@ components:
           verifiedCollectionAddress:
             $ref: "#/components/schemas/VerifiedCollectionAddress"
           activeListings:
-            type: "array"
+            type: array
             items:
               $ref: "#/components/schemas/ActiveListing"
     MintlistRequest:
-      type: "object"
+      type: object
       properties:
         query:
-          type: "object"
+          type: object
           properties:
             firstVerifiedCreators:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/FirstVerifiedCreator"
             verifiedCollectionAddresses:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/VerifiedCollectionAddress"
         options:
-          type: "object"
+          type: object
           properties:
             limit:
-              type: "integer"
-              description: "返回的最大项目数。必须在1到10,000之间。默认值为1000。"
+              type: integer
+              description: 返回的最大项目数。必须在1到10,000之间。默认值为1000。
               minimum: 1
-              maximum: "10_000"
+              maximum: 10_000
               default: 1000
             paginationToken:
               $ref: "#/components/schemas/PaginationToken"
     MintlistResponse:
-      type: "object"
+      type: object
       properties:
         result:
-          type: "array"
+          type: array
           items:
-            type: "object"
+            type: object
             properties:
               mint:
                 $ref: "#/components/schemas/NftMintAccount"
@@ -1986,40 +1986,40 @@ components:
         paginationToken:
           $ref: "#/components/schemas/PaginationToken"
     ActiveListingsRequest:
-      type: "object"
+      type: object
       properties:
         query:
-          type: "object"
+          type: object
           properties:
             marketplaces:
               items:
                 $ref: "#/components/schemas/Marketplace"
             firstVerifiedCreators:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/FirstVerifiedCreator"
             verifiedCollectionAddresses:
-              type: "array"
+              type: array
               items:
                 $ref: "#/components/schemas/VerifiedCollectionAddress"
         options:
-          type: "object"
+          type: object
           properties:
             limit:
-              type: "integer"
-              description: "要返回的最大项目数。必须在1到1000之间。默认值为100。"
+              type: integer
+              description: 要返回的最大项目数。必须在1到1000之间。默认值为100。
               minimum: 1
               maximum: 1000
               default: 100
             paginationToken:
               $ref: "#/components/schemas/PaginationToken"
     ActiveListingsResponse:
-      type: "object"
+      type: object
       properties:
         result:
-          type: "array"
+          type: array
           items:
-            type: "object"
+            type: object
             properties:
               mint:
                 $ref: "#/components/schemas/NftMintAccount"
@@ -2030,73 +2030,73 @@ components:
               verifiedCollectionAddress:
                 $ref: "#/components/schemas/VerifiedCollectionAddress"
               activeListings:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/ActiveListing"
         paginationToken:
           $ref: "#/components/schemas/PaginationToken"
     SortOrder:
-      type: "string"
-      description: "返回结果的顺序。必须是 'ASC' 或 'DESC'。结果默认是降序。"
+      type: string
+      description: 返回结果的顺序。必须是 'ASC' 或 'DESC'。结果默认是降序。
       enum:
-        - "ASC"
-        - "DESC"
-      default: "DESC"
+        - ASC
+        - DESC
+      default: DESC
     NftEventV2:
-      type: "object"
+      type: object
       properties:
         description:
-          type: "string"
-          description: "交易的人类可读解释"
+          type: string
+          description: 交易的人类可读解释
         type:
           $ref: "#/components/schemas/NFTEventType"
         source:
           $ref: "#/components/schemas/TransactionSource"
         amount:
-          type: "integer"
+          type: integer
           example: 1000000
-          description: "NFT交易的金额（以lamports为单位）。"
+          description: NFT交易的金额（以lamports为单位）。
         fee:
-          type: "integer"
+          type: integer
           example: 5000
         feePayer:
-          type: "string"
-          example: "8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y"
+          type: string
+          example: 8cRrU1NzNpjL3k2BwjW3VixAcX6VFc29KHr4KZg8cs2Y
         signature:
-          type: "string"
-          example: "4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf"
+          type: string
+          example: 4jzQxVTaJ4Fe4Fct9y1aaT9hmVyEjpCqE2bL8JMnuLZbzHZwaL4kZZvNEZ6bEj6fGmiAdCPjmNQHCf8v994PAgDf
         slot:
-          type: "integer"
+          type: integer
           example: 148277128
         timestamp:
-          type: "integer"
+          type: integer
           example: 1656442333
         saleType:
           $ref: "#/components/schemas/SaleType"
         buyer:
-          type: "string"
-          description: "NFT的买家。"
+          type: string
+          description: NFT的买家。
         seller:
-          type: "string"
-          description: "NFT的卖家。"
+          type: string
+          description: NFT的卖家。
         staker:
-          type: "string"
-          description: "NFT的质押者。"
+          type: string
+          description: NFT的质押者。
         nfts:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NftV2"
-          description: "关联的NFTs"
+          description: 关联的NFTs
         nativeTransfers:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/NativeTransfer"
         tokenTransfers:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/TokenTransfer"
     NftV2:
-      type: "object"
+      type: object
       properties:
         mint:
           $ref: "#/components/schemas/NftMintAccount"
@@ -2109,99 +2109,99 @@ components:
         verifiedCollectionAddress:
           $ref: "#/components/schemas/VerifiedCollectionAddress"
     NftMintAccount:
-      type: "string"
-      description: "NFT 铸造账户地址。"
-      example: "KG6f4Fa6YxAW8cG2Dhb18DiMn3rQ3rSLa1Eo2FYM4gi"
+      type: string
+      description: NFT 铸造账户地址。
+      example: KG6f4Fa6YxAW8cG2Dhb18DiMn3rQ3rSLa1Eo2FYM4gi
     NftName:
-      type: "string"
-      description: "NFT 的名称。"
+      type: string
+      description: NFT 的名称。
       example: "y00t #2940"
     NftBurned:
-      type: "boolean"
-      description: "如果 NFT 被销毁。被销毁的 NFT 没有名称、firstVerifiedCreator 或 verifiedCollectionAddress。"
+      type: boolean
+      description: 如果 NFT 被销毁。被销毁的 NFT 没有名称、firstVerifiedCreator 或 verifiedCollectionAddress。
       example: false
     FirstVerifiedCreator:
-      type: "string"
-      description: "NFT 的第一个验证创作者。用于引用 NFT 集合。"
-      example: "A4FM6h8T5Fmh9z2g3fKUrKfZn6BNFEgByR8QGpdbQhk1"
+      type: string
+      description: NFT 的第一个验证创作者。用于引用 NFT 集合。
+      example: A4FM6h8T5Fmh9z2g3fKUrKfZn6BNFEgByR8QGpdbQhk1
     VerifiedCollectionAddress:
-      type: "string"
-      description: "验证的 Metaplex 集合地址。并非所有 NFT 集合都存在。"
-      example: "4mKSoDDqApmF1DqXvVTSL6tu2zixrSSNjqMxUnwvVzy2"
+      type: string
+      description: 验证的 Metaplex 集合地址。并非所有 NFT 集合都存在。
+      example: 4mKSoDDqApmF1DqXvVTSL6tu2zixrSSNjqMxUnwvVzy2
     ActiveListing:
-      type: "object"
+      type: object
       properties:
         transactionSignature:
-          type: "string"
-          description: "挂牌交易的签名。"
-          example: "27W41DrnxGFJGX7yEGuKBtRb7oMwFdGdPwffBTTeakV8nTQTgWR2hzFKmrt8QnxaMEbw4pS2NoiLmiuB2VfqxVn7"
+          type: string
+          description: 挂牌交易的签名。
+          example: 27W41DrnxGFJGX7yEGuKBtRb7oMwFdGdPwffBTTeakV8nTQTgWR2hzFKmrt8QnxaMEbw4pS2NoiLmiuB2VfqxVn7
         marketplace:
           $ref: "#/components/schemas/Marketplace"
         amount:
-          type: "integer"
+          type: integer
           example: 1000000
-          description: "NFT 的挂牌价格（以 lamports 为单位）。"
+          description: NFT 的挂牌价格（以 lamports 为单位）。
         seller:
-          type: "string"
-          description: "NFT 卖家的地址。"
-          example: "3ngLS7Y64DoMAHJ6k6XYh8vo5nSiG66AP1yLvbckfKrc"
+          type: string
+          description: NFT 卖家的地址。
+          example: 3ngLS7Y64DoMAHJ6k6XYh8vo5nSiG66AP1yLvbckfKrc
     Marketplace:
-      type: "string"
-      description: "NFT被列出的市场。"
-      example: "MAGIC_EDEN"
+      type: string
+      description: NFT被列出的市场。
+      example: MAGIC_EDEN
       enum:
-        - "MAGIC_EDEN"
-        - "OPENSEA"
-        - "FORM_FUNCTION"
-        - "EXCHANGE_ART"
-        - "SOLANART"
-        - "SOLSEA"
-        - "HOLAPLEX"
-        - "CORAL_CUBE"
-        - "YAWWW"
-        - "SOLPORT"
-        - "HYPERSPACE"
-        - "DIGITAL_EYES"
-        - "CORAL_CUBE"
-        - "UNKNOWN"
+        - MAGIC_EDEN
+        - OPENSEA
+        - FORM_FUNCTION
+        - EXCHANGE_ART
+        - SOLANART
+        - SOLSEA
+        - HOLAPLEX
+        - CORAL_CUBE
+        - YAWWW
+        - SOLPORT
+        - HYPERSPACE
+        - DIGITAL_EYES
+        - CORAL_CUBE
+        - UNKNOWN
     PaginationToken:
-      type: "string"
-      description: "用于分页的令牌。提供令牌给API以检索下一页的结果。如果没有令牌，查询没有剩余结果。"
-      example: "V1_162262948_99"
+      type: string
+      description: 用于分页的令牌。提供令牌给API以检索下一页的结果。如果没有令牌，查询没有剩余结果。
+      example: V1_162262948_99
     RawTransactionsV1Request:
-      type: "object"
+      type: object
       properties:
         query:
-          type: "object"
+          type: object
           properties:
             accounts:
-              type: "array"
+              type: array
               items:
-                type: "string"
-                example: "CyFyz1xR4YTG9CrY9jg5jG6GZfm2e8k97qscs2GFpjX1"
-                description: "要查找交易的账户数组。限制为1000个账户。"
+                type: string
+                example: CyFyz1xR4YTG9CrY9jg5jG6GZfm2e8k97qscs2GFpjX1
+                description: 要查找交易的账户数组。限制为1000个账户。
             startSlot:
-              type: "integer"
+              type: integer
               example: 162368570
-              description: "查询中包含的最早槽位（包括在内）。不能与“startTime”结合使用。"
+              description: 查询中包含的最早槽位（包括在内）。不能与“startTime”结合使用。
             endSlot:
-              type: "integer"
+              type: integer
               example: 162368580
-              description: "查询中包含的最新槽位（包括在内）。不能与“endTime”结合使用。"
+              description: 查询中包含的最新槽位（包括在内）。不能与“endTime”结合使用。
             startTime:
-              type: "integer"
+              type: integer
               example: 1669055189
-              description: "最早的事件时间（unix秒）。不能与“startSlot”结合使用。"
+              description: 最早的事件时间（unix秒）。不能与“startSlot”结合使用。
             endTime:
-              type: "integer"
+              type: integer
               example: 1669070189
-              description: "最新的事件时间（unix秒）。不能与“endSlot”结合使用。"
+              description: 最新的事件时间（unix秒）。不能与“endSlot”结合使用。
         options:
-          type: "object"
+          type: object
           properties:
             limit:
-              description: "要返回的最大项目数。必须在1到500之间。默认值为100。"
-              type: "integer"
+              description: 要返回的最大项目数。必须在1到500之间。默认值为100。
+              type: integer
               minimum: 1
               maximum: 500
               default: 100
@@ -2210,39 +2210,39 @@ components:
             paginationToken:
               $ref: "#/components/schemas/PaginationToken"
     RawTransactionsV1Response:
-      type: "object"
+      type: object
       properties:
         result:
-          type: "array"
+          type: array
           items:
             $ref: "#/components/schemas/RawTransaction"
         paginationToken:
           $ref: "#/components/schemas/PaginationToken"
     TokensMetadataRequestV1:
-      type: "object"
+      type: object
       properties:
         mintAccounts:
-          type: "array"
+          type: array
           items:
-            type: "string"
-            description: "要检索元数据的代币的铸造账户。"
+            type: string
+            description: 要检索元数据的代币的铸造账户。
           maxItems: 100
         includeOffChain:
-          type: "boolean"
+          type: boolean
           default: false
-          description: "包括元数据账户uri中引用的链下数据。省略时默认为false。"
+          description: 包括元数据账户uri中引用的链下数据。省略时默认为false。
         disableCache:
-          type: "boolean"
+          type: boolean
           default: false
-          description: "禁用缓存的使用，对监控元数据更改很有用。"
+          description: 禁用缓存的使用，对监控元数据更改很有用。
     TokensMetadataResponseV1:
-      type: "array"
+      type: array
       items:
-        type: "object"
-        description: "在链上和旧的代币列表中存储的代币元数据。"
+        type: object
+        description: 在链上和旧的代币列表中存储的代币元数据。
         properties:
           account:
-            type: "string"
+            type: string
           onChainAccountInfo:
             $ref: "#/components/schemas/OnChainAccountInfoResult"
           onChainMetadata:
@@ -2252,136 +2252,136 @@ components:
           legacyMetadata:
             $ref: "#/components/schemas/LegacyMetadata"
     OnChainAccountInfoResult:
-      type: "object"
+      type: object
       properties:
         accountInfo:
           $ref: "#/components/schemas/OnChainAccountInfo"
         error:
           $ref: "#/components/schemas/AccountErrorType"
     OnChainMetadataResult:
-      type: "object"
+      type: object
       properties:
         metadata:
           $ref: "#/components/schemas/OnChainMetadata"
         error:
           $ref: "#/components/schemas/AccountErrorType"
     OffChainMetadataResult:
-      type: "object"
+      type: object
       properties:
         metadata:
           $ref: "#/components/schemas/OffChainMetadata"
         uri:
-          type: "string"
+          type: string
         error:
           $ref: "#/components/schemas/AccountErrorType"
     OnChainAccountInfo:
-      type: "object"
-      description: "存储在链上的账户数据。"
+      type: object
+      description: 存储在链上的账户数据。
       properties:
         key:
-          type: "string"
+          type: string
         isSigner:
-          type: "boolean"
+          type: boolean
         isWritable:
-          type: "boolean"
+          type: boolean
         lamports:
-          type: "integer"
+          type: integer
         data:
-          type: "object"
+          type: object
           properties:
             parsed:
-              type: "object"
+              type: object
               properties:
                 info:
-                  type: "object"
+                  type: object
                   properties:
                     decimals:
-                      type: "integer"
+                      type: integer
                     freezeAuthority:
-                      type: "string"
+                      type: string
                     isInitialized:
-                      type: "boolean"
+                      type: boolean
                     mintAuthority:
-                      type: "string"
+                      type: string
                     supply:
-                      type: "string"
+                      type: string
                 type:
-                  type: "string"
+                  type: string
             program:
-              type: "string"
+              type: string
             space:
-              type: "integer"
+              type: integer
         owner:
-          type: "string"
+          type: string
         executable:
-          type: "boolean"
+          type: boolean
         rentEpoch:
-          type: "integer"
+          type: integer
     LegacyMetadata:
-      type: "object"
-      description: "来自旧SPL代币列表的数据。"
+      type: object
+      description: 来自旧SPL代币列表的数据。
       properties:
         chainId:
-          type: "integer"
+          type: integer
         address:
-          type: "string"
+          type: string
         symbol:
-          type: "string"
+          type: string
         name:
-          type: "string"
+          type: string
         decimals:
-          type: "integer"
+          type: integer
         logoURI:
-          type: "string"
+          type: string
         tags:
-          type: "array"
+          type: array
           items:
-            type: "string"
+            type: string
         extensions:
-          type: "object"
+          type: object
     AccountErrorType:
-      type: "string"
+      type: string
       example: ""
       enum:
-        - "UNKNOWN"
-        - "EMPTY_ACCOUNT"
-        - "TIMEOUT"
-        - "INVALID_ACCOUNT"
-        - "INVALID_PUBKEY"
+        - UNKNOWN
+        - EMPTY_ACCOUNT
+        - TIMEOUT
+        - INVALID_ACCOUNT
+        - INVALID_PUBKEY
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 x-amazon-apigateway-gateway-responses:
   MISSING_AUTHENTICATION_TOKEN:
     statusCode: 400
     responseTemplates:
-      application/json: "{\"error\":\"invalid path\"}"
+      application/json: '{"error":"invalid path"}'
   DEFAULT_4XX:
     responseTemplates:
-      application/json: "{\"error\": $context.error.messageString}"
+      application/json: '{"error": $context.error.messageString}'
   DEFAULT_5XX:
     responseTemplates:
-      application/json: "{\"error\": $context.error.messageString}"
+      application/json: '{"error": $context.error.messageString}'

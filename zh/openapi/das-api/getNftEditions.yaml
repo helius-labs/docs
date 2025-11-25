@@ -1,262 +1,262 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana NFT 版本追踪 API"
-  version: "1.0.0"
-  description: "高级 Solana 数字资产标准 (DAS) API，用于追踪和检索 Solana 区块链上母版版本的限量版 NFT。此专用 API 提供对基于版本的 NFT 集合的全面可见性，使应用程序能够验证版本号、追踪印刷分布、监控铸造进度，并访问从 Solana 上的单个母版艺术品派生的完整 NFT 印刷集。"
+  title: Solana NFT 版本追踪 API
+  version: 1.0.0
+  description: 高级 Solana 数字资产标准 (DAS) API，用于追踪和检索 Solana 区块链上母版版本的限量版 NFT。此专用 API 提供对基于版本的 NFT 集合的全面可见性，使应用程序能够验证版本号、追踪印刷分布、监控铸造进度，并访问从 Solana 上的单个母版艺术品派生的完整 NFT 印刷集。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getNftEditions"
-      description: "检索在 Solana 区块链上从母版 NFT 创建的所有限量版印刷品。此专用版本追踪 API 返回从特定母版版本铸造的所有单个 NFT 版本的完整列表，以及它们的唯一铸造地址、版本号和当前供应信息。对于管理限量版艺术品的 NFT 平台、追踪版本稀有性的收藏家以及验证 Solana NFT 生态系统中真实印刷品的市场来说至关重要。"
-      operationId: "rpc"
+        - RPC
+      summary: getNftEditions
+      description: 检索在 Solana 区块链上从母版 NFT 创建的所有限量版印刷品。此专用版本追踪 API 返回从特定母版版本铸造的所有单个 NFT 版本的完整列表，以及它们的唯一铸造地址、版本号和当前供应信息。对于管理限量版艺术品的 NFT 平台、追踪版本稀有性的收藏家以及验证 Solana NFT 生态系统中真实印刷品的市场来说至关重要。
+      operationId: rpc
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议的版本。"
+                  description: JSON-RPC 协议的版本。
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getNftEditions"
-                  description: "要调用的 DAS 方法名称。"
-                  default: "getNftEditions"
+                    - getNftEditions
+                  description: 要调用的 DAS 方法名称。
+                  default: getNftEditions
                 params:
-                  type: "object"
+                  type: object
                   default:
-                    mint: "Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL"
+                    mint: Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL
                   properties:
                     mint:
-                      type: "string"
-                      description: "要检索所有版本的 Solana 主版 NFT 的铸造地址。"
-                      example: "Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL"
+                      type: string
+                      description: 要检索所有版本的 Solana 主版 NFT 的铸造地址。
+                      example: Ey2Qb8kLctbchQsMnhZs5DjY32To2QtPuXNwWvk4NosL
                     page:
-                      type: "integer"
-                      description: "用于分页浏览 Solana NFT 版本结果的页码。"
+                      type: integer
+                      description: 用于分页浏览 Solana NFT 版本结果的页码。
                       example: 1
                     limit:
-                      type: "integer"
-                      description: "单个请求中返回的 Solana NFT 版本的最大数量。"
+                      type: integer
+                      description: 单个请求中返回的 Solana NFT 版本的最大数量。
                       example: 100
                   required:
-                    - "mint"
+                    - mint
       responses:
         "200":
-          description: "成功响应"
+          description: 成功响应
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   last_indexed_slot:
-                    type: "integer"
-                    description: "保证所有数据都已索引到此槽位及之前的所有数据。"
+                    type: integer
+                    description: 保证所有数据都已索引到此槽位及之前的所有数据。
                     example: 365750752
                   total:
-                    type: "integer"
-                    description: "从此主版铸造的限量版 Solana NFT 的总数。"
+                    type: integer
+                    description: 从此主版铸造的限量版 Solana NFT 的总数。
                     example: 1
                   limit:
-                    type: "integer"
-                    description: "请求的 NFT 版本的最大数量。"
+                    type: integer
+                    description: 请求的 NFT 版本的最大数量。
                     example: 1
                   page:
-                    type: "integer"
-                    description: "当前结果页。"
+                    type: integer
+                    description: 当前结果页。
                     example: 1
                   master_edition_address:
-                    type: "string"
-                    description: "控制印刷版本的主版 NFT 的 Solana 区块链地址。"
-                    example: "8SHfqzJYABeGfiG1apwiEYt6TvfGQiL1pdwEjvTKsyiZ"
+                    type: string
+                    description: 控制印刷版本的主版 NFT 的 Solana 区块链地址。
+                    example: 8SHfqzJYABeGfiG1apwiEYt6TvfGQiL1pdwEjvTKsyiZ
                   supply:
-                    type: "integer"
-                    description: "此母版中已铸造的 Solana NFT 版本的当前供应量。"
+                    type: integer
+                    description: 此母版中已铸造的 Solana NFT 版本的当前供应量。
                     example: 61
                   max_supply:
-                    type: "integer"
-                    description: "此母版中可以铸造的 Solana NFT 版本的最大可能供应量。"
+                    type: integer
+                    description: 此母版中可以铸造的 Solana NFT 版本的最大可能供应量。
                     example: 69
                   editions:
-                    type: "array"
-                    description: "从此母版中铸造的单个 Solana NFT 版本的数组。"
+                    type: array
+                    description: 从此母版中铸造的单个 Solana NFT 版本的数组。
                     items:
-                      type: "object"
+                      type: object
                       properties:
                         mint:
-                          type: "string"
-                          description: "此单个 Solana NFT 版本的唯一铸造地址。"
-                          example: "GJvFDcBWf6aDncd1TBzx2ou1rgLFYaMBdbYLBa9oTAEw"
+                          type: string
+                          description: 此单个 Solana NFT 版本的唯一铸造地址。
+                          example: GJvFDcBWf6aDncd1TBzx2ou1rgLFYaMBdbYLBa9oTAEw
                         edition_address:
-                          type: "string"
-                          description: "此 NFT 版本账户的 Solana 区块链地址。"
+                          type: string
+                          description: 此 NFT 版本账户的 Solana 区块链地址。
                         edition:
-                          type: "integer"
-                          description: "此 Solana NFT 在印刷系列中的顺序版本号。"
+                          type: integer
+                          description: 此 Solana NFT 在印刷系列中的顺序版本号。
                         burnt: false
         "400":
-          description: "错误请求。由于语法无效，服务器无法理解请求。"
+          description: 错误请求。由于语法无效，服务器无法理解请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32602
                       message:
-                        type: "string"
-                        example: "请求参数无效。"
+                        type: string
+                        example: 请求参数无效。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "401":
-          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          description: 未授权。客户端必须进行身份验证才能获得请求的响应。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32001
                       message:
-                        type: "string"
-                        example: "身份验证失败。缺少或无效的API密钥。"
+                        type: string
+                        example: 身份验证失败。缺少或无效的API密钥。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "403":
-          description: "禁止访问。客户端无权访问该内容。"
+          description: 禁止访问。客户端无权访问该内容。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32003
                       message:
-                        type: "string"
-                        example: "您无权访问此资源。"
+                        type: string
+                        example: 您无权访问此资源。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "404":
-          description: "未找到。服务器无法找到请求的资源。"
+          description: 未找到。服务器无法找到请求的资源。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32004
                       message:
-                        type: "string"
-                        example: "找不到指定铸造地址的NFT版本。"
+                        type: string
+                        example: 找不到指定铸造地址的NFT版本。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "429":
-          description: "请求过多。用户在给定的时间内发送了太多请求。"
+          description: 请求过多。用户在给定的时间内发送了太多请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32029
                       message:
-                        type: "string"
-                        example: "超出速率限制。请稍后再试。"
+                        type: string
+                        example: 超出速率限制。请稍后再试。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "500":
-          description: "内部服务器错误。服务器遇到了一个无法处理的情况。"
+          description: 内部服务器错误。服务器遇到了一个无法处理的情况。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32000
                       message:
-                        type: "string"
-                        example: "服务器发生了意外错误。"
+                        type: string
+                        example: 服务器发生了意外错误。
                   id:
-                    type: "string"
+                    type: string
                     example: "1"

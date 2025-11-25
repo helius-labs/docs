@@ -1,58 +1,58 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于监控最近在 Solana 上支付的优先费用的交易费用市场监控 API，以优化网络拥堵期间的交易定价和执行。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于监控最近在 Solana 上支付的优先费用的交易费用市场监控 API，以优化网络拥堵期间的交易定价和执行。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getRecentPrioritizationFees"
-      operationId: "getRecentPrioritizationFees"
-      description: "检索Solana网络上交易支付的最近优先费用级别。这个动态费用市场API提供了交易定价趋势的见解，帮助在网络拥堵期间确定最佳费用。返回最近区块中每个计算单元支付的费用历史数据，可选择按特定写入的账户进行过滤。对于需要根据当前网络状况和费用市场动态设置竞争性费用水平以确保及时交易确认的钱包、交易所和DApps至关重要。"
+        - RPC
+      summary: getRecentPrioritizationFees
+      operationId: getRecentPrioritizationFees
+      description: 检索Solana网络上交易支付的最近优先费用级别。这个动态费用市场API提供了交易定价趋势的见解，帮助在网络拥堵期间确定最佳费用。返回最近区块中每个计算单元支付的费用历史数据，可选择按特定写入的账户进行过滤。对于需要根据当前网络状况和费用市场动态设置竞争性费用水平以确保及时交易确认的钱包、交易所和DApps至关重要。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,76 +60,76 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
+                - jsonrpc
+                - id
+                - method
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC协议版本。"
+                  type: string
+                  description: JSON-RPC协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的RPC方法名称。"
+                  type: string
+                  description: 要调用的RPC方法名称。
                   enum:
-                    - "getRecentPrioritizationFees"
-                  example: "getRecentPrioritizationFees"
-                  default: "getRecentPrioritizationFees"
+                    - getRecentPrioritizationFees
+                  example: getRecentPrioritizationFees
+                  default: getRecentPrioritizationFees
                 params:
-                  type: "array"
-                  description: "可选的账户地址数组。"
+                  type: array
+                  description: 可选的账户地址数组。
                   items:
-                    type: "array"
-                    description: "账户地址数组（最多128个），以base-58编码的字符串形式。"
+                    type: array
+                    description: 账户地址数组（最多128个），以base-58编码的字符串形式。
                     items:
-                      type: "string"
-                      description: "特定Solana账户地址，用于过滤涉及写入此账户的优先费用。"
-                      example: "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
+                      type: string
+                      description: 特定Solana账户地址，用于过滤涉及写入此账户的优先费用。
+                      example: CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY
       responses:
         "200":
-          description: "成功检索到最近的优先级费用。"
+          description: 成功检索到最近的优先级费用。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC 协议版本。"
+                    type: string
+                    description: JSON-RPC 协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "array"
-                    description: "最近优先级费用的列表。"
+                    type: array
+                    description: 最近优先级费用的列表。
                     items:
-                      type: "object"
-                      description: "特定插槽中优先级费用的详细信息。"
+                      type: object
+                      description: 特定插槽中优先级费用的详细信息。
                       properties:
                         slot:
-                          type: "integer"
-                          description: "观察到这些优先级费用级别的 Solana 区块链插槽编号。"
+                          type: integer
+                          description: 观察到这些优先级费用级别的 Solana 区块链插槽编号。
                           example: 348125
                         prioritizationFee:
-                          type: "integer"
-                          description: "在此插槽中由交易支付的每个计算单元的微 lamports 优先级费用率。"
+                          type: integer
+                          description: 在此插槽中由交易支付的每个计算单元的微 lamports 优先级费用率。
                           example: 1234
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
@@ -138,10 +138,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
-                  message: "Invalid params"
+                  message: Invalid params
                 id: "1"
         "401":
-          description: "未授权 - 无效或缺失的 API 密钥。"
+          description: 未授权 - 无效或缺失的 API 密钥。
           content:
             application/json:
               schema:
@@ -150,10 +150,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
-                  message: "Unauthorized"
+                  message: Unauthorized
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
@@ -162,10 +162,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
-                  message: "请求过多"
+                  message: 请求过多
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
@@ -174,10 +174,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
-                  message: "内部错误"
+                  message: 内部错误
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
@@ -186,10 +186,10 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
-                  message: "服务不可用"
+                  message: 服务不可用
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
@@ -198,5 +198,5 @@ paths:
                 jsonrpc: "2.0"
                 error:
                   code: -32003
-                  message: "网关超时"
+                  message: 网关超时
                 id: "1"
