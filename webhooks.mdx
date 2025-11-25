@@ -9,8 +9,12 @@ Helius Webhooks enable seamless monitoring of Solana on-chain events, such as sa
 For frequently asked questions about webhooks, please refer to our [Webhooks FAQ](/faqs/webhooks).
 
 <Warning>
-Webhook events are charged at 1 credit **when Helius processes and sends the event to your endpoint**. You are charged regardless of whether your endpoint successfully processes the webhook or not. Editing, adding, or deleting a webhook via the API will cost 100 credits/request.
+Helius may retry webhook deliveries if your server does not respond successfully, and you might receive duplicate events. For details on retries and handling duplicates, see the [Webhooks FAQ](/faqs/webhooks#retries).
 </Warning>
+
+## Pricing
+
+Webhook events are charged at **1 credit** when Helius processes and sends the event to your endpoint. You are charged regardless of whether your endpoint successfully processes the webhook or not. Editing, adding, or deleting a webhook via the API will cost 100 credits/request.
 
 ## Types of Webhooks
 
