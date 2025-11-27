@@ -1,46 +1,47 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "区块链时间戳API，用于检索特定Solana区块生成时的Unix时间戳，从而实现链上事件与现实世界时间的关联。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 区块链时间戳API，用于检索特定Solana区块生成时的Unix时间戳，从而实现链上事件与现实世界时间的关联。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
+          type: string
           enum:
             - "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
+              type: integer
             message:
-              type: "string"
+              type: string
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getBlockTime"
-      operationId: "getBlockTime"
-      description: "将Solana区块槽号转换为其对应的现实世界时间戳。此时间关联API将区块链槽转换为Unix时间戳（自纪元以来的秒数），提供特定区块生成的确切时间。对于需要在链上事件与现实世界时间之间建立精确时间关系的应用程序至关重要，包括交易历史显示、财务报告工具、审计系统、分析平台跟踪时间模式、税务计算软件以及任何需要以熟悉的人类可读日期和时间而非仅仅技术槽号来呈现区块链活动的应用程序。"
+        - RPC
+      summary: getBlockTime
+      operationId: getBlockTime
+      description: |-
+        将Solana区块槽号转换为其对应的现实世界时间戳。此时间关联API将区块链槽转换为Unix时间戳（自纪元以来的秒数），提供特定区块生成的确切时间。对于需要在链上事件与现实世界时间之间建立精确时间关系的应用程序至关重要，包括交易历史显示、财务报告工具、审计系统、分析平台跟踪时间模式、税务计算软件以及任何需要以熟悉的人类可读日期和时间而非仅仅技术槽号来呈现区块链活动的应用程序。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -48,64 +49,64 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议版本。"
+                  description: JSON-RPC协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getBlockTime"
-                  description: "要调用的RPC方法名称。"
+                    - getBlockTime
+                  description: 要调用的RPC方法名称。
                   default: "getBlockTime"
                 params:
-                  type: "array"
-                  description: "请求的参数。"
+                  type: array
+                  description: 请求的参数。
                   default:
                     - 5
                   items:
-                    type: "integer"
-                    description: "要检索相应时间戳的区块槽号。"
+                    type: integer
+                    description: 要检索相应时间戳的区块槽号。
                     example: 5
       responses:
         "200":
-          description: "成功检索到区块时间。"
+          description: 成功检索到区块时间。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
                   id:
-                    type: "string"
+                    type: string
                   result:
-                    type: "integer"
-                    description: "此特定Solana区块由验证者生成时的Unix时间戳（自Unix纪元以来的秒数）。"
+                    type: integer
+                    description: 此特定Solana区块由验证者生成时的Unix时间戳（自Unix纪元以来的秒数）。
                     example: 1574721591
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -113,11 +114,11 @@ paths:
                   message: "参数无效"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -125,11 +126,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -137,11 +138,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -149,11 +150,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -161,11 +162,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

@@ -1,185 +1,185 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  title: "Solana 压缩 NFT 铸造 API"
-  version: "1.0.0"
-  description: "高级 API，用于在 Solana 上使用状态压缩技术铸造压缩 NFT，以实现成本高效的 NFT 创建和管理。
-
-    这个尖端 API 利用 Solana 的状态压缩技术实现大规模可扩展性改进，使项目能够以传统方法的一小部分成本铸造数千个 NFT。压缩 NFT 标准在显著减少存储需求和交易费用的同时，保持与市场的完全兼容性。\n"
+  title: Solana 压缩 NFT 铸造 API
+  version: 1.0.0
+  description: |
+    高级 API，用于在 Solana 上使用状态压缩技术铸造压缩 NFT，以实现成本高效的 NFT 创建和管理。
+    这个尖端 API 利用 Solana 的状态压缩技术实现大规模可扩展性改进，使项目能够以传统方法的一小部分成本铸造数千个 NFT。压缩 NFT 标准在显著减少存储需求和交易费用的同时，保持与市场的完全兼容性。
   license:
-    name: "MIT"
-    url: "https://opensource.org/licenses/MIT"
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 security:
   - apiKey: []
 paths:
   /:
     post:
-      operationId: "mintCompressedNft"
-      summary: "铸造压缩 Solana NFT"
+      operationId: mintCompressedNft
+      summary: 铸造压缩 Solana NFT
       security:
         - apiKey: []
       parameters:
-        - name: "api-key"
-          in: "query"
-          description: "用于身份验证和访问压缩 NFT 铸造的 Helius API 密钥。"
+        - name: api-key
+          in: query
+          description: 用于身份验证和访问压缩 NFT 铸造的 Helius API 密钥。
           required: true
           schema:
-            type: "string"
-            example: "string"
+            type: string
+            example: string
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议的版本。"
+                  description: JSON-RPC 协议的版本。
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "mintCompressedNft"
-                  description: "要调用的 RPC 方法名称。"
+                    - mintCompressedNft
+                  description: 要调用的 RPC 方法名称。
                 params:
-                  type: "object"
+                  type: object
                   properties:
                     name:
-                      type: "string"
-                      description: "要铸造的压缩 Solana NFT 的名称，将在市场和钱包中显示。"
-                      example: "被封印的艾克佐迪亚"
+                      type: string
+                      description: 要铸造的压缩 Solana NFT 的名称，将在市场和钱包中显示。
+                      example: '被封印的艾克佐迪亚'
                     symbol:
-                      type: "string"
-                      description: "压缩的Solana NFT集合的符号，通常是项目的简短标识符。"
-                      example: "ETFO"
+                      type: string
+                      description: 压缩的Solana NFT集合的符号，通常是项目的简短标识符。
+                      example: 'ETFO'
                     description:
-                      type: "string"
-                      description: "用于市场和索引器的压缩NFT的详细描述。"
-                      example: "被封印的艾克佐迪亚是一种强大而传奇的生物。"
+                      type: string
+                      description: 用于市场和索引器的压缩NFT的详细描述。
+                      example: '被封印的艾克佐迪亚是一种强大而传奇的生物。'
                     owner:
-                      type: "string"
-                      description: "在铸造完成后将接收并拥有压缩NFT的Solana钱包地址。"
-                      example: "DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF"
+                      type: string
+                      description: 在铸造完成后将接收并拥有压缩NFT的Solana钱包地址。
+                      example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
                     delegate:
-                      type: "string"
-                      description: "具有使用权限的压缩NFT的可选委托地址。"
-                      example: "DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF"
+                      type: string
+                      description: 具有使用权限的压缩NFT的可选委托地址。
+                      example: 'DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF'
                     collection:
-                      type: "string"
-                      description: "将此压缩NFT添加到集合地址，以便在Solana市场上进行分组、发现和验证。"
+                      type: string
+                      description: 将此压缩NFT添加到集合地址，以便在Solana市场上进行分组、发现和验证。
                     uri:
-                      type: "string"
-                      description: "指向压缩NFT的链外JSON元数据的URI，通常托管在Arweave或IPFS上。"
+                      type: string
+                      description: 指向压缩NFT的链外JSON元数据的URI，通常托管在Arweave或IPFS上。
                     attributes:
-                      type: "array"
-                      description: "定义压缩NFT特征的特征和属性数组。"
+                      type: array
+                      description: 定义压缩NFT特征的特征和属性数组。
                       items:
-                        type: "object"
+                        type: object
                         properties:
                           trait_type:
-                            type: "string"
-                            description: "压缩NFT特征的类别或类型。"
-                            example: "稀有度"
+                            type: string
+                            description: 压缩NFT特征的类别或类型。
+                            example: '稀有度'
                           value:
-                            type: "string"
-                            description: "压缩NFT特征的具体值。"
-                            example: "神话"
+                            type: string
+                            description: 压缩NFT特征的具体值。
+                            example: '神话'
                         required:
-                          - "trait_type"
-                          - "value"
+                          - trait_type
+                          - value
                     imageUrl:
-                      type: "string"
-                      description: "表示在市场上压缩NFT的图像的直接URL。"
-                      example: "https://cdna.artstation.com/p/assets/images/images/052/118/830/large/julie-almoneda-03.jpg?1658992401"
+                      type: string
+                      description: 表示在市场上压缩NFT的图像的直接URL。
+                      example: 'https://cdna.artstation.com/p/assets/images/images/052/118/830/large/julie-almoneda-03.jpg?1658992401'
                     externalUrl:
-                      type: "string"
-                      description: "与压缩NFT或集合相关的可选网站URL。"
-                      example: "https://www.yugioh-card.com/en/"
+                      type: string
+                      description: 与压缩NFT或集合相关的可选网站URL。
+                      example: 'https://www.yugioh-card.com/en/'
                     sellerFeeBasisPoints:
-                      type: "integer"
-                      description: "在Solana市场上，创作者在二级销售中获得收益的版税百分比，以基点表示（100 = 1%，1000 = 10%）。"
+                      type: integer
+                      description: 在Solana市场上，创作者在二级销售中获得收益的版税百分比，以基点表示（100 = 1%，1000 = 10%）。
                       example: 5000
                     creators:
-                      type: "array"
-                      description: "贡献了版税份额的压缩NFT创作者地址数组。"
+                      type: array
+                      description: 贡献了版税份额的压缩NFT创作者地址数组。
                       items:
-                        type: "object"
+                        type: object
                         properties:
                           address:
-                            type: "string"
-                            description: "接收版税的创作者的Solana钱包地址。"
-                            example: "DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF"
+                            type: string
+                            description: 接收版税的创作者的Solana钱包地址。
+                            example: DCQnfUH6mHA333mzkU22b4hMvyqcejUBociodq8bB5HF
                           share:
-                            type: "integer"
-                            description: "分配给该创作者的版税百分比（总和必须等于100）。"
+                            type: integer
+                            description: 分配给该创作者的版税百分比（总和必须等于100）。
                             example: 100
                             minimum: 0
                             maximum: 100
                         required:
-                          - "address"
-                          - "share"
+                          - address
+                          - share
                     confirmTransaction:
-                      type: "boolean"
-                      description: "如果为true，API将在响应之前等待链上确认。"
+                      type: boolean
+                      description: 如果为true，API将在响应之前等待链上确认。
                   required:
-                    - "name"
-                    - "symbol"
-                    - "description"
-                    - "owner"
+                    - name
+                    - symbol
+                    - description
+                    - owner
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
       responses:
         "200":
-          description: "成功铸造压缩的 Solana NFT"
+          description: 成功铸造压缩的 Solana NFT
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC 协议的版本。"
+                    description: JSON-RPC 协议的版本。
                   id:
-                    type: "string"
-                    description: "用于标识请求的 ID。"
+                    type: string
+                    description: 用于标识请求的 ID。
                   result:
-                    type: "object"
+                    type: object
                     properties:
                       signature:
-                        type: "string"
-                        description: "成功压缩 NFT 铸造操作的 Solana 区块链交易签名，用于验证。"
-                        example: "4FRxjAvHLGCEUXJqkucG7SdKrrmAeqjfTQKmhMZWvqGvkPGvWeZXY8Vfj8oxXtGnf7q3n4n8XHVDsExkpCtAEdKj"
+                        type: string
+                        description: 成功压缩 NFT 铸造操作的 Solana 区块链交易签名，用于验证。
+                        example: 4FRxjAvHLGCEUXJqkucG7SdKrrmAeqjfTQKmhMZWvqGvkPGvWeZXY8Vfj8oxXtGnf7q3n4n8XHVDsExkpCtAEdKj
                       minted:
-                        type: "boolean"
-                        description: "确认压缩的 NFT 已成功在 Solana 上铸造。"
+                        type: boolean
+                        description: 确认压缩的 NFT 已成功在 Solana 上铸造。
                         example: true
                       assetId:
-                        type: "string"
-                        description: "铸造的压缩 NFT 的唯一 Solana 资产 ID，用于通过数字资产标准 (DAS) API 查询。"
-                        example: "6sx2ChPvudKVt4Gc6qr3X4FFwtM4vVa6uZMmQHn5udQE"
+                        type: string
+                        description: 铸造的压缩 NFT 的唯一 Solana 资产 ID，用于通过数字资产标准 (DAS) API 查询。
+                        example: 6sx2ChPvudKVt4Gc6qr3X4FFwtM4vVa6uZMmQHn5udQE
                 required:
-                  - "jsonrpc"
-                  - "id"
-                  - "result"
+                  - jsonrpc
+                  - id
+                  - result
         "400":
-          description: "无效请求。"
+          description: 无效请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -187,11 +187,11 @@ paths:
                   message: "无效的参数"
                 id: "1"
         "401":
-          description: "未经授权的请求。"
+          description: 未经授权的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -199,11 +199,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "403":
-          description: "请求被禁止。"
+          description: 请求被禁止。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -211,11 +211,11 @@ paths:
                   message: "禁止"
                 id: "1"
         "404":
-          description: "未找到指定的资源。"
+          description: 未找到指定的资源。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -223,11 +223,11 @@ paths:
                   message: "方法未找到"
                 id: "1"
         "429":
-          description: "超出速率限制。"
+          description: 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -235,11 +235,11 @@ paths:
                   message: "超出速率限制"
                 id: "1"
         "500":
-          description: "服务器遇到意外情况，无法完成请求。"
+          description: 服务器遇到意外情况，无法完成请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -247,11 +247,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务暂时不可用。"
+          description: 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -259,11 +259,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "请求超时。"
+          description: 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -273,33 +273,33 @@ paths:
 components:
   securitySchemes:
     apiKey:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
+      type: apiKey
+      in: query
+      name: api-key
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"

@@ -1,49 +1,49 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "快速可靠的Solana SPL代币余额检索API，用于访问可替代代币和NFT余额，具有正确的小数格式和人类可读的金额。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 快速可靠的Solana SPL代币余额检索API，用于访问可替代代币和NFT余额，具有正确的小数格式和人类可读的金额。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
   examples:
     getTokenAccountBalanceRequest:
@@ -52,7 +52,7 @@ components:
         id: "1"
         method: "getTokenAccountBalance"
         params:
-          - "3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa"
+          - 3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa
     getTokenAccountBalanceResponse:
       value:
         jsonrpc: "2.0"
@@ -69,10 +69,11 @@ paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getTokenAccountBalance"
-      operationId: "getTokenAccountBalance"
-      description: "从任何 Solana 代币账户中检索 SPL 代币余额，并进行适当的小数格式化。这个重要的 API 提供对可替代代币余额、NFT 持有量和其他 SPL 代币数据的访问，支持代币特定的小数位数以确保准确显示。返回原始和格式化的余额以及人类可读的金额，对于钱包、DeFi 应用、交易所和任何需要向用户显示代币余额的服务至关重要。"
+        - RPC
+      summary: getTokenAccountBalance
+      operationId: getTokenAccountBalance
+      description: |-
+        从任何 Solana 代币账户中检索 SPL 代币余额，并进行适当的小数格式化。这个重要的 API 提供对可替代代币余额、NFT 持有量和其他 SPL 代币数据的访问，支持代币特定的小数位数以确保准确显示。返回原始和格式化的余额以及人类可读的金额，对于钱包、DeFi 应用、交易所和任何需要向用户显示代币余额的服务至关重要。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -80,110 +81,110 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议版本。"
+                  description: JSON-RPC 协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getTokenAccountBalance"
-                  description: "要调用的 RPC 方法名称。"
+                    - getTokenAccountBalance
+                  description: 要调用的 RPC 方法名称。
                   example: "getTokenAccountBalance"
                   default: "getTokenAccountBalance"
                 params:
-                  type: "array"
-                  description: "查询代币账户余额的参数。"
+                  type: array
+                  description: 查询代币账户余额的参数。
                   default:
-                    - "3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa"
+                    - 3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa
                   items:
                     oneOf:
-                      - type: "string"
-                        description: "要查询余额信息的Solana SPL代币账户地址，作为base-58编码的字符串。"
-                        example: "3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa"
-                      - type: "object"
-                        description: "配置选项。"
+                      - type: string
+                        description: 要查询余额信息的Solana SPL代币账户地址，作为base-58编码的字符串。
+                        example: 3emsAVdmGKERbHjmGfQ6oZ1e35dkf5iYcS6U4CPKFVaa
+                      - type: object
+                        description: 配置选项。
                         properties:
                           commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
+                            type: string
+                            description: 请求的承诺级别。
                             enum:
-                              - "confirmed"
-                              - "finalized"
-                              - "processed"
-                            example: "finalized"
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
             examples:
               default:
-                $ref: "#/components/examples/getTokenAccountBalanceRequest"
+                $ref: '#/components/examples/getTokenAccountBalanceRequest'
       responses:
         "200":
-          description: "成功检索到代币账户余额。"
+          description: 成功检索到代币账户余额。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC协议版本。"
+                    description: JSON-RPC协议版本。
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "上下文和代币账户余额详情。"
+                    type: object
+                    description: 上下文和代币账户余额详情。
                     properties:
                       context:
-                        type: "object"
-                        description: "响应的上下文。"
+                        type: object
+                        description: 响应的上下文。
                         properties:
                           slot:
-                            type: "integer"
-                            description: "获取数据的插槽。"
+                            type: integer
+                            description: 获取数据的插槽。
                             example: 1114
                       value:
-                        type: "object"
-                        description: "令牌账户余额详情。"
+                        type: object
+                        description: 令牌账户余额详情。
                         properties:
                           amount:
-                            type: "string"
-                            description: "原始的 Solana 令牌余额，作为不带小数格式的字符串整数。"
+                            type: string
+                            description: 原始的 Solana 令牌余额，作为不带小数格式的字符串整数。
                             example: "9864"
                           decimals:
-                            type: "integer"
-                            description: "由令牌的铸造定义的小数位数，用于正确显示格式。"
+                            type: integer
+                            description: 由令牌的铸造定义的小数位数，用于正确显示格式。
                             example: 2
                           uiAmount:
-                            type: "number"
-                            description: "可读的 Solana 令牌余额，具有正确的小数格式（已弃用）。"
+                            type: number
+                            description: 可读的 Solana 令牌余额，具有正确的小数格式（已弃用）。
                             example: 98.64
                           uiAmountString:
-                            type: "string"
-                            description: "具有正确小数位数的令牌余额的规范字符串表示。"
+                            type: string
+                            description: 具有正确小数位数的令牌余额的规范字符串表示。
                             example: "98.64"
               examples:
                 default:
-                  $ref: "#/components/examples/getTokenAccountBalanceResponse"
+                  $ref: '#/components/examples/getTokenAccountBalanceResponse'
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -191,11 +192,11 @@ paths:
                   message: "Invalid params"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -203,11 +204,11 @@ paths:
                   message: "Unauthorized"
                 id: "1"
         "429":
-          description: "请求过多 - 超过速率限制。"
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -215,11 +216,11 @@ paths:
                   message: "Too many requests"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -227,11 +228,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -239,11 +240,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

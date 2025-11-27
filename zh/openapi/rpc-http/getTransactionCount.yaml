@@ -1,49 +1,49 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于跟踪Solana区块链网络活动和自创世以来总处理操作的交易量指标API。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于跟踪Solana区块链网络活动和自创世以来总处理操作的交易量指标API。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
   examples:
     requestExample:
@@ -52,7 +52,7 @@ components:
         id: "1"
         method: "getTransactionCount"
         params:
-          - commitment: "finalized"
+          - commitment: finalized
     responseExample:
       value:
         jsonrpc: "2.0"
@@ -62,10 +62,11 @@ paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getTransactionCount"
-      operationId: "getTransactionCount"
-      description: "检索自创世以来由Solana区块链处理的总交易计数。这个网络活动指标提供了对区块链吞吐量和历史交易量的洞察，跟踪整个网络历史上成功处理的交易累计数量。对于区块链分析、网络监控仪表板、吞吐量分析以及跟踪Solana随时间增长的应用程序至关重要。结果可以在不同的确认级别查询，以获得不同程度的最终性。"
+        - RPC
+      summary: getTransactionCount
+      operationId: getTransactionCount
+      description: |-
+        检索自创世以来由Solana区块链处理的总交易计数。这个网络活动指标提供了对区块链吞吐量和历史交易量的洞察，跟踪整个网络历史上成功处理的交易累计数量。对于区块链分析、网络监控仪表板、吞吐量分析以及跟踪Solana随时间增长的应用程序至关重要。结果可以在不同的确认级别查询，以获得不同程度的最终性。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -73,80 +74,80 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议版本。"
+                  description: JSON-RPC协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getTransactionCount"
-                  description: "要调用的RPC方法名称。"
+                    - getTransactionCount
+                  description: 要调用的RPC方法名称。
                   example: "getTransactionCount"
                   default: "getTransactionCount"
                 params:
-                  type: "array"
-                  description: "可选的配置对象。"
+                  type: array
+                  description: 可选的配置对象。
                   items:
-                    type: "object"
-                    description: "请求的配置选项。"
+                    type: object
+                    description: 请求的配置选项。
                     properties:
                       commitment:
-                        type: "string"
-                        description: "用于衡量交易计数的最终级别（processed = 最近，finalized = 确认）。"
+                        type: string
+                        description: 用于衡量交易计数的最终级别（processed = 最近，finalized = 确认）。
                         enum:
-                          - "confirmed"
-                          - "finalized"
-                          - "processed"
-                        example: "finalized"
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
                       minContextSlot:
-                        type: "integer"
-                        description: "请求可以评估的最小槽位。"
+                        type: integer
+                        description: 请求可以评估的最小槽位。
                         example: 1000
             examples:
               sampleRequest:
-                $ref: "#/components/examples/requestExample"
+                $ref: '#/components/examples/requestExample'
       responses:
         "200":
-          description: "成功检索到交易计数。"
+          description: 成功检索到交易计数。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC 协议版本。"
+                    description: JSON-RPC 协议版本。
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "integer"
-                    description: "自网络启动以来 Solana 区块链处理的交易总数。"
+                    type: integer
+                    description: 自网络启动以来 Solana 区块链处理的交易总数。
                     example: 268
               examples:
                 sampleResponse:
-                  $ref: "#/components/examples/responseExample"
+                  $ref: '#/components/examples/responseExample'
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -154,11 +155,11 @@ paths:
                   message: "Invalid params"
                 id: "1"
         "401":
-          description: "未授权 - 无效或缺失的 API 密钥。"
+          description: 未授权 - 无效或缺失的 API 密钥。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -166,11 +167,11 @@ paths:
                   message: "未经授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超过速率限制。"
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -178,11 +179,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -190,11 +191,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -202,11 +203,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

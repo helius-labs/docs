@@ -1,179 +1,173 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Solana 状态压缩批量 API"
-  description: "高级 Solana 索引器，使用状态压缩技术为压缩账户提供高效且经济的数据存储在 Solana 区块链上。
-
+  title: Solana 状态压缩批量 API
+  description: |
+    高级 Solana 索引器，使用状态压缩技术为压缩账户提供高效且经济的数据存储在 Solana 区块链上。
     此 API 提供优化的压缩 NFT 和代币账户的批量检索，使应用程序能够高效扩展
-
-    同时受益于 Solana 的突破性压缩技术，该技术将链上存储成本降低多达 1000 倍。\n"
+    同时受益于 Solana 的突破性压缩技术，该技术将链上存储成本降低多达 1000 倍。
   license:
-    name: "Apache-2.0"
-  version: "0.50.0"
+    name: Apache-2.0
+  version: 0.50.0
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 paths:
   /:
-    summary: "getMultipleCompressedAccounts"
+    summary: getMultipleCompressedAccounts
     post:
-      description: "在单个请求中高效地从 Solana 区块链检索多个压缩账户。
-
+      description: |
+        在单个请求中高效地从 Solana 区块链检索多个压缩账户。
         此优化的批量端点允许开发人员通过地址或哈希在一次操作中检索多个状态压缩账户，减少 RPC 调用和网络开销。非常适合处理大量压缩 NFT、代币或其他需要高性能和经济高效数据访问的压缩 Solana 数据结构的应用程序。
 
-
         关键用例：
-
         - 大量检索压缩 NFT 集合数据
-
         - 显示多个压缩资产的钱包应用程序
-
         - 加载批量压缩 NFT 元数据的市场
-
         - 处理多个压缩代币的分析平台
-
-        - 高效检索多个游戏内资产的游戏\n"
-      operationId: "getMultipleCompressedAccounts"
+        - 高效检索多个游戏内资产的游戏
+      operationId: getMultipleCompressedAccounts
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议的版本。"
+                  type: string
+                  description: JSON-RPC 协议的版本。
                   enum:
                     - "2.0"
-                  default: "2.0"
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的方法名称。"
+                  type: string
+                  description: 要调用的方法名称。
                   enum:
-                    - "getMultipleCompressedAccounts"
-                  default: "getMultipleCompressedAccounts"
+                    - getMultipleCompressedAccounts
+                  default: getMultipleCompressedAccounts
                 params:
-                  type: "object"
-                  description: "用于批量检索多个压缩的 Solana 账户数据的请求参数，支持通过地址或加密哈希进行查找"
+                  type: object
+                  description: |-
+                    用于批量检索多个压缩的 Solana 账户数据的请求参数，支持通过地址或加密哈希进行查找
                   default:
                     addresses: null
                     hashes:
-                      - "1111111QLbz7JHiBTspS962RLKV8GndWFwiEaqKM"
-                      - "1111111ogCyDbaRMvkdsHB3qfdyFYaG1WtRUAfdh"
+                      - 1111111QLbz7JHiBTspS962RLKV8GndWFwiEaqKM
+                      - 1111111ogCyDbaRMvkdsHB3qfdyFYaG1WtRUAfdh
                   properties:
                     addresses:
-                      type: "array"
+                      type: array
                       items:
-                        $ref: "#/components/schemas/SerializablePubkey"
+                        $ref: '#/components/schemas/SerializablePubkey'
                       nullable: true
-                      description: "要检索的压缩账户的 Solana 公钥数组"
+                      description: 要检索的压缩账户的 Solana 公钥数组
                     hashes:
-                      type: "array"
+                      type: array
                       items:
-                        $ref: "#/components/schemas/Hash"
+                        $ref: '#/components/schemas/Hash'
                       nullable: true
-                      description: "标识要检索的压缩 Solana 账户的数据哈希数组"
+                      description: 标识要检索的压缩 Solana 账户的数据哈希数组
                   additionalProperties: false
                   example:
                     addresses: null
                     hashes:
-                      - "1111111QLbz7JHiBTspS962RLKV8GndWFwiEaqKM"
-                      - "1111111ogCyDbaRMvkdsHB3qfdyFYaG1WtRUAfdh"
+                      - 1111111QLbz7JHiBTspS962RLKV8GndWFwiEaqKM
+                      - 1111111ogCyDbaRMvkdsHB3qfdyFYaG1WtRUAfdh
         required: true
       responses:
-        "200":
-          description: "成功在单个批处理操作中检索到多个压缩的 Solana 账户"
+        '200':
+          description: '成功在单个批处理操作中检索到多个压缩的 Solana 账户'
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 required:
-                  - "context"
-                  - "value"
+                  - context
+                  - value
                 properties:
                   context:
-                    $ref: "#/components/schemas/Context"
+                    $ref: '#/components/schemas/Context'
                   value:
-                    $ref: "#/components/schemas/AccountList"
+                    $ref: '#/components/schemas/AccountList'
                 additionalProperties: false
-        "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+        '400':
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
                 id: "1"
-        "401":
-          description: "未授权 - API 密钥无效或缺失。"
+        '401':
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
                   message: "Unauthorized"
                 id: "1"
-        "429":
-          description: "请求过多 - 超出速率限制。"
+        '429':
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
                   message: "请求过多"
                 id: "1"
-        "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+        '500':
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
                   message: "内部错误"
                 id: "1"
-        "503":
-          description: "服务不可用 - 服务暂时不可用。"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
                   message: "服务不可用"
                 id: "1"
-        "504":
-          description: "网关超时 - 请求超时。"
+        '504':
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -183,128 +177,128 @@ paths:
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     Account:
-      type: "object"
+      type: object
       required:
-        - "hash"
-        - "owner"
-        - "lamports"
-        - "tree"
-        - "leafIndex"
-        - "seq"
-        - "slotCreated"
+        - hash
+        - owner
+        - lamports
+        - tree
+        - leafIndex
+        - seq
+        - slotCreated
       properties:
         address:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "压缩账户的唯一 Solana 地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 压缩账户的唯一 Solana 地址
         data:
-          $ref: "#/components/schemas/AccountData"
-          description: "以高效存储格式存储的压缩账户数据"
+          $ref: '#/components/schemas/AccountData'
+          description: 以高效存储格式存储的压缩账户数据
         hash:
-          $ref: "#/components/schemas/Hash"
-          description: "用于验证的压缩账户数据的加密哈希"
+          $ref: '#/components/schemas/Hash'
+          description: 用于验证的压缩账户数据的加密哈希
         lamports:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "与压缩账户关联的 lamports 余额"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 与压缩账户关联的 lamports 余额
         leafIndex:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "存储压缩账户的 merkle 树中的索引位置"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 存储压缩账户的 merkle 树中的索引位置
         owner:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "拥有此压缩账户的 Solana 程序"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 拥有此压缩账户的 Solana 程序
         seq:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "用于跟踪压缩账户更新的序列号"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 用于跟踪压缩账户更新的序列号
         slotCreated:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "创建压缩账户时的 Solana 区块链插槽"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 创建压缩账户时的 Solana 区块链插槽
         tree:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "包含此压缩账户的 merkle 树的地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 包含此压缩账户的 merkle 树的地址
       additionalProperties: false
     AccountData:
-      type: "object"
+      type: object
       required:
-        - "discriminator"
-        - "data"
-        - "dataHash"
+        - discriminator
+        - data
+        - dataHash
       properties:
         data:
-          $ref: "#/components/schemas/Base64String"
+          $ref: '#/components/schemas/Base64String'
         dataHash:
-          $ref: "#/components/schemas/Hash"
+          $ref: '#/components/schemas/Hash'
         discriminator:
-          $ref: "#/components/schemas/UnsignedInteger"
+          $ref: '#/components/schemas/UnsignedInteger'
       additionalProperties: false
     AccountList:
-      type: "object"
+      type: object
       required:
-        - "items"
+        - items
       properties:
         items:
-          type: "array"
+          type: array
           items:
             allOf:
               - $ref: "#/components/schemas/Account"
             nullable: true
       additionalProperties: false
     Base64String:
-      type: "string"
-      description: "一个包含压缩的Solana账户数据的base64编码字符串。"
-      default: "SGVsbG8sIFdvcmxkIQ=="
-      example: "SGVsbG8sIFdvcmxkIQ=="
+      type: string
+      description: 一个包含压缩的Solana账户数据的base64编码字符串。
+      default: SGVsbG8sIFdvcmxkIQ==
+      example: SGVsbG8sIFdvcmxkIQ==
     Context:
-      type: "object"
+      type: object
       required:
-        - "slot"
+        - slot
       properties:
         slot:
-          type: "integer"
+          type: integer
           default: 100
           example: 100
-          description: "请求时Solana区块链的当前槽位"
+          description: 请求时Solana区块链的当前槽位
     Hash:
-      type: "string"
-      description: "一个32字节的加密哈希，以base58字符串表示，用于验证Solana压缩账户数据的完整性。"
-      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+      type: string
+      description: 一个32字节的加密哈希，以base58字符串表示，用于验证Solana压缩账户数据的完整性。
+      example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     SerializablePubkey:
-      type: "string"
-      description: "一个以base58字符串表示的Solana公钥，用于识别压缩账户、默克尔树和所有者。"
-      default: "11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo"
-      example: "11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo"
+      type: string
+      description: 一个以base58字符串表示的Solana公钥，用于识别压缩账户、默克尔树和所有者。
+      default: 11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo
+      example: 11111115RidqCHAoz6dzmXxGcfWLNzevYqNpaRAUo
     UnsignedInteger:
-      type: "integer"
+      type: integer
       default: 100
       example: 100
-      description: "用于Solana压缩账户结构中各种参数的非负整数值"
+      description: 用于Solana压缩账户结构中各种参数的非负整数值
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"

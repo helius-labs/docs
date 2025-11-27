@@ -1,207 +1,208 @@
-asyncapi: "3.0.0"
+asyncapi: 3.0.0
 info:
-  title: "Helius LaserStream WebSocket API"
-  version: "1.0.0"
+  title: Helius LaserStream WebSocket API
+  version: 1.0.0
 channels:
   accountSubscribe:
-    title: "账户订阅"
-    description: "订阅一个账户，以便在给定账户公钥的lamports或数据发生变化时接收通知。"
-    address: "/"
+    title: 账户订阅
+    description: >-
+      订阅一个账户，以便在给定账户公钥的lamports或数据发生变化时接收通知。
+    address: /
     messages:
       accountSubscribeRequest:
-        $ref: "#/components/messages/AccountSubscribeRequest"
+        $ref: '#/components/messages/AccountSubscribeRequest'
       accountSubscribeResponse:
-        $ref: "#/components/messages/AccountSubscribeResponse"
+        $ref: '#/components/messages/AccountSubscribeResponse'
       accountNotification:
-        $ref: "#/components/messages/AccountNotification"
+        $ref: '#/components/messages/AccountNotification'
 servers:
   mainnet:
-    host: "laserstream-mainnet.helius-rpc.com"
-    protocol: "wss"
-    description: "生产Solana主网环境"
+    host: laserstream-mainnet.helius-rpc.com
+    protocol: wss
+    description: 生产Solana主网环境
     security:
       - $ref: "#/components/securitySchemes/ApiKeyQuery"
   devnet:
-    host: "laserstream-devnet.helius-rpc.com"
-    protocol: "wss"
-    description: "用于测试的Solana开发网环境"
+    host: laserstream-devnet.helius-rpc.com
+    protocol: wss
+    description: 用于测试的Solana开发网环境
     security:
       - $ref: "#/components/securitySchemes/ApiKeyQuery"
 operations:
   accountSubscribeMessage:
-    action: "receive"
+    action: receive
     channel:
-      $ref: "#/channels/accountSubscribe"
+      $ref: '#/channels/accountSubscribe'
     messages:
       - $ref: "#/channels/accountSubscribe/messages/accountSubscribeRequest"
   receiveAccountSubscribeResponse:
-    action: "send"
+    action: send
     channel:
-      $ref: "#/channels/accountSubscribe"
+      $ref: '#/channels/accountSubscribe'
     messages:
       - $ref: "#/channels/accountSubscribe/messages/accountSubscribeResponse"
   receiveAccountNotification:
-    action: "send"
+    action: send
     channel:
-      $ref: "#/channels/accountSubscribe"
+      $ref: '#/channels/accountSubscribe'
     messages:
       - $ref: "#/channels/accountSubscribe/messages/accountNotification"
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "httpApiKey"
-      name: "api-key"
-      in: "query"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: httpApiKey
+      name: api-key
+      in: query
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     AccountSubscribeParams:
-      type: "array"
+      type: array
       items:
         oneOf:
-          - type: "string"
-            description: "账户公钥，作为 base-58 编码字符串"
+          - type: string
+            description: 账户公钥，作为 base-58 编码字符串
             examples:
-              - "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
-            default: "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
-          - type: "object"
+              - 7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ
+            default: 7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ
+          - type: object
             properties:
               encoding:
-                type: "string"
+                type: string
                 enum:
-                  - "base58"
-                  - "base64"
-                  - "base64+zstd"
-                  - "jsonParsed"
-                description: "账户数据的编码格式"
+                  - base58
+                  - base64
+                  - base64+zstd
+                  - jsonParsed
+                description: 账户数据的编码格式
               commitment:
-                type: "string"
+                type: string
                 enum:
-                  - "finalized"
-                  - "confirmed"
-                  - "processed"
-                description: "订阅的承诺级别"
+                  - finalized
+                  - confirmed
+                  - processed
+                description: 订阅的承诺级别
             examples:
-              - encoding: "jsonParsed"
-                commitment: "finalized"
+              - encoding: jsonParsed
+                commitment: finalized
     AccountValue:
-      type: "object"
+      type: object
       properties:
         data:
           oneOf:
-            - type: "array"
-              description: "用于 base58/base64 编码"
-            - type: "object"
-              description: "用于 jsonParsed 编码"
+            - type: array
+              description: 用于 base58/base64 编码
+            - type: object
+              description: 用于 jsonParsed 编码
         executable:
-          type: "boolean"
+          type: boolean
         lamports:
-          type: "integer"
+          type: integer
         owner:
-          type: "string"
+          type: string
         rentEpoch:
-          type: "integer"
+          type: integer
         space:
-          type: "integer"
+          type: integer
       examples:
         - data:
             parsed:
               /* parsed account data */: null
           executable: false
           lamports: 3486960
-          owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          owner: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
           rentEpoch: 361
           space: 165
   messages:
     AccountSubscribeRequest:
-      title: "账户订阅请求"
-      summary: "请求订阅账户以在其更改时接收通知"
-      description: "发送此消息以订阅一个或多个账户的更新"
+      title: 账户订阅请求
+      summary: 请求订阅账户以在其更改时接收通知
+      description: 发送此消息以订阅一个或多个账户的更新
       payload:
-        type: "object"
+        type: object
         properties:
           jsonrpc:
-            type: "string"
+            type: string
             const: "2.0"
             default: "2.0"
           id:
-            type: "integer"
+            type: integer
             default: 1
           method:
-            type: "string"
+            type: string
             const: "accountSubscribe"
             default: "accountSubscribe"
           params:
-            $ref: "#/components/schemas/AccountSubscribeParams"
+            $ref: '#/components/schemas/AccountSubscribeParams'
         required:
-          - "jsonrpc"
-          - "id"
-          - "method"
-          - "params"
+          - jsonrpc
+          - id
+          - method
+          - params
         examples:
           - jsonrpc: "2.0"
             id: 1
-            method: "accountSubscribe"
+            method: accountSubscribe
             params:
-              - "7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ"
+              - 7Nw66LuLzJ3qnqgLkgUPQmzh51D7JvrXzJTnLvQksmKJ
     AccountSubscribeResponse:
-      title: "账户订阅响应"
-      summary: "包含订阅ID的响应"
-      description: "响应消息，包含您需要跟踪更新的订阅ID"
+      title: 账户订阅响应
+      summary: 包含订阅ID的响应
+      description: 响应消息，包含您需要跟踪更新的订阅ID
       payload:
-        type: "object"
+        type: object
         properties:
           jsonrpc:
-            type: "string"
+            type: string
             const: "2.0"
           id:
-            type: "integer"
+            type: integer
           result:
-            type: "integer"
-            description: "订阅ID（取消订阅时需要）"
+            type: integer
+            description: 订阅ID（取消订阅时需要）
         required:
-          - "jsonrpc"
-          - "result"
-          - "id"
+          - jsonrpc
+          - result
+          - id
         examples:
           - jsonrpc: "2.0"
             id: 1
             result: 23784
     AccountNotification:
-      title: "账户通知"
-      summary: "当账户发生变化时发送的通知"
-      description: "每当订阅的账户发生变化时，您将收到此消息"
+      title: 账户通知
+      summary: 当账户发生变化时发送的通知
+      description: 每当订阅的账户发生变化时，您将收到此消息
       payload:
-        type: "object"
+        type: object
         properties:
           jsonrpc:
-            type: "string"
+            type: string
             const: "2.0"
           method:
-            type: "string"
+            type: string
             const: "accountNotification"
           params:
-            type: "object"
+            type: object
             properties:
               result:
-                type: "object"
+                type: object
                 properties:
                   context:
-                    type: "object"
+                    type: object
                     properties:
                       slot:
-                        type: "integer"
+                        type: integer
                   value:
-                    $ref: "#/components/schemas/AccountValue"
+                    $ref: '#/components/schemas/AccountValue'
               subscription:
-                type: "integer"
-                description: "订阅 ID"
+                type: integer
+                description: 订阅 ID
         required:
-          - "jsonrpc"
-          - "method"
-          - "params"
+          - jsonrpc
+          - method
+          - params
         examples:
           - jsonrpc: "2.0"
-            method: "accountNotification"
+            method: accountNotification
             params:
               result:
                 context:
@@ -212,7 +213,7 @@ components:
                       /* parsed account data */: null
                   executable: false
                   lamports: 3486960
-                  owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                  owner: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
                   rentEpoch: 361
                   space: 165
               subscription: 23784

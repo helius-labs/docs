@@ -1,417 +1,417 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
+  title: Solana RPC API
+  version: 1.0.0
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getAssetBatch"
-      description: "根据资产 ID 返回一批资产。"
-      operationId: "rpc"
+        - RPC
+      summary: getAssetBatch
+      description: 根据资产 ID 返回一批资产。
+      operationId: rpc
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议的版本。"
-                  default: "2.0"
+                  description: JSON-RPC 协议的版本。
+                  default: '2.0'
                 id:
-                  type: "string"
-                  example: "1"
-                  description: "用于标识请求的 ID。"
-                  default: "1"
+                  type: string
+                  example: '1'
+                  description: 用于标识请求的 ID。
+                  default: '1'
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getAssetBatch"
-                  description: "要调用的 DAS 方法的名称。"
-                  default: "getAssetBatch"
+                    - getAssetBatch
+                  description: 要调用的 DAS 方法的名称。
+                  default: 'getAssetBatch'
                 params:
-                  type: "object"
+                  type: object
                   default:
                     ids:
-                      - "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                      - F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk
                   properties:
                     ids:
-                      type: "array"
+                      type: array
                       items:
-                        type: "string"
-                        description: "要检索的资产的 ID。"
-                        example: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                        type: string
+                        description: 要检索的资产的 ID。
+                        example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
                     options:
-                      type: "object"
-                      description: "响应的显示选项。"
+                      type: object
+                      description: 响应的显示选项。
                       properties:
                         showUnverifiedCollections:
-                          type: "boolean"
+                          type: boolean
                           default: false
-                          description: "显示未验证集合的分组信息，而不是跳过它们。"
+                          description: 显示未验证集合的分组信息，而不是跳过它们。
                         showCollectionMetadata:
-                          type: "boolean"
+                          type: boolean
                           default: false
-                          description: "显示集合的元数据。"
+                          description: 显示集合的元数据。
                         showFungible:
-                          type: "boolean"
-                          description: "显示所有者持有的可替代代币。"
+                          type: boolean
+                          description: 显示所有者持有的可替代代币。
                           default: false
                         showInscription:
-                          type: "boolean"
-                          description: "显示链上记录的资产的铭文详细信息。"
+                          type: boolean
+                          description: 显示链上记录的资产的铭文详细信息。
                           default: false
                   required:
-                    - "ids"
+                    - ids
                   example:
                     ids:
-                      - "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                      - F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk
       responses:
-        "200":
-          description: "成功响应"
+        '200':
+          description: 成功响应
           content:
             application/json:
               schema:
-                type: "array"
-                description: "资产数组。"
+                type: array
+                description: 资产数组。
                 items:
-                  type: "object"
+                  type: object
                   properties:
                     interface:
-                      type: "string"
-                      description: "资产的接口。"
+                      type: string
+                      description: 资产的接口。
                       enum:
-                        - "V1_NFT"
-                        - "V1_PRINT"
-                        - "LEGACY_NFT"
-                        - "V2_NFT"
-                        - "FungibleAsset"
-                        - "FungibleToken"
-                        - "Custom"
-                        - "Identity"
-                        - "Executable"
-                        - "ProgrammableNFT"
-                      example: "ProgrammableNFT"
+                        - V1_NFT
+                        - V1_PRINT
+                        - LEGACY_NFT
+                        - V2_NFT
+                        - FungibleAsset
+                        - FungibleToken
+                        - Custom
+                        - Identity
+                        - Executable
+                        - ProgrammableNFT
+                      example: 'ProgrammableNFT'
                     id:
-                      type: "string"
-                      description: "资产的ID。"
-                      example: "F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk"
+                      type: string
+                      description: 资产的ID。
+                      example: 'F9Lw3ki3hJ7PF9HQXsBzoY8GyE6sPoEZZdXJBsTTD2rk'
                     content:
-                      type: "object"
-                      description: "资产的内容。"
+                      type: object
+                      description: 资产的内容。
                       properties:
                         last_indexed_slot:
-                          type: "integer"
-                          description: "保证所有数据都已索引到此槽位及之前的所有数据。"
+                          type: integer
+                          description: 保证所有数据都已索引到此槽位及之前的所有数据。
                           example: 365750752
                         $schema:
-                          type: "string"
-                          example: "https://schema.metaplex.com/nft1.0.json"
+                          type: string
+                          example: 'https://schema.metaplex.com/nft1.0.json'
                         json_uri:
-                          type: "string"
-                          example: "https://madlads.s3.us-west-2.amazonaws.com/json/8420.json"
+                          type: string
+                          example: 'https://madlads.s3.us-west-2.amazonaws.com/json/8420.json'
                         files:
-                          type: "array"
+                          type: array
                           items:
-                            type: "object"
+                            type: object
                           example:
-                            - uri: "https://madlads.s3.us-west-2.amazonaws.com/images/8420.png"
-                              cdn_uri: "https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/8420.png"
-                              mime: "image/png"
+                            - uri: https://madlads.s3.us-west-2.amazonaws.com/images/8420.png
+                              cdn_uri: https://cdn.helius-rpc.com/cdn-cgi/image//https://madlads.s3.us-west-2.amazonaws.com/images/8420.png
+                              mime: image/png
                         metadata:
-                          type: "object"
+                          type: object
                           properties:
                             attributes:
-                              type: "array"
+                              type: array
                               items:
-                                type: "object"
+                                type: object
                               example:
-                                - value: "男性"
-                                  trait_type: "性别"
-                                - value: "国王"
-                                  trait_type: "类型"
+                                - value: 男性
+                                  trait_type: 性别
+                                - value: 国王
+                                  trait_type: 类型
                             description:
-                              type: "string"
-                              example: "随便吧。"
+                              type: string
+                              example: '随便吧。'
                             name:
-                              type: "string"
-                              example: "疯狂小子 #8420"
+                              type: string
+                              example: '疯狂小子 #8420'
                             symbol:
-                              type: "string"
-                              example: "MAD"
+                              type: string
+                              example: 'MAD'
                     authorities:
-                      type: "array"
+                      type: array
                       items:
-                        type: "object"
+                        type: object
                       example:
-                        - address: "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                        - address: 2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW
                           scopes:
-                            - "full"
+                            - full
                     compression:
-                      type: "object"
+                      type: object
                       example:
                         eligible: false
                         compressed: false
-                        data_hash: ""
-                        creator_hash: ""
-                        asset_hash: ""
-                        tree: ""
+                        data_hash: ''
+                        creator_hash: ''
+                        asset_hash: ''
+                        tree: ''
                         seq: 0
                         leaf_id: 0
                     grouping:
-                      type: "array"
+                      type: array
                       items:
-                        type: "object"
+                        type: object
                       example:
-                        - group_key: "集合"
-                          group_value: "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                        - group_key: 集合
+                          group_value: J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w
                     royalty:
-                      type: "object"
+                      type: object
                       example:
-                        royalty_model: "创作者"
+                        royalty_model: '创作者'
                         target: null
                         percent: 0.042
                         basis_points: 420
                         primary_sale_happened: true
                         locked: false
                     creators:
-                      type: "array"
+                      type: array
                       items:
-                        type: "object"
+                        type: object
                       example:
-                        - address: "5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv"
+                        - address: 5XvhfmRjwXkGp3jHGmaKpqeerNYjkuZZBYLVQYdeVcRv
                           share: 0
                           verified: true
-                        - address: "2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW"
+                        - address: 2RtGg6fsFiiF1EQzHqbd66AhW7R5bWeQGpTbv2UMkCdW
                           share: 100
                           verified: true
                     ownership:
-                      type: "object"
+                      type: object
                       example:
                         frozen: true
                         delegated: false
                         delegate: null
-                        ownership_model: "single"
-                        owner: "4zdNGgAtFsW1cQgHqkiWyRsxaAgxrSRRynnuunxzjxue"
+                        ownership_model: 'single'
+                        owner: '4zdNGgAtFsW1cQgHqkiWyRsxaAgxrSRRynnuunxzjxue'
                     supply:
-                      type: "object"
+                      type: object
                       example:
                         print_max_supply: 0
                         print_current_supply: 0
                         edition_nonce: 254
                     token_info:
-                      type: "object"
-                      description: "关于特定代币的详细信息。"
+                      type: object
+                      description: 关于特定代币的详细信息。
                       properties:
                         symbol:
-                          type: "string"
-                          description: "代币的符号。"
+                          type: string
+                          description: 代币的符号。
                         supply:
-                          type: "integer"
-                          description: "代币的总供应量。"
+                          type: integer
+                          description: 代币的总供应量。
                         decimals:
-                          type: "integer"
-                          description: "代币使用的小数位数。"
+                          type: integer
+                          description: 代币使用的小数位数。
                         token_program:
-                          type: "string"
-                          description: "代币程序ID。"
+                          type: string
+                          description: 代币程序ID。
                         price_info:
-                          type: "object"
-                          description: "关于代币价格的信息。"
+                          type: object
+                          description: 关于代币价格的信息。
                           properties:
                             price_per_token:
-                              type: "number"
-                              description: "每个代币的价格。"
+                              type: number
+                              description: 每个代币的价格。
                             currency:
-                              type: "string"
-                              description: "代币价格所表示的货币。"
+                              type: string
+                              description: 代币价格所表示的货币。
                         mint_authority:
-                          type: "string"
-                          description: "代币的铸造权限地址。"
+                          type: string
+                          description: 代币的铸造权限地址。
                         freeze_authority:
-                          type: "string"
-                          description: "代币的冻结权限地址。"
+                          type: string
+                          description: 代币的冻结权限地址。
                     inscription:
-                      type: "object"
+                      type: object
                       properties:
                         order:
-                          type: "integer"
-                          description: "铭文的顺序。"
+                          type: integer
+                          description: 铭文的顺序。
                         size:
-                          type: "integer"
-                          description: "铭文的大小。"
+                          type: integer
+                          description: 铭文的大小。
                         contentType:
-                          type: "string"
-                          description: "铭文的内容类型。"
+                          type: string
+                          description: 铭文的内容类型。
                         encoding:
-                          type: "string"
-                          description: "铭文的编码。"
+                          type: string
+                          description: 铭文的编码。
                         validationHash:
-                          type: "string"
-                          description: "铭文的验证哈希。"
+                          type: string
+                          description: 铭文的验证哈希。
                         inscriptionDataAccount:
-                          type: "string"
-                          description: "铭文数据账户。"
+                          type: string
+                          description: 铭文数据账户。
                         authority:
-                          type: "string"
-                          description: "铭文的权限。"
+                          type: string
+                          description: 铭文的权限。
                     spl20:
-                      type: "object"
-        "400":
-          description: "错误请求。由于语法无效，服务器无法理解请求。"
+                      type: object
+        '400':
+          description: 错误请求。由于语法无效，服务器无法理解请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32602
                       message:
-                        type: "string"
+                        type: string
                         example: "请求参数无效。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "401":
-          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+        '401':
+          description: 未授权。客户端必须进行身份验证才能获得请求的响应。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32001
                       message:
-                        type: "string"
+                        type: string
                         example: "身份验证失败。缺少或无效的API密钥。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "403":
-          description: "禁止访问。客户端没有访问内容的权限。"
+        '403':
+          description: 禁止访问。客户端没有访问内容的权限。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32003
                       message:
-                        type: "string"
+                        type: string
                         example: "您没有权限访问此资源。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "404":
-          description: "未找到。服务器无法找到请求的资源。"
+        '404':
+          description: 未找到。服务器无法找到请求的资源。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32004
                       message:
-                        type: "string"
+                        type: string
                         example: "批处理中一个或多个资产未找到。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "429":
-          description: "请求过多。用户在给定时间内发送了太多请求。"
+        '429':
+          description: 请求过多。用户在给定时间内发送了太多请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32029
                       message:
-                        type: "string"
+                        type: string
                         example: "超出速率限制。请稍后再试。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "500":
-          description: "内部服务器错误。服务器遇到了一个无法处理的情况。"
+        '500':
+          description: 内部服务器错误。服务器遇到了一个无法处理的情况。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32000
                       message:
-                        type: "string"
+                        type: string
                         example: "服务器发生了意外错误。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"

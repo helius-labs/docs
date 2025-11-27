@@ -1,260 +1,262 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana 批量压缩 NFT 验证 API"
-  version: "1.0.0"
-  description: "高级 Solana 数字资产标准 (DAS) API，用于在单个请求中高效检索多个加密默克尔证明的压缩 NFT。此优化的批量验证 API 使应用程序能够同时验证多个压缩资产，显著减少 API 调用并提高市场列表、钱包显示和其他处理压缩 Solana NFT 集合的应用程序的性能。\n"
+  title: Solana 批量压缩 NFT 验证 API
+  version: 1.0.0
+  description: |
+    高级 Solana 数字资产标准 (DAS) API，用于在单个请求中高效检索多个加密默克尔证明的压缩 NFT。此优化的批量验证 API 使应用程序能够同时验证多个压缩资产，显著减少 API 调用并提高市场列表、钱包显示和其他处理压缩 Solana NFT 集合的应用程序的性能。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getAssetProofBatch"
-      description: "在单个批量请求中高效检索多个压缩 Solana NFT 的加密默克尔证明。此优化的验证 API 返回验证多个压缩数字资产在 Solana 区块链上存在性和数据完整性所需的完整证明路径，而无需为每个 NFT 单独进行 API 调用。对于需要以最小延迟和 API 使用量同时验证多个压缩 NFT 的所有权和真实性的高性能应用程序（如市场、钱包和游戏平台）至关重要。\n"
-      operationId: "rpc"
+        - RPC
+      summary: getAssetProofBatch
+      description: |
+        在单个批量请求中高效检索多个压缩 Solana NFT 的加密默克尔证明。此优化的验证 API 返回验证多个压缩数字资产在 Solana 区块链上存在性和数据完整性所需的完整证明路径，而无需为每个 NFT 单独进行 API 调用。对于需要以最小延迟和 API 使用量同时验证多个压缩 NFT 的所有权和真实性的高性能应用程序（如市场、钱包和游戏平台）至关重要。
+      operationId: rpc
       security:
         - ApiKeyQuery: []
       parameters:
-        - name: "api-key"
-          in: "query"
-          description: "您的 Helius API 密钥，用于验证对 Solana 压缩 API 的批量请求。"
+        - name: api-key
+          in: query
+          description: 您的 Helius API 密钥，用于验证对 Solana 压缩 API 的批量请求。
           required: true
           schema:
-            type: "string"
-            example: "string"
+            type: string
+            example: string
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议的版本。"
-                  default: "2.0"
+                  description: JSON-RPC协议的版本。
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的ID。"
-                  default: "1"
+                  type: string
+                  description: 用于标识请求的ID。
+                  default: '1'
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getAssetProofBatch"
-                  description: "要调用的DAS方法的名称。"
-                  default: "getAssetProofBatch"
+                    - getAssetProofBatch
+                  description: 要调用的DAS方法的名称。
+                  default: 'getAssetProofBatch'
                 params:
-                  type: "object"
+                  type: object
                   default:
                     ids:
-                      - "Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss"
+                      - Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss
                   required:
-                    - "ids"
+                    - ids
                   properties:
                     ids:
-                      type: "array"
+                      type: array
                       items:
-                        type: "string"
-                        description: "用于检索默克尔证明的压缩Solana NFT的唯一标识符（铸造地址）数组。"
-                        example: "Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss"
+                        type: string
+                        description: 用于检索默克尔证明的压缩Solana NFT的唯一标识符（铸造地址）数组。
+                        example: 'Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss'
       responses:
         "200":
-          description: "成功响应"
+          description: 成功响应
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   result:
-                    type: "object"
+                    type: object
                     properties:
                       Bu1DEKeawy7txbnCEJE4BU3BKLXaNAKCYcHR4XhndGss:
-                        type: "object"
+                        type: object
                         properties:
                           last_indexed_slot:
-                            type: "integer"
-                            description: "保证所有数据都已被索引，直至并包括此槽位。"
+                            type: integer
+                            description: 保证所有数据都已被索引，直至并包括此槽位。
                             example: 365750752
                           root:
-                            type: "string"
-                            description: "包含此压缩NFT的Solana状态压缩默克尔树的根哈希。"
+                            type: string
+                            description: 包含此压缩NFT的Solana状态压缩默克尔树的根哈希。
                             example: "2o6Y6EiY3WXhoaEpei2pHmHLYnHDcEQVhgD89GrGHDBH"
                           proof:
-                            type: "array"
-                            description: "用于加密验证此 Solana 压缩 NFT 存在的 merkle 证明哈希数组。"
+                            type: array
+                            description: 用于加密验证此 Solana 压缩 NFT 存在的 merkle 证明哈希数组。
                             items:
-                              type: "string"
+                              type: string
                             example:
-                              - "EmJXiXEAhEN3FfNQtBa5hwR8LC5kHvdLsaGCoERosZjK"
-                              - "7NEfhcNPAwbw3L87fjsPqTz2fQdd1CjoLE138SD58FDQ"
+                              - EmJXiXEAhEN3FfNQtBa5hwR8LC5kHvdLsaGCoERosZjK
+                              - 7NEfhcNPAwbw3L87fjsPqTz2fQdd1CjoLE138SD58FDQ
                           node_index:
-                            type: "integer"
-                            description: "此压缩 Solana NFT 在 merkle 树结构中的位置索引。"
+                            type: integer
+                            description: 此压缩 Solana NFT 在 merkle 树结构中的位置索引。
                             example: 16384
                           leaf:
-                            type: "string"
-                            description: "表示此压缩 Solana NFT 数据在 merkle 树中的叶哈希。"
+                            type: string
+                            description: 表示此压缩 Solana NFT 数据在 merkle 树中的叶哈希。
                             example: "6YdZXw49M97mfFTwgQb6kxM2c6eqZkHSaW9XhhoZXtzv"
                           tree_id:
-                            type: "string"
-                            description: "存储此压缩 NFT 的 Solana merkle 树的唯一标识符。"
+                            type: string
+                            description: 存储此压缩 NFT 的 Solana merkle 树的唯一标识符。
                             example: "2kuTFCcjbV22wvUmtmgsFR7cas7eZUzAu96jzJUvUcb7"
                           burnt: false
                   id:
-                    type: "string"
+                    type: string
                     example: "my-id"
         "400":
-          description: "错误请求。由于语法无效，服务器无法理解请求。"
+          description: 错误请求。由于语法无效，服务器无法理解请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32602
                       message:
-                        type: "string"
+                        type: string
                         example: "请求参数无效。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "401":
-          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+          description: 未授权。客户端必须进行身份验证才能获得请求的响应。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32001
                       message:
-                        type: "string"
+                        type: string
                         example: "身份验证失败。缺少或无效的API密钥。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "403":
-          description: "禁止访问。客户端无权访问内容。"
+          description: 禁止访问。客户端无权访问内容。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32003
                       message:
-                        type: "string"
+                        type: string
                         example: "您无权访问此资源。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "404":
-          description: "未找到。服务器无法找到请求的资源。"
+          description: 未找到。服务器无法找到请求的资源。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32004
                       message:
-                        type: "string"
+                        type: string
                         example: "批处理中一个或多个资产未找到。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "429":
-          description: "请求过多。用户在给定时间内发送了过多请求。"
+          description: 请求过多。用户在给定时间内发送了过多请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32029
                       message:
-                        type: "string"
+                        type: string
                         example: "超出速率限制。请稍后再试。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
         "500":
-          description: "内部服务器错误。服务器遇到了无法处理的情况。"
+          description: 内部服务器错误。服务器遇到了无法处理的情况。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32000
                       message:
-                        type: "string"
+                        type: string
                         example: "服务器发生了意外错误。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"

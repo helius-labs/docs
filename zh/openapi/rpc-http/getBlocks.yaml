@@ -1,55 +1,55 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
+  title: Solana RPC API
+  version: 1.0.0
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
+          type: string
           enum:
             - "2.0"
-          description: "JSON-RPC 协议版本。"
+          description: JSON-RPC 协议版本。
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
               example: "Invalid params"
         id:
-          type: "string"
-          description: "请求的唯一标识符。"
+          type: string
+          description: 请求的唯一标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getBlocks"
-      operationId: "getBlocks"
-      description: "返回起始槽和结束槽之间的已确认区块。"
+        - RPC
+      summary: getBlocks
+      operationId: getBlocks
+      description: 返回起始槽和结束槽之间的已确认区块。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -57,79 +57,79 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议版本。"
+                  description: JSON-RPC协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getBlocks"
-                  description: "要调用的RPC方法名称。"
+                    - getBlocks
+                  description: 要调用的RPC方法名称。
                   example: "getBlocks"
                   default: "getBlocks"
                 params:
-                  type: "array"
-                  description: "方法的请求参数。"
+                  type: array
+                  description: 方法的请求参数。
                   default:
                     - 5
                     - 10
-                    - commitment: "finalized"
+                    - commitment: finalized
                   items:
                     oneOf:
-                      - type: "integer"
-                        description: "起始槽（必需）。"
+                      - type: integer
+                        description: 起始槽（必需）。
                         example: 5
-                      - type: "integer"
-                        description: "结束槽（可选，必须距离起始槽≤500,000个区块）。"
+                      - type: integer
+                        description: 结束槽（可选，必须距离起始槽≤500,000个区块）。
                         example: 10
-                      - type: "object"
-                        description: "承诺描述了在该时间点区块的最终确定程度。\"processed\" 不受支持。"
+                      - type: object
+                        description: 承诺描述了在该时间点区块的最终确定程度。"processed" 不受支持。
                         properties:
                           commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
+                            type: string
+                            description: 请求的承诺级别。
                             enum:
-                              - "confirmed"
-                              - "finalized"
-                            default: "finalized"
+                              - confirmed
+                              - finalized
+                            default: finalized
       responses:
         "200":
-          description: "成功检索到确认的区块。"
+          description: 成功检索到确认的区块。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "array"
-                    description: "在 start_slot 和 end_slot 之间确认的区块列表。"
+                    type: array
+                    description: 在 start_slot 和 end_slot 之间确认的区块列表。
                     items:
-                      type: "integer"
+                      type: integer
                     example:
                       - 5
                       - 6
@@ -138,22 +138,22 @@ paths:
                       - 9
                       - 10
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -161,11 +161,11 @@ paths:
                   message: "Unauthorized"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -173,11 +173,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -185,11 +185,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -197,11 +197,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

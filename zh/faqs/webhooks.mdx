@@ -51,26 +51,40 @@ Webhooks在匹配的交易在区块链上确认后立即发送通知。
 
 ## 重试
 
-<Accordion title="webhooks的重试策略是什么？">
-Helius会对未确认的webhook事件重试最多3次，每次尝试之间间隔1分钟。我们还为企业计划提供可定制的重试策略。
+<Accordion title="什么是webhook的重试策略？">
+如果您的服务器出错或超时，Helius将重新尝试传递。
+
+您的端点应返回200状态码以确认成功接收。如果您的端点返回错误状态码或根本没有响应，我们将重试传递最多3次，每次尝试之间间隔1分钟。如果所有重试尝试都失败，webhook事件将被丢弃。
+
+在[Helius仪表板](https://dashboard.helius.dev/webhooks)中监控您的webhook日志，以识别传递失败并调查端点问题。
+
+我们还为企业计划提供可定制的重试策略。
 </Accordion>
 
-<Accordion title="webhooks会发布失败的交易吗？">
-这取决于webhook的类型。增强webhooks不会发送失败的交易，但原始webhooks会包括成功和失败的交易。
+<Accordion title="webhook事件是否只传递一次？">
+Helius可能会多次传递相同的webhook事件。这可能是由于重试逻辑或网络问题。
+
+您的webhook处理程序必须准备好优雅地处理重复——多次处理同一事件应产生与处理一次相同的结果。
+
+要处理重复，请使用交易签名或唯一事件标识符来跟踪您已处理的事件。
 </Accordion>
 
-## 排查webhooks问题
-
-<Accordion title="为什么我的webhook会丢失数据？">
-数据丢失通常发生在您的端点遇到错误时，导致webhook重试最终失败并导致数据丢失。检查您的webhook日志在[仪表板](https://dashboard.helius.dev/webhooks)中，确保有足够的客户端日志记录，如果问题仍然存在，请[联系支持](/zh/support/contact-support)。
+<Accordion title="webhook是否发送失败的交易？">
+这取决于webhook的类型。增强型webhook不发送失败的交易，但原始webhook会包括成功和失败的交易。
 </Accordion>
 
-<Accordion title="为什么我的webhooks不起作用？">
-确保选择的交易类型与您正在监控的交易匹配。首先使用"ANY"交易类型来识别是否是一般问题或类型不匹配。使用[webhook.site](http://webhook.site/)测试问题是否出在您的端点配置上。
+## webhook故障排除
+
+<Accordion title="为什么我的webhook丢失数据？">
+数据丢失通常发生在您的端点遇到错误时，导致webhook重试最终失败并导致数据丢失。检查您在[仪表板](https://dashboard.helius.dev/webhooks)中的webhook日志，确保有足够的客户端日志记录，如果问题仍然存在，请[联系支持](/zh/support/contact-support)。
+</Accordion>
+
+<Accordion title="为什么我的 webhooks 不工作？">
+确保所选的交易类型与您正在监控的交易匹配。首先使用 "ANY" 交易类型来确定这是一个普遍问题还是类型不匹配。使用 [webhook.site](http://webhook.site/) 测试问题是否出在您的端点配置上。
 </Accordion>
 
 <Accordion title="为什么我的 webhook 没有发送给我所有某种类型的交易（例如 TOKEN_MINT）？">
-`TOKEN_MINT` webhook 仅针对特定程序触发，如 Candy Machine V1 和 Solana Program Library。它不涵盖整个区块链上的所有代币铸造事件。要进行更广泛的监控，请考虑通过 webhooks 使用 "ANY" 交易类型过滤来订阅更通用的账户或程序。
+`TOKEN_MINT` webhook 仅针对特定程序触发，如 Candy Machine V1 和 Solana Program Library。它不涵盖整个区块链上的所有代币铸造事件。对于更广泛的监控，考虑通过 webhooks 使用 "ANY" 交易类型过滤来订阅更通用的账户或程序。
 </Accordion>
 
 ---

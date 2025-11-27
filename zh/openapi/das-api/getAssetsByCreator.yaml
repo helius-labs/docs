@@ -1,325 +1,327 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana 创作者归属 API"
-  version: "1.0.0"
-  description: "高级 Solana 数字资产标准 (DAS) API，用于检索由特定艺术家、项目或创作者地址在 Solana 区块链上创建的所有数字资产。此专用 API 可全面发现创作者作品集，包括传统和压缩 NFT，提供详细的元数据和集合信息。"
+  title: Solana 创作者归属 API
+  version: 1.0.0
+  description: |-
+    高级 Solana 数字资产标准 (DAS) API，用于检索由特定艺术家、项目或创作者地址在 Solana 区块链上创建的所有数字资产。此专用 API 可全面发现创作者作品集，包括传统和压缩 NFT，提供详细的元数据和集合信息。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getAssetsByCreator"
-      operationId: "rpc"
-      description: "检索由特定钱包地址创建的所有 Solana 数字资产的完整列表。此创作者归属 API 返回完整的 NFT 集合、艺术品、代币和其他资产，其中指定地址被列为创作者，并附有验证状态。对于艺术家作品集、创作者版税跟踪、市场归属和 Solana 生态系统中的集合发现至关重要。"
+        - RPC
+      summary: getAssetsByCreator
+      operationId: rpc
+      description: |-
+        检索由特定钱包地址创建的所有 Solana 数字资产的完整列表。此创作者归属 API 返回完整的 NFT 集合、艺术品、代币和其他资产，其中指定地址被列为创作者，并附有验证状态。对于艺术家作品集、创作者版税跟踪、市场归属和 Solana 生态系统中的集合发现至关重要。
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议的版本。"
-                  default: "2.0"
+                  description: JSON-RPC 协议的版本。
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
-                  default: "1"
+                  type: string
+                  description: 用于标识请求的 ID。
+                  default: '1'
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getAssetsByCreator"
-                  description: "要调用的 DAS 方法名称。"
-                  default: "getAssetsByCreator"
+                    - getAssetsByCreator
+                  description: 要调用的 DAS 方法名称。
+                  default: 'getAssetsByCreator'
                 params:
-                  type: "object"
+                  type: object
                   default:
-                    creatorAddress: "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3"
+                    creatorAddress: 'D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3'
                   properties:
                     creatorAddress:
-                      type: "string"
-                      description: "要检索所有数字资产的创作者的 Solana 钱包地址。"
-                      example: "D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3"
+                      type: string
+                      description: 要检索所有数字资产的创作者的 Solana 钱包地址。
+                      example: 'D3XrkNZz6wx6cofot7Zohsf2KSsu2ArngNk8VqU9cTY3'
                     page:
-                      type: "integer"
-                      description: "要返回的结果页。"
+                      type: integer
+                      description: 要返回的结果页。
                       example: 1
                     limit:
-                      type: "integer"
-                      description: "要返回的最大资产数量。"
+                      type: integer
+                      description: 要返回的最大资产数量。
                       example: 100
                     sortBy:
-                      type: "object"
-                      description: "响应的排序选项。"
+                      type: object
+                      description: 响应的排序选项。
                       properties:
                         sortBy:
-                          type: "string"
-                          description: "响应中检索到的 Solana 资产的排序标准。"
+                          type: string
+                          description: 响应中检索到的 Solana 资产的排序标准。
                           enum:
-                            - "created"
-                            - "recent_action"
-                            - "updated"
-                            - "none"
+                            - created
+                            - recent_action
+                            - updated
+                            - none
                         sortDirection:
-                          type: "string"
-                          description: "响应中检索到的 Solana 资产的排序方向。"
+                          type: string
+                          description: 响应中检索到的 Solana 资产的排序方向。
                           enum:
-                            - "asc"
-                            - "desc"
+                            - asc
+                            - desc
                     before:
-                      type: "string"
-                      description: "用于向后分页浏览资产的游标。"
-                      example: "string"
+                      type: string
+                      description: 用于向后分页浏览资产的游标。
+                      example: 'string'
                     after:
-                      type: "string"
-                      description: "用于向前分页浏览资产的游标。"
-                      example: "string"
+                      type: string
+                      description: 用于向前分页浏览资产的游标。
+                      example: 'string'
                     options:
-                      type: "object"
-                      description: "响应的显示选项。"
+                      type: object
+                      description: 响应的显示选项。
                       properties:
                         showUnverifiedCollections:
-                          type: "boolean"
-                          description: "显示未验证集合的分组信息，而不是跳过它们。"
+                          type: boolean
+                          description: 显示未验证集合的分组信息，而不是跳过它们。
                           default: false
                         showCollectionMetadata:
-                          type: "boolean"
-                          description: "显示集合的元数据。"
+                          type: boolean
+                          description: 显示集合的元数据。
                           default: false
                         showGrandTotal:
-                          type: "boolean"
-                          description: "显示与查询匹配的资产总数。这将使请求变慢。"
+                          type: boolean
+                          description: 显示与查询匹配的资产总数。这将使请求变慢。
                           default: false
                         showInscription:
-                          type: "boolean"
-                          description: "显示具有链上铭文的Solana资产的铭文详细信息。"
+                          type: boolean
+                          description: 显示具有链上铭文的Solana资产的铭文详细信息。
                           default: false
                   required:
-                    - "creatorAddress"
+                    - creatorAddress
       responses:
-        "200":
-          description: "成功响应"
+        '200':
+          description: 成功响应
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   result:
-                    type: "object"
+                    type: object
                     properties:
                       last_indexed_slot:
-                        type: "integer"
-                        description: "保证所有数据都已索引到此槽位及之前的所有数据。"
+                        type: integer
+                        description: 保证所有数据都已索引到此槽位及之前的所有数据。
                         example: 365750752
                       total:
-                        type: "integer"
-                        description: "此地址创建的Solana数字资产总数。"
+                        type: integer
+                        description: 此地址创建的Solana数字资产总数。
                         example: 1
                       limit:
-                        type: "integer"
-                        description: "请求的资产最大数量。"
+                        type: integer
+                        description: 请求的资产最大数量。
                         example: 1
                       page:
-                        type: "integer"
-                        description: "结果的当前页。"
+                        type: integer
+                        description: 结果的当前页。
                         example: 1
                       items:
-                        type: "array"
-                        description: "资产数组。"
+                        type: array
+                        description: 资产数组。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             interface:
-                              type: "string"
-                              description: "Solana 数字资产的代币标准接口类型。"
+                              type: string
+                              description: Solana 数字资产的代币标准接口类型。
                               example: "Custom"
                             id:
-                              type: "string"
-                              description: "Solana 数字资产的唯一铸造地址标识符。"
+                              type: string
+                              description: Solana 数字资产的唯一铸造地址标识符。
                               example: "JEH7cJxAKdprFG5AvdsY2c4ZqojxLBjFmw19zADV6oK5"
                             content:
-                              type: "object"
-                              description: "Solana 数字资产的内容和元数据，包括 URI、图像和属性。"
+                              type: object
+                              description: Solana 数字资产的内容和元数据，包括 URI、图像和属性。
                             authorities:
-                              type: "array"
+                              type: array
                               items:
-                                type: "object"
-                              description: "与 Solana 数字资产相关的更新权限，用于元数据修改。"
+                                type: object
+                              description: 与 Solana 数字资产相关的更新权限，用于元数据修改。
                             compression:
-                              type: "object"
-                              description: "Solana 资产的状态压缩详情，指示其是否使用成本效益存储。"
+                              type: object
+                              description: Solana 资产的状态压缩详情，指示其是否使用成本效益存储。
                             grouping:
-                              type: "array"
+                              type: array
                               items:
-                                type: "object"
-                              description: "用于将 Solana NFT 组织到已验证集合中的集合分组详情。"
+                                type: object
+                              description: 用于将 Solana NFT 组织到已验证集合中的集合分组详情。
                             royalty:
-                              type: "object"
-                              description: "Solana 市场销售此数字资产的创作者版税配置。"
+                              type: object
+                              description: Solana 市场销售此数字资产的创作者版税配置。
                             creators:
-                              type: "array"
+                              type: array
                               items:
-                                type: "object"
-                              description: "此 Solana 数字资产的已验证创建者地址和份额分配。"
+                                type: object
+                              description: 此 Solana 数字资产的已验证创建者地址和份额分配。
                             ownership:
-                              type: "object"
-                              description: "此 Solana 数字资产的当前所有权详细信息，包括所有者地址和委托状态。"
-        "400":
-          description: "错误请求。由于语法无效，服务器无法理解请求。"
+                              type: object
+                              description: 此 Solana 数字资产的当前所有权详细信息，包括所有者地址和委托状态。
+        '400':
+          description: 错误请求。由于语法无效，服务器无法理解请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32602
                       message:
-                        type: "string"
+                        type: string
                         example: "请求参数无效。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "401":
-          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+        '401':
+          description: 未授权。客户端必须进行身份验证才能获得请求的响应。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32001
                       message:
-                        type: "string"
+                        type: string
                         example: "身份验证失败。缺少或无效的 API 密钥。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "403":
-          description: "禁止访问。客户端无权访问内容。"
+        '403':
+          description: 禁止访问。客户端无权访问内容。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32003
                       message:
-                        type: "string"
+                        type: string
                         example: "您没有权限访问此资源。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "404":
-          description: "未找到。服务器无法找到请求的资源。"
+        '404':
+          description: 未找到。服务器无法找到请求的资源。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32004
                       message:
-                        type: "string"
+                        type: string
                         example: "未找到指定创建者的资产。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "429":
-          description: "请求过多。用户在给定时间内发送了过多请求。"
+        '429':
+          description: 请求过多。用户在给定时间内发送了过多请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32029
                       message:
-                        type: "string"
+                        type: string
                         example: "超出速率限制。请稍后再试。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "500":
-          description: "内部服务器错误。服务器遇到了无法处理的情况。"
+        '500':
+          description: 内部服务器错误。服务器遇到了无法处理的情况。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32000
                       message:
-                        type: "string"
+                        type: string
                         example: "服务器发生了意外错误。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"

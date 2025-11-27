@@ -1,56 +1,56 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "photon-indexer"
-  description: "用于一般压缩的Solana索引器"
+  title: photon-indexer
+  description: 用于一般压缩的Solana索引器
   license:
-    name: "Apache-2.0"
-  version: "0.50.0"
+    name: Apache-2.0
+  version: 0.50.0
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 paths:
   /:
-    summary: "获取压缩代币账户余额"
+    summary: 获取压缩代币账户余额
     post:
-      description: "检索获取压缩代币账户余额信息"
-      operationId: "getCompressedTokenAccountBalance"
+      description: 检索获取压缩代币账户余额信息
+      operationId: getCompressedTokenAccountBalance
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC协议的版本。"
+                  type: string
+                  description: JSON-RPC协议的版本。
                   enum:
                     - "2.0"
-                  default: "2.0"
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的ID。"
+                  type: string
+                  description: 用于标识请求的ID。
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的方法名称。"
+                  type: string
+                  description: 要调用的方法名称。
                   enum:
-                    - "getCompressedTokenAccountBalance"
-                  default: "getCompressedTokenAccountBalance"
+                    - getCompressedTokenAccountBalance
+                  default: getCompressedTokenAccountBalance
                 params:
-                  type: "object"
-                  description: "请求压缩账户数据"
+                  type: object
+                  description: 请求压缩账户数据
                   default:
                     address: null
-                    hash: "11111111111111111111111111111111"
+                    hash: '11111111111111111111111111111111'
                   properties:
                     address:
                       allOf:
@@ -63,90 +63,90 @@ paths:
                   additionalProperties: false
                   example:
                     address: null
-                    hash: "11111111111111111111111111111111"
+                    hash: '11111111111111111111111111111111'
         required: true
       responses:
-        "200":
-          description: "成功从Solana区块链检索到压缩的代币账户余额"
+        '200':
+          description: '成功从Solana区块链检索到压缩的代币账户余额'
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 required:
-                  - "context"
-                  - "value"
+                  - context
+                  - value
                 properties:
                   context:
-                    $ref: "#/components/schemas/Context"
+                    $ref: '#/components/schemas/Context'
                   value:
-                    $ref: "#/components/schemas/TokenAccountBalance"
+                    $ref: '#/components/schemas/TokenAccountBalance'
                 additionalProperties: false
-        "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+        '400':
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
                 id: "1"
-        "401":
-          description: "未授权 - API密钥无效或缺失。"
+        '401':
+          description: 未授权 - API密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
                   message: "Unauthorized"
                 id: "1"
-        "429":
-          description: "请求过多 - 超过速率限制。"
+        '429':
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
                   message: "Too many requests"
                 id: "1"
-        "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+        '500':
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
                   message: "Internal error"
                 id: "1"
-        "503":
-          description: "服务不可用 - 服务暂时不可用。"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
                   message: "服务不可用"
                 id: "1"
-        "504":
-          description: "网关超时 - 请求超时。"
+        '504':
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -156,64 +156,64 @@ paths:
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
     Context:
-      type: "object"
+      type: object
       required:
-        - "slot"
+        - slot
       properties:
         slot:
-          type: "integer"
+          type: integer
           default: 100
           example: 100
     Hash:
-      type: "string"
-      description: "一个32字节的哈希，以base58字符串表示。"
-      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+      type: string
+      description: 一个32字节的哈希，以base58字符串表示。
+      example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     SerializablePubkey:
-      type: "string"
-      description: "一个Solana公钥，以base58字符串表示。"
-      default: "111111131h1vYVSYuKP6AhS86fbRdMw9XHiZAvAaj"
-      example: "111111131h1vYVSYuKP6AhS86fbRdMw9XHiZAvAaj"
+      type: string
+      description: 一个Solana公钥，以base58字符串表示。
+      default: 111111131h1vYVSYuKP6AhS86fbRdMw9XHiZAvAaj
+      example: 111111131h1vYVSYuKP6AhS86fbRdMw9XHiZAvAaj
     TokenAccountBalance:
-      type: "object"
+      type: object
       required:
-        - "amount"
+        - amount
       properties:
         amount:
-          $ref: "#/components/schemas/UnsignedInteger"
+          $ref: '#/components/schemas/UnsignedInteger'
       additionalProperties: false
     UnsignedInteger:
-      type: "integer"
+      type: integer
       default: 100
       example: 100

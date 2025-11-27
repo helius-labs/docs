@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于监控Solana区块链吞吐量、交易处理速率和最近时间段内实时健康指标的网络性能分析API。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于监控Solana区块链吞吐量、交易处理速率和最近时间段内实时健康指标的网络性能分析API。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getRecentPerformanceSamples"
-      operationId: "getRecentPerformanceSamples"
-      description: "检索有关 Solana 区块链最近操作效率的详细性能指标。此网络分析 API 提供时间序列数据，显示交易吞吐量、插槽生产和投票活动的常规采样间隔。对于监控网络健康状况、分析区块链容量、跟踪性能趋势和验证网络可靠性至关重要。指标提供了对整体交易量和特定非投票交易的见解，有助于区分共识开销和网络上的实际用户操作。"
+        - RPC
+      summary: getRecentPerformanceSamples
+      operationId: getRecentPerformanceSamples
+      description: |-
+        检索有关 Solana 区块链最近操作效率的详细性能指标。此网络分析 API 提供时间序列数据，显示交易吞吐量、插槽生产和投票活动的常规采样间隔。对于监控网络健康状况、分析区块链容量、跟踪性能趋势和验证网络可靠性至关重要。指标提供了对整体交易量和特定非投票交易的见解，有助于区分共识开销和网络上的实际用户操作。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,92 +61,92 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
+                - jsonrpc
+                - id
+                - method
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议版本。"
+                  type: string
+                  description: JSON-RPC 协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的 RPC 方法名称。"
+                  type: string
+                  description: 要调用的 RPC 方法名称。
                   enum:
-                    - "getRecentPerformanceSamples"
+                    - getRecentPerformanceSamples
                   example: "getRecentPerformanceSamples"
                   default: "getRecentPerformanceSamples"
                 params:
-                  type: "array"
-                  description: "可选参数，用于限制返回的样本数量。"
+                  type: array
+                  description: 可选参数，用于限制返回的样本数量。
                   default:
                     - 4
                   items:
-                    type: "integer"
-                    description: "要检索的历史性能样本间隔数（最多 720，代表最多 12 小时）。"
+                    type: integer
+                    description: 要检索的历史性能样本间隔数（最多 720，代表最多 12 小时）。
                     example: 4
       responses:
         "200":
-          description: "成功检索到性能样本。"
+          description: 成功检索到性能样本。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC协议版本。"
+                    type: string
+                    description: JSON-RPC协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "array"
-                    description: "性能样本列表。"
+                    type: array
+                    description: 性能样本列表。
                     items:
-                      type: "object"
-                      description: "性能样本数据。"
+                      type: object
+                      description: 性能样本数据。
                       properties:
                         slot:
-                          type: "integer"
-                          description: "在此性能采样期结束时的Solana区块链槽。"
+                          type: integer
+                          description: 在此性能采样期结束时的Solana区块链槽。
                           example: 348125
                         numTransactions:
-                          type: "integer"
-                          description: "在此采样窗口期间处理的交易总数，包括用户交易和验证者投票。"
+                          type: integer
+                          description: 在此采样窗口期间处理的交易总数，包括用户交易和验证者投票。
                           example: 126
                         numNonVoteTransactions:
-                          type: "integer"
-                          description: "在此期间处理的实际用户交易数量（不包括验证者共识投票）。"
+                          type: integer
+                          description: 在此期间处理的实际用户交易数量（不包括验证者共识投票）。
                           example: 1
                         samplePeriodSecs:
-                          type: "integer"
-                          format: "int16"
-                          description: "此性能测量窗口的持续时间（以秒为单位），通常为60秒间隔。"
+                          type: integer
+                          format: int16
+                          description: 此性能测量窗口的持续时间（以秒为单位），通常为60秒间隔。
                           example: 60
                         numSlots:
-                          type: "integer"
-                          description: "在此采样期间成功生成的Solana槽数量，指示区块链进度。"
+                          type: integer
+                          description: 在此采样期间成功生成的Solana槽数量，指示区块链进度。
                           example: 126
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -153,11 +154,11 @@ paths:
                   message: "无效的参数"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -165,11 +166,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -177,11 +178,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -189,11 +190,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -201,11 +202,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
