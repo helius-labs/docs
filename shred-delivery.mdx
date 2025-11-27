@@ -31,6 +31,26 @@ Shred Delivery is Helius's **specialized delivery of raw Solana shreds via UDP**
   </Card>
 </CardGroup>
 
+## Shred Delivery vs. LaserStream: Quick Comparison
+
+<Tip>
+**TL;DR**: Shred Delivery provides the **earliest possible on-chain signal** by delivering raw, unprocessed shreds directly from the network. However, you must implement custom deshredding logic to process this raw data. For processed data with commitment guarantees and developer-friendly tooling, see [LaserStream](/laserstream).
+</Tip>
+
+| Feature | Shred Delivery | LaserStream |
+|---------|----------------|-------------|
+| **Data Type** | Raw, unprocessed shreds | Processed data with commitment guarantees |
+| **Latency** | **Earliest possible** - before any processing | Ultra-low latency processed data |
+| **Processing** | **You must process raw data** - requires custom deshredding logic | Turnkey - data is processed and ready to use |
+| **Best For** | High-frequency trading, arbitrage (when milliseconds matter) | Production applications, analytics, backend services |
+| **Setup** | White glove provisioning (beta access required) | Developer-friendly SDKs, drop-in replacement |
+
+**Key Distinction**: Shred Delivery gives you the **absolute earliest signal** from Solana's network, but requires you to handle raw data processing. LaserStream delivers processed, structured data with reliability features—ideal when you need production-ready streaming without custom processing infrastructure.
+
+<Card title="Learn About LaserStream" icon="rocket" href="/laserstream">
+  See how LaserStream delivers processed data with commitment guarantees and reliability features
+</Card>
+
 ## What Are Shreds?
 
 In Solana, transactions are broken down into smaller data packets called **"shreds"** to facilitate efficient and rapid propagation across the network. Each shred is a fragment of transaction data, optimized to fit within standard network packets, ensuring swift distribution and reconstruction into complete blocks by validators.
@@ -43,21 +63,21 @@ This architecture is pivotal for maintaining Solana's high throughput and low la
   Read our comprehensive blog post explaining how Solana's shred mechanism works and why it matters for trading
 </Card>
 
-## Shred Delivery vs. LaserStream
+## Detailed Comparison: Shred Delivery vs. LaserStream
 
-While both Shred Delivery and LaserStream are flagship data streaming offerings from Helius, they serve distinct purposes in the trading technology stack:
+While both Shred Delivery and LaserStream are flagship data streaming offerings from Helius, they serve distinct purposes:
 
 <CardGroup cols={2}>
   <Card title="Shred Delivery" icon="bolt" color="#E84125">
-    **Specialized**
-    - Raw shreds
-    - Earliest possible on-chain signal
+    **Earliest Possible Data**
+    - Raw shreds delivered as they're produced
+    - **Earliest possible on-chain signal** - no processing delay
     - Requires custom deshredding logic
     - White glove provisioning only
     - High-frequency traders & arbitrage strategies
   </Card>
   <Card title="LaserStream" icon="rocket" color="#00D4AA">
-    **Turnkey**
+    **Turnkey Processed Data**
     - Commitment-level guarantees (processed, confirmed, finalized)
     - Historical replay capabilities
     - Developer-friendly SDKs
@@ -66,10 +86,10 @@ While both Shred Delivery and LaserStream are flagship data streaming offerings 
   </Card>
 </CardGroup>
 
-**When to use each service:**
+**When to choose each:**
 
-- **Choose Shred Delivery** when you need the absolute lowest latency access to raw transaction data and have the technical capability to process raw shreds
-- **Choose LaserStream** when you need reliable, processed data with commitment guarantees and historical replay capabilities
+- **Choose Shred Delivery** when you need the **earliest possible access** to raw transaction data and have the technical capability to process raw shreds. Shred Delivery provides the absolute lowest latency by delivering unprocessed shreds directly from the network—but you must implement your own deshredding and processing logic.
+- **Choose LaserStream** when you need reliable, processed data with commitment guarantees, historical replay capabilities, and developer-friendly tooling. LaserStream delivers processed transactions with commitment-level guarantees, making it ideal for production applications that need reliable data delivery without custom processing infrastructure.
 
 <Card title="LaserStream Documentation" icon="rocket" href="/laserstream">
   Learn about LaserStream's processed data streaming with reliability features
