@@ -31,6 +31,16 @@ function getFileLastModified(filePath) {
   }
 }
 
+function getLocUrl(page, langConfig) {
+  let pagePath;
+  if (page === "index" || page === `${langConfig.code}/index`) {
+    pagePath = "";
+  } else {
+    pagePath = `/${page}`;
+  }
+  return `${BASE_URL}${langConfig.urlPrefix}${pagePath}`;
+}
+
 function extractPagesFromNavigation(navigation, language = 'en') {
   const pages = [];
 
@@ -92,10 +102,7 @@ function generateSitemap() {
         // Only generate URL entry if this language has this page
         if (!allLanguages[langCode].includes(page)) continue;
 
-        // Build the URL for this specific language version
-        const locUrl = langConfig.urlPrefix 
-          ? `${BASE_URL}${langConfig.urlPrefix}/${page}`
-          : `${BASE_URL}/${page}`;
+        const locUrl = getLocUrl(page, langConfig);
         
         // Get last modified date from git for this language's file
         const mdxPath = langConfig.urlPrefix
@@ -110,15 +117,13 @@ function generateSitemap() {
         // Add alternate links for all available language versions
         for (const [altLangCode, altLangConfig] of Object.entries(LANGUAGES)) {
           if (allLanguages[altLangCode].includes(page)) {
-            const hrefUrl = altLangConfig.urlPrefix 
-              ? `${BASE_URL}${altLangConfig.urlPrefix}/${page}`
-              : `${BASE_URL}/${page}`;
+            const hrefUrl = getLocUrl(page, altLangConfig);
             sitemap += `    <xhtml:link rel="alternate" hreflang="${altLangConfig.code}" href="${hrefUrl}"/>\n`;
           }
         }
 
         // x-default always points to English version
-        const defaultUrl = `${BASE_URL}/${page}`;
+        const defaultUrl = getLocUrl(page, LANGUAGES.en);
         sitemap += `    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultUrl}"/>\n`;
         sitemap += '  </url>\n';
       }
