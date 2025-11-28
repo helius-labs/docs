@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "JITO Bundle Simulation API 用于在通过 JITO 验证器提交到 Solana 网络之前测试和验证捆绑执行。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: JITO Bundle Simulation API 用于在通过 JITO 验证器提交到 Solana 网络之前测试和验证捆绑执行。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "simulateBundle"
-      operationId: "simulateBundle"
-      description: "模拟一个 JITO 包而不在区块链上执行它。此方法允许开发人员测试包执行，验证包内的交易行为，估算计算单元消耗，检测错误，并预览包执行前后的账户状态变化。仅供 JITO-Solana 验证者使用，对于 MEV 策略开发和包优化至关重要。"
+        - RPC
+      summary: simulateBundle
+      operationId: simulateBundle
+      description: |-
+        模拟一个 JITO 包而不在区块链上执行它。此方法允许开发人员测试包执行，验证包内的交易行为，估算计算单元消耗，检测错误，并预览包执行前后的账户状态变化。仅供 JITO-Solana 验证者使用，对于 MEV 策略开发和包优化至关重要。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,188 +61,181 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议版本。"
+                  description: JSON-RPC 协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
                     - "simulateBundle"
-                  description: "要调用的 RPC 方法名称。"
+                  description: 要调用的 RPC 方法名称。
                   example: "simulateBundle"
                   default: "simulateBundle"
                 params:
-                  type: "array"
-                  description: "用于模拟 JITO 包的参数。"
+                  type: array
+                  description: 用于模拟 JITO 包的参数。
                   items:
-                    type: "object"
-                    description: "包模拟配置对象。"
+                    type: object
+                    description: 包模拟配置对象。
                     required:
-                      - "params[0]"
+                      - params[0]
                     properties:
                       params[0]:
-                        type: "object"
-                        description: "第一个配置对象。包含用于模拟的编码交易。"
+                        type: object
+                        description: 第一个配置对象。包含用于模拟的编码交易。
                         properties:
                           encodedTransactions:
-                            type: "array"
-                            description: "用于模拟的编码、序列化交易数组。编码由 `transactionEncoding` 字段决定（默认为 base-64）。"
+                            type: array
+                            description: 用于模拟的编码、序列化交易数组。编码由 `transactionEncoding` 字段决定（默认为 base-64）。
                             items:
-                              type: "string"
-                              description: "编码的序列化交易。"
+                              type: string
+                              description: 编码的序列化交易。
                               example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
                       params[1]:
-                        type: "object"
-                        description: "第二个配置对象。可选。"
+                        type: object
+                        description: 第二个配置对象。可选。
                         required:
-                          - "preExecutionAccountsConfigs"
-                          - "postExecutionAccountsConfigs"
+                          - preExecutionAccountsConfigs
+                          - postExecutionAccountsConfigs
                         properties:
                           preExecutionAccountsConfigs:
-                            type: "array"
-                            description: "指定在模拟期间要捕获的账户。
-
+                            type: array
+                            description: |
+                              指定在模拟期间要捕获的账户。
 
                               这会捕获交易执行*之前*的账户状态。
 
-
                               数组中某个索引处的元素配置与包中相同索引处的交易。
 
-
                               对于包中的每个交易：
+                                - 如果不希望返回任何账户状态，请传递 `null`。
+                                - 或者，提供一个对象描述要返回的账户。
 
-                              \  - 如果不希望返回任何账户状态，请传递 `null`。
-
-                              \  - 或者，提供一个对象描述要返回的账户。
-
-
-                              数组长度必须等于包中交易的数量。\n"
+                              数组长度必须等于包中交易的数量。
                             items:
                               type:
                                 - "object"
                                 - "null"
                               required:
-                                - "addresses"
+                                - addresses
                               properties:
                                 addresses:
-                                  type: "array"
-                                  description: "将捕获其状态的 base-58 编码账户地址列表。"
+                                  type: array
+                                  description: 将捕获其状态的 base-58 编码账户地址列表。
                                   items:
-                                    type: "string"
-                                    description: "base-58 编码的账户地址。"
+                                    type: string
+                                    description: base-58 编码的账户地址。
                                     example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                                 encoding:
-                                  type: "string"
-                                  description: "返回捕获的账户数据的编码。\n"
-                                  default: "base64"
+                                  type: string
+                                  description: |
+                                    返回捕获的账户数据的编码。
+                                  default: base64
                                   enum:
-                                    - "binary"
-                                    - "base58"
-                                    - "base64"
-                                    - "jsonParsed"
-                                    - "base64+zstd"
-                                  example: "base64"
+                                    - binary
+                                    - base58
+                                    - base64
+                                    - jsonParsed
+                                    - base64+zstd
+                                  example: base64
                           postExecutionAccountsConfigs:
-                            type: "array"
-                            description: "指定在模拟期间要捕获的账户。
-
+                            type: array
+                            description: |
+                              指定在模拟期间要捕获的账户。
 
                               这会捕获交易执行后*的账户状态。
 
-
                               数组中某个索引的元素配置与捆绑包中相同索引的交易。
 
-
                               对于捆绑包中的每个交易：
+                                - 如果不希望返回任何账户状态，请传递 `null`。
+                                - 或者，提供一个对象描述要返回的账户。
 
-                              \  - 如果不希望返回任何账户状态，请传递 `null`。
-
-                              \  - 或者，提供一个对象描述要返回的账户。
-
-
-                              数组长度必须等于捆绑包中的交易数量。\n"
+                              数组长度必须等于捆绑包中的交易数量。
                             items:
                               type:
                                 - "object"
                                 - "null"
                               required:
-                                - "addresses"
+                                - addresses
                               properties:
                                 addresses:
-                                  type: "array"
-                                  description: "将捕获其状态的 base-58 编码账户地址列表。"
+                                  type: array
+                                  description: 将捕获其状态的 base-58 编码账户地址列表。
                                   items:
-                                    type: "string"
-                                    description: "base-58 编码账户地址。"
+                                    type: string
+                                    description: base-58 编码账户地址。
                                     example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
                                 encoding:
-                                  type: "string"
-                                  description: "返回捕获的账户数据的编码格式。\n"
-                                  default: "base64"
+                                  type: string
+                                  description: |
+                                    返回捕获的账户数据的编码格式。
+                                  default: base64
                                   enum:
-                                    - "binary"
-                                    - "base58"
-                                    - "base64"
-                                    - "jsonParsed"
-                                    - "base64+zstd"
-                                  example: "base64"
+                                    - binary
+                                    - base58
+                                    - base64
+                                    - jsonParsed
+                                    - base64+zstd
+                                  example: base64
                           transactionEncoding:
-                            type: "string"
-                            description: "在 `encodedTransactions` 中使用的交易编码。"
+                            type: string
+                            description: 在 `encodedTransactions` 中使用的交易编码。
                             enum:
-                              - "base64"
-                              - "base58"
-                            default: "base64"
+                              - base64
+                              - base58
+                            default: base64
                           simulationBank:
-                            description: "指定要运行模拟的银行。可以是 tip、一个 slot 或一个承诺级别。"
+                            description: |-
+                              指定要运行模拟的银行。可以是 tip、一个 slot 或一个承诺级别。
                             oneOf:
-                              - type: "string"
-                                description: "使用 RPC 的最高 slot 的银行，即工作银行。"
+                              - type: string
+                                description: 使用 RPC 的最高 slot 的银行，即工作银行。
                                 example: "tip"
-                              - type: "object"
-                                description: "在提供的 slot 的银行上进行模拟（可能不可用）。"
+                              - type: object
+                                description: 在提供的 slot 的银行上进行模拟（可能不可用）。
                                 properties:
                                   slot:
-                                    type: "integer"
+                                    type: integer
                                     example: 373976835
                                 required:
-                                  - "slot"
-                              - type: "object"
-                                description: "定义一个承诺级别进行模拟。"
+                                  - slot
+                              - type: object
+                                description: 定义一个承诺级别进行模拟。
                                 properties:
                                   commitment:
-                                    type: "object"
+                                    type: object
                                     properties:
                                       commitment:
-                                        type: "string"
+                                        type: string
                                         enum:
-                                          - "processed"
-                                          - "confirmed"
-                                          - "finalized"
-                                        description: "用于模拟的承诺级别。"
+                                          - processed
+                                          - confirmed
+                                          - finalized
+                                        description: 用于模拟的承诺级别。
                                         example: "processed"
                                     required:
-                                      - "commitment"
+                                      - commitment
                                 required:
-                                  - "commitment"
+                                  - commitment
                           skipSigVerify:
-                            type: "boolean"
-                            description: "是否在模拟之前跳过签名验证。"
+                            type: boolean
+                            description: 是否在模拟之前跳过签名验证。
                             default: false
                           replaceRecentBlockhash:
-                            type: "boolean"
-                            description: "是否用最新的区块哈希替换模拟交易的最近区块哈希。"
+                            type: boolean
+                            description: 是否用最新的区块哈希替换模拟交易的最近区块哈希。
                             default: false
             example:
               jsonrpc: "2.0"
@@ -254,180 +248,179 @@ paths:
                 - preExecutionAccountsConfigs:
                     - addresses:
                         - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                      encoding: "base64"
+                      encoding: base64
                     - null
                   postExecutionAccountsConfigs:
                     - addresses:
                         - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                      encoding: "base64"
+                      encoding: base64
                     - null
                   skipSigVerify: true
                   simulationBank:
                     commitment:
-                      commitment: "processed"
-                  transactionEncoding: "base64"
+                      commitment: processed
+                  transactionEncoding: base64
                   replaceRecentBlockhash: false
       responses:
         "200":
-          description: "成功模拟了捆绑。"
+          description: 成功模拟了捆绑。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC协议版本。"
+                    description: JSON-RPC协议版本。
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "模拟包的结果。"
+                    type: object
+                    description: 模拟包的结果。
                     properties:
                       context:
-                        type: "object"
-                        description: "模拟响应的上下文。"
+                        type: object
+                        description: 模拟响应的上下文。
                         properties:
                           apiVersion:
-                            type: "string"
-                            description: "API版本。"
+                            type: string
+                            description: API版本。
                             example: "2.30.10"
                           slot:
-                            type: "integer"
-                            description: "数据处理的槽位。"
+                            type: integer
+                            description: 数据处理的槽位。
                             example: 373999891
                       value:
-                        type: "object"
-                        description: "模拟捆绑结果的详细信息。"
+                        type: object
+                        description: 模拟捆绑结果的详细信息。
                         properties:
                           summary:
-                            description: "捆绑模拟结果的摘要。
+                            description: |
+                              捆绑模拟结果的摘要。
 
+                              如果模拟成功，此值设置为 `"succeeded"`。
 
-                              如果模拟成功，此值设置为 `\"succeeded\"`。
-
-
-                              如果模拟失败，此值设置为一个包含单个字段 `failed` 的对象，其中包含有关该失败的详细信息。\n"
+                              如果模拟失败，此值设置为一个包含单个字段 `failed` 的对象，其中包含有关该失败的详细信息。
                             oneOf:
-                              - type: "string"
-                                example: "succeeded"
-                              - type: "object"
+                              - type: string
+                                example: succeeded
+                              - type: object
                                 required:
-                                  - "failed"
+                                  - failed
                                 properties:
                                   failed:
-                                    type: "object"
+                                    type: object
                                     required:
-                                      - "error"
+                                      - error
                                     properties:
                                       error:
-                                        description: "包含错误详细信息的值。结构可能有所不同。"
+                                        description: 包含错误详细信息的值。结构可能有所不同。
                                       tx_signature:
-                                        type: "string"
-                                        description: "以 base58 格式表示的失败交易签名。如果不适用，可能为 `null`。"
+                                        type: string
+                                        description: 以 base58 格式表示的失败交易签名。如果不适用，可能为 `null`。
                           transactionResults:
-                            type: "array"
-                            description: "每个捆绑交易结果的数组。如果出现错误，可能为空。"
+                            type: array
+                            description: 每个捆绑交易结果的数组。如果出现错误，可能为空。
                             items:
-                              type: "object"
+                              type: object
                               properties:
                                 err:
                                   type:
                                     - "object"
                                     - "null"
-                                  description: "如果交易失败则为错误，成功则为`null`。"
+                                  description: 如果交易失败则为错误，成功则为`null`。
                                 logs:
                                   type:
                                     - "array"
                                     - "null"
-                                  description: "来自交易执行的日志消息数组。"
+                                  description: 来自交易执行的日志消息数组。
                                   items:
-                                    type: "string"
+                                    type: string
                                     example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
                                 preExecutionAccounts:
                                   type:
                                     - "array"
                                     - "null"
-                                  description: "交易执行前的账户状态。"
+                                  description: 交易执行前的账户状态。
                                   items:
-                                    type: "object"
+                                    type: object
                                     properties:
                                       data:
-                                        type: "string"
-                                        description: "与账户关联的数据。"
+                                        type: string
+                                        description: 与账户关联的数据。
                                       executable:
-                                        type: "boolean"
-                                        description: "账户是否包含程序。"
+                                        type: boolean
+                                        description: 账户是否包含程序。
                                         example: false
                                       lamports:
-                                        type: "integer"
-                                        description: "分配给此账户的 lamports 数量。"
+                                        type: integer
+                                        description: 分配给此账户的 lamports 数量。
                                         example: 1500000000
                                       owner:
-                                        type: "string"
-                                        description: "拥有此账户的程序的地址。"
+                                        type: string
+                                        description: 拥有此账户的程序的地址。
                                         example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
                                       rentEpoch:
-                                        type: "integer"
-                                        description: "此账户下次需要支付租金的纪元。"
+                                        type: integer
+                                        description: 此账户下次需要支付租金的纪元。
                                         example: 324
                                       space:
-                                        type: "integer"
-                                        description: "账户的数据大小。"
+                                        type: integer
+                                        description: 账户的数据大小。
                                         example: 1024
                                 postExecutionAccounts:
                                   type:
                                     - "array"
                                     - "null"
-                                  description: "交易执行后的账户状态。"
+                                  description: 交易执行后的账户状态。
                                   items:
-                                    type: "object"
+                                    type: object
                                     properties:
                                       data:
-                                        type: "string"
-                                        description: "与账户关联的数据。"
+                                        type: string
+                                        description: 与账户关联的数据。
                                       executable:
-                                        type: "boolean"
-                                        description: "账户是否包含程序。"
+                                        type: boolean
+                                        description: 账户是否包含程序。
                                         example: false
                                       lamports:
-                                        type: "integer"
-                                        description: "分配给此账户的 lamports 数量。"
+                                        type: integer
+                                        description: 分配给此账户的 lamports 数量。
                                         example: 1500000000
                                       owner:
-                                        type: "string"
-                                        description: "拥有此账户的程序的地址。"
+                                        type: string
+                                        description: 拥有此账户的程序的地址。
                                         example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
                                       rentEpoch:
-                                        type: "integer"
-                                        description: "此账户下次需要支付租金的纪元。"
+                                        type: integer
+                                        description: 此账户下次需要支付租金的纪元。
                                         example: 324
                                       space:
-                                        type: "integer"
-                                        description: "账户的数据大小。"
+                                        type: integer
+                                        description: 账户的数据大小。
                                         example: 1024
                                 unitsConsumed:
-                                  type: "integer"
-                                  description: "处理期间消耗的计算预算单位数量。"
+                                  type: integer
+                                  description: 处理期间消耗的计算预算单位数量。
                                   example: 200000
                                 returnData:
                                   type:
                                     - "object"
                                     - "null"
-                                  description: "指令生成的最新返回数据。"
+                                  description: 指令生成的最新返回数据。
                                   properties:
                                     programId:
-                                      type: "string"
-                                      description: "生成返回数据的程序。"
+                                      type: string
+                                      description: 生成返回数据的程序。
                                       example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
                                     data:
-                                      type: "string"
-                                      description: "以 base-64 编码的二进制数据形式返回的数据。"
+                                      type: string
+                                      description: 以 base-64 编码的二进制数据形式返回的数据。
                                       example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
               example:
                 jsonrpc: "2.0"
@@ -441,12 +434,12 @@ paths:
                     transactionResults:
                       - err: null
                         logs:
-                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
-                          - "程序 ComputeBudget111111111111111111111111111111 成功"
-                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
-                          - "程序 ComputeBudget111111111111111111111111111111 成功"
-                          - "程序 11111111111111111111111111111111 调用 [1]"
-                          - "程序 11111111111111111111111111111111 成功"
+                          - '程序 ComputeBudget111111111111111111111111111111 调用 [1]'
+                          - '程序 ComputeBudget111111111111111111111111111111 成功'
+                          - '程序 ComputeBudget111111111111111111111111111111 调用 [1]'
+                          - '程序 ComputeBudget111111111111111111111111111111 成功'
+                          - '程序 11111111111111111111111111111111 调用 [1]'
+                          - '程序 11111111111111111111111111111111 成功'
                         preExecutionAccounts:
                           - data:
                               - ""
@@ -471,22 +464,22 @@ paths:
                         unitsConsumed: 450
                       - err: null
                         logs:
-                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
-                          - "程序 ComputeBudget111111111111111111111111111111 成功"
-                          - "程序 ComputeBudget111111111111111111111111111111 调用 [1]"
-                          - "程序 ComputeBudget111111111111111111111111111111 成功"
-                          - "程序 11111111111111111111111111111111 调用 [1]"
-                          - "程序 11111111111111111111111111111111 成功"
+                          - '程序 ComputeBudget111111111111111111111111111111 调用 [1]'
+                          - '程序 ComputeBudget111111111111111111111111111111 成功'
+                          - '程序 ComputeBudget111111111111111111111111111111 调用 [1]'
+                          - '程序 ComputeBudget111111111111111111111111111111 成功'
+                          - '程序 11111111111111111111111111111111 调用 [1]'
+                          - '程序 11111111111111111111111111111111 成功'
                         postExecutionAccounts: null
                         preExecutionAccounts: null
                         returnData: null
                         unitsConsumed: 450
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -494,11 +487,11 @@ paths:
                   message: "参数无效"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -506,11 +499,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -518,11 +511,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -530,11 +523,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -542,11 +535,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

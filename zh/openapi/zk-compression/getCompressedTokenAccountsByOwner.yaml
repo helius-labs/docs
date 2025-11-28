@@ -1,178 +1,170 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Solana 压缩代币组合 API"
-  description: "高级 Solana 索引器，使用状态压缩技术对压缩代币账户进行高效且经济的代币存储和检索。
-
+  title: Solana 压缩代币组合 API
+  description: |
+    高级 Solana 索引器，使用状态压缩技术对压缩代币账户进行高效且经济的代币存储和检索。
     此 API 提供对 Solana 压缩代币和 NFT 的优化访问，在保持
-
-    Solana 代币生态系统的完全安全性和兼容性的同时，实现高达 1000 倍的成本节省。非常适合需要高效管理压缩资产组合的钱包应用程序、市场和基于代币的 dApp。\n"
+    Solana 代币生态系统的完全安全性和兼容性的同时，实现高达 1000 倍的成本节省。非常适合需要高效管理压缩资产组合的钱包应用程序、市场和基于代币的 dApp。
   license:
-    name: "Apache-2.0"
-  version: "0.50.0"
+    name: Apache-2.0
+  version: 0.50.0
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 paths:
   /:
-    summary: "getCompressedTokenAccountsByOwner"
+    summary: getCompressedTokenAccountsByOwner
     post:
-      description: "检索由特定 Solana 钱包地址拥有的所有压缩代币账户。
-
+      description: |
+        检索由特定 Solana 钱包地址拥有的所有压缩代币账户。
         此组合端点提供完整的压缩 SPL 代币和 NFT 持有数据，使用 Solana 的状态压缩技术实现显著的成本节省。通过铸造地址过滤结果，
-
         高效分页浏览大型集合，并访问具有完整所有权验证的详细账户数据。
 
-
         主要优势：
-
         - 减少代币账户的链上存储成本（高达 1000 倍节省）
-
         - 支持大规模钱包集成，具有高效分页功能
-
         - 兼容 Solana 的 SPL 代币标准和压缩 NFT
-
         - 针对特定代币查询的铸造特定过滤
-
-        - 完整的代币账户数据，包括余额、委托和状态\n"
-      operationId: "getCompressedTokenAccountsByOwner"
+        - 完整的代币账户数据，包括余额、委托和状态
+      operationId: getCompressedTokenAccountsByOwner
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议的版本。"
+                  type: string
+                  description: JSON-RPC 协议的版本。
                   enum:
-                    - "2.0"
-                  default: "2.0"
+                    - '2.0'
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的方法名称。"
+                  type: string
+                  description: 要调用的方法名称。
                   enum:
-                    - "getCompressedTokenAccountsByOwner"
-                  default: "getCompressedTokenAccountsByOwner"
+                    - getCompressedTokenAccountsByOwner
+                  default: getCompressedTokenAccountsByOwner
                 params:
-                  type: "object"
+                  type: object
                   required:
-                    - "owner"
+                    - owner
                   properties:
                     cursor:
                       allOf:
-                        - $ref: "#/components/schemas/Base58String"
+                        - $ref: '#/components/schemas/Base58String'
                       nullable: true
-                      description: "用于在Solana钱包中拥有大量持有的情况下检索后续压缩代币账户集的分页游标"
+                      description: 用于在Solana钱包中拥有大量持有的情况下检索后续压缩代币账户集的分页游标
                     limit:
                       allOf:
-                        - $ref: "#/components/schemas/Limit"
+                        - $ref: '#/components/schemas/Limit'
                       nullable: true
-                      description: "每个请求返回的压缩代币账户的最大数量（用于分页）"
+                      description: 每个请求返回的压缩代币账户的最大数量（用于分页）
                     mint:
                       allOf:
-                        - $ref: "#/components/schemas/SerializablePubkey"
+                        - $ref: '#/components/schemas/SerializablePubkey'
                       nullable: true
-                      description: "通过特定的Solana代币铸造地址过滤压缩代币账户"
+                      description: 通过特定的Solana代币铸造地址过滤压缩代币账户
                     owner:
-                      $ref: "#/components/schemas/SerializablePubkey"
-                      description: "拥有要检索的压缩代币账户的Solana钱包地址"
+                      $ref: '#/components/schemas/SerializablePubkey'
+                      description: 拥有要检索的压缩代币账户的Solana钱包地址
                   additionalProperties: false
         required: true
       responses:
-        "200":
-          description: "成功从Solana区块链中检索到指定钱包所有者的压缩代币账户"
+        '200':
+          description: '成功从Solana区块链中检索到指定钱包所有者的压缩代币账户'
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 required:
-                  - "context"
-                  - "value"
+                  - context
+                  - value
                 properties:
                   context:
-                    $ref: "#/components/schemas/Context"
+                    $ref: '#/components/schemas/Context'
                   value:
-                    $ref: "#/components/schemas/TokenAccountList"
+                    $ref: '#/components/schemas/TokenAccountList'
                 additionalProperties: false
-        "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+        '400':
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
                 id: "1"
-        "401":
-          description: "未授权 - API密钥无效或缺失。"
+        '401':
+          description: 未授权 - API密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
                   message: "Unauthorized"
                 id: "1"
-        "429":
-          description: "请求过多 - 超出速率限制。"
+        '429':
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
                   message: "请求过多"
                 id: "1"
-        "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+        '500':
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
                   message: "内部错误"
                 id: "1"
-        "503":
-          description: "服务不可用 - 服务暂时不可用。"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
                   message: "服务不可用"
                 id: "1"
-        "504":
-          description: "网关超时 - 请求超时。"
+        '504':
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -182,187 +174,187 @@ paths:
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
     Account:
-      type: "object"
+      type: object
       required:
-        - "hash"
-        - "owner"
-        - "lamports"
-        - "tree"
-        - "leafIndex"
-        - "seq"
-        - "slotCreated"
+        - hash
+        - owner
+        - lamports
+        - tree
+        - leafIndex
+        - seq
+        - slotCreated
       properties:
         address:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "Solana上压缩账户的唯一地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: Solana上压缩账户的唯一地址
         data:
-          $ref: "#/components/schemas/AccountData"
-          description: "以压缩格式存储在Solana上的账户数据"
+          $ref: '#/components/schemas/AccountData'
+          description: 以压缩格式存储在Solana上的账户数据
         hash:
-          $ref: "#/components/schemas/Hash"
-          description: "用于验证的压缩账户数据的加密哈希"
+          $ref: '#/components/schemas/Hash'
+          description: 用于验证的压缩账户数据的加密哈希
         lamports:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "与压缩账户关联的lamports余额"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 与压缩账户关联的lamports余额
         leafIndex:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "存储压缩账户的merkle树中的索引位置"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 存储压缩账户的merkle树中的索引位置
         owner:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "拥有此压缩账户的Solana程序"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 拥有此压缩账户的Solana程序
         seq:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "用于跟踪压缩账户更新的序列号"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 用于跟踪压缩账户更新的序列号
         slotCreated:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "创建压缩账户时的Solana区块链插槽"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 创建压缩账户时的Solana区块链插槽
         tree:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "包含此压缩账户的默克尔树的地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 包含此压缩账户的默克尔树的地址
       additionalProperties: false
     AccountData:
-      type: "object"
+      type: object
       required:
-        - "discriminator"
-        - "data"
-        - "dataHash"
+        - discriminator
+        - data
+        - dataHash
       properties:
         data:
-          $ref: "#/components/schemas/Base64String"
-          description: "压缩Solana账户的Base64编码数据"
+          $ref: '#/components/schemas/Base64String'
+          description: 压缩Solana账户的Base64编码数据
         dataHash:
-          $ref: "#/components/schemas/Hash"
-          description: "用于完整性验证的压缩账户数据的哈希"
+          $ref: '#/components/schemas/Hash'
+          description: 用于完整性验证的压缩账户数据的哈希
         discriminator:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "Solana程序中账户类型的标识符"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: Solana程序中账户类型的标识符
       additionalProperties: false
     AccountState:
-      type: "string"
+      type: string
       enum:
-        - "initialized"
-        - "frozen"
-      description: "压缩代币账户的当前状态（已初始化或冻结）"
+        - initialized
+        - frozen
+      description: 压缩代币账户的当前状态（已初始化或冻结）
     Base58String:
-      type: "string"
-      description: "用于Solana地址和标识符的Base58编码字符串。"
-      default: "3J98t1WpEZ73CNm"
-      example: "3J98t1WpEZ73CNm"
+      type: string
+      description: 用于Solana地址和标识符的Base58编码字符串。
+      default: 3J98t1WpEZ73CNm
+      example: 3J98t1WpEZ73CNm
     Base64String:
-      type: "string"
-      description: "用于在压缩的 Solana 账户中存储二进制数据的 base 64 编码字符串。"
-      default: "SGVsbG8sIFdvcmxkIQ=="
-      example: "SGVsbG8sIFdvcmxkIQ=="
+      type: string
+      description: 用于在压缩的 Solana 账户中存储二进制数据的 base 64 编码字符串。
+      default: SGVsbG8sIFdvcmxkIQ==
+      example: SGVsbG8sIFdvcmxkIQ==
     Context:
-      type: "object"
+      type: object
       required:
-        - "slot"
+        - slot
       properties:
         slot:
-          type: "integer"
+          type: integer
           default: 100
           example: 100
-          description: "此响应的当前 Solana 区块链插槽"
+          description: 此响应的当前 Solana 区块链插槽
     Hash:
-      type: "string"
-      description: "用于 Solana 数据验证的 32 字节加密哈希，以 base58 字符串表示。"
-      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+      type: string
+      description: 用于 Solana 数据验证的 32 字节加密哈希，以 base58 字符串表示。
+      example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     Limit:
-      type: "integer"
-      format: "int64"
+      type: integer
+      format: int64
       minimum: 0
-      description: "单个请求中要返回的压缩代币账户的最大数量"
+      description: 单个请求中要返回的压缩代币账户的最大数量
     SerializablePubkey:
-      type: "string"
-      description: "用于账户和钱包地址的 Solana 公钥，以 base58 字符串表示。"
-      default: "11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9"
-      example: "11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9"
+      type: string
+      description: 用于账户和钱包地址的 Solana 公钥，以 base58 字符串表示。
+      default: 11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9
+      example: 11111115q4EpJaTXAZWpCg3J2zppWGSZ46KXozzo9
     TokenAcccount:
-      type: "object"
+      type: object
       required:
-        - "account"
-        - "tokenData"
+        - account
+        - tokenData
       properties:
         account:
-          $ref: "#/components/schemas/Account"
-          description: "Solana 上代币账户的压缩账户信息，包括树位置和验证数据"
+          $ref: '#/components/schemas/Account'
+          description: Solana 上代币账户的压缩账户信息，包括树位置和验证数据
         tokenData:
-          $ref: "#/components/schemas/TokenData"
-          description: "特定的代币相关数据，包括余额、铸造、所有者和委托状态"
+          $ref: '#/components/schemas/TokenData'
+          description: 特定的代币相关数据，包括余额、铸造、所有者和委托状态
       additionalProperties: false
     TokenAccountList:
-      type: "object"
+      type: object
       required:
-        - "items"
+        - items
       properties:
         cursor:
-          $ref: "#/components/schemas/Base58String"
-          description: "分页游标，用于在后续请求中检索下一组压缩代币账户"
+          $ref: '#/components/schemas/Base58String'
+          description: 分页游标，用于在后续请求中检索下一组压缩代币账户
         items:
-          type: "array"
+          type: array
           items:
-            $ref: "#/components/schemas/TokenAcccount"
-          description: "由指定的Solana钱包地址拥有的压缩代币账户数组"
+            $ref: '#/components/schemas/TokenAcccount'
+          description: 由指定的Solana钱包地址拥有的压缩代币账户数组
     TokenData:
-      type: "object"
+      type: object
       required:
-        - "mint"
-        - "owner"
-        - "amount"
-        - "state"
+        - mint
+        - owner
+        - amount
+        - state
       properties:
         amount:
-          $ref: "#/components/schemas/UnsignedInteger"
-          description: "此压缩代币账户中持有的代币余额"
+          $ref: '#/components/schemas/UnsignedInteger'
+          description: 此压缩代币账户中持有的代币余额
         delegate:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "授权在此压缩代币账户上执行操作的可选委托地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 授权在此压缩代币账户上执行操作的可选委托地址
         mint:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "此压缩代币账户所属的Solana SPL代币铸造地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 此压缩代币账户所属的Solana SPL代币铸造地址
         owner:
-          $ref: "#/components/schemas/SerializablePubkey"
-          description: "拥有此压缩代币账户的Solana钱包地址"
+          $ref: '#/components/schemas/SerializablePubkey'
+          description: 拥有此压缩代币账户的Solana钱包地址
         state:
-          $ref: "#/components/schemas/AccountState"
-          description: "压缩代币账户的当前状态（已初始化或冻结）"
+          $ref: '#/components/schemas/AccountState'
+          description: 压缩代币账户的当前状态（已初始化或冻结）
         tlv:
-          $ref: "#/components/schemas/Base64String"
-          description: "用于扩展代币账户信息的可选类型-长度-值编码数据"
+          $ref: '#/components/schemas/Base64String'
+          description: 用于扩展代币账户信息的可选类型-长度-值编码数据
     UnsignedInteger:
-      type: "integer"
+      type: integer
       default: 100
       example: 100
-      description: "用于代币数量、序列号和其他数值的非负整数值"
+      description: 用于代币数量、序列号和其他数值的非负整数值

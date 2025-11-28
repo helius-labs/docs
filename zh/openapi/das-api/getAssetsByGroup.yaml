@@ -1,333 +1,335 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana NFT 集合浏览器 API"
-  version: "1.0.0"
-  description: "高级 Solana 数字资产标准 (DAS) API，用于在 Solana 区块链上探索完整的 NFT 集合和代币组。这个专门的集合浏览 API 使应用程序能够检索特定集合、社区或分组内的所有数字资产，具有强大的过滤和排序功能。非常适合需要以一致格式显示完整集合的 NFT 市场、投资组合应用程序和分析平台，支持传统和压缩 NFT。\n"
+  title: Solana NFT 集合浏览器 API
+  version: 1.0.0
+  description: |
+    高级 Solana 数字资产标准 (DAS) API，用于在 Solana 区块链上探索完整的 NFT 集合和代币组。这个专门的集合浏览 API 使应用程序能够检索特定集合、社区或分组内的所有数字资产，具有强大的过滤和排序功能。非常适合需要以一致格式显示完整集合的 NFT 市场、投资组合应用程序和分析平台，支持传统和压缩 NFT。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getAssetsByGroup"
-      description: "检索属于特定集合或分组的所有 Solana 数字资产。这个强大的集合浏览 API 返回共享相同分组标识（如集合、社区或其他分组）的 NFT 的完整列表，提供每个资产的全面元数据和所有权详细信息。对于显示集合的 NFT 市场、显示分组资产的投资组合应用程序以及跟踪 Solana 生态系统中集合范围指标的分析平台至关重要。\n"
-      operationId: "rpc"
+        - RPC
+      summary: getAssetsByGroup
+      description: |
+        检索属于特定集合或分组的所有 Solana 数字资产。这个强大的集合浏览 API 返回共享相同分组标识（如集合、社区或其他分组）的 NFT 的完整列表，提供每个资产的全面元数据和所有权详细信息。对于显示集合的 NFT 市场、显示分组资产的投资组合应用程序以及跟踪 Solana 生态系统中集合范围指标的分析平台至关重要。
+      operationId: rpc
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
-                    - "2.0"
-                  description: "JSON-RPC 协议的版本。"
-                  default: "2.0"
+                    - '2.0'
+                  description: JSON-RPC 协议的版本。
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
-                  default: "1"
+                  type: string
+                  description: 用于标识请求的 ID。
+                  default: '1'
                 method:
-                  type: "string"
+                  type: string
                   enum:
-                    - "getAssetsByGroup"
-                  description: "要调用的 DAS 方法名称。"
-                  default: "getAssetsByGroup"
+                    - 'getAssetsByGroup'
+                  description: 要调用的 DAS 方法名称。
+                  default: 'getAssetsByGroup'
                 params:
-                  type: "object"
+                  type: object
                   default:
-                    groupKey: "collection"
-                    groupValue: "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                    groupKey: 'collection'
+                    groupValue: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
                   properties:
                     groupKey:
-                      type: "string"
-                      description: "要搜索的 Solana 组分类类型（例如，'collection'、'community'、'creator' 等）。"
-                      example: "collection"
+                      type: string
+                      description: 要搜索的 Solana 组分类类型（例如，'collection'、'community'、'creator' 等）。
+                      example: 'collection'
                     groupValue:
-                      type: "string"
-                      description: "要检索所有匹配的 NFT 的 Solana 集合地址或组标识符。"
-                      example: "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w"
+                      type: string
+                      description: 要检索所有匹配的 NFT 的 Solana 集合地址或组标识符。
+                      example: 'J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w'
                     page:
-                      type: "integer"
-                      description: "用于分页浏览 Solana 集合结果的页码。"
+                      type: integer
+                      description: 用于分页浏览 Solana 集合结果的页码。
                       example: 1
                     limit:
-                      type: "integer"
-                      description: "每次请求从此集合返回的 Solana NFT 的最大数量。"
+                      type: integer
+                      description: 每次请求从此集合返回的 Solana NFT 的最大数量。
                       example: 100
                     sortBy:
-                      type: "object"
-                      description: "响应的排序选项。"
+                      type: object
+                      description: 响应的排序选项。
                       properties:
                         sortBy:
-                          type: "string"
-                          description: "按此标准对集合中检索到的 Solana NFT 进行排序。"
+                          type: string
+                          description: 按此标准对集合中检索到的 Solana NFT 进行排序。
                           enum:
-                            - "created"
-                            - "recent_action"
-                            - "updated"
-                            - "none"
+                            - 'created'
+                            - 'recent_action'
+                            - 'updated'
+                            - 'none'
                         sortDirection:
-                          type: "string"
-                          description: "用于对集合中检索到的 Solana NFT 进行排序的方向。"
+                          type: string
+                          description: 用于对集合中检索到的 Solana NFT 进行排序的方向。
                           enum:
-                            - "asc"
-                            - "desc"
+                            - 'asc'
+                            - 'desc'
                     before:
-                      type: "string"
-                      description: "用于向后分页浏览资产的游标。"
-                      example: "string"
+                      type: string
+                      description: 用于向后分页浏览资产的游标。
+                      example: 'string'
                     after:
-                      type: "string"
-                      description: "用于向前分页浏览资产的游标。"
-                      example: "string"
+                      type: string
+                      description: 用于向前分页浏览资产的游标。
+                      example: 'string'
                     options:
-                      type: "object"
-                      description: "响应的显示选项。"
+                      type: object
+                      description: 响应的显示选项。
                       properties:
                         showUnverifiedCollections:
-                          type: "boolean"
-                          description: "显示未验证集合的分组信息，而不是跳过它们。"
+                          type: boolean
+                          description: 显示未验证集合的分组信息，而不是跳过它们。
                           default: false
                         showCollectionMetadata:
-                          type: "boolean"
-                          description: "显示集合的元数据。"
+                          type: boolean
+                          description: 显示集合的元数据。
                           default: false
                         showGrandTotal:
-                          type: "boolean"
-                          description: "显示与查询匹配的资产总数。这将使请求变慢。"
+                          type: boolean
+                          description: 显示与查询匹配的资产总数。这将使请求变慢。
                           default: false
                         showInscription:
-                          type: "boolean"
-                          description: "显示集合中具有链上铭文的 Solana NFT 的铭文详细信息。"
+                          type: boolean
+                          description: 显示集合中具有链上铭文的 Solana NFT 的铭文详细信息。
                           default: false
                   required:
-                    - "groupKey"
-                    - "groupValue"
+                    - groupKey
+                    - groupValue
       responses:
-        "200":
-          description: "成功响应"
+        '200':
+          description: 成功响应
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   result:
-                    type: "object"
+                    type: object
                     properties:
                       last_indexed_slot:
-                        type: "integer"
-                        description: "保证所有数据都已索引到此槽位及之前的所有数据。"
+                        type: integer
+                        description: 保证所有数据都已索引到此槽位及之前的所有数据。
                         example: 365750752
                       total:
-                        type: "integer"
-                        description: "在此集合或组中找到的 Solana NFT 的总数。"
+                        type: integer
+                        description: 在此集合或组中找到的 Solana NFT 的总数。
                         example: 1
                       limit:
-                        type: "integer"
-                        description: "请求的资产最大数量。"
+                        type: integer
+                        description: 请求的资产最大数量。
                         example: 1
                       page:
-                        type: "integer"
-                        description: "当前结果页。"
+                        type: integer
+                        description: 当前结果页。
                         example: 1
                       items:
-                        type: "array"
-                        description: "属于此集合或组的 Solana NFT 数组。"
+                        type: array
+                        description: 属于此集合或组的 Solana NFT 数组。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             interface:
-                              type: "string"
-                              description: "此集合中 NFT 的 Solana 代币标准接口。"
+                              type: string
+                              description: 此集合中 NFT 的 Solana 代币标准接口。
                               example: "ProgrammableNFT"
                             id:
-                              type: "string"
-                              description: "此集合中 Solana NFT 的唯一铸造地址。"
+                              type: string
+                              description: 此集合中 Solana NFT 的唯一铸造地址。
                               example: "JEGruwYE13mhX2wi2MGrPmeLiVyZtbBptmVy9vG3pXRC"
                             authorities:
-                              type: "array"
-                              description: "此集合中 Solana NFT 的更新权限。"
+                              type: array
+                              description: 此集合中 Solana NFT 的更新权限。
                             compression:
-                              type: "object"
-                              description: "此 Solana NFT 的压缩状态，指示其是否使用状态压缩技术。"
+                              type: object
+                              description: 此 Solana NFT 的压缩状态，指示其是否使用状态压缩技术。
                             grouping:
-                              type: "array"
-                              description: "此 Solana NFT 的集合和分组关联。"
+                              type: array
+                              description: 此 Solana NFT 的集合和分组关联。
                             royalty:
-                              type: "object"
-                              description: "此 Solana NFT 在市场上出售时的版税配置。"
+                              type: object
+                              description: 此 Solana NFT 在市场上出售时的版税配置。
                             creators:
-                              type: "array"
-                              description: "与此集合中的 Solana NFT 关联的已验证创作者地址。"
+                              type: array
+                              description: 与此集合中的 Solana NFT 关联的已验证创作者地址。
                             ownership:
-                              type: "object"
-                              description: "此集合中 Solana NFT 的当前所有权详细信息。"
+                              type: object
+                              description: 此集合中 Solana NFT 的当前所有权详细信息。
                             supply:
-                              type: "object"
-                              description: "如果这是带有印刷品的主版本，则为此 Solana NFT 的供应信息。"
+                              type: object
+                              description: 如果这是带有印刷品的主版本，则为此 Solana NFT 的供应信息。
                             mutable:
-                              type: "boolean"
-                              description: "此 Solana NFT 的元数据是否可以由权限更新。"
+                              type: boolean
+                              description: 此 Solana NFT 的元数据是否可以由权限更新。
                               example: true
                             burnt:
-                              type: "boolean"
-                              description: "此 Solana NFT 是否已被销毁。"
+                              type: boolean
+                              description: 此 Solana NFT 是否已被销毁。
                               example: false
-        "400":
-          description: "错误请求。由于语法无效，服务器无法理解请求。"
+        '400':
+          description: 错误请求。由于语法无效，服务器无法理解请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32602
                       message:
-                        type: "string"
+                        type: string
                         example: "请求参数无效。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "401":
-          description: "未授权。客户端必须进行身份验证才能获得请求的响应。"
+        '401':
+          description: 未授权。客户端必须进行身份验证才能获得请求的响应。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32001
                       message:
-                        type: "string"
+                        type: string
                         example: "身份验证失败。缺少或无效的API密钥。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "403":
-          description: "禁止访问。客户端没有访问内容的权限。"
+        '403':
+          description: 禁止访问。客户端没有访问内容的权限。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32003
                       message:
-                        type: "string"
+                        type: string
                         example: "您没有权限访问此资源。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "404":
-          description: "未找到。服务器无法找到请求的资源。"
+        '404':
+          description: 未找到。服务器无法找到请求的资源。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32004
                       message:
-                        type: "string"
+                        type: string
                         example: "未找到指定组的资产。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "429":
-          description: "请求过多。用户在给定时间内发送了过多请求。"
+        '429':
+          description: 请求过多。用户在给定时间内发送了过多请求。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32029
                       message:
-                        type: "string"
+                        type: string
                         example: "超出速率限制。请稍后再试。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"
-        "500":
-          description: "内部服务器错误。服务器遇到了一个无法处理的情况。"
+        '500':
+          description: 内部服务器错误。服务器遇到了一个无法处理的情况。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     example: "2.0"
                   error:
-                    type: "object"
+                    type: object
                     properties:
                       code:
-                        type: "integer"
+                        type: integer
                         example: -32000
                       message:
-                        type: "string"
+                        type: string
                         example: "服务器发生了意外错误。"
                   id:
-                    type: "string"
+                    type: string
                     example: "1"

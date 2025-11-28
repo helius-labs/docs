@@ -1,138 +1,138 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "photon-indexer"
-  description: "Solana 索引器用于通用压缩"
+  title: photon-indexer
+  description: Solana 索引器用于通用压缩
   license:
-    name: "Apache-2.0"
-  version: "0.50.0"
+    name: Apache-2.0
+  version: 0.50.0
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 paths:
   /:
-    summary: "getMultipleNewAddressProofsV2"
+    summary: getMultipleNewAddressProofsV2
     post:
-      description: "检索 getMultipleNewAddressProofsV2 信息"
-      operationId: "getMultipleNewAddressProofsV2"
+      description: 检索 getMultipleNewAddressProofsV2 信息
+      operationId: getMultipleNewAddressProofsV2
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议的版本。"
+                  type: string
+                  description: JSON-RPC 协议的版本。
                   enum:
-                    - "2.0"
-                  default: "2.0"
+                    - '2.0'
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的方法名称。"
+                  type: string
+                  description: 要调用的方法名称。
                   enum:
-                    - "getMultipleNewAddressProofsV2"
-                  default: "getMultipleNewAddressProofsV2"
+                    - getMultipleNewAddressProofsV2
+                  default: getMultipleNewAddressProofsV2
                 params:
-                  type: "array"
+                  type: array
                   items:
-                    $ref: "#/components/schemas/AddressWithTree"
+                    $ref: '#/components/schemas/AddressWithTree'
         required: true
       responses:
-        "200":
-          description: "成功从Solana压缩服务检索多个新的地址证明（V2）"
+        '200':
+          description: '成功从Solana压缩服务检索多个新的地址证明（V2）'
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 required:
-                  - "context"
-                  - "value"
+                  - context
+                  - value
                 properties:
                   context:
-                    $ref: "#/components/schemas/Context"
+                    $ref: '#/components/schemas/Context'
                   value:
-                    type: "array"
+                    type: array
                     items:
-                      $ref: "#/components/schemas/MerkleContextWithNewAddressProof"
-        "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+                      $ref: '#/components/schemas/MerkleContextWithNewAddressProof'
+        '400':
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
                 id: "1"
-        "401":
-          description: "未授权 - API密钥无效或缺失。"
+        '401':
+          description: 未授权 - API密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
                   message: "Unauthorized"
                 id: "1"
-        "429":
-          description: "请求过多 - 超出速率限制。"
+        '429':
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
                   message: "Too many requests"
                 id: "1"
-        "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+        '500':
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
                   message: "Internal error"
                 id: "1"
-        "503":
-          description: "服务不可用 - 服务暂时不可用。"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
                   message: "服务不可用"
                 id: "1"
-        "504":
-          description: "网关超时 - 请求超时。"
+        '504':
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -142,103 +142,103 @@ paths:
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     AddressWithTree:
-      type: "object"
+      type: object
       required:
-        - "address"
-        - "tree"
+        - address
+        - tree
       properties:
         address:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
         tree:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
       additionalProperties: false
     Context:
-      type: "object"
+      type: object
       required:
-        - "slot"
+        - slot
       properties:
         slot:
-          type: "integer"
+          type: integer
           default: 100
           example: 100
     Hash:
-      type: "string"
-      description: "一个32字节的哈希，以base58字符串表示。"
-      example: "11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP"
+      type: string
+      description: 一个32字节的哈希，以base58字符串表示。
+      example: 11111112cMQwSC9qirWGjZM6gLGwW69X22mqwLLGP
     MerkleContextWithNewAddressProof:
-      type: "object"
+      type: object
       required:
-        - "root"
-        - "address"
-        - "lowerRangeAddress"
-        - "higherRangeAddress"
-        - "nextIndex"
-        - "proof"
-        - "merkleTree"
-        - "rootSeq"
-        - "lowElementLeafIndex"
+        - root
+        - address
+        - lowerRangeAddress
+        - higherRangeAddress
+        - nextIndex
+        - proof
+        - merkleTree
+        - rootSeq
+        - lowElementLeafIndex
       properties:
         address:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
         higherRangeAddress:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
         lowElementLeafIndex:
-          type: "integer"
-          format: "int32"
+          type: integer
+          format: int32
           minimum: 0
         lowerRangeAddress:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
         merkleTree:
-          $ref: "#/components/schemas/SerializablePubkey"
+          $ref: '#/components/schemas/SerializablePubkey'
         nextIndex:
-          type: "integer"
-          format: "int32"
+          type: integer
+          format: int32
           minimum: 0
         proof:
-          type: "array"
+          type: array
           items:
-            $ref: "#/components/schemas/Hash"
+            $ref: '#/components/schemas/Hash'
         root:
-          $ref: "#/components/schemas/Hash"
+          $ref: '#/components/schemas/Hash'
         rootSeq:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
           minimum: 0
       additionalProperties: false
     SerializablePubkey:
-      type: "string"
-      description: "以base58字符串表示的Solana公钥。"
-      default: "11111118F5rixNBnFLmioWZSYzjjFuAL5dyoDVzhD"
-      example: "11111118F5rixNBnFLmioWZSYzjjFuAL5dyoDVzhD"
+      type: string
+      description: 以base58字符串表示的Solana公钥。
+      default: 11111118F5rixNBnFLmioWZSYzjjFuAL5dyoDVzhD
+      example: 11111118F5rixNBnFLmioWZSYzjjFuAL5dyoDVzhD
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"

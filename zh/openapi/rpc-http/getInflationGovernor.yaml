@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于检索管理代币发行的核心Solana通胀模型参数的经济政策API，包括初始利率、终端利率和衰减计划。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于检索管理代币发行的核心Solana通胀模型参数的经济政策API，包括初始利率、终端利率和衰减计划。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getInflationGovernor"
-      operationId: "getInflationGovernor"
-      description: "检索控制Solana长期货币政策的基本参数。这个经济设计API提供关于区块链通胀模型配置的详细信息，包括初始和终端通胀率、去通胀递减率和基金分配细节。Solana使用去通胀代币发行模型，通胀率从初始的较高水平逐渐降低到长期可持续的较低水平。对于经济研究人员、代币经济学分析师、长期投资者以及建模未来代币供应、质押奖励预测或预测Solana货币政策长期轨迹的应用程序来说，这是必不可少的。"
+        - RPC
+      summary: getInflationGovernor
+      operationId: getInflationGovernor
+      description: |-
+        检索控制Solana长期货币政策的基本参数。这个经济设计API提供关于区块链通胀模型配置的详细信息，包括初始和终端通胀率、去通胀递减率和基金分配细节。Solana使用去通胀代币发行模型，通胀率从初始的较高水平逐渐降低到长期可持续的较低水平。对于经济研究人员、代币经济学分析师、长期投资者以及建模未来代币供应、质押奖励预测或预测Solana货币政策长期轨迹的应用程序来说，这是必不可少的。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,23 +61,23 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC协议版本。"
+                  type: string
+                  description: JSON-RPC协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的RPC方法名称。"
+                  type: string
+                  description: 要调用的RPC方法名称。
                   enum:
                     - "getInflationGovernor"
                   example: "getInflationGovernor"
@@ -87,50 +88,50 @@ paths:
               method: "getInflationGovernor"
       responses:
         "200":
-          description: "成功检索到通胀管理信息。"
+          description: 成功检索到通胀管理信息。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC协议版本。"
+                    type: string
+                    description: JSON-RPC协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "定义Solana长期货币政策和通胀模型的综合参数。"
+                    type: object
+                    description: 定义Solana长期货币政策和通胀模型的综合参数。
                     properties:
                       initial:
-                        type: "number"
-                        format: "float"
-                        description: "Solana主网初期的年度通胀率（十进制格式，例如0.08 = 8%）。"
+                        type: number
+                        format: float
+                        description: Solana主网初期的年度通胀率（十进制格式，例如0.08 = 8%）。
                         example: 0.15
                       terminal:
-                        type: "number"
-                        format: "float"
-                        description: "系统最终将达到并无限期维持的长期可持续通胀率。"
+                        type: number
+                        format: float
+                        description: 系统最终将达到并无限期维持的长期可持续通胀率。
                         example: 0.015
                       taper:
-                        type: "number"
-                        format: "float"
-                        description: "通胀率从初始值下降到终端值的年度速度（通缩计划速度）。"
+                        type: number
+                        format: float
+                        description: 通胀率从初始值下降到终端值的年度速度（通缩计划速度）。
                         example: 0.15
                       foundation:
-                        type: "number"
-                        format: "float"
-                        description: "分配给Solana基金会用于生态系统发展的总通胀百分比。"
+                        type: number
+                        format: float
+                        description: 分配给Solana基金会用于生态系统发展的总通胀百分比。
                         example: 0.05
                       foundationTerm:
-                        type: "number"
-                        format: "float"
-                        description: "基金会从通胀中获得分配的年限。"
+                        type: number
+                        format: float
+                        description: 基金会从通胀中获得分配的年限。
                         example: 7
               example:
                 jsonrpc: "2.0"
@@ -142,11 +143,11 @@ paths:
                   foundation: 0.05
                   foundationTerm: 7
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -154,11 +155,11 @@ paths:
                   message: "无效的参数"
                 id: "1"
         "401":
-          description: "未授权 - API密钥无效或缺失。"
+          description: 未授权 - API密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -166,11 +167,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超过速率限制。"
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -178,11 +179,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -190,11 +191,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -202,11 +203,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

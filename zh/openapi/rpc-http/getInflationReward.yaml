@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "用于检索和计算在特定时期内支付给Solana委托者和验证者的基于通胀的收益的质押奖励分析API。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于检索和计算在特定时期内支付给Solana委托者和验证者的基于通胀的收益的质押奖励分析API。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getInflationReward"
-      description: "检索 Solana 验证者和委托账户的详细质押奖励信息。这个重要的质押 API 提供关于在特定纪元期间分配给指定账户的 SOL 奖励的精确数据。这些基于通胀的奖励代表了通过直接作为验证者或间接作为委托者参与 Solana 的权益证明共识所获得的收益。返回奖励金额、佣金率、余额后数据和时间信息，以便准确计算质押收益。对于质押仪表板、收益跟踪器、钱包应用、税务报告工具以及任何跟踪 Solana 质押活动收益的服务至关重要。"
-      operationId: "getInflationReward"
+        - RPC
+      summary: getInflationReward
+      description: |-
+        检索 Solana 验证者和委托账户的详细质押奖励信息。这个重要的质押 API 提供关于在特定纪元期间分配给指定账户的 SOL 奖励的精确数据。这些基于通胀的奖励代表了通过直接作为验证者或间接作为委托者参与 Solana 的权益证明共识所获得的收益。返回奖励金额、佣金率、余额后数据和时间信息，以便准确计算质押收益。对于质押仪表板、收益跟踪器、钱包应用、税务报告工具以及任何跟踪 Solana 质押活动收益的服务至关重要。
+      operationId: getInflationReward
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,119 +61,119 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
+                - jsonrpc
+                - id
+                - method
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议版本。"
+                  type: string
+                  description: JSON-RPC 协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的 RPC 方法名称。"
+                  type: string
+                  description: 要调用的 RPC 方法名称。
                   enum:
                     - "getInflationReward"
                   example: "getInflationReward"
                   default: "getInflationReward"
                 params:
-                  type: "array"
-                  description: "方法的参数。"
+                  type: array
+                  description: 方法的参数。
                   default:
                     - - "6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu"
                   items:
                     oneOf:
-                      - type: "array"
-                        description: "要检索质押奖励的 Solana 地址（验证者或委托者）列表，作为 base-58 编码的字符串。"
+                      - type: array
+                        description: 要检索质押奖励的 Solana 地址（验证者或委托者）列表，作为 base-58 编码的字符串。
                         items:
-                          type: "string"
+                          type: string
                         example:
                           - "6dmNQ5jwLeLk5REvio1JcMshcbvkYMwy26sJ8pbkvStu"
                           - "BGsqMegLpV6n6Ve146sSX2dTjUMj3M92HnU8BbNRMhF2"
-                      - type: "object"
-                        description: "包含可选参数的配置对象。"
+                      - type: object
+                        description: 包含可选参数的配置对象。
                         properties:
                           commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
+                            type: string
+                            description: 请求的承诺级别。
                             enum:
-                              - "confirmed"
-                              - "finalized"
-                            example: "finalized"
+                              - confirmed
+                              - finalized
+                            example: finalized
                           epoch:
-                            type: "integer"
-                            description: "要检索奖励的特定Solana纪元编号。如果省略，则返回最近分发的奖励。"
+                            type: integer
+                            description: 要检索奖励的特定Solana纪元编号。如果省略，则返回最近分发的奖励。
                             example: 2
                           minContextSlot:
-                            type: "integer"
-                            description: "请求可以在其上进行评估的最小槽位。"
+                            type: integer
+                            description: 请求可以在其上进行评估的最小槽位。
                             example: 1000
       responses:
         "200":
-          description: "成功检索到通胀奖励信息。"
+          description: 成功检索到通胀奖励信息。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC协议版本。"
+                    type: string
+                    description: JSON-RPC协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "array"
-                    description: "每个请求账户的详细质押奖励信息数组，顺序与请求相同。"
+                    type: array
+                    description: 每个请求账户的详细质押奖励信息数组，顺序与请求相同。
                     items:
                       oneOf:
-                        - type: "object"
-                          description: "此账户的Solana质押奖励详情。"
+                        - type: object
+                          description: 此账户的Solana质押奖励详情。
                           properties:
                             epoch:
-                              type: "integer"
-                              description: "分发这些质押奖励时的 Solana epoch 编号。"
+                              type: integer
+                              description: 分发这些质押奖励时的 Solana epoch 编号。
                               example: 2
                             effectiveSlot:
-                              type: "integer"
-                              description: "计算这些奖励并生效的特定区块链插槽。"
+                              type: integer
+                              description: 计算这些奖励并生效的特定区块链插槽。
                               example: 224
                             amount:
-                              type: "integer"
-                              description: "此账户赚取的以 lamports 为单位的质押奖励金额（1 SOL = 1,000,000,000 lamports）。"
+                              type: integer
+                              description: 此账户赚取的以 lamports 为单位的质押奖励金额（1 SOL = 1,000,000,000 lamports）。
                               example: 2500
                             postBalance:
-                              type: "integer"
-                              description: "在此质押奖励记入后，以 lamports 为单位的账户余额。"
+                              type: integer
+                              description: 在此质押奖励记入后，以 lamports 为单位的账户余额。
                               example: 499999442500
                             commission:
-                              type: "integer"
-                              description: "从委托人奖励中提取的验证者佣金百分比（委托人账户为 null，验证者为 0-100）。"
+                              type: integer
+                              description: 从委托人奖励中提取的验证者佣金百分比（委托人账户为 null，验证者为 0-100）。
                               nullable: true
                               example: 5
                         - type: "null"
-                          description: "如果此账户在指定的 epoch 期间未收到任何质押奖励，则为 null。"
+                          description: 如果此账户在指定的 epoch 期间未收到任何质押奖励，则为 null。
                           example: null
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -180,11 +181,11 @@ paths:
                   message: "Invalid params"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -192,11 +193,11 @@ paths:
                   message: "Unauthorized"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -204,11 +205,11 @@ paths:
                   message: "Too many requests"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -216,11 +217,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -228,11 +229,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

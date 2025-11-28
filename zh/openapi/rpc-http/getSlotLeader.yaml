@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "验证者调度API，用于识别哪个Solana验证者负责在区块链的特定插槽中生成区块。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 验证者调度API，用于识别哪个Solana验证者负责在区块链的特定插槽中生成区块。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getSlotLeader"
-      operationId: "getSlotLeader"
-      description: "识别被分配为当前或未来时隙生成区块的特定Solana验证者。此共识协调API返回已被安排为区块链中特定时隙领导者的验证者身份（公钥）。对于网络监控工具、验证者性能分析、区块生产跟踪以及需要了解当前领导者计划的应用程序至关重要。时隙领导者信息由Solana的权益证明领导者选择算法根据权益权重和随机性确定。"
+        - RPC
+      summary: getSlotLeader
+      operationId: getSlotLeader
+      description: |-
+        识别被分配为当前或未来时隙生成区块的特定Solana验证者。此共识协调API返回已被安排为区块链中特定时隙领导者的验证者身份（公钥）。对于网络监控工具、验证者性能分析、区块生产跟踪以及需要了解当前领导者计划的应用程序至关重要。时隙领导者信息由Solana的权益证明领导者选择算法根据权益权重和随机性确定。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,44 +61,44 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC协议版本。"
+                  description: JSON-RPC协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
                     - "getSlotLeader"
-                  description: "要调用的RPC方法名称。"
+                  description: 要调用的RPC方法名称。
                   example: "getSlotLeader"
                   default: "getSlotLeader"
                 params:
-                  type: "array"
-                  description: "可选的配置对象。"
+                  type: array
+                  description: 可选的配置对象。
                   items:
-                    type: "object"
+                    type: object
                     properties:
                       commitment:
-                        type: "string"
-                        description: "请求的承诺级别。"
+                        type: string
+                        description: 请求的承诺级别。
                         enum:
-                          - "confirmed"
-                          - "finalized"
-                          - "processed"
-                        example: "finalized"
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
                       minContextSlot:
-                        type: "integer"
-                        description: "请求可以被评估的最小槽位。"
+                        type: integer
+                        description: 请求可以被评估的最小槽位。
                         example: 1000
             example:
               jsonrpc: "2.0"
@@ -107,36 +108,36 @@ paths:
                 - commitment: "finalized"
       responses:
         "200":
-          description: "成功检索到槽位领导者。"
+          description: 成功检索到槽位领导者。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC 协议版本。"
+                    description: JSON-RPC 协议版本。
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "string"
-                    description: "计划作为此槽位区块生产者的 Solana 验证者身份（公钥）。"
+                    type: string
+                    description: 计划作为此槽位区块生产者的 Solana 验证者身份（公钥）。
                     example: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
               example:
                 jsonrpc: "2.0"
                 id: "1"
                 result: "ENvAW7JScgYq6o4zKZwewtkzzJgDzuJAFxYasvmEQdpS"
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -144,11 +145,11 @@ paths:
                   message: "无效的参数"
                 id: "1"
         "401":
-          description: "未授权 - 无效或缺失的 API 密钥。"
+          description: 未授权 - 无效或缺失的 API 密钥。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -156,11 +157,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超过速率限制。"
+          description: 请求过多 - 超过速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -168,11 +169,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -180,11 +181,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -192,11 +193,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
