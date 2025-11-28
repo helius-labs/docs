@@ -1,227 +1,228 @@
-"openapi": "3.1.0"
-"info":
-  "title": "Solana RPC API"
-  "version": "1.0.0"
-  "description": "用于监控Solana区块生产效率的验证器性能分析API，并比较领导者计划槽位与实际创建的区块。"
-  "license":
-    "name": "Apache 2.0"
-    "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
-"servers":
-  - "url": "https://mainnet.helius-rpc.com"
-    "description": "主网RPC端点"
-  - "url": "https://devnet.helius-rpc.com"
-    "description": "开发网RPC端点"
-"components":
-  "securitySchemes":
-    "ApiKeyQuery":
-      "type": "apiKey"
-      "in": "query"
-      "name": "api-key"
-      "description": "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
-  "schemas":
-    "ErrorResponse":
-      "type": "object"
-      "properties":
-        "jsonrpc":
-          "type": "string"
-          "enum":
+openapi: 3.1.0
+info:
+  title: Solana RPC API
+  version: 1.0.0
+  description: 用于监控Solana区块生产效率的验证器性能分析API，并比较领导者计划槽位与实际创建的区块。
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          enum:
             - "2.0"
-        "error":
-          "type": "object"
-          "properties":
-            "code":
-              "type": "integer"
-            "message":
-              "type": "string"
-"paths":
-  "/":
-    "post":
-      "tags":
-        - "RPC"
-      "summary": "getBlockProduction"
-      "operationId": "getBlockProduction"
-      "description": "检索指定槽位范围内Solana验证器的详细区块生产统计数据。此性能分析API提供关于每个验证器在被安排为领导者时生产区块效率的精确指标。返回验证器被分配为领导者的槽位数量以及他们成功生产的实际区块数量，从而可以计算可靠性率。对于验证器性能监控、网络健康分析、质押仪表板以及需要在做出委托决策或监控整体Solana网络参与效果时评估验证器可靠性的应用程序至关重要。"
-      "security":
-        - "ApiKeyQuery": []
-      "requestBody":
-        "required": true
-        "content":
-          "application/json":
-            "schema":
-              "type": "object"
-              "required":
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
-              "properties":
-                "jsonrpc":
-                  "type": "string"
-                  "enum":
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+paths:
+  /:
+    post:
+      tags:
+        - RPC
+      summary: getBlockProduction
+      operationId: getBlockProduction
+      description: |-
+        检索指定槽位范围内Solana验证器的详细区块生产统计数据。此性能分析API提供关于每个验证器在被安排为领导者时生产区块效率的精确指标。返回验证器被分配为领导者的槽位数量以及他们成功生产的实际区块数量，从而可以计算可靠性率。对于验证器性能监控、网络健康分析、质押仪表板以及需要在做出委托决策或监控整体Solana网络参与效果时评估验证器可靠性的应用程序至关重要。
+      security:
+        - ApiKeyQuery: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - jsonrpc
+                - id
+                - method
+                - params
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
                     - "2.0"
-                  "description": "JSON-RPC协议版本。"
-                  "default": "2.0"
-                "id":
-                  "type": "string"
-                  "description": "请求的唯一标识符。"
-                  "example": "1"
-                  "default": "1"
-                "method":
-                  "type": "string"
-                  "enum":
+                  description: JSON-RPC协议版本。
+                  default: "2.0"
+                id:
+                  type: string
+                  description: 请求的唯一标识符。
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  enum:
                     - "getBlockProduction"
-                  "description": "要调用的RPC方法名称。"
-                  "default": "getBlockProduction"
-                "params":
-                  "type": "array"
-                  "description": "请求的参数。"
-                  "items":
-                    "oneOf":
-                      - "type": "object"
-                        "description": "请求的配置选项。"
-                        "properties":
-                          "commitment":
-                            "type": "string"
-                            "description": "请求的承诺级别。"
-                            "enum":
-                              - "processed"
-                              - "confirmed"
-                              - "finalized"
-                            "example": "finalized"
-                          "identity":
-                            "type": "string"
-                            "description": "可选的验证者身份公钥（base-58编码），用于筛选特定验证者的结果。"
-                            "example": "85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr"
-                          "range":
-                            "type": "object"
-                            "description": "可选的槽范围边界，用于限制区块生产统计的时间段。"
-                            "properties":
-                              "firstSlot":
-                                "type": "integer"
-                                "description": "开始分析区块生产统计数据的起始槽号（包含）。"
-                                "example": 0
-                              "lastSlot":
-                                "type": "integer"
-                                "description": "分析区块生产统计数据的结束槽号（包含）。如果省略，则使用当前槽。"
-                                "example": 9887
-      "responses":
+                  description: 要调用的RPC方法名称。
+                  default: "getBlockProduction"
+                params:
+                  type: array
+                  description: 请求的参数。
+                  items:
+                    oneOf:
+                      - type: object
+                        description: 请求的配置选项。
+                        properties:
+                          commitment:
+                            type: string
+                            description: 请求的承诺级别。
+                            enum:
+                              - processed
+                              - confirmed
+                              - finalized
+                            example: finalized
+                          identity:
+                            type: string
+                            description: 可选的验证者身份公钥（base-58编码），用于筛选特定验证者的结果。
+                            example: "85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr"
+                          range:
+                            type: object
+                            description: 可选的槽范围边界，用于限制区块生产统计的时间段。
+                            properties:
+                              firstSlot:
+                                type: integer
+                                description: 开始分析区块生产统计数据的起始槽号（包含）。
+                                example: 0
+                              lastSlot:
+                                type: integer
+                                description: 分析区块生产统计数据的结束槽号（包含）。如果省略，则使用当前槽。
+                                example: 9887
+      responses:
         "200":
-          "description": "成功检索区块生产信息。"
-          "content":
-            "application/json":
-              "schema":
-                "type": "object"
-                "properties":
-                  "jsonrpc":
-                    "type": "string"
-                    "enum":
+          description: 成功检索区块生产信息。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
                       - "2.0"
-                  "id":
-                    "type": "string"
-                  "result":
-                    "type": "object"
-                    "properties":
-                      "context":
-                        "type": "object"
-                        "properties":
-                          "slot":
-                            "type": "integer"
-                            "description": "响应时的槽号。"
-                            "example": 9887
-                      "value":
-                        "type": "object"
-                        "properties":
-                          "byIdentity":
-                            "type": "object"
-                            "additionalProperties":
-                              "type": "array"
-                              "items":
-                                "type": "integer"
-                              "description": "包含此验证者的[leaderSlots, blocksProduced]统计数据的两元素数组。"
-                            "description": "验证者身份公钥与其区块生产性能指标的映射。"
-                            "example":
+                  id:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      context:
+                        type: object
+                        properties:
+                          slot:
+                            type: integer
+                            description: 响应时的槽号。
+                            example: 9887
+                      value:
+                        type: object
+                        properties:
+                          byIdentity:
+                            type: object
+                            additionalProperties:
+                              type: array
+                              items:
+                                type: integer
+                              description: 包含此验证者的[leaderSlots, blocksProduced]统计数据的两元素数组。
+                            description: 验证者身份公钥与其区块生产性能指标的映射。
+                            example:
                               "85iYT5RuzRTDgjyRa3cP8SYhM2j21fj7NhfJ3peu1DPr":
                                 - 9888
                                 - 9886
-                          "range":
-                            "type": "object"
-                            "properties":
-                              "firstSlot":
-                                "type": "integer"
-                                "description": "分析的区块生产统计数据期间的起始槽号。"
-                                "example": 0
-                              "lastSlot":
-                                "type": "integer"
-                                "description": "分析的区块生产统计数据期间的结束槽号。"
-                                "example": 9887
+                          range:
+                            type: object
+                            properties:
+                              firstSlot:
+                                type: integer
+                                description: 分析的区块生产统计数据期间的起始槽号。
+                                example: 0
+                              lastSlot:
+                                type: integer
+                                description: 分析的区块生产统计数据期间的结束槽号。
+                                example: 9887
         "400":
-          "description": "错误请求 - 请求参数无效或请求格式错误。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32602
-                  "message": "参数无效"
+          description: 错误请求 - 请求参数无效或请求格式错误。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "参数无效"
         "401":
-          "description": "未授权 - API 密钥无效或缺失。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32001
-                  "message": "未授权"
-                "id": "1"
+          description: 未授权 - API 密钥无效或缺失。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32001
+                  message: "未授权"
+                id: "1"
         "429":
-          "description": "请求过多 - 超出速率限制。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32005
-                  "message": "请求过多"
-                "id": "1"
+          description: 请求过多 - 超出速率限制。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
         "500":
-          "description": "内部服务器错误 - 服务器发生错误。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32603
-                  "message": "内部错误"
-                "id": "1"
+          description: 内部服务器错误 - 服务器发生错误。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
         "503":
-          "description": "服务不可用 - 服务暂时不可用。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32002
-                  "message": "服务不可用"
-                "id": "1"
+          description: 服务不可用 - 服务暂时不可用。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
         "504":
-          "description": "网关超时 - 请求超时。"
-          "content":
-            "application/json":
-              "schema":
-                "$ref": "#/components/schemas/ErrorResponse"
-              "example":
-                "jsonrpc": "2.0"
-                "error":
-                  "code": -32003
-                  "message": "网关超时"
-                "id": "1"
+          description: 网关超时 - 请求超时。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

@@ -9,19 +9,23 @@ Helius Webhooks 使监控 Solana 链上事件（如销售、上架、交换等�
 有关 Webhooks 的常见问题，请参阅我们的 [Webhooks 常见问题解答](/zh/faqs/webhooks)。
 
 <Warning>
-当 Helius 处理并将事件发送到您的端点时，Webhook 事件将收取 1 个信用点的费用。无论您的端点是否成功处理 Webhook，都会收取费用。通过 API 编辑、添加或删除 Webhook 每次请求将花费 100 个信用点。
+如果您的服务器未成功响应，Helius 可能会重试 webhook 传递，您可能会收到重复的事件。有关重试和处理重复的详细信息，请参阅 [Webhooks FAQ](/zh/faqs/webhooks#retries)。
 </Warning>
+
+## 定价
+
+当 Helius 处理并将事件发送到您的端点时，webhook 事件将收取 **1 个信用**。无论您的端点是否成功处理 webhook，您都将被收费。通过 API 编辑、添加或删除 webhook 将花费 100 个信用/请求。
 
 ## Webhooks 类型
 
-我们目前提供几种针对不同需求定制的 Webhooks 类型：
+我们目前提供几种针对不同需求定制的 webhooks 类型：
 
-* **增强型交易 Webhooks**：为您监控的地址提供特定交易类型（例如 NFT 销售）的可读解析数据。如果您需要经过筛选的、可操作的洞察，这是理想的选择。
-* **原始交易 Webhooks**：此选项为您监控的地址提供所有交易的原始交易数据，不支持按交易类型筛选。
-* **Discord Webhooks**：将特定交易类型的更新直接以格式化消息流式传输到指定的 Discord 频道。要使用此选项，您必须提交您的 Discord Webhook URL。
+* **增强型交易 Webhooks**：提供特定交易类型（例如，NFT 销售）的可读解析数据，适用于您监控的地址。如果您需要过滤的、可操作的见解，这是理想的选择。
+* **原始交易 Webhooks**：此选项提供涉及您监控地址的所有交易的原始交易数据。它不允许按交易类型进行过滤。
+* **Discord Webhooks**：将特定交易类型的更新直接流式传输到指定的 Discord 频道，作为格式化消息。要使用此选项，您必须提交您的 Discord Webhook URL。
 
 <Info>
-原始交易 Webhooks 提供更低的延迟，因为它们不涉及事件类型的解析。
+原始交易 Webhooks 提供较低的延迟，因为它们不涉及事件类型的解析。
 </Info>
 
 ### 事件负载示例
@@ -574,24 +578,24 @@ Helius Webhooks 使监控 Solana 链上事件（如销售、上架、交换等�
 
 ## 快速开始
 
-我们提供三种便捷的方法来创建、编辑和管理 Helius 上的 Webhooks。
+我们提供三种便捷的方法来创建、编辑和管理 Helius 上的 webhooks。
 
 ### 通过 Helius 仪表板
 
-如果您更喜欢无代码解决方案，并希望使用查看日志和发送测试 webhook 事件等附加功能，Helius 用户界面是一个完美的选择。您可以通过我们的[仪表板](https://dashboard.helius.dev/webhooks)直接访问它。您可以通过仪表板添加最多 25 个地址。要监控超过 25 个地址，您可以使用我们的 API 或 SDK。
+如果您更喜欢无代码解决方案，并希望使用查看日志和发送测试 webhook 事件等附加功能，Helius UI 是完美的选择。您可以直接通过我们的 [仪表板](https://dashboard.helius.dev/webhooks) 访问它。您可以通过仪表板添加最多 25 个地址。要监控超过 25 个地址，您可以使用我们的 API 或 SDK。
 
 <Accordion title="通过仪表板">
   您可以直接从仪表板创建一个 webhook：
 
-  1. 访问 [Helius 仪表板](https://dashboard.helius.dev/webhooks)
-  2. 点击“Add Webhook”（添加 Webhook）
-  3. 填写必填字段
-  4. 点击“Create Webhook”（创建 Webhook）
+  1. 导航到 [Helius 仪表板](https://dashboard.helius.dev/webhooks)
+  2. 点击 "添加 Webhook"
+  3. 完成必填字段
+  4. 点击 "创建 Webhook"
 </Accordion>
 
 ### 通过 Helius API
 
-如果您不使用 TypeScript 或 JavaScript，您需要通过 REST API 与我们的 webhooks 交互：
+如果您不使用 Typescript 或 Javascript，您需要通过 REST API 与我们的 webhooks 交互：
 
 <Card title="API 参考" icon="code" href="/zh/api-reference/webhooks">
   了解 Webhooks API 端点及其使用方法。
@@ -599,32 +603,32 @@ Helius Webhooks 使监控 Solana 链上事件（如销售、上架、交换等�
 
 ### 通过 Helius SDK
 
-与 Helius webhooks 交互的最简单且最愉快的方式是通过我们的官方 SDK。目前我们提供 **TypeScript** 和 **Rust** 的 SDK。
+与 Helius webhooks 交互的最简单且最愉快的方式是通过我们的官方 SDK。我们目前提供 **TypeScript** 和 **Rust** 的 SDK。
 
 <CardGroup cols={2}>
   <Card title="TypeScript SDK" icon="js" href="https://github.com/helius-labs/helius-sdk#webhooks">
-    TypeScript SDK 提供了强大的 webhook 抽象功能。
+    TypeScript SDK 为 webhooks 提供强大的抽象。
   </Card>
   <Card title="Rust SDK" icon="rust" href="https://github.com/helius-labs/helius-rust-sdk">
-    我们的 Rust SDK 为 Helius webhooks 提供了原生的 Rust 支持。
+    我们的 Rust SDK 为 Helius webhooks 提供原生 Rust 支持。
   </Card>
 </CardGroup>
 
-这些 SDK 提供了强大的抽象功能，增强了 webhooks 的功能。
+SDK 提供强大的抽象，增强了 webhooks 的功能。
 
 ## 示例用途
 
 * **机器人**
-  * 当 NFT 在市场 X 上架时，触发“购买 NFT”操作。
-  * 当保证金头寸不健康时，触发“清算”操作。
+  * 当 NFT 在市场 X 上架时，触发 "NFT 购买" 动作。
+  * 当保证金头寸不健康时，触发 "清算" 动作。
 * **监控与警报**
   * 当程序发出某个日志时，触发 PagerDuty 集成。
-  * 当代币账户余额变化超过 X% 时，使用 Dialect 发送警告操作。
+  * 当代币账户余额变化超过 X% 时，使用 Dialect 传达警告动作。
 * **事件驱动的索引**
-  * 当给定程序发生任何交易时，将其直接发送到您的数据库或后端。
+  * 当给定程序发生任何交易时，直接将其发送到您的数据库或后端。
 * **通知与活动跟踪**
-  * 当从钱包 X 转账到钱包 Y 时，发送 Slack 通知或电子邮件。
+  * 从钱包 X 转移到钱包 Y 时，发送 Slack 通知或电子邮件。
 * **分析与日志**
-  * 当事件 X 发生时，将其发送到 ETL 管道或直接保存在 Helius 上以查看长期趋势。
+  * 当事件 X 发生时，将其发送到 ETL 管道或直接在 Helius 上持久化以查看长期趋势。
 * **工作流自动化**
-  * 当事件 X 发生时，触发任何一组操作。
+  * 当事件 X 发生时，触发任何一组动作。

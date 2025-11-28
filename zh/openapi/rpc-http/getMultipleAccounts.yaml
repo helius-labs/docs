@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "优化的Solana批量账户数据检索API，用于在单个请求中高效访问多个区块链账户，并具有可配置的编码选项。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 优化的Solana批量账户数据检索API，用于在单个请求中高效访问多个区块链账户，并具有可配置的编码选项。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getMultipleAccounts"
-      operationId: "getMultipleAccounts"
-      description: "在单个高效的批量请求中检索多个Solana账户的数据。这个性能优化的API通过同时获取最多100个账户来减少网络开销，支持包括已知程序类型的JSON解析在内的各种数据编码。非常适合需要访问多个代币余额、NFT元数据、程序状态或任何链上账户数据组合的DApps、钱包和服务，且具有最小的延迟和带宽使用。"
+        - RPC
+      summary: getMultipleAccounts
+      operationId: getMultipleAccounts
+      description: |-
+        在单个高效的批量请求中检索多个Solana账户的数据。这个性能优化的API通过同时获取最多100个账户来减少网络开销，支持包括已知程序类型的JSON解析在内的各种数据编码。非常适合需要访问多个代币余额、NFT元数据、程序状态或任何链上账户数据组合的DApps、钱包和服务，且具有最小的延迟和带宽使用。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,174 +61,174 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
-                - "params"
+                - jsonrpc
+                - id
+                - method
+                - params
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC协议版本。"
+                  type: string
+                  description: JSON-RPC协议版本。
                   enum:
                     - "2.0"
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
-                  description: "要调用的RPC方法名称。"
+                  type: string
+                  description: 要调用的RPC方法名称。
                   enum:
                     - "getMultipleAccounts"
                   example: "getMultipleAccounts"
                   default: "getMultipleAccounts"
                 params:
-                  type: "array"
-                  description: "方法的参数。"
+                  type: array
+                  description: 方法的参数。
                   default:
                     - - "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
                       - "4fYNw3dojWmQ4dXtSGE9epjRGy9pFSx62YypT7avPYvA"
                   items:
                     oneOf:
-                      - type: "array"
-                        description: "Solana 账户地址数组（最多 100 个），用于在单个优化批量请求中获取。"
+                      - type: array
+                        description: Solana 账户地址数组（最多 100 个），用于在单个优化批量请求中获取。
                         items:
-                          type: "string"
+                          type: string
                         example:
                           - "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
                           - "4fYNw3dojWmQ4dXtSGE9epjRGy9pFSx62YypT7avPYvA"
-                      - type: "object"
-                        description: "用于自定义批量账户数据检索的高级配置选项。"
+                      - type: object
+                        description: 用于自定义批量账户数据检索的高级配置选项。
                         properties:
                           commitment:
-                            type: "string"
-                            description: "请求的承诺级别。"
+                            type: string
+                            description: 请求的承诺级别。
                             enum:
-                              - "confirmed"
-                              - "finalized"
-                              - "processed"
-                            example: "finalized"
+                              - confirmed
+                              - finalized
+                              - processed
+                            example: finalized
                           minContextSlot:
-                            type: "integer"
-                            description: "请求可以评估的最小槽位。"
+                            type: integer
+                            description: 请求可以评估的最小槽位。
                             example: 1000
                           dataSlice:
-                            type: "object"
-                            description: "请求账户数据的一个切片。"
+                            type: object
+                            description: 请求账户数据的一个切片。
                             properties:
                               length:
-                                type: "integer"
-                                description: "要返回的字节数。"
+                                type: integer
+                                description: 要返回的字节数。
                                 example: 50
                               offset:
-                                type: "integer"
-                                description: "开始读取的字节偏移量。"
+                                type: integer
+                                description: 开始读取的字节偏移量。
                                 example: 0
                           encoding:
-                            type: "string"
-                            description: "返回账户数据的编码格式。"
+                            type: string
+                            description: 返回账户数据的编码格式。
                             enum:
-                              - "jsonParsed"
-                              - "base58"
-                              - "base64"
-                              - "base64+zstd"
-                            example: "base58"
+                              - jsonParsed
+                              - base58
+                              - base64
+                              - base64+zstd
+                            example: base58
                           changedSinceSlot:
-                            type: "integer"
-                            description: "仅返回在此槽号之后被修改的账户。对于存在但自指定槽以来没有变化的账户，响应将包含状态为\"unchanged\"。"
+                            type: integer
+                            description: 仅返回在此槽号之后被修改的账户。对于存在但自指定槽以来没有变化的账户，响应将包含状态为"unchanged"。
                             example: 464175999
       responses:
         "200":
-          description: "成功检索到账户详细信息。"
+          description: 成功检索到账户详细信息。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
-                    description: "JSON-RPC协议版本。"
+                    type: string
+                    description: JSON-RPC协议版本。
                     enum:
                       - "2.0"
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "包含上下文的账户信息。"
+                    type: object
+                    description: 包含上下文的账户信息。
                     properties:
                       context:
-                        type: "object"
-                        description: "响应的上下文。"
+                        type: object
+                        description: 响应的上下文。
                         properties:
                           apiVersion:
-                            type: "string"
-                            description: "响应的API版本。"
+                            type: string
+                            description: 响应的API版本。
                             example: "2.0.15"
                           slot:
-                            type: "integer"
-                            description: "获取数据的槽位。"
+                            type: integer
+                            description: 获取数据的槽位。
                             example: 341197247
                       value:
-                        type: "array"
-                        description: "账户详细信息数组。"
+                        type: array
+                        description: 账户详细信息数组。
                         items:
                           oneOf:
                             - type: "null"
-                              description: "如果账户不存在，则为null。"
-                            - type: "object"
-                              description: "账户详细信息。"
+                              description: 如果账户不存在，则为null。
+                            - type: object
+                              description: 账户详细信息。
                               properties:
                                 lamports:
-                                  type: "integer"
-                                  description: "分配给账户的 lamports 数量。"
+                                  type: integer
+                                  description: 分配给账户的 lamports 数量。
                                   example: 88849814690250
                                 owner:
-                                  type: "string"
-                                  description: "账户分配的程序的 Base-58 编码公钥。"
+                                  type: string
+                                  description: 账户分配的程序的 Base-58 编码公钥。
                                   example: "11111111111111111111111111111111"
                                 data:
-                                  type: "array"
-                                  description: "以编码的二进制或 JSON 格式的账户数据。"
+                                  type: array
+                                  description: 以编码的二进制或 JSON 格式的账户数据。
                                   items:
-                                    type: "string"
+                                    type: string
                                   example:
                                     - ""
-                                    - "base58"
+                                    - base58
                                 executable:
-                                  type: "boolean"
-                                  description: "指示账户是否包含程序。"
+                                  type: boolean
+                                  description: 指示账户是否包含程序。
                                   example: false
                                 rentEpoch:
-                                  type: "integer"
-                                  description: "此账户下次需要支付租金的纪元。"
+                                  type: integer
+                                  description: 此账户下次需要支付租金的纪元。
                                   example: 18446744073709552000
                                 space:
-                                  type: "integer"
-                                  description: "账户的数据大小。"
+                                  type: integer
+                                  description: 账户的数据大小。
                                   example: 0
-                            - type: "object"
-                              description: "仅状态响应，当账户存在但自指定槽位以来未发生变化时。"
+                            - type: object
+                              description: 仅状态响应，当账户存在但自指定槽位以来未发生变化时。
                               properties:
                                 status:
-                                  type: "string"
-                                  description: "指示账户自指定槽位以来未发生变化的状态。"
+                                  type: string
+                                  description: 指示账户自指定槽位以来未发生变化的状态。
                                   enum:
                                     - "unchanged"
                                   example: "unchanged"
         "400":
-          description: "错误请求 - 请求参数无效或请求格式错误。"
+          description: 错误请求 - 请求参数无效或请求格式错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -237,11 +238,11 @@ paths:
                     additionalInfo: "请检查请求参数并确保其有效。"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -251,11 +252,11 @@ paths:
                     additionalInfo: "请验证您的 API 密钥并重试。"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -265,11 +266,11 @@ paths:
                     additionalInfo: "您已超过允许的请求数量。请稍后再试。"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -279,11 +280,11 @@ paths:
                     additionalInfo: "服务器发生意外错误。请稍后再试或联系支持。"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -293,11 +294,11 @@ paths:
                     additionalInfo: "服务当前不可用。请稍后再试或联系支持。"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
