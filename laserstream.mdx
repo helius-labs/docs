@@ -29,6 +29,24 @@ Unlike standard Solana RPC nodes, LaserStream is specifically designed for strea
   </Card>
 </CardGroup>
 
+## LaserStream vs. Shred Delivery: Quick Comparison
+
+<Tip>
+**TL;DR**: LaserStream delivers **processed data** with commitment-level guarantees (processed, confirmed, finalized), making it turnkey and production-ready. For the **earliest possible raw data** before any processing occurs, see [Shred Delivery](/shred-delivery)—but you must implement custom deshredding logic.
+</Tip>
+
+| Feature | LaserStream | Shred Delivery |
+|---------|-------------|----------------|
+| **Data Type** | Processed data with commitment guarantees | Raw, unprocessed shreds |
+| **Latency** | Ultra-low latency processed data | **Earliest possible** - before any processing |
+| **Processing** | Turnkey - data is processed and ready to use | **You must process raw data** - requires custom deshredding logic |
+| **Best For** | Production applications, analytics, backend services | High-frequency trading, arbitrage (when milliseconds matter) |
+| **Setup** | Developer-friendly SDKs, drop-in replacement | White glove provisioning (beta access required) |
+
+<Card title="Learn About Shred Delivery" icon="bolt" href="/shred-delivery">
+  See how Shred Delivery provides the earliest possible on-chain signal with raw shreds
+</Card>
+
 ## Easy Migration
 
 <Note>
