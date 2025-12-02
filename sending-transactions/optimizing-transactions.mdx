@@ -9,7 +9,9 @@ There are two primary methods for sending transactions on Solana:
 1. Using [staked connections](https://www.helius.dev/staked-connections)
 2. Using specialized landing services like [Sender](https://www.helius.dev/sender)
 
-This article covers transaction optimization best practices for using staked connections, which is the default method for all Helius plans. Staked connections are most appropriate for use cases where latency is not critical to your business (e.g., payments, wallets, social apps, etc.)
+This article covers transaction optimization best practices for using staked connections, which is the default method for all Helius plans. 
+
+Staked connections are most appropriate for use cases where latency is not critical to your business (e.g., payments, wallets, social apps, etc.)
 
 If you're an advanced trader (e.g., HFT, MEV searcher, arbitrager, token sniper, etc.) looking for a specialized, ultra-low-latency transaction landing service, read our [Sender tutorial](/sending-transactions/sender).
 
@@ -30,7 +32,7 @@ Helius' staked connections guarantee 100% transaction delivery with minimal conf
 
 For latency-sensitive trading use cases, we recommend [using Sender](/sending-transactions/sender).
 
-However, if you're using staked connections and want to optimize your setup for the lowest latencies possible, we recommend the following optimizations in addition to applying the best practices mentioned above:
+However, if you're using staked connections and want to optimize your setup for the lowest latencies possible, we recommend the following optimizations (in addition to applying the best practices mentioned above):
 
 - Your client server (the machine you use to send transactions from) should be located in Eastern US or Western Europe.
 - Choose FRA or PIT if you want to co-locate with Helius transaction-sending servers.
@@ -45,7 +47,7 @@ However, if you're using staked connections and want to optimize your setup for 
 
 ## Sending Smart Transactions
 
-Both the Helius [Node.js](/sdks) and [Rust](/sdks) SDKs can send smart transactions. This new method builds and sends an optimized transaction while handling its confirmation status. 
+Both the Helius [Node.js](/sending-transactions/optimizing-transactions#node-js-sdk) and [Rust](/sending-transactions/optimizing-transactions#rust-sdk) SDKs can send smart transactions. This new method builds and sends an optimized transaction while handling its confirmation status. 
 
 Users can configure the transaction's send options, such as whether the transaction should skip preflight checks.
 
@@ -59,7 +61,7 @@ We:
 - Set the CU limit to the CUs consumed in the previous step, with some margin
 - Get the Helius recommended priority fee via our [Priority Fee API](/priority-fee-api)
 - Set the priority fee (microlamports per CU) as the Helius recommended fee
-- Add a small buffer fee in case the recommended value changes in the next few seconds
+- Add a small buffer fee in case the recommended fee changes in the next few seconds
 - Build and send the optimized transaction
 - Return the transaction signature if successful
 
@@ -162,7 +164,9 @@ async fn main() {
 
 ## Sending Transactions Without the SDK
 
-We recommend sending smart transactions with one of our SDKs, but the same functionality can be achieved without using one. Both the [Node.js SDK](/sdks) and [Rust SDK](/sdks) are open-source, so the underlying code for the send smart transaction functionality can be viewed anytime.
+We recommend sending smart transactions with one of our SDKs, but the same functionality can be achieved without using one. 
+
+Both the Node.js SDK and Rust SDK are open-source, so the underlying code for the send smart transaction functionality can be viewed anytime.
 
 ### Prepare and Build the Initial Transaction
 
@@ -190,9 +194,9 @@ versionedTransaction.sign([fromKeypair]);
 
 ### Optimize the Transaction's Compute Unit (CU) Usage
 
-To [optimize the transaction's compute unit (CU) usage](https://www.helius.dev/blog/optimizing-solana-programs), we can use the [`simulateTransaction`](/api-reference/rpc/http/simulatetransaction) RPC method to simulate the transaction. 
+To [optimize the transaction's compute unit (CU) usage](https://www.helius.dev/blog/optimizing-solana-programs), we can use the `simulateTransaction` RPC method to simulate the transaction. 
 
-Simulating the transaction will return the amount of CUs used, so we can use this value to set our compute limit accordingly.
+[Simulating the transaction](/api-reference/rpc/http/simulatetransaction) will return the amount of CUs used, so we can use this value to set our compute limit accordingly.
 
 It's recommended to use a test transaction with the desired instructions first, plus an instruction that sets the compute limit to 1.4m CUs. 
 
@@ -336,7 +340,9 @@ try {
 }
 ```
 
-`txtSig` is set to the signature of the transaction that was just sent. The method then uses the `pollTransactionConfirmation()` method to poll the transaction's confirmation status. This method checks a transaction's status every five seconds for a maximum of three times.
+`txtSig` is set to the signature of the transaction that was just sent. 
+
+The method then uses the `pollTransactionConfirmation()` method to poll the transaction's confirmation status. This method checks a transaction's status every five seconds for a maximum of three times.
 
 If the transaction is not confirmed during this time, an error is returned:
 
