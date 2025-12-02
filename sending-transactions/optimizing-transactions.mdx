@@ -9,7 +9,7 @@ There are two primary methods for sending transactions on Solana:
 1. Using [staked connections](https://www.helius.dev/staked-connections)
 2. Using specialized landing services like [Sender](https://www.helius.dev/sender)
 
-This article covers transaction optimization best practices for using staked connections, which is the default method for all Helius plans. 
+This article covers transaction optimization best practices for using staked connections, which is the default method for all Helius paid plans. 
 
 Staked connections are most appropriate for use cases where latency is not critical to your business (e.g., payments, wallets, social apps, etc.)
 
@@ -18,7 +18,7 @@ If you're an advanced trader (e.g., HFT, MEV searcher, arbitrager, token sniper,
 ## Summary
 Helius' staked connections guarantee 100% transaction delivery with minimal confirmation times. To optimize your transaction landing rates with staked connections, we recommend the following best practices:
 
-- Use commitment "processed" or "confirmed" to fetch the [latest blockhash](/rpc/guides/getlatestblockhash)
+- Use commitment "confirmed" to fetch the [latest blockhash](/rpc/guides/getlatestblockhash)
 - Add [priority fees](/sending-transactions/optimizing-transactions#setting-the-right-priority-fee) and calculate them dynamically
 - Optimize compute unit (CU) usage
 - Set `maxRetries` to 0 and implement robust retry logic
