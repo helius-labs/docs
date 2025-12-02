@@ -1,75 +1,83 @@
 ---
-title: Solana 交易优化：最小化延迟并最大化成功率
+title: Solana 交易优化指南
 sidebarTitle: 优化交易
-description: 优化 Solana 交易以最小化确认延迟并最大化交付率。优先费用、计算单元和可靠交易的最佳实践。
+description: 优化 Solana 交易以最小化确认延迟并最大化交付率。了解优先费用、计算单元和最佳实践。
 ---
 
-<Note>
-  Helius 的质押连接保证 100% 的交易交付，并且确认时间最短。
-</Note>
+在 Solana 上发送交易有两种主要方法：
+
+1. 使用[质押连接](https://www.helius.dev/staked-connections)
+2. 使用专门的着陆服务，如 [Sender](https://www.helius.dev/sender)
+
+本文涵盖使用质押连接的交易优化最佳实践，这是所有 Helius 付费计划的默认方法。
+
+质押连接最适合于延迟对您的业务不关键的用例（例如，支付、钱包、社交应用等）
+
+如果您是高级交易员（例如，高频交易、MEV 搜索者、套利者、代币狙击手等）并寻找专门的超低延迟交易着陆服务，请阅读我们的 [Sender 教程](/zh/sending-transactions/sender)。
 
 ## 摘要
+Helius 的质押连接保证 100% 的交易交付，并具有最小的确认时间。为了优化使用质押连接的交易着陆率，我们建议以下最佳实践：
 
-我们推荐以下最佳实践来帮助您完成交易：
-
-- 使用承诺 "processed" 或 "confirmed" 来获取[最新的 blockhash](/zh/rpc/guides/getlatestblockhash)
-- 添加[优先费用](/zh/sending-transactions/optimizing-transactions#setting-the-right-priority-fee)并[动态计算](/zh/priority-fee-api)
+- 使用承诺 "confirmed" 来获取[最新的区块哈希](/zh/rpc/guides/getlatestblockhash)
+- 添加[优先费用](/zh/sending-transactions/optimizing-transactions#setting-the-right-priority-fee)并动态计算它们
 - 优化计算单元 (CU) 的使用
-- 将 maxRetries 设置为 0 并实现强大的重试逻辑
-- 发送时将 skipPreflight 设置为 true（可选）
+- 将 `maxRetries` 设置为 0 并实施强大的重试逻辑
+- 发送时将 `skipPreflight` 设置为 `true`（可选）
 
 <Tip>
-  想深入了解吗？我们在这篇[博客文章](https://www.helius.dev/blog/how-to-land-transactions-on-solana)中涵盖了所有基础知识。
+  想要更深入了解？我们在这篇[博客文章](https://www.helius.dev/blog/how-to-land-transactions-on-solana)中涵盖了所有基础知识。
 </Tip>
 
-## 为交易者推荐的优化
+## 推荐的交易员优化
 
-<Info>
-  以下优化建议适用于对延迟敏感的交易者。您必须已经应用了上述发送交易的最佳实践。
-</Info>
+对于对延迟敏感的交易用例，我们建议[使用 Sender](/zh/sending-transactions/sender)。
+
+然而，如果您使用质押连接并希望优化您的设置以获得尽可能低的延迟，我们建议以下优化（除了应用上述最佳实践）：
 
 - 您的客户端服务器（用于发送交易的机器）应位于美国东部或西欧。
-- 如果您想与 Helius 交易发送服务器共址，请选择法兰克福或匹兹堡。
-- 避免从远离验证器网络的地区发送（例如，拉丁美洲或南非）。
+- 如果您希望与 Helius 交易发送服务器共址，请选择 FRA 或 PIT。
+- 避免从远离验证器网络的地区发送（例如，拉丁美洲、南非）。
 - 预热 Helius 区域缓存以最小化尾部延迟。
-- 每秒使用与发送交易相同的端点和 API 密钥发送一个 [getHealth](/zh/rpc/guides/gethealth) 调用。
-- 每个区域只需要一个预热线程。再多也没有任何好处。
+- 每个区域只需要一个预热线程 - 任何更多都没有好处。
+- 每秒使用您用于发送交易的相同端点和 API 密钥发送一个 [`getHealth`](/zh/rpc/guides/gethealth) RPC 调用。
 
 <Note>
-  这些好处只有经验丰富的交易者才能注意到。我们建议应用开发者查看[发送智能交易](/zh/sending-transactions/optimizing-transactions)部分。
+  这些好处只有经验丰富的交易者才能注意到。对于一般的应用程序开发者，我们建议遵循下面“发送智能交易”部分中的指南。
 </Note>
 
 ## 发送智能交易
 
-Helius 的 [Node.js](/zh/sdks) 和 [Rust](/zh/sdks) SDK 都可以发送智能交易。这种新方法在处理确认状态的同时构建并发送优化的交易。用户可以配置交易的发送选项，例如是否跳过预检检查。
+Helius 的 [Node.js](/zh/sending-transactions/optimizing-transactions#node-js-sdk) 和 [Rust](/zh/sending-transactions/optimizing-transactions#rust-sdk) SDK 都可以发送智能交易。这种新方法在处理确认状态的同时构建并发送优化的交易。
+
+用户可以配置交易的发送选项，例如交易是否应跳过预检检查。
 
 在最基本的层面上，用户必须提供他们的密钥对和他们希望执行的指令，其余的由我们处理。
 
 我们：
 
-- 获取最新的 blockhash
+- 获取最新的区块哈希
 - 构建初始交易
-- 模拟初始交易以获取消耗的计算单元
-- 将计算单元限制设置为上一步中消耗的计算单元，并留有一定余量
+- 模拟初始交易以获取消耗的计算单元（CUs）
+- 将 CU 限制设置为上一步中消耗的 CUs，并留有一定余量
 - 通过我们的 [Priority Fee API](/zh/priority-fee-api) 获取 Helius 推荐的优先费用
-- 将优先费用（每计算单元的 microlamports）设置为 Helius 推荐的费用
-- 添加一个小的安全缓冲费用，以防推荐值在接下来的几秒钟内发生变化
+- 将优先费用（每 CU 的微 lamports）设置为 Helius 推荐的费用
+- 添加一个小的缓冲费用，以防推荐费用在接下来的几秒钟内发生变化
 - 构建并发送优化的交易
 - 如果成功，返回交易签名
 
 <Note>
-  要求推荐值（或更高）用于我们的质押连接，确保 Helius 发送高质量的交易，并且我们不会被验证者限速。
+  要求推荐值（或更高）用于我们的质押连接，确保 Helius 发送高质量的交易，并且不会被验证者限速。
 </Note>
 
-这种方法被设计为在 Solana 上构建、发送和落地交易的最简单方式。
+这种方法是构建、发送和在 Solana 上完成交易的最简单方法。
 
-请注意，通过使用 Helius 推荐的费用，Helius 用户在我们的标准付费计划之一上发送的交易将通过我们的质押连接路由，几乎保证 100% 的交易交付。
+通过使用 Helius 推荐的费用，使用我们 [标准付费计划](/zh/billing/plans) 的 Helius 用户发送的交易将通过我们的质押连接路由，几乎保证 100% 的交易交付和最小的延迟。
 
 ### Node.js SDK
 
-sendSmartTransaction 方法在我们的 [Helius Node.js SDK](/zh/sdks) 中可用，适用于 [版本 \>= 1.3.2](https://www.npmjs.com/package/helius-sdk)。要更新到更高版本的 SDK，请运行 `npm update helius-sdk`。
+`sendSmartTransaction` 方法在我们的 [Helius Node.js SDK](/zh/sdks) 中可用，适用于 [版本 \>= 1.3.2](https://www.npmjs.com/package/helius-sdk)。要更新到更高版本的 SDK，请运行 `npm update helius-sdk`。
 
-以下示例将 SOL 转移到您选择的账户。它利用 sendSmartTransaction 发送一个不跳过预检检查的优化交易：
+此示例将 SOL 转移到您选择的账户。它使用 `sendSmartTransaction` 发送一个不跳过预检检查的优化交易：
 
 ```typescript
 import { Helius } from "helius-sdk";
@@ -99,9 +107,11 @@ console.log(`Successful transfer: ${transactionSignature}`);
 
 ### Rust SDK
 
-send_smart_transaction 方法在我们的 [Rust SDK](/zh/sdks) 中可用，适用于 [版本 \>= 0.1.5](https://crates.io/crates/helius)。要更新到更高版本的 SDK，请运行 `cargo update helius`。
+`send_smart_transaction` 方法在我们的 [Rust SDK](/zh/sdks) 中可用，适用于 [版本 \>= 0.1.5](https://crates.io/crates/helius)。要更新到更高版本的 SDK，请运行 `cargo update helius`。
 
-以下示例将 0.01 SOL 转移到您选择的账户。它利用 send_smart_transaction 发送一个跳过预检检查并在必要时重试两次的优化交易：
+以下示例将 0.01 SOL 转移到您选择的账户。
+
+它利用 `send_smart_transaction` 发送一个跳过预检检查并在必要时重试两次的优化交易：
 
 ```rust
 use helius::types::*;
@@ -154,13 +164,17 @@ async fn main() {
 
 ## 不使用 SDK 发送交易
 
-<Info>
-  我们建议使用我们的 SDK 之一发送智能交易，但不使用 SDK 也可以实现相同的功能。 [Node.js SDK](/zh/sdks) 和 [Rust SDK](/zh/sdks) 都是开源的，因此可以随时查看发送智能交易功能的底层代码。
-</Info>
+我们建议使用我们的 SDK 之一发送智能交易，但不使用 SDK 也可以实现相同的功能。
+
+Node.js SDK 和 Rust SDK 都是开源的，因此可以随时查看发送智能交易功能的底层代码。
 
 ### 准备和构建初始交易
 
-首先，准备和构建初始交易。这包括创建一个带有一组指令的新交易，添加最近的 blockhash，并指定费用支付者。对于版本化交易，创建一个 TransactionMessage 并在存在查找表时进行编译。然后，创建一个新的版本化交易并签名——这是模拟交易的下一步所必需的，因为交易必须签名。
+首先，准备和构建初始交易。这包括创建一个包含一组指令的新交易，添加最近的区块哈希，并指定费用支付者。
+
+对于版本化交易，创建一个 `TransactionMessage` 并在存在查找表时进行编译。
+
+然后，创建一个新的版本化交易并签名——这是下一步模拟交易时所必需的，因为交易必须签名。
 
 例如，如果我们想准备一个版本化交易：
 
@@ -180,9 +194,13 @@ versionedTransaction.sign([fromKeypair]);
 
 ### 优化交易的计算单元 (CU) 使用
 
-为了优化交易的计算单元 (CU) 使用，我们可以使用 [simulateTransaction](/zh/api-reference/rpc/http/simulatetransaction) RPC 方法来模拟交易。模拟交易将返回使用的 CU 数量，因此我们可以使用此值来相应地设置我们的计算限制。
+要[优化交易的计算单元（CU）使用](https://www.helius.dev/blog/optimizing-solana-programs)，我们可以使用`simulateTransaction` RPC方法来模拟交易。
 
-建议首先使用带有所需指令的测试交易，再加上一条将计算限制设置为1.4m CUs的指令。这是为了确保交易模拟成功。
+[模拟交易](/zh/api-reference/rpc/http/simulatetransaction)将返回使用的CU数量，因此我们可以使用此值来相应地设置我们的计算限制。
+
+建议首先使用带有所需指令的测试交易，加上一条将计算限制设置为1.4百万CU的指令。
+
+这样做是为了确保交易模拟成功。
 
 例如：
 
@@ -208,9 +226,7 @@ const rpcResponse = await this.connection.simulateTransaction(testTransaction, {
 const unitsConsumed = rpcResponse.value.unitsConsumed;
 ```
 
-还建议增加一些余量以确保交易执行没有任何问题。
-
-我们可以通过设置以下内容来实现：
+还建议增加一些余量以确保交易顺利执行。我们可以通过设置以下内容来实现：
 
 ```typescript
 let customersCU = Math.ceil(unitsConsumed * 1.1);
@@ -229,13 +245,13 @@ instructions.push(computeUnitIx);
 
 这相对简单。
 
-首先，要序列化交易，Transaction 和 VersionedTransaction 类型都有一个 .serialize() 方法。然后使用 [bs58 package](https://www.npmjs.com/package/bs58) 来编码交易。
+首先，为了序列化交易，Transaction和VersionedTransaction类型都有一个`.serialize()`方法。然后使用[bs58包](https://www.npmjs.com/package/bs58)来编码交易。
 
-您的代码应类似于 `bs58.encode(txt.serialize());`
+您的代码应类似于`bs58.encode(txt.serialize());`
 
 ### 设置正确的优先费用
 
-首先，使用 [Priority Fee API](/zh/priority-fee-api) 获取优先费用估算。我们希望传入我们的交易并通过推荐参数获取 Helius 推荐的费用：
+首先，使用[优先费用API](/zh/priority-fee-api)获取优先费用估算。我们希望传入我们的交易并通过推荐参数获取Helius推荐的费用：
 
 ```typescript
 const response = await fetch(HeliusURL, {
@@ -270,31 +286,31 @@ instructions.push(computeBudgetIx);
 
 ### 构建并发送优化后的交易
 
-这一步几乎是第一步的重复。然而，初始指令数组已被更改，以最佳方式添加了两个指令来设置计算单元限制和价格。
+这一步几乎是第一步的重复。然而，初始指令数组已被更改，以添加两个指令来最佳地设置计算单元限制和价格。
 
 现在，发送交易。
 
-<Note>
-  无论是否使用预检检查发送或更改任何其他发送选项都无关紧要——交易将通过我们的质押连接路由，适用于所有付费计划。
-</Note>
+无论是否进行预检或更改其他发送选项，交易都会通过我们为所有付费计划提供的抵押连接进行路由。
 
 ### 轮询交易状态和重新广播
 
-<Warning>
-  虽然质押连接会将交易直接转发给领导者，但交易仍有可能在银行阶段被丢弃。建议用户使用自己的重新广播逻辑，而不是依赖RPC为他们重试交易。
-</Warning>
+<Warning> 虽然抵押连接会将交易直接转发给领导者，但交易仍有可能在[银行阶段](https://www.helius.dev/blog/solana-virtual-machine#the-banking-stage)被丢弃。建议用户使用自己的重新广播逻辑，而不是依赖RPC为他们重试交易。 </Warning>
 
-sendTransaction RPC方法有一个maxRetries参数，可以设置以覆盖RPC的默认重试逻辑，从而让开发者对重试过程有更多控制。一个常见的模式是通过getLatestBlockhash获取当前的blockhash，存储lastValidBlockHeight，并在blockhash过期前重试交易。只有在blockhash不再有效时才重新签署交易是至关重要的，否则两个交易都有可能被网络接受。
+[`sendTransaction` RPC方法](/zh/api-reference/rpc/http/sendtransaction)有一个`maxRetries`参数，可以设置以覆盖RPC的默认重试逻辑，给予开发者更多的重试过程控制。
 
-一旦交易被发送，重要的是轮询其确认状态，以查看网络是否已处理并确认交易，然后再重试。使用[getSignatureStatuses](/zh/rpc/guides/getsignaturestatuses) RPC方法检查一组交易的确认状态。
+一个常见的模式是通过[`getLatestBlockhash`](/zh/rpc/guides/getlatestblockhash)获取当前的区块哈希，存储`lastValidBlockHeight`，并在区块哈希过期前重试交易。
 
-@solana/web3.js SDK在其Connection类中也有一个getSignatureStatuses方法，用于获取多个签名的当前状态。
+只有在区块哈希不再有效时重新签署交易才是至关重要的，否则网络可能会接受两个交易。
+
+一旦交易发送，重要的是轮询其确认状态，以查看网络是否已处理并确认交易，然后再重试。使用[`getSignatureStatuses` RPC方法](/zh/rpc/guides/getsignaturestatuses)检查交易列表的确认状态。
+
+@solana/web3.js SDK在其`Connection`类上也有一个`getSignatureStatuses`方法，用于获取多个签名的当前状态。
 
 ### sendSmartTransaction如何处理轮询和重新广播
 
-sendSmartTransaction方法有一个60秒的超时时间。由于一个blockhash在150个槽位内有效，并假设每个槽位完美地为400毫秒，我们可以合理地假设交易的blockhash将在一分钟后失效。
+`sendSmartTransaction`方法有一个60秒的超时时间。由于区块哈希在150个槽内有效，并假设完美的400ms槽，我们可以合理地假设交易的区块哈希将在一分钟后失效。
 
-该方法发送交易并在此超时时间内轮询其交易签名：
+该方法发送交易并使用此超时时间轮询其签名：
 
 ```typescript
 try {
@@ -322,7 +338,9 @@ try {
 }
 ```
 
-`txtSig` 被设置为刚刚发送的交易的签名。然后，该方法使用 `pollTransactionConfirmation()` 方法轮询交易的确认状态。此方法每五秒检查一次交易状态，最多检查三次。
+`txtSig` 被设置为刚刚发送的交易的签名。
+
+然后，该方法使用 `pollTransactionConfirmation()` 方法轮询交易的确认状态。此方法每五秒检查一次交易状态，最多三次。
 
 如果在此期间交易未被确认，则返回错误：
 
