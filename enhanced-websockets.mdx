@@ -1,29 +1,40 @@
 ---
 title: "Solana Enhanced WebSockets"
 sidebarTitle: "Overview"
-description: "Stream real-time Solana transaction and account updates with enhanced WebSocket integration. Faster response times and advanced filtering capabilities."
+description: "Stream real-time Solana transaction and account updates with Enhanced WebSockets. Get faster response times and advanced filtering capabilities."
 ---
 
 ## What are Enhanced Websockets?
 
-Helius provides Enhanced WebSockets in addition to Solana's standard WebSocket methods. These enhanced WebSockets offer faster response times than traditional WebSockets. We support two subscription methods: `transactionSubscribe` and `accountSubscribe`.
+Helius provides Enhanced WebSockets in addition to Solana's [Standard WebSocket methods](/rpc/websocket), which offer faster response times than Standard WebSockets. 
 
-<Info>
-Enhanced WebSockets are available on **Business and Professional plans**. Users who upgrade to these plans after **October 16, 2025** are metered at **3 credits per 0.1 MB** of streamed data. Users on these plans before this date remain unmetered. This is separate from **Yellowstone gRPC** functionality available through [**LaserStream**](/laserstream/) or [**Dedicated Nodes**](/dedicated-nodes/).
-</Info>
+Today, Enhanced WSS are [powered by the same infrastructure that powers LaserStream](https://www.helius.dev/blog/introducing-next-generation-enhanced-websockets), our next-gen gRPC streaming service built for speed, simplicity, and fault-tolerance.
 
-<Tip>
-For high-volume data streaming on Professional plans, [**Data Add-Ons**](/billing/plans) provide included monthly data allowances (5TB-100TB) for predictable costs. Data Add-Ons apply to both LaserStream and Enhanced WebSockets usage.
-</Tip>
+Enhanced WSS support two subscription methods: 
 
-## Subscription Endpoints
+* [`transactionSubscribe`](/enhanced-websockets/transaction-subscribe)
+* [`accountSubscribe`](/enhanced-websockets/account-subscribe)
 
-Geyser-enhanced WebSockets are currently available on `mainnet` and `devnet` with the following URLs
+### On what plans are Enhanced WSS available?
+
+Enhanced WSS are available on Business and Professional [plans](/billing/plans). 
+
+### Enhanced WSS Metering
+
+Users who upgrade to Business and Professional plans after **October 16, 2025** are metered at **3 credits per 0.1 MB** of streamed data. Users on these plans before this date remain unmetered.
+
+### Enhanced WSS Data Add-ons
+
+For high-volume data streaming on Professional plans, [**Data Add-Ons**](/billing/plans#data-add-ons) provide monthly data allowances (5TB-100TB) at predictable costs, and can be applied to both LaserStream and Enhanced WSS usage.
+
+## Enhanced WSS Endpoints
+
+Enhanced WSS are available on `mainnet` and `devnet` with the following URLs:
 
 **Mainnet:** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
 
 **Devnet:** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Warning>
-Websockets have a 10-minute inactivity timer; to keep the WebSocket connection alive, it is highly recommended that health checks be implemented and that pings be sent every minute.
+WebSockets have a 10-minute inactivity timer; to keep the WebSocket connection alive, we recommended that you implement [health checks](/faqs/websockets#why-are-my-enhanced-websockets-connections-disconnecting) and that pings be sent every minute.
 </Warning> 
