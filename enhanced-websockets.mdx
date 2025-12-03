@@ -6,19 +6,32 @@ description: "Stream real-time Solana transaction and account updates with enhan
 
 ## What are Enhanced Websockets?
 
-Helius provides Enhanced WebSockets in addition to Solana's standard WebSocket methods. These enhanced WebSockets offer faster response times than traditional WebSockets. We support two subscription methods: `transactionSubscribe` and `accountSubscribe`.
+Helius provides Enhanced WebSockets in addition to Solana's [standard WebSocket methods](/rpc/websocket), which offer faster response times than Standard WSS. 
 
-<Info>
-Enhanced WebSockets are available on **Business and Professional plans**. Users who upgrade to these plans after **October 16, 2025** are metered at **3 credits per 0.1 MB** of streamed data. Users on these plans before this date remain unmetered. This is separate from **Yellowstone gRPC** functionality available through [**LaserStream**](/laserstream/) or [**Dedicated Nodes**](/dedicated-nodes/).
-</Info>
+Today, Enhanced WebSockets are now [powered by the same infrastructure that powers LaserStream](https://www.helius.dev/blog/introducing-next-generation-enhanced-websockets), our next-gen gRPC streaming service built for speed, simplicity, and fault-tolerance.
+
+Enhanced WebSockets support two subscription methods: 
+
+* [`transactionSubscribe`](/enhanced-websockets/transaction-subscribe)
+* [`accountSubscribe`](/enhanced-websockets/account-subscribe)
+
+### On what plans are Enhanced WebSockets available?
+
+Enhanced WebSockets are available on Business and Professional [plans](/billing/plans). 
+
+### Enhanced WebSocket Metering
+
+Users who upgrade to Business and Professional plans after **October 16, 2025** are metered at **3 credits per 0.1 MB** of streamed data. Users on these plans before this date remain unmetered. 
+
+Note: this is separate from **Yellowstone gRPC** functionality available through [**LaserStream**](/laserstream/) or [**Dedicated Nodes**](/dedicated-nodes/).
 
 <Tip>
-For high-volume data streaming on Professional plans, [**Data Add-Ons**](/billing/plans) provide included monthly data allowances (5TB-100TB) for predictable costs. Data Add-Ons apply to both LaserStream and Enhanced WebSockets usage.
+For high-volume data streaming on Professional plans, [**Data Add-Ons**](/billing/plans#data-add-ons) provide monthly data allowances (5TB-100TB) at predictable costs, and apply to both LaserStream and Enhanced WebSockets usage.
 </Tip>
 
-## Subscription Endpoints
+## Enhanced WebSockets Endpoints
 
-Geyser-enhanced WebSockets are currently available on `mainnet` and `devnet` with the following URLs
+Enhanced WebSockets are currently available on `mainnet` and `devnet` with the following URLs:
 
 **Mainnet:** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
 
