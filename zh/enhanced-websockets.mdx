@@ -1,29 +1,40 @@
 ---
 title: Solana 增强型 WebSockets
 sidebarTitle: 概览
-description: 通过增强型 WebSocket 集成，实时流式传输 Solana 的交易和账户更新。响应时间更快，并具备高级过滤功能。
+description: 使用增强型 WebSockets 流式传输 Solana 实时交易和账户更新。获得更快的响应时间和高级过滤功能。
 ---
 
 ## 什么是增强型 WebSockets？
 
-Helius 提供了增强型 WebSockets，作为 Solana 标准 WebSocket 方法的补充。这些增强型 WebSockets 比传统 WebSockets 提供更快的响应时间。我们支持两种订阅方法：`transactionSubscribe` 和 `accountSubscribe`。
+Helius 提供增强型 WebSockets，除了 Solana 的[标准 WebSocket 方法](/zh/rpc/websocket)之外，还提供比标准 WebSockets 更快的响应时间。
 
-<Info>
-增强型WebSockets在**商业和专业计划**中可用。用户在**2025年10月16日**之后升级到这些计划时，流数据的计费标准为**每0.1 MB 3个积分**。在此日期之前使用这些计划的用户不受计费。这与通过[**LaserStream**](/zh/laserstream/)或[**Dedicated Nodes**](/zh/dedicated-nodes/)提供的**Yellowstone gRPC**功能是分开的。
-</Info>
+如今，增强型 WSS 由[支持 LaserStream 的相同基础设施](https://www.helius.dev/blog/introducing-next-generation-enhanced-websockets)提供支持，这是我们为速度、简便性和容错性而构建的下一代 gRPC 流服务。
 
-<Tip>
-对于专业计划中的大容量数据流，[**数据附加包**](/zh/billing/plans)提供每月包含的数据额度（5TB-100TB），以实现可预测的成本。数据附加包适用于LaserStream和增强型WebSockets的使用。
-</Tip>
+增强型 WSS 支持两种订阅方法：
 
-## 订阅端点
+* [`transactionSubscribe`](/zh/enhanced-websockets/transaction-subscribe)
+* [`accountSubscribe`](/zh/enhanced-websockets/account-subscribe)
 
-Geyser增强型WebSockets目前可在`mainnet`和`devnet`上使用，以下是其URL
+### 增强型 WSS 可用在哪些计划中？
+
+增强型 WSS 可用于商业和专业[计划](/zh/billing/plans)。
+
+### 增强型 WSS 计量
+
+在 **2025 年 10 月 16 日**之后升级到商业和专业计划的用户，流式数据的计量为每 **0.1 MB 3 个积分**。在此日期之前的用户不计量。
+
+### 增强型 WSS 数据附加包
+
+对于专业计划中的大容量数据流，[**数据附加包**](/zh/billing/plans#data-add-ons)提供每月数据配额（5TB-100TB），成本可预测，并可用于 LaserStream 和增强型 WSS。
+
+## 增强型 WSS 端点
+
+增强型 WSS 可用于 `mainnet` 和 `devnet`，使用以下 URL：
 
 **Mainnet:** `wss://atlas-mainnet.helius-rpc.com/?api-key=<API_KEY>`
 
 **Devnet:** `wss://atlas-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Warning>
-Websockets有一个10分钟的不活动计时器；为了保持WebSocket连接的活跃，强烈建议实施健康检查并每分钟发送ping。
+WebSockets 有 10 分钟的不活动计时器；为了保持 WebSocket 连接的活跃性，我们建议您实施[健康检查](/zh/faqs/websockets#why-are-my-enhanced-websockets-connections-disconnecting)并每分钟发送一次 ping。
 </Warning>
