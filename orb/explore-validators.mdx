@@ -1,0 +1,147 @@
+---
+title: "How to Find Top Solana Validators on Orb"
+sidebarTitle: "Explore Validators"
+description: "Learn how to use the Orb block explorer to find the top Solana validators. Explore validator rewards, total stake, APY, delinquency, uptime, and more."
+---
+
+The [Orb](https://orb.helius.dev) block explorer has dedicated pages for each Solana validator, with key information including vote addresses, total stake, APY, transaction history, and more.
+
+This tutorial will explain how to research Solana validators on Orb, pick [the best place to stake your SOL](https://www.helius.dev/staking/calculator), and begin earning [SOL staking rewards](https://www.helius.dev/staking/rewards).
+
+## **Find Top Solana Validators**
+
+There are two main ways to search for validators on the Orb explorer:
+
+1. Using the search bar
+2. From the Network section
+
+### **Searching for Validators**
+
+To find validators on Orb, simply enter their name or vote identity in the search bar. If there are multiple results for your query, filter by the “Validator” category.
+
+<Frame caption="Search for Solana validators by name or identity on the Orb explorer">
+  ![Solana Validator Explorer Orb Jp](/images/solana-validator-explorer-orb.jpg)
+</Frame>
+
+Once the result appears, click it to visit their validator page.
+
+### **Network Section**
+
+The [Solana network statistics](https://orb.helius.dev/stats) page has a summary view of the top 10 Solana validators ranked by total stake. From here, you can quickly see the top validators, sort results, and paginate through the list.
+
+<Frame caption="Explore top Solana validators on the Orb explorer network statistics page">
+  ![Explore Top Solana Validators On Orb Jp](/images/explore-top-solana-validators-on-orb.jpg)
+</Frame>
+
+To visit a validator page, simply click the result.
+
+## **Researching Solana Validators**
+
+Let’s break down the Solana validator performance metrics  you can find on Orb.
+
+### **Validator Stake and APY**
+
+At the top of the page, you can see the validator’s total active stake, APY, commission rates, and other high-level information.
+
+<Frame caption="The validator performance metrics summary for the Helius validator on Orb">
+  ![Solana Validator Performance Explorer Orb Jp](/images/solana-validator-performance-explorer-orb.jpg)
+</Frame>
+
+When looking for a place to stake your Solana, make sure you check the commission rates, as they directly impact how much yield you can earn.
+
+Just below the summary section, you can find some of the validator’s metadata, including:
+
+- **Authorized voter address:** the public key permitted to cast votes on behalf of the validator’s stake
+- **Authorized withdrawer:** the public key permitted to withdraw SOL from the stake account
+- **Identity account:** the system account that pays for vote transaction fees submitted to the vote account
+
+### **Validator Transaction History**
+
+Below the metadata section, you’ll find a table with five different sections. 
+
+These sections can be navigated using keyboard shortcuts. Simply type the numbers 1-5 to access each tab.
+
+In the **History** section, you’ll find the validator’s most recent transactions. These will mainly be votes cast on recent blocks. Click **See more details** to [inspect the transaction](https://www.helius.dev/docs/orb/explore-transactions).
+
+<Frame caption="The most recent transactions executed by the Helius validator">
+  ![Solana Validator Transaction History Explorer Orb Jp](/images/solana-validator-transaction-history-explorer-orb.jpg)
+</Frame>
+
+### **Validator Stake Accounts**
+
+Using shortcut “2”, navigate to the **Stake Accounts** section. In this table, view the account, total delegated stake, activation epoch, account creation date, and account metadata, including withdraw and stake authority.
+
+<Frame caption="The top 10 Solana stake accounts delegated to the Helius validator">
+  ![Solana Validator Stake Account Explorer Orb Jp](/images/solana-validator-stake-account-explorer-orb.jpg)
+</Frame>
+
+### **Validator Vote History**
+
+Typing “3” on your keyboard will take you to the **Vote History** page. This page shows the most recent slots the validator voted on, along with the confirmation count. 
+
+For blocks to be “rooted” on Solana, they need to receive 32 confirmations. This will give it the [“Finalized” commitment](https://www.helius.dev/blog/solana-commitment-levels).
+
+<Frame caption="Helius’s Solana validator vote history page on the Orb explorer">
+  ![Solana Validator Vote History Explorer Orb Jp](/images/solana-validator-vote-history-explorer-orb.jpg)
+</Frame>
+
+<Info>
+  The finalization commitment levels will change with the introduction of [Alpenglow](https://www.helius.dev/blog/alpenglow), Solana’s upcoming consensus upgrade that replaces TowerBFT.
+</Info>
+
+### **Validator Delinquency Metrics**
+
+The **Delinquency** tab shows the total number of delinquent days and the total delinquent minutes over the last 12 months. You can view this in a heatmap view or as a table.
+
+Delinquent stake refers to a validator's total stake for which it has failed to cast a vote on the network for a specified period, falling behind the cluster. 
+
+For example, [Binance’s Solana validator](https://orb.helius.dev/address/3N7s9zXMZ4QqvHQR15t5GNHyqc89KduzMP7423eWiD5g/delinquency) has experienced **40 delinquent days** and **651 delinquent minutes** over the past 12 months. 
+
+<Frame caption="Binance’s Solana validator delinquency heatmap on the Orb explorer">
+  ![Binance Solana Validator Delinquency Metrics On The Orb Explorer Jp](/images/binance-solana-validator-delinquency-metrics-on-the-orb-explorer.jpg)
+</Frame>
+
+While a validator is delinquent, the validator's stake will not earn staking rewards, which negatively impacts the SOL staking APY for delegators. When choosing a place to stake your SOL, it is important to choose a validator that is not delinquent. 
+
+### **Validator Info**
+
+The **Info** tab shows a description of the validator along with key details such as:
+
+- **Identity:** the unique public key identifying the validator
+- **Stake weight:** the total amount of SOL delegated to this validator
+- **Client version:** the software version the validator is currently running
+- **Commission:** The percentage of staking rewards the validator takes as a fee
+- **Website:** a link to the validator operator’s website or informational page
+- **Location:** the geographic location of the validator's server
+- **Network:** the provider hosting the validator’s server (e.g., Teraswitch, Latitude, etc.)
+- **ASN:** the Autonomous System Number identifying the network provider
+- **Skip rate:** the percentage of scheduled blocks the validator missed producing
+- **Vote success rate:** the percentage of valid votes the validator successfully submitted
+- **Uptime:** the duration the validator has been actively validating and voting
+- **Last vote:** the slot number of the most recent block the validator voted on
+- **First epoch:** the epoch number when the validator first began participating
+- **Root slot:** the most recent slot number the validator has finalized
+- **Epoch credits:** the number of vote credits the validator earned within the current epoch
+- **Total credits:** the cumulative number of vote credits the validator has earned all time
+
+<Frame caption="The Helius validator info tab on the Orb explorer">
+  ![Helius Solana Validator Info Section On Orb Validator Explorer Jp](/images/helius-solana-validator-info-section-on-orb-validator-explorer.jpg)
+</Frame>
+
+When selecting a place to stake SOL, look for a validator with low skip rates, high uptime, and high vote success rates, as each of these metrics will impact your total SOL yield.
+
+- **Uptime:** low uptime means more skipped blocks and fewer rewards
+- **Skip rates:** more skipped blocks means less issuance and MEV rewards earned
+- **Vote success rates:** lower success rates mean fewer vote credits and fewer rewards
+
+## **Conclusion**
+
+The [Orb block explorer](https://orb.helius.dev) is a powerful tool for researching the top validators on Solana. 
+
+Once you’ve finished comparing Solana staking providers and are ready to earn yield on your SOL, start staking! If you want to stake with Helius, visit the [Orb staking portal](https://orb.helius.dev/stake).
+
+For more information, check out these additional staking resources:
+
+- [Solana Rewards](https://www.helius.dev/staking/rewards)
+- [SOL Staking Calculator](https://www.helius.dev/staking/calculator)
+- [Solana (SOL) Staking Guide](https://www.helius.dev/blog/solana-staking-simplified-guide-to-sol-staking)
