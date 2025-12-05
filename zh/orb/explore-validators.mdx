@@ -1,0 +1,162 @@
+---
+title: 如何在 Orb 上找到顶级 Solana 验证者
+sidebarTitle: 探索验证者
+description: 了解如何使用 Orb 区块浏览器找到顶级 Solana 验证者。探索验证者奖励、总质押、年收益率、失职、正常运行时间等信息。
+---
+[Orb](https://orb.helius.dev) 区块浏览器为每个 Solana 验证者提供专门页面，包含关键信息，如投票地址、总质押、年收益率、交易历史等。
+
+本教程将解释如何在 Orb 上研究 Solana 验证者，选择[质押 SOL 的最佳地点](https://www.helius.dev/staking/calculator)，并开始赚取[SOL 质押奖励](https://www.helius.dev/staking/rewards)。
+
+## **查找顶级 Solana 验证者**
+
+在 Orb 浏览器上搜索验证者主要有两种方式：
+
+1. 使用搜索栏
+2. 从网络部分
+
+### **搜索验证者**
+
+要在 Orb 上找到验证者，只需在搜索栏中输入他们的名称或投票身份。如果查询结果有多个，请按“验证者”类别进行筛选。
+
+<Frame caption="在 Orb 浏览器上按名称或身份搜索 Solana 验证者">
+
+  ![Solana Validator Explorer Orb Jp](/images/solana-validator-explorer-orb.jpg)
+
+</Frame>
+
+结果出现后，点击它以访问其验证者页面。
+
+### **网络部分**
+
+[Solana 网络统计](https://orb.helius.dev/stats)页面提供了按总质押排名的前 10 名 Solana 验证者的摘要视图。在这里，您可以快速查看顶级验证者、排序结果并分页浏览列表。
+
+<Frame caption="在 Orb 浏览器网络统计页面上探索顶级 Solana 验证者">
+
+  ![Explore Top Solana Validators On Orb Jp](/images/explore-top-solana-validators-on-orb.jpg)
+
+</Frame>
+
+要访问验证者页面，只需点击结果。
+
+## **研究 Solana 验证者**
+
+让我们分解一下您可以在 Orb 上找到的 Solana 验证者性能指标。
+
+### **验证者质押和年收益率**
+
+在页面顶部，您可以看到验证者的总活跃质押、年收益率、佣金率和其他高级信息。
+
+<Frame caption="Orb 上 Helius 验证者的性能指标摘要">
+
+  ![Solana 验证者性能浏览器 Orb Jp](/images/solana-validator-performance-explorer-orb.jpg)
+
+</Frame>
+
+在寻找质押 Solana 的地方时，请确保检查佣金率，因为它们直接影响您可以赚取的收益。
+
+在摘要部分的下方，您可以找到一些验证者的元数据，包括：
+
+- **授权投票地址：** 允许代表验证者的质押投票的公钥
+- **授权提取者：** 允许从质押账户提取 SOL 的公钥
+- **身份账户：** 支付提交到投票账户的投票交易费用的系统账户
+
+### **验证者交易历史**
+
+在元数据部分的下方，您会找到一个包含五个不同部分的表格。
+
+可以使用键盘快捷键导航这些部分。只需输入数字 1-5 即可访问每个选项卡。
+
+在 **历史** 部分，您会找到验证者最近的交易。这些主要是对最近区块的投票。点击 **查看更多详情** 以[检查交易](https://www.helius.dev/docs/orb/explore-transactions)。
+
+<Frame caption="Helius 验证者执行的最新交易">
+
+  ![Solana 验证者交易历史浏览器 Orb Jp](/images/solana-validator-transaction-history-explorer-orb.jpg)
+
+</Frame>
+
+### **验证者质押账户**
+
+使用快捷键“2”，导航到 **质押账户** 部分。在此表格中，查看账户、总委托质押、激活纪元、账户创建日期和账户元数据，包括提取和质押权限。
+
+<Frame caption="委托给 Helius 验证者的前 10 个 Solana 质押账户">
+
+  ![Solana Validator Stake Account Explorer Orb Jp](/images/solana-validator-stake-account-explorer-orb.jpg)
+
+</Frame>
+
+### **验证者投票历史**
+
+在键盘上输入“3”将带您进入**投票历史**页面。此页面显示验证者最近投票的插槽以及确认次数。
+
+要使区块在Solana上“生根”，它们需要获得32次确认。这将赋予其[“最终化”承诺](https://www.helius.dev/blog/solana-commitment-levels)。
+
+<Frame caption="Helius的Solana验证者投票历史页面在Orb浏览器上">
+
+  ![Solana Validator Vote History Explorer Orb Jp](/images/solana-validator-vote-history-explorer-orb.jpg)
+
+</Frame>
+
+<Info>
+  随着[Alpenglow](https://www.helius.dev/blog/alpenglow)的引入，最终化承诺级别将发生变化，这是Solana即将推出的共识升级，将取代TowerBFT。
+</Info>
+
+### **验证者失职指标**
+
+**失职**选项卡显示过去12个月内失职天数总数和失职分钟总数。您可以以热图视图或表格形式查看。
+
+失职权益指的是验证者在指定时间内未能在网络上投票的总权益，落后于集群。
+
+例如，[Binance的Solana验证者](https://orb.helius.dev/address/3N7s9zXMZ4QqvHQR15t5GNHyqc89KduzMP7423eWiD5g/delinquency)在过去12个月中经历了**40天失职**和**651分钟失职**。
+
+<Frame caption="Binance的Solana验证者失职热图在Orb浏览器上">
+
+  ![Binance Solana Validator Delinquency Metrics On The Orb Explorer Jp](/images/binance-solana-validator-delinquency-metrics-on-the-orb-explorer.jpg)
+
+</Frame>
+
+当验证者失职时，验证者的权益将无法获得质押奖励，这会对委托人的SOL质押年收益率产生负面影响。在选择质押SOL的地方时，选择一个不失职的验证者很重要。
+
+### **验证者信息**
+
+**信息**选项卡显示验证者的描述以及关键细节，例如：
+
+- **身份:** 标识验证者的唯一公钥
+- **质押权重:** 委托给此验证者的SOL总量
+- **客户端版本:** 验证者当前运行的软件版本
+- **佣金:** 验证者作为费用收取的质押奖励百分比
+- **网站:** 验证者运营者的网站或信息页面链接
+- **位置:** 验证者服务器的地理位置
+- **网络:** 托管验证者服务器的提供商（例如，Teraswitch, Latitude等）
+- **ASN:** 标识网络提供商的自治系统编号
+- **跳过率:** 验证者未能生产的计划区块百分比
+- **投票成功率:** 验证者成功提交的有效投票百分比
+- **正常运行时间:** 验证者积极验证和投票的持续时间
+- **最后投票:** 验证者投票的最新区块的槽号
+- **首次纪元:** 验证者首次参与的纪元编号
+- **根槽:** 验证者已完成的最新槽号
+- **纪元积分:** 验证者在当前纪元内获得的投票积分数量
+- **总积分:** 验证者获得的累计投票积分数量
+
+<Frame caption="Orb浏览器上的Helius验证者信息标签">
+
+  ![Helius Solana验证者信息部分在Orb验证者浏览器上](/images/helius-solana-validator-info-section-on-orb-validator-explorer.jpg)
+
+</Frame>
+
+在选择SOL质押地点时，寻找跳过率低、正常运行时间高和投票成功率高的验证者，因为这些指标都会影响您的SOL总收益。
+
+- **正常运行时间:** 低正常运行时间意味着更多的跳过区块和更少的奖励
+- **跳过率:** 更多的跳过区块意味着获得的发行和MEV奖励更少
+- **投票成功率:** 成功率较低意味着投票积分和奖励较少
+
+## **结论**
+
+[Orb 区块浏览器](https://orb.helius.dev) 是研究 Solana 上顶级验证者的强大工具。
+
+一旦您完成了 Solana 质押提供商的比较，并准备好通过您的 SOL 赚取收益，就开始质押吧！如果您想与 Helius 一起质押，请访问 [Orb 质押门户](https://orb.helius.dev/stake)。
+
+欲了解更多信息，请查看以下额外的质押资源：
+
+- [Solana 奖励](https://www.helius.dev/staking/rewards)
+- [SOL 质押计算器](https://www.helius.dev/staking/calculator)
+- [Solana (SOL) 质押指南](https://www.helius.dev/blog/solana-staking-simplified-guide-to-sol-staking)
