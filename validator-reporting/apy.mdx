@@ -1,6 +1,6 @@
 ---
 title: "Get Validator APY"
-description: "Calculate validator Annual Percentage Yield using Dune methodology with gross and net APY"
+description: "Calculate validator Annual Percentage Yield using the same methodology as platforms such as Dune and Stakewiz with gross and net APY"
 ---
 
 <Note>
@@ -15,17 +15,17 @@ GET http://validator-api.helius-internal.com/validators/{vote_account}/apy
 
 ## Description
 
-Calculate APY (Annual Percentage Yield) for a validator using what is refered to as the **Dune methodology**: per-epoch APY averaged over the specified period.
+Calculate APY (Annual Percentage Yield) for a validator by averaging per-epoch APY over the specified period.
 
 Returns both **Gross APY** (before commission) and **Net APY** (after commission deductions), with detailed breakdowns by reward type and optional forecasting.
 
 ### APY Calculation Formula
 
 ```
-APY = ((1 + epoch_return)^182.5 - 1) * 100
-```
+APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100
 
-Where `182.5` is the average number of epochs per year.
+where num_epochs_per_year ≈ 182.5
+```
 
 ---
 
@@ -231,11 +231,7 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
     </ResponseField>
 
     <ResponseField name="calculation_method" type="string">
-      Method used for APY calculation (e.g., Dune methodology)
-    </ResponseField>
-
-    <ResponseField name="warning" type="string" nullable>
-      Any warnings about data quality or calculation
+      Method used for APY calculation (i.e., the same methodology as APY queries on Dune)
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -421,10 +417,10 @@ The difference between Gross and Net APY reflects the validator's commission str
 
 ## Calculation Methodology
 
-The API uses the **Dune methodology** for APY calculation:
+The API calculates APY using the following approach:
 
 1. Calculate per-epoch returns: `epoch_return = rewards / stake`
-2. Annualize using epochs per year: `APY = ((1 + epoch_return)^182.5 - 1) * 100`
+2. Annualize using epochs per year: `APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100`
 3. Average APY across all epochs in the period
 4. Apply commission deductions for Net APY
 

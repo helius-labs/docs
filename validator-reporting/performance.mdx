@@ -26,8 +26,8 @@ Retrieve comprehensive operational performance metrics for a validator, includin
   <Card title="Skip Rate" icon="forward">
     Monitor block production efficiency when assigned as leader
   </Card>
-  <Card title="Data Quality" icon="shield-check">
-    Assess completeness and reliability of performance data
+  <Card title="Vote Participation" icon="check-to-slot">
+    Track how consistently the validator is voting on blocks
   </Card>
 </CardGroup>
 
@@ -83,9 +83,8 @@ curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtL
 ```javascript JavaScript
 const getValidatorPerformance = async (voteAccount, period = '30d') => {
   const baseUrl = 'http://validator-api.helius-internal.com';
-  
 
-  const url = `${baseUrl}/validators/${voteAccount}/performance?period=${period}&api-key=${apiKey}`;
+  const url = `${baseUrl}/validators/${voteAccount}/performance?period=${period}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -99,13 +98,13 @@ const performance = await getValidatorPerformance(
   '30d'
 );
 
-console.log('Vote Participation:', performance.data_quality.avg_vote_participation_pct, '%');
+console.log('Vote Participation:', performance.participation.avg_vote_participation_pct, '%');
 console.log('Skip Rate:', performance.skip_rate.skip_rate_pct, '%');
-console.log('Data Quality: High Participation Epochs:', performance.data_quality.high_participation_epochs);
-console.log('Missing Epochs:', performance.data_quality.missing_epochs);
+console.log('High Participation Epochs:', performance.participation.high_participation_epochs);
+console.log('Missing Epochs:', performance.participation.missing_epochs);
 
-// Check for data quality issues
-if (performance.data_quality.missing_epochs > 0) {
+// Check for participation metrics
+if (performance.participation.missing_epochs > 0) {
   console.warn('Warning: Some epochs have missing data');
   performance.epoch_gaps?.forEach(gap => {
     console.log(`Epoch ${gap.epoch}: ${gap.vote_participation_pct}% participation`);
@@ -134,13 +133,13 @@ performance = get_validator_performance(
     "30d"
 )
 
-print(f"Vote Participation: {performance['data_quality']['avg_vote_participation_pct']}%")
+print(f"Vote Participation: {performance['participation']['avg_vote_participation_pct']}%")
 print(f"Skip Rate: {performance['skip_rate']['skip_rate_pct']}%")
-print(f"High Participation Epochs: {performance['data_quality']['high_participation_epochs']}")
-print(f"Missing Epochs: {performance['data_quality']['missing_epochs']}")
+print(f"High Participation Epochs: {performance['participation']['high_participation_epochs']}")
+print(f"Missing Epochs: {performance['participation']['missing_epochs']}")
 
-# Check for data quality issues
-if performance['data_quality']['missing_epochs'] > 0:
+# Check for performance issues
+if performance['participation']['missing_epochs'] > 0:
     print("Warning: Some epochs have missing data")
     for gap in performance.get('epoch_gaps', []):
         print(f"Epoch {gap['epoch']}: {gap['vote_participation_pct']}% participation")
@@ -168,10 +167,10 @@ if performance['data_quality']['missing_epochs'] > 0:
   Ending epoch of the data range
 </ResponseField>
 
-<ResponseField name="data_quality" type="object">
-  Data quality and vote participation metrics
+<ResponseField name="participation" type="object">
+  Vote participation metrics
 
-  <Expandable title="data_quality properties">
+  <Expandable title="participation properties">
     <ResponseField name="total_epochs" type="integer">
       Total number of epochs in the period
     </ResponseField>
@@ -272,7 +271,7 @@ if performance['data_quality']['missing_epochs'] > 0:
   "period": "30d",
   "start_epoch": 650,
   "end_epoch": 680,
-  "data_quality": {
+  "participation": {
     "total_epochs": 30,
     "high_participation_epochs": 28,
     "lower_participation_epochs": 2,
@@ -388,7 +387,7 @@ A well-performing validator typically shows:
 
 ```json
 {
-  "data_quality": {
+  "participation": {
     "avg_vote_participation_pct": 99.5,  // >99%
     "high_participation_epochs": 29,      // Most epochs
     "lower_participation_epochs": 1,      // Minimal

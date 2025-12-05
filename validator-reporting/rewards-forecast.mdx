@@ -1,6 +1,6 @@
 ---
 title: "Get Rewards Forecast"
-description: "AI-powered rewards forecasting with multiple models, confidence intervals, and scenario projections"
+description: "Rewards forecasting with multiple models, confidence intervals, and scenario projections"
 ---
 
 <Note>
@@ -15,13 +15,13 @@ GET http://validator-api.helius-internal.com/validators/{vote_account}/rewards/f
 
 ## Description
 
-Generate intelligent rewards forecasts based on historical performance data using advanced statistical models. The API provides three scenario projections (conservative, baseline, optimistic) with confidence intervals and detailed methodology information.
+Generate rewards forecasts based on historical performance data using statistical models. The API provides three scenario projections (conservative, baseline, optimistic) with confidence intervals and detailed methodology information.
 
 ### Forecasting Models
 
 <CardGroup cols={2}>
   <Card title="Rolling Average" icon="chart-simple">
-    Uses mean ± standard deviation from historical data based on the Dune methodology.
+    Uses mean ± standard deviation from historical data.
   </Card>
   <Card title="Linear Regression" icon="chart-line">
     Extrapolates trends from historical data.
@@ -31,10 +31,10 @@ Generate intelligent rewards forecasts based on historical performance data usin
 ### APY Calculation Formula
 
 ```
-APY = ((1 + epoch_return)^182.5 - 1) * 100
-```
+APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100
 
-Where `182.5` is the average number of epochs per year.
+Where num_epochs_per_year ≈ 182.5
+```
 
 ---
 
@@ -96,14 +96,12 @@ curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtL
 ```javascript JavaScript
 const getRewardsForecast = async (voteAccount, options = {}) => {
   const baseUrl = 'http://validator-api.helius-internal.com';
-  
 
   const params = new URLSearchParams({
     forecast_period: options.forecastPeriod || '30d',
     lookback_days: options.lookbackDays || 30,
     model: options.model || 'rolling_average',
-    include_breakdown: options.includeBreakdown || false,
-    'api-key': apiKey
+    include_breakdown: options.includeBreakdown || false
   });
 
   const url = `${baseUrl}/validators/${voteAccount}/rewards/forecast?${params}`;

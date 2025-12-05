@@ -45,7 +45,7 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Rewards forecasting with multiple models and confidence intervals
   </Card>
   <Card title="Performance" icon="gauge-high" href="/validator-reporting/performance">
-    Operational metrics including skip rates and data quality indicators
+    Operational metrics including skip rates and data metrics
   </Card>
 </CardGroup>
 
@@ -54,14 +54,6 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
 ## Quick Start Examples
 
 <Tabs>
-  <Tab title="Health Check">
-    Test the API is working:
-
-    ```bash
-    curl -s "http://validator-api.helius-internal.com/health" | python3 -m json.tool
-    ```
-  </Tab>
-
   <Tab title="Get Earnings">
     Get 30-day earnings for a validator:
 
@@ -104,19 +96,6 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     ```
   </Tab>
 
-  <Tab title="Slot-Level Data">
-    Get slot-level rewards data for epoch 884:
-
-    ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards?start_epoch=884&end_epoch=884&limit=100" | python3 -m json.tool
-    ```
-
-    Get slot-level voting data:
-
-    ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/votes?start_epoch=884&end_epoch=884&limit=100" | python3 -m json.tool
-    ```
-  </Tab>
 </Tabs>
 
 ---
@@ -177,16 +156,9 @@ Historical data is available starting from **epoch 850**. Queries for earlier ep
 The API provides comprehensive data across multiple dimensions:
 
 - **Rewards**: Inflation rewards, block rewards, Jito MEV tips, vote fees
-- **Performance**: Vote participation, block skip rates, data quality metrics
+- **Performance**: Vote participation, block skip rates, and other data metrics
 - **Financial**: Gross/net earnings, commission splits, APY calculations
 - **Forecasting**: Predictive models for future rewards and APY
 
 ---
 
-## Additional Endpoints
-
-<Note>
-The API also provides **Health Check** endpoint at `/health` to verify API availability.
-</Note>
-
----
