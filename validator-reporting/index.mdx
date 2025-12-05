@@ -1,0 +1,198 @@
+---
+title: "Validator Reporting API"
+sidebarTitle: "Validator Reporting"
+description: "Private API documentation for Solana validator performance metrics, rewards, earnings, and APY calculations."
+---
+
+## Overview
+
+The Validator Reporting API provides comprehensive metrics and performance data for Solana validators. Query historical rewards, voting activity, earnings breakdowns, APY calculations, and operational performance metrics.
+
+<Note>
+This is a private API available only to select partners.
+</Note>
+
+## Getting Started
+
+### Base URL
+
+```
+http://validator-api.helius-internal.com
+```
+
+### Key Concepts
+
+**Vote Account**: The validator's vote account public key (base58 encoded, 32-44 characters)
+
+Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+
+**Epochs**: Data is available starting from epoch 850
+
+**Time Periods**: Most endpoints support: `24h`, `7d`, `30d`, `90d`, `1y`, or custom epoch ranges
+
+---
+
+## API Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Earnings" icon="money-bill-trend-up" href="/docs/validator-reporting/earnings">
+    Comprehensive earnings with voting, block production, and commission splits
+  </Card>
+  <Card title="APY" icon="percent" href="/docs/validator-reporting/apy">
+    Annual Percentage Yield calculations using the methodology outlined in our Dune APY queries
+  </Card>
+  <Card title="Rewards Forecast" icon="chart-line" href="/docs/validator-reporting/rewards-forecast">
+    Rewards forecasting with multiple models and confidence intervals
+  </Card>
+  <Card title="Performance" icon="gauge-high" href="/docs/validator-reporting/performance">
+    Operational metrics including skip rates and data quality indicators
+  </Card>
+  <Card title="Rewards" icon="coins" href="/docs/validator-reporting/rewards">
+    Historical slot-level rewards: inflation, block rewards, Jito tips, and vote fees
+  </Card>
+  <Card title="Votes" icon="check-to-slot" href="/docs/validator-reporting/votes">
+    Slot-level voting history with participation rates and leader slot information
+  </Card>
+</CardGroup>
+
+---
+
+## Quick Start Examples
+
+<Tabs>
+  <Tab title="Health Check">
+    Test the API is working:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/health" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Get Earnings">
+    Get 30-day earnings for a validator:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d" | python3 -m json.tool
+    ```
+
+    JavaScript:
+    ```javascript
+    const voteAccount = 'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk';
+    const response = await fetch(
+      `http://validator-api.helius-internal.com/validators/${voteAccount}/earnings?period=30d`
+    );
+    const data = await response.json();
+    console.log(`Gross earnings: ${data.earnings.rewards.gross_earnings_sol} SOL`);
+    ```
+  </Tab>
+
+  <Tab title="Get APY">
+    Get 7-day APY for a validator:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=7d" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Get Performance">
+    Get 7-day performance metrics:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=7d" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Forecast Rewards">
+    Get 30-day rewards forecast:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Slot-Level Data">
+    Get slot-level rewards data for epoch 884:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards?start_epoch=884&end_epoch=884&limit=100" | python3 -m json.tool
+    ```
+
+    Get slot-level voting data:
+
+    ```bash
+    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/votes?start_epoch=884&end_epoch=884&limit=100" | python3 -m json.tool
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 400 | Bad Request - Invalid parameters |
+| 404 | Not Found - Validator not found |
+| 500 | Internal Server Error |
+
+---
+
+## Common Parameters
+
+Many endpoints share these common query parameters:
+
+<ParamField query="period" type="string">
+  Time period for data aggregation
+
+  Options: `24h`, `7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 790)
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+</ParamField>
+
+<ParamField query="start_timestamp" type="integer">
+  Unix timestamp for start of range
+</ParamField>
+
+<ParamField query="end_timestamp" type="integer">
+  Unix timestamp for end of range
+</ParamField>
+
+<ParamField query="aggregate_by" type="string">
+  Aggregation method: `timestamp` or `epoch`
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum records to return (default: 1000, max: 10000)
+</ParamField>
+
+---
+
+## Data Availability
+
+<Note>
+Historical data is available starting from **epoch 850**. Queries for earlier epochs will return an error.
+</Note>
+
+The API provides comprehensive data across multiple dimensions:
+
+- **Rewards**: Inflation rewards, block rewards, Jito MEV tips, vote fees
+- **Performance**: Vote participation, block skip rates, data quality metrics
+- **Financial**: Gross/net earnings, commission splits, APY calculations
+- **Forecasting**: Predictive models for future rewards and APY
+
+---
+
+## Additional Endpoints
+
+<Note>
+The API also provides **Health Check** endpoint at `/health` to verify API availability.
+</Note>
+
+---

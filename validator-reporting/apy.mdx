@@ -1,0 +1,443 @@
+---
+title: "Get Validator APY"
+description: "Calculate validator Annual Percentage Yield using Dune methodology with gross and net APY"
+---
+
+<Note>
+[← Back to Validator Reporting API](/docs/validator-reporting)
+</Note>
+
+## Endpoint
+
+```
+GET http://validator-api.helius-internal.com/validators/{vote_account}/apy
+```
+
+## Description
+
+Calculate APY (Annual Percentage Yield) for a validator using what is refered to as the **Dune methodology**: per-epoch APY averaged over the specified period.
+
+Returns both **Gross APY** (before commission) and **Net APY** (after commission deductions), with detailed breakdowns by reward type and optional forecasting.
+
+### APY Calculation Formula
+
+```
+APY = ((1 + epoch_return)^182.5 - 1) * 100
+```
+
+Where `182.5` is the average number of epochs per year.
+
+---
+
+## Path Parameters
+
+<ParamField path="vote_account" type="string" required>
+  The validator's vote account public key (base58 encoded)
+
+  Must match pattern: `^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="period" type="string" default="30d">
+  Time period for APY calculation
+
+  Options: `7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 850)
+
+  Use for custom epoch ranges instead of `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+
+  Must be used with `start_epoch`
+</ParamField>
+
+<ParamField query="include_forecast" type="boolean" default="false">
+  Include APY forecast projection based on historical data
+</ParamField>
+
+
+---
+
+## Request Examples
+
+<CodeGroup>
+
+```bash cURL - Basic APY
+curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=30d"
+```
+
+```bash cURL - With Forecast
+curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=30d&include_forecast=true"
+```
+
+```bash cURL - Single Epoch
+curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=epoch&start_epoch=800"
+```
+
+```javascript JavaScript
+const getValidatorAPY = async (voteAccount, period = '30d', includeForecast = false) => {
+  const baseUrl = 'http://validator-api.helius-internal.com';
+
+  const params = new URLSearchParams({
+    period,
+    ...(includeForecast && { include_forecast: 'true' })
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/apy?${params}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const apy = await getValidatorAPY(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  '30d',
+  true
+);
+
+console.log('Gross APY:', apy.apy.gross_apy_pct, '%');
+console.log('Net APY:', apy.apy.net_apy_pct, '%');
+console.log('Inflation APY:', apy.apy.breakdown.inflation_apy_pct, '%');
+console.log('MEV APY:', apy.apy.breakdown.mev_apy_pct, '%');
+```
+
+```python Python
+import requests
+
+def get_validator_apy(
+    vote_account: str,
+    period: str = "30d",
+    include_forecast: bool = False
+):
+    base_url = "http://validator-api.helius-internal.com"
+    
+
+    params = {
+        "period": period,
+    }
+
+    if include_forecast:
+        params["include_forecast"] = "true"
+
+    url = f"{base_url}/validators/{vote_account}/apy"
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+apy = get_validator_apy(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "30d",
+    include_forecast=True
+)
+
+print(f"Gross APY: {apy['apy']['gross_apy_pct']}%")
+print(f"Net APY: {apy['apy']['net_apy_pct']}%")
+print(f"Inflation APY: {apy['apy']['breakdown']['inflation_apy_pct']}%")
+print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
+```
+
+</CodeGroup>
+
+---
+
+## Response Schema
+
+<ResponseField name="vote_account" type="string">
+  The validator's vote account address
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  The time period queried
+</ResponseField>
+
+<ResponseField name="apy" type="object">
+  APY data with gross, net, and breakdown
+
+  <Expandable title="apy properties">
+    <ResponseField name="gross_apy_pct" type="number">
+      Gross APY percentage before commission deductions
+    </ResponseField>
+
+    <ResponseField name="net_apy_pct" type="number">
+      Net APY percentage after commission deductions
+    </ResponseField>
+
+    <ResponseField name="breakdown" type="object">
+      APY breakdown by reward source
+
+      <Expandable title="breakdown properties">
+        <ResponseField name="inflation_apy_pct" type="number">
+          APY from inflation rewards
+        </ResponseField>
+
+        <ResponseField name="mev_apy_pct" type="number">
+          APY from Jito MEV tips
+        </ResponseField>
+
+        <ResponseField name="block_rewards_apy_pct" type="number">
+          APY from block rewards (i.e., priority fees)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="calculation_basis" type="object">
+  Detailed information about how APY was calculated
+
+  <Expandable title="calculation_basis properties">
+    <ResponseField name="total_stake_lamports" type="integer">
+      Total stake used in calculation (in lamports)
+    </ResponseField>
+
+    <ResponseField name="total_earnings_lamports" type="integer">
+      Total earnings used in calculation (in lamports)
+    </ResponseField>
+
+    <ResponseField name="days" type="integer">
+      Number of days covered in the period
+    </ResponseField>
+
+    <ResponseField name="epochs_covered" type="integer">
+      Number of epochs covered in the period
+    </ResponseField>
+
+    <ResponseField name="start_timestamp" type="integer">
+      Unix timestamp of calculation start
+    </ResponseField>
+
+    <ResponseField name="end_timestamp" type="integer">
+      Unix timestamp of calculation end
+    </ResponseField>
+
+    <ResponseField name="stake_source" type="string">
+      Source of stake data used
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_source" type="string">
+      Source of staking rewards data used
+    </ResponseField>
+
+    <ResponseField name="calculation_method" type="string">
+      Method used for APY calculation (e.g., Dune methodology)
+    </ResponseField>
+
+    <ResponseField name="warning" type="string" nullable>
+      Any warnings about data quality or calculation
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="epoch_apy_data" type="array" nullable>
+  Per-epoch APY data (only when querying single epoch or detailed view)
+
+  <Expandable title="array items">
+    <ResponseField name="epoch" type="integer">
+      Epoch number
+    </ResponseField>
+
+    <ResponseField name="stake_lamports" type="integer">
+      Stake amount for this epoch
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_lamports" type="integer">
+      Staking rewards earned
+    </ResponseField>
+
+    <ResponseField name="block_rewards_lamports" type="integer">
+      Block rewards earned
+    </ResponseField>
+
+    <ResponseField name="mev_rewards_lamports" type="integer">
+      MEV rewards earned
+    </ResponseField>
+
+    <ResponseField name="total_rewards_lamports" type="integer">
+      Total rewards for the epoch
+    </ResponseField>
+
+    <ResponseField name="apy_pct" type="number">
+      APY for this specific epoch
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="forecast" type="object" nullable>
+  APY forecast projection (only if `include_forecast=true`)
+
+  <Expandable title="forecast properties">
+    <ResponseField name="projected_annual_apy_pct" type="number">
+      Projected APY for the next year
+    </ResponseField>
+
+    <ResponseField name="confidence" type="string">
+      Confidence level: `low`, `medium`, or `high`
+    </ResponseField>
+
+    <ResponseField name="based_on_days" type="integer">
+      Number of historical days used for forecast
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## Response Example
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "apy": {
+    "gross_apy_pct": 8.45,
+    "net_apy_pct": 7.61,
+    "breakdown": {
+      "inflation_apy_pct": 6.20,
+      "mev_apy_pct": 1.50,
+      "block_rewards_apy_pct": 0.75
+    }
+  },
+  "calculation_basis": {
+    "total_stake_lamports": 50000000000000,
+    "total_earnings_lamports": 1095890410958,
+    "days": 30,
+    "epochs_covered": 15,
+    "start_timestamp": 1701734400,
+    "end_timestamp": 1704326400,
+    "stake_source": "on_chain",
+    "staking_rewards_source": "inflation_rewards",
+    "calculation_method": "per_epoch_average",
+    "warning": null
+  },
+  "forecast": {
+    "projected_annual_apy_pct": 8.52,
+    "confidence": "medium",
+    "based_on_days": 30
+  }
+}
+```
+
+---
+
+## Understanding Gross vs Net APY
+
+<CardGroup cols={2}>
+  <Card title="Gross APY" icon="coins">
+    **Before Commission**: Total returns before any commission fees are deducted. This represents the full earning potential of the validator's stake.
+  </Card>
+  <Card title="Net APY" icon="hand-holding-dollar">
+    **After Commission**: Returns after validator commission is deducted. This is what stakers actually receive.
+  </Card>
+</CardGroup>
+
+The difference between Gross and Net APY reflects the validator's commission structure across different reward types (i.e., inflation, MEV, priority fees).
+
+---
+
+## APY Breakdown Components
+
+| Component | Description |
+|-----------|-------------|
+| **Inflation APY** | Returns from Solana's inflation rewards distributed to validators |
+| **MEV APY** | Returns from Jito MEV tips for optimal block ordering |
+| **Block Rewards APY** | Returns from priority fees paid by transaction senders |
+
+**Total Gross APY** = Inflation APY + MEV APY + Block Rewards APY
+
+---
+
+## Error Responses
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid period: must be one of 7d, 30d, 90d, 1y, epoch"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Staker Reporting" icon="file-chart-line">
+    Provide transparent APY reporting to your stakers
+  </Card>
+  <Card title="Performance Tracking" icon="chart-line-up">
+    Monitor APY trends over time to optimize operations
+  </Card>
+  <Card title="Competitive Analysis" icon="scale-balanced">
+    Compare your APY against other validators
+  </Card>
+  <Card title="Revenue Forecasting" icon="crystal-ball">
+    Project future earnings with forecast data
+  </Card>
+</CardGroup>
+
+---
+
+## Best Practices
+
+<Tip>
+**Recommended Period for Reporting**: Use `30d` for monthly staker reports and `90d` for quarterly performance reviews. The 30-day period provides a good balance between recency and stability.
+</Tip>
+
+<Note>
+**Forecast Accuracy**: Forecasts are most reliable when `confidence: "high"`. This typically requires at least 30 days of stable historical data with consistent validator performance.
+</Note>
+
+<Warning>
+**APY Volatility**: APY can vary significantly based on:
+- Solana's inflation schedule
+- MEV opportunities (highly variable)
+- Priority fee activity
+- Validator performance (skip rate, vote participation)
+</Warning>
+
+---
+
+## Calculation Methodology
+
+The API uses the **Dune methodology** for APY calculation:
+
+1. Calculate per-epoch returns: `epoch_return = rewards / stake`
+2. Annualize using epochs per year: `APY = ((1 + epoch_return)^182.5 - 1) * 100`
+3. Average APY across all epochs in the period
+4. Apply commission deductions for Net APY
+
+This methodology provides more accurate APY estimates compared to simple linear extrapolation, especially over shorter time periods.
+
+---
+
+## Related Endpoints
+
+<Card title="Earnings" icon="money-bill-trend-up" href="/docs/validator-reporting/earnings">
+  For detailed earnings breakdowns that contribute to APY calculations
+</Card>
+
+<Card title="Rewards Forecast" icon="chart-line" href="/docs/validator-reporting/rewards-forecast">
+  For advanced forecasting with multiple models and confidence intervals
+</Card>

@@ -1,0 +1,446 @@
+---
+title: "Get Validator Performance"
+description: "Operational metrics including vote participation, skip rates, and data quality indicators"
+---
+
+<Note>
+[← Back to Validator Reporting API](/docs/validator-reporting)
+</Note>
+
+## Endpoint
+
+```
+GET http://validator-api.helius-internal.com/validators/{vote_account}/performance
+```
+
+## Description
+
+Retrieve comprehensive operational performance metrics for a validator, including vote participation rates, block skip rates, and data quality indicators. This endpoint is essential for monitoring validator health and identifying potential operational issues.
+
+### Key Metrics
+
+<CardGroup cols={3}>
+  <Card title="Vote Participation" icon="check-to-slot">
+    Track how consistently the validator is voting on blocks
+  </Card>
+  <Card title="Skip Rate" icon="forward">
+    Monitor block production efficiency when assigned as leader
+  </Card>
+  <Card title="Data Quality" icon="shield-check">
+    Assess completeness and reliability of performance data
+  </Card>
+</CardGroup>
+
+---
+
+## Path Parameters
+
+<ParamField path="vote_account" type="string" required>
+  The validator's vote account public key (base58 encoded)
+
+  Must match pattern: `^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="period" type="string" default="30d">
+  Time period for performance metrics
+
+  Options: `24h`, `7d`, `30d`, `90d`, `1y`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 790)
+
+  Use for custom epoch ranges instead of `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+
+  Must be used with `start_epoch`
+</ParamField>
+
+
+---
+
+## Request Examples
+
+<CodeGroup>
+
+```bash cURL - 30 Day Performance
+curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=30d"
+```
+
+```bash cURL - Custom Epoch Range
+curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?start_epoch=800&end_epoch=850"
+```
+
+```javascript JavaScript
+const getValidatorPerformance = async (voteAccount, period = '30d') => {
+  const baseUrl = 'http://validator-api.helius-internal.com';
+  
+
+  const url = `${baseUrl}/validators/${voteAccount}/performance?period=${period}&api-key=${apiKey}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const performance = await getValidatorPerformance(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  '30d'
+);
+
+console.log('Vote Participation:', performance.data_quality.avg_vote_participation_pct, '%');
+console.log('Skip Rate:', performance.skip_rate.skip_rate_pct, '%');
+console.log('Data Quality: High Participation Epochs:', performance.data_quality.high_participation_epochs);
+console.log('Missing Epochs:', performance.data_quality.missing_epochs);
+
+// Check for data quality issues
+if (performance.data_quality.missing_epochs > 0) {
+  console.warn('Warning: Some epochs have missing data');
+  performance.epoch_gaps?.forEach(gap => {
+    console.log(`Epoch ${gap.epoch}: ${gap.vote_participation_pct}% participation`);
+  });
+}
+```
+
+```python Python
+import requests
+
+def get_validator_performance(vote_account: str, period: str = "30d"):
+    base_url = "http://validator-api.helius-internal.com"
+    
+
+    url = f"{base_url}/validators/{vote_account}/performance"
+    params = {
+        "period": period,
+    }
+
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+performance = get_validator_performance(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "30d"
+)
+
+print(f"Vote Participation: {performance['data_quality']['avg_vote_participation_pct']}%")
+print(f"Skip Rate: {performance['skip_rate']['skip_rate_pct']}%")
+print(f"High Participation Epochs: {performance['data_quality']['high_participation_epochs']}")
+print(f"Missing Epochs: {performance['data_quality']['missing_epochs']}")
+
+# Check for data quality issues
+if performance['data_quality']['missing_epochs'] > 0:
+    print("Warning: Some epochs have missing data")
+    for gap in performance.get('epoch_gaps', []):
+        print(f"Epoch {gap['epoch']}: {gap['vote_participation_pct']}% participation")
+```
+
+</CodeGroup>
+
+---
+
+## Response Schema
+
+<ResponseField name="vote_account" type="string">
+  The validator's vote account address
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  The time period queried
+</ResponseField>
+
+<ResponseField name="start_epoch" type="integer">
+  Starting epoch of the data range
+</ResponseField>
+
+<ResponseField name="end_epoch" type="integer">
+  Ending epoch of the data range
+</ResponseField>
+
+<ResponseField name="data_quality" type="object">
+  Data quality and vote participation metrics
+
+  <Expandable title="data_quality properties">
+    <ResponseField name="total_epochs" type="integer">
+      Total number of epochs in the period
+    </ResponseField>
+
+    <ResponseField name="high_participation_epochs" type="integer">
+      Number of epochs with >95% vote participation
+    </ResponseField>
+
+    <ResponseField name="lower_participation_epochs" type="integer">
+      Number of epochs with ≤95% vote participation
+    </ResponseField>
+
+    <ResponseField name="missing_epochs" type="integer">
+      Number of epochs with no data (validator may have been offline)
+    </ResponseField>
+
+    <ResponseField name="avg_vote_participation_pct" type="number">
+      Average vote participation percentage across all epochs
+    </ResponseField>
+
+    <ResponseField name="expected_total_slots" type="integer">
+      Expected number of slots based on epochs (432,000 slots per epoch)
+    </ResponseField>
+
+    <ResponseField name="total_slots_voted" type="integer">
+      Total number of slots where validator voted
+    </ResponseField>
+
+    <ResponseField name="total_slots_not_voted" type="integer">
+      Total number of slots where validator did not vote
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="skip_rate" type="object">
+  Block production skip rate statistics
+
+  <Expandable title="skip_rate properties">
+    <ResponseField name="total_leader_slots" type="integer">
+      Total number of leader slots assigned to the validator
+    </ResponseField>
+
+    <ResponseField name="blocks_produced" type="integer">
+      Number of blocks successfully produced
+    </ResponseField>
+
+    <ResponseField name="blocks_skipped" type="integer">
+      Number of leader slots where block was skipped
+    </ResponseField>
+
+    <ResponseField name="skip_rate_pct" type="number">
+      Skip rate as a percentage: (blocks_skipped / total_leader_slots) * 100
+    </ResponseField>
+
+    <ResponseField name="has_skip_data" type="boolean">
+      Whether skip rate data is available for this period
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="epoch_gaps" type="array" nullable>
+  Detailed information about epochs with lower participation or missing data
+
+  <Expandable title="array items">
+    <ResponseField name="epoch" type="integer">
+      Epoch number with data quality issues
+    </ResponseField>
+
+    <ResponseField name="expected_slots" type="integer">
+      Expected number of slots in the epoch (typically 432,000)
+    </ResponseField>
+
+    <ResponseField name="slots_voted" type="integer">
+      Number of slots where validator voted
+    </ResponseField>
+
+    <ResponseField name="slots_not_voted" type="integer">
+      Number of slots where validator did not vote
+    </ResponseField>
+
+    <ResponseField name="vote_participation_pct" type="number">
+      Vote participation percentage for this epoch
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="query_timestamp" type="integer">
+  Unix timestamp when the query was executed
+</ResponseField>
+
+---
+
+## Response Example
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "start_epoch": 650,
+  "end_epoch": 680,
+  "data_quality": {
+    "total_epochs": 30,
+    "high_participation_epochs": 28,
+    "lower_participation_epochs": 2,
+    "missing_epochs": 0,
+    "avg_vote_participation_pct": 99.65,
+    "expected_total_slots": 12960000,
+    "total_slots_voted": 12914640,
+    "total_slots_not_voted": 45360
+  },
+  "skip_rate": {
+    "total_leader_slots": 450,
+    "blocks_produced": 448,
+    "blocks_skipped": 2,
+    "skip_rate_pct": 0.44,
+    "has_skip_data": true
+  },
+  "epoch_gaps": [
+    {
+      "epoch": 655,
+      "expected_slots": 432000,
+      "slots_voted": 410400,
+      "slots_not_voted": 21600,
+      "vote_participation_pct": 95.0
+    },
+    {
+      "epoch": 672,
+      "expected_slots": 432000,
+      "slots_voted": 415000,
+      "slots_not_voted": 17000,
+      "vote_participation_pct": 96.06
+    }
+  ],
+  "query_timestamp": 1733421600
+}
+```
+
+---
+
+## Understanding Performance Metrics
+
+### Vote Participation
+
+Vote participation measures how consistently a validator is voting on blocks:
+
+| Participation Rate | Status | Action |
+|-------------------|--------|--------|
+| **>99%** | Excellent | Normal operations |
+| **95-99%** | Good | Monitor for trends |
+| **90-95%** | Concerning | Investigate infrastructure |
+| **< 90%** | Critical | Immediate attention required |
+
+<Note>
+**Expected Slots per Epoch**: 432,000 slots per epoch (i.e., approximately 2 days)
+</Note>
+
+### Skip Rate
+
+Skip rate measures block production efficiency when assigned as leader:
+
+| Skip Rate | Status | Typical Causes |
+|-----------|--------|----------------|
+| **< 0.5%** | Excellent | Optimal performance |
+| **0.5-1%** | Good | Normal network variance |
+| **1-2%** | Fair | Consider infrastructure upgrades |
+| **>2%** | Poor | Network issues or hardware problems |
+
+<Warning>
+**High skip rates can result in:**
+- Reduced validator rewards
+- Lower staker confidence
+- Potential slashing (once slashing goes live on Solana)
+</Warning>
+
+### Data Quality Indicators
+
+The API provides several data quality metrics:
+
+- **High Participation Epochs**: Epochs with >95% vote participation
+- **Lower Participation Epochs**: Epochs with ≤95% participation (potential issues)
+- **Missing Epochs**: Epochs with no data (validator likely offline)
+
+Use the `epoch_gaps` array to investigate specific problematic epochs.
+
+---
+
+## Error Responses
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid epoch range: start_epoch must be >= 790"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## Performance Benchmarks
+
+### Healthy Validator Profile
+
+A well-performing validator typically shows:
+
+```json
+{
+  "data_quality": {
+    "avg_vote_participation_pct": 99.5,  // >99%
+    "high_participation_epochs": 29,      // Most epochs
+    "lower_participation_epochs": 1,      // Minimal
+    "missing_epochs": 0                    // None
+  },
+  "skip_rate": {
+    "skip_rate_pct": 0.5,                 // <1%
+    "blocks_produced": 447,
+    "blocks_skipped": 3
+  }
+}
+```
+
+### Warning Signs
+
+Watch for these patterns:
+
+<Warning>
+**Degrading Performance:**
+- Vote participation trending downward
+- Increasing number of lower_participation_epochs
+- Skip rate increasing over time
+
+**Infrastructure Issues:**
+- Missing epochs
+- Vote participation < 95% for multiple consecutive epochs
+- Skip rate >2%
+</Warning>
+
+---
+
+## Data Quality Considerations
+
+<Note>
+**Skip Data Availability**: The `has_skip_data` field indicates whether skip rate information is available. Early epochs may not have complete skip data.
+</Note>
+
+<Note>
+**Epoch Gaps**: The `epoch_gaps` array is only populated when there are epochs with < 95% participation or missing data. An empty array indicates excellent data quality across all epochs.
+</Note>
+
+---
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Earnings" icon="money-bill-trend-up" href="/docs/validator-reporting/earnings">
+    See how performance impacts earnings
+  </Card>
+  <Card title="Votes" icon="check-to-slot" href="/docs/validator-reporting/votes">
+    Detailed voting history and activity
+  </Card>
+</CardGroup>
+
+---
