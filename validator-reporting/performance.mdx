@@ -361,10 +361,11 @@ Use the `epoch_gaps` array to investigate specific problematic epochs.
 
 <CodeGroup>
 
-```json 400 Bad Request
+```json InvalidEpochRange
 {
-  "error": "invalid_parameters",
-  "message": "Invalid epoch range: start_epoch must be >= 790"
+  "error": "InvalidEpochRange",
+  "message": "Requested epoch range is outside available data",
+  "min_epoch_available": 790
 }
 ```
 
@@ -419,14 +420,12 @@ Watch for these patterns:
 
 ---
 
-## Data Quality Considerations
+## Data Availability
+
+The API returns an `InvalidEpochRange` error for epoch ranges that fall outside our available historical data. Data is available from epoch 790 onwards.
 
 <Note>
-**Skip Data Availability**: The `has_skip_data` field indicates whether skip rate information is available. Early epochs may not have complete skip data.
-</Note>
-
-<Note>
-**Epoch Gaps**: The `epoch_gaps` array is only populated when there are epochs with < 95% participation or missing data. An empty array indicates excellent data quality across all epochs.
+**Minimum Available Epoch**: Requests for epochs before `MIN_EPOCH_AVAILABLE` (currently 790) will return an `InvalidEpochRange` error with details about the minimum epoch available.
 </Note>
 
 ---
