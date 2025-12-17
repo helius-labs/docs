@@ -108,7 +108,7 @@ const apy = await getValidatorAPY(
 );
 
 console.log('Gross APY:', apy.apy.gross_apy_pct, '%');
-console.log('Net APY:', apy.apy.net_apy_pct, '%');
+console.log('Staker APY:', apy.apy.staker_apy_pct, '%');
 console.log('Inflation APY:', apy.apy.breakdown.inflation_apy_pct, '%');
 console.log('MEV APY:', apy.apy.breakdown.mev_apy_pct, '%');
 ```
@@ -143,7 +143,7 @@ apy = get_validator_apy(
 )
 
 print(f"Gross APY: {apy['apy']['gross_apy_pct']}%")
-print(f"Net APY: {apy['apy']['net_apy_pct']}%")
+print(f"Staker APY: {apy['apy']['staker_apy_pct']}%")
 print(f"Inflation APY: {apy['apy']['breakdown']['inflation_apy_pct']}%")
 print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
 ```
@@ -163,15 +163,15 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
 </ResponseField>
 
 <ResponseField name="apy" type="object">
-  APY data with gross, net, and breakdown
+  APY data with gross, staker, and breakdown
 
   <Expandable title="apy properties">
     <ResponseField name="gross_apy_pct" type="number">
-      Gross APY percentage before commission deductions
+      Total APY for the validator (all rewards / stake)
     </ResponseField>
 
-    <ResponseField name="net_apy_pct" type="number">
-      Net APY percentage after commission deductions
+    <ResponseField name="staker_apy_pct" type="number">
+      APY that stakers/delegators receive after all commissions are deducted
     </ResponseField>
 
     <ResponseField name="breakdown" type="object">
@@ -211,7 +211,19 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
     </ResponseField>
 
     <ResponseField name="epochs_covered" type="integer">
-      Number of epochs covered in the period
+      Number of complete epochs used in APY calculation
+    </ResponseField>
+
+    <ResponseField name="epochs_in_range" type="integer">
+      Total number of epochs in the requested range (includes both complete and partial epochs)
+    </ResponseField>
+
+    <ResponseField name="epochs_partial" type="integer">
+      Number of partial epochs excluded from APY calculation
+    </ResponseField>
+
+    <ResponseField name="warning" type="string" nullable>
+      Warning message when partial epochs are excluded from calculation (e.g., "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)")
     </ResponseField>
 
     <ResponseField name="start_timestamp" type="integer">
@@ -267,6 +279,10 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
     <ResponseField name="apy_pct" type="number">
       APY for this specific epoch
     </ResponseField>
+
+    <ResponseField name="is_partial" type="boolean">
+      Whether this epoch is partial (incomplete staking rewards data)
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -298,7 +314,7 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
   "period": "30d",
   "apy": {
     "gross_apy_pct": 8.45,
-    "net_apy_pct": 7.61,
+    "staker_apy_pct": 7.61,
     "breakdown": {
       "inflation_apy_pct": 6.20,
       "mev_apy_pct": 1.50,
@@ -309,13 +325,15 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
     "total_stake_lamports": 50000000000000,
     "total_earnings_lamports": 1095890410958,
     "days": 30,
-    "epochs_covered": 15,
+    "epochs_covered": 14,
+    "epochs_in_range": 15,
+    "epochs_partial": 1,
     "start_timestamp": 1701734400,
     "end_timestamp": 1704326400,
     "stake_source": "on_chain",
     "staking_rewards_source": "inflation_rewards",
     "calculation_method": "per_epoch_average",
-    "warning": null
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
   },
   "forecast": {
     "projected_annual_apy_pct": 8.52,
@@ -327,18 +345,52 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
 
 ---
 
-## Understanding Gross vs Net APY
+## Partial Epoch Handling
+
+When calculating APY, the API automatically excludes partial epochs (i.e., epochs with incomplete staking rewards data) to ensure accurate calculations.
+
+<Note>
+**How it works:**
+- `epochs_in_range`: Total epochs in your requested range (e.g., 3 epochs)
+- `epochs_covered`: Complete epochs used for APY calculation (e.g., 2 epochs)
+- `epochs_partial`: Partial epochs excluded (e.g., 1 epoch)
+- `warning`: Explanation when partial epochs are excluded
+
+Partial epochs are still included in `epoch_apy_data` with `is_partial: true` for transparency, but they don't affect the overall APY calculation.
+</Note>
+
+**Example response:**
+```json
+{
+  "period": "epochs 889..892",
+  "calculation_basis": {
+    "epochs_in_range": 3,
+    "epochs_covered": 2,
+    "epochs_partial": 1,
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
+  },
+  "epoch_apy_data": [
+    { "epoch": 890, "is_partial": false, "apy_pct": 8.2 },
+    { "epoch": 891, "is_partial": false, "apy_pct": 8.5 },
+    { "epoch": 892, "is_partial": true, "apy_pct": 0.0 }
+  ]
+}
+```
+
+---
+
+## Understanding Gross vs Staker APY
 
 <CardGroup cols={2}>
   <Card title="Gross APY" icon="coins">
-    **Before Commission**: Total returns before any commission fees are deducted. This represents the full earning potential of the validator's stake.
+    **Total Validator APY**: All rewards divided by stake, before any commission deductions. This represents the full earning potential of the validator.
   </Card>
-  <Card title="Net APY" icon="hand-holding-dollar">
-    **After Commission**: Returns after validator commission is deducted. This is what stakers actually receive.
+  <Card title="Staker APY" icon="hand-holding-dollar">
+    **After Commission**: APY that stakers/delegators actually receive after all commission fees are deducted across all reward types.
   </Card>
 </CardGroup>
 
-The difference between Gross and Net APY reflects the validator's commission structure across different reward types (i.e., inflation, MEV, priority fees).
+The difference between Gross and Staker APY reflects the validator's commission structure across different reward types (i.e., inflation, MEV, priority fees).
 
 ---
 

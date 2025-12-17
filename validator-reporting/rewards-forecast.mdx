@@ -212,7 +212,11 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
 
       <Expandable title="conservative properties">
         <ResponseField name="apy_pct" type="number">
-          Projected APY percentage
+          Gross APY (all rewards / stake, before commission deductions)
+        </ResponseField>
+
+        <ResponseField name="staker_apy_pct" type="number">
+          Staker APY (what delegators receive after commissions)
         </ResponseField>
 
         <ResponseField name="rewards" type="object">
@@ -338,6 +342,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
   "projections": {
     "conservative": {
       "apy_pct": 7.12,
+      "staker_apy_pct": 6.41,
       "rewards": {
         "inflation_rewards_lamports": 3200000000,
         "inflation_rewards_sol": 3.2,
@@ -351,6 +356,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
     },
     "baseline": {
       "apy_pct": 8.45,
+      "staker_apy_pct": 7.61,
       "rewards": {
         "inflation_rewards_lamports": 4000000000,
         "inflation_rewards_sol": 4.0,
@@ -364,6 +370,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
     },
     "optimistic": {
       "apy_pct": 9.78,
+      "staker_apy_pct": 8.80,
       "rewards": {
         "inflation_rewards_lamports": 4800000000,
         "inflation_rewards_sol": 4.8,
@@ -401,6 +408,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
   "projections": {
     "conservative": {
       "apy_pct": 7.85,
+      "staker_apy_pct": 7.07,
       "rewards": {
         "inflation_rewards_lamports": 9600000000,
         "inflation_rewards_sol": 9.6,
@@ -414,6 +422,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
     },
     "baseline": {
       "apy_pct": 9.15,
+      "staker_apy_pct": 8.24,
       "rewards": {
         "inflation_rewards_lamports": 12000000000,
         "inflation_rewards_sol": 12.0,
@@ -427,6 +436,7 @@ print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
     },
     "optimistic": {
       "apy_pct": 10.45,
+      "staker_apy_pct": 9.41,
       "rewards": {
         "inflation_rewards_lamports": 14400000000,
         "inflation_rewards_sol": 14.4,

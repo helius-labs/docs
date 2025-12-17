@@ -42,7 +42,7 @@ This endpoint provides a complete financial picture of validator operations over
 </ParamField>
 
 <ParamField query="start_epoch" type="integer">
-  Starting epoch number (minimum: 850)
+  Starting epoch number (minimum: 790)
 
   Use this for custom epoch ranges instead of `period`
 </ParamField>
@@ -156,6 +156,10 @@ print(f"Skip rate: {earnings['earnings']['block_production']['skip_rate_pct']}%"
 
         <ResponseField name="total_vote_fees_lamports" type="integer">
           Total vote fees earned in lamports
+        </ResponseField>
+
+        <ResponseField name="current_epoch_partial" type="boolean">
+          Whether the current epoch (end_epoch) is incomplete and excluded from vote_participation_rate_pct calculation
         </ResponseField>
       </Expandable>
     </ResponseField>
@@ -408,5 +412,5 @@ print(f"Skip rate: {earnings['earnings']['block_production']['skip_rate_pct']}%"
 </Tip>
 
 <Warning>
-**Data Availability**: Historical data starts at epoch 850. Queries for earlier epochs will return a 400 error.
+**Data Availability**: Historical data starts at epoch 790. Queries for earlier epochs will return a 400 error.
 </Warning>
