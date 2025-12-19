@@ -17,8 +17,12 @@ This is a private API available only to select partners.
 ### Base URL
 
 ```
-http://validator-api.helius-internal.com
+https://mainnet.helius-rpc.com/validators
 ```
+
+### Authentication
+
+All API requests require an `api-key` query parameter for validation.
 
 ### Key Concepts
 
@@ -58,14 +62,15 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Get 30-day earnings for a validator:
 
     ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d" | python3 -m json.tool
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
     ```
 
     JavaScript:
     ```javascript
     const voteAccount = 'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk';
+    const apiKey = 'YOUR_API_KEY';
     const response = await fetch(
-      `http://validator-api.helius-internal.com/validators/${voteAccount}/earnings?period=30d`
+      `https://mainnet.helius-rpc.com/validators/${voteAccount}/earnings?period=30d&api-key=${apiKey}`
     );
     const data = await response.json();
     console.log(`Gross earnings: ${data.earnings.rewards.gross_earnings_sol} SOL`);
@@ -76,7 +81,7 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Get 7-day APY for a validator:
 
     ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=7d" | python3 -m json.tool
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
     ```
   </Tab>
 
@@ -84,7 +89,7 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Get 7-day performance metrics:
 
     ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=7d" | python3 -m json.tool
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
     ```
   </Tab>
 
@@ -92,7 +97,7 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Get 30-day rewards forecast:
 
     ```bash
-    curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30" | python3 -m json.tool
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30&api-key=YOUR_API_KEY" | python3 -m json.tool
     ```
   </Tab>
 
@@ -114,6 +119,10 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
 ## Common Parameters
 
 Many endpoints share these common query parameters:
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
 
 <ParamField query="period" type="string">
   Time period for data aggregation

@@ -10,7 +10,7 @@ description: "Operational metrics including vote participation, skip rates, and 
 ## Endpoint
 
 ```
-GET http://validator-api.helius-internal.com/validators/{vote_account}/performance
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/performance
 ```
 
 ## Description
@@ -47,6 +47,10 @@ Retrieve comprehensive operational performance metrics for a validator, includin
 
 ## Query Parameters
 
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
+
 <ParamField query="period" type="string" default="30d">
   Time period for performance metrics
 
@@ -73,18 +77,23 @@ Retrieve comprehensive operational performance metrics for a validator, includin
 <CodeGroup>
 
 ```bash cURL - 30 Day Performance
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=30d"
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?api-key=YOUR_API_KEY&period=30d"
 ```
 
 ```bash cURL - Custom Epoch Range
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?start_epoch=800&end_epoch=850"
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?api-key=YOUR_API_KEY&start_epoch=800&end_epoch=850"
 ```
 
 ```javascript JavaScript
-const getValidatorPerformance = async (voteAccount, period = '30d') => {
-  const baseUrl = 'http://validator-api.helius-internal.com';
+const getValidatorPerformance = async (voteAccount, apiKey, period = '30d') => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
 
-  const url = `${baseUrl}/validators/${voteAccount}/performance?period=${period}`;
+  const params = new URLSearchParams({
+    'api-key': apiKey,
+    period
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/performance?${params}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -95,6 +104,7 @@ const getValidatorPerformance = async (voteAccount, period = '30d') => {
 // Usage
 const performance = await getValidatorPerformance(
   'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
   '30d'
 );
 
@@ -115,12 +125,13 @@ if (performance.participation.missing_epochs > 0) {
 ```python Python
 import requests
 
-def get_validator_performance(vote_account: str, period: str = "30d"):
-    base_url = "http://validator-api.helius-internal.com"
-    
+def get_validator_performance(vote_account: str, api_key: str, period: str = "30d"):
+    base_url = "https://mainnet.helius-rpc.com"
+
 
     url = f"{base_url}/validators/{vote_account}/performance"
     params = {
+        "api-key": api_key,
         "period": period,
     }
 
@@ -130,6 +141,7 @@ def get_validator_performance(vote_account: str, period: str = "30d"):
 # Usage
 performance = get_validator_performance(
     "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
     "30d"
 )
 

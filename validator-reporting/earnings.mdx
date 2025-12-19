@@ -10,7 +10,7 @@ description: "Comprehensive earnings data including voting, block production, re
 ## Endpoint
 
 ```
-GET http://validator-api.helius-internal.com/validators/{vote_account}/earnings
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/earnings
 ```
 
 ## Description
@@ -34,6 +34,10 @@ This endpoint provides a complete financial picture of validator operations over
 ---
 
 ## Query Parameters
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
 
 <ParamField query="period" type="string" default="30d">
   Time period for earnings aggregation
@@ -61,17 +65,17 @@ This endpoint provides a complete financial picture of validator operations over
 <CodeGroup>
 
 ```bash cURL - 30 Day Period
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d" | python3 -m json.tool
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
 ```
 
 ```bash cURL - Custom Epoch Range
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?start_epoch=800&end_epoch=850" | python3 -m json.tool
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?start_epoch=800&end_epoch=850&api-key=YOUR_API_KEY" | python3 -m json.tool
 ```
 
 ```javascript JavaScript
-const getValidatorEarnings = async (voteAccount, period = '30d') => {
-  const baseUrl = 'http://validator-api.helius-internal.com';
-  const url = `${baseUrl}/validators/${voteAccount}/earnings?period=${period}`;
+const getValidatorEarnings = async (voteAccount, apiKey, period = '30d') => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+  const url = `${baseUrl}/validators/${voteAccount}/earnings?period=${period}&api-key=${apiKey}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -82,6 +86,7 @@ const getValidatorEarnings = async (voteAccount, period = '30d') => {
 // Usage
 const earnings = await getValidatorEarnings(
   'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
   '30d'
 );
 
@@ -93,10 +98,13 @@ console.log('Skip rate:', earnings.earnings.block_production.skip_rate_pct, '%')
 ```python Python
 import requests
 
-def get_validator_earnings(vote_account: str, period: str = "30d"):
-    base_url = "http://validator-api.helius-internal.com"
+def get_validator_earnings(vote_account: str, api_key: str, period: str = "30d"):
+    base_url = "https://mainnet.helius-rpc.com"
     url = f"{base_url}/validators/{vote_account}/earnings"
-    params = {"period": period}
+    params = {
+        "period": period,
+        "api-key": api_key
+    }
 
     response = requests.get(url, params=params)
     return response.json()
@@ -104,6 +112,7 @@ def get_validator_earnings(vote_account: str, period: str = "30d"):
 # Usage
 earnings = get_validator_earnings(
     "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
     "30d"
 )
 

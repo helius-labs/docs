@@ -10,7 +10,7 @@ description: "Calculate validator Annual Percentage Yield with both gross APY (t
 ## Endpoint
 
 ```
-GET http://validator-api.helius-internal.com/validators/{vote_account}/apy
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/apy
 ```
 
 ## Description
@@ -45,6 +45,10 @@ where num_epochs_per_year ≈ 182.5
 
 ## Query Parameters
 
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
+
 <ParamField query="period" type="string" default="30d">
   Time period for APY calculation
 
@@ -75,22 +79,23 @@ where num_epochs_per_year ≈ 182.5
 <CodeGroup>
 
 ```bash cURL - Basic APY
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=30d"
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d"
 ```
 
 ```bash cURL - With Forecast
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=30d&include_forecast=true"
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d&include_forecast=true"
 ```
 
 ```bash cURL - Single Epoch
-curl -s "http://validator-api.helius-internal.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=epoch&start_epoch=800"
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=epoch&start_epoch=800"
 ```
 
 ```javascript JavaScript
-const getValidatorAPY = async (voteAccount, period = '30d', includeForecast = false) => {
-  const baseUrl = 'http://validator-api.helius-internal.com';
+const getValidatorAPY = async (voteAccount, apiKey, period = '30d', includeForecast = false) => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
 
   const params = new URLSearchParams({
+    'api-key': apiKey,
     period,
     ...(includeForecast && { include_forecast: 'true' })
   });
@@ -105,6 +110,7 @@ const getValidatorAPY = async (voteAccount, period = '30d', includeForecast = fa
 // Usage
 const apy = await getValidatorAPY(
   'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
   '30d',
   true
 );
@@ -120,13 +126,15 @@ import requests
 
 def get_validator_apy(
     vote_account: str,
+    api_key: str,
     period: str = "30d",
     include_forecast: bool = False
 ):
-    base_url = "http://validator-api.helius-internal.com"
-    
+    base_url = "https://mainnet.helius-rpc.com"
+
 
     params = {
+        "api-key": api_key,
         "period": period,
     }
 
@@ -140,6 +148,7 @@ def get_validator_apy(
 # Usage
 apy = get_validator_apy(
     "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
     "30d",
     include_forecast=True
 )
