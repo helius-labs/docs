@@ -1,6 +1,6 @@
 ---
 title: "Get Validator APY"
-description: "Calculate validator Annual Percentage Yield using the same methodology as platforms such as Dune and Stakewiz with gross and net APY"
+description: "Calculate validator Annual Percentage Yield with both gross APY (total validator earnings) and staker APY (what delegators receive after commissions)"
 ---
 
 <Note>
@@ -17,7 +17,7 @@ GET http://validator-api.helius-internal.com/validators/{vote_account}/apy
 
 Calculate APY (Annual Percentage Yield) for a validator by averaging per-epoch APY over the specified period.
 
-Returns both **Gross APY** (before commission) and **Net APY** (after commission deductions), with detailed breakdowns by reward type and optional forecasting.
+Returns both **Gross APY** (total validator earnings before commissions) and **Staker APY** (the actual APY that stakers/delegators receive after all commission deductions across inflation, MEV, and priority fees), with detailed breakdowns by reward type and optional forecasting. Priority fees (i.e., block rewards) are currently attributed to the validator, since SIMD-123 is not live yet and there is no in-protocol way to share with delegators.
 
 ### APY Calculation Formula
 
@@ -474,7 +474,7 @@ The API calculates APY using the following approach:
 1. Calculate per-epoch returns: `epoch_return = rewards / stake`
 2. Annualize using epochs per year: `APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100`
 3. Average APY across all epochs in the period
-4. Apply commission deductions for Net APY
+4. Apply commission deductions to calculate Staker APY (i.e., the APY delegators actually receive)
 
 This methodology provides more accurate APY estimates compared to simple linear extrapolation, especially over shorter time periods.
 
