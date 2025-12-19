@@ -17,7 +17,9 @@ GET http://validator-api.helius-internal.com/validators/{vote_account}/apy
 
 Calculate APY (Annual Percentage Yield) for a validator by averaging per-epoch APY over the specified period.
 
-Returns both **Gross APY** (total validator earnings before commissions) and **Staker APY** (the actual APY that stakers/delegators receive after all commission deductions across inflation, MEV, and priority fees), with detailed breakdowns by reward type and optional forecasting. Priority fees (i.e., block rewards) are currently attributed to the validator, since SIMD-123 is not live yet and there is no in-protocol way to share with delegators.
+Returns both **Gross APY** (total validator earnings before commissions) and **Staker APY** (the actual APY that stakers/delegators receive after all commission deductions across inflation, MEV, and priority fees), with detailed breakdowns by reward type and optional forecasting. 
+
+Note that priority fees (i.e., block rewards) are currently attributed to the validator, since SIMD-123 is not live yet and there is no in-protocol way to share with delegators.
 
 ### APY Calculation Formula
 
@@ -50,7 +52,7 @@ where num_epochs_per_year ≈ 182.5
 </ParamField>
 
 <ParamField query="start_epoch" type="integer">
-  Starting epoch number (minimum: 850)
+  Starting epoch number (minimum: 790)
 
   Use for custom epoch ranges instead of `period`
 </ParamField>
@@ -243,7 +245,7 @@ print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
     </ResponseField>
 
     <ResponseField name="calculation_method" type="string">
-      Method used for APY calculation (i.e., the same methodology as APY queries on Dune)
+      APY calculation methodology (e.g., "per_epoch_average" or "multi_epoch_compound")
     </ResponseField>
   </Expandable>
 </ResponseField>
