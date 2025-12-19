@@ -294,20 +294,20 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 ### 响应字段
 
 | 字段 | 类型 | 描述 |
-|------|------|------|
-| `signature` | string | 交易签名（base-58 编码）。仅在签名模式下返回。 |
-| `slot` | number | 包含此交易的区块所在的槽。 |
-| `transactionIndex` | number | 交易在其区块内的从零开始的索引。用于交易排序和区块重建。 |
-| `blockTime` | number \| null | 估计的生产时间，以 Unix 时间戳表示（自纪元以来的秒数）。 |
-| `err` | object \| null | 如果交易失败则返回错误，成功则为 null。仅在签名模式下返回。 |
-| `memo` | string \| null | 与交易相关的备注。仅在签名模式下返回。 |
-| `confirmationStatus` | string | 交易的集群确认状态。仅在签名模式下返回。 |
-| `transaction` | object | 完整交易数据。仅在完整模式下返回。 |
-| `meta` | object | 交易状态元数据。仅在完整模式下返回。 |
-| `paginationToken` | string \| null | 获取下一页的令牌，如果没有更多结果则为 null。 |
+|-------|------|-------------|
+| `signature` | string | 交易签名（base-58 编码）。仅在签名模式下。 |
+| `slot` | number | 包含此交易的区块的插槽。 |
+| `transactionIndex` | number | 交易在其区块中的从零开始的索引。对交易排序和区块重建有用。 |
+| `blockTime` | number \| null | 以 Unix 时间戳估算的生产时间（自纪元以来的秒数）。 |
+| `err` | object \| null | 如果交易失败则为错误，成功则为 null。仅在签名模式下。 |
+| `memo` | string \| null | 与交易相关的备忘录。仅在签名模式下。 |
+| `confirmationStatus` | string | 交易的集群确认状态。仅在签名模式下。 |
+| `transaction` | object | 完整的交易数据。仅在完整模式下。 |
+| `meta` | object | 交易状态元数据。仅在完整模式下。 |
+| `paginationToken` | string \| null | 用于获取下一页的令牌，如果没有更多结果则为 null。 |
 
 <Note>
-`transactionIndex` 字段是 `getTransactionsForAddress` 独有的。其他类似的端点如 `getSignaturesForAddress`、`getTransaction` 和 `getTransactions` 不包含此字段。
+字段 `transactionIndex` 是 `getTransactionsForAddress` 独有的。其他类似的端点如 `getSignaturesForAddress`、`getTransaction` 和 `getTransactions` 不包含此字段。
 </Note>
 
 ---
@@ -344,7 +344,7 @@ const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
 }
 ```
 
-分析处理：
+分析流程：
 
 ```javascript
 // Calculate daily transaction volume
@@ -440,14 +440,14 @@ response.result.data.forEach(tx => {
 ```
 
 <Note>
-前几笔交易通常会揭示资金来源，并有助于识别相关地址或资金模式。
+最初的几笔交易通常会揭示资金来源，并有助于识别相关地址或资金模式。
 </Note>
 
 ---
 
 ## 分页
 
-当交易数量超过限制时，使用响应中的`paginationToken`获取下一页。该令牌是一个简单的字符串，格式为`"slot:position"`，告诉API从哪里继续。
+当交易数量超过限制时，使用响应中的`paginationToken`获取下一页。该令牌是一个简单的字符串，格式为`"slot:position"`，用于告诉API从哪里继续。
 
 ### 如何分页
 
@@ -525,7 +525,7 @@ const allTransactions = results
   .sort((a, b) => b.slot - a.slot);
 ```
 
-对于较大的历史扫描，通过时间或槽窗口迭代（例如，每次1000个槽）并重复此模式。
+对于较大的历史扫描，通过时间或槽窗口迭代（例如，每次1000个槽），并重复此模式。
 
 <Note>
 每个地址查询都算作一个单独的API请求（每个地址100个积分）。
@@ -537,7 +537,7 @@ const allTransactions = results
 
 ### 性能
 
-为了获得最佳性能，当不需要完整交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽进行过滤以进行更有针对性的查询。
+为了获得最佳性能，当不需要完整的交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽进行过滤以进行更有针对性的查询。
 
 ### 过滤
 
@@ -549,7 +549,7 @@ const allTransactions = results
 
 ### 错误处理
 
-使用指数退避策略优雅地处理速率限制。在发出请求之前始终验证地址，并在适当时缓存结果以减少API使用并提高应用程序性能。
+使用指数退避策略优雅地处理速率限制。在发出请求之前始终验证地址，并在适当时缓存结果，以减少API使用并提高应用程序性能。
 
 ---
 
