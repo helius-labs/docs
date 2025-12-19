@@ -239,6 +239,7 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
           {
             "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
             "slot": 1054,
+            "transactionIndex": 42,
             "err": null,
             "memo": null,
             "blockTime": 1641038400,
@@ -254,12 +255,14 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
   <Tab title="Full Transaction Response">
     ```json
     {
-      "jsonrpc": "2.0", 
+      "jsonrpc": "2.0",
       "id": 1,
       "result": {
         "data": [
           {
             "slot": 1054,
+            "transactionIndex": 42,
+            "blockTime": 1641038400,
             "transaction": {
               "signatures": ["5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"],
               "message": {
@@ -282,6 +285,25 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
     ```
   </Tab>
 </Tabs>
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `signature` | string | Transaction signature (base-58 encoded). Only in signatures mode. |
+| `slot` | number | The slot containing the block with this transaction. |
+| `transactionIndex` | number | The zero-based index of the transaction within its block. Useful for transaction ordering and block reconstruction. |
+| `blockTime` | number \| null | Estimated production time as Unix timestamp (seconds since epoch). |
+| `err` | object \| null | Error if the transaction failed, null if successful. Only in signatures mode. |
+| `memo` | string \| null | Memo associated with the transaction. Only in signatures mode. |
+| `confirmationStatus` | string | Transaction's cluster confirmation status. Only in signatures mode. |
+| `transaction` | object | Full transaction data. Only in full mode. |
+| `meta` | object | Transaction status metadata. Only in full mode. |
+| `paginationToken` | string \| null | Token for fetching the next page, or null if no more results. |
+
+<Note>
+The `transactionIndex` field is exclusive to `getTransactionsForAddress`. Other similar endpoints like `getSignaturesForAddress`, `getTransaction`, and `getTransactions` do not include this field.
+</Note>
 
 ---
 

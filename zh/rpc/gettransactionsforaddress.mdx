@@ -241,6 +241,7 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
           {
             "signature": "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv",
             "slot": 1054,
+            "transactionIndex": 42,
             "err": null,
             "memo": null,
             "blockTime": 1641038400,
@@ -258,12 +259,14 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 
     ```json
     {
-      "jsonrpc": "2.0", 
+      "jsonrpc": "2.0",
       "id": 1,
       "result": {
         "data": [
           {
             "slot": 1054,
+            "transactionIndex": 42,
+            "blockTime": 1641038400,
             "transaction": {
               "signatures": ["5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"],
               "message": {
@@ -287,6 +290,25 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 
   </Tab>
 </Tabs>
+
+### 响应字段
+
+| 字段 | 类型 | 描述 |
+|------|------|------|
+| `signature` | string | 交易签名（base-58 编码）。仅在签名模式下返回。 |
+| `slot` | number | 包含此交易的区块所在的槽。 |
+| `transactionIndex` | number | 交易在其区块内的从零开始的索引。用于交易排序和区块重建。 |
+| `blockTime` | number \| null | 估计的生产时间，以 Unix 时间戳表示（自纪元以来的秒数）。 |
+| `err` | object \| null | 如果交易失败则返回错误，成功则为 null。仅在签名模式下返回。 |
+| `memo` | string \| null | 与交易相关的备注。仅在签名模式下返回。 |
+| `confirmationStatus` | string | 交易的集群确认状态。仅在签名模式下返回。 |
+| `transaction` | object | 完整交易数据。仅在完整模式下返回。 |
+| `meta` | object | 交易状态元数据。仅在完整模式下返回。 |
+| `paginationToken` | string \| null | 获取下一页的令牌，如果没有更多结果则为 null。 |
+
+<Note>
+`transactionIndex` 字段是 `getTransactionsForAddress` 独有的。其他类似的端点如 `getSignaturesForAddress`、`getTransaction` 和 `getTransactions` 不包含此字段。
+</Note>
 
 ---
 
