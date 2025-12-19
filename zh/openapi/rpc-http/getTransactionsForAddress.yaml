@@ -309,6 +309,10 @@ paths:
                                   type: integer
                                   description: 包含交易的区块所在的槽。
                                   example: 1054
+                                transactionIndex:
+                                  type: integer
+                                  description: 交易在其区块内的从零开始的索引。用于确定区块内的交易顺序。
+                                  example: 42
                                 err:
                                   oneOf:
                                     - type: object
@@ -352,6 +356,10 @@ paths:
                                   type: integer
                                   description: 包含交易的区块的插槽。
                                   example: 1054
+                                transactionIndex:
+                                  type: integer
+                                  description: 交易在其区块内的从零开始的索引。用于确定区块内的交易顺序。
+                                  example: 42
                                 transaction:
                                   type: object
                                   description: 根据所选编码编码或解析的交易对象。
@@ -384,12 +392,14 @@ paths:
                       data:
                         - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                           slot: 1054
+                          transactionIndex: 42
                           err: null
                           memo: null
                           blockTime: 1641038400
                           confirmationStatus: "已完成"
                         - signature: "kwjd820slPK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                           slot: 1055
+                          transactionIndex: 15
                           err: null
                           memo: null
                           blockTime: 1641038460
@@ -403,6 +413,7 @@ paths:
                     result:
                       data:
                         - slot: 1054
+                          transactionIndex: 42
                           transaction:
                             signatures:
                               - "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"

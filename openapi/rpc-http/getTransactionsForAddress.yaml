@@ -312,6 +312,10 @@ paths:
                                   type: integer
                                   description: The slot that contains the block with the transaction.
                                   example: 1054
+                                transactionIndex:
+                                  type: integer
+                                  description: The zero-based index of the transaction within its block. Useful for determining transaction ordering within a block.
+                                  example: 42
                                 err:
                                   oneOf:
                                     - type: object
@@ -355,6 +359,10 @@ paths:
                                   type: integer
                                   description: The slot that contains the block with the transaction.
                                   example: 1054
+                                transactionIndex:
+                                  type: integer
+                                  description: The zero-based index of the transaction within its block. Useful for determining transaction ordering within a block.
+                                  example: 42
                                 transaction:
                                   type: object
                                   description: Encoded or parsed transaction object per the selected encoding.
@@ -387,12 +395,14 @@ paths:
                       data:
                         - signature: "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                           slot: 1054
+                          transactionIndex: 42
                           err: null
                           memo: null
                           blockTime: 1641038400
                           confirmationStatus: "finalized"
                         - signature: "kwjd820slPK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
                           slot: 1055
+                          transactionIndex: 15
                           err: null
                           memo: null
                           blockTime: 1641038460
@@ -406,6 +416,7 @@ paths:
                     result:
                       data:
                         - slot: 1054
+                          transactionIndex: 42
                           transaction:
                             signatures:
                               - "5h6xBEauJ3PK6SWCZ1PGjBvj8vDdWG3KpwATGy1ARAXFSDwt8GFXM7W5Ncn16wmqokgpiKRLuS83KUxyZyv2sUYv"
