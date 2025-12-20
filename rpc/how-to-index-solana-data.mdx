@@ -1,0 +1,403 @@
+---
+title: "How to Index Solana Data"
+sidebarTitle: "Indexing Data"
+description: "Learn how to build, backfill, and keep Solana indexes up to date."
+---
+
+## Overview
+
+The Solana blockchain stores data in a sequential, append-only ledger. This is great for data integrity and transaction throughput, but comes at a significant cost: it makes querying [historical data](/rpc/historical-data) very inefficient and prohibitively slow.
+
+Complex operations often involve filtering, aggregation, or joining data from multiple sources. In these cases, making direct queries to Solana is impractical for most real-world applications.
+
+To solve this, most businesses build private indexes of Solana’s historical data.
+
+## What does indexing Solana data mean?
+
+Indexing is the process of querying data from the Solana blockchain and storing it in a backend database (e.g., PostgreSQL, ClickHouse) that can then be used to readily serve customer requests without needing to directly query the blockchain using [Solana RPC calls](/api-reference/rpc/http-methods).
+
+An indexer typically does four things:
+
+1. **Backfill historical data:** use [archival RPC methods](/rpc/guides/overview#historical-data-archival) to query all historical data  
+2. **Stream new data:** process new blocks when they are confirmed by the network   
+3. **Parse and transform data:** extract relevant data from the confirmed blocks (e.g., transactions, state changes, etc.)  
+4. **Organize data into a database:** update the index with the new data
+
+### Why do most companies build Solana indexes?
+
+Companies build Solana indexes because their business depends on providing fast, real-time access to purpose-specific blockchain data that native RPCs don’t offer (e.g. NFT sale history).  
+
+Companies also leverage custom indices to combine off-chain data (e.g., Centralized Exchange prices, KYC information, etc.) with their on-chain data.
+
+#### Wallet Example
+
+For example, if a Solana wallet needs to quickly return a user's token accounts and balances, querying Solana directly with [`getTokenAccountsByOwner`](/api-reference/rpc/http/gettokenaccountsbyowner) and [`getTokenAccountBalance`](/api-reference/rpc/http/gettokenaccountbalance) is too slow and could make their product unusable. Instead, wallets will typically maintain their own indexes of customer addresses, tokens, and account balances.
+
+#### Trading Example
+
+Similarly, a crypto trading firm may want to log all trading activity that happens on a specific trading pair (e.g., [SOL-USDC](https://orb.helius.dev/address/So11111111111111111111111111111111111111112/markets?sort_by=volume24h&sort_type=desc)) or specific [market](https://orb.helius.dev/markets) to backtest their trading algorithms.
+
+Directly querying the blockchain for this data would be far too slow for any practical trading analysis. Instead, quant traders may elect to build indexes for the SOL-USDC market, and keep it updated with the latest trades using real-time streaming products like [LaserStream](/laserstream).
+
+#### Filtering Example
+
+Imagine a user wants to filter transactions by specific criteria in their frontend application (e.g., by token type, transfer amount, date, or wallet address).
+
+Without an indexer, your app would need to scan through millions of transactions across 100s of thousands of blocks, checking each one against the filter criteria. 
+
+This process is too slow for modern product user experiences.
+
+#### PnL Example
+
+To calculate a trader's profit and loss (PnL), you would need to:
+
+* Find every transaction associated with their wallet in a given timeframe  
+* Filter out swap transactions and label them as buys or sells  
+* Determine how many fees the user paid during each swap  
+* Get the historical price data for each token at the time of each trade  
+* Aggregate the PnL of each transaction to calculate the trader’s total PnL
+
+Calculating this all in real-time is impractical, and requires a faster, more scalable solution. 
+
+With an index, all this information is already processed and stored in a queryable database. Now, calculating a trader’s PnL becomes a single API call that is served instantly.
+
+Let’s look at three approaches for backfilling a Solana index and keeping it up to date.
+
+## Step 1: Get the historical data
+
+The first step to building a Solana index is getting all the historical data that you care about.
+
+There are three main ways to do this:
+
+1. **getTransactionsForAddress** (recommended)  
+2. **getSignaturesForAddress** and **getTransaction**  
+3. **getBlock**
+
+### Method 1: getTransactionsForAddress (recommended)
+
+The [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) RPC method allows you to fetch the full transaction details for an arbitrary segment of blockchain data. Due to its powerful filtering abilities, you won't waste time retrieving data that is not needed for your index, and because of its reverse search functionality you can get transactions in chronological order.
+
+#### Steps to use this method
+
+* Determine the timeframe that you need data from and set the filter accordingly  
+* Set `transactionDetails` to `full` to get all transaction details  
+* Paginate through the results using `paginationToken`  
+* On each iteration, extract the data you need and store it in your database
+
+#### Benefits of using getTransactionsForAddress
+
+The main advantages of using the [gTFA endpoint](/api-reference/rpc/http/gettransactionsforaddress) are speed and simplicity. With slot and time-based filters, reverse search, and pagination, you can get any data you want, from any time in Solana’s history, all with a single call without complex looping or retry logic.
+
+### Method 2: getSignaturesForAddress and getTransaction
+
+Before the release of gTFA, the standard approach for querying historical data was to recursively loop over signatures using [`getSignaturesForAddress`](/rpc/guides/getsignaturesforaddress) (from newest to oldest) and then calling [`getTransaction`](/rpc/guides/gettransaction) to extract the full transaction details.
+
+#### Steps to use this method
+
+Here are the basic steps to use this method:
+
+* Call `getSignaturesForAddress`  
+* Store the signature of the last received transaction of this call  
+* For the next call to `getSignaturesForAddress`, set the `before` parameter to this signature  
+* Repeat this in a loop for as long as needed  
+* For each transaction signature retrieved this way, call `getTransaction` to get its full transaction details  
+* Insert the relevant data into your database
+
+#### Downsides of this method
+
+Unfortunately, to use this method you need to:
+
+* Start at the newest transaction and work backwards
+* Make one additional RPC call for each transaction
+* Build a thread-safe queue to handle concurrent processing
+* Build logic for retries and backoffs to prevent missed data and getting rate limited
+
+While this method works, it is more complicated, less flexible, and spends a lot more [credits](/billing/credits).
+
+### Method 3: Use getBlock
+
+The [`getBlock`](/rpc/guides/getblock) method is most effective when a high percentage of transactions in your target blocks are relevant to your analysis, such as indexing the transactions of [frequently used Solana programs](/orb/explore-programs) like DFlow’s Aggregator, the Pump.fun program, or Solana’s Token program.
+
+#### Steps to use this method
+
+The basic process for querying historical data with `getBlock` includes:
+
+* Decide on a time range to query
+* Convert this time range to slot numbers
+* Fetch the corresponding blocks sequentially (forward or backward)
+* For each block, filter the transactions that are relevant to your index
+* Store the relevant information from them in your index
+
+For most use cases, this method is inherently wasteful since you're retrieving all transactions in a block when typically only a small fraction will be relevant to your analysis.
+
+Use this method only when you’re examining the transactions of frequently used programs or when address-based filtering cannot capture your target data.
+
+## Step 2: Sync Solana data with your database
+
+After fetching historical data, you need to transform it and store it efficiently in a database.
+
+**Your storage choice should be tailored to your specific use case** — there's no one-size-fits-all solution. The right database depends on the size of your dataset, latency requirements, query patterns, and team expertise.
+
+### Option 1: SQL Databases
+
+Storing Solana data in relational databases like PostgreSQL is recommended for most use cases. SQL is flexible, ubiquitous, and easy to learn. Modern relational databases can scale to beyond 100M+ rows, while still offering you the benefits of ACID compliance, complex joins, and powerful secondary indices. 
+
+Use **SQLite** for prototyping, local development or when you want zero configuration with a single file database. It's ideal when your dataset stays under a few gigabytes.
+
+Use **PostgreSQL** for production applications that need data replication, concurrent access from multiple clients, or advanced features like full-text search and JSON operators.
+
+For most production-level Solana indexers, PostgreSQL is our recommended choice.
+
+#### Implementation example:
+
+As an example, we will show how to store token transfers in a PostgreSQL database. 
+
+First, create a table:
+
+```sql
+CREATE TABLE token_transfers (
+    id BIGSERIAL PRIMARY KEY,
+    slot BIGINT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    signature BYTEA NOT NULL UNIQUE,
+    token_mint BYTEA NOT NULL,
+    source_address BYTEA NOT NULL,
+    destination_address BYTEA NOT NULL,
+    amount BIGINT NOT NULL,
+    decimals SMALLINT NOT NULL,
+    program_id BYTEA
+);
+```
+
+Then, add indexes on frequently queried columns:
+
+```sql
+CREATE INDEX idx_source_address ON token_transfers (source_address);
+CREATE INDEX idx_destination_address ON token_transfers (destination_address);
+CREATE INDEX idx_token_mint ON token_transfers (token_mint);
+```
+
+You can also create partial indices in case only a subset of the data is queried frequently. 
+
+Here’s how you create an index for high-value transfers only:
+
+```sql
+CREATE INDEX idx_large_transfers ON token_transfers(amount) WHERE amount > 1000000;
+```
+
+When backfilling data, make sure to use bulk INSERTs and prepared statements for optimal writing speed.
+
+### Option 2: Columnar Databases
+
+Columnar databases are optimized for analytical queries, aggregations, and high-volume time-series data. If you need to index several billion transactions, columnar databases like ClickHouse or Cassandra are your best option.
+
+Use **ClickHouse** when you need real-time analytical queries on large datasets — it's optimized for fast reads, aggregations, and time-series analysis.
+
+Use **Cassandra** when you need extremely high write throughput, effortless horizontal scaling and high fault tolerance. This makes it ideal for continuously ingesting massive volumes of Solana data.
+
+#### Implementation example:
+
+We will show how to store token transfers in a ClickHouse database. 
+
+For this purpose, create a table that uses the [MergeTree table engine](https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree). It is designed for high ingest rates, so it’s ideal for indexing. 
+
+Use this command:
+
+```sql
+CREATE TABLE token_transfers (
+    block_time DateTime,
+    slot UInt64,
+    signature FixedString(64),
+    token_mint FixedString(32),
+    source_address FixedString(32),
+    destination_address FixedString(32),
+    amount UInt64,
+    decimals UInt8,
+    program_id FixedString(32),
+    date Date DEFAULT toDate(block_time)
+)
+ENGINE = MergeTree()
+PARTITION BY toYYYYMM(date)
+ORDER BY (token_mint, date)
+SETTINGS index_granularity = 8192;
+```
+
+In this setup, `(token_mint, date)` is set as both the primary key and sorting key. ClickHouse will order the data on disk according to your sort key. This is optimal for querying a single [token mint](/orb/explore-mint-addresses), and narrowing down the response by date ranges.
+
+Here’s an example query:
+
+```sql
+SELECT date, signature, source_address, destination_address, amount
+FROM token_transfers
+WHERE token_mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+AND block_time BETWEEN '2025-01-01' AND '2025-01-31'
+```
+
+Transaction signatures and addresses are stored using the `FixedString(N)` data format which stores exactly N bytes. ClickHouse automatically compresses data, which reduces storage costs by 10-20x and improves query performance.
+
+To optimize query performances, use Materialized Views to pre-compute common aggregations. 
+
+For example, you could pre-compute the daily transfer volume of tokens to be used by volume-related charts on a dashboard.
+
+### Option 3: Data Lakes
+
+Data lakes are ideal for storing massive amounts of raw and processed blockchain data for long-term archival and analytical queries.
+
+A simple implementation uses the Parquet data format with Amazon Athena.
+
+**Parquet** is a column-oriented data file format designed for efficient data storage and retrieval.
+
+**Amazon Athena** is an interactive query service that allows you to analyze data stored in Amazon S3 using standard SQL without the need to set up infrastructure or load data into a separate database.
+
+<Warning>
+Data lakes are only recommended if you need to query large amounts of unstructured data. For the majority of use cases, we recommend using a SQL database (Option 1).
+</Warning>
+
+#### Implementation example:
+
+We want to create an archive of token transfers and query them.
+
+First, we need to store them in S3: Create a bucket named `solana_index` and partition your token transfer data by time using this key structure:
+
+```
+s3://solana_index/token_transfers/YYYY/MM/DD/part-00000.parquet
+```
+
+Each day's transfers are stored in a separate Parquet file in its corresponding date folder.
+
+As you process transfers from Solana, transform them into the Parquet format and write them to the respective S3 object.
+
+Later, you [create a table](https://docs.aws.amazon.com/athena/latest/ug/step-2-create-a-table.html) in Athena and connect it to the bucket. This allows you to run queries like this directly on the data in the bucket:
+
+```sql
+SELECT block_time, signature, source_address, destination_address, amount
+FROM token_transfers
+WHERE token_mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' AND block_time BETWEEN TIMESTAMP '2025-01-01 00:00:00' AND TIMESTAMP '2025-01-31 23:59:59';
+```
+
+### Use Indexing Frameworks
+
+Use [**Carbon**](https://github.com/sevenlabs-hq/carbon) and similar frameworks to avoid writing boilerplate code and set up your indexer in hours rather than days.
+
+#### Key features:
+
+* Pre-built decoders for popular programs (Token program, DeFi protocols, Metaplex)  
+* Configurable data sources (RPC, LaserStream, Enhanced WebSockets)  
+* Built-in support for both backfill and real-time streaming  
+* Outputs to multiple storage backends (Postgres comes out of the box)  
+* Fully customizable: you can set up your own data sources, decoders and data sinks
+
+## **Step 3: Keep your index up to date**
+
+After backfilling historical data, you need a real-time streaming solution to keep your index up to date with new blockchain activity. Without this, your index becomes stale.
+
+### Method 1: LaserStream (recommended)
+
+We recommend [LaserStream gRPC](/laserstream/grpc) as your default choice for all production indexing use cases. It's purpose-built for reliable, ultra-low-latency, and fault-tolerant data streaming.
+
+Some benefits of using LaserStream include:
+
+* **Historical replay**: if your indexer disconnects, LaserStream [automatically replays](/laserstream/historical-replay) all missed transactions from where you left off  
+* **Automatic reconnection**: our [LaserStream SDKs](/laserstream/clients) (Rust, Go, JS/TS) seamlessly handle network interruptions for you  
+* **Node failover**: your LaserStream connection aggregates data from multiple nodes simultaneously, ensuring maximum uptime
+
+Combining speed and reliability, LaserStream is ideal for real-time applications like live transaction feeds, trading dashboards, and instant balance updates.
+
+#### How to Use LaserStream for Indexing
+
+Use the [`subscribe`](/api-reference/laserstream/grpc/subscribe) method to subscribe to blockchain events.
+
+Here are some best practices:
+
+* **Narrow your filter as much as possible**: Only subscribe to the data you actually need to index to minimize bandwidth consumption and processing needed.  
+* **Use the `confirmed` commitment level**: This balances latency and finality. The `processed` level may be too unreliable, while `finalized` adds \~13 seconds of latency  
+* **Set `failed: false`** unless you specifically need to track failed transactions  
+* **Exclude vote transactions** (`vote: false`) as they are not relevant for indexing
+
+Let’s look at an example.
+
+Use the following subscription to index all new token transfers:
+
+```ts
+{
+  transactions: {
+    "transfers": {
+      vote: false,
+      failed: false,
+      accountsInclude: [
+        '​​TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+      ]
+    }
+  },
+  commitment: CommitmentLevel.CONFIRMED,
+  accounts: {},
+  slots: {},
+  transactionsStatus: {},
+  blocks: {},
+  blocksMeta: {},
+  entry: {},
+  accountsDataSlice: []
+}
+```
+
+### Method 2: Use Enhanced WebSockets
+
+[Enhanced WebSockets](/enhanced-websockets) are powered by the same infrastructure as LaserStream, and it is a cost-effective real-time streaming alternative to LaserStream gRPC.
+
+You should use Enhanced WSS when:
+
+* Your application can tolerate occasional data gaps  
+* Real-time updates are important, but not mission-critical  
+* You have existing infrastructure to detect and backfill missing data  
+* Budget constraints are significant and you need to minimize streaming costs  
+* You're prototyping or testing before committing to LaserStream
+
+However, there are a few trade-offs to consider when choosing Enhanced WSS:
+
+* **Speed**: Enhanced WSS are fast, but still slower than LaserStream  
+* **Reliability**: No historical replay guarantee. If your WebSocket disconnects, you'll need to manually detect and backfill gaps using RPC methods  
+* **Complexity**: Requires additional monitoring infrastructure to ensure data completeness
+
+#### How to Use Enhanced WebSockets for Indexing
+
+To update an index that stores all token transfers, you would subscribe to [`transactionSubscribe`](/enhanced-websockets/transaction-subscribe) like this:
+
+```ts
+{
+  jsonrpc: '2.0',
+  id: 1,
+  method: 'transactionSubscribe',
+  params: [
+    {
+      failed: false,
+      accountInclude: [
+        '​​TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+      ]
+    },
+    {
+      commitment: 'confirmed',
+      encoding: 'jsonParsed',
+      transactionDetails: 'full',
+      maxSupportedTransactionVersion: 0
+    }
+  ]
+}
+```
+
+## Get started
+
+Building a robust Solana index and backfilling data requires solving three core challenges: 
+
+1. Efficiently fetching historical data  
+2. Transforming and storing data for quick retrievals  
+3. Keeping indexed Solana data updated in real time
+
+With our new [state-of-the-art archival system](https://www.helius.dev/blog/introducing-gettransactionsforaddress), archival calls like **getTransactionForAddress**, and industry-leading data streaming solutions like LaserStream, building a Solana index is easier, and more practical than ever.
+
+### Next steps:
+
+* [Sign up for a free Helius account](https://www.helius.dev) to get API access  
+* Read the [gTFA documentation](/rpc/gettransactionsforaddress) for information about backfilling  
+* Explore the [LaserStream quickstart guide](/laserstream) for real-time streaming
