@@ -157,7 +157,7 @@ const fetchAllTransactions = async () => {
   
   while (true) {
     if (lastSignature) {
-      url = baseUrl + `&before=${lastSignature}`;
+      url = baseUrl + `&before-signature=${lastSignature}`;
     }
     
     const response = await fetch(url);
