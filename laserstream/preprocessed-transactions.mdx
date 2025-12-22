@@ -1,16 +1,16 @@
 ---
-title: "Preprocessed Transaction Subscriptions (Beta)"
+title: "Preprocessed Transactions (Beta)"
 sidebarTitle: "Preprocessed Transactions (Beta)"
-description: "Subscribe to transactions as they're decoded from shreds for ultra-low latency monitoring without transaction metadata."
+description: "The fastest way to stream Solana transactions."
 ---
 
 <Warning>
 **Beta Feature - Request Access Required**
 
-Preprocessed transaction subscriptions are currently in beta. To request access, please contact the Helius team via [Telegram](https://t.me/helius_help) or [Discord](https://discord.gg/EqanqfQU).
+Preprocessed transactions are currently in beta. To request access, please contact the Helius team via [Telegram](https://t.me/helius_help) or [Discord](https://discord.gg/EqanqfQU).
 </Warning>
 
-Preprocessed transactions represent one of the fastest ways to receive transaction data from Solana. Instead of waiting for full transaction processing, LaserStream decodes transactions directly from shreds as they arrive at the validator, giving you access to transaction data milliseconds earlier than standard subscriptions.
+Preprocessed transactions are the fastest way to receive Solana transactions. Instead of waiting for full transaction processing, LaserStream decodes transactions directly from shreds as they arrive at the validator, giving you access to transaction data milliseconds earlier than standard subscriptions.
 
 This guide explains when to use preprocessed transactions, what data is available, and how to implement them across all LaserStream SDKs.
 
@@ -62,12 +62,11 @@ Preprocessed transactions include the complete transaction message but lack exec
 
 ### Missing data
 
-- ❌ **Transaction metadata** - Pre/post balances, rent, transaction status
+- ❌ **Transaction metadata** - Token balances changes, pre/post balances, transaction status
 - ❌ **Transaction errors** - We cannot determine if the transaction failed
 - ❌ **Inner instructions** - Cross-program invocations (CPIs) are not included
 - ❌ **Log messages** - Program logs are generated during execution
 - ❌ **Compute units consumed** - Execution metrics unavailable
-- ❌ **Token balance changes** - Token metadata requires execution
 
 Think of preprocessed transactions as receiving the "proposal" without the "result." You see what the user tried to do, but not what actually happened.
 
