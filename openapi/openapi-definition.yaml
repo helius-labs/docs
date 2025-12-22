@@ -95,9 +95,18 @@ paths:
         insights into wallet activity with context and decoded instructions.
       parameters:
         - $ref: '#/components/parameters/apiKeyParam'
-        - $ref: '#/components/parameters/beforeParam'
-        - $ref: '#/components/parameters/untilParam'
+        - $ref: '#/components/parameters/beforeSigParam'
+        - $ref: '#/components/parameters/afterSigParam'
         - $ref: '#/components/parameters/commitmentParam'
+        - $ref: '#/components/parameters/sortOrderParam'
+        - $ref: '#/components/parameters/gtSlotParam'
+        - $ref: '#/components/parameters/gteSlotParam'
+        - $ref: '#/components/parameters/ltSlotParam'
+        - $ref: '#/components/parameters/lteSlotParam'
+        - $ref: '#/components/parameters/gtTimeParam'
+        - $ref: '#/components/parameters/gteTimeParam'
+        - $ref: '#/components/parameters/ltTimeParam'
+        - $ref: '#/components/parameters/lteTimeParam'
         - $ref: '#/components/parameters/addressParam'
         - $ref: '#/components/parameters/transactionSourceParam'
         - $ref: '#/components/parameters/transactionTypeParam'
@@ -861,6 +870,87 @@ components:
       required: false
       schema:
         type: string
+    beforeSigParam:
+      name: before-signature
+      in: query
+      description: Start searching backwards from this transaction signature.
+      required: false
+      schema:
+        type: string
+    afterSigParam:
+      name: after-signature
+      in: query
+      description: Start searching forwards from this transaction signature.
+      required: false
+      schema:
+        type: string
+    sortOrderParam:
+      name: sort-order
+      in: query
+      description: The order to sort the results in.
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
+    gtSlotParam:
+      name: gt-slot
+      in: query
+      description: Only return transactions with a slot greater than this value.
+      required: false
+      schema:
+        type: integer
+    gteSlotParam:
+      name: gte-slot
+      in: query
+      description: Only return transactions with a slot greater than or equal to this value.
+      required: false
+      schema:
+        type: integer
+    ltSlotParam:
+      name: lt-slot
+      in: query
+      description: Only return transactions with a slot less than this value.
+      required: false
+      schema:
+        type: integer
+    lteSlotParam:
+      name: lte-slot
+      in: query
+      description: Only return transactions with a slot less than or equal to this value.
+      required: false
+      schema:
+        type: integer
+    gtTimeParam:
+      name: gt-time
+      in: query
+      description: Only return transactions with a block time greater than this value.
+      required: false
+      schema:
+        type: integer
+    gteTimeParam:
+      name: gte-time
+      in: query
+      description: Only return transactions with a block time greater than or equal to this value.
+      required: false
+      schema:
+        type: integer
+    ltTimeParam:
+      name: lt-time
+      in: query
+      description: Only return transactions with a block time less than this value.
+      required: false
+      schema:
+        type: integer
+    lteTimeParam:
+      name: lte-time
+      in: query
+      description: Only return transactions with a block time less than or equal to this value.
+      required: false
+      schema:
+        type: integer
     commitmentParam:
       name: commitment
       in: query
