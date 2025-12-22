@@ -98,6 +98,7 @@ paths:
         - $ref: '#/components/parameters/beforeSigParam'
         - $ref: '#/components/parameters/afterSigParam'
         - $ref: '#/components/parameters/commitmentParam'
+        - $ref: '#/components/parameters/sortOrderParam'
         - $ref: '#/components/parameters/gtSlotParam'
         - $ref: '#/components/parameters/gteSlotParam'
         - $ref: '#/components/parameters/ltSlotParam'
@@ -883,6 +884,17 @@ components:
       required: false
       schema:
         type: string
+    sortOrderParam:
+      name: sort-order
+      in: query
+      description: The order to sort the results in.
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        default: desc
     gtSlotParam:
       name: gt-slot
       in: query
