@@ -1,0 +1,424 @@
+---
+title: 获取验证者收益
+description: 综合收益数据，包括投票、区块生产、奖励细分和佣金分配
+---
+
+<Note>
+[← 返回验证者报告 API](/zh/validator-reporting)
+</Note>
+
+## 端点
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/earnings
+```
+
+## 描述
+
+检索验证者的综合收益数据，包括投票表现、区块生产指标、按类型详细的奖励细分，以及验证者和质押者之间的佣金分配。
+
+此端点提供验证者操作在任何指定时间段内的完整财务图景。
+
+---
+
+## 路径参数
+
+<ParamField path="vote_account" type="string" required>
+  验证者的投票账户公钥（base58 编码）
+
+  必须匹配模式：`^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  示例：`he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## 查询参数
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥用于身份验证
+</ParamField>
+
+<ParamField query="period" type="string" default="30d">
+  收益聚合的时间段
+
+  选项：`24h`, `7d`, `30d`, `90d`, `1y`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  起始纪元编号（最小值：790）
+
+  使用此选项自定义纪元范围，而不是 `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  结束纪元编号
+
+  必须与 `start_epoch` 一起使用
+</ParamField>
+
+---
+
+## 请求示例
+
+<CodeGroup>
+
+```bash cURL - 30 Day Period
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
+```
+
+```bash cURL - Custom Epoch Range
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?start_epoch=800&end_epoch=850&api-key=YOUR_API_KEY" | python3 -m json.tool
+```
+
+```javascript JavaScript
+const getValidatorEarnings = async (voteAccount, apiKey, period = '30d') => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+  const url = `${baseUrl}/validators/${voteAccount}/earnings?period=${period}&api-key=${apiKey}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const earnings = await getValidatorEarnings(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  '30d'
+);
+
+console.log('Total earnings:', earnings.earnings.rewards.gross_earnings_sol, 'SOL');
+console.log('Vote participation:', earnings.earnings.voting.vote_participation_rate_pct, '%');
+console.log('Skip rate:', earnings.earnings.block_production.skip_rate_pct, '%');
+```
+
+```python Python
+import requests
+
+def get_validator_earnings(vote_account: str, api_key: str, period: str = "30d"):
+    base_url = "https://mainnet.helius-rpc.com"
+    url = f"{base_url}/validators/{vote_account}/earnings"
+    params = {
+        "period": period,
+        "api-key": api_key
+    }
+
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+earnings = get_validator_earnings(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    "30d"
+)
+
+print(f"Total earnings: {earnings['earnings']['rewards']['gross_earnings_sol']} SOL")
+print(f"Vote participation: {earnings['earnings']['voting']['vote_participation_rate_pct']}%")
+print(f"Skip rate: {earnings['earnings']['block_production']['skip_rate_pct']}%")
+```
+
+</CodeGroup>
+
+---
+
+## 响应模式
+
+<ResponseField name="vote_account" type="string">
+  验证者的投票账户地址
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  查询的时间段
+</ResponseField>
+
+<ResponseField name="start_epoch" type="integer">
+  数据范围的起始纪元
+</ResponseField>
+
+<ResponseField name="end_epoch" type="integer">
+  数据范围的结束纪元
+</ResponseField>
+
+<ResponseField name="total_epochs" type="integer">
+  涵盖的总纪元数
+</ResponseField>
+
+<ResponseField name="earnings" type="object">
+  综合收益数据
+
+  <Expandable title="earnings properties">
+    <ResponseField name="voting" type="object">
+      投票性能指标
+
+      <Expandable title="voting properties">
+        <ResponseField name="total_votes" type="integer">
+          投票总数
+        </ResponseField>
+
+        <ResponseField name="vote_participation_rate_pct" type="number">
+          投票参与率，以百分比表示 (0-100)
+        </ResponseField>
+
+        <ResponseField name="total_vote_fees_lamports" type="integer">
+          以 lamports 计的投票费用总额
+        </ResponseField>
+
+        <ResponseField name="current_epoch_partial" type="boolean">
+          当前纪元 (end_epoch) 是否不完整并从 vote_participation_rate_pct 计算中排除
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="block_production" type="object">
+      区块生产性能指标
+
+      <Expandable title="block_production properties">
+        <ResponseField name="total_leader_slots" type="integer">
+          分配的领导者槽位总数
+        </ResponseField>
+
+        <ResponseField name="blocks_produced" type="integer">
+          成功生产的区块数
+        </ResponseField>
+
+        <ResponseField name="blocks_skipped" type="integer">
+          跳过的区块数
+        </ResponseField>
+
+        <ResponseField name="skip_rate_pct" type="number">
+          区块跳过率，以百分比表示
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="rewards" type="object">
+      详细的奖励分解
+
+      <Expandable title="rewards properties">
+        <ResponseField name="gross_earnings_lamports" type="integer">
+          以 lamports 计的总毛收入
+        </ResponseField>
+
+        <ResponseField name="gross_earnings_sol" type="number">
+          SOL中的总毛收入
+        </ResponseField>
+
+        <ResponseField name="vote_fees_lamports" type="integer">
+          以lamports计的投票费用收入
+        </ResponseField>
+
+        <ResponseField name="vote_fees_sol" type="number">
+          以SOL计的投票费用收入
+        </ResponseField>
+
+        <ResponseField name="inflation_rewards_lamports" type="integer">
+          以lamports计的通胀奖励
+        </ResponseField>
+
+        <ResponseField name="block_rewards_lamports" type="integer">
+          以lamports计的区块奖励（优先费用）
+        </ResponseField>
+
+        <ResponseField name="jito_tips_lamports" type="integer">
+          以lamports计的Jito MEV小费
+        </ResponseField>
+
+        <ResponseField name="breakdown_pct" type="object">
+          按类型划分的奖励百分比
+
+          <Expandable title="breakdown_pct properties">
+            <ResponseField name="inflation" type="number">
+              来自通胀奖励的百分比
+            </ResponseField>
+
+            <ResponseField name="block_rewards" type="number">
+              来自区块奖励的百分比
+            </ResponseField>
+
+            <ResponseField name="jito_tips" type="number">
+              来自Jito小费的百分比
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="commission" type="object" nullable>
+          佣金信息和分配（如果可用）
+
+          <Expandable title="commission properties">
+            <ResponseField name="rates" type="object">
+              按类型划分的佣金率
+
+              <Expandable title="rates properties">
+                <ResponseField name="staking" type="integer">
+                  质押佣金百分比（0-100）
+                </ResponseField>
+
+                <ResponseField name="jito_mev" type="integer">
+                  Jito MEV佣金百分比
+                </ResponseField>
+
+                <ResponseField name="priority_fees" type="integer">
+                  优先费用佣金百分比
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+
+            <ResponseField name="split" type="object">
+              验证者和质押者之间的收入分配
+
+              <Expandable title="split properties">
+                <ResponseField name="validator" type="object">
+                  验证者的收入部分
+
+                  包括：`inflation_rewards_lamports`, `inflation_rewards_sol`, `jito_tips_lamports`, `jito_tips_sol`, `block_rewards_lamports`, `block_rewards_sol`, `gross_total_lamports`, `gross_total_sol`, `net_total_lamports`, `net_total_sol`
+                </ResponseField>
+
+                <ResponseField name="stakers" type="object">
+                  质押者的收入部分（与验证者结构相同）
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  查询元数据
+
+  <Expandable title="metadata properties">
+    <ResponseField name="start_timestamp" type="integer">
+      数据开始的Unix时间戳
+    </ResponseField>
+
+    <ResponseField name="end_timestamp" type="integer">
+      数据结束的Unix时间戳
+    </ResponseField>
+
+    <ResponseField name="query_timestamp" type="integer">
+      查询执行时的Unix时间戳
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## 响应示例
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "start_epoch": 650,
+  "end_epoch": 680,
+  "total_epochs": 30,
+  "earnings": {
+    "voting": {
+      "total_votes": 12500,
+      "vote_participation_rate_pct": 99.8,
+      "total_vote_fees_lamports": 125000000
+    },
+    "block_production": {
+      "total_leader_slots": 450,
+      "blocks_produced": 448,
+      "blocks_skipped": 2,
+      "skip_rate_pct": 0.44
+    },
+    "rewards": {
+      "gross_earnings_lamports": 5500000000,
+      "gross_earnings_sol": 5.5,
+      "vote_fees_lamports": 125000000,
+      "vote_fees_sol": 0.125,
+      "inflation_rewards_lamports": 4000000000,
+      "block_rewards_lamports": 500000000,
+      "jito_tips_lamports": 875000000,
+      "breakdown_pct": {
+        "inflation": 72.7,
+        "block_rewards": 9.1,
+        "jito_tips": 15.9
+      },
+      "commission": {
+        "rates": {
+          "staking": 10,
+          "jito_mev": 10,
+          "priority_fees": 10
+        },
+        "split": {
+          "validator": {
+            "inflation_rewards_lamports": 400000000,
+            "inflation_rewards_sol": 0.4,
+            "jito_tips_lamports": 87500000,
+            "jito_tips_sol": 0.0875,
+            "block_rewards_lamports": 50000000,
+            "block_rewards_sol": 0.05,
+            "gross_total_lamports": 537500000,
+            "gross_total_sol": 0.5375,
+            "net_total_lamports": 537500000,
+            "net_total_sol": 0.5375
+          },
+          "stakers": {
+            "inflation_rewards_lamports": 3600000000,
+            "inflation_rewards_sol": 3.6,
+            "jito_tips_lamports": 787500000,
+            "jito_tips_sol": 0.7875,
+            "block_rewards_lamports": 450000000,
+            "block_rewards_sol": 0.45,
+            "gross_total_lamports": 4837500000,
+            "gross_total_sol": 4.8375,
+            "net_total_lamports": 4837500000,
+            "net_total_sol": 4.8375
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "start_timestamp": 1701734400,
+    "end_timestamp": 1704326400,
+    "query_timestamp": 1704330000
+  }
+}
+```
+
+---
+
+## 错误响应
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid epoch range: start_epoch must be >= 790"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 注意事项
+
+<Note>
+**佣金分配可用性**：只有当验证器存在佣金率数据时，`commission` 对象才可用。如果为 null，则无法计算佣金信息。
+</Note>
+
+<Tip>
+**最佳实践**：使用 `30d` 期间进行月度报告，使用 `7d` 进行每周绩效评估。对于详细分析，使用自定义 epoch 范围与 `start_epoch` 和 `end_epoch`。
+</Tip>
+
+<Warning>
+**数据可用性**：历史数据从 epoch 790 开始。查询更早的 epoch 将返回 400 错误。
+</Warning>
