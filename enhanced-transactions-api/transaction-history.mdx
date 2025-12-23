@@ -161,23 +161,32 @@ When using type filters, you may encounter a situation where no matching transac
 }
 ```
 
-To continue the search, you need to use the signature provided in the error message as the `before` parameter in your next request. Here's how to handle this:
+<Info>
+**Sort Order and Filter Parameters**:
+- When searching in **descending order** (default, `sort-order=desc` or newest first), use the `before-signature` parameter with the signature from the error message to continue searching backward through history
+- When searching in **ascending order** (`sort-order=asc` or oldest first), you must use the `after-signature` parameter with the signature from the error message to continue searching forward through history
+</Info>
+
+To continue the search, you need to use the signature provided in the error message with the appropriate parameter (`before-signature` for descending, `after-signature` for ascending) in your next request. Here's how to handle this:
 
 ```javascript
-const fetchFilteredTransactions = async () => {
+const fetchFilteredTransactions = async (sortOrder = 'desc') => {
   const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
   const transactionType = "NFT_SALE";
-  let beforeSignature = null;
+  let continuationSignature = null;
   let allFilteredTransactions = [];
   let maxRetries = 10; // Prevent infinite loops
   let retryCount = 0;
   
+  // Determine which parameter to use based on sort order
+  const continuationParam = sortOrder === 'asc' ? 'after-signature' : 'before-signature';
+  
   while (retryCount < maxRetries) {
-    // Build URL with optional before parameter
-    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}`;
+    // Build URL with optional continuation parameter
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}&sort-order=${sortOrder}`;
     
-    if (beforeSignature) {
-      url += `&before=${beforeSignature}`;
+    if (continuationSignature) {
+      url += `&${continuationParam}=${continuationSignature}`;
     }
     
     try {
@@ -187,11 +196,11 @@ const fetchFilteredTransactions = async () => {
       // Check if we received an error about search period
       if (data.error && data.error.includes("Failed to find events within the search period")) {
         // Extract the signature from the error message
-        const signatureMatch = data.error.match(/before parameter set to ([A-Za-z0-9]+)/);
+        const signatureMatch = data.error.match(/parameter set to ([A-Za-z0-9]+)/);
         
         if (signatureMatch && signatureMatch[1]) {
           console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
-          beforeSignature = signatureMatch[1];
+          continuationSignature = signatureMatch[1];
           retryCount++;
           continue; // Continue searching with new signature
         } else {
@@ -205,8 +214,8 @@ const fetchFilteredTransactions = async () => {
         console.log(`Found ${data.length} ${transactionType} transactions`);
         allFilteredTransactions = [...allFilteredTransactions, ...data];
         
-        // Set beforeSignature for next page
-        beforeSignature = data[data.length - 1].signature;
+        // Set continuation signature for next page
+        continuationSignature = data[data.length - 1].signature;
         retryCount = 0; // Reset retry count since we found results
       } else {
         console.log("No more transactions found");
@@ -223,14 +232,20 @@ const fetchFilteredTransactions = async () => {
   return allFilteredTransactions;
 };
 
-// Usage
-fetchFilteredTransactions();
+// Usage examples:
+// Descending order (newest first) - uses 'before-signature' parameter
+fetchFilteredTransactions('desc');
+
+// Ascending order (oldest first) - uses 'after-signature' parameter
+fetchFilteredTransactions('asc');
 ```
 
 <Info>
 **Key Points**:
 - The API searches through up to 50 transactions at a time when using type filters
 - If no matches are found, use the signature from the error message to continue searching
+- Use `before-signature` parameter when searching in descending order (default, newest first)
+- **Use `after-signature` parameter when searching in ascending order (oldest first)** - this is required for chronological searches
 - Implement a maximum retry limit to prevent infinite loops
 - This behavior is expected and allows you to search through an address's entire history for specific transaction types
 </Info>
@@ -240,8 +255,8 @@ fetchFilteredTransactions();
 | Parameter | Description | Default | Example |
 |-----------|-------------|---------|---------|
 | `limit` | Number of transactions to return (1-100) | 10 | `&limit=25` |
-| `before-signature` | Fetch transactions before this signature | - | `&before-signature=sig123...` |
-| `after-signature` | Fetch transactions after this signature | - | `&after-signature=sig456...` |
+| `before-signature` | Fetch transactions before this signature (use with `sort-order=desc`) | - | `&before-signature=sig123...` |
+| `after-signature` | Fetch transactions after this signature (use with `sort-order=asc`) | - | `&after-signature=sig456...` |
 | `type` | Filter by transaction type | - | `&type=NFT_SALE` |
 | `sort-order` | Sort order for results | `desc` | `&sort-order=asc` |
 | `commitment` | Commitment level | `finalized` | `&commitment=confirmed` |
