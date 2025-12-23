@@ -1,0 +1,303 @@
+---
+title: "Transaction History"
+sidebarTitle: "Transaction History"
+description: "Retrieve and filter transaction history for any Solana address with pagination support and type filtering."
+---
+
+## Overview
+
+The Transaction History endpoint allows you to retrieve all transactions associated with a Solana address. You can filter by transaction type, implement pagination for large datasets, and get human-readable transaction details.
+
+<Warning>
+**Important Limitations**:
+- Enhanced Transaction API V1 won't be updated while we are working on V2
+- We only parse NFT, Jupiter, and SPL-related transactions
+- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
+</Warning>
+
+## Fetch Transaction History for an Address
+
+Retrieve transaction history for any Solana address:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+  </Tab>
+</Tabs>
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  View detailed API documentation for transaction history
+</Card>
+
+## Complete Pagination Example
+
+For high-volume addresses, implement pagination to fetch all transactions:
+
+```javascript
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before-signature=${lastSignature}`;
+    }
+    
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
+      break;
+    }
+  }
+  
+  return allTransactions;
+};
+```
+
+## Filter Transactions by Type
+
+Get only specific transaction types, such as NFT sales, token transfers, or swaps:
+
+<Tabs>
+  <Tab title="NFT Sales">
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+  </Tab>
+  <Tab title="Token Transfers">
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+  </Tab>
+  <Tab title="Swaps">
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Understanding Type Filtering Behavior
+
+<Warning>
+**Runtime Type Filtering**:
+
+Type filtering happens at runtime, meaning the API searches through transactions sequentially until it finds at least 50 matching items. If the API cannot find any transactions matching your filter within the search period, it will return an error with instructions to continue searching.
+</Warning>
+
+When using type filters, you may encounter a situation where no matching transactions are found within the current search window. In this case, the API returns an error response like:
+
+```json
+{
+  "error": "Failed to find events within the search period. To continue search, query the API again with the before parameter set to 2UKbsu95YzxGjUGYRg2znozmmVADVgmnhHqzDxq8Xfb3V5bf2NHUkaXGPrUpQnRFVHVKbawdQXtm4xJt9njMDHvg."
+}
+```
+
+To continue the search, you need to use the signature provided in the error message as the `before` parameter in your next request. Here's how to handle this:
+
+```javascript
+const fetchFilteredTransactions = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const transactionType = "NFT_SALE";
+  let beforeSignature = null;
+  let allFilteredTransactions = [];
+  let maxRetries = 10; // Prevent infinite loops
+  let retryCount = 0;
+  
+  while (retryCount < maxRetries) {
+    // Build URL with optional before parameter
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}`;
+    
+    if (beforeSignature) {
+      url += `&before=${beforeSignature}`;
+    }
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      // Check if we received an error about search period
+      if (data.error && data.error.includes("Failed to find events within the search period")) {
+        // Extract the signature from the error message
+        const signatureMatch = data.error.match(/before parameter set to ([A-Za-z0-9]+)/);
+        
+        if (signatureMatch && signatureMatch[1]) {
+          console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
+          beforeSignature = signatureMatch[1];
+          retryCount++;
+          continue; // Continue searching with new signature
+        } else {
+          console.log("No more transactions to search");
+          break;
+        }
+      }
+      
+      // Check if we received transactions
+      if (Array.isArray(data) && data.length > 0) {
+        console.log(`Found ${data.length} ${transactionType} transactions`);
+        allFilteredTransactions = [...allFilteredTransactions, ...data];
+        
+        // Set beforeSignature for next page
+        beforeSignature = data[data.length - 1].signature;
+        retryCount = 0; // Reset retry count since we found results
+      } else {
+        console.log("No more transactions found");
+        break;
+      }
+      
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      break;
+    }
+  }
+  
+  console.log(`Total ${transactionType} transactions found: ${allFilteredTransactions.length}`);
+  return allFilteredTransactions;
+};
+
+// Usage
+fetchFilteredTransactions();
+```
+
+<Info>
+**Key Points**:
+- The API searches through up to 50 transactions at a time when using type filters
+- If no matches are found, use the signature from the error message to continue searching
+- Implement a maximum retry limit to prevent infinite loops
+- This behavior is expected and allows you to search through an address's entire history for specific transaction types
+</Info>
+
+## Query Parameters
+
+| Parameter | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `limit` | Number of transactions to return | 10 | `&limit=25` |
+| `before` | Fetch transactions before this signature | - | `&before=sig123...` |
+| `until` | Fetch transactions until this signature | - | `&until=sig456...` |
+| `type` | Filter by transaction type | - | `&type=NFT_SALE` |
+| `commitment` | Commitment level | `finalized` | `&commitment=confirmed` |
+
+## Available Transaction Types
+
+You can filter by the following transaction types:
+
+- `TRANSFER` - SOL and token transfers
+- `SWAP` - Token swaps (primarily Jupiter)
+- `NFT_SALE` - NFT marketplace sales
+- `NFT_BID` - NFT bids
+- `NFT_LISTING` - NFT listings
+- `NFT_CANCEL_LISTING` - Cancelled NFT listings
+- `NFT_MINT` - NFT minting
+
+## Rate Limiting Considerations
+
+To avoid hitting rate limits when working with the API:
+
+- Implement pagination for large datasets
+- Cache responses when appropriate
+- Add exponential backoff for retries
+- Consider upgrading your API plan for high-volume applications
+
+<Tip>
+For high-traffic applications, consider implementing a caching layer with Redis or similar technology to minimize redundant API calls.
+</Tip>
+
+## Error Handling
+
+Always implement proper error handling in your code:
+
+```javascript
+const fetchTransactions = async () => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch transactions:", error);
+    // Implement retry logic or user-friendly error messages
+  }
+};
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Error Handling" icon="shield-check">
+    Implement proper error handling and retries for production applications
+  </Card>
+  <Card title="Rate Limiting" icon="gauge-high">
+    Use pagination and caching strategies to avoid hitting rate limits
+  </Card>
+</CardGroup>
+
+## Questions?
+
+For frequently asked questions about Enhanced Transactions including usage, authentication, rate limits, and troubleshooting, visit our comprehensive [Enhanced Transactions FAQ](/faqs/enhanced-transactions).
+
