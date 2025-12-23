@@ -4,6 +4,13 @@ sidebarTitle: "Transaction History"
 description: "Human-readable transaction history for any Solana address"
 ---
 
+<Warning>
+**Important Limitations**:
+- Enhanced Transaction API V1 won't be updated while we are working on V2
+- We only parse NFT, Jupiter, and SPL-related transactions
+- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
+</Warning>
+
 ## Overview
 
 The Enhanced Transactions API transforms complex Solana transactions into human-readable data. Instead of dealing with raw instruction data and account lists, you get structured information about:
@@ -18,12 +25,13 @@ Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettr
   View detailed API documentation for transaction history
 </Card>
 
-<Warning>
-**Important Limitations**:
-- Enhanced Transaction API V1 won't be updated while we are working on V2
-- We only parse NFT, Jupiter, and SPL-related transactions
-- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
-</Warning>
+## Network Support
+
+| Network | Supported | Retention Period |
+|---------|-----------|-------------|
+| Mainnet | Yes | Unlimited |
+| Devnet | Yes | 2 weeks |
+| Testnet | No | N/A |
 
 ## Quickstart
 
@@ -181,18 +189,6 @@ const fetchAllTransactions = async () => {
 - You cannot combine time-based and slot-based filters in the same request
 - Use `sort-order=asc` for ascending (oldest first) or `sort-order=desc` for descending (newest first)
 </Info>
-
-## Available Transaction Types
-
-You can filter by the following transaction types:
-
-- `TRANSFER` - SOL and token transfers
-- `SWAP` - Token swaps (primarily Jupiter)
-- `NFT_SALE` - NFT marketplace sales
-- `NFT_BID` - NFT bids
-- `NFT_LISTING` - NFT listings
-- `NFT_CANCEL_LISTING` - Cancelled NFT listings
-- `NFT_MINT` - NFT minting
 
 ## Advanced Filtering Examples
 

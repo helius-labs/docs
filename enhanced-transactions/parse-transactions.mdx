@@ -4,10 +4,6 @@ sidebarTitle: "Parse Transactions"
 description: "Parse transactions into human-readable data."
 ---
 
-## Overview
-
-The Parse Transactions endpoint transforms raw transaction signatures or data into structured, human-readable information. Instead of manually decoding instruction data and account lists, you receive clear details about transfers, swaps, NFT activities, and more.
-
 <Warning>
 **Important Limitations**:
 - Enhanced Transaction API V1 won't be updated while we are working on V2
@@ -15,7 +11,15 @@ The Parse Transactions endpoint transforms raw transaction signatures or data in
 - **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
 </Warning>
 
-## Parse Transactions
+## Overview
+
+The Parse Transactions endpoint transforms raw transaction signatures or data into structured, human-readable information. Instead of manually decoding instruction data and account lists, you receive clear details about transfers, swaps, NFT activities, and more.
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactions">
+  View detailed API documentation for parsing transactions
+</Card>
+
+## Quickstart
 
 Parse one or more transaction signatures with a single API call:
 
@@ -63,10 +67,6 @@ Parse one or more transaction signatures with a single API call:
   </Tab>
 </Tabs>
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactions">
-  View detailed API documentation for parsing transactions
-</Card>
-
 ## Response Structure
 
 Enhanced transaction responses include structured data with human-readable descriptions:
@@ -110,36 +110,6 @@ The parsed transaction data includes:
 - **Token Transfers**: SPL token movements
 - **Events**: High-level event summaries
 - **Timestamps**: When the transaction was processed
-
-## Error Handling
-
-Always implement proper error handling in your code:
-
-```javascript
-const parseTransactions = async () => {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        transactions: ["signature1", "signature2"],
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to parse transactions:", error);
-    // Implement retry logic or user-friendly error messages
-  }
-};
-```
 
 ## Questions?
 
