@@ -1,12 +1,18 @@
 ---
 title: "Transaction History"
 sidebarTitle: "Transaction History"
-description: "Retrieve and filter transaction history for any Solana address with pagination support and type filtering."
+description: "Human-readable transaction history for any Solana address"
 ---
 
 ## Overview
 
-The Transaction History endpoint allows you to retrieve all transactions associated with a Solana address. You can filter by transaction type, implement pagination for large datasets, and get human-readable transaction details.
+The Enhanced Transactions API transforms complex Solana transactions into human-readable data. Instead of dealing with raw instruction data and account lists, you get structured information about:
+- What happened in the transaction (transfers, swaps, NFT activities)
+- Which accounts were involved
+- How much SOL or tokens were transferred
+- Associated metadata (e.g. token mint addresses, token names, token symbols, etc.)
+
+Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettransactionsforaddress) RPC method, enabling bidirectional sorting and time-based filtering.
 
 <Warning>
 **Important Limitations**:
