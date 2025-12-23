@@ -1,7 +1,7 @@
 ---
 title: "Parse Transactions"
 sidebarTitle: "Parse Transactions"
-description: "Parse individual or multiple Solana transaction signatures into human-readable data with detailed transaction information."
+description: "Parse transactions into human-readable data."
 ---
 
 ## Overview
@@ -15,7 +15,7 @@ The Parse Transactions endpoint transforms raw transaction signatures or data in
 - **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
 </Warning>
 
-## Parse Individual or Multiple Transactions
+## Parse Transactions
 
 Parse one or more transaction signatures with a single API call:
 
@@ -140,10 +140,6 @@ const parseTransactions = async () => {
   }
 };
 ```
-
-<Tip>
-For high-traffic applications, consider implementing a caching layer with Redis or similar technology to minimize redundant API calls.
-</Tip>
 
 ## Questions?
 

@@ -1,12 +1,12 @@
 ---
-title: "Solana Enhanced Transactions API"
+title: "Overview"
 sidebarTitle: "Enhanced Transactions API"
 description: "Transform complex Solana blockchain transactions into human-readable data with Helius Enhanced Transactions API. Parse transaction details, fetch history, and understand on-chain activity without manual decoding."
 ---
 
 <CardGroup cols={2}>
   <Card title="Parse Transaction(s)" icon="code" href="/enhanced-transactions/parse-transactions">
-    Parse individual or multiple transactions to get human-readable data
+    Parse transactions into human-readable data
   </Card>
   <Card title="Transaction History" icon="clock-rotate-left" href="/enhanced-transactions/transaction-history">
     Get historical transaction data for any address
@@ -19,13 +19,6 @@ description: "Transform complex Solana blockchain transactions into human-readab
 - `/v0/addresses/{address}/transactions` - Get transaction history for an address
 - Filter by transaction type using the `type` parameter (e.g., `NFT_SALE`, `SWAP`, `TRANSFER`)
 </Note>
-
-<Warning>
-**Important Limitations**:
-- Enhanced Transaction API V1 won't be updated while we are working on V2
-- We only parse NFT, Jupiter, and SPL-related transactions
-- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
-</Warning>
 
 ## Overview
 
@@ -52,32 +45,6 @@ The Enhanced Transactions API transforms complex Solana transactions into human-
     Access timestamps, fees, signatures, and account information
   </Card>
 </CardGroup>
-
-## API Endpoints
-
-### Parse Transactions
-
-Parse one or more transaction signatures or raw transaction data:
-
-```
-POST /v0/transactions/?api-key={YOUR_API_KEY}
-```
-
-<Card title="Learn More" icon="arrow-right" href="/enhanced-transactions/parse-transactions">
-  View detailed guide for parsing transactions
-</Card>
-
-### Transaction History
-
-Retrieve transaction history for any Solana address:
-
-```
-GET /v0/addresses/{address}/transactions?api-key={YOUR_API_KEY}
-```
-
-<Card title="Learn More" icon="arrow-right" href="/enhanced-transactions/transaction-history">
-  View detailed guide for fetching transaction history
-</Card>
 
 ## What You Get
 
@@ -119,23 +86,6 @@ The Enhanced Transactions API is ideal for:
   </Tip>
 </Step>
 </Steps>
-
-## Best Practices
-
-<CardGroup cols={2}>
-  <Card title="Error Handling" icon="shield-check">
-    Implement proper error handling and retries for production applications
-  </Card>
-  <Card title="Rate Limiting" icon="gauge-high">
-    Use pagination and caching strategies to avoid hitting rate limits
-  </Card>
-  <Card title="Caching" icon="database">
-    Cache responses when appropriate to minimize redundant API calls
-  </Card>
-  <Card title="Type Filtering" icon="filter">
-    Use type filters to reduce data transfer and improve performance
-  </Card>
-</CardGroup>
 
 ## Questions?
 
