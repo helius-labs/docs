@@ -1,0 +1,177 @@
+---
+title: Validator Reporting API
+sidebarTitle: Validator Reporting
+description: Solana验证器性能指标、奖励、收益和APY计算的私有API文档。
+---
+
+## 概述
+
+Validator Reporting API提供Solana验证器的全面指标和性能数据。查询历史奖励、投票活动、收益细分、APY计算和操作性能指标。
+
+<Note>
+这是一个仅对特定合作伙伴开放的私有API。
+</Note>
+
+## 入门
+
+### 基础URL
+
+```
+https://mainnet.helius-rpc.com/validators
+```
+
+### 认证
+
+所有API请求都需要一个`api-key`查询参数进行验证。
+
+### 关键概念
+
+**投票账户**：验证器的投票账户公钥（base58编码，32-44个字符）
+
+示例：`he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+
+**Epochs**：数据从epoch 790开始提供
+
+**时间段**：大多数端点支持：`24h`, `7d`, `30d`, `90d`, `1y`，或自定义epoch范围
+
+---
+
+## API端点
+
+<CardGroup cols={2}>
+  <Card title="收益" icon="money-bill-trend-up" href="/zh/validator-reporting/earnings">
+    包括投票、区块生产和佣金分成的全面收益
+  </Card>
+  <Card title="APY" icon="percent" href="/zh/validator-reporting/apy">
+    在指定时间段内取平均值的年百分比收益率计算
+  </Card>
+  <Card title="奖励预测" icon="chart-line" href="/zh/validator-reporting/rewards-forecast">
+    使用多种模型和置信区间的奖励预测
+  </Card>
+  <Card title="性能" icon="gauge-high" href="/zh/validator-reporting/performance">
+    包括跳过率和数据指标的操作指标
+  </Card>
+</CardGroup>
+
+---
+
+## 快速入门示例
+
+<Tabs>
+  <Tab title="获取收益">
+    获取验证器的30天收益：
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+
+    JavaScript:
+
+    ```javascript
+    const voteAccount = 'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk';
+    const apiKey = 'YOUR_API_KEY';
+    const response = await fetch(
+      `https://mainnet.helius-rpc.com/validators/${voteAccount}/earnings?period=30d&api-key=${apiKey}`
+    );
+    const data = await response.json();
+    console.log(`Gross earnings: ${data.earnings.rewards.gross_earnings_sol} SOL`);
+    ```
+
+  </Tab>
+
+  <Tab title="获取 APY">
+    获取验证者的 7 天 APY：
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+
+  </Tab>
+
+  <Tab title="获取性能">
+    获取 7 天性能指标：
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+
+  </Tab>
+
+  <Tab title="预测奖励">
+    获取 30 天奖励预测：
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+
+  </Tab>
+
+</Tabs>
+
+---
+
+## 响应代码
+
+| 代码 | 描述 |
+|------|-------------|
+| 200 | 成功 |
+| 400 | 错误请求 - 参数无效 |
+| 404 | 未找到 - 未找到验证者 |
+| 500 | 内部服务器错误 |
+
+---
+
+## 常用参数
+
+许多端点共享这些常用查询参数：
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥用于身份验证
+</ParamField>
+
+<ParamField query="period" type="string">
+  数据聚合的时间段
+
+  选项：`24h`, `7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  起始纪元编号（最小值：790）
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  结束纪元编号
+</ParamField>
+
+<ParamField query="start_timestamp" type="integer">
+  范围开始的 Unix 时间戳
+</ParamField>
+
+<ParamField query="end_timestamp" type="integer">
+  范围结束的 Unix 时间戳
+</ParamField>
+
+<ParamField query="aggregate_by" type="string">
+  聚合方法：`timestamp` 或 `epoch`
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  返回的最大记录数（默认：1000，最大：10000）
+</ParamField>
+
+---
+
+## 数据可用性
+
+<Note>
+历史数据从**epoch 790**开始可用。查询更早的epoch将返回错误。
+</Note>
+
+该API提供跨多个维度的综合数据：
+
+- **奖励**：通胀奖励、区块奖励、Jito MEV小费、投票费用
+- **性能**：投票参与率、区块跳过率和其他数据指标
+- **财务**：总收入/质押者收入、佣金分成、APY计算（包括验证者和委托者的回报）
+- **预测**：未来奖励和APY的预测模型
+
+---
