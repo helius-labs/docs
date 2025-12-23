@@ -12,7 +12,11 @@ The Enhanced Transactions API transforms complex Solana transactions into human-
 - How much SOL or tokens were transferred
 - Associated metadata (e.g. token mint addresses, token names, token symbols, etc.)
 
-Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettransactionsforaddress) RPC method, enabling bidirectional sorting and time-based filtering.
+Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettransactionsforaddress) RPC method.
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  View detailed API documentation for transaction history
+</Card>
 
 <Warning>
 **Important Limitations**:
@@ -21,7 +25,7 @@ Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettr
 - **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
 </Warning>
 
-## Fetch Transaction History for an Address
+## Quickstart
 
 Retrieve transaction history for any Solana address:
 
@@ -57,52 +61,7 @@ Retrieve transaction history for any Solana address:
   </Tab>
 </Tabs>
 
-<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
-  View detailed API documentation for transaction history
-</Card>
-
-## Complete Pagination Example
-
-For high-volume addresses, implement pagination to fetch all transactions:
-
-```javascript
-const fetchAllTransactions = async () => {
-  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
-  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
-  let url = baseUrl;
-  let lastSignature = null;
-  let allTransactions = [];
-  
-  while (true) {
-    if (lastSignature) {
-      url = baseUrl + `&before-signature=${lastSignature}`;
-    }
-    
-    const response = await fetch(url);
-    
-    // Check response status
-    if (!response.ok) {
-      console.error(`API error: ${response.status}`);
-      break;
-    }
-    
-    const transactions = await response.json();
-    
-    if (transactions && transactions.length > 0) {
-      console.log(`Fetched batch of ${transactions.length} transactions`);
-      allTransactions = [...allTransactions, ...transactions];
-      lastSignature = transactions[transactions.length - 1].signature;
-    } else {
-      console.log(`Finished! Total transactions: ${allTransactions.length}`);
-      break;
-    }
-  }
-  
-  return allTransactions;
-};
-```
-
-## Filter Transactions by Type
+### Filter by Transaction Type
 
 Get only specific transaction types, such as NFT sales, token transfers, or swaps:
 
@@ -145,112 +104,48 @@ Get only specific transaction types, such as NFT sales, token transfers, or swap
   </Tab>
 </Tabs>
 
-### Understanding Type Filtering Behavior
+### Pagination
 
-<Warning>
-**Runtime Type Filtering**:
-
-Type filtering happens at runtime, meaning the API searches through transactions sequentially until it finds at least 50 matching items. If the API cannot find any transactions matching your filter within the search period, it will return an error with instructions to continue searching.
-</Warning>
-
-When using type filters, you may encounter a situation where no matching transactions are found within the current search window. In this case, the API returns an error response like:
-
-```json
-{
-  "error": "Failed to find events within the search period. To continue search, query the API again with the before parameter set to 2UKbsu95YzxGjUGYRg2znozmmVADVgmnhHqzDxq8Xfb3V5bf2NHUkaXGPrUpQnRFVHVKbawdQXtm4xJt9njMDHvg."
-}
-```
-
-<Info>
-**Sort Order and Filter Parameters**:
-- When searching in **descending order** (default, `sort-order=desc` or newest first), use the `before-signature` parameter with the signature from the error message to continue searching backward through history
-- When searching in **ascending order** (`sort-order=asc` or oldest first), you must use the `after-signature` parameter with the signature from the error message to continue searching forward through history
-</Info>
-
-To continue the search, you need to use the signature provided in the error message with the appropriate parameter (`before-signature` for descending, `after-signature` for ascending) in your next request. Here's how to handle this:
+For high-volume addresses, implement pagination to fetch all transactions:
 
 ```javascript
-const fetchFilteredTransactions = async (sortOrder = 'desc') => {
-  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
-  const transactionType = "NFT_SALE";
-  let continuationSignature = null;
-  let allFilteredTransactions = [];
-  let maxRetries = 10; // Prevent infinite loops
-  let retryCount = 0;
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
   
-  // Determine which parameter to use based on sort order
-  const continuationParam = sortOrder === 'asc' ? 'after-signature' : 'before-signature';
-  
-  while (retryCount < maxRetries) {
-    // Build URL with optional continuation parameter
-    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}&sort-order=${sortOrder}`;
-    
-    if (continuationSignature) {
-      url += `&${continuationParam}=${continuationSignature}`;
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before-signature=${lastSignature}`;
     }
     
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      // Check if we received an error about search period
-      if (data.error && data.error.includes("Failed to find events within the search period")) {
-        // Extract the signature from the error message
-        const signatureMatch = data.error.match(/parameter set to ([A-Za-z0-9]+)/);
-        
-        if (signatureMatch && signatureMatch[1]) {
-          console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
-          continuationSignature = signatureMatch[1];
-          retryCount++;
-          continue; // Continue searching with new signature
-        } else {
-          console.log("No more transactions to search");
-          break;
-        }
-      }
-      
-      // Check if we received transactions
-      if (Array.isArray(data) && data.length > 0) {
-        console.log(`Found ${data.length} ${transactionType} transactions`);
-        allFilteredTransactions = [...allFilteredTransactions, ...data];
-        
-        // Set continuation signature for next page
-        continuationSignature = data[data.length - 1].signature;
-        retryCount = 0; // Reset retry count since we found results
-      } else {
-        console.log("No more transactions found");
-        break;
-      }
-      
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
       break;
     }
   }
   
-  console.log(`Total ${transactionType} transactions found: ${allFilteredTransactions.length}`);
-  return allFilteredTransactions;
+  return allTransactions;
 };
-
-// Usage examples:
-// Descending order (newest first) - uses 'before-signature' parameter
-fetchFilteredTransactions('desc');
-
-// Ascending order (oldest first) - uses 'after-signature' parameter
-fetchFilteredTransactions('asc');
 ```
 
-<Info>
-**Key Points**:
-- The API searches through up to 50 transactions at a time when using type filters
-- If no matches are found, use the signature from the error message to continue searching
-- Use `before-signature` parameter when searching in descending order (default, newest first)
-- **Use `after-signature` parameter when searching in ascending order (oldest first)** - this is required for chronological searches
-- Implement a maximum retry limit to prevent infinite loops
-- This behavior is expected and allows you to search through an address's entire history for specific transaction types
-</Info>
-
-## Query Parameters
+## API Reference
 
 | Parameter | Description | Default | Example |
 |-----------|-------------|---------|---------|
@@ -439,51 +334,112 @@ const fetchAllTransactionsInTimeRange = async () => {
 - Time-based filters are more intuitive for date ranges, while slot-based filters are useful for blockchain-specific queries
 </Tip>
 
-## Rate Limiting Considerations
 
-To avoid hitting rate limits when working with the API:
+## Type Filtering Considerations
 
-- Implement pagination for large datasets
-- Cache responses when appropriate
-- Add exponential backoff for retries
-- Consider upgrading your API plan for high-volume applications
+<Warning>
+**Runtime Type Filtering**:
 
-<Tip>
-For high-traffic applications, consider implementing a caching layer with Redis or similar technology to minimize redundant API calls.
-</Tip>
+Type filtering happens at runtime, meaning the API searches through transactions sequentially until it finds at least 50 matching items. If the API cannot find any transactions matching your filter within the search period, it will return an error with instructions to continue searching.
+</Warning>
 
-## Error Handling
+When using type filters, you may encounter a situation where no matching transactions are found within the current search window. In this case, the API returns an error response like:
 
-Always implement proper error handling in your code:
-
-```javascript
-const fetchTransactions = async () => {
-  try {
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Failed to fetch transactions:", error);
-    // Implement retry logic or user-friendly error messages
-  }
-};
+```json
+{
+  "error": "Failed to find events within the search period. To continue search, query the API again with the before parameter set to 2UKbsu95YzxGjUGYRg2znozmmVADVgmnhHqzDxq8Xfb3V5bf2NHUkaXGPrUpQnRFVHVKbawdQXtm4xJt9njMDHvg."
+}
 ```
 
-## Best Practices
+<Info>
+**Sort Order and Filter Parameters**:
+- When searching in **descending order** (default, `sort-order=desc` or newest first), use the `before-signature` parameter with the signature from the error message to continue searching backward through history
+- When searching in **ascending order** (`sort-order=asc` or oldest first), you must use the `after-signature` parameter with the signature from the error message to continue searching forward through history
+</Info>
 
-<CardGroup cols={2}>
-  <Card title="Error Handling" icon="shield-check">
-    Implement proper error handling and retries for production applications
-  </Card>
-  <Card title="Rate Limiting" icon="gauge-high">
-    Use pagination and caching strategies to avoid hitting rate limits
-  </Card>
-</CardGroup>
+To continue the search, you need to use the signature provided in the error message with the appropriate parameter (`before-signature` for descending, `after-signature` for ascending) in your next request. Here's how to handle this:
+
+```javascript
+const fetchFilteredTransactions = async (sortOrder = 'desc') => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const transactionType = "NFT_SALE";
+  let continuationSignature = null;
+  let allFilteredTransactions = [];
+  let maxRetries = 10; // Prevent infinite loops
+  let retryCount = 0;
+  
+  // Determine which parameter to use based on sort order
+  const continuationParam = sortOrder === 'asc' ? 'after-signature' : 'before-signature';
+  
+  while (retryCount < maxRetries) {
+    // Build URL with optional continuation parameter
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}&sort-order=${sortOrder}`;
+    
+    if (continuationSignature) {
+      url += `&${continuationParam}=${continuationSignature}`;
+    }
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      // Check if we received an error about search period
+      if (data.error && data.error.includes("Failed to find events within the search period")) {
+        // Extract the signature from the error message
+        const signatureMatch = data.error.match(/parameter set to ([A-Za-z0-9]+)/);
+        
+        if (signatureMatch && signatureMatch[1]) {
+          console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
+          continuationSignature = signatureMatch[1];
+          retryCount++;
+          continue; // Continue searching with new signature
+        } else {
+          console.log("No more transactions to search");
+          break;
+        }
+      }
+      
+      // Check if we received transactions
+      if (Array.isArray(data) && data.length > 0) {
+        console.log(`Found ${data.length} ${transactionType} transactions`);
+        allFilteredTransactions = [...allFilteredTransactions, ...data];
+        
+        // Set continuation signature for next page
+        continuationSignature = data[data.length - 1].signature;
+        retryCount = 0; // Reset retry count since we found results
+      } else {
+        console.log("No more transactions found");
+        break;
+      }
+      
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      break;
+    }
+  }
+  
+  console.log(`Total ${transactionType} transactions found: ${allFilteredTransactions.length}`);
+  return allFilteredTransactions;
+};
+
+// Usage examples:
+// Descending order (newest first) - uses 'before-signature' parameter
+fetchFilteredTransactions('desc');
+
+// Ascending order (oldest first) - uses 'after-signature' parameter
+fetchFilteredTransactions('asc');
+```
+
+<Info>
+**Key Points**:
+- The API searches through up to 50 transactions at a time when using type filters
+- If no matches are found, use the signature from the error message to continue searching
+- Use `before-signature` parameter when searching in descending order (default, newest first)
+- **Use `after-signature` parameter when searching in ascending order (oldest first)** - this is required for chronological searches
+- Implement a maximum retry limit to prevent infinite loops
+- This behavior is expected and allows you to search through an address's entire history for specific transaction types
+</Info>
+
 
 ## Questions?
 
