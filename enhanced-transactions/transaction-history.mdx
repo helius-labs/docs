@@ -349,12 +349,6 @@ When using type filters, you may encounter a situation where no matching transac
 }
 ```
 
-<Info>
-**Sort Order and Filter Parameters**:
-- When searching in **descending order** (default, `sort-order=desc` or newest first), use the `before-signature` parameter with the signature from the error message to continue searching backward through history
-- When searching in **ascending order** (`sort-order=asc` or oldest first), you must use the `after-signature` parameter with the signature from the error message to continue searching forward through history
-</Info>
-
 To continue the search, you need to use the signature provided in the error message with the appropriate parameter (`before-signature` for descending, `after-signature` for ascending) in your next request. Here's how to handle this:
 
 ```javascript
