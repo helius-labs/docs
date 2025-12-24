@@ -1,0 +1,439 @@
+---
+title: "Transaction History"
+sidebarTitle: "Transaction History"
+description: "Human-readable transaction history for any Solana address."
+---
+
+<Warning>
+**Important Limitations**:
+- Enhanced Transaction API V1 won't be updated while we are working on V2
+- We only parse NFT, Jupiter, and SPL-related transactions
+- **Do not rely on these parsers for DeFi or non-NFT, Jupiter, and SPL transactions**
+</Warning>
+
+## Overview
+
+The Enhanced Transactions API transforms complex Solana transactions into human-readable data. Instead of dealing with raw instruction data and account lists, you get structured information about:
+- What happened in the transaction (transfers, swaps, NFT activities)
+- Which accounts were involved
+- How much SOL or tokens were transferred
+- Associated metadata (e.g. token mint addresses, token names, token symbols, etc.)
+
+Under the hood, the API is powered by the [getTransactionsForAddress](/rpc/gettransactionsforaddress) RPC method.
+
+<Card title="API Reference" horizontal icon="code" href="/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  View detailed API documentation for transaction history
+</Card>
+
+## Network Support
+
+| Network | Supported | Retention Period |
+|---------|-----------|-------------|
+| Mainnet | Yes | Unlimited |
+| Devnet | Yes | 2 weeks |
+| Testnet | No | N/A |
+
+## Quickstart
+
+Retrieve transaction history for any Solana address:
+
+<Tabs>
+  <Tab title="JavaScript">
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+  </Tab>
+</Tabs>
+
+### Filter by Transaction Type
+
+Get only specific transaction types, such as NFT sales, token transfers, or swaps:
+
+<Tabs>
+  <Tab title="NFT Sales">
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+  </Tab>
+  <Tab title="Token Transfers">
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+  </Tab>
+  <Tab title="Swaps">
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+  </Tab>
+</Tabs>
+
+[See all available types](/api-reference/enhanced-transactions/gettransactionsbyaddress).
+
+### Pagination
+
+For high-volume addresses, implement pagination to fetch all transactions:
+
+```javascript
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before-signature=${lastSignature}`;
+    }
+    
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
+      break;
+    }
+  }
+  
+  return allTransactions;
+};
+```
+
+## API Reference
+
+| Parameter | Description | Default | Example |
+|-----------|-------------|---------|---------|
+| `limit` | Number of transactions to return (1-100) | 10 | `&limit=25` |
+| `before-signature` | Fetch transactions before this signature (use with `sort-order=desc`) | - | `&before-signature=sig123...` |
+| `after-signature` | Fetch transactions after this signature (use with `sort-order=asc`) | - | `&after-signature=sig456...` |
+| `type` | Filter by transaction type | - | `&type=NFT_SALE` |
+| `sort-order` | Sort order for results | `desc` | `&sort-order=asc` |
+| `commitment` | Commitment level | `finalized` | `&commitment=confirmed` |
+
+### Time-Based Filtering
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `gt-time` | Transactions after this Unix timestamp | `&gt-time=1656442333` |
+| `gte-time` | Transactions at or after this Unix timestamp | `&gte-time=1656442333` |
+| `lt-time` | Transactions before this Unix timestamp | `&lt-time=1656442333` |
+| `lte-time` | Transactions at or before this Unix timestamp | `&lte-time=1656442333` |
+
+### Slot-Based Filtering
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `gt-slot` | Transactions after this slot | `&gt-slot=148277128` |
+| `gte-slot` | Transactions at or after this slot | `&gte-slot=148277128` |
+| `lt-slot` | Transactions before this slot | `&lt-slot=148277128` |
+| `lte-slot` | Transactions at or before this slot | `&lte-slot=148277128` |
+
+<Info>
+**Filtering Tips**:
+- Time parameters use Unix timestamps (seconds since epoch)
+- Slot parameters use Solana slot numbers
+- You cannot combine time-based and slot-based filters in the same request
+- Use `sort-order=asc` for ascending (oldest first) or `sort-order=desc` for descending (newest first)
+</Info>
+
+## Advanced Filtering Examples
+
+### Filter by Time Range
+
+Get transactions within a specific time window:
+
+<Tabs>
+  <Tab title="Last 24 Hours">
+    ```javascript
+    const fetchRecentTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+      const now = Math.floor(Date.now() / 1000);
+      const oneDayAgo = now - (24 * 60 * 60);
+      
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${oneDayAgo}&lte-time=${now}`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Transactions from last 24 hours:", transactions);
+    };
+    ```
+  </Tab>
+  <Tab title="Specific Date Range">
+    ```javascript
+    const fetchTransactionsByDateRange = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+      
+      // January 1, 2024 to January 31, 2024
+      const startTime = Math.floor(new Date('2024-01-01').getTime() / 1000);
+      const endTime = Math.floor(new Date('2024-01-31').getTime() / 1000);
+      
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${startTime}&lte-time=${endTime}`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Transactions in January 2024:", transactions);
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Filter by Slot Range
+
+Get transactions within a specific slot range:
+
+```javascript
+const fetchTransactionsBySlotRange = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const startSlot = 148000000;
+  const endSlot = 148100000;
+  
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-slot=${startSlot}&lte-slot=${endSlot}`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log(`Transactions between slots ${startSlot} and ${endSlot}:`, transactions);
+};
+```
+
+### Change Sort Order
+
+Get transactions in ascending order (oldest first):
+
+```javascript
+const fetchOldestTransactions = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&sort-order=asc&limit=10`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log("10 oldest transactions:", transactions);
+};
+```
+
+### Combine Multiple Filters
+
+Combine type filtering with time range and custom sort order:
+
+```javascript
+const fetchFilteredTransactionsAdvanced = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  
+  // Get NFT sales from the last 7 days, oldest first
+  const now = Math.floor(Date.now() / 1000);
+  const sevenDaysAgo = now - (7 * 24 * 60 * 60);
+  
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE&gte-time=${sevenDaysAgo}&sort-order=asc&limit=50`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log("NFT sales from last 7 days (oldest first):", transactions);
+};
+```
+
+### Pagination with Time Filters
+
+Paginate through results with time filtering:
+
+```javascript
+const fetchAllTransactionsInTimeRange = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const startTime = Math.floor(new Date('2024-01-01').getTime() / 1000);
+  const endTime = Math.floor(new Date('2024-01-31').getTime() / 1000);
+  
+  let beforeSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${startTime}&lte-time=${endTime}&limit=100`;
+    
+    if (beforeSignature) {
+      url += `&before-signature=${beforeSignature}`;
+    }
+    
+    const response = await fetch(url);
+    const transactions = await response.json();
+    
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      break;
+    }
+    
+    allTransactions = [...allTransactions, ...transactions];
+    beforeSignature = transactions[transactions.length - 1].signature;
+    
+    console.log(`Fetched ${transactions.length} transactions, total: ${allTransactions.length}`);
+  }
+  
+  console.log(`Total transactions in time range: ${allTransactions.length}`);
+  return allTransactions;
+};
+```
+
+<Tip>
+**Performance Tips**:
+- Use time or slot filters to reduce the search space when you know the approximate time period
+- Combine with `limit` parameter to control page size
+- Use `sort-order=asc` when you want to process transactions chronologically
+- Time-based filters are more intuitive for date ranges, while slot-based filters are useful for blockchain-specific queries
+</Tip>
+
+
+## Type Filtering Considerations
+
+<Warning>
+**Runtime Type Filtering**:
+
+Type filtering happens at runtime, meaning the API searches through transactions sequentially until it finds at least 50 matching items. If the API cannot find any transactions matching your filter within the search period, it will return an error with instructions to continue searching.
+</Warning>
+
+When using type filters, you may encounter a situation where no matching transactions are found within the current search window. In this case, the API returns an error response like:
+
+```json
+{
+  "error": "Failed to find events within the search period. To continue search, query the API again with the `before-signature` parameter set to 2UKbsu95YzxGjUGYRg2znozmmVADVgmnhHqzDxq8Xfb3V5bf2NHUkaXGPrUpQnRFVHVKbawdQXtm4xJt9njMDHvg."
+}
+```
+
+To continue the search, you need to use the signature provided in the error message with the appropriate parameter (`before-signature` for descending, `after-signature` for ascending) in your next request. Here's how to handle this:
+
+```javascript
+const fetchFilteredTransactions = async (sortOrder = 'desc') => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const transactionType = "NFT_SALE";
+  let continuationSignature = null;
+  let allFilteredTransactions = [];
+  let maxRetries = 10; // Prevent infinite loops
+  let retryCount = 0;
+  
+  // Determine which parameter to use based on sort order
+  const continuationParam = sortOrder === 'asc' ? 'after-signature' : 'before-signature';
+  
+  while (retryCount < maxRetries) {
+    // Build URL with optional continuation parameter
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}&sort-order=${sortOrder}`;
+    
+    if (continuationSignature) {
+      url += `&${continuationParam}=${continuationSignature}`;
+    }
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      // Check if we received an error about search period
+      if (data.error && data.error.includes("Failed to find events within the search period")) {
+        // Extract the signature from the error message
+        const signatureMatch = data.error.match(/parameter set to ([A-Za-z0-9]+)/);
+        
+        if (signatureMatch && signatureMatch[1]) {
+          console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
+          continuationSignature = signatureMatch[1];
+          retryCount++;
+          continue; // Continue searching with new signature
+        } else {
+          console.log("No more transactions to search");
+          break;
+        }
+      }
+      
+      // Check if we received transactions
+      if (Array.isArray(data) && data.length > 0) {
+        console.log(`Found ${data.length} ${transactionType} transactions`);
+        allFilteredTransactions = [...allFilteredTransactions, ...data];
+        
+        // Set continuation signature for next page
+        continuationSignature = data[data.length - 1].signature;
+        retryCount = 0; // Reset retry count since we found results
+      } else {
+        console.log("No more transactions found");
+        break;
+      }
+      
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      break;
+    }
+  }
+  
+  console.log(`Total ${transactionType} transactions found: ${allFilteredTransactions.length}`);
+  return allFilteredTransactions;
+};
+
+// Usage examples:
+// Descending order (newest first) - uses 'before-signature' parameter
+fetchFilteredTransactions('desc');
+
+// Ascending order (oldest first) - uses 'after-signature' parameter
+fetchFilteredTransactions('asc');
+```
+
+<Info>
+**Key Points**:
+- The API searches through up to 50 transactions at a time when using type filters
+- If no matches are found, use the signature from the error message to continue searching
+- Use `before-signature` parameter when searching in descending order (default, newest first)
+- **Use `after-signature` parameter when searching in ascending order (oldest first)** - this is required for chronological searches
+- Implement a maximum retry limit to prevent infinite loops
+- This behavior is expected and allows you to search through an address's entire history for specific transaction types
+</Info>
+
+
+## Questions?
+
+For frequently asked questions about Enhanced Transactions including usage, authentication, rate limits, and troubleshooting, visit our comprehensive [Enhanced Transactions FAQ](/faqs/enhanced-transactions).
+
