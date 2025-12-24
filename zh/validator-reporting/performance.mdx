@@ -1,0 +1,449 @@
+---
+title: 获取验证者性能
+description: 运营指标包括投票参与率、跳过率和数据质量指标
+---
+
+<Note>
+[← 返回验证者报告 API](/zh/validator-reporting)
+</Note>
+
+## 端点
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/performance
+```
+
+## 描述
+
+检索验证者的全面运营性能指标，包括投票参与率、区块跳过率和数据质量指标。此端点对于监控验证者健康状况和识别潜在运营问题至关重要。
+
+### 关键指标
+
+<CardGroup cols={3}>
+  <Card title="投票参与" icon="check-to-slot">
+    跟踪验证者在区块上投票的一致性
+  </Card>
+  <Card title="跳过率" icon="forward">
+    监控作为领导者时的区块生产效率
+  </Card>
+  <Card title="纪元间隙" icon="chart-line-down">
+    识别参与率较低或数据缺失的纪元
+  </Card>
+</CardGroup>
+
+---
+
+## 路径参数
+
+<ParamField path="vote_account" type="string" required>
+  验证者的投票账户公钥（base58 编码）
+
+  必须匹配模式：`^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  示例：`he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## 查询参数
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥用于身份验证
+</ParamField>
+
+<ParamField query="period" type="string" default="30d">
+  性能指标的时间段
+
+  选项：`24h`, `7d`, `30d`, `90d`, `1y`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  起始纪元编号（最小值：790）
+
+  用于自定义纪元范围而不是 `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  结束纪元编号
+
+  必须与 `start_epoch` 一起使用
+</ParamField>
+
+---
+
+## 请求示例
+
+<CodeGroup>
+
+```bash cURL - 30 Day Performance
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?api-key=YOUR_API_KEY&period=30d"
+```
+
+```bash cURL - Custom Epoch Range
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?api-key=YOUR_API_KEY&start_epoch=800&end_epoch=850"
+```
+
+```javascript JavaScript
+const getValidatorPerformance = async (voteAccount, apiKey, period = '30d') => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+
+  const params = new URLSearchParams({
+    'api-key': apiKey,
+    period
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/performance?${params}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const performance = await getValidatorPerformance(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  '30d'
+);
+
+console.log('Vote Participation:', performance.participation.avg_vote_participation_pct, '%');
+console.log('Skip Rate:', performance.skip_rate.skip_rate_pct, '%');
+console.log('High Participation Epochs:', performance.participation.high_participation_epochs);
+console.log('Missing Epochs:', performance.participation.missing_epochs);
+
+// Check for participation metrics
+if (performance.participation.missing_epochs > 0) {
+  console.warn('Warning: Some epochs have missing data');
+  performance.epoch_gaps?.forEach(gap => {
+    console.log(`Epoch ${gap.epoch}: ${gap.vote_participation_pct}% participation`);
+  });
+}
+```
+
+```python Python
+import requests
+
+def get_validator_performance(vote_account: str, api_key: str, period: str = "30d"):
+    base_url = "https://mainnet.helius-rpc.com"
+
+    url = f"{base_url}/validators/{vote_account}/performance"
+    params = {
+        "api-key": api_key,
+        "period": period,
+    }
+
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+performance = get_validator_performance(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    "30d"
+)
+
+print(f"Vote Participation: {performance['participation']['avg_vote_participation_pct']}%")
+print(f"Skip Rate: {performance['skip_rate']['skip_rate_pct']}%")
+print(f"High Participation Epochs: {performance['participation']['high_participation_epochs']}")
+print(f"Missing Epochs: {performance['participation']['missing_epochs']}")
+
+# Check for performance issues
+if performance['participation']['missing_epochs'] > 0:
+    print("Warning: Some epochs have missing data")
+    for gap in performance.get('epoch_gaps', []):
+        print(f"Epoch {gap['epoch']}: {gap['vote_participation_pct']}% participation")
+```
+
+</CodeGroup>
+
+---
+
+## 响应模式
+
+<ResponseField name="vote_account" type="string">
+  验证者的投票账户地址
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  查询的时间段
+</ResponseField>
+
+<ResponseField name="start_epoch" type="integer">
+  数据范围的起始纪元
+</ResponseField>
+
+<ResponseField name="end_epoch" type="integer">
+  数据范围的结束纪元
+</ResponseField>
+
+<ResponseField name="participation" type="object">
+  投票参与指标
+
+  <Expandable title="participation properties">
+    <ResponseField name="total_epochs" type="integer">
+      该期间的总纪元数
+    </ResponseField>
+
+    <ResponseField name="high_participation_epochs" type="integer">
+      投票参与率超过95%的纪元数
+    </ResponseField>
+
+    <ResponseField name="lower_participation_epochs" type="integer">
+      投票参与率不超过95%的纪元数
+    </ResponseField>
+
+    <ResponseField name="missing_epochs" type="integer">
+      没有数据的纪元数（验证者可能已离线）
+    </ResponseField>
+
+    <ResponseField name="avg_vote_participation_pct" type="number">
+      所有纪元的平均投票参与百分比
+    </ResponseField>
+
+    <ResponseField name="expected_total_slots" type="integer">
+      基于纪元的预期插槽数（每个纪元432,000个插槽）
+    </ResponseField>
+
+    <ResponseField name="total_slots_voted" type="integer">
+      验证者投票的总插槽数
+    </ResponseField>
+
+    <ResponseField name="total_slots_not_voted" type="integer">
+      验证者未投票的总插槽数
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="skip_rate" type="object">
+  区块生产跳过率统计
+
+  <Expandable title="skip_rate properties">
+    <ResponseField name="total_leader_slots" type="integer">
+      分配给验证者的总领导插槽数
+    </ResponseField>
+
+    <ResponseField name="blocks_produced" type="integer">
+      成功生产的区块数
+    </ResponseField>
+
+    <ResponseField name="blocks_skipped" type="integer">
+      跳过区块的领导插槽数
+    </ResponseField>
+
+    <ResponseField name="skip_rate_pct" type="number">
+      跳过率的百分比: (blocks_skipped / total_leader_slots) * 100
+    </ResponseField>
+
+    <ResponseField name="has_skip_data" type="boolean">
+      此期间是否有跳过率数据
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="epoch_gaps" type="array" nullable>
+  关于参与度较低或数据缺失的纪元的详细信息
+
+  <Expandable title="array items">
+    <ResponseField name="epoch" type="integer">
+      数据质量问题的纪元编号
+    </ResponseField>
+
+    <ResponseField name="expected_slots" type="integer">
+      纪元中预期的插槽数量（通常为432,000）
+    </ResponseField>
+
+    <ResponseField name="slots_voted" type="integer">
+      验证者投票的插槽数量
+    </ResponseField>
+
+    <ResponseField name="slots_not_voted" type="integer">
+      验证者未投票的插槽数量
+    </ResponseField>
+
+    <ResponseField name="vote_participation_pct" type="number">
+      此纪元的投票参与百分比
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="query_timestamp" type="integer">
+  查询执行时的Unix时间戳
+</ResponseField>
+
+---
+
+## 响应示例
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "start_epoch": 650,
+  "end_epoch": 680,
+  "participation": {
+    "total_epochs": 30,
+    "high_participation_epochs": 28,
+    "lower_participation_epochs": 2,
+    "missing_epochs": 0,
+    "avg_vote_participation_pct": 99.65,
+    "expected_total_slots": 12960000,
+    "total_slots_voted": 12914640,
+    "total_slots_not_voted": 45360
+  },
+  "skip_rate": {
+    "total_leader_slots": 450,
+    "blocks_produced": 448,
+    "blocks_skipped": 2,
+    "skip_rate_pct": 0.44,
+    "has_skip_data": true
+  },
+  "epoch_gaps": [
+    {
+      "epoch": 655,
+      "expected_slots": 432000,
+      "slots_voted": 410400,
+      "slots_not_voted": 21600,
+      "vote_participation_pct": 95.0
+    },
+    {
+      "epoch": 672,
+      "expected_slots": 432000,
+      "slots_voted": 415000,
+      "slots_not_voted": 17000,
+      "vote_participation_pct": 96.06
+    }
+  ],
+  "query_timestamp": 1733421600
+}
+```
+
+---
+
+## 理解性能指标
+
+### 投票参与
+
+投票参与度衡量验证者在区块上投票的一致性：
+
+| 参与率 | 状态 | 行动 |
+|-------------------|--------|--------|
+| **>99%** | 优秀 | 正常操作 |
+| **95-99%** | 良好 | 监控趋势 |
+| **90-95%** | 令人担忧 | 调查基础设施 |
+| **< 90%** | 严重 | 需要立即关注 |
+
+<Note>
+**每个纪元的预期插槽**: 每个纪元432,000个插槽（即大约2天）
+</Note>
+
+### 跳过率
+
+跳过率衡量作为领导者时的区块生产效率：
+
+| 跳过率 | 状态 | 典型原因 |
+|-----------|--------|----------------|
+| **< 0.5%** | 优秀 | 最佳性能 |
+| **0.5-1%** | 良好 | 正常网络差异 |
+| **1-2%** | 一般 | 考虑基础设施升级 |
+| **>2%** | 差 | 网络问题或硬件故障 |
+
+<Warning>
+**高跳过率可能导致：**
+- 验证者奖励减少
+- 质押者信心降低
+- 潜在的惩罚（惩罚机制在Solana上线后）
+</Warning>
+
+### 数据质量指标
+
+API提供了几个数据质量指标：
+
+- **高参与纪元**：投票参与率超过95%的纪元
+- **低参与纪元**：参与率不超过95%的纪元（可能存在问题）
+- **缺失纪元**：没有数据的纪元（验证者可能离线）
+
+使用`epoch_gaps`数组来调查特定的问题纪元。
+
+---
+
+## 错误响应
+
+<CodeGroup>
+
+```json InvalidEpochRange
+{
+  "error": "InvalidEpochRange",
+  "message": "Requested epoch range is outside available data",
+  "min_epoch_available": 790
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 性能基准
+
+### 健康的验证者特征
+
+表现良好的验证者通常表现为：
+
+```json
+{
+  "participation": {
+    "avg_vote_participation_pct": 99.5,  // >99%
+    "high_participation_epochs": 29,      // Most epochs
+    "lower_participation_epochs": 1,      // Minimal
+    "missing_epochs": 0                    // None
+  },
+  "skip_rate": {
+    "skip_rate_pct": 0.5,                 // <1%
+    "blocks_produced": 447,
+    "blocks_skipped": 3
+  }
+}
+```
+
+### 警告信号
+
+注意以下模式：
+
+<Warning>
+**性能下降：**
+- 投票参与率呈下降趋势
+- 低参与纪元数量增加
+- 跳过率随时间增加
+
+**基础设施问题：**
+- 缺失纪元
+- 多个连续纪元投票参与率低于95%
+- 跳过率超过2%
+</Warning>
+
+---
+
+## 数据可用性
+
+对于超出我们可用历史数据范围的纪元范围，API将返回`InvalidEpochRange`错误。数据从纪元790开始可用。
+
+<Note>
+**最小可用纪元**：请求纪元在`MIN_EPOCH_AVAILABLE`（当前为790）之前的将返回`InvalidEpochRange`错误，并提供关于最小可用纪元的详细信息。
+</Note>
+
+---
+
+## 相关端点
+
+<Card title="收益" icon="money-bill-trend-up" href="/zh/validator-reporting/earnings">
+  查看性能如何影响收益和奖励
+</Card>
+
+---
