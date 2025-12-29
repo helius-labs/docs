@@ -1,0 +1,249 @@
+openapi: 3.1.0
+info:
+  title: Helius Sender API
+  version: 1.0.0
+  description: Ultra-low latency Solana transaction submission with dual routing to validators and Jito infrastructure.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://sender.helius-rpc.com
+    description: Global HTTPS endpoint (for frontend applications)
+  - url: http://slc-sender.helius-rpc.com
+    description: Salt Lake City
+  - url: http://ewr-sender.helius-rpc.com
+    description: Newark
+  - url: http://lon-sender.helius-rpc.com
+    description: London
+  - url: http://fra-sender.helius-rpc.com
+    description: Frankfurt
+  - url: http://ams-sender.helius-rpc.com
+    description: Amsterdam
+  - url: http://sg-sender.helius-rpc.com
+    description: Singapore
+  - url: http://tyo-sender.helius-rpc.com
+    description: Tokyo
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api-key
+      description: Standard users do not require an API key. Only users with custom TPS limits need to provide an API key.
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: The JSON-RPC protocol version.
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: The error code.
+              example: -32602
+            message:
+              type: string
+              description: The error message.
+            data:
+              type: object
+              description: Additional data about the error.
+        id:
+          type: string
+          description: Identifier matching the request.
+          example: "1"
+  examples:
+    request:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "sendTransaction"
+        params:
+          - "Ab/WBgJxCprwWlK2fCxSwm9KrWlJQW8TdnYqXMvg5KropeLqHaa5yJeoWUb+LsGi6zlfs1Z/jA/RgJW++tBhPAKAAQACBGuePYZrXq9Jj+DwkquiMvsrNU5rlcAbmRfuAYui/CwAQr437DqfrFoSt1BSgM/2/0Iqja1QMefnu1hTYX96AA0DBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWHa4WfUT12o+cyi2WGwfBvngyurXf5VQd4Ukn+5ZSIDAgAFAqCGAQACAAkDQA0DAAAAAAADAgABDAIAAABAQg8AAAAAAAA="
+          - encoding: "base64"
+            skipPreflight: true
+            maxRetries: 0
+    response:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+paths:
+  /fast:
+    post:
+      tags:
+        - Sender
+      summary: sendTransaction
+      operationId: sendTransaction
+      description: |
+        Submit signed transactions via Helius Sender for ultra-low latency transaction submission with dual routing to both Solana validators and Jito infrastructure.
+
+        **Requirements:**
+        - Transaction must include a tip transfer to a designated tip account
+        - Transaction must include priority fees via ComputeBudgetProgram
+        - `skipPreflight` must be set to `true`
+        - `maxRetries` should be set to `0`
+
+      security:
+        - ApiKeyQuery: []
+      parameters:
+        - name: swqos_only
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: When true, routes exclusively through SWQOS infrastructure, but has a lower minimal tip requirement.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: The JSON-RPC protocol version.
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: A unique identifier for the request.
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  enum:
+                    - "sendTransaction"
+                  description: The name of the RPC method to invoke.
+                  example: "sendTransaction"
+                  default: "sendTransaction"
+                params:
+                  type: array
+                  description: Parameters for sending a transaction via Sender.
+                  items:
+                    oneOf:
+                      - type: string
+                        description: The transaction encoded in base64.
+                      - type: object
+                        description: Configuration options for transaction submission.
+                        required:
+                          - skipPreflight
+                        properties:
+                          encoding:
+                            type: string
+                            description: Data encoding format used for the Solana transaction payload.
+                            enum:
+                              - base58
+                              - base64
+                            example: base64
+                          skipPreflight:
+                            type: boolean
+                            description: When true, bypasses Solana's preflight transaction validation for faster submission. Must be set to true for Sender.
+                            example: false
+                          maxRetries:
+                            type: integer
+                            description: Maximum number of automatic retry attempts. Should be set to 0.
+                            example: 0
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "sendTransaction"
+              params:
+                - "Ab/WBgJxCprwWlK2fCxSwm9KrWlJQW8TdnYqXMvg5KropeLqHaa5yJeoWUb+LsGi6zlfs1Z/jA/RgJW++tBhPAKAAQACBGuePYZrXq9Jj+DwkquiMvsrNU5rlcAbmRfuAYui/CwAQr437DqfrFoSt1BSgM/2/0Iqja1QMefnu1hTYX96AA0DBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWHa4WfUT12o+cyi2WGwfBvngyurXf5VQd4Ukn+5ZSIDAgAFAqCGAQACAAkDQA0DAAAAAAADAgABDAIAAABAQg8AAAAAAAA="
+                - encoding: "base64"
+                  skipPreflight: true
+                  maxRetries: 0
+      responses:
+        '200':
+          description: Transaction submitted successfully. Since we're skipping preflight checks, a 200 response does not guarantee that the transaction is valid or that it will land onchain.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: The JSON-RPC protocol version.
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: Identifier matching the request.
+                    example: "1"
+                  result:
+                    type: string
+                    description: The transaction signature for tracking confirmation status.
+                    example: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+        '400':
+          description: Bad Request - Missing tip, priority fee, or invalid submission parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "Invalid request"
+                id: "1"
+        '429':
+          description: Too Many Requests - Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "Too many requests"
+                id: "1"
+        '500':
+          description: Internal Server Error - An error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "Internal error"
+                id: "1"
+        '503':
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "Service unavailable"
+                id: "1"
+        '504':
+          description: Gateway Timeout - The request timed out.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "Gateway timeout"
+                id: "1"
