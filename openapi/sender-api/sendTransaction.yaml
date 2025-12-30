@@ -24,12 +24,6 @@ servers:
   - url: http://tyo-sender.helius-rpc.com
     description: Tokyo
 components:
-  securitySchemes:
-    ApiKeyQuery:
-      type: apiKey
-      in: query
-      name: api-key
-      description: Standard users do not require an API key. Only users with custom TPS limits need to provide an API key.
   schemas:
     ErrorResponse:
       type: object
@@ -81,17 +75,14 @@ paths:
       summary: sendTransaction
       operationId: sendTransaction
       description: |
-        Submit signed transactions via Helius Sender for ultra-low latency transaction submission with dual routing to both Solana validators and Jito infrastructure.
-
-        **Requirements:**
-        - Transaction must include a tip transfer to a designated tip account
-        - Transaction must include priority fees via ComputeBudgetProgram
-        - `skipPreflight` must be set to `true`
-        - `maxRetries` should be set to `0`
-
-      security:
-        - ApiKeyQuery: []
+        Submit transactions via Helius Sender for ultra-low latency transaction submission with dual routing to both Solana validators and Jito infrastructure.
       parameters:
+        - name: api-key
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Standard users do not require an API key. Only users with custom TPS limits need to provide an API key.
         - name: swqos_only
           in: query
           required: false
@@ -247,4 +238,3 @@ paths:
                   code: -32003
                   message: "Gateway timeout"
                 id: "1"
-
