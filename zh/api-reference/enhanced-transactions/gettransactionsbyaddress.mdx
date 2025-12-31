@@ -3,14 +3,3 @@ title: 通过地址获取增强的交易
 sidebarTitle: 通过地址获取交易
 openapi: /zh/openapi/openapi-definition.yaml GET /v0/addresses/{address}/transactions
 ---
-
-<Warning>
-**处理不完整的交易集**
-
-有时，由于数据检索期间的内部超时，历史端点可能会返回不完整的交易集。
-
-为解决此问题：
-1. 首先，调用`getSignaturesForAddress`以检索一批交易签名
-2. 接下来，使用接收到的签名调用`/v0/transactions`端点
-3. 如果响应中缺少任何交易，您可以重试获取这些特定交易
-</Warning>
