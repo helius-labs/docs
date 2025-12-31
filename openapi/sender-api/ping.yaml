@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: Helius Sender API
+  version: 1.0.0
+  description: Ping request to Helius Sender to maintain a warm connection
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://sender.helius-rpc.com
+    description: Global HTTPS endpoint (for frontend applications)
+  - url: http://slc-sender.helius-rpc.com
+    description: Salt Lake City
+  - url: http://ewr-sender.helius-rpc.com
+    description: Newark
+  - url: http://lon-sender.helius-rpc.com
+    description: London
+  - url: http://fra-sender.helius-rpc.com
+    description: Frankfurt
+  - url: http://ams-sender.helius-rpc.com
+    description: Amsterdam
+  - url: http://sg-sender.helius-rpc.com
+    description: Singapore
+  - url: http://tyo-sender.helius-rpc.com
+    description: Tokyo
+paths:
+  /ping:
+    get:
+      tags:
+        - Sender
+      summary: ping
+      operationId: ping
+      description: |
+        Ping request to Helius Sender to maintain a warm connection
+      security: []
+      responses:
+        '200':
+          description: Connection is alive.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "ok"
+        '503':
+          description: Service Unavailable - The service is temporarily unavailable.
+          content:
+            text/plain:
+              schema:
+                type: string
