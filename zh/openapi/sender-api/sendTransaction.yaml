@@ -1,0 +1,240 @@
+openapi: 3.1.0
+info:
+  title: Helius Sender API
+  version: 1.0.0
+  description: 超低延迟的Solana交易提交，具有到验证者和Jito基础设施的双重路由。
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://sender.helius-rpc.com
+    description: 全球HTTPS端点（用于前端应用程序）
+  - url: http://slc-sender.helius-rpc.com
+    description: 盐湖城
+  - url: http://ewr-sender.helius-rpc.com
+    description: 纽瓦克
+  - url: http://lon-sender.helius-rpc.com
+    description: 伦敦
+  - url: http://fra-sender.helius-rpc.com
+    description: 法兰克福
+  - url: http://ams-sender.helius-rpc.com
+    description: 阿姆斯特丹
+  - url: http://sg-sender.helius-rpc.com
+    description: 新加坡
+  - url: http://tyo-sender.helius-rpc.com
+    description: 东京
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          description: JSON-RPC协议版本。
+          enum:
+            - "2.0"
+          example: "2.0"
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: 错误代码。
+              example: -32602
+            message:
+              type: string
+              description: 错误信息。
+            data:
+              type: object
+              description: 关于错误的附加数据。
+        id:
+          type: string
+          description: 与请求匹配的标识符。
+          example: "1"
+  examples:
+    request:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        method: "sendTransaction"
+        params:
+          - "Ab/WBgJxCprwWlK2fCxSwm9KrWlJQW8TdnYqXMvg5KropeLqHaa5yJeoWUb+LsGi6zlfs1Z/jA/RgJW++tBhPAKAAQACBGuePYZrXq9Jj+DwkquiMvsrNU5rlcAbmRfuAYui/CwAQr437DqfrFoSt1BSgM/2/0Iqja1QMefnu1hTYX96AA0DBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWHa4WfUT12o+cyi2WGwfBvngyurXf5VQd4Ukn+5ZSIDAgAFAqCGAQACAAkDQA0DAAAAAAADAgABDAIAAABAQg8AAAAAAAA="
+          - encoding: "base64"
+            skipPreflight: true
+            maxRetries: 0
+    response:
+      value:
+        jsonrpc: "2.0"
+        id: "1"
+        result: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+paths:
+  /fast:
+    post:
+      tags:
+        - Sender
+      summary: sendTransaction
+      operationId: sendTransaction
+      description: |-
+        通过Helius Sender提交交易，以实现超低延迟的交易提交，并通过双路由同时连接Solana验证器和Jito基础设施。
+      parameters:
+        - name: api-key
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 标准用户不需要提供API密钥。只有具有自定义TPS限制的用户需要提供API密钥。
+        - name: swqos_only
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: 当为true时，仅通过SWQOS基础设施路由，但具有较低的最低小费要求。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  enum:
+                    - "2.0"
+                  description: JSON-RPC协议版本。
+                  example: "2.0"
+                  default: "2.0"
+                id:
+                  type: string
+                  description: 请求的唯一标识符。
+                  example: "1"
+                  default: "1"
+                method:
+                  type: string
+                  enum:
+                    - "sendTransaction"
+                  description: 要调用的RPC方法名称。
+                  example: "sendTransaction"
+                  default: "sendTransaction"
+                params:
+                  type: array
+                  description: 通过Sender发送交易的参数。
+                  items:
+                    oneOf:
+                      - type: string
+                        description: 以base64编码的交易。
+                      - type: object
+                        description: 交易提交的配置选项。
+                        required:
+                          - skipPreflight
+                        properties:
+                          encoding:
+                            type: string
+                            description: 用于Solana交易负载的数据编码格式。
+                            enum:
+                              - base58
+                              - base64
+                            example: base64
+                          skipPreflight:
+                            type: boolean
+                            description: 当为true时，绕过Solana的预检交易验证以加快提交速度。对于Sender，必须设置为true。
+                            example: false
+                          maxRetries:
+                            type: integer
+                            description: 自动重试的最大次数。应设置为0。
+                            example: 0
+            example:
+              jsonrpc: "2.0"
+              id: "1"
+              method: "sendTransaction"
+              params:
+                - "Ab/WBgJxCprwWlK2fCxSwm9KrWlJQW8TdnYqXMvg5KropeLqHaa5yJeoWUb+LsGi6zlfs1Z/jA/RgJW++tBhPAKAAQACBGuePYZrXq9Jj+DwkquiMvsrNU5rlcAbmRfuAYui/CwAQr437DqfrFoSt1BSgM/2/0Iqja1QMefnu1hTYX96AA0DBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhWHa4WfUT12o+cyi2WGwfBvngyurXf5VQd4Ukn+5ZSIDAgAFAqCGAQACAAkDQA0DAAAAAAADAgABDAIAAABAQg8AAAAAAAA="
+                - encoding: "base64"
+                  skipPreflight: true
+                  maxRetries: 0
+      responses:
+        '200':
+          description: 交易提交成功。由于我们跳过了预检，200响应并不保证交易有效或会在链上落地。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    enum:
+                      - "2.0"
+                    description: JSON-RPC协议版本。
+                    example: "2.0"
+                  id:
+                    type: string
+                    description: 与请求匹配的标识符。
+                    example: "1"
+                  result:
+                    type: string
+                    description: 用于跟踪确认状态的交易签名。
+                    example: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+              example:
+                jsonrpc: "2.0"
+                id: "1"
+                result: "4qTLpN1sBrp5SzZUKfrSH2897FmxA7AB4EbN4ccgSgEjG9RG2686pSKWhEbz65q4bvaRsdpKRJKZ3dkdGZA78u5s"
+        '400':
+          description: 错误请求 - 缺少小费、优先费用或提交参数无效。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32602
+                  message: "请求无效"
+                id: "1"
+        '429':
+          description: 请求过多 - 超出速率限制。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32005
+                  message: "请求过多"
+                id: "1"
+        '500':
+          description: 内部服务器错误 - 服务器发生错误。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32603
+                  message: "内部错误"
+                id: "1"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32002
+                  message: "服务不可用"
+                id: "1"
+        '504':
+          description: 网关超时 - 请求超时。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                jsonrpc: "2.0"
+                error:
+                  code: -32003
+                  message: "网关超时"
+                id: "1"

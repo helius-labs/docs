@@ -1,0 +1,501 @@
+---
+title: 获取验证者 APY
+description: 计算验证者的年化收益率，包括总 APY（验证者的总收益）和委托者 APY（扣除佣金后委托者收到的收益）
+---
+
+<Note>
+[← 返回验证者报告 API](/zh/validator-reporting)
+</Note>
+
+## 端点
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/apy
+```
+
+## 描述
+
+通过在指定期间内平均每个 epoch 的 APY 来计算验证者的年化收益率。
+
+返回 **总 APY**（扣除佣金前的验证者总收益）和 **委托者 APY**（扣除通胀、MEV 和优先费用后的实际 APY），并按奖励类型提供详细的分解和可选的预测。
+
+请注意，优先费用（即区块奖励）目前归于验证者，因为 SIMD-123 尚未上线，协议内没有与委托者共享的方式。
+
+### APY 计算公式
+
+```
+APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100
+
+where num_epochs_per_year ≈ 182.5
+```
+
+---
+
+## 路径参数
+
+<ParamField path="vote_account" type="string" required>
+  验证者的投票账户公钥（base58 编码）
+
+  必须符合模式：`^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  示例：`he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## 查询参数
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥用于身份验证
+</ParamField>
+
+<ParamField query="period" type="string" default="30d">
+  APY 计算的时间段
+
+  选项：`7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  起始 epoch 编号（最小值：790）
+
+  用于自定义 epoch 范围而不是 `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  结束 epoch 编号
+
+  必须与 `start_epoch` 一起使用
+</ParamField>
+
+<ParamField query="include_forecast" type="boolean" default="false">
+  包含基于历史数据的APY预测
+</ParamField>
+
+---
+
+## 请求示例
+
+<CodeGroup>
+
+```bash cURL - Basic APY
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d"
+```
+
+```bash cURL - With Forecast
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d&include_forecast=true"
+```
+
+```bash cURL - Single Epoch
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=epoch&start_epoch=800"
+```
+
+```javascript JavaScript
+const getValidatorAPY = async (voteAccount, apiKey, period = '30d', includeForecast = false) => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+
+  const params = new URLSearchParams({
+    'api-key': apiKey,
+    period,
+    ...(includeForecast && { include_forecast: 'true' })
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/apy?${params}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const apy = await getValidatorAPY(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  '30d',
+  true
+);
+
+console.log('Gross APY:', apy.apy.gross_apy_pct, '%');
+console.log('Staker APY:', apy.apy.staker_apy_pct, '%');
+console.log('Inflation APY:', apy.apy.breakdown.inflation_apy_pct, '%');
+console.log('MEV APY:', apy.apy.breakdown.mev_apy_pct, '%');
+```
+
+```python Python
+import requests
+
+def get_validator_apy(
+    vote_account: str,
+    api_key: str,
+    period: str = "30d",
+    include_forecast: bool = False
+):
+    base_url = "https://mainnet.helius-rpc.com"
+
+    params = {
+        "api-key": api_key,
+        "period": period,
+    }
+
+    if include_forecast:
+        params["include_forecast"] = "true"
+
+    url = f"{base_url}/validators/{vote_account}/apy"
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+apy = get_validator_apy(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    "30d",
+    include_forecast=True
+)
+
+print(f"Gross APY: {apy['apy']['gross_apy_pct']}%")
+print(f"Staker APY: {apy['apy']['staker_apy_pct']}%")
+print(f"Inflation APY: {apy['apy']['breakdown']['inflation_apy_pct']}%")
+print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
+```
+
+</CodeGroup>
+
+---
+
+## 响应模式
+
+<ResponseField name="vote_account" type="string">
+  验证者的投票账户地址
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  查询的时间段
+</ResponseField>
+
+<ResponseField name="apy" type="object">
+  包含总APY、质押者APY和明细的APY数据
+
+  <Expandable title="apy properties">
+    <ResponseField name="gross_apy_pct" type="number">
+      验证者的总APY（所有奖励/质押）
+    </ResponseField>
+
+    <ResponseField name="staker_apy_pct" type="number">
+      质押者/委托者在扣除所有佣金后获得的APY
+    </ResponseField>
+
+    <ResponseField name="breakdown" type="object">
+      按奖励来源划分的APY明细
+
+      <Expandable title="breakdown properties">
+        <ResponseField name="inflation_apy_pct" type="number">
+          来自通胀奖励的APY
+        </ResponseField>
+
+        <ResponseField name="mev_apy_pct" type="number">
+          来自Jito MEV小费的APY
+        </ResponseField>
+
+        <ResponseField name="block_rewards_apy_pct" type="number">
+          来自区块奖励的APY（即优先费用）
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="calculation_basis" type="object">
+  关于APY计算的详细信息
+
+  <Expandable title="calculation_basis properties">
+    <ResponseField name="total_stake_lamports" type="integer">
+      计算中使用的总质押（以lamports为单位）
+    </ResponseField>
+
+    <ResponseField name="total_earnings_lamports" type="integer">
+      计算中使用的总收益（以lamports为单位）
+    </ResponseField>
+
+    <ResponseField name="days" type="integer">
+      期间涵盖的天数
+    </ResponseField>
+
+    <ResponseField name="epochs_covered" type="integer">
+      用于APY计算的完整周期数
+    </ResponseField>
+
+    <ResponseField name="epochs_in_range" type="integer">
+      请求范围内的总周期数（包括完整和部分周期）
+    </ResponseField>
+
+    <ResponseField name="epochs_partial" type="integer">
+      从APY计算中排除的部分周期数
+    </ResponseField>
+
+    <ResponseField name="warning" type="string" nullable>
+      当部分周期被排除在计算之外时的警告信息（例如，"1个部分周期被排除在APY计算之外（当前周期的质押奖励不完整）"）
+    </ResponseField>
+
+    <ResponseField name="start_timestamp" type="integer">
+      计算开始的Unix时间戳
+    </ResponseField>
+
+    <ResponseField name="end_timestamp" type="integer">
+      计算结束的Unix时间戳
+    </ResponseField>
+
+    <ResponseField name="stake_source" type="string">
+      使用的质押数据来源
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_source" type="string">
+      使用的质押奖励数据来源
+    </ResponseField>
+
+    <ResponseField name="calculation_method" type="string">
+      APY计算方法（例如，"per_epoch_average"或"multi_epoch_compound"）
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="epoch_apy_data" type="array" nullable>
+  每个周期的APY数据（仅在查询单个周期或详细视图时）
+
+  <Expandable title="array items">
+    <ResponseField name="epoch" type="integer">
+      周期编号
+    </ResponseField>
+
+    <ResponseField name="stake_lamports" type="integer">
+      此周期的质押金额
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_lamports" type="integer">
+      获得的质押奖励
+    </ResponseField>
+
+    <ResponseField name="block_rewards_lamports" type="integer">
+      获得的区块奖励
+    </ResponseField>
+
+    <ResponseField name="mev_rewards_lamports" type="integer">
+      获得的MEV奖励
+    </ResponseField>
+
+    <ResponseField name="total_rewards_lamports" type="integer">
+      此周期的总奖励
+    </ResponseField>
+
+    <ResponseField name="apy_pct" type="number">
+      此特定周期的APY
+    </ResponseField>
+
+    <ResponseField name="is_partial" type="boolean">
+      此周期是否为部分周期（质押奖励数据不完整）
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="forecast" type="object" nullable>
+  APY预测投影（仅在`include_forecast=true`时）
+
+  <Expandable title="forecast properties">
+    <ResponseField name="projected_annual_apy_pct" type="number">
+      下一年的预计APY
+    </ResponseField>
+
+    <ResponseField name="confidence" type="string">
+      置信水平：`low`, `medium`, 或 `high`
+    </ResponseField>
+
+    <ResponseField name="based_on_days" type="integer">
+      用于预测的历史天数
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## 响应示例
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "apy": {
+    "gross_apy_pct": 8.45,
+    "staker_apy_pct": 7.61,
+    "breakdown": {
+      "inflation_apy_pct": 6.20,
+      "mev_apy_pct": 1.50,
+      "block_rewards_apy_pct": 0.75
+    }
+  },
+  "calculation_basis": {
+    "total_stake_lamports": 50000000000000,
+    "total_earnings_lamports": 1095890410958,
+    "days": 30,
+    "epochs_covered": 14,
+    "epochs_in_range": 15,
+    "epochs_partial": 1,
+    "start_timestamp": 1701734400,
+    "end_timestamp": 1704326400,
+    "stake_source": "on_chain",
+    "staking_rewards_source": "inflation_rewards",
+    "calculation_method": "per_epoch_average",
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
+  },
+  "forecast": {
+    "projected_annual_apy_pct": 8.52,
+    "confidence": "medium",
+    "based_on_days": 30
+  }
+}
+```
+
+---
+
+## 部分 Epoch 处理
+
+在计算 APY 时，API 会自动排除部分 epoch（即，质押奖励数据不完整的 epoch），以确保计算准确。
+
+<Note>
+**工作原理：**
+- `epochs_in_range`：您请求范围内的总 epoch 数（例如，3 个 epoch）
+- `epochs_covered`：用于 APY 计算的完整 epoch 数（例如，2 个 epoch）
+- `epochs_partial`：被排除的部分 epoch 数（例如，1 个 epoch）
+- `warning`：排除部分 epoch 时的解释
+
+部分 epoch 仍包含在 `epoch_apy_data` 中，并使用 `is_partial: true` 以保持透明性，但它们不影响整体 APY 计算。
+</Note>
+
+**示例响应：**
+
+```json
+{
+  "period": "epochs 889..892",
+  "calculation_basis": {
+    "epochs_in_range": 3,
+    "epochs_covered": 2,
+    "epochs_partial": 1,
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
+  },
+  "epoch_apy_data": [
+    { "epoch": 890, "is_partial": false, "apy_pct": 8.2 },
+    { "epoch": 891, "is_partial": false, "apy_pct": 8.5 },
+    { "epoch": 892, "is_partial": true, "apy_pct": 0.0 }
+  ]
+}
+```
+
+---
+
+## 理解总 APY 与质押者 APY
+
+<CardGroup cols={2}>
+  <Card title="总 APY" icon="coins">
+    **验证者总 APY**：所有奖励除以质押量，未扣除任何佣金。这代表了验证者的全部收益潜力。
+  </Card>
+  <Card title="质押者 APY" icon="hand-holding-dollar">
+    **扣除佣金后**：质押者/委托者在扣除所有奖励类型的佣金费用后实际收到的 APY。
+  </Card>
+</CardGroup>
+
+总 APY 与质押者 APY 之间的差异反映了验证者在不同奖励类型（即，通胀、MEV、优先费用）中的佣金结构。
+
+---
+
+## APY 组成部分
+
+| 组成部分 | 描述 |
+|-----------|-------------|
+| **通胀 APY** | Solana 的通胀奖励分配给验证者的回报 |
+| **MEV APY** | 来自 Jito MEV 提示的最佳区块排序回报 |
+| **区块奖励 APY** | 交易发送者支付的优先费用回报 |
+
+**总 APY** = 通胀 APY + MEV APY + 区块奖励 APY
+
+---
+
+## 错误响应
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid period: must be one of 7d, 30d, 90d, 1y, epoch"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 用例
+
+<CardGroup cols={2}>
+  <Card title="质押者报告" icon="file-chart-line">
+    为您的质押者提供透明的APY报告
+  </Card>
+  <Card title="性能跟踪" icon="chart-line-up">
+    监控APY趋势以优化操作
+  </Card>
+  <Card title="竞争分析" icon="scale-balanced">
+    将您的APY与其他验证者进行比较
+  </Card>
+  <Card title="收入预测" icon="crystal-ball">
+    使用预测数据预测未来收益
+  </Card>
+</CardGroup>
+
+---
+
+## 最佳实践
+
+<Tip>
+**推荐的报告周期**：使用`30d`进行每月质押者报告，使用`90d`进行季度性能评估。30天的周期在新近性和稳定性之间提供了良好的平衡。
+</Tip>
+
+<Note>
+**预测准确性**：当`confidence: "high"`时，预测最为可靠。这通常需要至少30天的稳定历史数据和一致的验证者性能。
+</Note>
+
+<Warning>
+**APY波动性**：APY可能会因以下因素显著变化：
+- Solana的通胀计划
+- MEV机会（高度可变）
+- 优先费用活动
+- 验证者性能（跳过率，投票参与）
+</Warning>
+
+---
+
+## 计算方法
+
+API使用以下方法计算APY：
+
+1. 计算每个epoch的回报：`epoch_return = rewards / stake`
+2. 使用每年epoch数进行年化：`APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100`
+3. 计算期间所有epoch的平均APY
+4. 应用佣金扣除以计算质押者APY（即委托人实际收到的APY）
+
+与简单线性外推相比，这种方法在较短时间内提供了更准确的APY估计。
+
+---
+
+## 相关端点
+
+<Card title="收益" icon="money-bill-trend-up" href="/zh/validator-reporting/earnings">
+  获取详细的收益分解以支持APY计算
+</Card>
+
+<Card title="奖励预测" icon="chart-line" href="/zh/validator-reporting/rewards-forecast">
+  使用多种模型和置信区间进行高级预测
+</Card>

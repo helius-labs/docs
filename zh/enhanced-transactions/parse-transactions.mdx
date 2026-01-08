@@ -1,0 +1,120 @@
+---
+title: 解析交易
+sidebarTitle: 解析交易
+description: 将交易解析为人类可读的数据。
+---
+
+<Warning>
+**重要限制**：
+- 在我们开发 V2 期间，增强交易 API V1 将不会更新
+- 我们仅解析与 NFT、Jupiter 和 SPL 相关的交易
+- **不要依赖这些解析器用于 DeFi 或非 NFT、Jupiter 和 SPL 交易**
+</Warning>
+
+## 概述
+
+解析交易端点将原始交易签名或数据转换为结构化的人类可读信息。您无需手动解码指令数据和账户列表，即可获得关于转账、交换、NFT 活动等的清晰细节。
+
+<Card title="API 参考" horizontal icon="code" href="/zh/api-reference/enhanced-transactions/gettransactions">
+  查看详细的解析交易 API 文档
+</Card>
+
+## 快速开始
+
+通过单个 API 调用解析一个或多个交易签名：
+
+<Tabs>
+  <Tab title="JavaScript">
+
+    ```javascript
+    const parseTransaction = async () => {
+      const url = "https://api-mainnet.helius-rpc.com/v0/transactions/?api-key=YOUR_API_KEY";
+    
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactions: ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"],
+        }),
+      });
+    
+      const data = await response.json();
+      console.log("Parsed transaction:", data);
+    };
+    
+    parseTransaction();
+    ```
+
+  </Tab>
+  <Tab title="Python">
+
+    ```python
+    import requests
+    import json
+    
+    def parse_transaction():
+        url = "https://api-mainnet.helius-rpc.com/v0/transactions/?api-key=YOUR_API_KEY"
+        
+        payload = {
+            "transactions": ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"]
+        }
+        
+        response = requests.post(url, json=payload)
+        data = response.json()
+        print("Parsed transaction:", data)
+        
+    parse_transaction()
+    ```
+
+  </Tab>
+</Tabs>
+
+## 响应结构
+
+增强交易响应包括具有可读描述的结构化数据：
+
+```json
+{
+  "description": "Transfer 0.1 SOL to FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+  "type": "TRANSFER",
+  "source": "SYSTEM_PROGRAM",
+  "fee": 5000,
+  "feePayer": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+  "signature": "5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP",
+  "slot": 171341028,
+  "timestamp": 1674080473,
+  "nativeTransfers": [
+    {
+      "fromUserAccount": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "toUserAccount": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 100000000
+    }
+  ],
+  "events": {
+    "sol": {
+      "from": "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K",
+      "to": "FXvStt8aeQHMGKDgqaQ2HXWfJsXnqiKSoBEpHJahkuD",
+      "amount": 0.1
+    }
+  }
+}
+```
+
+## 您将获得
+
+解析的交易数据包括：
+
+- **描述**：对发生事件的人类可读摘要
+- **类型**：交易类别（TRANSFER、SWAP、NFT_SALE 等）
+- **来源**：执行交易的程序
+- **费用信息**：交易费用和费用支付者
+- **本地转账**：账户之间的 SOL 转移
+- **代币转账**：SPL 代币转移
+- **事件**：高级事件摘要
+- **时间戳**：交易处理时间
+
+## 有问题吗？
+
+有关增强交易的常见问题，包括使用、认证、速率限制和故障排除，请访问我们全面的[增强交易常见问题](/zh/faqs/enhanced-transactions)。
