@@ -1,13 +1,14 @@
 name: Auto-translate Documentation
 
 on:
+  workflow_dispatch:
   push:
     branches: [workflow-test]
     paths:
       - '**.mdx'
       - 'docs.json'
       - 'i18n.json'
-      - '.github/workflows/i18n.yml'
+      - '.github/workflows/i18n_2.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
