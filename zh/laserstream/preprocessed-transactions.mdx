@@ -1,0 +1,346 @@
+---
+title: 预处理交易（测试版）
+sidebarTitle: 预处理交易（测试版）
+description: 流式传输Solana交易的最快方式。
+---
+
+<Warning>
+**测试版功能 - 需要请求访问权限**
+
+预处理交易目前处于测试阶段。要请求访问权限，请通过[Telegram](https://t.me/helius_help)或[Discord](https://discord.gg/EqanqfQU)联系Helius团队。
+</Warning>
+
+预处理交易是接收Solana交易的最快方式。LaserStream直接从分片中解码交易，而不是等待完整的交易处理，这使您比标准订阅提前几毫秒获取交易数据。
+
+本指南解释了何时使用预处理交易、可用的数据以及如何在所有LaserStream SDK中实现它们。
+
+---
+
+## 什么是预处理交易？
+
+在Solana的架构中，交易在完全处理之前会经过几个阶段：
+
+1. **分片接收** → 验证器接收交易分片（数据片段）
+2. **分片解码** → 分片被解码为原始交易 ← **预处理交易在此可用**
+3. **交易执行** → 交易由运行时执行
+4. **元数据生成** → 计算预/后余额、日志和错误信息
+5. **承诺** → 交易达到已处理/已确认/已完成状态
+
+标准交易订阅在第5阶段提供数据 - 完整执行和元数据生成之后。预处理订阅在第2阶段提供 - 分片解码后立即提供，在执行完成之前。
+
+**权衡：** 您可以提前几毫秒接收交易数据，但没有执行元数据，如余额变化、日志或错误信息。
+
+---
+
+## 尽力而为的交付保证
+
+<Info>
+**重要：** 预处理交易的交付是尽力而为的，不是保证的。我们的目标是99.99%的交付率，但在以下情况下可能会丢失一些交易：
+
+- 基础设施更新和重新部署
+- 网络问题或验证器连接问题
+- 分片解码或处理中的边缘情况
+
+对于需要保证交付的关键应用程序，请改用标准[事务订阅](/zh/laserstream/guides/decoding-transaction-data)。
+</Info>
+
+---
+
+## 有哪些数据可用？
+
+预处理的交易包括完整的交易消息，但缺少执行元数据：
+
+### 可用数据
+
+- ✅ **交易签名** - 唯一的交易标识符
+- ✅ **账户密钥** - 交易引用的所有账户
+- ✅ **指令** - 完整的指令数据和程序调用
+- ✅ **最近的区块哈希** - 交易过期参考
+- ✅ **签名** - 所有交易签名
+- ✅ **是否为投票交易** - 是否为投票交易
+- ✅ **槽号** - 包含此交易的槽
+
+### 缺失数据
+
+- ❌ **交易元数据** - 代币余额变化、前/后余额、交易状态
+- ❌ **交易错误** - 我们无法确定交易是否失败
+- ❌ **内部指令** - 不包括跨程序调用（CPI）
+- ❌ **日志消息** - 程序在执行期间生成的日志
+- ❌ **消耗的计算单元** - 执行指标不可用
+
+可以将预处理的交易视为收到“提案”而没有“结果”。您可以看到用户尝试做什么，但看不到实际发生了什么。
+
+---
+
+## SDK支持和版本要求
+
+所有LaserStream SDK都支持预处理交易订阅：
+
+<CardGroup cols={3}>
+  <Card title="JavaScript/TypeScript" icon="js" href="https://github.com/helius-labs/laserstream-sdk/tree/main/javascript">
+    版本 **0.2.8** 或更高
+  </Card>
+  <Card title="Rust" icon="rust" href="https://github.com/helius-labs/laserstream-sdk/tree/main/rust">
+    版本 **0.1.5** 或更高
+  </Card>
+  <Card title="Go" icon="golang" href="https://github.com/helius-labs/laserstream-sdk/tree/main/go">
+    版本 **0.1.0** 或更高
+  </Card>
+</CardGroup>
+
+---
+
+## 实现示例
+
+### JavaScript/TypeScript
+
+JavaScript SDK提供了一个专用的`subscribePreprocessed`函数，具有自动重新连接功能：
+
+```typescript [expandable]
+import {
+  subscribePreprocessed,
+  CommitmentLevel,
+  LaserstreamConfig,
+  SubscribePreprocessedRequest,
+  SubscribePreprocessedUpdate
+} from 'helius-laserstream';
+import bs58 from 'bs58';
+
+async function streamPreprocessedTransactions() {
+  const config: LaserstreamConfig = {
+    apiKey: 'YOUR_API_KEY',
+    endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com',
+  };
+
+  const request: SubscribePreprocessedRequest = {
+    transactions: {
+      "jupiter-swaps": {
+        vote: false,
+        accountInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+      }
+    }
+  };
+
+  const stream = await subscribePreprocessed(
+    config,
+    request,
+    async (update: SubscribePreprocessedUpdate) => {
+      if (update.transaction) {
+        const tx = update.transaction;
+        const signature = bs58.encode(tx.transaction.signature);
+
+        console.log('⚡ Preprocessed transaction received:');
+        console.log(`  Signature: ${signature}`);
+        console.log(`  Slot: ${tx.slot}`);
+        console.log(`  Is Vote: ${tx.transaction.isVote}`);
+        console.log(`  Filters: ${update.filters.join(', ')}`);
+        console.log('---');
+      }
+    },
+    async (error) => {
+      console.error('Stream error:', error);
+    }
+  );
+
+  console.log(`✅ Preprocessed stream started (id: ${stream.id})`);
+
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('\n🛑 Shutting down stream...');
+    stream.cancel();
+    process.exit(0);
+  });
+}
+
+streamPreprocessedTransactions().catch(console.error);
+```
+
+**完整示例：** [preprocessed-transaction-sub.ts](https://github.com/helius-labs/laserstream-sdk/blob/main/javascript/examples/preprocessed-transaction-sub.ts)
+
+### Rust
+
+Rust SDK提供本机性能：
+
+```rust [expandable]
+use futures::StreamExt;
+use helius_laserstream::{
+    grpc::{SubscribePreprocessedRequest, SubscribePreprocessedRequestFilterTransactions},
+    subscribe_preprocessed, LaserstreamConfig,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = LaserstreamConfig {
+        endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com".to_string(),
+        api_key: "YOUR_API_KEY".to_string(),
+        ..Default::default()
+    };
+
+    let mut request = SubscribePreprocessedRequest::default();
+    request.transactions.insert(
+        "jupiter-swaps".to_string(),
+        SubscribePreprocessedRequestFilterTransactions {
+            vote: Some(false),
+            account_include: vec![
+                "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4".to_string()
+            ],
+            ..Default::default()
+        },
+    );
+
+    let (stream, _handle) = subscribe_preprocessed(config, request);
+    tokio::pin!(stream);
+
+    println!("✅ Preprocessed stream started");
+
+    while let Some(result) = stream.next().await {
+        match result {
+            Ok(update) => {
+                if let Some(tx) = update.transaction {
+                    println!("⚡ Preprocessed transaction:");
+                    println!("  Slot: {}", tx.slot);
+                    println!("  Is Vote: {}", tx.transaction.is_vote);
+                    println!("---");
+                }
+            }
+            Err(e) => {
+                eprintln!("Stream error: {:?}", e);
+                break;
+            }
+        }
+    }
+
+    Ok(())
+}
+```
+
+**完整示例：** [preprocessed_transaction_sub.rs](https://github.com/helius-labs/laserstream-sdk/blob/main/rust/examples/preprocessed_transaction_sub.rs)
+
+### Go
+
+Go SDK 提供惯用的 Go 接口：
+
+```go [expandable]
+package main
+
+import (
+    "log"
+    "os"
+    "os/signal"
+    "syscall"
+
+    laserstream "github.com/helius-labs/laserstream-sdk/go"
+    pb "github.com/helius-labs/laserstream-sdk/go/proto"
+)
+
+func main() {
+    log.SetFlags(0)
+
+    clientConfig := laserstream.LaserstreamConfig{
+        Endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com",
+        APIKey:   "YOUR_API_KEY",
+    }
+
+    voteFilter := false
+    subscriptionRequest := &pb.SubscribePreprocessedRequest{
+        Transactions: map[string]*pb.SubscribePreprocessedRequestFilterTransactions{
+            "jupiter-swaps": {
+                Vote: &voteFilter,
+                AccountInclude: []string{
+                    "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+                },
+            },
+        },
+    }
+
+    client := laserstream.NewPreprocessedClient(clientConfig)
+
+    dataCallback := func(data *pb.SubscribePreprocessedUpdate) {
+        if data.Transaction != nil {
+            log.Println("⚡ Preprocessed transaction:")
+            log.Printf("  Slot: %d\n", data.Transaction.Slot)
+            log.Printf("  Is Vote: %t\n", data.Transaction.Transaction.IsVote)
+            log.Println("---")
+        }
+    }
+
+    errorCallback := func(err error) {
+        log.Printf("Error: %v", err)
+    }
+
+    err := client.Subscribe(subscriptionRequest, dataCallback, errorCallback)
+    if err != nil {
+        log.Fatalf("Failed to subscribe: %v", err)
+    }
+
+    log.Println("✅ Preprocessed stream started")
+    log.Println("Press Ctrl+C to exit")
+
+    sigChan := make(chan os.Signal, 1)
+    signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+    <-sigChan
+
+    log.Println("\nShutting down...")
+    client.Close()
+}
+```
+
+**完整示例：** [preprocessed-transaction-sub.go](https://github.com/helius-labs/laserstream-sdk/blob/main/go/examples/preprocessed-transaction-sub.go)
+
+---
+
+## 订阅结构和过滤
+
+### 请求结构
+
+预处理订阅请求遵循与标准订阅类似的结构，但具有集中的过滤器集：
+
+```typescript
+interface SubscribePreprocessedRequest {
+  transactions: {
+    [filterName: string]: SubscribePreprocessedRequestFilterTransactions
+  };
+  ping?: SubscribeRequestPing;
+}
+
+interface SubscribePreprocessedRequestFilterTransactions {
+  vote?: boolean;              // Include/exclude vote transactions
+  signature?: string;          // Filter by specific transaction signature
+  accountInclude?: string[];   // Include transactions touching these accounts
+  accountExclude?: string[];   // Exclude transactions touching these accounts
+  accountRequired?: string[];  // Require all these accounts to be present
+}
+```
+
+### 响应结构
+
+更新包含完整的交易消息和基本元数据：
+
+```typescript
+interface SubscribePreprocessedUpdate {
+  filters: string[];                             // Which filters matched
+  transaction?: SubscribePreprocessedTransaction; // The transaction data
+  ping?: SubscribeUpdatePing;                    // Keepalive ping
+  pong?: SubscribeUpdatePong;                    // Ping response
+  createdAt: Date;                               // When update was created
+}
+
+interface SubscribePreprocessedTransaction {
+  transaction: SubscribePreprocessedTransactionInfo;
+  slot: number;                                  // Slot containing transaction
+}
+
+interface SubscribePreprocessedTransactionInfo {
+  signature: Uint8Array;                         // Transaction signature
+  isVote: boolean;                               // Is this a vote transaction
+  transaction: solana.storage.Transaction;       // Full transaction message
+}
+```
+
+`transaction.transaction` 字段包含完整的 Solana 交易结构，包括：
+
+- **消息** - 账户密钥、指令、最近的区块哈希
+- **签名** - 所有交易签名
+- **地址表查找** - 用于版本化交易
+
+这与标准订阅中的交易结构相同，但没有包含执行结果的 `meta` 字段。
