@@ -33,7 +33,7 @@ npm init -y
 npm install ws
 ```
 
-_(您只需要`ws`库用于Node.js WebSocket客户端。不需要额外的库。)_
+_（你只需要 `ws` 库用于 Node.js WebSocket 客户端。不需要额外的库。）_
 
 #### 2. 获取您的API密钥
 
@@ -41,7 +41,7 @@ _(您只需要`ws`库用于Node.js WebSocket客户端。不需要额外的库。
 
 #### 3. 最小代码示例
 
-创建一个**`index.js`**文件：
+创建一个 **`index.js`** 文件：
 
 ```js
 // index.js
@@ -120,7 +120,7 @@ ws.on('close', () => {
 
 #### **4. 替换您的端点和API密钥**
 
-将占位符**`laserstream-ws-url`**替换为您的实际WebSocket URL，并包含您的`api-key`，如下所示：
+将占位符 **`laserstream-ws-url`** 替换为你的实际 WebSocket URL，并按如下方式包含你的 `api-key`：
 
 ```js
 const WS_URL = `wss://<YOUR_ENDPOINT>/?api-key=<YOUR_API_KEY>`;
@@ -134,27 +134,27 @@ const WS_URL = `wss://<YOUR_ENDPOINT>/?api-key=<YOUR_API_KEY>`;
 node index.js
 ```
 
-每当**确认**的代币交易涉及`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`时，您将开始接收交易事件。预计会收到显示交易详情和插槽的JSON对象。
+每当 **确认** 的代币交易涉及 `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` 时，你将开始接收交易事件。预期会收到显示交易详情和槽位的 JSON 对象。
 
 ***
 
 ### Transaction Subscribe
 
-`transactionSubscribe` websocket 方法启用实时交易事件。要使用它，请提供一个`TransactionSubscribeFilter`，并可选择性地包括`TransactionSubscribeOptions`以进行进一步自定义。
+transactionSubscribe websocket 方法启用实时交易事件。要使用它，请提供一个 `TransactionSubscribeFilter`，并可选地包括 `TransactionSubscribeOptions` 以进行进一步定制。
 
 #### **TransactionSubscribeFilter**
 
-`vote`: 一个布尔标志，用于包含/排除与投票相关的交易。
+`vote`：一个布尔标志，用于包含/排除与投票相关的交易。
 
-`failed`: 一个布尔标志，用于包含/排除失败的交易。
+`failed`：一个布尔标志，用于包含/排除失败的交易。
 
-`signature`: 根据其签名过滤特定交易的更新。
+`signature`：根据其签名过滤特定交易的更新。
 
-`accountInclude`: 您希望接收交易更新的账户列表。这意味着交易更新中只需包含其中一个账户（例如，账户1或账户2）。
+`accountInclude`：你希望接收交易更新的账户列表。这意味着只有一个账户必须包含在交易更新中（例如，账户 1 或账户 2）。
 
-`accountExclude`: 您希望从交易更新中排除的账户列表。
+`accountExclude`：你希望从交易更新中排除的账户列表。
 
-`accountRequired`: 交易必须涉及这些指定账户才能包含在更新中。这意味着交易更新中必须包含所有账户（例如，账户1和账户2）。
+`accountRequired`：交易必须涉及这些指定的账户才能包含在更新中。这意味着所有账户都必须包含在交易更新中（例如，账户 1 和账户 2）。
 
 <Tip>
 在`accountsInclude`、`accountExclude`和`accountRequired`数组中，您最多可以包含50,000个地址。
@@ -162,20 +162,20 @@ node index.js
 
 #### **TransactionSubscribeOptions (可选)**
 
-`commitment`: 指定获取数据的承诺级别，决定在交易生命周期的哪个阶段发送更新。可能的值是**processed**、**confirmed**和**finalized**。
+`commitment`：指定获取数据的承诺级别，决定在交易生命周期的哪个阶段发送更新。可能的值是 **processed**、**confirmed** 和 **finalized**
 
-`encoding`: 设置返回交易数据的编码格式。可能的值是**base58**、**base64**和**jsonParsed**。
+`encoding`：设置返回交易数据的编码格式。可能的值是**base58**、**base64**和**jsonParsed**
 
-`transactionDetails` : 确定返回交易数据的详细程度。可能的值是**full**、**signatures**、**accounts**和**none**。
+`transactionDetails`：确定返回交易数据的详细程度。可能的值是**full, signatures, accounts**和**none**
 
-`showRewards`: 一个布尔标志，指示是否应在交易更新中包含奖励数据。
+`showRewards`：一个布尔标志，指示是否应在交易更新中包含奖励数据。
 
-`maxSupportedTransactionVersion`: 指定您希望接收更新的最高交易版本。要获取版本化交易，请将值设置为1。
+`maxSupportedTransactionVersion`：指定您希望接收更新的最高交易版本。要获取版本化交易，请将值设置为1。
 
-`fromSlot`: 从特定的 Solana 槽位开始订阅，从该槽位向前重播任何相关交易，直到您赶上实时数据。
+`fromSlot`：从特定的Solana插槽开始订阅，从该插槽向前重播任何相关交易，直到您赶上实时数据。
 
 <Note>
-`maxSupportedTransactionVersion` 是返回给定交易的账户和完整级别详细信息所必需的（即，`transactionDetails: "accounts" | "full"`）。
+`maxSupportedTransactionVersion`是返回给定交易的账户和完整级别详细信息所必需的（即，`transactionDetails: "accounts" | "full"`）。
 </Note>
 
 #### 交易订阅示例
@@ -272,9 +272,9 @@ node index.js
 
 <summary>代码示例</summary>
 
-在此示例中，我们订阅包含 Raydium 账户 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 的交易。每当发生包含 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8` 在交易的 `accountKeys` 中的交易时，我们将收到一个 websocket 通知。
+在此示例中，我们订阅包含Raydium账户的交易 `675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`。每当发生包含`675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8`的交易时，我们将在交易的`accountKeys`中收到一个websocket通知。
 
-根据订阅选项，交易通知将在 `processed` 承诺级别、`jsonParsed` 编码、`full` 交易详细信息，并显示奖励。
+根据订阅选项，交易通知将在`processed`承诺级别、`jsonParsed`编码、`full`交易详细信息，并显示奖励。
 
 ```javascript
 const WebSocket = require('ws');
@@ -351,13 +351,13 @@ Solana 的 Websockets 支持一种方法，允许您订阅一个账户，并在�
 
 #### **参数**
 
-`string`: 账户公钥，以 base58 格式发送（必需）。
+`string`：账户公钥，以base58格式发送（必需）。
 
-`object`: 一个可选对象，用于传递附加参数。
+`object`：一个可选对象，用于传递其他参数。
 
-* `encoding`: 指定在 AccountNotification 中返回的数据格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是 **base58**）。
-* `commitment`: 定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是 **finalized**）。
-* `fromSlot`: 从此槽位重播，接收账户的历史更改直到当前槽位。
+* `encoding`：指定AccountNotification中返回数据的格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是**base58**）。
+* `commitment`：定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是**finalized**）。
+* `fromSlot`：从此插槽重播，接收账户的历史更改直到当前插槽。
 
 #### 账户订阅示例
 
@@ -416,10 +416,9 @@ Solana 的 Websockets 支持一种方法，允许您订阅一个账户，并在�
 
 <summary>代码示例</summary>
 
-在此示例中，我们订阅了账户 `SysvarC1ock11111111111111111111111111111111` 的变更。\
+在此示例中，我们正在订阅账户 `SysvarC1ock11111111111111111111111111111111` 的更改。\
 \
-每当账户数据或该账户的 lamports 发生变化时，我们将看到更新。\
-对于此特定账户，由于 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分，因此这种情况会频繁发生。
+每当账户数据或此账户的 lamports 发生更改时，我们将看到更新。由于 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分，因此此特定账户会在频繁的间隔内发生这种情况。
 
 ```javascript
 // Create a WebSocket connection
@@ -485,4 +484,4 @@ ws.on('close', function close() {
 
 ### 免责声明：Atlas 增强型 WebSockets
 
-Atlas 增强型 WebSockets 将在**底层由 LaserStream 提供支持**。这意味着您可以继续使用相同的 Atlas 端点，并且仍然可以访问 LaserStream 的高级功能，例如 **`fromSlot`** 重播，而无需迁移。如果您已经在使用 Atlas，**无需更改**；如果您更喜欢专用的 LaserStream 端点，也可以使用它们。
+Atlas 增强型 WebSockets 将在底层由 LaserStream **提供支持**。这意味着您可以继续使用相同的 Atlas 端点，并且仍然可以访问 LaserStream 的高级功能，例如 **`fromSlot`** 重播，而无需迁移。如果您已经在使用 Atlas，**无需更改**；如果您更喜欢专用的 LaserStream 端点，也可以使用它们。

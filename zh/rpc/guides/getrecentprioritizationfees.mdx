@@ -4,7 +4,7 @@ sidebarTitle: getRecentPrioritizationFees
 description: 了解 getRecentPrioritizationFees 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getRecentPrioritizationFees`](https://www.helius.dev/docs/api-reference/rpc/http/getrecentprioritizationfees) RPC 方法提供了对 Solana 网络中最近区块中支付的优先费用的洞察。通过检查这些费用，开发人员可以更好地决定在其交易中附加多少额外费用（[优先费用](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics)），以提高其交易在高网络活动期间被及时处理的可能性。
+[`getRecentPrioritizationFees`](https://www.helius.dev/docs/api-reference/rpc/http/getrecentprioritizationfees) RPC 方法提供了对 Solana 网络中最近区块中支付的优先费用的洞察。通过检查这些费用，开发者可以更好地决定在交易中附加多少额外费用（[优先费用](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics)），以提高交易被及时处理的可能性，特别是在网络活动高峰期。
 
 节点通常会缓存多达最近 150 个区块的优先费用数据。
 
@@ -18,17 +18,17 @@ description: 了解 getRecentPrioritizationFees 的使用案例、代码示例�
 ## 请求参数
 
 1.  **`lockedWritableAccounts`** (`array` of `string`, 可选):
-    *   一个 base-58 编码的公钥数组，表示您的交易打算写锁的账户。
+    *   一个 base-58 编码的公钥数组，表示交易打算写锁的账户。
     *   最多可以提供 128 个地址。
-    *   如果提供，该方法返回锁定**所有**指定账户为可写的交易所支付的优先费用。
-    *   如果省略或传递空数组，该方法返回最近区块中观察到的更一般的优先费用视图，而不是特定于任何特定账户集。
+    *   如果提供，该方法返回锁定了**所有**指定账户为可写的交易所支付的优先费用。
+    *   如果省略或传递一个空数组，该方法返回最近区块中观察到的更一般的优先费用视图，而不是特定于任何特定账户集。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段是一个优先费用对象的数组。每个对象详细说明了来自特定最近槽位的费用，其结构如下：
+JSON-RPC 响应的 `result` 字段是一个优先费用对象的数组。每个对象详细说明了来自特定最近槽位的费用，具有以下结构：
 
-*   **`slot`** (`u64`): 处理此费用数据的交易所在的槽号。
-*   **`prioritizationFee`** (`u64`): 在此槽中至少有一个交易支付的最低优先费用（以每计算单元的微Lamports计），并符合 `lockedWritableAccounts` 过滤器（如果有）。值为 `0` 通常意味着在该槽中（符合条件的）交易没有支付超出基础费用的额外优先费用，或者节点没有观察到给定账户的任何交易。
+*   **`slot`** (`u64`): 处理贡献此费用数据的交易的槽位编号。
+*   **`prioritizationFee`** (`u64`): 在此槽位中至少有一笔交易支付的最低优先费用（以每计算单元的微 Lamports 计），并符合 `lockedWritableAccounts` 过滤器（如果有）。值为 `0` 通常意味着在该槽位中没有交易（符合条件）支付了超出基础费用的额外优先费用，或者节点没有观察到给定账户的任何费用。
 
 ## 示例
 
@@ -143,10 +143,10 @@ fetchPrioritizationFeesForAccounts();
 
 ## 开发者提示
 
-*   **费用单位：** 优先费用以每计算单元（CU）的微Lamports（0.000001 Lamports）表示。
+*   **费用单位：** 优先费用以每计算单元（CU）0.000001 Lamports（微Lamports）表示。
 *   **缓存窗口：** RPC节点通常会缓存这些费用大约150个区块。这意味着您查看的是一个相对较短的历史窗口（大约1-2分钟）。
-*   **零费用：** `prioritizationFee` 为 `0` 并不一定意味着没有支付费用，而是对于给定的槽和账户，采样的交易不包括优先费用，或者低于节点认为重要的阈值。
-*   **战略使用：** 不要只选择最近的最高费用。分析分布（例如，中位数，非零费用的第75百分位数）以做出成本效益的选择。如果区块已经充满高优先级交易，超额支付并不能保证更快的包含。
-*   **计算单元：** 您的交易的总优先费用将是 `prioritizationFee_per_CU * your_transaction_compute_units`。您还需要为您的交易设置计算单元限制（`ComputeBudgetProgram.setComputeUnitLimit`）和价格（`ComputeBudgetProgram.setComputeUnitPrice`）。
+*   **零费用：** 一个`prioritizationFee`的`0`并不一定意味着没有支付费用，而是对于给定的槽位和账户，采样的交易不包括优先费用，或者低于节点认为重要的阈值。
+*   **战略使用：** 不要只选择最近的最高费用。分析分布（例如，中位数，非零费用的第75百分位数）以做出具有成本效益的选择。如果区块已经充满高优先级交易，超额支付并不能保证更快的包含。
+*   **计算单元：** 您的交易的总优先费用将是`prioritizationFee_per_CU * your_transaction_compute_units`。您还需要为您的交易设置计算单元限制（`ComputeBudgetProgram.setComputeUnitLimit`）和价格（`ComputeBudgetProgram.setComputeUnitPrice`）。
 
-在动态网络条件下，有效使用`getRecentPrioritizationFees`可以显著提高交易确认的可靠性。
+有效使用`getRecentPrioritizationFees`可以显著提高动态网络条件下的交易确认可靠性。

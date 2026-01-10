@@ -4,31 +4,31 @@ sidebarTitle: getLatestBlockhash
 description: 了解 getLatestBlockhash 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getLatestBlockhash`](https://www.helius.dev/docs/api-reference/rpc/http/getlatestblockhash) RPC 方法对于在 Solana 网络上准备和发送交易至关重要。它检索节点处理的最新 blockhash，以及该 blockhash 将保持有效的最后区块高度。有关如何有效使用 blockhashes 并确保您的[交易成功](https://www.helius.dev/blog/how-to-land-transactions-on-solana)的更多详细信息，请参阅我们的综合指南。
+[`getLatestBlockhash`](https://www.helius.dev/docs/api-reference/rpc/http/getlatestblockhash) RPC 方法对于在 Solana 网络上准备和发送交易至关重要。它检索节点处理的最新区块哈希，以及该区块哈希将保持有效的最后区块高度。有关如何有效使用区块哈希并确保您的[交易成功](https://www.helius.dev/blog/how-to-land-transactions-on-solana)的更多详细信息，请参阅我们的综合指南。
 
 在 Solana 上的每笔交易都必须引用一个最近的 blockhash。此机制有助于防止某些类型的攻击，例如在分叉链上的交易重放。
 
-**版本说明：** 此方法在 `solana-core` v1.9 或更新版本中可用。对于运行 `solana-core` v1.8 或更早版本的节点，请改用 `getRecentBlockhash` 方法。
+**版本说明：** 此方法在 `solana-core` v1.9 或更新版本中可用。对于运行 `solana-core` v1.8 或更早版本的节点，请使用 `getRecentBlockhash` 方法。
 
 ## 常见用例
 
-*   **交易构建：** 在签署和发送新交易之前，获取一个最近的 blockhash 以包含在交易中。
-*   **交易生命周期管理：** 使用 `lastValidBlockHeight` 了解引用获取的 blockhash 的交易可以预期保持有效的时间。
-*   **预检检查：** 虽然 `simulateTransaction` 可以隐式执行此操作，但应用程序可能会获取一个 blockhash 以手动准备交易进行模拟。
+*   **交易构建：** 在签署和发送新交易之前，获取最近的区块哈希以包含在交易中。
+*   **交易生命周期管理：** 使用 `lastValidBlockHeight` 了解引用获取的区块哈希的交易预计能保持有效的时间。
+*   **预检检查：** 虽然 `simulateTransaction` 可以隐式执行此操作，但应用程序可能会获取区块哈希以手动准备交易进行模拟。
 
 ## 请求参数
 
 此方法可以选择性地接受一个包含以下参数的配置对象：
 
-*   **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用节点的默认承诺。对于交易，通常使用 `confirmed` 或 `finalized` 以确保 blockhash 来自链的相对稳定部分。
-*   **`minContextSlot`**（整数，可选）：请求可以评估的最小槽位。这确保查询针对已处理到至少此槽位的分类账状态进行。
+*   **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用节点的默认承诺。对于交易，通常使用 `confirmed` 或 `finalized` 以确保区块哈希来自链中相对稳定的部分。
+*   **`minContextSlot`** (整数，可选)：请求可以评估的最小槽位。这确保查询针对已处理到至少此槽位的账本状态进行。
 
 ## 响应结构
 
 JSON-RPC 响应的 `result` 字段将是一个 `RpcResponse` 对象。此对象中的 `value` 字段包含：
 
-*   **`blockhash`** (字符串): 一个 base-58 编码的字符串，表示最新的区块哈希。
-*   **`lastValidBlockHeight`** (u64): `blockhash` 将过期的区块高度。引用此 `blockhash` 的交易在网络达到此 `lastValidBlockHeight` 之前有效。
+* **`blockhash`** (字符串)：一个 base-58 编码的字符串，表示最新的区块哈希。
+* **`lastValidBlockHeight`** (u64)：表示 `blockhash` 将过期的区块高度。引用此 `blockhash` 的交易在网络达到此 `lastValidBlockHeight` 之前有效。
 
 响应还包括一个 `context` 对象，其中包含检索信息时的 `slot`。
 
@@ -74,7 +74,7 @@ fetchLatestBlockhash();
 
 ### 2. 使用 'confirmed' 承诺获取最新区块哈希
 
-此示例明确请求使用 `confirmed` 承诺获取最新的区块哈希。
+此示例明确请求具有 `confirmed` 承诺的最新区块哈希。
 
 <CodeGroup>
 
@@ -112,9 +112,9 @@ fetchConfirmedBlockhash();
 
 ## 开发者提示
 
-*   **区块哈希有效性：** 区块哈希的有效时间有限，大约为 2 分钟（尽管可能有所不同）。交易必须在其 `lastValidBlockHeight` 通过之前由网络确认。如果自上次获取以来已经过了相当长的时间，请始终获取新的区块哈希。
-*   **选择承诺：** 对于关键交易，使用 `finalized` 承诺提供了最强的保证，即区块哈希来自主链分叉，但可能稍旧。`confirmed` 提供了良好的平衡。了解更多关于[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)的详细信息。
-*   **交易费用：** 请记得计算并包括适当的交易费用。区块哈希本身不决定费用。
-*   **重试逻辑：** 如果交易因其 `lastValidBlockHeight` 通过而过期，您必须使用新的、更近期的区块哈希重新签名并重新提交。
+* **区块哈希有效性：** 区块哈希在有限时间内有效，大约 2 分钟（尽管可能有所不同）。交易必须在其 `lastValidBlockHeight` 通过之前由网络确认。如果自上次获取以来已经过了相当长的时间，请始终获取新的区块哈希。
+* **选择承诺：** 对于关键交易，使用 `finalized` 承诺提供了最强的保证，即区块哈希来自主链分叉，但可能稍旧。`confirmed` 提供了良好的平衡。了解更多关于 [承诺级别](https://www.helius.dev/blog/solana-commitment-levels) 的详细信息。
+* **交易费用：** 请记得计算并包括适当的交易费用。区块哈希本身不决定费用。
+* **重试逻辑：** 如果交易因其 `lastValidBlockHeight` 通过而过期，您必须使用新的、更近期的区块哈希重新签名并重新提交。
 
-本指南提供了有效使用`getLatestBlockhash`的步骤，这是通过交易与Solana网络交互的基石。
+本指南提供了有效使用 `getLatestBlockhash` 的步骤，这是通过交易与 Solana 网络交互的基石。

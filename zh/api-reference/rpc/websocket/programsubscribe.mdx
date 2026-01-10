@@ -11,7 +11,7 @@ og:description: 获取免费的 RPC 并探索 programSubscribe RPC 方法。包�
 
 主网和 devnet 上可用的 Websockets URL 如下：
 
-- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
 - **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
@@ -27,14 +27,14 @@ og:description: 获取免费的 RPC 并探索 programSubscribe RPC 方法。包�
 <ParamField body="params" type="array" required>
     <Expandable title="properties" defaultOpen>
         <ParamField body="programId" type="string" required>
-            `program_id` 的公钥，作为 base-58 编码字符串。
+            `program_id`的公钥，作为base-58编码的字符串。
         </ParamField>
 
         <ParamField body="config" type="object">
             包含以下字段的配置对象：
             
             <ParamField body="commitment" type="string">
-                订阅的承诺级别。可以是 `finalized`、`confirmed` 或 `processed`。
+                订阅的承诺级别。可以是`finalized`, `confirmed`, 或 `processed`。
             </ParamField>
             
             <ParamField body="filters" type="array">
@@ -42,11 +42,11 @@ og:description: 获取免费的 RPC 并探索 programSubscribe RPC 方法。包�
             </ParamField>
             
             <ParamField body="encoding" type="string">
-                账户数据的编码格式。可以是 `base58`、`base64`、`base64+zstd` 或 `jsonParsed`。
+                账户数据的编码格式。可以是`base58`, `base64`, `base64+zstd`, 或 `jsonParsed`。
                 
-                - `base58` 较慢
+                - `base58` 是慢的
                 - `jsonParsed` 编码尝试使用程序特定的状态解析器返回更具可读性和明确的账户状态数据
-                - 如果请求 `jsonParsed` 但找不到解析器，则字段会回退到二进制编码，当数据字段为字符串类型时可检测到。
+                - 如果请求`jsonParsed`但找不到解析器，则字段会回退到二进制编码，当数据字段为字符串类型时可检测到。
             </ParamField>
         </ParamField>
     </Expandable>
@@ -60,7 +60,7 @@ og:description: 获取免费的 RPC 并探索 programSubscribe RPC 方法。包�
 
 ## 通知格式
 
-通知格式是一个**单一**的程序账户对象，如 `getProgramAccounts` RPC HTTP 方法中所示。
+通知格式是一个**单一**程序账户对象，如在`getProgramAccounts` RPC HTTP方法中所见。
 
 <RequestExample>
 

@@ -10,26 +10,7 @@ description: 学习如何使用 Helius RPC 方法和增强交易 API 来检索�
 
 使用标准 RPC 方法检索交易详情：
 
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    id: '1',
-    method: 'getTransaction',
-    params: [
-      '5brUqZacYhjphkFufZsdJoWA3ACTDh7wX5o4ewHiUGPK5zrLWExsFJb1o83q4SidvgegANZMFqocC4cPyymSEdyt',
-      {
-        encoding: 'json',
-        maxSupportedTransactionVersion: 0
-      }
-    ]
-  })
-});
-const data = await response.json();
-console.log('Transaction data:', data);
-```
+{/* 代码占位符 31a98f67ed14147387d0d53723fbb040 */}
 
 <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/rpc/http/gettransaction">
   getTransaction
@@ -39,16 +20,7 @@ console.log('Transaction data:', data);
 
 获取包含解析数据的更丰富的交易历史：
 
-```typescript
-const API_KEY = 'YOUR_API_KEY';
-const WALLET_ADDRESS = 'DjPi9wgUDTtYuuL6ZNvhgKJgC8gHaRKtHq6K5ESWbGKt';
-
-const response = await fetch(`https://api-mainnet.helius-rpc.com/v0/addresses/${WALLET_ADDRESS}/transactions?api-key=${API_KEY}&limit=10`, {
-  method: 'GET',
-});
-const transactions = await response.json();
-console.log('Enhanced transaction history:', transactions);
-```
+{/* 代码占位符 7ab375efe08dd07b74aeda764e48c449 */}
 
 <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/enhanced-transactions/gettransactionsbyaddress">
   Get Enhanced Transactions By Address
@@ -58,28 +30,7 @@ console.log('Enhanced transaction history:', transactions);
 
 检查多个交易的状态：
 
-```typescript
-const response = await fetch("https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY", {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    jsonrpc: '2.0',
-    id: '1',
-    method: 'getSignatureStatuses',
-    params: [
-      [
-        '5iT4xEsUHJXWuUfX7ypPoP2h2KGLmomsSfdTnjaV67NhRiUptvFTpVM4Gdeve2Mr6Ye8mgFPx4ESLxEPMsK6pmVS',
-        '4aRAsUtUSKbz5UAw3z3HZs2wU2NuY614RRfugE8BpfidKrkvjU49VXdSLsT7EPKNRA9KZH1yqkiVKK8aNBoAEdMU'
-      ],
-      {
-        searchTransactionHistory: true
-      }
-    ]
-  })
-});
-const statuses = await response.json();
-console.log('Transaction statuses:', statuses.result);
-```
+{/* 代码占位符 257cbe96e484d1edd20f81b731674138 */}
 
 <Card title="API 参考" horizontal icon="code" href="/zh/api-reference/rpc/http/getsignaturestatuses">
   getSignatureStatuses

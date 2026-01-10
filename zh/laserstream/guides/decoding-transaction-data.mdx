@@ -9,7 +9,7 @@ description: 了解如何解码和解析来自Laserstream的交易数据，以�
 - **Message** → 用户想要做什么（他们签署的提案）
 - **Meta** → 实际发生了什么（执行结果）
 
-**挑战：** 原始交易数据以二进制字节数组的形式出现，如`<Buffer 00 bf a0 e8...>`，而不是可读的地址和签名。
+**挑战：** 原始交易数据以二进制字节数组的形式出现，如 `<Buffer 00 bf a0 e8...>`，而不是可读的地址和签名。
 
 **本指南将向您展示如何：** 将这些二进制数据解码为人类可读的格式，提取有意义的信息，并理解从提案到执行的完整交易过程。
 
@@ -53,9 +53,9 @@ async function runTransactionSubscription() {
 runTransactionSubscription().catch(console.error);
 ```
 
-您的控制台现在显示一个包装器—`filters`，`createdAt`加上一个`transaction`分支，隐藏了两个子项：
+您的控制台现在显示一个包装器—`filters`, `createdAt` 加上一个 `transaction` 分支，隐藏了两个子项：
 
-* `transaction.transaction.transaction` → 签署的**消息**
+* `transaction.transaction.transaction` → 签名的**消息**
 * `transaction.transaction.meta` → 执行的**元数据**
 
 ```json
@@ -81,7 +81,7 @@ runTransactionSubscription().catch(console.error);
 }
 ```
 
-所有看起来像`Uint8Array`的内容目前仍然不透明。
+目前，所有看起来像 `Uint8Array` 的内容仍然是不透明的。
 
 当您运行带有解码功能的脚本时，您将看到实际的嵌套结构和可读的地址：
 
@@ -181,7 +181,7 @@ runTransactionSubscription().catch(console.error);
 
 ## 解码二进制数据
 
-**为什么要解码？** 原始Laserstream数据包含签名、账户密钥和哈希，以二进制`Uint8Array`对象的形式存在，不可读。您需要将这些转换为base58字符串，以理解交易。
+**为什么要解码？** 原始 Laserstream 数据包含签名、账户密钥和哈希，以二进制 `Uint8Array` 对象形式存在，不可读。您需要将这些转换为 base58 字符串，以便理解交易。
 
 **解决方案：** Laserstream使用Yellowstone gRPC，它提供了内置的解码工具。我们使用一个递归函数将所有二进制数据转换为人类可读的格式，而不是为每种字段类型编写单独的解码器。
 
@@ -284,8 +284,8 @@ runTransactionSubscription();
 
 现在我们可以看到解码后的数据，让我们来探索每个 Laserstream 交易更新的两个主要部分。记住在我们最初的例子中，每个交易包含两个关键对象：
 
-- **Message (Proposal)** → `transaction.transaction.transaction` → 签名消息（用户的提案）
-- **Meta (Execution)** → `transaction.transaction.meta` → 执行元数据（验证者的响应）
+- **消息（提案）** → `transaction.transaction.transaction` → 签名的消息（用户的提案）
+- **元数据（执行）** → `transaction.transaction.meta` → 执行元数据（验证者的响应）
 
 这种两部分结构讲述了一个完整的故事：用户请求了什么与实际发生了什么。让我们详细检查每个部分。
 
@@ -324,7 +324,7 @@ runTransactionSubscription();
 }
 ```
 
-`accountKeys` 是一个公共密钥的简单列表，作为查找表。交易中的每个后续整数 - `programIdIndex`，指令的每个元素 `accounts` 数组 - 通过索引指回这个列表，每条消息节省超过一千字节。
+`accountKeys` 是一个公共密钥的简单列表，作为查找表。交易中的每个后续整数 - `programIdIndex`，每个指令的 `accounts` 数组中的元素 - 通过索引指回此列表，每条消息节省超过一千字节。
 
 ### 防重放保护
 
@@ -334,7 +334,7 @@ runTransactionSubscription();
 }
 ```
 
-`recentBlockhash` 一旦滚出最后150个区块哈希后就会过期，在主网上大约是九十秒。
+`recentBlockhash` 一旦滚动出最后 150 个区块哈希后就会过期，在主网上大约是九十秒。
 
 ### 指令：实际命令
 
@@ -356,9 +356,9 @@ runTransactionSubscription();
 
 每个指令包含三个关键部分：
 
-- **Program ID** (`programIdIndex`): 指向 `accountKeys` 数组中的一个地址（例如，索引10 = `ComputeBudget111111111111111111111111111111`）
-- **Accounts** (`accounts`): 一个 base58 编码的字符串，表示此指令涉及的账户索引
-- **Data** (`data`): 实际的指令数据，编码为 base58
+- **程序 ID** (`programIdIndex`): 指向 `accountKeys` 数组中的一个地址（例如，索引 10 = `ComputeBudget111111111111111111111111111111`）
+- **账户** (`accounts`): 一个 base58 编码的字符串，表示此指令涉及的账户索引
+- **数据** (`data`): 实际的指令数据，编码为 base58
 
 由于 `convertBuffers` 函数，账户显示为 base58，但实际上包含账户索引（例如，`"3vtmrQMafzDoG2CBz1iqgXPTnC"` 解码为索引 [21, 19, 12, 17, 2, 6, 1, 22]）
 
@@ -374,7 +374,7 @@ runTransactionSubscription();
 }
 ```
 
-`signatures` 包含加密签名，证明所需账户授权了此交易。签名数量必须与 `header.numRequiredSignatures` 匹配。
+`signatures` 包含证明所需账户授权此交易的加密签名。签名数量必须与 `header.numRequiredSignatures` 匹配。
 
 ### 地址表查找
 
@@ -391,7 +391,7 @@ runTransactionSubscription();
 }
 ```
 
-如果 `versioned` 是 `true`，`addressTableLookups` 出现在链上表和两个索引列表中。查找表将地址数量的硬性上限提升到几十个，同时保持数据包在 1,232 字节 MTU 之内。
+如果 `versioned` 是 `true`，`addressTableLookups` 将与链上表和两个索引列表一起出现。查找表将地址数量的硬性上限提升到几十个，同时保持数据包在 1,232 字节的 MTU 之内。
 
 ### 如何连接：流程
 
@@ -436,8 +436,8 @@ runTransactionSubscription();
 }
 ```
 
-余额数组按索引对应于`accountKeys`数组：
-- 账户 0：损失 15000 lamports（手续费支付）
+余额数组按索引对应于 `accountKeys` 数组：
+- 账户 0：损失 15000 lamports（手续费）
 - 账户 1：获得 1461600 lamports（新账户创建）
 - 账户 3：获得 2001231920 lamports（程序账户）
 

@@ -294,14 +294,14 @@ function handleNewAccountCreation(data: any): void {
 了解过滤器如何组合：
 
 <Accordion title="过滤器组合规则">
-  **账户级过滤器（AND 逻辑）：**
-  - 如果指定，`account` 和 `owner` 和 `filters` 必须全部匹配
+  **账户级过滤器（AND逻辑）：**
+  - `account` AND `owner` AND `filters` 必须全部匹配（如果指定）
   
-  **在数组内（OR 逻辑）：**
+  **数组内（OR逻辑）：**
   - `account` 数组中的任何账户匹配
   - `owner` 数组中的任何所有者匹配
   
-  **在过滤器数组内（AND 逻辑）：**
+  **过滤器数组内（AND逻辑）：**
   - 所有 dataSize 和 memcmp 过滤器必须匹配
   
   **示例：**
@@ -388,19 +388,19 @@ function handleNewAccountCreation(data: any): void {
   **错误：** 接收到过多数据或达到速率限制
   
   **解决方案：** 添加更具体的过滤器：
-  - 使用 `dataSize` 匹配精确账户类型
+  - 使用 `dataSize` 匹配精确的账户类型
   - 添加 `memcmp` 过滤器以匹配特定数据模式
   - 考虑使用 `accountsDataSlice` 以减少带宽
 </Accordion>
 
 <Accordion title="未收到更新">
-  **错误：** 流连接但没有账户更新出现
+  **错误：** 流连接成功但没有账户更新出现
   
   **解决方案：** 
   - 验证账户地址是否正确
   - 检查账户是否实际频繁更改
   - 尝试使用 `PROCESSED` 承诺以获得更频繁的更新
-  - 首先测试已知活跃账户
+  - 先测试一个已知活跃的账户
 </Accordion>
 
 ## 下一步

@@ -5,8 +5,8 @@ description: 获取关于 Solana RPC 节点、方法、速率限制和故障排�
 
 ## 计费和速率限制
 
-<Accordion title="为什么 getProgramAccounts 在低于我计划的速率限制时会受到速率限制？">
-`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数限制外，还有额外的速率限制。请考虑使用过滤参数，或将大型查询分解为较小的部分以保持在[限制](/zh/billing/rate-limits)内。
+<Accordion title="为什么 getProgramAccounts 在低于我计划的速率限制时仍会受到速率限制？">
+`getProgramAccounts` 是一种资源密集型方法，除了标准的每秒请求数限制外，还有额外的速率限制。请考虑使用过滤参数，或将大型查询分解为较小的部分以保持在[限制](/zh/billing/rate-limits)范围内。
 </Accordion>
 
 <Accordion title="我可以为我的 RPC 端点获取特定区域吗？">
@@ -16,7 +16,7 @@ Helius 会自动将请求路由到最佳区域以提高性能。对于特殊的�
 ## RPC 故障排除
 
 <Accordion title="为什么我的 sendTransaction 请求没有成功？">
-调用 **Priority Fee API**，优化计算单元使用，并使用 `skipPreflight: true` 发送交易。请参阅我们的[**交易优化指南**](https://www.helius.dev/docs/sending-transactions/optimizing-transactions)以获取分步演练。
+调用 **Priority Fee API**，优化计算单元的使用，并使用 `skipPreflight: true` 发送交易。请参阅我们的[**交易优化指南**](https://www.helius.dev/docs/sending-transactions/optimizing-transactions)以获取分步演练。
 </Accordion>
 
 <Accordion title="为什么我突然看到 5xx 错误？">
@@ -25,8 +25,8 @@ Helius 会自动将请求路由到最佳区域以提高性能。对于特殊的�
 
 ## 使用 RPC
 
-<Accordion title="获取最新区块哈希的最佳实践是什么？">
-使用`getLatestBlockhash`和`"confirmed"`承诺级别来获取最新的区块哈希。在提交交易之前，始终获取一个新的区块哈希以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
+<Accordion title="获取最新 blockhash 的最佳实践是什么？">
+使用 `getLatestBlockhash` 和 `"confirmed"` 承诺级别来获取最新的 blockhash。在提交交易之前始终获取新的 blockhash 以确保有效性。详情请参阅我们的 [getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
 </Accordion>
 
 <Accordion title="什么是 staked connections？">

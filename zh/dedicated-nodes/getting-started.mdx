@@ -22,7 +22,7 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 **对于 gRPC 流应用程序**（主要用例），任何节点类型都能良好运行。
 
 <Warning>
-**重要**：虽然支持 `getProgramAccounts`，但专用节点未针对这些调用进行优化。大量使用可能会影响节点性能，甚至导致节点故障。请使用您的共享计划进行 `getProgramAccounts` 查询，因为它有一个自定义索引器，使这些调用更快更可靠。
+**重要**：虽然支持`getProgramAccounts`，但专用节点未针对这些调用进行优化。大量使用可能会影响节点性能，甚至导致节点故障。请使用您的共享计划进行`getProgramAccounts`查询，因为它有一个自定义索引器，使这些调用更快更可靠。
 </Warning>
 
 <Frame caption="选择您的专用节点的类型和位置">
@@ -40,7 +40,7 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 
 ### 节点客户端
 
-您可以通过选择客户端类型来定制您的节点——可以选择 Agave 或 Jito Labs（Agave 的分支，具有额外的方法 `simulateBundle`）
+您可以通过选择客户端类型来自定义您的节点——可以是Agave或Jito Labs（Agave的分支，具有额外的方法`simulateBundle`）
 
 <Frame caption="选择您的专用节点的客户端类型">
   <img
@@ -96,7 +96,7 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 
 每个专用节点也提供基本的 RPC 功能，但有一定限制。**对于生产应用程序，请将专用节点与共享计划结合使用。**
 
-这里我们使用 Solana web3.js 通过我们的专用节点调用 [`getSlot`](/zh/api-reference/rpc/http/getslot)：
+在这里，我们使用Solana web3.js通过我们的专用节点调用[`getSlot`](/zh/api-reference/rpc/http/getslot)：
 
 ```javascript
 // Using @solana/web3.js
@@ -133,10 +133,10 @@ ws.onmessage = (event) => {
 ```
 
 <Warning>
-**请记住**：上述 RPC 示例仅用于基本功能。专用节点的限制：
-- `sendTransaction` 支持但未优化 - 大多数交易不会成功（使用您的共享计划以确保交易提交的可靠性）
+**请记住**：上述RPC示例仅用于基本功能。专用节点的限制：
+- 支持`sendTransaction`但未优化 - 大多数交易不会成功（使用您的共享计划以确保交易提交的可靠性）
 - 不支持归档数据查询（使用您的共享计划）
-- `getProgramAccounts` 支持但未优化 - 大量使用可能影响性能或导致节点故障（使用您的共享计划以确保可靠性）
+- 支持`getProgramAccounts`但未优化 - 大量使用可能影响性能或导致节点故障（使用您的共享计划以确保可靠性）
 
 **主要用例**：使用下面的 gRPC 流设置以获得最佳性能。
 </Warning>

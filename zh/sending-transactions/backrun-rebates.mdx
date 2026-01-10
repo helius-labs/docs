@@ -5,7 +5,7 @@ description: 通过交易后回跑自动赚取 SOL 回扣，无需额外承担�
 ---
 
 <Note>
-**这是一个可选功能。** Helius 永远不会在未经您明确许可的情况下参与回跑回扣。您必须通过在交易请求中添加 `rebate-address` 参数来选择加入。
+**这是一个可选功能。** Helius 在没有您明确许可的情况下绝不会参与回跑返利。您必须通过在交易请求中添加 `rebate-address` 参数来选择加入。
 </Note>
 
 ## 什么是回跑回扣？
@@ -13,7 +13,7 @@ description: 通过交易后回跑自动赚取 SOL 回扣，无需额外承担�
 Helius 回跑回扣让您赚取您的交易所创造的 MEV（最大可提取价值）的一部分。当您的交易产生有利可图的套利机会时，搜索者会竞争回跑您的交易——而您将获得他们利润的一部分，以 SOL 支付。
 
 <CardGroup cols={2}>
-  <Card title="无额外 MEV 风险" icon="shield-check">
+  <Card title="无额外的 MEV 风险" icon="shield-check">
     您的交易在捆绑中首先执行，MEV 在执行后提取
   </Card>
   <Card title="一个参数" icon="code">
@@ -30,13 +30,13 @@ Helius 回跑回扣让您赚取您的交易所创造的 MEV（最大可提取价
     将 `rebate-address=<YOUR_SOL_ADDRESS>` 查询参数添加到任何主网的 `sendTransaction` 调用中。此功能完全是可选的 - Helius 仅在您明确选择加入时参与。
   </Step>
   <Step title="拍卖过程">
-    当您的交易通过标准 RPC 路径处理时，Helius 还将未签名的副本转发到我们的私人订单流拍卖，经过预批准的、通过 KYC 的搜索者竞标回跑您的交易
+    当您的交易通过标准 RPC 路径处理时，Helius 还会将未签名的副本转发到我们的私人订单流拍卖中，经过预批准的、通过 KYC 的搜索者会竞标回跑您的交易
   </Step>
   <Step title="捆绑创建">
-    出价最高者获胜并创建一个捆绑包：**[您的交易，搜索者交易]**。您的交易总是首先执行
+    最高出价者获胜并创建一个捆绑：**[您的交易，搜索者交易]**。您的交易总是首先执行
   </Step>
   <Step title="自动支付">
-    如果捆绑包上链，Helius 会自动将商定的回扣直接支付到您指定的 SOL 地址
+    如果捆绑上链，Helius 会自动将商定的返利直接支付到您指定的 SOL 地址
   </Step>
 </Steps>
 
