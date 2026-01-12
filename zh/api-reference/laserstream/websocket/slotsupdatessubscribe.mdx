@@ -11,8 +11,8 @@ description: 订阅以接收来自验证器的通知，了解每个插槽的各�
 
 主网和开发网可通过以下 URL 使用 Websockets：
 
-- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
 
@@ -50,7 +50,7 @@ description: 订阅以接收来自验证器的通知，了解每个插槽的各�
   - `numFailedTransactions: <u64>`
   - `numSuccessfulTransactions: <u64>`
   - `numTransactionEntries: <u64>`
-- `timestamp: <i64>` - 更新的 Unix 时间戳（以毫秒为单位）
+- `timestamp: <i64>` - 更新的 Unix 时间戳，以毫秒为单位
 - `type: <string>` - 更新类型之一：
   - "firstShredReceived"
   - "completed"

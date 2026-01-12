@@ -18,8 +18,8 @@ og:description: 获取免费 RPC 并探索 voteSubscribe RPC 方法。包括请�
 
 主网和开发网上可用 Websockets，使用以下 URL：
 
-- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
 
@@ -50,10 +50,10 @@ og:description: 获取免费 RPC 并探索 voteSubscribe RPC 方法。包括请�
 通知将是一个包含以下字段的对象：
 
 - `hash: <string>` - 投票哈希
-- `slots: <array>` - 投票覆盖的插槽，作为 u64 整数数组
+- `slots: <array>` - 投票所覆盖的插槽，作为 u64 整数数组
 - `timestamp: <i64|null>` - 投票的时间戳
 - `signature: <string>` - 包含此投票的交易的签名
-- `votePubkey: <string>` - 投票账户的公钥，作为 base-58 编码字符串
+- `votePubkey: <string>` - 投票账户的公钥，作为 base-58 编码的字符串
 
 <RequestExample>
 

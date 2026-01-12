@@ -337,23 +337,23 @@ function handleHighValueTransaction(data: any): void {
   <Card title="包含逻辑 (OR)" icon="plus">
     **accountInclude:** 交易必须涉及这些账户中的任意一个
     
-    **示例：** `["A", "B"]` 匹配涉及账户A或账户B的交易
+    **示例:** `["A", "B"]` 匹配涉及账户A或账户B的交易
   </Card>
   
   <Card title="必需逻辑 (AND)" icon="check">
     **accountRequired:** 交易必须涉及所有这些账户
     
-    **示例：** `["A", "B"]` 匹配涉及账户A和账户B的交易
+    **示例:** `["A", "B"]` 匹配涉及账户A和账户B的交易
   </Card>
   
   <Card title="排除逻辑 (NOT)" icon="minus">
     **accountExclude:** 交易不得涉及任何这些账户
     
-    **示例：** `["A", "B"]` 排除涉及账户A或账户B的交易
+    **示例:** `["A", "B"]` 排除涉及账户A或账户B的交易
   </Card>
   
   <Card title="组合逻辑" icon="code">
-    **最终过滤器：** `(accountInclude OR empty) AND (accountRequired AND all) AND NOT (accountExclude OR any)`
+    **最终过滤器:** `(accountInclude OR empty) AND (accountRequired AND all) AND NOT (accountExclude OR any)`
   </Card>
 </CardGroup>
 

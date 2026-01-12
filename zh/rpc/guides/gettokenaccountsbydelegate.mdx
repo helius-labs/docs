@@ -4,7 +4,7 @@ sidebarTitle: getTokenAccountsByDelegate
 description: 了解 getTokenAccountsByDelegate 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getTokenAccountsByDelegate`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbydelegate) RPC 方法检索所有已批准特定公钥作为代理的 SPL Token 账户。代理有权对代币账户执行某些操作，例如转移或销毁代币，直至授权的金额。
+[`getTokenAccountsByDelegate`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbydelegate) RPC 方法检索所有已批准特定公钥作为代理的 SPL Token 账户。代理有权对代币账户执行某些操作，例如转移或销毁代币，直至代理的金额。
 
 此方法对于管理代理权限的服务或需要发现特定密钥可以代表哪些代币账户执行操作的服务非常有用。
 
@@ -17,39 +17,39 @@ description: 了解 getTokenAccountsByDelegate 的使用案例、代码示例、
 
 ## 请求参数
 
-1.  **`delegatePubkey`**（字符串，必需）：要查找其关联代币账户的代理账户的 base-58 编码公钥。
+1.  **`delegatePubkey`** (字符串，必需)：要查找其关联代币账户的代理账户的 base-58 编码公钥。
 
-2.  **`filter`**（对象，必需）：一个 JSON 对象，**必须**指定 `mint` 或 `programId` 以过滤账户：
-    *   **`mint`**（字符串）：特定代币铸造的 base-58 编码公钥。如果提供，查询将仅返回此特定代币类型的代币账户，这些账户已授权给 `delegatePubkey`。
-    *   **`programId`**（字符串）：拥有账户的 Token Program 的 base-58 编码公钥。通常是标准的 SPL Token Program（`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`）或 Token-2022 Program（`TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`）。
+2.  **`filter`** (对象，必需)：一个 JSON 对象，**必须**指定 `mint` 或 `programId` 以过滤账户：
+    *   **`mint`** (字符串)：特定代币铸造的 base-58 编码公钥。如果提供，查询将仅返回此特定代币类型的代币账户，这些账户被委托给 `delegatePubkey`。
+    *   **`programId`** (字符串)：拥有账户的代币程序的 base-58 编码公钥。通常是标准的 SPL Token Program (`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`) 或 Token-2022 Program (`TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`)。
 
-3.  **`options`**（对象，可选）：一个可选的配置对象，包含以下常见字段：
-    *   **`commitment`**（字符串，可选）：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
-    *   **`encoding`**（字符串，可选）：账户数据的编码。`"jsonParsed"` 强烈推荐，因为它返回人类可读的账户信息。其他选项包括 `"base64"`, `"base64+zstd"`。如果未指定，默认为 `"base64"`。
-    *   **`dataSlice`**（对象，可选）：允许您仅检索账户数据的特定切片。包含 `offset`（usize）和 `length`（usize）字段。仅适用于 `base58`, `base64` 或 `base64+zstd` 编码。
-    *   **`minContextSlot`**（u64，可选）：请求可以评估的最小槽位。
+3.  **`options`** (对象，可选)：一个可选的配置对象，具有以下常见字段：
+    *   **`commitment`** (字符串，可选)：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
+    *   **`encoding`** (字符串，可选)：账户数据的编码。强烈推荐使用 `"jsonParsed"`，因为它返回人类可读的账户信息。其他选项包括 `"base64"`, {/* INLINE_CODE_PLACEHOLDER_65db36f71bcb90b8df87389b69ce72f */}。如果未指定，默认为 `"base64"`。
+    *   **`dataSlice`** (对象，可选)：允许您仅检索账户数据的特定切片。包含 `offset` (usize) 和 `length` (usize) 字段。仅适用于 `base58`, `base64`, 或 `base64+zstd` 编码。
+    *   **`minContextSlot`** (u64, 可选)：请求可以评估的最小槽位。
 
 ## 响应结构
 
-JSON-RPC 响应中的 `result.value` 字段是一个对象数组。每个对象代表一个以 `delegatePubkey` 作为其代理并符合 `filter` 条件的代币账户。数组中的每个对象有两个字段：
+JSON-RPC 响应中的 `result.value` 字段是一个对象数组。每个对象代表一个以 `delegatePubkey` 作为委托并符合 `filter` 条件的代币账户。数组中的每个对象有两个字段：
 
-*   **`pubkey`**（字符串）：代币账户本身的 base-58 编码公钥。
-*   **`account`**（对象）：包含代币账户详细信息的对象：
-    *   **`lamports`**（u64）：代币账户的 lamport 余额（用于租金豁免）。
-    *   **`owner`**（字符串）：拥有此账户的程序的公钥（例如，代币程序）。
-    *   **`data`**：账户数据。如果使用 `"jsonParsed"` 编码，这将是一个包含 `program` 字段（例如，`"spl-token"`）和 `parsed` 字段的对象，包含结构化信息：
+*   **`pubkey`** (字符串)：代币账户本身的 base-58 编码公钥。
+*   **`account`** (对象)：包含代币账户详细信息的对象：
+    *   **`lamports`** (u64)：代币账户的 lamport 余额（用于租金豁免）。
+    *   **`owner`** (字符串)：拥有此账户的程序的公钥（例如，代币程序）。
+    *   **`data`**：账户数据。如果使用 `"jsonParsed"` 编码，这将是一个包含 `program` 字段（例如，`"spl-token"`）和一个包含结构化信息的 `parsed` 字段的对象：
         *   **`parsed.info`**：一个包含详细信息的对象，例如：
-            *   **`mint`**（字符串）：代币的铸造地址。
-            *   **`owner`**（字符串）：代币账户的所有者（不是代理）。
-            *   **`tokenAmount`**（对象）：此账户中代币的总余额（`amount`, `decimals`, `uiAmount`, `uiAmountString`）。
-            *   **`delegate`**（字符串）：代理的公钥（应与请求中的 `delegatePubkey` 匹配）。
-            *   **`delegatedAmount`**（对象）：代理被授权管理的代币数量（`amount`, `decimals`, `uiAmount`, `uiAmountString`）。
-            *   **`isNative`**（布尔值）：指示账户是否持有包装的 SOL。
-            *   **`state`**（字符串）：代币账户的状态（例如，`"initialized"`）。
-        *   **`parsed.type`**（字符串）：账户的类型（例如，`"account"`）。
-    *   **`executable`**（布尔值）：账户是否可执行。
-    *   **`rentEpoch`**（u64）：此账户下次需要支付租金的纪元。
-    *   **`space`**（u64，如果未使用 `jsonParsed`）：原始账户数据的字节长度。
+            *   **`mint`** (字符串)：代币的铸造地址。
+            *   **`owner`** (字符串)：代币账户的所有者（不是委托）。
+            *   **`tokenAmount`** (对象)：此账户中代币的总余额（`amount`, `decimals`, `uiAmount`, `uiAmountString`）。
+            *   **`delegate`** (字符串)：委托的公钥（应与请求中的 `delegatePubkey` 匹配）。
+            *   **`delegatedAmount`** (对象)：委托被授权管理的代币数量（`amount`, `decimals`, `uiAmount`, `uiAmountString`）。
+            *   **`isNative`** (布尔值)：指示账户是否持有包装的 SOL。
+            *   **`state`** (字符串)：代币账户的状态（例如，`"initialized"`）。
+        *   **`parsed.type`** (字符串)：账户的类型（例如，`"account"`）。
+    *   **`executable`** (布尔值)：账户是否可执行。
+    *   **`rentEpoch`** (u64)：此账户下次欠租的纪元。
+    *   **`space`** (u64，如果未使用 `jsonParsed`)：原始账户数据的字节长度。
 
 **示例响应（使用 `jsonParsed` 编码）：**
 
@@ -194,10 +194,10 @@ findDelegatedAccounts(exampleDelegate, { programId: 'TokenkegQfeZyiNwAJbNbGKPFXC
 
 ## 开发者提示
 
-*   **过滤器要求：** 在过滤器参数中，您*必须*提供 `mint` 或 `programId`。如果没有这些过滤器之一，您无法查询所有代币类型的所有委托账户。
-*   **编码：** 强烈建议对 `encoding` 选项使用 `"jsonParsed"`，以便更轻松地处理数据，因为它将二进制账户数据解码为结构化的 JSON 格式。
-*   **性能：** 使用 `programId` 查询可能比使用 `mint` 查询更耗费资源，特别是如果委托对多种不同的代币类型有权限时。一些 RPC 提供商可能对这种方法有更严格的速率限制。
+*   **过滤要求：** 您*必须*在过滤参数中提供 `mint` 或 `programId`。如果没有这些过滤器之一，您无法查询所有代币类型的所有委托账户。
+*   **编码：** 使用 `"jsonParsed"` 进行 `encoding` 选项的编码是高度推荐的，因为它将二进制账户数据解码为结构化的 JSON 格式，便于数据处理。
+*   **性能：** 使用 `programId` 查询可能比使用 `mint` 查询更耗费资源，特别是当委托对许多不同的代币类型有权限时。一些 RPC 提供商可能对这种方法有更严格的速率限制。
 *   **委托数量：** 响应中的 `delegatedAmount` 表示委托当前被授权使用的最大代币数量。这可能小于账户中的总 `tokenAmount`。
 *   **撤销委托：** 此方法仅检索信息。要撤销委托，代币账户的所有者必须向 SPL Token Program 发送 `Revoke` 指令。
 
-本指南提供了使用 `getTokenAccountsByDelegate` 查找基于其批准委托的 SPL Token 账户的全面概述。
+本指南提供了使用 `getTokenAccountsByDelegate` 查找基于其批准的委托的 SPL Token 账户的全面概述。

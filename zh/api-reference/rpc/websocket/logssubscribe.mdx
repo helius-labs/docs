@@ -10,8 +10,8 @@ og:description: 获取免费的 RPC 并探索 logsSubscribe RPC 方法。包括�
 
 主网和开发网上可用的 Websockets URL：
 
-- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
 
@@ -26,20 +26,20 @@ og:description: 获取免费的 RPC 并探索 logsSubscribe RPC 方法。包括�
 <ParamField body="params" type="array" required>
     <Expandable title="properties" defaultOpen>
         <ParamField body="filter" type="string | object" required>
-            用于根据账户类型接收结果的日志过滤条件。目前支持以下过滤器类型：
-            - `all` - 订阅除简单投票交易外的所有交易
-            - `allWithVotes` - 订阅包括简单投票交易在内的所有交易
-            - 一个包含以下字段的 JSON 对象：
-              - `mentions: [ <string> ]` - 包含单个 Pubkey（作为 base-58 编码字符串）的数组；如果存在，则仅订阅提到此地址的交易
+            用于接收结果的日志的过滤条件，按账户类型。当前支持以下过滤器类型：
+            - `all` - 订阅除简单投票交易以外的所有交易
+            - `allWithVotes` - 订阅所有交易，包括简单投票交易
+            - 一个包含以下字段的JSON对象：
+              - `mentions: [ <string> ]` - 包含单个Pubkey的数组（作为base-58编码的字符串）；如果存在，则仅订阅提到此地址的交易
             
-            注意：`mentions` 字段目前每次方法调用仅支持一个 Pubkey 字符串。列出其他地址将导致错误。
+            注意：`mentions`字段当前每次方法调用仅支持一个Pubkey字符串。列出其他地址将导致错误。
         </ParamField>
 
         <ParamField body="config" type="object">
             包含以下字段的配置对象：
             
             <ParamField body="commitment" type="string">
-                订阅的承诺级别。可以是 `finalized`、`confirmed` 或 `processed`。
+                订阅的承诺级别。可以是`finalized`、`confirmed`或`processed`。
             </ParamField>
         </ParamField>
     </Expandable>
@@ -53,9 +53,9 @@ og:description: 获取免费的 RPC 并探索 logsSubscribe RPC 方法。包括�
 
 ## 通知格式
 
-通知将是一个 RpcResponse JSON 对象，其值等于：
-- `signature: <string>` - 交易签名的 base58 编码。
-- `err: <object|null>` - 如果交易失败则为错误，如果交易成功则为 null。请参阅 TransactionError 定义。
+通知将是一个RpcResponse JSON对象，其值等于：
+- `signature: <string>` - 交易签名的base58编码。
+- `err: <object|null>` - 如果交易失败则为错误，如果交易成功则为null。请参阅TransactionError定义。
 - `logs: <array[string]>` - 交易指令在执行期间输出的日志消息数组。
 
 <RequestExample>

@@ -43,7 +43,7 @@ Orb 浏览器支持所有三个 Solana 集群：
 
 如果有重复项，请在发行方的文档中验证代币地址是否正确，例如，Circle 的 [USDC 代币铸造地址列表](https://developers.circle.com/stablecoins/usdc-contract-addresses#testnet) 包含了他们支持的所有网络和集群。
 
-Solana Devnet USDC 铸币地址是：`4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
+Solana Devnet USDC 铸币地址是: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
 
 如果您正在测试自定义代币功能，您可能需要使用[Solana Token Program (Devnet)](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)或[Token 2022 Program (Devnet)](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)铸造您自己的代币。
 
@@ -55,7 +55,7 @@ Solana 上 Devnet 探索器的一个常见用例是在将程序部署到 Mainnet
 
 ### 使用 AI 解释
 
-点击“使用 AI 解释”按钮，我们看到使用[Raydium CP Swap Program](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet)程序 (`DRay…Wpyb`) 的交换由于“资金不足”错误 (`0x1`) 而失败，该错误发生在代币转移期间。
+点击“用 AI 解释”按钮，我们看到使用 [Raydium CP Swap Program](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet) 程序 (`DRay…Wpyb`) 的交换由于在代币转移期间发生的“资金不足”错误 (`0x1`) 而失败。
 
 <Frame caption="使用 Orb 的 AI 解释器理解 Solana Devnet 上的失败交易">
 
@@ -73,7 +73,7 @@ Solana 上 Devnet 探索器的一个常见用例是在将程序部署到 Mainnet
 
 </Frame>
 
-在这个特定的例子中，我们看到在 Token Program 的 `TransferChecked` 指令期间，程序记录了一个“资金不足”错误并返回了 `0x1` 错误。
+在这个特定示例中，我们看到在 Token Program 的 `TransferChecked` 指令期间，程序记录了一个“资金不足”错误并返回了 `0x1` 错误。
 
 ### 检查原始输出
 
@@ -85,9 +85,9 @@ Solana 上 Devnet 探索器的一个常见用例是在将程序部署到 Mainnet
 
 </Frame>
 
-在这里，我们可以看到 `innerInstruction`（索引 2，或第 3 条指令）是类型 `TransferChecked`，它试图从 `GVBbU...5TUP` 代币账户将 26,874,347.041642 单位的 `DaHE...8R8i` 代币（野生动物保护币）从 `Bzi4...tuvF` 钱包发送到 `2yXu...qsTP` 目标代币账户。
+在这里，我们可以看到 `innerInstruction`（索引 2，或第 3 条指令）是类型为 `TransferChecked`，并且它正在尝试从 `GVBbU...5TUP` 代币账户将 26,874,347.041642 单位的 `DaHE...8R8i` 代币（野生动物保护币）从 `Bzi4...tuvF` 钱包发送到 `2yXu...qsTP` 目标代币账户。
 
-向下滚动，我们可以看到指令日志确认索引 2 的内部指令在代币程序的 `TransferChecked` 指令上记录了资金不足错误。
+向下滚动，我们可以看到指令日志确认索引 2 的内部指令在 Token Program 的 `TransferChecked` 指令上记录了一个资金不足错误。
 
 <Frame caption="在 Orb Devnet 探索器上找到 Solana 的代币程序记录的“资金不足”错误">
 
@@ -111,20 +111,20 @@ Solana Devnet 探索器的另一个常见用例是查找为测试目的而部署
 
 | 程序名称                                                                                                                           | Solana 程序 ID                              |
 | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [系统程序](https://orb.helius.dev/address/11111111111111111111111111111111/history?cluster=devnet)                               | `1111111111111111111111111111111`              |
-| [代币程序](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)                     | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  |
-| [代币 2022 程序](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)                | `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`  |
-| [投票程序](https://orb.helius.dev/address/Vote111111111111111111111111111111111111111/history?cluster=devnet)                      | `Vote111111111111111111111111111111111111111`  |
-| [计算预算程序](https://orb.helius.dev/address/ComputeBudget111111111111111111111111111111/history?cluster=devnet)            | `ComputeBudget111111111111111111111111111111`  |
-| [关联代币账户程序](https://orb.helius.dev/address/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL/history?cluster=devnet) | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` |
-| [地址查找表程序](https://orb.helius.dev/address/AddressLookupTab1e1111111111111111111111111/history?cluster=devnet)      | `AddressLookupTab1e1111111111111111111111111`  |
-| [备忘录程序](https://orb.helius.dev/address/MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr/history?cluster=devnet)                      | `MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr`  |
-| [备忘录程序 V1](https://orb.helius.dev/address/Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo/history?cluster=devnet)                   | `Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo`  |
-| [配置程序](https://orb.helius.dev/address/Config1111111111111111111111111111111111111/history?cluster=devnet)                    | `Config111111111111111111111111111111111111`   |
-| [Ed25519 SigVerify 预编译](https://orb.helius.dev/address/Ed25519SigVerify111111111111111111111111111/history?cluster=devnet)      | `Ed25519SigVerify111111111111111111111111111`  |
-| [Secp256k1 SigVerify 预编译](https://orb.helius.dev/address/KeccakSecp256k11111111111111111111111111111/history?cluster=devnet)    | `KeccakSecp256k11111111111111111111111111111`  |
-| [质押程序](https://orb.helius.dev/address/Stake11111111111111111111111111111111111111/history?cluster=devnet)                     | `Stake11111111111111111111111111111111111111`  |
-| [质押池程序](https://orb.helius.dev/address/SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy/history?cluster=devnet)                | `SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy`  |
+| [System Program](https://orb.helius.dev/address/11111111111111111111111111111111/history?cluster=devnet)                               | `1111111111111111111111111111111`              |
+| [Token Program](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)                     | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  |
+| [Token 2022 Program](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)                | `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`  |
+| [Vote Program](https://orb.helius.dev/address/Vote111111111111111111111111111111111111111/history?cluster=devnet)                      | `Vote111111111111111111111111111111111111111`  |
+| [Compute Budget Program](https://orb.helius.dev/address/ComputeBudget111111111111111111111111111111/history?cluster=devnet)            | `ComputeBudget111111111111111111111111111111`  |
+| [Associated Token Account Program](https://orb.helius.dev/address/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL/history?cluster=devnet) | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` |
+| [Address Lookup Table Program](https://orb.helius.dev/address/AddressLookupTab1e1111111111111111111111111/history?cluster=devnet)      | `AddressLookupTab1e1111111111111111111111111`  |
+| [Memo Program](https://orb.helius.dev/address/MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr/history?cluster=devnet)                      | `MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr`  |
+| [Memo Program V1](https://orb.helius.dev/address/Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo/history?cluster=devnet)                   | `Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo`  |
+| [Config Program](https://orb.helius.dev/address/Config1111111111111111111111111111111111111/history?cluster=devnet)                    | `Config111111111111111111111111111111111111`   |
+| [Ed25519 SigVerify Precompile](https://orb.helius.dev/address/Ed25519SigVerify111111111111111111111111111/history?cluster=devnet)      | `Ed25519SigVerify111111111111111111111111111`  |
+| [Secp256k1 SigVerify Precompile](https://orb.helius.dev/address/KeccakSecp256k11111111111111111111111111111/history?cluster=devnet)    | `KeccakSecp256k11111111111111111111111111111`  |
+| [Stake Program](https://orb.helius.dev/address/Stake11111111111111111111111111111111111111/history?cluster=devnet)                     | `Stake11111111111111111111111111111111111111`  |
+| [Stake Pool Program](https://orb.helius.dev/address/SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy/history?cluster=devnet)                | `SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy`  |
 
 ### **Solana Devnet 应用程序 ID**
 
@@ -134,18 +134,18 @@ Solana Devnet 探索器的另一个常见用例是查找为测试目的而部署
 
 | **程序名称**                                                                                                                      | **Solana 程序 ID**                          |
 | :------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- |
-| [CCTP Message Minter](https://orb.helius.dev/address/CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3/history?cluster=devnet)             | `CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3` |
-| [Circle CCTP Message Transmitter](https://orb.helius.dev/address/CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd/history?cluster=devnet) | `CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd` |
-| [Chainlink OCR2 Oracle Program](https://orb.helius.dev/address/cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ/history?cluster=devnet)    | `cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ`  |
-| [Metaplex Program](https://orb.helius.dev/address/p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98/history?cluster=devnet)                 | `p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98`  |
-| [Metaplex Token Metadata Program](https://orb.helius.dev/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s/history?cluster=devnet)  | `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`  |
-| [Name Service Program](https://orb.helius.dev/address/namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX/history?cluster=devnet)             | `namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX`  |
-| [NFT Candy Machine Program V2](https://orb.helius.dev/address/cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ/history?cluster=devnet)     | `cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ`  |
+| [CCTP 消息铸造器](https://orb.helius.dev/address/CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3/history?cluster=devnet)             | `CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3` |
+| [Circle CCTP 消息传输器](https://orb.helius.dev/address/CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd/history?cluster=devnet) | `CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd` |
+| [Chainlink OCR2 预言机程序](https://orb.helius.dev/address/cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ/history?cluster=devnet)    | `cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ`  |
+| [Metaplex 程序](https://orb.helius.dev/address/p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98/history?cluster=devnet)                 | `p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98`  |
+| [Metaplex 代币元数据程序](https://orb.helius.dev/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s/history?cluster=devnet)  | `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`  |
+| [名称服务程序](https://orb.helius.dev/address/namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX/history?cluster=devnet)             | `namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX`  |
+| [NFT 糖果机程序 V2](https://orb.helius.dev/address/cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ/history?cluster=devnet)     | `cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ`  |
 | [Pump.fun AMM](https://orb.helius.dev/address/pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA/history?cluster=devnet)                     | `pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA`  |
-| [Pyth Oracle Program](https://orb.helius.dev/address/gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s/history?cluster=devnet)              | `gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s`  |
-| [State Compression Program](https://orb.helius.dev/address/cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK/history?cluster=devnet)        | `cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK`  |
-| [Wormhole Core Bridge](https://orb.helius.dev/address/HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ/history?cluster=devnet)            | `HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ` |
-| [Wormhole Token Bridge](https://orb.helius.dev/address/DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe/history?cluster=devnet)           | `DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe` |
+| [Pyth 预言机程序](https://orb.helius.dev/address/gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s/history?cluster=devnet)              | `gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s`  |
+| [状态压缩程序](https://orb.helius.dev/address/cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK/history?cluster=devnet)        | `cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK`  |
+| [Wormhole 核心桥](https://orb.helius.dev/address/HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ/history?cluster=devnet)            | `HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ` |
+| [Wormhole 代币桥](https://orb.helius.dev/address/DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe/history?cluster=devnet)           | `DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe` |
 
 就像在 Mainnet-beta 上研究 Solana 程序一样，Orb 的 Devnet 程序查看器提供交易历史、IDL、验证详情、安全信息和权限。
 

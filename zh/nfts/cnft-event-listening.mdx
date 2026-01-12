@@ -116,7 +116,7 @@ ws.on('close', () => {
 
 [**增强 WebSockets**](/zh/enhanced-websockets)
 
-* **增强** WebSocket，具有高级过滤功能（`accountInclude`, `accountRequired`, 等）。
+* **增强的** WebSocket，具有高级过滤器（`accountInclude`, `accountRequired`等）。
 * **减少解析开销**，因为您只会收到与您的地址相关的交易。
 * **实时过滤**确保您只获得您关心的交易。
 
@@ -528,7 +528,7 @@ monitorCNFTTree().catch(console.error);
 在本节中，我们将探讨历史查询的**两**种主要方法：
 
 1. Helius 的解析交易 API
-2. 常规 Solana RPC 调用：`getSignaturesForAddress` + `getParsedTransaction` 或 `getTransaction`
+2. 普通 Solana RPC 调用：`getSignaturesForAddress` + `getParsedTransaction` 或 `getTransaction`
 
 ***
 
@@ -536,12 +536,12 @@ monitorCNFTTree().catch(console.error);
 
 Helius 提供了一个**增强**的交易 API。它会自动将 NFT、SPL 和 Swap 交易解码为人类可读的格式。这使您无需手动解析原始数据。
 
-**4.1.1 单个或批量交易（**[**`/v0/transactions`**](/zh/api-reference/enhanced-transactions/gettransactions)**)**
+**4.1.1 单笔或批量交易（**[**`/v0/transactions`**](/zh/api-reference/enhanced-transactions/gettransactions)**)**
 
 **端点**：
 
-* **主网**: `https://api-mainnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>`
-* **开发网**: `https://api-devnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>`
+* **主网**：`https://api-mainnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>`
+* **开发网**：`https://api-devnet.helius-rpc.com/v0/transactions?api-key=<YOUR_API_KEY>`
 
 您可以在请求体中发送最多 **100** 个交易签名，Helius 返回一个**数组**的解析交易。
 
@@ -600,8 +600,8 @@ parseMultipleTransactions([
 
 如果您想要获取**特定**地址的**解析**交易，例如**Merkle树**或**用户钱包**，您可以调用：
 
-* **主网**: `https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
-* **开发网**: `https://api-devnet.helius-rpc.com/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
+* **主网**：`https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
+* **开发网**：`https://api-devnet.helius-rpc.com/v0/addresses/{address}/transactions?api-key=<YOUR_API_KEY>`
 
 **示例**：
 
@@ -639,17 +639,17 @@ getParsedHistoryForAddress("MERKLE_TREE_ADDRESS_OR_USER_WALLET").catch(console.e
 
 ***
 
-#### 4.2 常规方法：`getSignaturesForAddress` + `getParsedTransaction` / `getTransaction`
+#### 4.2 普通方法：`getSignaturesForAddress` + `getParsedTransaction` / `getTransaction`
 
 如果您更喜欢**传统的Solana方法**或希望获得最大控制权，您可以调用**Solana的本地RPC**方法：
 
-1. **`getSignaturesForAddress`**：返回涉及给定地址的交易签名数组（例如，Merkle树或用户的钱包）。
-2. **`getParsedTransaction`**：返回给定签名的**Solana解析**JSON。
-3. **`getTransaction`**：返回**原始**二进制编码的交易，您可以使用外部库（例如，[Blockbuster](https://github.com/helius-labs/blockbuster)）进行解析，如果您需要专门的cNFT解码。
+1. **`getSignaturesForAddress`**：返回涉及给定地址的交易签名数组（例如，Merkle 树或用户的钱包）。
+2. **`getParsedTransaction`**：返回给定签名的 **Solana 解析** JSON。
+3. **`getTransaction`**：返回 **原始** 二进制编码交易，您可以使用外部库（例如，[Blockbuster](https://github.com/helius-labs/blockbuster)）进行解析，如果您需要专门的 cNFT 解码。
 
 **4.2.1 `getSignaturesForAddress`**
 
-这是一种**支持分页**的方法。您可以传递`before`或`until`参数。
+这是一种**支持分页**的方法。您可以传递 `before` 或 `until` 参数。
 
 **示例**：
 
@@ -738,7 +738,7 @@ async function fetchTransaction(signature, encoding = "jsonParsed") {
 fetchTransaction("TransactionSignature").catch(console.error);
 ```
 
-查找引用**cNFT**程序或**Merkle树**的指令。如果您使用`getTransaction`，您将获得原始数据（例如，base64），您需要使用专门的解析器进行解码。
+查找提到**cNFT**程序或**Merkle树**的说明。如果您使用`getTransaction`，您将获得原始数据（例如，base64），需要使用专门的解析器进行解码。
 
 ***
 
@@ -750,22 +750,22 @@ fetchTransaction("TransactionSignature").catch(console.error);
    * 实时解析指令以跟踪铸造、转移和销毁。
 2. **检索历史数据**
    * **Helius增强交易API**：获取cNFT操作的人类可读分解的最简单方法。
-   * **常规RPC**：`getSignaturesForAddress` + `getParsedTransaction`（或`getTransaction` + 手动解析）以获得最大灵活性，或如果您已经依赖于标准Solana RPC调用。
+   * **普通RPC**：`getSignaturesForAddress` + `getParsedTransaction`（或`getTransaction` + 手动解析）以获得最大灵活性，或如果您已经依赖标准Solana RPC调用。
 3. **构建完整时间线**
-   * 合并**未来**（实时）事件与**过去**（历史）数据。
-   * 如果您的事件监听解决方案出现故障，通过获取您的Merkle树或用户地址的最近交易签名来填补空白。
+   * 将**未来**（实时）事件与**过去**（历史）数据合并。
+   * 如果您的事件监听解决方案出现故障，通过提取您的Merkle树或用户地址的最近交易签名来填补空白。
 
 ***
 
 ### 6. 下一步和最佳实践
 
-* **利用 Helius**: **Enhanced Transaction API** 特别适合于需要以简单 JSON 格式获取 cNFT 事件（铸造、转移、销毁）的情况。
-* **分页**: 对于活动频繁的地址，您可能需要使用 `before` 或 `until` 进行迭代以获取较旧的数据。
-* **验证**: 为了额外的安全性，您可以验证 Merkle 证明以确认 cNFT 叶子在链上根下是有效的。
-* **索引**: 如果您正在构建一个大规模解决方案，考虑将解析的 cNFT 事件存储在您自己的数据库中以便快速查询。
-* **性能**: 对于高容量事件监听，**gRPC**（通过 LaserStream 或 Dedicated Nodes）提供了顶级性能和高级过滤器。
-* **错误处理**: 始终为生产应用程序实现适当的错误处理和重试逻辑。
-* **连接管理**: 对于 WebSocket 连接，实施心跳/ ping 机制以维持连接。
-* **速率限制**: 注意 API 速率限制，并在您的应用程序中实现适当的节流。
+* **利用Helius**：如果您希望以简单的JSON格式获取cNFT事件（铸造、转移、销毁），**增强交易API**特别方便。
+* **分页**：对于活动频繁的地址，您可能需要使用`before`或`until`迭代以获取较旧的数据。
+* **验证**：为了额外的安全性，您可以验证Merkle证明以确认cNFT叶子在链上根下是有效的。
+* **索引**：如果您正在构建大规模解决方案，考虑将解析的cNFT事件存储在您自己的数据库中以便快速查询。
+* **性能**：对于高容量事件监听，**gRPC**（通过LaserStream或专用节点）提供顶级性能和高级过滤器。
+* **错误处理**：始终为生产应用程序实现适当的错误处理和重试逻辑。
+* **连接管理**：对于WebSocket连接，实现心跳/ ping机制以维持连接。
+* **速率限制**：注意API速率限制，并在您的应用程序中实施适当的节流。
 
 **祝您构建愉快！**

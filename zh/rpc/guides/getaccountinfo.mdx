@@ -16,42 +16,42 @@ description: 了解 getAccountInfo 的使用案例、代码示例、请求参数
 
 ## 参数
 
-1.  `publicKey` (字符串，必需)：要查询的账户的 base-58 编码公钥。
+1. `publicKey` (字符串，必需)：要查询的账户的 base-58 编码公钥。
 
-2.  `config` (对象，可选)：一个配置对象，包含以下字段：
-    *   `commitment` (字符串，可选)：指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。默认为 `finalized`。
-        *   `finalized`：节点将查询由集群的绝大多数确认的最近区块，已达到最大锁定。
-        *   `confirmed`：节点将查询由集群的绝大多数投票的最近区块。
-        *   `processed`：节点将查询其最近的区块。请注意，该区块可能不完整。
-    *   `encoding` (字符串，可选)：账户数据的编码。默认为 `base64`。
-        *   `base58` (慢)
-        *   `base64`
-        *   `base64+zstd` (如果数据被压缩)
-        *   `jsonParsed`：如果账户数据是已知的程序状态（例如，代币账户、质押账户），节点将尝试将其解析为 JSON 结构。对于通用程序账户，这通常会回退到二进制（base64）。
-    *   `dataSlice` (对象，可选)：将返回的账户数据限制为特定的切片。仅适用于 `base58`、`base64` 或 `base64+zstd` 编码。
-        *   `offset` (数字)：从账户数据开始的字节数以开始切片。
-        *   `length` (数字)：要返回的字节数。
-    *   `minContextSlot` (数字，可选)：请求可以在其上评估的最小槽位。
+2. `config` (对象，可选)：具有以下字段的配置对象：
+ * `commitment` (字符串，可选)：指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。默认为 `finalized`。
+ * `finalized`：节点将查询由集群的绝大多数确认已达到最大锁定的最新区块。
+ * `confirmed`：节点将查询由集群的绝大多数投票的最新区块。
+ * `processed`：节点将查询其最新区块。请注意，该区块可能不完整。
+ * `encoding` (字符串，可选)：账户数据的编码。默认为 `base64`。
+ * `base58` (慢)
+ * `base64`
+ * `base64+zstd` (如果数据被压缩)
+ * `jsonParsed`：如果账户数据是已知的程序状态（例如，代币账户、质押账户），节点将尝试将其解析为 JSON 结构。对于通用程序账户，通常会回退到二进制（base64）。
+ * `dataSlice` (对象，可选)：将返回的账户数据限制为特定的切片。仅适用于 `base58`、`base64` 或 `base64+zstd` 编码。
+ * `offset` (数字)：从账户数据开始的字节数以开始切片。
+ * `length` (数字)：要返回的字节数。
+ * `minContextSlot` (数字，可选)：请求可以评估的最小槽位。
 
 ## 响应
 
 如果找到该账户，`result` 字段将包含一个具有两个主要属性的对象：
 
-*   `context` (对象)：包含有关请求的元数据。
-    *   `slot` (数字)：检索信息的槽位。
-    *   `apiVersion` (字符串，可选)：RPC API 版本。
+*   `context` (object): 包含有关请求的元数据。
+    *   `slot` (number): 检索信息的槽位。
+    *   `apiVersion` (string, optional): RPC API 版本。
 
-*   `value` (对象 | null)：如果账户不存在，这将是 `null`。否则，它是一个包含以下内容的对象：
-    *   `lamports` (数字)：账户拥有的 lamports 数量（1 SOL = 1,000,000,000 lamports）。
-    *   `owner` (字符串)：拥有此账户的程序的 base-58 编码公钥。
-    *   `data` (数组 | 对象 | 字符串)：存储在账户中的数据。格式取决于请求中使用的 `encoding` 参数。
-        *   对于 `base64` (默认)，`base58`，`base64+zstd`：这通常是一个数组 `[encoded_string, encoding_format]`，例如，`["string_data", "base64"]`。
-        *   对于 `jsonParsed`：如果数据可被 RPC 节点解析（例如，对于 SPL Token 账户），这可以是一个 JSON 对象。否则，如果数据未被识别为标准布局，可能会默认为 `["", "base64"]` 或类似情况。
-    *   `executable` (布尔值)：如果账户包含一个程序，则为 `true`，否则为 `false`。
-    *   `rentEpoch` (数字)：此账户将在下一个纪元欠租金。
-    *   `space` (数字，可选)：数据的字节长度。（注意：官方 Solana 文档列出 `space`，而一些 RPC 提供商可能会包含它。它表示为账户数据分配的总空间）。有关 [账户数据和反序列化](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana) 的更多详细信息，请参阅我们的详细指南。
+*   `value` (object | null): 如果账户不存在，这将是 `null`。否则，它是一个包含以下内容的对象：
+    *   `lamports` (number): 账户拥有的 lamports 数量（1 SOL = 1,000,000,000 lamports）。
+    *   `owner` (string): 拥有此账户的程序的 base-58 编码公钥。
+    *   `data` (array | object | string): 存储在账户中的数据。格式取决于请求中使用的 `encoding` 参数。
+        *   对于 `base64` (默认)，`base58`, `base64+zstd`：这通常是一个数组 `[encoded_string, encoding_format]`，例如，`["string_data", "base64"]`。
+        *   对于 `jsonParsed`：如果数据可以被 RPC 节点解析（例如，对于 SPL Token 账户），这可以是一个 JSON 对象。否则，如果数据未被识别为标准布局，可能会默认为 `["", "base64"]` 或类似格式。
+    *   `executable` (boolean): 如果账户包含一个程序，则为 `true`，否则为 `false`。
+    *   `rentEpoch` (number): 下一个账户需要支付租金的纪元。
+    *   `space` (number, optional): 数据的字节长度。（注意：官方 Solana 文档列出 `space`，而一些 RPC 提供商可能会包含它。它表示为账户数据分配的总空间）。有关 [账户数据和反序列化](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana) 的更多详细信息，请参阅我们的详细指南。
 
-如果未找到账户，结果中的 `value` 字段将是 `null`。
+如果找不到账户，结果中的 `value` 字段将为 `null`。
 
 ## 示例：获取账户信息
 
@@ -145,8 +145,8 @@ async fn main() -> Result<()> {
 ## 开发者提示
 
 *   **性能：** 对于需要频繁检查多个账户的应用程序，考虑使用 `getMultipleAccounts` 来批量请求并减少往返次数。
-*   **数据反序列化：** `data` 字段通常需要根据所属程序的数据结构进行反序列化。通常需要特定于程序的工具和库（例如，SPL Token 库用于代币账户）。我们关于[反序列化账户数据](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana)的博客文章提供了有用的技术和示例。
-*   **速率限制：** 注意 RPC 节点的速率限制，特别是在查询大量账户或频繁请求时。
+*   **数据反序列化：** `data` 字段通常需要根据拥有程序的数据结构进行反序列化。通常需要特定于程序的工具和库（例如，SPL Token 库用于代币账户）。我们关于[反序列化账户数据](https://www.helius.dev/blog/solana-dev-101-deserializing-account-data-on-solana)的博客文章提供了有用的技术和示例。
+*   **速率限制：** 注意 RPC 节点的速率限制，尤其是在查询大量账户或频繁请求时。
 *   **成本管理：** `getAccountInfo` 通常是低成本查询，但频繁轮询可能会累积。优化您的查询模式。
-*   **明智使用 `jsonParsed`：** 虽然 `jsonParsed` 很方便，但它可能不支持所有账户类型，并且如果程序更新其数据结构，其输出可能会改变。对于关键应用程序，使用已知布局解析二进制数据提供了更高的稳定性。
-*   **考虑 `dataSlice`：** 如果您只需要账户数据的一小部分，使用 `dataSlice` 来减少传输的数据量，并可能降低查询成本。
+*   **明智使用 `jsonParsed`：** 虽然 `jsonParsed` 可能很方便，但它可能不支持所有账户类型，并且如果程序更新其数据结构，其输出可能会更改。对于关键应用程序，使用已知布局解析二进制数据提供了更高的稳定性。
+*   **考虑使用 `dataSlice`：** 如果您只需要账户数据的一小部分，使用 `dataSlice` 来减少传输的数据量，并可能降低查询成本。

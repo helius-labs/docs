@@ -4,7 +4,7 @@ sidebarTitle: getStakeMinimumDelegation
 description: 了解 getStakeMinimumDelegation 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getStakeMinimumDelegation`](https://www.helius.dev/docs/api-reference/rpc/http/getstakeminimumdelegation) RPC 方法返回在 Solana 网络上创建新的[质押](https://www.helius.dev/blog/how-to-stake-solana)委托所需的当前最小 lamports 数量。由于网络治理或更新，此值可能会随时间变化。
+[`getStakeMinimumDelegation`](https://www.helius.dev/docs/api-reference/rpc/http/getstakeminimumdelegation) RPC 方法返回在 Solana 网络上创建新的 [stake](https://www.helius.dev/blog/how-to-stake-solana) 委托所需的当前最小 lamports 数量。由于网络治理或更新，此值可能会随时间变化。
 
 ## 常见用例
 
@@ -16,16 +16,16 @@ description: 了解 getStakeMinimumDelegation 的使用案例、代码示例、�
 
 此方法有一个可选参数：
 
-1.  **`config`**（对象，可选）：包含以下字段的配置对象：
-    *   **`commitment`**（字符串，可选）：指定查询值时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺（通常为 `finalized`）。
+1.  **`config`** (object, optional): 包含以下字段的配置对象：
+    *   **`commitment`** (string, optional): 指定查询值时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺（通常为 `finalized`）。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段是一个 `RpcResponse` 对象，包含：
+JSON-RPC 响应的 `result` 字段是一个包含以下内容的 `RpcResponse` 对象：
 
-*   **`context`**（对象）：一个 `RpcResponseContext` 对象，包含以下字段：
-    *   **`slot`**（`u64`）：检索数据时的槽位。
-*   **`value`**（`u64`）：最小质押委托金额，以 lamports 为单位。
+*   **`context`** (object): 一个包含以下字段的 `RpcResponseContext` 对象：
+    *   **`slot`** (`u64`): 数据检索时的槽位。
+*   **`value`** (`u64`): lamports 中的最小 stake 委托金额。
 
 **示例响应：**
 
@@ -120,8 +120,8 @@ getMinimumDelegationConfirmed();
 
 ## 开发者提示
 
-*   **Lamports vs. SOL：** 返回的值是以 lamports 为单位。请记住，1 SOL = 1,000,000,000 lamports。
-*   **动态值：** 最小委托金额可能会因网络参数而变化。建议定期查询此值或在关键操作前查询，而不是硬编码它。了解更多关于[质押](https://www.helius.dev/blog/how-to-stake-solana)的详细指南。
-*   **承诺级别：** 使用不同的承诺级别会影响返回值的最新程度。`finalized` 提供了最大的确定性，而 `processed` 可能会给出尚未被集群完全确认的较新值。
+*   **Lamports vs. SOL:** 返回的值以 lamports 为单位。请记住 1 SOL = 1,000,000,000 lamports。
+*   **动态值:** 最小委托金额可能会因网络参数而变化。建议定期查询此值或在关键操作前查询，而不是硬编码它。通过我们的详细指南了解更多关于[staking](https://www.helius.dev/blog/how-to-stake-solana)的信息。
+*   **承诺级别:** 使用不同的承诺级别可能会影响返回值的最新程度。`finalized` 提供了最大的确定性，而 `processed` 可能会给出尚未被集群完全确认的较新值。
 
-本指南应能帮助您有效使用 `getStakeMinimumDelegation` RPC 方法来检索 Solana 上所需的最小质押委托。
+本指南应帮助您有效使用 `getStakeMinimumDelegation` RPC 方法来检索 Solana 上所需的最小 stake 委托。

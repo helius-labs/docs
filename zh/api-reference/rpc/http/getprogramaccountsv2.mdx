@@ -11,11 +11,11 @@ openapi: /zh/openapi/rpc-http/getProgramAccountsV2.yaml POST /
 
 ## 概述
 
-`getProgramAccountsV2` 是标准 `getProgramAccounts` 方法的增强版，专为需要高效查询特定 Solana 程序所拥有的大量账户的应用程序设计。此方法引入了基于游标的分页和增量更新功能。
+`getProgramAccountsV2` 是标准 `getProgramAccounts` 方法的增强版，专为需要高效查询特定 Solana 程序拥有的大量账户的应用程序设计。此方法引入了基于游标的分页和增量更新功能。
 
 <Info>
 **V2 的新功能：**
-- **基于游标的分页**：每次请求可配置从 1 到 10,000 个账户的限制
+- **基于游标的分页**：每个请求可配置从 1 到 10,000 个账户的限制
 - **增量更新**：使用 `changedSinceSlot` 仅获取最近修改的账户
 - **更好的性能**：防止超时并减少大数据集的内存使用
 - **向后兼容性**：支持所有现有的 `getProgramAccounts` 参数
@@ -31,7 +31,7 @@ openapi: /zh/openapi/rpc-http/getProgramAccountsV2.yaml POST /
     使用 `changedSinceSlot` 进行增量更新和实时数据同步
   </Card>
   <Card title="防止超时" icon="clock">
-    以前超时的大型查询现在通过分页可靠地工作
+    以前超时的大查询现在通过分页可靠地工作
   </Card>
   <Card title="内存高效" icon="microchip">
     分块处理数据，而不是一次性加载所有数据到内存中
@@ -41,7 +41,7 @@ openapi: /zh/openapi/rpc-http/getProgramAccountsV2.yaml POST /
 ## 分页最佳实践
 
 <Warning>
-**重要的分页行为**：分页结束仅在**没有返回账户**时指示。由于过滤，API 可能返回的账户少于您的限制 - 始终继续分页，直到 `paginationKey` 是 `null`。
+**重要的分页行为**：分页结束仅在**没有返回账户**时指示。由于过滤，API 可能返回少于限制的账户 - 始终继续分页，直到 `paginationKey` 是 `null`。
 </Warning>
 
 ### 基本分页模式
@@ -105,32 +105,17 @@ const incrementalUpdate = await fetch(`https://mainnet.helius-rpc.com/?api-key=$
 **最佳限制大小**：对于大多数用例，每次请求 1,000-5,000 个账户的限制提供了性能和可靠性的最佳平衡。
 </Tip>
 
-- **从较小的限制开始**（1000），并根据您的网络性能增加
-- **使用适当的编码**：`jsonParsed` 方便，`base64` 性能
+- **从较小的限制开始**（1000），并根据网络性能增加
+- **使用适当的编码**：`jsonParsed` 方便，`base64` 性能优越
 - **应用过滤器**以在分页前减少数据集大小
-- **存储 `paginationKey`** 以便在中断时恢复查询
+- **存储 `paginationKey`** 以便在查询中断时恢复
 - **监控响应时间**并相应调整限制
 
 ## 从 getProgramAccounts 迁移
 
 从原始方法迁移很简单 - 只需替换方法名称并添加分页参数：
 
-```diff
-{
-  "jsonrpc": "2.0",
-  "id": "1",
-- "method": "getProgramAccounts",
-+ "method": "getProgramAccountsV2",
-  "params": [
-    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    {
-      "encoding": "base64",
-      "filters": [{ "dataSize": 165 }],
-+     "limit": 5000
-    }
-  ]
-}
-```
+{/* 代码占位符_327a8a2824a8afc7b100da1b1226a792 */}
 
 ## 相关方法
 

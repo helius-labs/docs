@@ -109,7 +109,68 @@ description: Helius 额度的完整指南，包括额度成本、额度的工作
 <div id="historical-data"></div>
 [历史数据查询](/zh/rpc/guides/overview#historical-data-archival)，有时称为存档调用，每次消耗 **10 积分**。
 
-一个例外是 [`getTransactionsForAddress`](/zh/rpc/gettransactionsforaddress)，其消耗 **100 积分**。
+一个例外是 [`getTransactionsForAddress`](/zh/rpc/gettransactionsforaddress)，其费用为 **100 积分**。
+
+<table>
+   <thead align="left">
+     <tr>
+       <th style={{width: '200px'}}>方法</th>
+       <th style={{width: '100px', textAlign: 'center'}}>积分</th>
+       <th>描述</th>
+     </tr>
+   </thead>
+   <tbody>
+     <tr>
+       <td><code>getBlock</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>检索指定槽位的区块数据和交易</td>
+     </tr>
+     <tr>
+       <td><code>getBlocks</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取两个槽位之间的区块列表</td>
+     </tr>
+     <tr>
+       <td><code>getBlocksWithLimit</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>从给定槽位开始获取区块，带有限制</td>
+     </tr>
+     <tr>
+       <td><code>getSignaturesForAddress</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取地址的交易签名</td>
+     </tr>
+     <tr>
+       <td><code>getTransaction</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>检索指定签名的交易详情</td>
+     </tr>
+     <tr>
+       <td><code>getBlockTime</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取区块的预计生成时间</td>
+     </tr>
+     <tr>
+       <td><code>getSignatureStatuses</code></td>
+       <td style={{textAlign: 'center'}}>10 / 1</td>
+       <td>获取交易签名的状态。费用取决于 <code>searchTransactionHistory</code> 参数：启用时（搜索历史数据）为 10 积分，禁用时（仅搜索最近区块）为 1 积分</td>
+     </tr>
+     <tr>
+       <td><code>getInflationReward</code></td>
+       <td style={{textAlign: 'center'}}>10</td>
+       <td>获取一个纪元中一组地址的通胀奖励</td>
+     </tr>
+     <tr>
+       <td><code>getTransactionsForAddress</code></td>
+       <td style={{textAlign: 'center'}}>100</td>
+       <td>增强的交易历史，具有高级过滤和排序功能。返回 100 个完整交易或 1,000 个签名。</td>
+     </tr>
+   </tbody>
+ </table>
+
+<Warning>
+**计划要求**：`getTransactionsForAddress` 仅在开发者计划及以上可用。免费计划用户尝试使用此端点时将收到错误。
+</Warning>
 
 <table>
    <thead align="left">
@@ -222,13 +283,59 @@ Solana Devnet 的 LaserStream 访问可在开发者和商业计划中使用。
 ### 数据大小
 数据流产品的计费基于未压缩的消息大小。
 
-典型大小包括：
+## 交易提交积分
+Helius 提供两种主要的交易提交方法：[Sender](/zh/sending-transactions/sender)，我们为交易者和低延迟应用提供的专用交易着陆服务；以及 [Staked Connections](/zh/sending-transactions/overview)（默认）用于快速、可靠的着陆率。
+<table>
+    <thead>
+      <tr>
+        <th style={{width: '300px'}}>方法</th>
+        <th style={{width: '100px'}}>积分</th>
+        <th style={{width: '320px'}}>描述</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sender</strong></td>
+        <td style={{textAlign: 'center'}}>0</td>
+        <td>超低延迟提交</td>
+      </tr>
+      <tr>
+        <td><strong>Staked Connections</strong></td>
+        <td style={{textAlign: 'center'}}>1</td>
+        <td>最高可靠性（默认）</td>
+      </tr>
+    </tbody>
+  </table>
 
-<ul>
-  <li>区块（约4MB）</li>
-  <li>账户（约0.0004MB）</li>
-  <li>交易（约0.0006MB）</li>
-</ul>
+<Info>
+**所有付费计划现在默认使用 Staked Transactions**：所有通过 `mainnet.helius-rpc.com` 的交易自动使用 staked connections 以获得最高成功率。
+</Info>
+
+## DAS API 额度
+所有 [DAS API](/zh/api-reference/das) 请求每次消耗 **10 额度**：
+
+  <CardGroup cols={2}>
+       <Card title="资产信息">
+         - `getAsset`
+         - `getAssetProof`
+         - `getAssetProofBatch`
+         - `getNftEditions`
+       </Card>
+       <Card title="资产发现">
+         - `getAssetsByOwner`
+         - `getAssetsByAuthority`
+         - `getAssetsByCreator`
+         - `getAssetsByGroup`
+         - `searchAssets`
+         - `getAssetBatch`
+       </Card>
+       <Card title="交易历史">
+         - `getSignaturesForAsset`
+       </Card>
+       <Card title="账户信息">
+         - `getTokenAccounts`
+       </Card>
+     </CardGroup>
 
 ## 交易提交积分
 Helius 提供两种主要的交易提交方法：[Sender](/zh/sending-transactions/sender)，我们为交易者和低延迟应用提供的专用交易着陆服务；以及 [Staked Connections](/zh/sending-transactions/overview)（默认）用于快速、可靠的着陆率。
@@ -312,7 +419,7 @@ Helius 提供两种主要的交易提交方法：[Sender](/zh/sending-transactio
 
 有关使用 webhooks 的更多信息，请阅读我们的[快速入门指南](/zh/webhooks)。
 
-## ZK 压缩积分
+一个例外是 `getValidityProof`，每次请求消耗 100 额度，因为它计算量大。
 
 所有 [ZK Compression API](/zh/api-reference/zk-compression) 调用每次消耗 **10 积分**。
 

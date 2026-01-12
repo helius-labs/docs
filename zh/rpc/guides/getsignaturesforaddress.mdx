@@ -7,7 +7,7 @@ description: 了解 getSignaturesForAddress 的使用案例、代码示例、请
 [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC 方法允许您检索涉及特定账户地址的已确认交易签名列表。这对于获取账户的交易历史非常有用。签名按时间倒序返回（最新的在前）。
 
 <Tip>
-**尝试 `getTransactionsForAddress`**：我们新的 [`getTransactionsForAddress`](https://www.helius.dev/docs/rpc/gettransactionsforaddress) 方法将 `getSignaturesForAddress` 和 `getTransaction` 合并为一个调用，并包含强大的新功能，包括反向搜索、基于时间的过滤和分页。
+**试试 `getTransactionsForAddress`**：我们新的 [`getTransactionsForAddress`](https://www.helius.dev/docs/rpc/gettransactionsforaddress) 方法将 `getSignaturesForAddress` 和 `getTransaction` 合并为一个调用，并包含强大的新功能，包括反向搜索、基于时间的过滤和分页。
 </Tip>
 
 ## 常见用例
@@ -19,13 +19,13 @@ description: 了解 getSignaturesForAddress 的使用案例、代码示例、请
 
 ## 请求参数
 
-1. **`address`** (`string`)：（必需）要检索交易签名的账户的 base-58 编码公钥。
-2. **`options`** (`object`，可选)：一个可选的配置对象，包含以下字段：
- * **`limit`** (`number`，可选)：要返回的最大签名数。默认是 1000，最大允许是 1000。
- * **`before`** (`string`，可选)：一个 base-58 编码的交易签名。如果提供，查询将从此签名之前开始搜索交易。
- * **`until`** (`string`，可选)：一个 base-58 编码的交易签名。如果提供，查询将搜索直到达到此签名（不包括）。
- * **`commitment`** (`string`，可选)：指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值是 `finalized`、`confirmed` 或 `processed`。如果省略，将使用 RPC 节点的默认承诺（通常是 `finalized`）。
- * **`minContextSlot`** (`number`，可选)：请求可以评估的最小槽。这不是对历史交易的过滤，而是为节点的上下文设置最小槽。
+1.  **`address`** (`string`): （必需）要检索交易签名的账户的 base-58 编码公钥。
+2.  **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
+    *   **`limit`** (`number`, 可选): 要返回的最大签名数。默认是 1000，最大允许是 1000。
+    *   **`before`** (`string`, 可选): 一个 base-58 编码的交易签名。如果提供，查询将从此签名之前开始搜索交易。
+    *   **`until`** (`string`, 可选): 一个 base-58 编码的交易签名。如果提供，查询将搜索直到达到此签名（不包括）。
+    *   **`commitment`** (`string`, 可选): 指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值是 `finalized` 或 `confirmed`。不支持 `processed` 承诺。如果省略，将使用 RPC 节点的默认承诺（通常是 `finalized`）。
+    *   **`minContextSlot`** (`number`, 可选): 请求可以评估的最小槽位。这不是对历史交易的过滤，而是为节点的上下文设置最小槽位。
 
 <Warning>
 **不支持批处理**
@@ -37,12 +37,12 @@ description: 了解 getSignaturesForAddress 的使用案例、代码示例、请
 
 JSON-RPC 响应的 `result` 字段是一个签名信息对象的数组。每个对象具有以下结构：
 
-*   **`signature`** (`string`)：Base-58 编码的交易签名。
-*   **`slot`** (`u64`)：交易处理的槽位。
-*   **`err`** (`object` | `null`)：如果交易失败，则为错误对象；如果成功，则为 `null`。
-*   **`memo`** (`string` | `null`)：与交易相关的备注（如果有）。
-*   **`blockTime`** (`i64` | `null`)：包含交易的区块的估计生产时间，以 Unix 时间戳表示（自纪元以来的秒数）。如果不可用，则为 `null`。
-*   **`confirmationStatus`** (`string` | `null`)：交易的确认状态（例如，`processed`，`confirmed`，`finalized`）。如果不可用（例如，对于较旧的 Helius 响应），则为 `null`。
+*   **`signature`** (`string`): 基于58编码的交易签名。
+*   **`slot`** (`u64`): 交易被处理的槽位。
+*   **`err`** (`object` | `null`): 如果交易失败，则为错误对象；如果成功，则为 `null`。
+*   **`memo`** (`string` | `null`): 交易相关的备忘录（如果有）。
+*   **`blockTime`** (`i64` | `null`): 包含交易的区块的估计生产时间，以 Unix 时间戳（自纪元以来的秒数）表示。如果不可用，则为 `null`。
+*   **`confirmationStatus`** (`string` | `null`): 交易的确认状态（例如，`processed`，`confirmed`，`finalized`）。如果不可用（例如，对于较旧的 Helius 响应），则为 `null`。
 
 ## 示例
 
@@ -152,7 +152,7 @@ getLimitedSignatures();
 
 ### 3. 分页获取交易历史
 
-此示例演示如何使用 `before` 参数分批获取交易历史。
+此示例演示如何使用 `before` 参数批量获取交易历史。
 
 <CodeGroup>
 
@@ -246,12 +246,12 @@ paginateSignatures();
 
 ## 开发者提示
 
-*   **分页：** 要获取一个活跃账户的完整交易历史，您可能需要进行多次请求，使用上一个批次中收到的最后一个签名的`before`参数和一个`limit`。
-*   **速率限制：** 在获取大量交易历史时，请注意RPC节点的速率限制。
+*   **分页：** 要获取活动账户的完整交易历史，您可能需要进行多次请求，使用上一个批次中收到的最后一个签名和 `limit` 参数。
+*   **速率限制：** 在获取大量交易历史时，请注意 RPC 节点的速率限制。
 *   **顺序：** 签名总是从最新到最旧返回。
-*   **`limit`参数：** `limit`参数可以在1到1000之间。如果未指定，默认为1000。
-*   **`until`参数：** 此参数可用于在达到已知的较旧签名时停止获取签名，这在您只需要某个时间点之前的交易时很有用。
-*   **`minContextSlot`：** 此参数不筛选历史交易。它指定RPC节点在评估请求时应使用的上下文的最小槽位。如果节点的状态早于此槽位，可能会返回错误。
-*   **交易详情：** 此方法仅返回签名和基本信息。要获取完整的交易详情，您需要对每个签名使用`getTransaction`方法。
+*   **`limit` 参数：** `limit` 参数可以在 1 到 1000 之间。如果未指定，默认为 1000。
+*   **`until` 参数：** 此参数可用于在达到已知的较旧签名时停止获取签名，这在您只需要某个点之前的交易时很有用。
+*   **`minContextSlot`：** 此参数不筛选历史交易。它指定 RPC 节点在评估请求时应使用的最小槽位。如果节点的状态早于此槽位，可能会返回错误。
+*   **交易详情：** 此方法仅返回签名和基本信息。要获取完整的交易详情，您需要对每个签名使用 `getTransaction` 方法。
 
 通过使用`getSignaturesForAddress`及其分页选项，您可以有效地检索和管理任何Solana地址的交易历史。

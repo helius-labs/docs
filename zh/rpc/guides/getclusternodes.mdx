@@ -4,7 +4,7 @@ sidebarTitle: getClusterNodes
 description: 了解 getClusterNodes 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getClusterNodes`](https://www.helius.dev/docs/api-reference/rpc/http/getclusternodes) RPC 方法返回当前参与 Solana 集群的所有已知节点的列表。此信息对于网络分析、发现替代 RPC 端点或从查询节点的角度理解当前网络拓扑非常有用。
+[`getClusterNodes`](https://www.helius.dev/docs/api-reference/rpc/http/getclusternodes) RPC 方法返回当前参与 Solana 集群的所有已知节点的列表。此信息可用于网络分析、发现替代 RPC 端点或从查询节点的角度了解当前网络拓扑。
 
 ## 常见用例
 
@@ -20,13 +20,13 @@ description: 了解 getClusterNodes 的使用案例、代码示例、请求参�
 
 JSON-RPC 响应的 `result` 字段将是一个对象数组。每个对象代表一个节点，并包含以下字段：
 
-*   **`pubkey`** (string): 节点的公钥（身份），base58 编码。
-*   **`gossip`** (string | null): 节点 gossip 服务的 IP 地址和端口。如果不可用，可以是 `null`。
-*   **`tpu`** (string | null): 节点事务处理单元 (TPU) 的 IP 地址和端口。用于直接提交交易。如果不可用，可以是 `null`。
-*   **`rpc`** (string | null): 节点 JSON-RPC 服务的 IP 地址和端口。如果此节点未启用或未公布 RPC 服务，可以是 `null`。
-*   **`version`** (string | null): 节点的软件版本。如果版本信息不可用，可以是 `null`。
-*   **`featureSet`** (u32 | null): 节点功能集的唯一标识符。如果不可用，可以是 `null`。
-*   **`shredVersion`** (u16 | null): 此节点用于存储和传输区块（shreds）的数据结构版本。如果不可用，可以是 `null`。
+* **`pubkey`** (字符串): 节点的公钥（身份），base58 编码。
+* **`gossip`** (字符串 | null): 节点的 gossip 服务的 IP 地址和端口。如果不可用，可以是 `null`。
+* **`tpu`** (字符串 | null): 节点的交易处理单元 (TPU) 的 IP 地址和端口。用于直接提交交易。如果不可用，可以是 `null`。
+* **`rpc`** (字符串 | null): 节点的 JSON-RPC 服务的 IP 地址和端口。如果此节点未启用或未公布 RPC 服务，可以是 `null`。
+* **`version`** (字符串 | null): 节点的软件版本。如果版本信息不可用，可以是 `null`。
+* **`featureSet`** (u32 | null): 节点功能集的唯一标识符。如果不可用，可以是 `null`。
+* **`shredVersion`** (u16 | null): 此节点用于存储和传输区块（shreds）的数据结构版本。如果不可用，可以是 `null`。
 
 ## 示例
 
@@ -72,9 +72,9 @@ getNodesInCluster();
 
 ## 开发者提示
 
-*   **节点的视角：** 返回的列表反映了您正在查询的特定 RPC 节点已知的节点。不同的 RPC 节点可能对集群有略微不同的视图，尤其是在网络变化期间。
-*   **RPC 可用性：** 列出的所有节点不一定都开放或公开可访问其 RPC 端口。`rpc` 字段非空表示一个已公布的 RPC 端点，但这不保证可访问性或性能。
+*   **节点的视角：** 返回的列表反映了您正在查询的特定RPC节点所知道的节点。不同的RPC节点可能对集群有略微不同的视图，特别是在网络变化期间。
+*   **RPC可用性：** 并非所有列出的节点都一定会开放其RPC端口或公开可访问。`rpc`字段非空表示一个已公布的RPC端点，但这并不保证可访问性或性能。
 *   **动态列表：** 集群拓扑是动态的。节点可以加入和离开，因此列表可能会随时间变化。
-*   **大响应：** 在像 Mainnet Beta 这样的大型网络中，响应可能相当广泛，列出许多节点。
+*   **大响应：** 在像Mainnet Beta这样的大型网络中，响应可能会非常庞大，列出许多节点。
 
-本指南提供了使用 `getClusterNodes` RPC 方法来发现和理解 Solana 集群中的节点所需的信息。
+本指南提供了使用`getClusterNodes` RPC方法来发现和理解Solana集群中的节点所需的信息。

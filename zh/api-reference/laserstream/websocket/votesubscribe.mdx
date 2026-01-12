@@ -4,15 +4,15 @@ description: 订阅以在观察到新的投票时接收通知。这些投票是�
 ---
 
 <Note>
-此订阅不稳定，仅在验证器以`--rpc-pubsub-enable-vote-subscription`标志启动时可用。此订阅的格式将来可能会更改。
+此订阅不稳定，仅在验证器以 `--rpc-pubsub-enable-vote-subscription` 标志启动时可用。此订阅的格式将来可能会更改。
 </Note>
 
 ## 端点
 
 主网和开发网可通过以下URL使用Websockets：
 
-- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets有一个10分钟的不活动计时器；强烈建议实施健康检查并每分钟发送ping以保持websocket连接活跃。</Note>
 
@@ -43,10 +43,10 @@ description: 订阅以在观察到新的投票时接收通知。这些投票是�
 通知将是一个包含以下字段的对象：
 
 - `hash: <string>` - 投票哈希
-- `slots: <array>` - 投票覆盖的插槽，作为u64整数数组
+- `slots: <array>` - 投票所覆盖的槽位，作为 u64 整数数组
 - `timestamp: <i64|null>` - 投票的时间戳
 - `signature: <string>` - 包含此投票的交易的签名
-- `votePubkey: <string>` - 投票账户的公钥，作为base-58编码字符串
+- `votePubkey: <string>` - 投票账户的公钥，作为 base-58 编码字符串
 
 <RequestExample>
 

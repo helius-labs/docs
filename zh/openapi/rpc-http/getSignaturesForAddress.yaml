@@ -102,11 +102,10 @@ paths:
                         properties:
                           commitment:
                             type: string
-                            description: 请求的承诺级别。
+                            description: 请求的承诺级别。不支持 `processed` 承诺。
                             enum:
                               - confirmed
                               - finalized
-                              - processed
                             example: finalized
                           minContextSlot:
                             type: integer

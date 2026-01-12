@@ -4,7 +4,7 @@ sidebarTitle: getTokenSupply
 description: 了解 getTokenSupply 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getTokenSupply`](https://www.helius.dev/docs/api-reference/rpc/http/gettokensupply) RPC 方法返回特定 SPL Token 铸造的总供应量。这对于了解已创建的代币总量至关重要。
+[`getTokenSupply`](https://www.helius.dev/docs/api-reference/rpc/http/gettokensupply) RPC 方法返回特定 SPL 代币铸币的总供应量。这对于了解已创建的代币总量至关重要。
 
 ## 常见用例
 
@@ -15,7 +15,7 @@ description: 了解 getTokenSupply 的使用案例、代码示例、请求参数
 
 ## 请求参数
 
-1.  **`mintAddress`** (字符串，必需)：要查询其总供应量的代币铸造的 base-58 编码公钥。
+1.  **`mintAddress`** (字符串，必需)：您要查询其总供应量的代币铸币的 base-58 编码公钥。
 
 2.  **`options`** (对象，可选)：一个可选的配置对象，可以包括：
     *   **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。
@@ -24,10 +24,10 @@ description: 了解 getTokenSupply 的使用案例、代码示例、请求参数
 
 JSON-RPC 响应中的 `result.value` 字段是一个包含代币供应详细信息的对象：
 
-*   **`amount`** (字符串)：代币在其最小单位（原始数量）中的总供应量，以字符串形式表示。此值未调整小数位。
-*   **`decimals`** (u8)：为此代币铸造定义的小数位数。这对于将原始 `amount` 转换为人类可读格式至关重要。
-*   **`uiAmount`** (数字 | null)：调整为代币的 `decimals` 后的代币总供应量，以浮点数表示。此字段可能为 null 或不太精确；通常优先使用 `uiAmountString` 进行显示。
-*   **`uiAmountString`** (字符串)：调整为代币的 `decimals` 后的代币总供应量，以字符串形式表示。这是代币总供应量的最用户友好的表示。
+*   **`amount`** (字符串)：代币在其最小单位（原始数量）中的总供应量，作为字符串。此值未调整小数位。
+*   **`decimals`** (u8)：为此代币铸币定义的小数位数。这对于将原始 `amount` 转换为人类可读格式至关重要。
+*   **`uiAmount`** (数字 | null)：调整为代币的 `decimals` 后的代币总供应量，作为浮点数。此字段可能为 null 或不太精确；通常优先使用 `uiAmountString` 进行显示。
+*   **`uiAmountString`** (字符串)：调整为代币的 `decimals` 后的代币总供应量，作为字符串。这是代币总供应量的最用户友好表示。
 
 **示例响应：**
 
@@ -112,8 +112,8 @@ checkTokenSupply(exampleTokenMint);
 
 ## 开发者提示
 
-*   **不可变供应（通常）：** 对于大多数 SPL 代币，一旦铸造，从铸造账户本身的角度来看，总供应量是固定的，除非铸造账户有特定的铸造权限可以创建更多代币（或销毁它们，尽管销毁通常发生在代币账户，而不是直接从铸造的供应中）。
+*   **供应量通常不可变：** 对于大多数 SPL 代币，一旦铸造，从铸币账户本身的角度来看，总供应量是固定的，除非铸币有特定的铸造权限可以创建更多代币（或销毁它们，尽管销毁通常发生在代币账户，而不是铸币的供应直接）。
 *   **`decimals` 是关键：** 始终使用 `decimals` 字段来正确解释 `amount` 或 `uiAmountString`。
-*   **数据来源：** 此方法直接查询铸造账户以获取其供应信息。
+*   **数据来源：** 此方法直接查询铸币账户以获取其供应信息。
 
-本指南提供了使用 `getTokenSupply` RPC 方法有效查询 Solana 上 SPL 代币供应的必要信息。
+本指南提供了使用 `getTokenSupply` RPC 方法有效查询 Solana 上 SPL 代币供应所需的信息。

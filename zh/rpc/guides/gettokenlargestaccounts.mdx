@@ -4,7 +4,7 @@ sidebarTitle: getTokenLargestAccounts
 description: 了解 getTokenLargestAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getTokenLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenlargestaccounts) RPC 方法返回给定 SPL Token 铸币的 20 个最大代币账户的列表。这对于分析代币分布和识别特定代币的主要持有者非常有用。
+[`getTokenLargestAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/gettokenlargestaccounts) RPC 方法返回给定 SPL 代币铸造的 20 个最大代币账户的列表。这对于分析代币分布和识别特定代币的主要持有者非常有用。
 
 ## 常见用例
 
@@ -15,20 +15,20 @@ description: 了解 getTokenLargestAccounts 的使用案例、代码示例、请
 
 ## 请求参数
 
-1.  **`mintAddress`** (字符串，必需)：要查找最大账户的代币铸币的 base-58 编码公钥。
+1.  **`mintAddress`** (字符串，必需)：要查找最大账户的代币铸造的 base-58 编码公钥。
 
 2.  **`options`** (对象，可选)：一个可选的配置对象，可以包括：
-    *   **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。
+    *   **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`, `"confirmed"`, `"processed"`）。
 
 ## 响应结构
 
 JSON-RPC 响应中的 `result.value` 字段是一个最多包含 20 个对象的数组。每个对象代表一个最大的代币账户，并包含以下字段：
 
 *   **`address`** (字符串)：代币账户的 base-58 编码公钥。
-*   **`amount`** (字符串)：代币账户的原始余额，以字符串形式表示。此值未调整小数位。
-*   **`decimals`** (u8)：为此代币铸币定义的小数位数。
-*   **`uiAmount`** (数字 | null)：调整小数位后的代币余额，作为浮点数。此字段可能会被弃用或不太可靠；`uiAmountString` 是首选。
-*   **`uiAmountString`** (字符串)：调整小数位后的代币余额，以字符串形式表示。这是余额的最用户友好的表示。
+*   **`amount`** (字符串)：代币账户的原始余额，作为字符串。此值未调整小数位。
+*   **`decimals`** (u8)：为此代币铸造定义的小数位数。
+*   **`uiAmount`** (数字 | null)：调整小数位后的代币余额，作为浮点数。此字段可能会被弃用或不太可靠；建议使用 `uiAmountString`。
+*   **`uiAmountString`** (字符串)：调整小数位后的代币余额，作为字符串。这是余额的最用户友好的表示。
 
 **示例响应：**
 
@@ -132,4 +132,4 @@ getLargestTokenHolders(exampleTokenMint);
 *   **特定代币铸造：** 结果特定于请求中提供的单个代币铸造。
 *   **性能：** 这是一个有针对性的查询，通常表现良好。然而，应避免过度轮询。
 
-本指南帮助您使用`getTokenLargestAccounts` RPC方法来发现Solana上任何SPL代币的主要持有者。
+本指南帮助您使用 `getTokenLargestAccounts` RPC 方法发现 Solana 上任何 SPL 代币的主要持有者。

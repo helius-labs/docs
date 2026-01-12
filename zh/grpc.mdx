@@ -98,15 +98,15 @@ Yellowstone gRPC 通过直接连接到 Solana 的领导者节点，接收实时�
 <ParamField path="commitment" type="string" required>
   **数据一致性的承诺级别**
   
-  - `processed` - 节点已处理的交易
-  - `confirmed` - 集群已确认的交易  
-  - `finalized` - 集群已完成的交易
+  - `processed` - 由节点处理的交易
+  - `confirmed` - 由集群确认的交易
+  - `finalized` - 由集群最终确定的交易
 </ParamField>
 
 <ParamField path="ping" type="boolean" optional>
   **保持连接活跃**
   
-  设置为 `true`，每 15 秒接收一次 pong 消息，防止负载均衡器或代理导致的连接超时。
+  设置为 `true` 以每15秒接收一次pong消息，防止负载均衡器或代理导致的连接超时。
 </ParamField>
 
 <ParamField path="accounts_data_slice" type="array" optional>
@@ -195,9 +195,9 @@ Yellowstone gRPC 通过直接连接到 Solana 的领导者节点，接收实时�
   </ParamField>
 </Accordion>
 
-<Accordion title="插槽过滤器">
+<Accordion title="Slot Filters">
   <ParamField path="filter_by_commitment" type="boolean" default="false">
-    当 `true` 时，仅接收指定承诺级别的插槽更新。当 `false` 时，接收所有承诺级别的更新。
+    当 `true` 时，仅接收指定承诺级别的槽更新。当 `false` 时，接收所有承诺级别的更新。
   </ParamField>
 </Accordion>
 
