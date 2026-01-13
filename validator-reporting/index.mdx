@@ -51,6 +51,9 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
   <Card title="Performance" icon="gauge-high" href="/validator-reporting/performance">
     Operational metrics including skip rates and data metrics
   </Card>
+  <Card title="Stake Account Metrics" icon="hand-holding-dollar" href="/validator-reporting/stake-accounts">
+    Staking and MEV rewards for multiple stake accounts (and vote accounts) in a single request
+  </Card>
 </CardGroup>
 
 ---
@@ -98,6 +101,23 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
 
     ```bash
     curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Get Stake Account Metrics">
+    Get rewards for multiple stake accounts:
+
+    ```bash
+    curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "stake_accounts": [
+          "A41vYyeM1VYm4Fu8r3ZUwfPU6A3854HMPr9mi4WS94JX",
+          "A4RPJ26mj3eguuMfSDQpLySbAyJCLEvERG4Je7FU7R6H",
+          "DdCNGDpP7qMgoAy6paFzhhak2EeyCZcgjH7ak5u5v28m"
+        ],
+        "period": "30d"
+      }' | python3 -m json.tool
     ```
   </Tab>
 
