@@ -33,8 +33,8 @@ description: 获取关于 webhooks 的最常见问题的答案，包括管理、
 
 ## 使用 Webhooks
 
-<Accordion title="我如何验证 webhook 来自 Helius？">
-在创建或更新 webhook 时设置一个授权头。Helius 在将数据发送到您的 webhook 端点时会在 `Authorization` 头中回显此值，允许您验证请求的真实性。
+<Accordion title="如何验证 webhook 来自 Helius？">
+在创建或更新 webhook 时设置授权头。Helius 在向您的 webhook 端点发送数据时，会在 `Authorization` 头中回显此值，从而允许您验证请求的真实性。
 </Accordion>
 
 <Accordion title="'原始'和'增强'webhooks有什么区别？">
@@ -84,7 +84,7 @@ Helius可能会多次传递相同的webhook事件。这可能是由于重试逻�
 </Accordion>
 
 <Accordion title="为什么我的 webhook 没有发送给我所有某种类型的交易（例如 TOKEN_MINT）？">
-`TOKEN_MINT` webhook 仅对特定程序触发，如 Candy Machine V1 和 Solana Program Library。它不涵盖整个区块链上的所有代币铸造事件。对于更广泛的监控，考虑使用更通用的账户或程序订阅，通过 webhooks 使用 "ANY" 交易类型过滤。
+`TOKEN_MINT` webhook 仅针对特定程序触发，如 Candy Machine V1 和 Solana Program Library。它不涵盖整个区块链上的所有代币铸造事件。对于更广泛的监控，请考虑通过 webhooks 使用 "ANY" 交易类型过滤来订阅更通用的账户或程序。
 </Accordion>
 
 ---

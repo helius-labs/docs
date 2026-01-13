@@ -4,16 +4,16 @@ sidebarTitle: getEpochSchedule
 description: 了解 getEpochSchedule 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getEpochSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getepochschedule) RPC 方法返回来自集群创世配置的[epoch](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)计划信息。此数据定义了 epoch 的结构，包括其长度以及如何相对于 epoch 的开始确定领导者计划。
+[`getEpochSchedule`](https://www.helius.dev/docs/api-reference/rpc/http/getepochschedule) RPC 方法返回来自集群创世配置的[epoch](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)计划信息。此数据定义了 epoch 的结构，包括其长度以及如何根据 epoch 的开始确定领导者计划。
 
 理解 epoch 计划对于需要与网络事件对齐、预测 epoch 边界或理解领导者轮换机制的应用程序至关重要。
 
 ## 常见用例
 
-*   **预测 Epoch 边界：** 确定 epoch 中的插槽数量，以估计当前 epoch 何时结束以及下一个 epoch 何时开始。
-*   **领导者计划计算：** 理解 `leaderScheduleSlotOffset` 以了解为即将到来的 epoch 生成领导者计划的提前时间。
-*   **分析网络初始化：** 观察 `warmup`、`firstNormalEpoch` 和 `firstNormalSlot` 以了解集群 epoch 长度的初始启动阶段（如果适用）。
-*   **构建网络监控工具：** 使用此信息准确显示 epoch 的时间和进度。
+* **预测 Epoch 边界：** 确定一个 epoch 中的插槽数量，以估计当前 epoch 何时结束以及下一个 epoch 何时开始。
+* **领导者计划计算：** 理解 `leaderScheduleSlotOffset` 以了解为即将到来的 epoch 生成领导者计划的提前时间。
+* **分析网络初始化：** 观察 `warmup`、`firstNormalEpoch` 和 `firstNormalSlot` 以了解集群 epoch 长度的初始启动阶段（如果适用）。
+* **构建网络监控工具：** 使用此信息准确显示 epoch 的时间和进程。
 
 ## 请求参数
 
@@ -23,11 +23,11 @@ description: 了解 getEpochSchedule 的使用案例、代码示例、请求参�
 
 JSON-RPC 响应的 `result` 字段将是一个包含以下字段的对象：
 
-*   **`slotsPerEpoch`** (u64)：每个 epoch 的最大插槽数（如果有预热期，则在预热期之后）。
-*   **`leaderScheduleSlotOffset`** (u64)：在 epoch 开始之前生成该 epoch 的领导者计划的插槽数。
-*   **`warmup`** (boolean)：一个布尔值，指示集群是否有一个预热期，在此期间 epoch 开始较短并逐渐增加长度。
-*   **`firstNormalEpoch`** (u64)：具有完整 `slotsPerEpoch` 长度的第一个 epoch 编号。如果 `warmup` 为 true，则此字段相关。
-*   **`firstNormalSlot`** (u64)：`firstNormalEpoch` 中第一个插槽的插槽索引。如果 `warmup` 为 true，则此字段相关。
+* **`slotsPerEpoch`** (u64)：每个 epoch 的最大插槽数（如果有预热期，则在预热期之后）。
+* **`leaderScheduleSlotOffset`** (u64)：在 epoch 开始之前生成该 epoch 的领导者计划的插槽数量。
+* **`warmup`** (boolean)：一个布尔值，指示集群是否有一个预热期，在此期间 epoch 开始较短并逐渐增加长度。
+* **`firstNormalEpoch`** (u64)：具有完整 `slotsPerEpoch` 长度的第一个 epoch 编号。如果 `warmup` 为 true，则此项相关。
+* **`firstNormalSlot`** (u64)：在 `firstNormalEpoch` 中的第一个插槽的插槽索引。如果 `warmup` 为 true，则此项相关。
 
 ## 示例
 
@@ -66,8 +66,8 @@ getClusterEpochSchedule();
 
 ## 开发者提示
 
-*   **静态信息：** Epoch 计划由集群的创世配置决定，通常不会改变，除非有重大网络升级或使用不同参数的新集群启动。
-*   **主网与测试网/开发网：** Epoch 计划，特别是 `slotsPerEpoch` 和 warmup 参数，在主网 Beta、测试网和开发网之间可能有显著差异。始终查询您感兴趣的特定集群。
-*   **预热期：** 如果 `warmup` 是 `true`，那么在 `firstNormalEpoch` 之前的 epochs 将比 `slotsPerEpoch` 拥有更少的 slots。预热 epoch 长度的精确计算是 `2^N * MINIMUM_SLOTS_PER_EPOCH`，其中 N 是 epoch 编号（从 0 开始）直到达到 `firstNormalEpoch`。通常 `MINIMUM_SLOTS_PER_EPOCH` 是 32。
+*   **静态信息：** 纪元计划由集群的创世配置决定，通常不会改变，除非有重大网络升级或使用不同参数的新集群启动。
+*   **主网与测试网/开发网：** 纪元计划，特别是 `slotsPerEpoch` 和预热参数，在主网 Beta、测试网和开发网之间可能有显著差异。始终查询您感兴趣的特定集群。
+*   **预热期：** 如果 `warmup` 是 `true`，那么在 `firstNormalEpoch` 之前的纪元将比 `slotsPerEpoch` 拥有更少的插槽。预热纪元长度的精确计算是 `2^N * MINIMUM_SLOTS_PER_EPOCH`，其中 N 是纪元编号（从 0 开始），直到达到 `firstNormalEpoch`。`MINIMUM_SLOTS_PER_EPOCH` 通常为 32。
 
-本指南提供了使用 `getEpochSchedule` RPC 方法所需的信息，以了解 Solana 集群中 epoch 的基本时间和结构。
+本指南提供了使用 `getEpochSchedule` RPC 方法所需的信息，以了解 Solana 集群中纪元的基本时间和结构。

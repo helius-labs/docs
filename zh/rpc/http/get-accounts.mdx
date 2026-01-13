@@ -34,13 +34,13 @@ console.log("Account data:", data.result.value);
 
 ## 常用参数
 
-- `encoding`: 选择 `base58`, `base64`, 或 `jsonParsed` (推荐)
-- `commitment`: 数据一致性级别 (`processed`, `confirmed`, 或 `finalized`)
-- `dataSlice`: 仅获取账户数据的特定部分
+- `encoding`: 从 `base58`, `base64` 或 `jsonParsed` 中选择（推荐）
+- `commitment`: 数据一致性级别（`processed`, `confirmed` 或 `finalized`）
+- `dataSlice`: 仅获取特定部分的账户数据
 
 ## 获取多个账户
 
-对于批量检索，使用 `getMultipleAccounts`：
+对于批量检索，使用 `getMultipleAccounts`:
 
 ```typescript
 const response = await fetch('https://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY', {

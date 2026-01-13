@@ -1,0 +1,49 @@
+openapi: 3.1.0
+info:
+  title: Helius Sender API
+  version: 1.0.0
+  description: 向 Helius Sender 发送 ping 请求以保持连接活跃
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://sender.helius-rpc.com
+    description: 全球 HTTPS 端点（用于前端应用程序）
+  - url: http://slc-sender.helius-rpc.com
+    description: 盐湖城
+  - url: http://ewr-sender.helius-rpc.com
+    description: 纽瓦克
+  - url: http://lon-sender.helius-rpc.com
+    description: 伦敦
+  - url: http://fra-sender.helius-rpc.com
+    description: 法兰克福
+  - url: http://ams-sender.helius-rpc.com
+    description: 阿姆斯特丹
+  - url: http://sg-sender.helius-rpc.com
+    description: 新加坡
+  - url: http://tyo-sender.helius-rpc.com
+    description: 东京
+paths:
+  /ping:
+    get:
+      tags:
+        - Sender
+      summary: ping
+      operationId: ping
+      description: |
+        向 Helius Sender 发送 ping 请求以保持连接活跃
+      security: []
+      responses:
+        '200':
+          description: 连接正常。
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "ok"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
+          content:
+            text/plain:
+              schema:
+                type: string

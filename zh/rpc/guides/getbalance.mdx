@@ -4,7 +4,7 @@ sidebarTitle: getBalance
 description: 了解 getBalance 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getBalance`](https://www.helius.dev/docs/api-reference/rpc/http/getbalance) RPC 方法是一个简单的方法，用于查询 Solana 区块链上任何账户的原生 SOL 余额。它返回以 lamports 为单位的余额（1 SOL = 1,000,000,000 lamports）。
+[`getBalance`](https://www.helius.dev/docs/api-reference/rpc/http/getbalance) RPC 方法是查询 Solana 区块链上任何账户的本地 SOL 余额的简单方法。它以 lamports 返回余额（1 SOL = 1,000,000,000 lamports）。
 
 如果您*只*需要 SOL 余额而不需要其他账户详细信息，此方法比 `getAccountInfo` 更轻量。
 
@@ -16,11 +16,11 @@ description: 了解 getBalance 的使用案例、代码示例、请求参数、�
 
 1.  `publicKey` (字符串，必需)：要查询的账户的 base-58 编码公钥。
 
-2.  `config` (对象，可选)：一个包含以下字段的配置对象：
+2.  `config` (对象，可选)：具有以下字段的配置对象：
     *   `commitment` (字符串，可选)：指定用于查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。默认为 `finalized`。
-        *   `finalized`：节点将查询由集群的超级多数确认已达到最大锁定的最新区块。
-        *   `confirmed`：节点将查询由集群的超级多数投票的最新区块。
-        *   `processed`：节点将查询其最新的区块。请注意，该区块可能不完整。
+        *   `finalized`：节点将查询由集群的绝大多数确认已达到最大锁定的最新区块。
+        *   `confirmed`：节点将查询由集群的绝大多数投票的最新区块。
+        *   `processed`：节点将查询其最新区块。请注意，该区块可能不完整。
     *   `minContextSlot` (数字，可选)：请求可以评估的最小槽位。
 
 ## 响应
@@ -30,15 +30,15 @@ JSON-RPC 响应的 `result` 字段将是一个包含以下内容的对象：
 *   `context` (对象)：
     *   `slot` (数字)：检索余额的槽位。
     *   `apiVersion` (字符串，可选)：RPC API 版本（可能并非所有节点都存在）。
-*   `value` (数字)：账户的余额，以 lamports 为单位（无符号 64 位整数）。
+*   `value` (数字)：账户的 lamports 余额（无符号 64 位整数）。
 
-如果账户在链上不存在，`getBalance` 通常会返回一个值 `0` lamports。
+如果账户在链上不存在，`getBalance`通常会返回一个值为`0` lamports。
 
 ## 示例：获取账户余额
 
-让我们检查主网上 Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) 的 SOL 余额。此程序账户本身持有 SOL 以免租金。
+让我们检查主网上Serum Program V3 ID (`9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin`) 的SOL余额。这个程序账户本身持有SOL以免租金。
 
-**注意：** 在下面的示例中，将 `YOUR_API_KEY` 替换为您实际的 Helius API 密钥。
+**注意：** 在下面的示例中，将`YOUR_API_KEY`替换为您实际的Helius API密钥。
 
 <CodeGroup>
 
@@ -118,8 +118,8 @@ async fn main() -> Result<()> {
 
 ## 开发者提示
 
-*   **SOL 余额的简便性：** 如果您只需要账户的 SOL 余额而不需要其他链上数据（如所有者、数据或可执行状态），`getBalance` 比 `getAccountInfo` 更高效，因为它获取的数据更少。
-*   **不存在的账户：** 如果账户在链上不存在（从未初始化或没有 SOL），`getBalance` 将返回 `0`。如果您只关心 SOL 余额，这可以是检查账户存在性的快速方法。
-*   **Lamports 与 SOL：** 请记住，余额以 lamports 返回。您需要除以 `LAMPORTS_PER_SOL` (1,000,000,000) 将其转换为 SOL。
-*   **承诺级别：** 选择 `commitment` 会影响您获取余额的速度以及余额的确认程度。对于大多数 UI 显示目的，`confirmed` 提供了良好的平衡。对于关键的金融交易，`finalized` 提供了最高的保证。有关详细信息，请参阅 [Solana 承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
-*   **使用 `getMultipleAccounts` 进行批处理：** 虽然 `getBalance` 适用于单个账户，但如果您需要多个账户的余额，使用 `getMultipleAccounts` 然后从每个账户的信息中提取 lamport 余额可能比多个单独的 `getBalance` 调用更高效。
+*   **SOL余额的简化：** 如果您只需要账户的SOL余额而不需要其他链上数据（如所有者、数据或可执行状态），`getBalance`比`getAccountInfo`更高效，因为它获取的数据更少。
+*   **不存在的账户：** 如果账户在链上不存在（从未初始化或拥有SOL），`getBalance`将返回`0`。如果您只关心SOL余额，这可以是检查账户存在的快速方法。
+*   **Lamports与SOL：** 请记住，余额以lamports返回。您需要除以`LAMPORTS_PER_SOL`（1,000,000,000）将其转换为SOL。
+*   **承诺级别：** 选择`commitment`可能会影响您获取余额的速度以及余额的确认程度。对于大多数UI显示目的，`confirmed`提供了良好的平衡。对于关键的金融交易，`finalized`提供了最高的保证。有关详细信息，请参阅[Solana承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
+*   **使用`getMultipleAccounts`进行批处理：** 虽然`getBalance`用于单个账户，但如果您需要多个账户的余额，使用`getMultipleAccounts`然后从每个账户的信息中提取lamport余额可能比进行多个单独的`getBalance`调用更高效。

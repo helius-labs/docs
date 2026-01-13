@@ -1,20 +1,20 @@
 ---
 title: blockSubscribe
-description: 订阅以在每次新块
-  `confirmed` 或
-  `finalized` 时接收通知。
+description: 订阅以在新块被 {/*
+  INLINE_CODE_PLACEHOLDER_44c9cbaea163987171667729a75b03f9 */} 或 {/*
+  INLINE_CODE_PLACEHOLDER_8fe8e1d53a8714fd8d7b1c6c3fd7640c */} 时接收通知。
 ---
 
 <Note>
-此订阅被视为**不稳定**，仅在验证器以 `--rpc-pubsub-enable-block-subscription` 标志启动时可用。此订阅的格式将来可能会更改。
+此订阅被认为是**不稳定的**，仅在验证器以 `--rpc-pubsub-enable-block-subscription` 标志启动时可用。此订阅的格式将来可能会更改。
 </Note>
 
 ## 端点
 
 主网和开发网都可以通过以下 URL 使用 Websockets：
 
-- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
 
@@ -39,7 +39,7 @@ description: 订阅以在每次新块
             包含以下字段的配置对象：
             
             <ParamField body="commitment" type="string">
-                订阅的承诺级别。可以是 `finalized`、`confirmed` 或 `processed`。
+                订阅的承诺级别。可以是 `finalized`, `confirmed`, 或 `processed`。
             </ParamField>
             
             <ParamField body="encoding" type="string">
@@ -71,139 +71,19 @@ description: 订阅以在每次新块
 
 通知将是一个包含以下字段的对象：
 - `slot: <u64>` - 对应的槽位。
-- `err: <object|null>` - 如果发布通知时出错则显示错误，否则为null。
-- `block: <object|null>` - 一个区块对象，如在 `getBlock` RPC HTTP方法中所见。
+- `err: <object|null>` - 如果发布通知时出现问题则为错误，否则为 null。
+- `block: <object|null>` - 一个块对象，如在 `getBlock` RPC HTTP 方法中所见。
 
 <RequestExample>
 
-```json Request
-{
-  "jsonrpc": "2.0",
-  "id": "1",
-  "method": "blockSubscribe",
-  "params": [
-    {
-      "mentionsAccountOrProgram": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op"
-    },
-    {
-      "commitment": "confirmed",
-      "encoding": "base64",
-      "showRewards": true,
-      "transactionDetails": "full"
-    }
-  ]
-}
-```
+{/* 代码占位符_d0e983ca8da3adb6c03e55bfc0048c33 */}
 
 </RequestExample>
 
 <ResponseExample>
 
-```json Response
-{
-  "jsonrpc": "2.0",
-  "result": 0,
-  "id": 1
-}
-```
+{/* 代码占位符_7e5a019e03cd8517646d3a56c93bb91b */}
 
-```json Notification
-{
-  "jsonrpc": "2.0",
-  "method": "blockNotification",
-  "params": {
-    "result": {
-      "context": {
-        "slot": 112301554
-      },
-      "value": {
-        "slot": 112301554,
-        "block": {
-          "previousBlockhash": "GJp125YAN4ufCSUvZJVdCyWQJ7RPWMmwxoyUQySydZA",
-          "blockhash": "6ojMHjctdqfB55JDpEpqfHnP96fiaHEcvzEQ2NNcxzHP",
-          "parentSlot": 112301553,
-          "transactions": [
-            {
-              "transaction": [
-                "OpltwoUvWxYi1P2U8vbIdE/aPntjYo5Aa0VQ2JJyeJE2g9Vvxk8dDGgFMruYfDu8/IfUWb0REppTe7IpAuuLRgIBAAkWnj4KHRpEWWW7gvO1c0BHy06wZi2g7/DLqpEtkRsThAXIdBbhXCLvltw50ZnjDx2hzw74NVn49kmpYj2VZHQJoeJoYJqaKcvuxCi/2i4yywedcVNDWkM84Iuw+cEn9/ROCrXY4qBFI9dveEERQ1c4kdU46xjxj9Vi+QXkb2Kx45QFVkG4Y7HHsoS6WNUiw2m4ffnMNnOVdF9tJht7oeuEfDMuUEaO7l9JeUxppCvrGk3CP45saO51gkwVYEgKzhpKjCx3rgsYxNR81fY4hnUQXSbbc2Y55FkwgRBpVvQK7/+clR4Gjhd3L4y+OtPl7QF93Akg1LaU9wRMs5nvfDFlggqI9PqJl+IvVWrNRdBbPS8LIIhcwbRTkSbqlJQWxYg3Bo2CTVbw7rt1ZubuHWWp0mD/UJpLXGm2JprWTePNULzHu67sfqaWF99LwmwjTyYEkqkRt1T0Je5VzHgJs0N5jY4iIU9K3lMqvrKOIn/2zEMZ+ol2gdgjshx+sphIyhw65F3J/Dbzk04LLkK+CULmN571Y+hFlXF2ke0BIuUG6AUF+4214Cu7FXnqo3rkxEHDZAk0lRrAJ8X/Z+iwuwI5cgbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpDLAp8axcEkaQkLDKRoWxqp8XLNZSKial7Rk+ELAVVKWoWLRXRZ+OIggu0OzMExvVLE5VHqy71FNHq4gGitkiKYNFWSLIE4qGfdFLZXy/6hwS+wq9ewjikCpd//C9BcCL7Wl0iQdUslxNVCBZHnCoPYih9JXvGefOb9WWnjGy14sG9j70+RSVx6BlkFELWwFvIlWR/tHn3EhHAuL0inS2pwX7ZQTAU6gDVaoqbR2EiJ47cKoPycBNvHLoKxoY9AZaBjPl6q8SKQJSFyFd9n44opAgI6zMTjYF/8Ok4VpXEESp3QaoUyTI9sOJ6oFP6f4dwnvQelgXS+AEfAsHsKXxGAIUDQENAgMEBQAGBwgIDg8IBJCER3QXl1AVDBADCQoOAAQLERITDAjb7ugh3gOuTy==",
-                "base64"
-              ],
-              "meta": {
-                "err": null,
-                "status": {
-                  "Ok": null
-                },
-                "fee": 5000,
-                "preBalances": [
-                  1758510880, 2067120, 1566000, 1461600, 2039280, 2039280,
-                  1900080, 1865280, 0, 3680844220, 2039280
-                ],
-                "postBalances": [
-                  1758505880, 2067120, 1566000, 1461600, 2039280, 2039280,
-                  1900080, 1865280, 0, 3680844220, 2039280
-                ],
-                "innerInstructions": [
-                  {
-                    "index": 0,
-                    "instructions": [
-                      {
-                        "programIdIndex": 13,
-                        "accounts": [1, 15, 3, 4, 2, 14],
-                        "data": "21TeLgZXNbtHXVBzCaiRmH"
-                      },
-                      {
-                        "programIdIndex": 14,
-                        "accounts": [3, 4, 1],
-                        "data": "6qfC8ic7Aq99"
-                      }
-                    ]
-                  }
-                ],
-                "logMessages": [
-                  "Program QMNeHCGYnLVDn1icRAfQZpjPLBNkfGbSKRB83G5d8KB invoke [1]",
-                  "Program QMWoBmAyJLAsA1Lh9ugMTw2gciTihncciphzdNzdZYV invoke [2]"
-                ],
-                "preTokenBalances": [
-                  {
-                    "accountIndex": 4,
-                    "mint": "iouQcQBAiEXe6cKLS85zmZxUqaCqBdeHFpqKoSz615u",
-                    "uiTokenAmount": {
-                      "uiAmount": null,
-                      "decimals": 6,
-                      "amount": "0",
-                      "uiAmountString": "0"
-                    },
-                    "owner": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op",
-                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                  }
-                ],
-                "postTokenBalances": [
-                  {
-                    "accountIndex": 4,
-                    "mint": "iouQcQBAiEXe6cKLS85zmZxUqaCqBdeHFpqKoSz615u",
-                    "uiTokenAmount": {
-                      "uiAmount": null,
-                      "decimals": 6,
-                      "amount": "0",
-                      "uiAmountString": "0"
-                    },
-                    "owner": "LieKvPRE8XeX3Y2xVNHjKlpAScD12lYySBVQ4HqoJ5op",
-                    "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                  }
-                ],
-                "rewards": []
-              }
-            }
-          ],
-          "blockTime": 1639926816,
-          "blockHeight": 101210751
-        },
-        "err": null
-      }
-    },
-    "subscription": 14
-  }
-}
-```
+{/* 代码占位符_cbf0b64559e6bbf1892b898710aea6d2 */}
 
 </ResponseExample>

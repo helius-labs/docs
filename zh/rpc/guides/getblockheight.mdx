@@ -4,7 +4,7 @@ sidebarTitle: getBlockHeight
 description: 了解 getBlockHeight 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getBlockHeight`](https://www.helius.dev/docs/api-reference/rpc/http/getblockheight) RPC 方法是一种查询 Solana 节点当前区块高度的简单方式。区块高度表示自创世区块（槽 0）以来已处理的区块数量。
+[`getBlockHeight`](https://www.helius.dev/docs/api-reference/rpc/http/getblockheight) RPC 方法是查询 Solana 节点当前区块高度的简单方式。区块高度表示自创世区块（插槽 0）以来处理的区块数量。
 
 此方法对于快速了解链的进展情况或在特定承诺级别引用最新区块高度非常有用。
 
@@ -16,29 +16,29 @@ description: 了解 getBlockHeight 的使用案例、代码示例、请求参数
 
 ## 参数
 
-`getBlockHeight` 可以选择性地将配置对象作为其第一个参数（或在不带参数的情况下调用以使用默认值）：
+`getBlockHeight` 可以选择性地将配置对象作为其第一个参数（或不带参数调用以使用默认值）：
 
-1.  `config`（对象，可选）：一个包含以下字段的配置对象：
+1.  `config`（对象，可选）：具有以下字段的配置对象：
     *   `commitment`（字符串，可选）：指定用于查询的承诺级别。默认为 `finalized`。
         *   `finalized`：节点将查询由集群的绝大多数确认已达到最大锁定的最新区块。
         *   `confirmed`：节点将查询由集群的绝大多数投票的最新区块。
         *   `processed`：节点将查询其最新的区块。请注意，该区块可能不完整。
-    *   `minContextSlot`（数字，可选）：请求可以评估的最小槽。这确保返回的区块高度来自等于或大于 `minContextSlot` 的槽。
+    *   `minContextSlot`（数字，可选）：请求可以评估的最小插槽。这确保返回的区块高度来自于大于或等于 `minContextSlot` 的插槽。
 
-如果没有提供参数，该方法通常默认为`finalized`承诺级别。
+如果未提供参数，该方法通常默认为 `finalized` 承诺。
 
 ## 开发者提示
 
-*   **承诺级别很重要**：返回的区块高度可能会根据指定的`commitment`级别而有所不同。`finalized`提供最稳定的高度，而`processed`可能提供更当前但可能是暂时的高度。
-*   **为一致性使用`minContextSlot`**：如果您需要确保区块高度是从至少与您正在跟踪的特定槽位一样新的状态中查询的，请使用`minContextSlot`。
-*   **不是槽位编号**：请记住，区块高度不同于槽位编号。槽位是一个时间段，并不是每个槽位都会产生一个区块（这些称为跳过槽位）。区块高度是实际产生的区块数量。
-*   **基本链健康检查**：虽然简单，`getBlockHeight`可以作为您的应用程序或监控系统的基本链健康或同步检查的一部分。
+*   **承诺级别很重要**：返回的区块高度可能会根据指定的 `commitment` 级别而有所不同。`finalized` 提供最稳定的高度，而 `processed` 可能提供更当前但可能是暂时的高度。
+*   **`minContextSlot` 保持一致性**：如果需要确保区块高度是从至少与您正在跟踪的特定插槽一样新的状态查询的，请使用 `minContextSlot`。
+*   **不是插槽号**：请记住，区块高度不同于插槽号。插槽是一个时间段，并不是每个插槽都会产生区块（这些称为跳过插槽）。区块高度是实际产生的区块数量。
+*   **基本链健康检查**：虽然简单，但 `getBlockHeight` 可以作为您的应用程序或监控系统的基本链健康或同步检查的一部分。
 
 ## 响应
 
-JSON-RPC响应的`result`字段将是一个单一的数字：
+JSON-RPC 响应的 `result` 字段将是一个单一的数字：
 
-*   `blockHeight`（数字）：根据指定的承诺级别，节点的当前区块高度（u64）。
+*   `blockHeight` (number)：根据指定的承诺级别，节点的当前区块高度 (u64)。
 
 **示例响应JSON：**
 
@@ -56,7 +56,7 @@ JSON-RPC响应的`result`字段将是一个单一的数字：
 
 让我们从Helius Devnet RPC获取当前区块高度。
 
-**注意：**在下面的示例中，将`YOUR_API_KEY`替换为您实际的Helius API密钥。
+**注意：** 在下面的示例中，将 `YOUR_API_KEY` 替换为您实际的 Helius API 密钥。
 
 <CodeGroup>
 

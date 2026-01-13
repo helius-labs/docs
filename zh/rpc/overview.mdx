@@ -63,100 +63,25 @@ description: 高性能 Solana RPC 基础设施，响应时间快 95%。完整指
 <Tabs>
   <Tab title="JavaScript/TypeScript">
 
-    ```javascript
-    import { Connection } from '@solana/web3.js';
-    
-    // Your Helius RPC URL from dashboard
-    const rpcUrl = 'YOUR_HELIUS_RPC_URL';
-    const connection = new Connection(rpcUrl);
-    
-    // Test the connection
-    const testConnection = async () => {
-      try {
-        const version = await connection.getVersion();
-        const slot = await connection.getSlot();
-        
-        console.log('Connection successful!');
-        console.log(`Solana version: ${version['solana-core']}`);
-        console.log(`Current slot: ${slot}`);
-      } catch (error) {
-        console.error('Connection failed:', error);
-      }
-    };
-    
-    testConnection();
-    ```
+{/* 代码占位符_35de67f4a21c6ae96f4616c48fbbe447 */}
 
   </Tab>
   
   <Tab title="Python">
 
-    ```python
-    from solana.rpc.api import Client
-    
-    # Your Helius RPC URL from dashboard
-    rpc_url = 'YOUR_HELIUS_RPC_URL'
-    client = Client(rpc_url)
-    
-    # Test the connection
-    try:
-        version = client.get_version()
-        slot = client.get_slot()
-        
-        print('Connection successful!')
-        print(f'Solana version: {version.value}')
-        print(f'Current slot: {slot.value}')
-    except Exception as e:
-        print(f'Connection failed: {e}')
-    ```
+{/* 代码占位符_9f9b6dbf6bac22747b59af76ce018804 */}
 
   </Tab>
   
   <Tab title="Rust">
 
-    ```rust
-    use solana_client::rpc_client::RpcClient;
-    use solana_sdk::commitment_config::CommitmentConfig;
-    
-    #[tokio::main]
-    async fn main() -> Result<(), Box<dyn std::error::Error>> {
-        // Your Helius RPC URL from dashboard
-        let rpc_url = "YOUR_HELIUS_RPC_URL";
-        
-        let client = RpcClient::new_with_commitment(
-            rpc_url.to_string(),
-            CommitmentConfig::confirmed(),
-        );
-        
-        // Test the connection
-        match client.get_version() {
-            Ok(version) => {
-                println!("Connection successful!");
-                println!("Solana version: {:?}", version.solana_core);
-                
-                let slot = client.get_slot()?;
-                println!("Current slot: {}", slot);
-            }
-            Err(err) => println!("Connection failed: {}", err),
-        }
-        
-        Ok(())
-    }
-    ```
+{/* 代码占位符_ef7906646f5d829051970a870b95e2f3 */}
 
   </Tab>
   
   <Tab title="cURL">
 
-    ```bash
-    curl -X POST "YOUR_HELIUS_RPC_URL" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "getVersion"
-      }' | jq
-    ```
+{/* 代码占位符_5f7494f12fcc6e3dd3bb3d8241636b18 */}
 
   </Tab>
 </Tabs>

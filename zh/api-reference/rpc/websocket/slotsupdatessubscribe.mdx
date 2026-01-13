@@ -46,15 +46,15 @@ og:description: 获取免费的 RPC 并探索 slotsUpdatesSubscribe RPC 方法�
 
 通知将是一个包含以下字段的对象：
 
-- `err: <string|undefined>` - 错误信息。仅在更新类型为 "dead" 时存在。
-- `parent: <u64|undefined>` - 父 slot。仅在更新类型为 "createdBank" 时存在。
-- `slot: <u64>` - 新更新的 slot
-- `stats: <object|undefined>` - 仅在更新类型为 "frozen" 时存在。一个包含以下字段的对象：
+- `err: <string|undefined>` - 错误信息。仅当更新类型为 "dead" 时存在。
+- `parent: <u64|undefined>` - 父插槽。仅当更新类型为 "createdBank" 时存在。
+- `slot: <u64>` - 新更新的插槽
+- `stats: <object|undefined>` - 仅当更新类型为 "frozen" 时存在。一个包含以下字段的对象：
   - `maxTransactionsPerEntry: <u64>`
   - `numFailedTransactions: <u64>`
   - `numSuccessfulTransactions: <u64>`
   - `numTransactionEntries: <u64>`
-- `timestamp: <i64>` - 更新的 Unix 时间戳（毫秒）
+- `timestamp: <i64>` - 更新的Unix时间戳，以毫秒为单位
 - `type: <string>` - 更新类型之一：
   - "firstShredReceived"
   - "completed"

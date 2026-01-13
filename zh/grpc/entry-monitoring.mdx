@@ -30,14 +30,7 @@ description: 监控 Solana 区块链的低级条目、交易批次和执行单�
     - **时间信息：** 条目创建和处理的时间
     
 
-    ```typescript
-    const subscribeRequest: SubscribeRequest = {
-      entry: {
-        entrySubscribe: {} // Subscribe to all entries
-      },
-      commitment: CommitmentLevel.CONFIRMED
-    };
-    ```
+{/* 代码占位符_e62888ea09f9baeb1e16d9d910307a3a */}
 
   </Tab>
   
@@ -77,112 +70,13 @@ description: 监控 Solana 区块链的低级条目、交易批次和执行单�
 
 ### 基本条目监控
 
-```typescript
-import { StreamManager } from './stream-manager'; // From quickstart guide
-
-async function monitorEntries() {
-  const streamManager = new StreamManager(
-    "your-grpc-endpoint",
-    "your-api-key",
-    handleEntryUpdate
-  );
-
-  const subscribeRequest: SubscribeRequest = {
-    entry: {
-      entrySubscribe: {} // Subscribe to all entries
-    },
-    commitment: CommitmentLevel.CONFIRMED
-  };
-
-  console.log('Starting entry monitoring...');
-  await streamManager.connect(subscribeRequest);
-}
-
-function handleEntryUpdate(data: any): void {
-  if (data.entry) {
-    const entry = data.entry;
-    
-    console.log('\n📋 Entry Details:');
-    console.log(`  Slot: ${entry.slot}`);
-    console.log(`  Index: ${entry.index || 'N/A'}`);
-    console.log(`  Hash: ${entry.hash || 'N/A'}`);
-    console.log(`  Num Hashes: ${entry.numHashes || 'N/A'}`);
-    
-    if (entry.transactions?.length > 0) {
-      console.log(`\n  📦 Entry Transactions (${entry.transactions.length}):`);
-      
-      entry.transactions.forEach((tx: any, index: number) => {
-        console.log(`    ${index + 1}. ${tx.signature || 'No signature'}`);
-        console.log(`       Vote: ${tx.isVote ? 'Yes' : 'No'}`);
-        
-        // Show transaction status if available
-        if (tx.meta) {
-          const status = tx.meta.err ? 'Failed' : 'Success';
-          console.log(`       Status: ${status}`);
-          if (tx.meta.fee) {
-            console.log(`       Fee: ${tx.meta.fee} lamports`);
-          }
-        }
-      });
-    } else {
-      console.log(`  📦 No transactions in this entry`);
-    }
-    
-    // Check if this is a tick entry (no transactions)
-    if (entry.tick !== undefined) {
-      console.log(`  ⏱️  Tick Entry: ${entry.tick ? 'Yes' : 'No'}`);
-    }
-  }
-}
-
-// Start monitoring
-monitorEntries().catch(console.error);
-```
+{/* 代码占位符_df65a2b4aaecac43775472c7be488443 */}
 
 ### 条目分析示例
 
 条目模式的高级分析：
 
-```typescript
-let entryStats = {
-  totalEntries: 0,
-  totalTransactions: 0,
-  tickEntries: 0,
-  largestEntry: 0,
-  slotsProcessed: new Set<number>()
-};
-
-function analyzeEntry(data: any): void {
-  if (data.entry) {
-    const entry = data.entry;
-    entryStats.totalEntries++;
-    entryStats.slotsProcessed.add(entry.slot);
-    
-    const txCount = entry.transactions?.length || 0;
-    entryStats.totalTransactions += txCount;
-    
-    if (txCount === 0 || entry.tick) {
-      entryStats.tickEntries++;
-    }
-    
-    if (txCount > entryStats.largestEntry) {
-      entryStats.largestEntry = txCount;
-      console.log(`\n🔥 New largest entry: ${txCount} transactions in slot ${entry.slot}`);
-    }
-    
-    // Log stats every 100 entries
-    if (entryStats.totalEntries % 100 === 0) {
-      console.log('\n📊 Entry Statistics:');
-      console.log(`  Total Entries: ${entryStats.totalEntries}`);
-      console.log(`  Total Transactions: ${entryStats.totalTransactions}`);
-      console.log(`  Tick Entries: ${entryStats.tickEntries}`);
-      console.log(`  Slots Processed: ${entryStats.slotsProcessed.size}`);
-      console.log(`  Avg Tx/Entry: ${(entryStats.totalTransactions / entryStats.totalEntries).toFixed(2)}`);
-      console.log(`  Largest Entry: ${entryStats.largestEntry} transactions`);
-    }
-  }
-}
-```
+{/* 代码占位符_e13b9c52bc964b0019f20f35aeb4f82a */}
 
 ## 条目数据结构
 
@@ -190,24 +84,7 @@ function analyzeEntry(data: any): void {
 
 <Accordion title="条目字段">
 
-  ```typescript
-  {
-    slot: number;              // Slot number containing this entry
-    index: number;             // Entry index within the slot
-    hash: string;              // Entry hash (proof-of-history)
-    numHashes: number;         // Number of hashes in PoH sequence
-    transactions: Array<{      // Transactions in this entry
-      signature: string;
-      isVote: boolean;
-      meta: {
-        err: any;            // Error if transaction failed
-        fee: number;         // Transaction fee
-        // ... other transaction metadata
-      };
-    }>;
-    tick: boolean;             // Whether this is a tick entry
-  }
-  ```
+{/* 代码占位符_bed920e6bd5cbf2a41e7c229aa90564b */}
 
 </Accordion>
 
@@ -257,20 +134,7 @@ function analyzeEntry(data: any): void {
     **分析交易批处理效率**
     
 
-    ```typescript
-    function analyzeBatching(entry: any): void {
-      const txCount = entry.transactions?.length || 0;
-      
-      if (txCount > 50) {
-        console.log(`Large batch: ${txCount} transactions in entry ${entry.index}`);
-      }
-      
-      // Track batching patterns
-      const batchSizes = new Map<number, number>();
-      const currentCount = batchSizes.get(txCount) || 0;
-      batchSizes.set(txCount, currentCount + 1);
-    }
-    ```
+{/* 代码占位符_280f37e8eb9ce77153584961ff09ed91 */}
 
   </Tab>
   
@@ -278,17 +142,7 @@ function analyzeEntry(data: any): void {
     **研究区块构建模式**
     
 
-    ```typescript
-    function studyValidatorBehavior(entry: any): void {
-      // Analyze entry timing and structure
-      const hasVoteTransactions = entry.transactions?.some((tx: any) => tx.isVote);
-      const hasRegularTransactions = entry.transactions?.some((tx: any) => !tx.isVote);
-      
-      if (hasVoteTransactions && hasRegularTransactions) {
-        console.log(`Mixed entry: votes and regular transactions in slot ${entry.slot}`);
-      }
-    }
-    ```
+{/* 代码占位符_3f8c599026732a01f1057a4aa5901635 */}
 
   </Tab>
   
@@ -296,19 +150,7 @@ function analyzeEntry(data: any): void {
     **调查共识问题**
     
 
-    ```typescript
-    function debugNetworkIssues(entry: any): void {
-      // Look for anomalies in entry structure
-      if (entry.transactions?.length === 0 && !entry.tick) {
-        console.log(`Empty non-tick entry in slot ${entry.slot}`);
-      }
-      
-      // Track entry gaps or irregularities
-      if (entry.numHashes && entry.numHashes > 1000) {
-        console.log(`High hash count: ${entry.numHashes} in slot ${entry.slot}`);
-      }
-    }
-    ```
+{/* 代码占位符_f8034defbf54db877977586c48f1c1e5 */}
 
   </Tab>
 </Tabs>
@@ -329,23 +171,7 @@ function analyzeEntry(data: any): void {
 
 客户端过滤示例：
 
-```typescript
-function handleFilteredEntries(data: any): void {
-  if (data.entry) {
-    const entry = data.entry;
-    
-    // Only process entries with transactions
-    if (entry.transactions?.length > 0) {
-      // Only process entries with non-vote transactions
-      const hasNonVoteTransactions = entry.transactions.some((tx: any) => !tx.isVote);
-      
-      if (hasNonVoteTransactions) {
-        processImportantEntry(entry);
-      }
-    }
-  }
-}
-```
+{/* 代码占位符_799c13db6b189a5f6b77f9f6be0aaa56 */}
 
 ## 最佳实践
 

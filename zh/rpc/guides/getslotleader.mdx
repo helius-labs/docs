@@ -4,7 +4,7 @@ sidebarTitle: getSlotLeader
 description: 了解 getSlotLeader 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getSlotLeader`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleader) RPC 方法返回当前负责区块生产的验证者的公钥，基于节点在指定承诺级别的视图。领导者负责为当前槽位生成区块。
+[`getSlotLeader`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleader) RPC 方法返回当前区块生产领导者的验证者公钥，基于节点在指定承诺级别的视图。领导者负责为当前插槽生成区块。
 
 ## 常见用例
 
@@ -16,13 +16,13 @@ description: 了解 getSlotLeader 的使用案例、代码示例、请求参数�
 
 此方法将一个可选的配置对象作为其第一个参数：
 
-1.  **`options`** (`object`, 可选)：一个可选的配置对象，具有以下字段：
-    *   **`commitment`** (`string`, 可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值为 `finalized`, `confirmed`, 或 `processed`。如果省略，则使用 RPC 节点的默认承诺（通常为 `finalized`）。槽位领导者基于与此承诺级别匹配的槽位确定。
-    *   **`minContextSlot`** (`number`, 可选)：请求可以评估的最小槽位。这设置了节点上下文的最小槽位。
+1.  **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
+    *   **`commitment`** (`string`, 可选): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值有 `finalized`, `confirmed` 或 `processed`。如果省略，将使用 RPC 节点的默认承诺（通常是 `finalized`）。插槽领导者是基于与此承诺级别匹配的插槽确定的。
+    *   **`minContextSlot`** (`number`, 可选): 请求可以评估的最小插槽。这设置了节点上下文的最小插槽。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段是一个单一的 base-58 编码字符串，表示当前槽位领导者的公钥（身份）。
+JSON-RPC 响应的 `result` 字段是一个 base-58 编码的字符串，表示当前插槽领导者的公钥（身份）。
 
 **示例响应：**
 
@@ -38,7 +38,7 @@ JSON-RPC 响应的 `result` 字段是一个单一的 base-58 编码字符串，�
 
 ### 1. 获取当前槽位领导者（默认承诺）
 
-此示例使用节点的默认承诺级别（通常为`finalized`）获取当前插槽领导者。
+此示例使用节点的默认承诺级别（通常是 `finalized`）获取当前插槽领导者。
 
 <CodeGroup>
 
@@ -71,9 +71,9 @@ getCurrentSlotLeader();
 
 </CodeGroup>
 
-### 2. 使用`confirmed`承诺获取当前插槽领导者
+### 2. 使用 `confirmed` 承诺获取当前插槽领导者
 
-此示例获取已达到`confirmed`承诺的最新插槽的领导者。
+此示例获取已达到 `confirmed` 承诺的最新插槽的插槽领导者。
 
 <CodeGroup>
 
@@ -116,9 +116,9 @@ getConfirmedSlotLeader();
 
 ## 开发者提示
 
-*   **动态特性：** 插槽领导者频繁更换（通常每几个插槽更换一次，通常为4个）。此调用的结果是基于节点当前视图和所选承诺的时间快照。
-*   **承诺级别：** 承诺级别影响哪个插槽被视为“当前”以确定领导者。使用`processed`将为您提供节点已知的最新插槽的领导者，该插槽可能会迅速变化，并且可能尚未被更广泛的网络确认。
-*   **领导者计划：** 插槽领导者的顺序由领导者计划决定，该计划在每个纪元开始时计算。我们的[插槽、区块和纪元](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)指南提供了有关此过程的更多详细信息。要全面了解即将到来的领导者，请使用`getLeaderSchedule`。
-*   **节点视角：** 返回的插槽领导者基于您查询的特定RPC节点可用的信息。由于网络延迟，不同节点可能会有略微不同的视图。
+*   **动态特性:** 插槽领导者频繁更换（每几个插槽，通常为 4）。此调用的结果是基于节点当前视图和所选承诺的时间快照。
+*   **承诺级别:** 承诺级别影响哪个插槽被视为确定领导者的“当前”插槽。使用 `processed` 将为您提供节点已知的最新插槽的领导者，该插槽可能会迅速变化，并且可能尚未被更广泛的网络确认。
+*   **领导者计划:** 插槽领导者的顺序由领导者计划决定，该计划在每个纪元开始时计算。我们的[插槽、区块和纪元](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)指南提供了有关此过程的更多详细信息。要获得即将到来的领导者的更全面视图，请使用 `getLeaderSchedule`。
+*   **节点视角:** 返回的插槽领导者基于您查询的特定 RPC 节点可用的信息。由于网络延迟，不同节点可能会有略微不同的视图。
 
-`getSlotLeader`提供了一种快速识别当前负责生成区块的验证者的方法。要更广泛地了解领导者轮换，请考虑使用`getLeaderSchedule`。
+`getSlotLeader` 提供了一种快速识别当前负责生成区块的验证者的方法。要了解领导者轮换的更广泛视图，请考虑 `getLeaderSchedule`。

@@ -1,0 +1,545 @@
+---
+title: 获取奖励预测
+description: 使用多种模型、置信区间和情景预测进行奖励预测
+---
+
+<Note>
+[← 返回验证者报告 API](/zh/validator-reporting)
+</Note>
+
+## 端点
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/rewards/forecast
+```
+
+## 描述
+
+使用统计模型根据历史表现数据生成奖励预测。API 提供三种情景预测（保守、基线、乐观），包括置信区间和详细的方法信息。
+
+### 预测模型
+
+<CardGroup cols={2}>
+  <Card title="滚动平均" icon="chart-simple">
+    使用历史数据的均值 ± 标准差。
+  </Card>
+  <Card title="线性回归" icon="chart-line">
+    从历史数据中推断趋势。
+  </Card>
+</CardGroup>
+
+### APY 计算公式
+
+```
+APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100
+
+Where num_epochs_per_year ≈ 182.5
+```
+
+---
+
+## 路径参数
+
+<ParamField path="vote_account" type="string" required>
+  验证者的投票账户公钥（base58 编码）
+
+  必须匹配模式：`^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  示例：`he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## 查询参数
+
+<ParamField query="api-key" type="string" required>
+  您的 Helius API 密钥用于身份验证
+</ParamField>
+
+<ParamField query="forecast_period" type="string" default="30d">
+  预测未来的时间段
+
+  选项：`7d`, `30d`, `90d`, `180d`, `1y`
+</ParamField>
+
+<ParamField query="lookback_days" type="integer" default="30">
+  用于分析预测的历史天数
+
+  范围：7-365 天
+
+  较长的回溯期提供更稳定的预测，但可能会错过最近的趋势。
+</ParamField>
+
+<ParamField query="model" type="string" default="rolling_average">
+  要使用的预测模型
+
+  选项:
+  - `rolling_average`: 平均值 ± 标准差方法
+  - `linear_regression`: 趋势外推
+</ParamField>
+
+<ParamField query="include_breakdown" type="boolean" default="false">
+  包括按类型详细分解的奖励（通胀、MEV、区块奖励）
+</ParamField>
+
+---
+
+## 请求示例
+
+<CodeGroup>
+
+```bash cURL - Basic Forecast
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?api-key=YOUR_API_KEY&forecast_period=30d"
+```
+
+```bash cURL - Linear Regression with Breakdown
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?api-key=YOUR_API_KEY&forecast_period=90d&lookback_days=60&model=linear_regression&include_breakdown=true"
+```
+
+```javascript JavaScript
+const getRewardsForecast = async (voteAccount, apiKey, options = {}) => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+
+  const params = new URLSearchParams({
+    'api-key': apiKey,
+    forecast_period: options.forecastPeriod || '30d',
+    lookback_days: options.lookbackDays || 30,
+    model: options.model || 'rolling_average',
+    include_breakdown: options.includeBreakdown || false
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/rewards/forecast?${params}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage - Rolling Average
+const forecast = await getRewardsForecast(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  {
+    forecastPeriod: '30d',
+    lookbackDays: 30,
+    model: 'rolling_average',
+    includeBreakdown: true
+  }
+);
+
+console.log('Baseline APY:', forecast.projections.baseline.apy_pct, '%');
+console.log('Baseline SOL:', forecast.projections.baseline.rewards.total_sol);
+console.log('Confidence:', forecast.methodology.confidence);
+
+// Usage - Linear Regression
+const trendForecast = await getRewardsForecast(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  {
+    forecastPeriod: '90d',
+    lookbackDays: 60,
+    model: 'linear_regression'
+  }
+);
+
+console.log('Optimistic APY:', trendForecast.projections.optimistic.apy_pct, '%');
+console.log('R-squared:', trendForecast.methodology.r_squared);
+```
+
+```python Python
+import requests
+
+def get_rewards_forecast(
+    vote_account: str,
+    api_key: str,
+    forecast_period: str = "30d",
+    lookback_days: int = 30,
+    model: str = "rolling_average",
+    include_breakdown: bool = False
+):
+    base_url = "https://mainnet.helius-rpc.com"
+
+    params = {
+        "api-key": api_key,
+        "forecast_period": forecast_period,
+        "lookback_days": lookback_days,
+        "model": model,
+        "include_breakdown": str(include_breakdown).lower(),
+    }
+
+    url = f"{base_url}/validators/{vote_account}/rewards/forecast"
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage - Rolling Average
+forecast = get_rewards_forecast(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    forecast_period="30d",
+    lookback_days=30,
+    model="rolling_average",
+    include_breakdown=True
+)
+
+print(f"Baseline APY: {forecast['projections']['baseline']['apy_pct']}%")
+print(f"Baseline SOL: {forecast['projections']['baseline']['rewards']['total_sol']}")
+print(f"Confidence: {forecast['methodology']['confidence']}")
+
+# Usage - Linear Regression
+trend_forecast = get_rewards_forecast(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    forecast_period="90d",
+    lookback_days=60,
+    model="linear_regression"
+)
+
+print(f"Optimistic APY: {trend_forecast['projections']['optimistic']['apy_pct']}%")
+print(f"R-squared: {trend_forecast['methodology']['r_squared']}")
+```
+
+</CodeGroup>
+
+---
+
+## 响应模式
+
+<ResponseField name="vote_account" type="string">
+  验证者的投票账户地址
+</ResponseField>
+
+<ResponseField name="forecast_period_days" type="integer">
+  预测的天数
+</ResponseField>
+
+<ResponseField name="projections" type="object">
+  三种不同乐观程度的情景预测
+
+  <Expandable title="projections properties">
+    <ResponseField name="conservative" type="object">
+      保守情景（平均值 - 1 标准差或较低置信区间）
+
+      <Expandable title="conservative properties">
+        <ResponseField name="apy_pct" type="number">
+          总年化收益率（所有奖励/质押，扣除佣金前）
+        </ResponseField>
+
+        <ResponseField name="staker_apy_pct" type="number">
+          质押者年化收益率（扣除佣金后委托人收到的收益）
+        </ResponseField>
+
+        <ResponseField name="rewards" type="object">
+          预测奖励分解
+
+          <Expandable title="rewards properties">
+            <ResponseField name="inflation_rewards_lamports" type="integer">
+              预测的通胀奖励（以 lamports 计）
+            </ResponseField>
+
+            <ResponseField name="inflation_rewards_sol" type="number">
+              预测的通胀奖励（以 SOL 计）
+            </ResponseField>
+
+            <ResponseField name="mev_rewards_lamports" type="integer">
+              预测的 MEV 奖励（以 lamports 计）
+            </ResponseField>
+
+            <ResponseField name="mev_rewards_sol" type="number">
+              预测的 MEV 奖励（以 SOL 计）
+            </ResponseField>
+
+            <ResponseField name="block_rewards_lamports" type="integer">
+              预测的区块奖励（以 lamports 计）
+            </ResponseField>
+
+            <ResponseField name="block_rewards_sol" type="number">
+              预测的区块奖励（以 SOL 计）
+            </ResponseField>
+
+            <ResponseField name="total_lamports" type="integer">
+              以 lamports 为单位的预计总奖励
+            </ResponseField>
+
+            <ResponseField name="total_sol" type="number">
+              以 SOL 为单位的预计总奖励
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="baseline" type="object">
+      基线情景（平均或中位数预测）
+
+      结构与 `conservative` 相同
+    </ResponseField>
+
+    <ResponseField name="optimistic" type="object">
+      乐观情景（平均值 + 1 标准差或上置信界限）
+
+      结构与 `conservative` 相同
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="methodology" type="object">
+  关于预测方法的详细信息
+
+  <Expandable title="methodology properties">
+    <ResponseField name="lookback_days" type="integer">
+      分析的历史天数
+    </ResponseField>
+
+    <ResponseField name="epochs_analyzed" type="integer">
+      分析中包含的 epochs 数量
+    </ResponseField>
+
+    <ResponseField name="confidence" type="string">
+      预测的置信水平
+
+      值: `low`, `medium`, `high`
+    </ResponseField>
+
+    <ResponseField name="confidence_interval_pct" type="number">
+      置信区间百分比（通常为 95%）
+    </ResponseField>
+
+    <ResponseField name="method" type="string">
+      使用的预测方法
+
+      值: `rolling_average`, `linear_regression`
+    </ResponseField>
+
+    <ResponseField name="apy_std_dev_pct" type="number" nullable>
+      APY 的标准差（仅限 rolling_average）
+    </ResponseField>
+
+    <ResponseField name="slope_pct_per_epoch" type="number" nullable>
+      每个 epoch 的趋势斜率（仅限 linear_regression）
+    </ResponseField>
+
+    <ResponseField name="intercept_pct" type="number" nullable>
+      回归线的 Y 截距（仅限 linear_regression）
+    </ResponseField>
+
+    <ResponseField name="r_squared" type="number" nullable>
+      R² 拟合优度（仅限 linear_regression）
+
+      范围: 0-1，其中 1 为完美拟合
+    </ResponseField>
+
+    <ResponseField name="standard_error_pct" type="number" nullable>
+      估计的标准误差（仅限 linear_regression）
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="query_timestamp" type="integer">
+  生成预测时的 Unix 时间戳
+</ResponseField>
+
+---
+
+## 响应示例
+
+<Tabs>
+  <Tab title="Rolling Average">
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "forecast_period_days": 30,
+  "projections": {
+    "conservative": {
+      "apy_pct": 7.12,
+      "staker_apy_pct": 6.41,
+      "rewards": {
+        "inflation_rewards_lamports": 3200000000,
+        "inflation_rewards_sol": 3.2,
+        "mev_rewards_lamports": 650000000,
+        "mev_rewards_sol": 0.65,
+        "block_rewards_lamports": 350000000,
+        "block_rewards_sol": 0.35,
+        "total_lamports": 4200000000,
+        "total_sol": 4.2
+      }
+    },
+    "baseline": {
+      "apy_pct": 8.45,
+      "staker_apy_pct": 7.61,
+      "rewards": {
+        "inflation_rewards_lamports": 4000000000,
+        "inflation_rewards_sol": 4.0,
+        "mev_rewards_lamports": 875000000,
+        "mev_rewards_sol": 0.875,
+        "block_rewards_lamports": 500000000,
+        "block_rewards_sol": 0.5,
+        "total_lamports": 5375000000,
+        "total_sol": 5.375
+      }
+    },
+    "optimistic": {
+      "apy_pct": 9.78,
+      "staker_apy_pct": 8.80,
+      "rewards": {
+        "inflation_rewards_lamports": 4800000000,
+        "inflation_rewards_sol": 4.8,
+        "mev_rewards_lamports": 1100000000,
+        "mev_rewards_sol": 1.1,
+        "block_rewards_lamports": 650000000,
+        "block_rewards_sol": 0.65,
+        "total_lamports": 6550000000,
+        "total_sol": 6.55
+      }
+    }
+  },
+  "methodology": {
+    "lookback_days": 30,
+    "epochs_analyzed": 15,
+    "confidence": "high",
+    "confidence_interval_pct": 95.0,
+    "method": "rolling_average",
+    "apy_std_dev_pct": 1.33,
+    "slope_pct_per_epoch": null,
+    "intercept_pct": null,
+    "r_squared": null,
+    "standard_error_pct": null
+  },
+  "query_timestamp": 1733421600
+}
+```
+
+  </Tab>
+
+  <Tab title="线性回归">
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "forecast_period_days": 90,
+  "projections": {
+    "conservative": {
+      "apy_pct": 7.85,
+      "staker_apy_pct": 7.07,
+      "rewards": {
+        "inflation_rewards_lamports": 9600000000,
+        "inflation_rewards_sol": 9.6,
+        "mev_rewards_lamports": 1950000000,
+        "mev_rewards_sol": 1.95,
+        "block_rewards_lamports": 1050000000,
+        "block_rewards_sol": 1.05,
+        "total_lamports": 12600000000,
+        "total_sol": 12.6
+      }
+    },
+    "baseline": {
+      "apy_pct": 9.15,
+      "staker_apy_pct": 8.24,
+      "rewards": {
+        "inflation_rewards_lamports": 12000000000,
+        "inflation_rewards_sol": 12.0,
+        "mev_rewards_lamports": 2625000000,
+        "mev_rewards_sol": 2.625,
+        "block_rewards_lamports": 1500000000,
+        "block_rewards_sol": 1.5,
+        "total_lamports": 16125000000,
+        "total_sol": 16.125
+      }
+    },
+    "optimistic": {
+      "apy_pct": 10.45,
+      "staker_apy_pct": 9.41,
+      "rewards": {
+        "inflation_rewards_lamports": 14400000000,
+        "inflation_rewards_sol": 14.4,
+        "mev_rewards_lamports": 3300000000,
+        "mev_rewards_sol": 3.3,
+        "block_rewards_lamports": 1950000000,
+        "block_rewards_sol": 1.95,
+        "total_lamports": 19650000000,
+        "total_sol": 19.65
+      }
+    }
+  },
+  "methodology": {
+    "lookback_days": 60,
+    "epochs_analyzed": 30,
+    "confidence": "high",
+    "confidence_interval_pct": 95.0,
+    "method": "linear_regression",
+    "apy_std_dev_pct": null,
+    "slope_pct_per_epoch": 0.05,
+    "intercept_pct": 7.50,
+    "r_squared": 0.87,
+    "standard_error_pct": 0.42
+  },
+  "query_timestamp": 1733421600
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 理解置信水平
+
+| 置信度 | 标准 | 解释 |
+|------------|----------|----------------|
+| **高** | 低方差，数据充足，拟合良好 | 预测对于规划是可靠的 |
+| **中** | 中等方差或数据有限 | 用于一般指导 |
+| **低** | 高方差，数据不足或拟合不良 | 预测存在显著不确定性 |
+
+---
+
+## 错误响应
+
+<CodeGroup>
+
+```json 400 Bad Request - Invalid Lookback
+{
+  "error": "invalid_parameters",
+  "message": "lookback_days must be between 7 and 365"
+}
+```
+
+```json 400 Bad Request - Invalid Model
+{
+  "error": "invalid_parameters",
+  "message": "model must be one of: rolling_average, linear_regression"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 注意
+
+<Warning>
+**重要限制：**
+- 预测假设历史模式持续
+- 无法预测网络的突然变化（通胀调整，MEV冲击）
+- 对于较短的预测期更准确
+- 始终考虑外部因素（网络升级，市场状况）
+</Warning>
+
+---
+
+## 相关端点
+
+<CardGroup cols={2}>
+  <Card title="APY" icon="percent" href="/zh/validator-reporting/apy">
+    使用历史数据的当前APY计算
+  </Card>
+  <Card title="收益" icon="money-bill-trend-up" href="/zh/validator-reporting/earnings">
+    进入预测的历史收益
+  </Card>
+</CardGroup>

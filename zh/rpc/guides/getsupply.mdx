@@ -4,11 +4,11 @@ sidebarTitle: getSupply
 description: 了解 getSupply 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getSupply`](https://www.helius.dev/docs/api-reference/rpc/http/getsupply) RPC 方法提供关于 Solana 网络上当前 SOL 供应的信息。它详细说明了总供应量、流通供应量、非流通供应量，并可以选择列出非流通账户。
+[`getSupply`](https://www.helius.dev/docs/api-reference/rpc/http/getsupply) RPC 方法提供有关 Solana 网络上当前 SOL 供应的信息。它详细说明了总供应量、流通供应量、非流通供应量，并且可以选择列出非流通账户。
 
 ## 常见使用案例
 
-*   **了解 SOL 代币经济学：** 获取当前 SOL 分布的快照。
+*   **理解 SOL 代币经济学：** 获取当前 SOL 分布的快照。
 *   **经济分析：** 跟踪供应指标随时间的变化。
 *   **显示网络统计：** 在仪表板或浏览器中为用户提供最新的 SOL 供应信息。
 *   **通货膨胀监测：** 尽管 `getInflationRate` 和 `getInflationGovernor` 提供更直接的通胀数据，`getSupply` 可以提供更广泛的背景。
@@ -17,8 +17,8 @@ description: 了解 getSupply 的使用案例、代码示例、请求参数、�
 
 `getSupply` 方法接受一个可选的配置对象，具有以下字段：
 
-1.  **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺。
-2.  **`excludeNonCirculatingAccountsList`**（布尔值，可选）：如果设置为 `true`，则响应中将排除 `nonCirculatingAccounts` 数组。默认为 `false`。如果不需要单个非流通账户的列表，这可以用于减少响应大小。
+1.  **`commitment`** (字符串，可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺。
+2.  **`excludeNonCirculatingAccountsList`** (布尔值，可选)：如果设置为 `true`，则响应中将排除 `nonCirculatingAccounts` 数组。默认为 `false`。如果不需要单个非流通账户的列表，这可以用于减少响应大小。
 
 **示例配置：**
 
@@ -33,15 +33,15 @@ description: 了解 getSupply 的使用案例、代码示例、请求参数、�
 
 响应是一个 JSON 对象，具有以下字段：
 
-*   **`value`**：包含供应信息的对象：
-    *   **`total`**（u64）：以 lamports 为单位的 SOL 总供应量。
-    *   **`circulating`**（u64）：以 lamports 为单位的流通 SOL 供应量。
-    *   **`nonCirculating`**（u64）：以 lamports 为单位的非流通 SOL 供应量。
-    *   **`nonCirculatingAccounts`**（字符串数组，可选）：持有非流通 SOL 的账户的公钥数组（以 base58 编码的字符串）。如果请求中 `excludeNonCirculatingAccountsList` 设置为 `true`，则此字段被省略。
-*   **`context`**：包含以下内容的对象：
-    *   **`slot`**（u64）：检索信息时的槽位。
+*   **`value`**: 包含供应信息的对象：
+    *   **`total`** (u64)：以 lamports 为单位的 SOL 总供应量。
+    *   **`circulating`** (u64)：以 lamports 为单位的流通 SOL 供应量。
+    *   **`nonCirculating`** (u64)：以 lamports 为单位的非流通 SOL 供应量。
+    *   **`nonCirculatingAccounts`** (字符串数组，可选)：持有非流通 SOL 的账户的公钥数组（以 base58 编码的字符串）。如果请求中 `excludeNonCirculatingAccountsList` 设置为 `true`，则省略此字段。
+*   **`context`**: 包含以下内容的对象：
+    *   **`slot`** (u64)：检索信息的槽位。
 
-**示例响应（带有`excludeNonCirculatingAccountsList: false`）：**
+**示例响应（带有 `excludeNonCirculatingAccountsList: false`）：**
 
 ```json
 {
@@ -65,7 +65,7 @@ description: 了解 getSupply 的使用案例、代码示例、请求参数、�
 }
 ```
 
-**示例响应（带有`excludeNonCirculatingAccountsList: true`）：**
+**示例响应（带有 `excludeNonCirculatingAccountsList: true`）：**
 
 ```json
 {
@@ -145,9 +145,9 @@ getNetworkSupply();
 
 ## 开发者提示
 
-*   **Lamports vs. SOL：** 金额以 lamports 返回。记得除以`1,000,000,000`（1 SOL = 10^9 lamports）以转换为 SOL。
-*   **数据新鲜度：** 数据反映了在`context`对象中指示的槽位的状态，并基于使用的承诺级别。
-*   **`excludeNonCirculatingAccountsList`：** 如果您只需要汇总供应数字以优化响应大小和处理时间，尤其是在非流通账户列表非常长的情况下，请使用此选项。
+*   **Lamports 与 SOL：** 金额以 lamports 返回。记得除以 `1,000,000,000`（1 SOL = 10^9 lamports）以转换为 SOL。
+*   **数据新鲜度：** 数据反映了在 `context` 对象中指示的槽位的状态，并基于使用的承诺级别。
+*   **`excludeNonCirculatingAccountsList`：** 如果您只需要汇总供应数字以优化响应大小和处理时间，尤其是当非流通账户列表非常长时，请使用此选项。
 *   **动态值：** 由于代币发行（通胀）和销毁机制，供应数据可能会频繁变化。
 
-本指南应帮助您有效使用`getSupply` RPC 方法查询 Solana 的供应数据。
+本指南应帮助您有效使用 `getSupply` RPC 方法查询 Solana 的供应数据。

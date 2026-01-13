@@ -23,36 +23,13 @@ Helius 提供两种主要的事件监听方法：
 <Steps>
   <Step title="创建一个 Webhook">
 
-    ```bash
-    curl -X POST 'https://api-mainnet.helius-rpc.com/v0/webhooks' \
-      -H 'Content-Type: application/json' \
-      -d '{
-        "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
-        "transactionTypes": ["ANY"],
-        "webhookURL": "YOUR_WEBHOOK_URL",
-        "authHeader": {"key": "value"}, // optional
-        "webhookType": "enhanced"
-      }' \
-      -H 'Authorization: Bearer YOUR_API_KEY'
-    ```
+{/* 代码占位符_5cbb5af032b5d79c64a9e6376bf76183 */}
 
   </Step>
   <Step title="验证接收">
     符合您条件的事件将作为 POST 请求发送到您的 webhook URL。负载将包括：
 
-    ```json
-    {
-      "accountData": [],
-      "description": "",
-      "events": {},
-      "fee": 5000,
-      "feePayer": "YOUR_ACCOUNT_ADDRESS",
-      "signature": "TRANSACTION_SIGNATURE",
-      "slot": 1234567,
-      "timestamp": 1234567890000,
-      "type": "TRANSACTION_TYPE"
-    }
-    ```
+{/* 代码占位符_779a6e79540cb1d541fe4bee3a6e0579 */}
 
   </Step>
 </Steps>
@@ -62,28 +39,12 @@ Helius 提供两种主要的事件监听方法：
 <Steps>
   <Step title="连接到 WebSocket 端点">
 
-    ```javascript
-    const WebSocket = require('ws');
-
-    // Connect to Helius WebSocket endpoint
-    const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
-    ```
+{/* 代码占位符_0c1170265f9f65f2ead8fd2d63bb3fbd */}
 
   </Step>
   <Step title="设置事件处理程序">
 
-    ```javascript
-    // Handle connection open
-    ws.on('open', () => {
-      console.log('Connected to Helius WebSocket');
-    });
-
-    // Handle incoming messages
-    ws.on('message', (data) => {
-      const event = JSON.parse(data);
-      console.log('Received event:', event);
-    });
-    ```
+{/* 代码占位符_e8990cccc9b47f224790ee30e9037c19 */}
 
   </Step>
 </Steps>

@@ -4,7 +4,7 @@ sidebarTitle: getVoteAccounts
 description: 了解 getVoteAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvoteaccounts) RPC 方法返回当前银行中所有投票账户（验证者）的信息。它区分了`current`（活跃）和`delinquent`验证者，并提供有关其权益、投票活动和身份的详细信息。
+[`getVoteAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getvoteaccounts) RPC 方法返回当前银行中所有投票账户（验证者）的信息。它区分 `current`（活跃）和 `delinquent` 验证者，并提供有关其权益、投票活动和身份的详细信息。
 
 ## 常见用例
 
@@ -17,25 +17,25 @@ description: 了解 getVoteAccounts 的使用案例、代码示例、请求参�
 
 此方法接受一个可选的配置对象，包含以下字段：
 
-1.  **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果省略，则使用节点的默认承诺。
+1.  **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`、`"confirmed"`、`"processed"`）。如果省略，则使用节点的默认承诺。
 2.  **`votePubkey`**（字符串，可选）：如果提供，结果将被过滤以仅包含指定的验证者投票账户地址（base-58 编码）。
-3.  **`keepUnstakedDelinquents`**（布尔值，可选）：默认为`false`。如果设置为`true`，则`delinquent`列表将包括没有激活权益的验证者。否则，它们将被过滤掉。
+3.  **`keepUnstakedDelinquents`**（布尔值，可选）：默认为 `false`。如果设置为 `true`，则 `delinquent` 列表将包括没有激活权益的验证者。否则，它们将被过滤掉。
 4.  **`delinquentSlotDistance`**（u64，可选）：指定验证者必须落后于分类账尖端多少个槽位才被视为失职。如果未指定，节点将使用默认值。
 
 ## 响应结构
 
-JSON-RPC 响应中的`result`字段是一个包含两个数组的对象：
+JSON-RPC 响应中的 `result` 字段是一个包含两个数组的对象：
 
 *   **`current`**：一个对象数组，其中每个对象代表一个活跃的投票账户，具有以下字段：
     *   **`votePubkey`**（字符串）：投票账户地址（base-58 编码）。
     *   **`nodePubkey`**（字符串）：验证者节点的身份公钥（base-58 编码）。
-    *   **`activatedStake`**（u64）：委托给此投票账户并在当前纪元中活跃的权益数量，以 lamports 为单位。
-    *   **`epochVoteAccount`**（布尔值）：如果投票账户在当前纪元中至少活跃过一次，则为`true`。
+    *   **`activatedStake`**（u64）：委托给此投票账户并在当前纪元中活跃的 lamports 数量。
+    *   **`epochVoteAccount`**（布尔值）：如果投票账户在当前纪元中至少活跃过一次，则为 `true`。
     *   **`commission`**（数字）：验证者收取的佣金百分比（0-100）。
     *   **`lastVote`**（u64）：此验证者最近投票的槽位号。
     *   **`rootSlot`**（u64）：节点认为是根的最后一个槽位（一个完全确认且不会回滚的区块）。
-    *   **`epochCredits`**（数组）：一个数组的数组，其中每个内部数组包含`[epoch, credits_earned_in_epoch, previous_total_credits]`。
-*   **`delinquent`**：一个对象数组，结构与`current`相同，代表节点认为失职的验证者。
+    *   **`epochCredits`**（数组）：一个数组的数组，其中每个内部数组包含 `[epoch, credits_earned_in_epoch, previous_total_credits]`。
+*   **`delinquent`**：一个对象数组，结构与 `current` 相同，代表节点认为失职的验证者。
 
 **示例响应片段：**
 
@@ -148,9 +148,9 @@ fetchVoteAccounts();
 
 ## 开发者提示
 
-*   **大响应：** 此方法可能返回大量数据，特别是在有许多验证者的网络上，如 Mainnet Beta。请注意响应大小和处理时间。
-*   **拖欠定义：** "拖欠"的定义可能取决于`delinquentSlotDistance`和节点的视角。如果一个节点对账本末端的视图不同，验证者可能在一个节点上显示为拖欠，而在另一个节点上则不是。
-*   **权益激活：** `activatedStake`反映了在当前纪元中活跃的权益。权益的激活和停用需要时间。
-*   **纪元积分：** `epochCredits`提供了验证者通过投票赚取积分的历史表现。
+*   **大响应：** 此方法可以返回大量数据，特别是在像 Mainnet Beta 这样有许多验证者的网络上。请注意响应大小和处理时间。
+*   **拖欠定义：** "拖欠"的定义可能取决于 `delinquentSlotDistance` 和节点的视角。如果账本尖端的视图不同，一个验证者可能在一个节点上显示为拖欠，但在另一个节点上则不是。
+*   **权益激活：** `activatedStake` 反映了当前纪元中活跃的权益。权益的激活和停用需要时间。
+*   **纪元积分：** `epochCredits` 提供了验证者通过投票赚取积分的历史表现。
 
-本指南涵盖了`getVoteAccounts` RPC 方法，使您能够查询和理解 Solana 网络上的验证者信息。
+本指南涵盖了 `getVoteAccounts` RPC 方法，使您能够查询和了解 Solana 网络上的验证者信息。
