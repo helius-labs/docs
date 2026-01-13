@@ -10,7 +10,7 @@ description: "Retrieve staking rewards and MEV rewards for a list of stake accou
 ## Endpoint
 
 ```
-POST https://mainnet.helius-rpc.com/stake-accounts/metrics
+POST https://mainnet.helius-rpc.com/validators/stake-accounts/metrics
 ```
 
 ## Description
@@ -88,7 +88,7 @@ The endpoint automatically distinguishes between:
 <CodeGroup>
 
 ```bash cURL - 30 Day Period
-curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "stake_accounts": [
@@ -100,7 +100,7 @@ curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR
 ```
 
 ```bash cURL - Custom Epoch Range
-curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "stake_accounts": [
@@ -112,7 +112,7 @@ curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR
 ```
 
 ```bash cURL - With Per-Epoch Breakdown
-curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "stake_accounts": [
@@ -130,7 +130,7 @@ const getStakeAccountMetrics = async (
   options = {}
 ) => {
   const baseUrl = 'https://mainnet.helius-rpc.com';
-  const url = `${baseUrl}/stake-accounts/metrics?api-key=${apiKey}`;
+  const url = `${baseUrl}/validators/stake-accounts/metrics?api-key=${apiKey}`;
 
   const body = {
     stake_accounts: stakeAccounts,
@@ -204,7 +204,7 @@ def get_stake_account_metrics(
     - group_by_epoch: bool
     """
     base_url = "https://mainnet.helius-rpc.com"
-    url = f"{base_url}/stake-accounts/metrics"
+    url = f"{base_url}/validators/stake-accounts/metrics"
     params = {"api-key": api_key}
 
     payload = {
