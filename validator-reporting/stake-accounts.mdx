@@ -17,6 +17,8 @@ POST https://mainnet.helius-rpc.com/stake-accounts/metrics
 
 Retrieve staking rewards (inflation) and MEV rewards for a list of stake accounts. This endpoint accepts up to 100 stake account or vote account pubkeys and returns aggregated reward metrics for each account over the specified time period.
 
+Optionally, you can request per-epoch breakdowns to see rewards earned in each individual epoch, in addition to the aggregated totals.
+
 The endpoint automatically distinguishes between:
 - **Stake Accounts**: Delegated stake accounts with delegation information
 - **Vote Accounts**: Validator vote accounts (identified by having MEV rewards but no delegation info)
@@ -27,26 +29,6 @@ The endpoint automatically distinguishes between:
 
 <ParamField query="api-key" type="string" required>
   Your Helius API key for authentication
-</ParamField>
-
-<ParamField query="period" type="string">
-  Time period for metrics aggregation
-
-  Options: `24h`, `7d`, `30d`, `90d`, `1y`
-
-  Note: Either use `period` OR `start_epoch`/`end_epoch`; not both
-</ParamField>
-
-<ParamField query="start_epoch" type="integer">
-  Starting epoch number (minimum: 400)
-
-  Use for custom epoch ranges instead of `period`
-</ParamField>
-
-<ParamField query="end_epoch" type="integer">
-  Ending epoch number
-
-  Must be used with `start_epoch`
 </ParamField>
 
 ---
@@ -71,6 +53,34 @@ The endpoint automatically distinguishes between:
   ```
 </ParamField>
 
+<ParamField body="period" type="string">
+  Time period for metrics aggregation
+
+  Options: `7d`, `30d`, `90d`, `180d`, `1y`
+
+  Note: Either use `period` OR `start_epoch`/`end_epoch` in the request body, not both
+</ParamField>
+
+<ParamField body="start_epoch" type="integer">
+  Starting epoch number (minimum: 400)
+
+  Use for custom epoch ranges instead of `period`
+</ParamField>
+
+<ParamField body="end_epoch" type="integer">
+  Ending epoch number
+
+  Must be used with `start_epoch`
+</ParamField>
+
+<ParamField body="group_by_epoch" type="boolean">
+  Enable per-epoch rewards breakdown
+
+  Default: `false`
+
+  When set to `true`, the response includes an `epoch_rewards` array for each stake account, containing detailed rewards for every epoch in the period.
+</ParamField>
+
 ---
 
 ## Request Examples
@@ -78,53 +88,75 @@ The endpoint automatically distinguishes between:
 <CodeGroup>
 
 ```bash cURL - 30 Day Period
-curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?period=30d&api-key=YOUR_API_KEY" \
+curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "stake_accounts": [
       "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
       "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
-    ]
+    ],
+    "period": "30d"
   }' | python3 -m json.tool
 ```
 
 ```bash cURL - Custom Epoch Range
-curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?start_epoch=800&end_epoch=850&api-key=YOUR_API_KEY" \
+curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "stake_accounts": [
       "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
-    ]
+    ],
+    "start_epoch": 800,
+    "end_epoch": 850
+  }' | python3 -m json.tool
+```
+
+```bash cURL - With Per-Epoch Breakdown
+curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stake_accounts": [
+      "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ],
+    "period": "30d",
+    "group_by_epoch": true
   }' | python3 -m json.tool
 ```
 
 ```javascript JavaScript
-const getStakeAccountMetrics = async (stakeAccounts, apiKey, period = '30d') => {
+const getStakeAccountMetrics = async (
+  stakeAccounts,
+  apiKey,
+  options = {}
+) => {
   const baseUrl = 'https://mainnet.helius-rpc.com';
-  const url = `${baseUrl}/stake-accounts/metrics?period=${period}&api-key=${apiKey}`;
+  const url = `${baseUrl}/stake-accounts/metrics?api-key=${apiKey}`;
+
+  const body = {
+    stake_accounts: stakeAccounts,
+    ...options // Can include: period, start_epoch, end_epoch, group_by_epoch
+  };
 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      stake_accounts: stakeAccounts
-    })
+    body: JSON.stringify(body)
   });
 
   const data = await response.json();
   return data;
 };
 
-// Usage
+// Usage - Basic aggregated metrics
 const metrics = await getStakeAccountMetrics(
   [
     'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
     'Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz'
   ],
   'YOUR_API_KEY',
-  '30d'
+  { period: '30d' }
 );
 
 console.log('Stake accounts found:', metrics.stake_accounts.length);
@@ -133,8 +165,24 @@ console.log('Vote accounts found:', metrics.vote_accounts.length);
 // Process stake account metrics
 metrics.stake_accounts.forEach(account => {
   console.log(`Account: ${account.stake_account}`);
-  console.log(`Staking rewards: ${account.staking_rewards_sol} SOL`);
-  console.log(`MEV rewards: ${account.mev_rewards_sol} SOL`);
+  console.log(`Staking rewards: ${account.rewards.staking_rewards_sol} SOL`);
+  console.log(`MEV rewards: ${account.rewards.mev_rewards_sol} SOL`);
+});
+
+// Usage - With per-epoch breakdown
+const detailedMetrics = await getStakeAccountMetrics(
+  ['Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz'],
+  'YOUR_API_KEY',
+  {
+    start_epoch: 800,
+    end_epoch: 850,
+    group_by_epoch: true
+  }
+);
+
+// Access epoch-by-epoch rewards
+detailedMetrics.stake_accounts[0].epoch_rewards?.forEach(epochData => {
+  console.log(`Epoch ${epochData.epoch}: ${epochData.total_rewards_sol} SOL`);
 });
 ```
 
@@ -144,30 +192,37 @@ import requests
 def get_stake_account_metrics(
     stake_accounts: list[str],
     api_key: str,
-    period: str = "30d"
+    **options
 ):
+    """
+    Get stake account metrics.
+
+    Options can include:
+    - period: str (e.g., "30d", "90d")
+    - start_epoch: int
+    - end_epoch: int
+    - group_by_epoch: bool
+    """
     base_url = "https://mainnet.helius-rpc.com"
     url = f"{base_url}/stake-accounts/metrics"
-    params = {
-        "period": period,
-        "api-key": api_key
-    }
+    params = {"api-key": api_key}
 
     payload = {
-        "stake_accounts": stake_accounts
+        "stake_accounts": stake_accounts,
+        **options
     }
 
     response = requests.post(url, params=params, json=payload)
     return response.json()
 
-# Usage
+# Usage - Basic aggregated metrics
 metrics = get_stake_account_metrics(
     [
         "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
         "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
     ],
     "YOUR_API_KEY",
-    "30d"
+    period="30d"
 )
 
 print(f"Stake accounts found: {len(metrics['stake_accounts'])}")
@@ -176,8 +231,22 @@ print(f"Vote accounts found: {len(metrics['vote_accounts'])}")
 # Process stake account metrics
 for account in metrics['stake_accounts']:
     print(f"Account: {account['stake_account']}")
-    print(f"Staking rewards: {account['staking_rewards_sol']} SOL")
-    print(f"MEV rewards: {account['mev_rewards_sol']} SOL")
+    print(f"Staking rewards: {account['rewards']['staking_rewards_sol']} SOL")
+    print(f"MEV rewards: {account['rewards']['mev_rewards_sol']} SOL")
+
+# Usage - With per-epoch breakdown
+detailed_metrics = get_stake_account_metrics(
+    ["Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"],
+    "YOUR_API_KEY",
+    start_epoch=800,
+    end_epoch=850,
+    group_by_epoch=True
+)
+
+# Access epoch-by-epoch rewards
+if detailed_metrics['stake_accounts'][0].get('epoch_rewards'):
+    for epoch_data in detailed_metrics['stake_accounts'][0]['epoch_rewards']:
+        print(f"Epoch {epoch_data['epoch']}: {epoch_data['total_rewards_sol']} SOL")
 ```
 
 </CodeGroup>
@@ -198,58 +267,90 @@ for account in metrics['stake_accounts']:
       The vote account this stake is delegated to
     </ResponseField>
 
-    <ResponseField name="staking_rewards_lamports" type="integer">
-      Total staking (inflation) rewards in lamports
+    <ResponseField name="activation_epoch" type="integer">
+      Epoch when the stake was activated
     </ResponseField>
 
-    <ResponseField name="staking_rewards_sol" type="number">
-      Total staking (inflation) rewards in SOL
+    <ResponseField name="deactivation_epoch" type="integer | null">
+      Epoch when the stake was deactivated (null if still active)
     </ResponseField>
 
-    <ResponseField name="mev_rewards_lamports" type="integer">
-      Total MEV rewards from Jito tip distribution in lamports
+    <ResponseField name="rewards" type="object">
+      Aggregated rewards over the entire period
+
+      <Expandable title="rewards properties">
+        <ResponseField name="staking_rewards_lamports" type="integer">
+          Total staking (inflation) rewards in lamports
+        </ResponseField>
+
+        <ResponseField name="staking_rewards_sol" type="number">
+          Total staking (inflation) rewards in SOL
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_lamports" type="integer">
+          Total MEV rewards from Jito tip distribution in lamports
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_sol" type="number">
+          Total MEV rewards from Jito tip distribution in SOL
+        </ResponseField>
+
+        <ResponseField name="total_rewards_lamports" type="integer">
+          Combined total of staking and MEV rewards in lamports
+        </ResponseField>
+
+        <ResponseField name="total_rewards_sol" type="number">
+          Combined total of staking and MEV rewards in SOL
+        </ResponseField>
+      </Expandable>
     </ResponseField>
 
-    <ResponseField name="mev_rewards_sol" type="number">
-      Total MEV rewards from Jito tip distribution in SOL
+    <ResponseField name="epochs_active" type="integer">
+      Number of epochs the stake was active during the queried period
     </ResponseField>
 
-    <ResponseField name="total_rewards_lamports" type="integer">
-      Combined total of staking and MEV rewards in lamports
-    </ResponseField>
+    <ResponseField name="epoch_rewards" type="array | null">
+      Per-epoch rewards breakdown (only present when `group_by_epoch=true`)
 
-    <ResponseField name="total_rewards_sol" type="number">
-      Combined total of staking and MEV rewards in SOL
-    </ResponseField>
+      <Expandable title="epoch_rewards array items">
+        <ResponseField name="epoch" type="integer">
+          The epoch number
+        </ResponseField>
 
-    <ResponseField name="start_epoch" type="integer">
-      First epoch included in the metrics
-    </ResponseField>
+        <ResponseField name="staking_rewards_lamports" type="integer">
+          Staking rewards for this epoch in lamports
+        </ResponseField>
 
-    <ResponseField name="end_epoch" type="integer">
-      Last epoch included in the metrics
-    </ResponseField>
+        <ResponseField name="staking_rewards_sol" type="number">
+          Staking rewards for this epoch in SOL
+        </ResponseField>
 
-    <ResponseField name="epochs_count" type="integer">
-      Number of epochs covered
+        <ResponseField name="mev_rewards_lamports" type="integer">
+          MEV rewards for this epoch in lamports
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_sol" type="number">
+          MEV rewards for this epoch in SOL
+        </ResponseField>
+
+        <ResponseField name="total_rewards_lamports" type="integer">
+          Total rewards for this epoch in lamports
+        </ResponseField>
+
+        <ResponseField name="total_rewards_sol" type="number">
+          Total rewards for this epoch in SOL
+        </ResponseField>
+      </Expandable>
     </ResponseField>
   </Expandable>
 </ResponseField>
 
 <ResponseField name="vote_accounts" type="array">
-  Metrics for vote account pubkeys queried directly
+  Metrics for vote account pubkeys queried directly (identified by having MEV rewards but no delegation info)
 
   <Expandable title="vote_accounts array items">
     <ResponseField name="vote_account" type="string">
       The vote account public key
-    </ResponseField>
-
-    <ResponseField name="staking_rewards_lamports" type="integer">
-      Total staking (inflation) rewards in lamports
-    </ResponseField>
-
-    <ResponseField name="staking_rewards_sol" type="number">
-      Total staking (inflation) rewards in SOL
     </ResponseField>
 
     <ResponseField name="mev_rewards_lamports" type="integer">
@@ -259,94 +360,114 @@ for account in metrics['stake_accounts']:
     <ResponseField name="mev_rewards_sol" type="number">
       Total MEV rewards from Jito tips in SOL
     </ResponseField>
-
-    <ResponseField name="total_rewards_lamports" type="integer">
-      Combined total of staking and MEV rewards in lamports
-    </ResponseField>
-
-    <ResponseField name="total_rewards_sol" type="number">
-      Combined total of staking and MEV rewards in SOL
-    </ResponseField>
-
-    <ResponseField name="start_epoch" type="integer">
-      First epoch included in the metrics
-    </ResponseField>
-
-    <ResponseField name="end_epoch" type="integer">
-      Last epoch included in the metrics
-    </ResponseField>
-
-    <ResponseField name="epochs_count" type="integer">
-      Number of epochs covered
-    </ResponseField>
   </Expandable>
 </ResponseField>
 
-<ResponseField name="metadata" type="object">
-  Query metadata
+<ResponseField name="period" type="string">
+  The time period queried (e.g., "800..850" for epoch range)
+</ResponseField>
 
-  <Expandable title="metadata properties">
-    <ResponseField name="period" type="string">
-      The time period queried
-    </ResponseField>
+<ResponseField name="start_epoch" type="integer">
+  Starting epoch of the data range
+</ResponseField>
 
-    <ResponseField name="start_epoch" type="integer">
-      Starting epoch of the data range
-    </ResponseField>
+<ResponseField name="end_epoch" type="integer">
+  Ending epoch of the data range
+</ResponseField>
 
-    <ResponseField name="end_epoch" type="integer">
-      Ending epoch of the data range
-    </ResponseField>
-
-    <ResponseField name="query_timestamp" type="integer">
-      Unix timestamp when query was executed
-    </ResponseField>
-  </Expandable>
+<ResponseField name="query_timestamp" type="integer">
+  Unix timestamp when query was executed
 </ResponseField>
 
 ---
 
 ## Response Example
 
-```json
+<CodeGroup>
+
+```json Basic Response (Aggregated)
 {
   "stake_accounts": [
     {
       "stake_account": "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz",
       "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
-      "staking_rewards_lamports": 2500000000,
-      "staking_rewards_sol": 2.5,
-      "mev_rewards_lamports": 150000000,
-      "mev_rewards_sol": 0.15,
-      "total_rewards_lamports": 2650000000,
-      "total_rewards_sol": 2.65,
-      "start_epoch": 800,
-      "end_epoch": 830,
-      "epochs_count": 30
+      "activation_epoch": 650,
+      "deactivation_epoch": null,
+      "rewards": {
+        "staking_rewards_lamports": 2500000000,
+        "staking_rewards_sol": 2.5,
+        "mev_rewards_lamports": 150000000,
+        "mev_rewards_sol": 0.15,
+        "total_rewards_lamports": 2650000000,
+        "total_rewards_sol": 2.65
+      },
+      "epochs_active": 30,
+      "epoch_rewards": null
     }
   ],
   "vote_accounts": [
     {
       "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
-      "staking_rewards_lamports": 5000000000,
-      "staking_rewards_sol": 5.0,
       "mev_rewards_lamports": 875000000,
-      "mev_rewards_sol": 0.875,
-      "total_rewards_lamports": 5875000000,
-      "total_rewards_sol": 5.875,
-      "start_epoch": 800,
-      "end_epoch": 830,
-      "epochs_count": 30
+      "mev_rewards_sol": 0.875
     }
   ],
-  "metadata": {
-    "period": "30d",
-    "start_epoch": 800,
-    "end_epoch": 830,
-    "query_timestamp": 1704330000
-  }
+  "period": "800..830",
+  "start_epoch": 800,
+  "end_epoch": 830,
+  "query_timestamp": 1704330000
 }
 ```
+
+```json With Per-Epoch Breakdown
+{
+  "stake_accounts": [
+    {
+      "stake_account": "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz",
+      "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "activation_epoch": 650,
+      "deactivation_epoch": null,
+      "rewards": {
+        "staking_rewards_lamports": 2500000000,
+        "staking_rewards_sol": 2.5,
+        "mev_rewards_lamports": 150000000,
+        "mev_rewards_sol": 0.15,
+        "total_rewards_lamports": 2650000000,
+        "total_rewards_sol": 2.65
+      },
+      "epochs_active": 30,
+      "epoch_rewards": [
+        {
+          "epoch": 800,
+          "staking_rewards_lamports": 83333333,
+          "staking_rewards_sol": 0.083333333,
+          "mev_rewards_lamports": 5000000,
+          "mev_rewards_sol": 0.005,
+          "total_rewards_lamports": 88333333,
+          "total_rewards_sol": 0.088333333
+        },
+        {
+          "epoch": 801,
+          "staking_rewards_lamports": 83333333,
+          "staking_rewards_sol": 0.083333333,
+          "mev_rewards_lamports": 5000000,
+          "mev_rewards_sol": 0.005,
+          "total_rewards_lamports": 88333333,
+          "total_rewards_sol": 0.088333333
+        }
+        // ... more epochs
+      ]
+    }
+  ],
+  "vote_accounts": [],
+  "period": "800..830",
+  "start_epoch": 800,
+  "end_epoch": 830,
+  "query_timestamp": 1704330000
+}
+```
+
+</CodeGroup>
 
 ---
 
@@ -416,6 +537,10 @@ The API automatically categorizes accounts into stake accounts and vote accounts
 <Note>
 **Minimum Epoch**: Historical data is available starting from **epoch 400** for this endpoint.
 </Note>
+
+<Tip>
+**Per-Epoch Breakdown**: Set `group_by_epoch: true` in the request body to receive detailed per-epoch rewards data. This is useful for tracking rewards over time or creating historical charts.
+</Tip>
 
 <Tip>
 **Batch Processing**: When querying many accounts, consider batching them in groups of 100 to stay within the request limit while minimizing API calls.

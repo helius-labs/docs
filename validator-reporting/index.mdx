@@ -108,14 +108,15 @@ Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
     Get rewards for multiple stake accounts:
 
     ```bash
-    curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?period=30d&api-key=YOUR_API_KEY" \
+    curl -X POST "https://mainnet.helius-rpc.com/stake-accounts/metrics?api-key=YOUR_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
         "stake_accounts": [
           "A41vYyeM1VYm4Fu8r3ZUwfPU6A3854HMPr9mi4WS94JX",
           "A4RPJ26mj3eguuMfSDQpLySbAyJCLEvERG4Je7FU7R6H",
           "DdCNGDpP7qMgoAy6paFzhhak2EeyCZcgjH7ak5u5v28m"
-        ]
+        ],
+        "period": "30d"
       }' | python3 -m json.tool
     ```
   </Tab>
