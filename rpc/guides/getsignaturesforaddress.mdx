@@ -7,7 +7,7 @@ description: "Learn getSignaturesForAddress use cases, code examples, request pa
 The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/http/getsignaturesforaddress) RPC method allows you to retrieve a list of confirmed transaction signatures that involve a specific account address. This is useful for fetching the transaction history of an account. Signatures are returned in reverse chronological order (newest first).
 
 <Tip>
-**Try `getTransactionsForAddress`**: Our new [`getTransactionsForAddress`](https://www.helius.dev/docs/rpc/gettransactionsforaddress) method combines `getSignaturesForAddress` and `getTransaction` into a single call, and includes powerful new features including reverse search, time-based filters, and pagination.
+**Try `getTransactionsForAddress`**: Our new [`getTransactionsForAddress`](https://www.helius.dev/docs/rpc/gettransactionsforaddress) method combines `getSignaturesForAddress` and `getTransaction` into a single call, and includes powerful new features including reverse search, time-based filters, token account history, and efficient pagination.
 </Tip>
 
 ## Common Use Cases
@@ -24,7 +24,7 @@ The [`getSignaturesForAddress`](https://www.helius.dev/docs/api-reference/rpc/ht
     *   **`limit`** (`number`, optional): The maximum number of signatures to return. The default is 1000, and the maximum allowed is 1000.
     *   **`before`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will start searching for transactions before this signature.
     *   **`until`** (`string`, optional): A base-58 encoded transaction signature. If provided, the query will search for transactions until this signature is reached (exclusive).
-    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Supported values are `finalized` or `confirmed`. The `processed` commitment is not supported. If omitted, the default commitment of the RPC node is used (usually `finalized`).
+    *   **`commitment`** (`string`, optional): Specifies the [commitment level](https://www.helius.dev/blog/solana-commitment-levels) to use for the query. Supported values are `finalized`, `confirmed`, or `processed`. If omitted, the default commitment of the RPC node is used (usually `finalized`).
     *   **`minContextSlot`** (`number`, optional): The minimum slot that the request can be evaluated at. This is not a filter on historical transactions but sets the minimum slot for the node's context.
 
 <Warning>
@@ -248,5 +248,6 @@ paginateSignatures();
 *   **`until` Parameter:** This parameter can be used to stop fetching signatures if a known older signature is reached, which can be useful if you only need transactions up to a certain point.
 *   **`minContextSlot`:** This parameter does not filter historical transactions. It specifies the minimum slot the RPC node should use for its context when evaluating the request. If the node's state is older than this slot, it may return an error.
 *   **Transaction Details:** This method only returns signatures and basic information. To get full transaction details, you would use the `getTransaction` method with each signature.
+*   **Token Account Limitation:** This method only returns transactions that directly reference the provided address. It does not include transactions involving token accounts owned by the address. For complete token history including associated token accounts, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) with the `tokenAccounts` filter.
 
 By using `getSignaturesForAddress` with its pagination options, you can effectively retrieve and manage transaction histories for any Solana address. 

@@ -59,6 +59,7 @@ paths:
         
         - Bidirectional sorting (ascending/descending chronological order)
         - Advanced filtering by slot, time, signature, and transaction status
+        - Token account support (include transactions for associated token accounts)
         - Efficient keyset pagination using slot-based keys
         - Option to return full transaction details or just signatures
         - Support for time range queries and status filtering
@@ -243,6 +244,15 @@ paths:
                                 - any
                               default: any
                               example: succeeded
+                            tokenAccounts:
+                              type: string
+                              description: Filter transactions for related token accounts. Controls whether to include transactions involving token accounts owned by the address.
+                              enum:
+                                - none
+                                - balanceChanged
+                                - all
+                              default: none
+                              example: balanceChanged
                           additionalProperties: false
                   items: false
                   default:

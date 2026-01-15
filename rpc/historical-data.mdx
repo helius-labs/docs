@@ -26,17 +26,18 @@ Unlike providers relying on shared BigTable infrastructure, Helius maintains ded
 
 <Card title="Advanced Transaction History API" icon="clock-rotate-left" href="/rpc/gettransactionsforaddress">
   Our enhanced method that goes beyond standard Solana RPC capabilities. Query transaction history with powerful filtering, bidirectional sorting, and efficient pagination.
-  
+
   **What makes it special:**
   - Time-based and slot-based filtering
   - Bidirectional sorting (oldest-first or newest-first)
+  - Token account history (includes associated token accounts)
   - Efficient keyset pagination
   - Full transaction data in single requests
   - Support for versioned transactions
-  
+
   **Perfect for:**
   - Token launch analysis
-  - Wallet history
+  - Complete wallet and token history
   - MEV research
   - Compliance reporting
   - Portfolio tracking
@@ -117,16 +118,17 @@ Get confirmed signatures for transactions involving an address.
 - Signature collection
 
 <Note>
-For advanced filtering and sorting, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) instead.
+For advanced filtering, sorting, and token account history, use [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) instead. Note that `getSignaturesForAddress` does not include transactions involving associated token accounts.
 </Note>
 
 <Card title="View getSignaturesForAddress guide" icon="book-open" href="/rpc/guides/getsignaturesforaddress" horizontal />
 
 #### getTransactionsForAddress
 
-Enhanced transaction history with advanced filtering, bidirectional sorting, and efficient pagination. **Costs 100 credits per request.**
+Enhanced transaction history with advanced filtering, bidirectional sorting, token account support, and efficient pagination. **Costs 100 credits per request.**
 
 **Use cases:**
+- Complete wallet token history (including associated token accounts)
 - Time-based transaction analysis
 - Status filtering (succeeded/failed)
 - Chronological historical replay
