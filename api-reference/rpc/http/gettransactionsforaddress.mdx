@@ -70,6 +70,15 @@ openapi: "/openapi/rpc-http/getTransactionsForAddress.yaml POST /"
   Example: `{ "status": "succeeded" }`
 </ParamField>
 
+<ParamField body="filters.tokenAccounts" type="string" default="none">
+  Filter transactions for related token accounts:
+  - `none`: Only return transactions that reference the provided address (default)
+  - `balanceChanged`: Return transactions that reference either the provided address or modify the balance of a token account owned by the provided address (recommended)
+  - `all`: Return transactions that reference either the provided address or any token account owned by the provided address
+
+  Example: `{ "tokenAccounts": "balanceChanged" }`
+</ParamField>
+
 <ParamField body="encoding" type="string">
   Encoding format for transaction data (only applies when `transactionDetails: "full"`). Same as `getTransaction` API. Options: `json`, `jsonParsed`, `base64`, `base58`
 </ParamField>

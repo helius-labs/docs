@@ -181,6 +181,15 @@ The `tokenAccounts` filter gives you control over this behavior:
   Example: `{ "status": "succeeded" }`
 </ParamField>
 
+<ParamField body="filters.tokenAccounts" type="string" default="none">
+  Filter transactions for related token accounts:
+  - `none`: Only return transactions that reference the provided address (default)
+  - `balanceChanged`: Return transactions that reference either the provided address or modify the balance of a token account owned by the provided address (recommended)
+  - `all`: Return transactions that reference either the provided address or any token account owned by the provided address
+
+  Example: `{ "tokenAccounts": "balanceChanged" }`
+</ParamField>
+
 <ParamField body="encoding" type="string">
   Encoding format for transaction data (only applies when `transactionDetails: "full"`). Same as `getTransaction` API. Options: `json`, `jsonParsed`, `base64`, `base58`
 </ParamField>
@@ -193,22 +202,15 @@ The `tokenAccounts` filter gives you control over this behavior:
   The minimum slot that the request can be evaluated at
 </ParamField>
 
-<ParamField body="filters.tokenAccounts" type="string" default="none">
-  Filter transactions for related token accounts:
-  - `none`: Only return transactions that reference the provided address (default)
-  - `balanceChanged`: Return transactions that reference either the provided address or modify the balance of a token account owned by the provided address (recommended)
-  - `all`: Return transactions that reference either the provided address or any token account owned by the provided address
-
-  Example: `{ "tokenAccounts": "balanceChanged" }`
-</ParamField>
-
 ---
 
-## Filter Operators
+## Filters
 
-When using filters, you can use comparison operators for `slot`, `blockTime`, or `signature`, plus a special `status` filter. These operators work like database queries to give you precise control over your data range.
+When using filters, you can use comparison operators for `slot`, `blockTime`, or `signature`, plus the special `status` & `tokenAccounts` filters.
 
 ### Comparison Operators
+
+These operators work like database queries to give you precise control over your data range.
 
 | Operator | Full Name | Description | Example |
 |----------|-----------|-------------|---------|
@@ -218,11 +220,13 @@ When using filters, you can use comparison operators for `slot`, `blockTime`, or
 | `lt` | Less Than | Include values < specified value | `blockTime: { lt: 1641168000 }` |
 | `eq` | Equal | Include values exactly equal (only `blockTime`) | `blockTime: { eq: 1641081600 }` |
 
-### Status Filter
+### Enum Filters
 
 | Filter | Description | Values |
 |--------|-------------|--------|
 | `status` | Filter transactions by success/failure | `succeeded`, `failed`, or `any` |
+| `tokenAccounts` | Filter transactions for related token accounts | `none`, `balanceChanged`, or `all` |
+
 
 **Combined Filters Examples:**
 ```javascript
