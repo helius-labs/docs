@@ -78,8 +78,8 @@ Install our Github App to auto propagate changes from your repo to your deployme
 
 ## License
 
-Apache-2.0 © Helius Labs
+Apache-2.0 © Helius Blockchain Technologies Inc.
 
 ## Trademarks and assets
 
-Helius names, logos, and brand assets in `logo/` are trademarks of Helius Labs and are not covered by the Apache-2.0 license.
+Helius names, logos, and brand assets in `logo/` are trademarks of Helius Blockchain Technologies Inc. and are not covered by the Apache-2.0 license.

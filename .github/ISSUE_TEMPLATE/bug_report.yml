@@ -12,6 +12,8 @@ body:
       label: Affected page(s)
       description: Link or path to the page(s) with the issue
       placeholder: e.g. /rpc/overview
+    validations:
+      required: true
   - type: textarea
     id: what-happened
     attributes:
@@ -23,10 +25,14 @@ body:
     id: repro
     attributes:
       label: Steps to reproduce (if applicable)
-  - type: input
+  - type: textarea
     id: screenshots
     attributes:
       label: Screenshots or recordings
+      description: Add URLs to screenshots or recordings that help illustrate the issue
+      placeholder: |
+        https://example.com/screenshot1.png
+        https://example.com/screenshot2.png
   - type: checkboxes
     id: zh
     attributes:
