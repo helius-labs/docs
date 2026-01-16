@@ -8,7 +8,7 @@ description: 使用 LaserStream gRPC 流式传输 Solana 区块链的实时数�
 
 LaserStream 的 gRPC 提供基于 Yellowstone 的接口，并通过历史重播、多节点故障转移和完全托管环境等功能进行增强。LaserStream 使用开源的 gRPC 协议，确保没有供应商锁定，并与现有 gRPC 实现最大兼容。
 
-您可以直接连接 `@yellowstone-grpc` 或使用更高级别的 **[Helius LaserStream SDK](https://github.com/helius-labs/laserstream-sdk)** 以获得更多好处（自动重连、订阅管理、错误处理等）。
+您可以直接连接 `@yellowstone-grpc`，或者使用更高级的 **[Helius LaserStream SDK](https://github.com/helius-labs/laserstream-sdk)** 以获得更多好处（自动重连、订阅管理、错误处理等）。
 
 <Warning>
 **性能注意**：如果您在使用 LaserStream 连接时遇到任何延迟或性能问题，请参阅 [故障排除部分](#troubleshooting-%2F-faq) 以获取与客户端性能和网络优化相关的常见原因和解决方案。
@@ -38,12 +38,12 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
 
 | 网络 | 位置 | 端点 |
 |---------|----------|----------|
-| **开发网** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-devnet-ewr.helius-rpc.com` |
+| **Devnet** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-devnet-ewr.helius-rpc.com` |
 
 <Tip>
-**网络与区域选择**：
-- 对于 **生产应用程序**，选择离您的服务器最近的主网端点以获得最佳性能。例如，如果在欧洲部署，请使用阿姆斯特丹 (`ams`) 或法兰克福 (`fra`) 端点。
-- 对于 **开发和测试**，使用开发网端点：`https://laserstream-devnet-ewr.helius-rpc.com`。
+**网络和区域选择**：
+- 对于**生产应用**，选择离您的服务器最近的主网端点以获得最佳性能。例如，如果在欧洲部署，请使用阿姆斯特丹 (`ams`) 或法兰克福 (`fra`) 端点。
+- 对于**开发和测试**，使用 devnet 端点：`https://laserstream-devnet-ewr.helius-rpc.com`。
 </Tip>
 
 ## 快速开始
@@ -68,10 +68,10 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
 
   </Step>
   <Step title="获取您的 API 密钥">
-    从 [Helius Dashboard](https://dashboard.helius.dev/) 生成一个密钥。此密钥将作为您对 LaserStream 的身份验证令牌。
+    从 [Helius Dashboard](https://dashboard.helius.dev/) 生成一个密钥。此密钥将作为您使用 LaserStream 的身份验证令牌。
     
     <Note>
-    **计划要求**：LaserStream devnet 需要开发者或商业计划。LaserStream mainnet 需要专业计划。确保您的 Helius 账户具有适当的计划以访问 LaserStream 功能。
+    **计划要求**：LaserStream devnet 需要开发者或商业计划。LaserStream 主网需要专业计划。确保您的 Helius 账户具有适当的计划以访问 LaserStream 功能。
     </Note>
   </Step>
   <Step title="创建订阅脚本">
@@ -123,10 +123,10 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
     ```
 
   </Step>
-  <Step title="替换您的 API 密钥并选择您的区域">
-    在 `index.ts` 中，更新 `config` 对象，包含以下内容：
-    1. 您从 [Helius Dashboard](https://dashboard.helius.dev/) 获取的实际 API 密钥
-    2. 离您的服务器位置最近的 LaserStream 端点
+  <Step title="替换您的API密钥并选择您的区域">
+    在`index.ts`中，更新`config`对象为：
+    1. 您从[Helius Dashboard](https://dashboard.helius.dev/)获取的实际API密钥
+    2. 离您的服务器位置最近的LaserStream端点
 
     ```typescript
     const config: LaserstreamConfig = {
@@ -138,11 +138,11 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
 
     **网络和区域选择示例：**
     - **用于生产（Mainnet）**：
-      - 欧洲：使用 `fra`（法兰克福）或 `ams`（阿姆斯特丹）
-      - 美国东部：使用 `ewr`（纽约）
-      - 美国西部：使用 `slc`（盐湖城）
-      - 亚洲：使用 `tyo`（东京）或 `sgp`（新加坡）
-    - **用于开发（Devnet）**：使用 `https://laserstream-devnet-ewr.helius-rpc.com`
+      - 欧洲：使用`fra`（法兰克福）或`ams`（阿姆斯特丹）
+      - 美国东部：使用`ewr`（纽约）
+      - 美国西部：使用`slc`（盐湖城）
+      - 亚洲：使用`tyo`（东京）或`sgp`（新加坡）
+    - **用于开发（Devnet）**：使用`https://laserstream-devnet-ewr.helius-rpc.com`
   </Step>
   <Step title="运行并查看结果">
 
@@ -150,7 +150,7 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
     npx ts-node index.ts
     ```
 
-    每当一个 `confirmed` 代币交易涉及 `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA` 时，您将在控制台中看到数据。
+    每当一个`confirmed`代币交易涉及`TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`时，您将在控制台中看到数据。
   </Step>
 </Steps>
 
@@ -161,7 +161,7 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
 在订阅请求中，您需要包含以下通用参数：
 
 <Note>
-  **历史重放：** 您可以选择在主 `SubscribeRequest` 对象中包含一个 `fromSlot: string` 字段，以从特定槽位开始重放数据。目前，重放支持最多回溯 3000 个槽位。
+  **历史重播：** 您可以选择在主`SubscribeRequest`对象中包含一个`fromSlot: string`字段，以从特定槽位开始重播数据。目前，重播支持最多3000个过去的槽位。
 </Note>
 
 <ParamField type="enum">
@@ -169,7 +169,7 @@ LaserStream 在全球多个区域可用。选择离您的应用程序最近的�
 </ParamField>
 
 <ParamField type="array">
-  一个对象数组 `{ offset: uint64, length: uint64 }`，允许您仅接收来自账户的所需数据片段。
+  一个对象数组`{ offset: uint64, length: uint64 }`，允许您仅接收所需的账户数据片段。
 </ParamField>
 
 <ParamField type="boolean">
@@ -191,8 +191,8 @@ const subscriptionRequest: SubscribeRequest = {
 
 接下来，您需要指定要订阅的数据的过滤器，例如账户、区块、插槽或交易。
 
-<Accordion title="Slots">
-  定义插槽更新的过滤器。您使用的键（例如，`mySlotLabel`）是此特定过滤器配置的**用户定义标签**，允许您在需要时定义多个命名配置（尽管通常一个就足够了）。
+<Accordion title="槽位">
+  定义槽位更新的过滤器。您使用的键（例如，`mySlotLabel`）是此特定过滤器配置的**用户定义标签**，允许您在需要时定义多个命名配置（尽管通常一个就足够）。
 
   <ParamField type="boolean">
     默认情况下，插槽会发送所有承诺级别的数据。使用此过滤器，您可以选择仅接收所选的承诺级别。
@@ -215,7 +215,7 @@ const subscriptionRequest: SubscribeRequest = {
 
 </Accordion>
 
-<Accordion title="Accounts">
+<Accordion title="账户">
   定义账户数据更新的过滤器。您使用的键（例如，`tokenAccounts`）是此特定过滤器配置的**用户定义标签**。
 
   <ParamField type="array">
@@ -225,12 +225,12 @@ const subscriptionRequest: SubscribeRequest = {
     账户所有者的公钥。匹配提供的数组中的任何公钥。
   </ParamField>
   <ParamField type="array">
-    类似于 [getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts) 中的过滤器。这是一个 `dataSize` 和/或 `memcmp` 过滤器的数组。支持的编码包括 `bytes`、`base58` 和 `base64`。
+    类似于[getProgramAccounts](https://solana.com/docs/rpc/http/getprogramaccounts)中的过滤器。这是一个包含`dataSize`和/或`memcmp`过滤器的数组。支持的编码包括`bytes`、`base58`和`base64`。
   </ParamField>
   如果所有字段为空，则广播所有账户。否则：
 
   - 字段作为逻辑 **AND** 操作。
-  - 数组中的值作为逻辑 **OR** 操作（除了 `filters`，它们作为逻辑 **AND** 操作）。
+  - 数组内的值作为逻辑 **OR** 操作（除非在 `filters` 中，它们作为逻辑 **AND** 操作）。
 
   ```typescript
   accounts: {
@@ -277,10 +277,10 @@ const subscriptionRequest: SubscribeRequest = {
   <ParamField type="array">
     过滤涉及提供列表中所有账户的交易（必须使用所有账户）。
   </ParamField>
-  如果所有字段都为空，则广播所有交易。否则：
+  如果所有字段为空，则广播所有交易。否则：
 
   - 字段作为逻辑 **AND** 操作。
-  - 数组中的值被视为逻辑 **OR** 操作（除了 `accountRequired`，其中所有必须匹配）。
+  - 数组内的值作为逻辑 **OR** 操作（除非在 `accountRequired` 中，所有必须匹配）。
 
   ```typescript
   transactions: {
@@ -332,8 +332,8 @@ const subscriptionRequest: SubscribeRequest = {
 
 </Accordion>
 
-<Accordion title="Blocks Meta">
-  这与 Blocks 类似，但不包括交易、账户和条目。您使用的键（例如，`blockmetadata`）是此订阅的**用户定义标签**。目前，没有可用于区块元数据的过滤器——默认情况下，所有消息都会被广播。
+<Accordion title="区块元数据">
+  这与区块功能类似，但不包括交易、账户和条目。您使用的键（例如，`blockmetadata`）是此订阅的**用户定义标签**。目前，区块元数据没有可用的过滤器——所有消息默认广播。
 
   ```typescript
   blocksMeta: {
@@ -343,8 +343,8 @@ const subscriptionRequest: SubscribeRequest = {
 
 </Accordion>
 
-<Accordion title="Entries">
-  订阅分类账条目。您使用的键（例如，`entrySubscribe`）是此订阅的**用户定义标签**。目前，条目没有可用的过滤器；所有条目都会被广播。
+<Accordion title="条目">
+  订阅分类账条目。您使用的键（例如，`entrySubscribe`）是此订阅的**用户定义标签**。目前，条目没有可用的过滤器；所有条目都被广播。
 
   ```typescript
   entry: {
@@ -634,8 +634,8 @@ helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_K
   **A:** 请仔细检查过滤器部分中描述的逻辑运算符（AND/OR）。确保公钥正确。查看请求中指定的承诺级别。
 </Accordion>
 
-<Accordion title="Q: 我可以在一个请求中订阅多种类型的数据（例如，账户和交易）吗？">
-  **A:** 可以，您可以在同一个`SubscribeRequest`对象中定义多个键下的过滤器配置（例如，`accounts`, `transactions`）。
+<Accordion title="问：我可以在一个请求中订阅多种类型的数据（例如，账户和交易）吗？">
+  **答：**可以，您可以在同一个`SubscribeRequest`对象中定义多个键（例如，`accounts`, `transactions`）下的过滤器配置。
 </Accordion>
 
 <Accordion title="Q: LaserStream 是否支持消费者组？">

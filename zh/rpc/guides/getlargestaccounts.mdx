@@ -18,20 +18,20 @@ description: 了解 getLargestAccounts 的使用案例、代码示例、请求�
 
 此方法可以选择性地接受一个包含以下参数的配置对象：
 
-*   **`commitment`** (字符串，可选)：指定查询分类账时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，则使用节点的默认承诺级别。
-*   **`filter`** (字符串，可选)：按账户类型过滤结果。接受的值有：
-    *   `circulating`: 返回属于流通供应的最大账户。
-    *   `nonCirculating`: 返回不属于流通供应的最大账户（例如，锁定账户、基金会账户）。
-    如果省略，则所有账户都被考虑在内，不使用此特定过滤器。
+* **`commitment`** (字符串，可选)：指定查询分类帐时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，则使用节点的默认承诺。
+* **`filter`** (字符串，可选)：按账户类型过滤结果。接受的值有：
+ * `circulating`：返回属于流通供应部分的最大账户。
+ * `nonCirculating`：返回不属于流通供应部分的最大账户（例如，锁定账户、基金会账户）。
+ 如果省略，则所有账户都被视为不带此特定过滤器。
 
 ## 响应结构
 
 JSON-RPC 响应的 `result` 字段将是一个 `RpcResponse` 对象。此对象中的 `value` 字段是一个包含最多 20 个账户对象的数组，每个对象包含：
 
-*   **`address`** (字符串)：账户的 base-58 编码公钥。
-*   **`lamports`** (u64)：账户的 lamports 余额。
+* **`address`** (字符串)：账户的 base-58 编码公钥。
+* **`lamports`** (u64)：账户的 lamports 余额。
 
-响应还包括一个`context`对象，其中包含信息检索的`slot`。
+响应还包括一个 `context` 对象，其中包含检索信息时的 `slot`。
 
 ## 示例
 
@@ -121,8 +121,8 @@ logLargestCirculatingAccounts();
 
 ## 开发者提示
 
-*   **缓存数据：** 结果可以由 RPC 节点缓存长达两个小时。这意味着数据可能不是最新区块的实时数据。
-*   **仅限前20名：** 此方法仅返回前20个账户。对于更全面的财富分布分析，可能需要其他数据来源或方法。
-*   **过滤器行为：** `circulating`和`nonCirculating`过滤器依赖于 RPC 节点对这些分类的定义和数据来源。
+* **缓存数据：** RPC 节点可以缓存结果长达两个小时。这意味着数据可能不是最新区块的实时数据。
+* **仅限前 20 名：** 此方法仅返回前 20 个账户。对于更全面的财富分布分析，可能需要其他数据来源或方法。
+* **过滤器行为：** `circulating` 和 `nonCirculating` 过滤器取决于 RPC 节点对这些分类的定义和数据来源。
 
-本指南提供了使用`getLargestAccounts` RPC 方法查询 Solana 网络上最大 SOL 持有者的必要信息。
+本指南提供了使用 `getLargestAccounts` RPC 方法查询 Solana 网络上最大 SOL 持有者所需的信息。

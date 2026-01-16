@@ -1,0 +1,450 @@
+---
+title: 交易历史
+sidebarTitle: 交易历史
+description: 任何 Solana 地址的人类可读交易历史。
+---
+
+<Warning>
+**重要限制**：
+- 在我们开发 V2 期间，增强交易 API V1 将不会更新
+- 我们仅解析与 NFT、Jupiter 和 SPL 相关的交易
+- **不要依赖这些解析器处理 DeFi 或非 NFT、Jupiter 和 SPL 交易**
+</Warning>
+
+## 概述
+
+增强交易 API 将复杂的 Solana 交易转换为人类可读的数据。您将获得关于以下内容的结构化信息，而不是处理原始指令数据和账户列表：
+- 交易中发生了什么（转账、交换、NFT 活动）
+- 涉及哪些账户
+- 转移了多少 SOL 或代币
+- 相关元数据（例如代币铸造地址、代币名称、代币符号等）
+
+在底层，API 由 [getTransactionsForAddress](/zh/rpc/gettransactionsforaddress) RPC 方法提供支持。
+
+<Card title="API 参考" horizontal icon="code" href="/zh/api-reference/enhanced-transactions/gettransactionsbyaddress">
+  查看交易历史的详细 API 文档
+</Card>
+
+## 网络支持
+
+| 网络 | 支持 | 保留期 |
+|---------|-----------|-------------|
+| 主网 | 是 | 无限 |
+| 开发网 | 是 | 2 周 |
+| 测试网 | 否 | 不适用 |
+
+## 快速开始
+
+检索任何 Solana 地址的交易历史：
+
+<Tabs>
+  <Tab title="JavaScript">
+
+    ```javascript
+    const fetchWalletTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Wallet transactions:", transactions);
+    };
+    
+    fetchWalletTransactions();
+    ```
+
+  </Tab>
+  <Tab title="Python">
+
+    ```python
+    import requests
+    
+    def fetch_wallet_transactions():
+        wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
+        url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        
+        response = requests.get(url)
+        transactions = response.json()
+        print("Wallet transactions:", transactions)
+        
+    fetch_wallet_transactions()
+    ```
+
+  </Tab>
+</Tabs>
+
+### 按交易类型筛选
+
+仅获取特定交易类型，例如 NFT 销售、代币转账或交换：
+
+<Tabs>
+  <Tab title="NFT 销售">
+
+    ```javascript
+    const fetchNftSales = async () => {
+      const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      
+      const response = await fetch(url);
+      const nftSales = await response.json();
+      console.log("NFT sale transactions:", nftSales);
+    };
+    ```
+
+  </Tab>
+  <Tab title="代币转账">
+
+    ```javascript
+    const fetchTokenTransfers = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      
+      const response = await fetch(url);
+      const transfers = await response.json();
+      console.log("Transfer transactions:", transfers);
+    };
+    ```
+
+  </Tab>
+  <Tab title="交换">
+
+    ```javascript
+    const fetchSwapTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      
+      const response = await fetch(url);
+      const swaps = await response.json();
+      console.log("Swap transactions:", swaps);
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+[查看所有可用类型](/zh/api-reference/enhanced-transactions/gettransactionsbyaddress)。
+
+### 分页
+
+对于高交易量的地址，实现分页以获取所有交易：
+
+```javascript
+const fetchAllTransactions = async () => {
+  const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
+  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  let url = baseUrl;
+  let lastSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    if (lastSignature) {
+      url = baseUrl + `&before-signature=${lastSignature}`;
+    }
+    
+    const response = await fetch(url);
+    
+    // Check response status
+    if (!response.ok) {
+      console.error(`API error: ${response.status}`);
+      break;
+    }
+    
+    const transactions = await response.json();
+    
+    if (transactions && transactions.length > 0) {
+      console.log(`Fetched batch of ${transactions.length} transactions`);
+      allTransactions = [...allTransactions, ...transactions];
+      lastSignature = transactions[transactions.length - 1].signature;
+    } else {
+      console.log(`Finished! Total transactions: ${allTransactions.length}`);
+      break;
+    }
+  }
+  
+  return allTransactions;
+};
+```
+
+## API 参考
+
+| 参数 | 描述 | 默认值 | 示例 |
+|-----------|-------------|---------|---------|
+| `limit` | 返回的交易数量 (1-100) | 10 | `&limit=25` |
+| `before-signature` | 获取此签名之前的交易 (与 `sort-order=desc` 一起使用) | - | `&before-signature=sig123...` |
+| `after-signature` | 获取此签名之后的交易 (与 `sort-order=asc` 一起使用) | - | `&after-signature=sig456...` |
+| `type` | 按交易类型过滤 | - | `&type=NFT_SALE` |
+| `sort-order` | 结果的排序顺序 | `desc` | `&sort-order=asc` |
+| `commitment` | 承诺级别 | `finalized` | `&commitment=confirmed` |
+
+### 基于时间的过滤
+
+| 参数 | 描述 | 示例 |
+|-----------|-------------|---------|
+| `gt-time` | 此 Unix 时间戳之后的交易 | `&gt-time=1656442333` |
+| `gte-time` | 此 Unix 时间戳或之后的交易 | `&gte-time=1656442333` |
+| `lt-time` | 此 Unix 时间戳之前的交易 | `&lt-time=1656442333` |
+| `lte-time` | 此 Unix 时间戳或之前的交易 | `&lte-time=1656442333` |
+
+### 基于槽位的过滤
+
+| 参数 | 描述 | 示例 |
+|-----------|-------------|---------|
+| `gt-slot` | 此槽位之后的交易 | `&gt-slot=148277128` |
+| `gte-slot` | 此槽位或之后的交易 | `&gte-slot=148277128` |
+| `lt-slot` | 此槽位之前的交易 | `&lt-slot=148277128` |
+| `lte-slot` | 此槽位或之前的交易 | `&lte-slot=148277128` |
+
+<Info>
+**过滤提示**：
+- 时间参数使用 Unix 时间戳（自纪元以来的秒数）
+- 插槽参数使用 Solana 插槽编号
+- 不能在同一请求中组合基于时间和基于插槽的过滤器
+- 使用 `sort-order=asc` 进行升序（最旧的优先）或 `sort-order=desc` 进行降序（最新的优先）
+</Info>
+
+## 高级过滤示例
+
+### 按时间范围过滤
+
+获取特定时间窗口内的交易：
+
+<Tabs>
+  <Tab title="最近24小时">
+
+    ```javascript
+    const fetchRecentTransactions = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+      const now = Math.floor(Date.now() / 1000);
+      const oneDayAgo = now - (24 * 60 * 60);
+      
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${oneDayAgo}&lte-time=${now}`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Transactions from last 24 hours:", transactions);
+    };
+    ```
+
+  </Tab>
+  <Tab title="特定日期范围">
+
+    ```javascript
+    const fetchTransactionsByDateRange = async () => {
+      const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+      
+      // January 1, 2024 to January 31, 2024
+      const startTime = Math.floor(new Date('2024-01-01').getTime() / 1000);
+      const endTime = Math.floor(new Date('2024-01-31').getTime() / 1000);
+      
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${startTime}&lte-time=${endTime}`;
+      
+      const response = await fetch(url);
+      const transactions = await response.json();
+      console.log("Transactions in January 2024:", transactions);
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+### 按插槽范围过滤
+
+获取特定插槽范围内的交易：
+
+```javascript
+const fetchTransactionsBySlotRange = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const startSlot = 148000000;
+  const endSlot = 148100000;
+  
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-slot=${startSlot}&lte-slot=${endSlot}`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log(`Transactions between slots ${startSlot} and ${endSlot}:`, transactions);
+};
+```
+
+### 更改排序顺序
+
+获取升序（最旧的优先）的交易：
+
+```javascript
+const fetchOldestTransactions = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&sort-order=asc&limit=10`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log("10 oldest transactions:", transactions);
+};
+```
+
+### 组合多个过滤器
+
+将类型过滤与时间范围和自定义排序顺序结合：
+
+```javascript
+const fetchFilteredTransactionsAdvanced = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  
+  // Get NFT sales from the last 7 days, oldest first
+  const now = Math.floor(Date.now() / 1000);
+  const sevenDaysAgo = now - (7 * 24 * 60 * 60);
+  
+  const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE&gte-time=${sevenDaysAgo}&sort-order=asc&limit=50`;
+  
+  const response = await fetch(url);
+  const transactions = await response.json();
+  console.log("NFT sales from last 7 days (oldest first):", transactions);
+};
+```
+
+### 使用时间过滤进行分页
+
+通过时间过滤分页浏览结果：
+
+```javascript
+const fetchAllTransactionsInTimeRange = async () => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const startTime = Math.floor(new Date('2024-01-01').getTime() / 1000);
+  const endTime = Math.floor(new Date('2024-01-31').getTime() / 1000);
+  
+  let beforeSignature = null;
+  let allTransactions = [];
+  
+  while (true) {
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&gte-time=${startTime}&lte-time=${endTime}&limit=100`;
+    
+    if (beforeSignature) {
+      url += `&before-signature=${beforeSignature}`;
+    }
+    
+    const response = await fetch(url);
+    const transactions = await response.json();
+    
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      break;
+    }
+    
+    allTransactions = [...allTransactions, ...transactions];
+    beforeSignature = transactions[transactions.length - 1].signature;
+    
+    console.log(`Fetched ${transactions.length} transactions, total: ${allTransactions.length}`);
+  }
+  
+  console.log(`Total transactions in time range: ${allTransactions.length}`);
+  return allTransactions;
+};
+```
+
+<Tip>
+**性能提示**：
+- 当您知道大致时间段时，使用时间或插槽过滤器来减少搜索空间
+- 结合 `limit` 参数来控制页面大小
+- 当您希望按时间顺序处理交易时，使用 `sort-order=asc`
+- 基于时间的过滤器对于日期范围更直观，而基于插槽的过滤器对于区块链特定查询更有用
+</Tip>
+
+## 类型过滤注意事项
+
+<Warning>
+**运行时类型过滤**：
+
+类型过滤在运行时发生，这意味着 API 会顺序搜索交易，直到找到至少 50 个匹配项。如果 API 在搜索期间找不到任何匹配您过滤条件的交易，它将返回一个错误，并附有继续搜索的说明。
+</Warning>
+
+使用类型过滤器时，您可能会遇到在当前搜索窗口内找不到匹配交易的情况。在这种情况下，API 会返回一个错误响应，如：
+
+```json
+{
+  "error": "Failed to find events within the search period. To continue search, query the API again with the `before-signature` parameter set to 2UKbsu95YzxGjUGYRg2znozmmVADVgmnhHqzDxq8Xfb3V5bf2NHUkaXGPrUpQnRFVHVKbawdQXtm4xJt9njMDHvg."
+}
+```
+
+要继续搜索，您需要在下一个请求中使用错误消息中提供的签名和适当的参数（`before-signature` 用于降序，`after-signature` 用于升序）。以下是处理方法：
+
+```javascript
+const fetchFilteredTransactions = async (sortOrder = 'desc') => {
+  const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K";
+  const transactionType = "NFT_SALE";
+  let continuationSignature = null;
+  let allFilteredTransactions = [];
+  let maxRetries = 10; // Prevent infinite loops
+  let retryCount = 0;
+  
+  // Determine which parameter to use based on sort order
+  const continuationParam = sortOrder === 'asc' ? 'after-signature' : 'before-signature';
+  
+  while (retryCount < maxRetries) {
+    // Build URL with optional continuation parameter
+    let url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=${transactionType}&sort-order=${sortOrder}`;
+    
+    if (continuationSignature) {
+      url += `&${continuationParam}=${continuationSignature}`;
+    }
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      // Check if we received an error about search period
+      if (data.error && data.error.includes("Failed to find events within the search period")) {
+        // Extract the signature from the error message
+        const signatureMatch = data.error.match(/parameter set to ([A-Za-z0-9]+)/);
+        
+        if (signatureMatch && signatureMatch[1]) {
+          console.log(`No results in this period. Continuing search from: ${signatureMatch[1]}`);
+          continuationSignature = signatureMatch[1];
+          retryCount++;
+          continue; // Continue searching with new signature
+        } else {
+          console.log("No more transactions to search");
+          break;
+        }
+      }
+      
+      // Check if we received transactions
+      if (Array.isArray(data) && data.length > 0) {
+        console.log(`Found ${data.length} ${transactionType} transactions`);
+        allFilteredTransactions = [...allFilteredTransactions, ...data];
+        
+        // Set continuation signature for next page
+        continuationSignature = data[data.length - 1].signature;
+        retryCount = 0; // Reset retry count since we found results
+      } else {
+        console.log("No more transactions found");
+        break;
+      }
+      
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      break;
+    }
+  }
+  
+  console.log(`Total ${transactionType} transactions found: ${allFilteredTransactions.length}`);
+  return allFilteredTransactions;
+};
+
+// Usage examples:
+// Descending order (newest first) - uses 'before-signature' parameter
+fetchFilteredTransactions('desc');
+
+// Ascending order (oldest first) - uses 'after-signature' parameter
+fetchFilteredTransactions('asc');
+```
+
+<Info>
+**关键点**：
+- 使用类型过滤器时，API 每次最多搜索 50 笔交易
+- 如果没有找到匹配项，请使用错误消息中的签名继续搜索
+- 在降序搜索时使用 `before-signature` 参数（默认，最新优先）
+- **在升序搜索时使用 `after-signature` 参数（最旧优先）** - 这是按时间顺序搜索所需的
+- 实施最大重试限制以防止无限循环
+- 这种行为是预期的，允许您搜索一个地址的整个历史记录以查找特定交易类型
+</Info>
+
+## 有问题吗？
+
+有关增强交易的常见问题，包括使用、认证、速率限制和故障排除，请访问我们全面的[增强交易常见问题](/zh/faqs/enhanced-transactions)。

@@ -72,13 +72,13 @@ Solana 提供三个承诺级别，每个级别具有不同的延迟特性：
 为了获得有意义的延迟测量，将测试基础设施部署在与 LaserStream 端点相同的数据中心或区域。
 
 **可用的 LaserStream 区域：**
-- **ewr**: 美国纽约（东海岸） - `https://laserstream-mainnet-ewr.helius-rpc.com`
-- **pitt**: 美国匹兹堡（中部） - `https://laserstream-mainnet-pitt.helius-rpc.com`
-- **slc**: 美国盐湖城（西海岸） - `https://laserstream-mainnet-slc.helius-rpc.com`
-- **ams**: 欧洲阿姆斯特丹 - `https://laserstream-mainnet-ams.helius-rpc.com`
-- **fra**: 欧洲法兰克福 - `https://laserstream-mainnet-fra.helius-rpc.com`
-- **tyo**: 亚洲东京 - `https://laserstream-mainnet-tyo.helius-rpc.com`
-- **sgp**: 亚洲新加坡 - `https://laserstream-mainnet-sgp.helius-rpc.com`
+- **ewr**：美国纽约（东海岸） - `https://laserstream-mainnet-ewr.helius-rpc.com`
+- **pitt**：美国匹兹堡（中部） - `https://laserstream-mainnet-pitt.helius-rpc.com`
+- **slc**：美国盐湖城（西海岸） - `https://laserstream-mainnet-slc.helius-rpc.com`
+- **ams**：欧洲阿姆斯特丹 - `https://laserstream-mainnet-ams.helius-rpc.com`
+- **fra**：欧洲法兰克福 - `https://laserstream-mainnet-fra.helius-rpc.com`
+- **tyo**：亚洲东京 - `https://laserstream-mainnet-tyo.helius-rpc.com`
+- **sgp**：亚洲新加坡 - `https://laserstream-mainnet-sgp.helius-rpc.com`
 
 对于 devnet 测试，使用：`https://laserstream-devnet-ewr.helius-rpc.com`
 
@@ -114,7 +114,7 @@ yellowstone-grpc-proto = "8.0.0"
 prost-types = "0.12"
 ```
 
-使用您的凭据创建一个 `.env` 文件：
+创建一个包含凭据的 `.env` 文件：
 
 ```bash
 YS_GRPC_URL=your-comparison-endpoint
@@ -129,7 +129,7 @@ LS_API_KEY=your-helius-api-key
 
 ## 方法 1：并行流比较
 
-此脚本建立到不同 gRPC 端点的两个独立连接，并测量哪个首先接收到相同的 `BlockMeta` 消息。此方法通过使用相对时间消除了时钟同步问题。
+此脚本建立两个独立的连接到不同的 gRPC 端点，并测量哪个先接收到相同的 `BlockMeta` 消息。此方法通过使用相对时间消除了时钟同步问题。
 
 ```rust [expandable]
 use std::collections::HashMap;
@@ -359,7 +359,7 @@ slot,ys_recv_ms,ls_recv_ms,delta_ms
 
 ## 方法 2：创建时间戳分析
 
-此方法将消息中嵌入的 `created_at` 时间戳与接收时的本地系统时间进行比较。
+此方法将嵌入消息中的 `created_at` 时间戳与接收时的本地系统时间进行比较。
 
 ```rust [expandable]
 use std::time::{Duration, SystemTime};

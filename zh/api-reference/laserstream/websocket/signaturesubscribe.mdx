@@ -3,14 +3,14 @@ title: signatureSubscribe
 description: 订阅以在具有给定签名的交易达到指定的承诺级别时接收通知。
 ---
 
-这是一个单一通知的订阅。一旦通知 `signatureNotification` 被 RPC 发送，服务器会自动取消订阅。
+这是对单个通知的订阅。一旦通知 `signatureNotification` 被 RPC 发送，服务器会自动取消订阅。
 
 ## 端点
 
 主网和开发网都可以通过以下 URL 使用 Websockets：
 
-- **主网** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
-- **开发网** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://laserstream-mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Devnet** `wss://laserstream-devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
 
@@ -34,7 +34,7 @@ description: 订阅以在具有给定签名的交易达到指定的承诺级别�
             包含以下字段的配置对象：
             
             <ParamField body="commitment" type="string">
-                订阅的承诺级别。可以是 `finalized`、`confirmed` 或 `processed`。
+                订阅的承诺级别。可以是 `finalized`, `confirmed` 或 `processed`。
             </ParamField>
             
             <ParamField body="enableReceivedNotification" type="boolean">
@@ -55,8 +55,8 @@ description: 订阅以在具有给定签名的交易达到指定的承诺级别�
 通知将是一个 RpcResponse JSON 对象，其值包含一个对象，其中包括：
 
 - `slot: <u64>` - 对应的槽位。
-- `value: <object|string>` - 一个 RpcSignatureResult 的通知值，结果为：
-  - 当 `enableReceivedNotification` 是 `true` 并且签名被接收时：字面字符串 `"receivedSignature"`，或
+- `value: <object|string>` - RpcSignatureResult 的通知值，结果为：
+  - 当 `enableReceivedNotification` 是 `true` 并且签名已接收时：字面字符串 `"receivedSignature"`，或
   - 当签名被处理时：`err: <object|null>`：
     - `null` 如果交易在指定的承诺级别成功处理，或
     - 如果交易失败，则为 TransactionError

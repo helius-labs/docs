@@ -20,7 +20,7 @@ Solana 代币由其铸造账户定义。例如，USDC 的铸造账户是 [EPjFWd
 
 Helius 的可替代代币扩展围绕所有权索引进行。以下查询提供了账户资产的统一视图。[GetAsset](/zh/api-reference/das/getasset)、[GetAssetsByOwner](/zh/api-reference/das/getassetsbyowner) 和 [SearchAssets](/zh/api-reference/das/searchassets) 支持可替代代币。
 
-此扩展添加了一个名为 `tokenType` 的额外字段。此字段允许您查询账户拥有的所有资产，包括可替代代币和 Token22 代币。
+此扩展添加了一个名为 `tokenType` 的额外字段。此字段允许您查询账户拥有的所有资产，包括可替代和 Token22 代币。
 
 `tokenType` 的选项包括：
 
@@ -77,7 +77,7 @@ Helius 的可替代代币扩展围绕所有权索引进行。以下查询提供�
 
 ### Token22 支持
 
-我们支持 Token22 代币并解析其扩展。如果它是一个 Token22 程序，响应将包括 `mint_extensions` 字段。以下是 BERN 的示例：
+我们支持 Token22 代币并解析其扩展。如果是 Token22 程序，响应将包含 `mint_extensions` 字段。以下是 BERN 的示例：
 
 ```json
 "mint_extensions": {

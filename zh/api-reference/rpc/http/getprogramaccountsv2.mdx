@@ -11,7 +11,7 @@ openapi: /zh/openapi/rpc-http/getProgramAccountsV2.yaml POST /
 
 ## 概述
 
-`getProgramAccountsV2` 是标准 `getProgramAccounts` 方法的增强版，专为需要高效查询特定 Solana 程序所拥有的大量账户的应用程序设计。此方法引入了基于游标的分页和增量更新功能。
+`getProgramAccountsV2` 是标准 `getProgramAccounts` 方法的增强版本，专为需要高效查询特定 Solana 程序拥有的大量账户的应用程序设计。此方法引入了基于游标的分页和增量更新功能。
 
 <Info>
 **V2 的新功能：**
@@ -106,31 +106,16 @@ const incrementalUpdate = await fetch(`https://mainnet.helius-rpc.com/?api-key=$
 </Tip>
 
 - **从较小的限制开始**（1000），并根据您的网络性能增加
-- **使用适当的编码**：`jsonParsed` 方便，`base64` 性能
+- **使用适当的编码**：`jsonParsed` 以方便，`base64` 以提高性能
 - **应用过滤器**以在分页前减少数据集大小
-- **存储 `paginationKey`** 以便在中断时恢复查询
+- **存储 `paginationKey`** 以便在查询中断时恢复
 - **监控响应时间**并相应调整限制
 
 ## 从 getProgramAccounts 迁移
 
 从原始方法迁移很简单 - 只需替换方法名称并添加分页参数：
 
-```diff
-{
-  "jsonrpc": "2.0",
-  "id": "1",
-- "method": "getProgramAccounts",
-+ "method": "getProgramAccountsV2",
-  "params": [
-    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-    {
-      "encoding": "base64",
-      "filters": [{ "dataSize": 165 }],
-+     "limit": 5000
-    }
-  ]
-}
-```
+{/* 代码占位符 327a8a2824a8afc7b100da1b1226a792 */}
 
 ## 相关方法
 

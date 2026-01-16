@@ -11,24 +11,24 @@ description: 了解 getInflationGovernor 的使用案例、代码示例、请求
 ## 常见用例
 
 *   **经济分析：** 获取当前管理 SOL 通胀的参数以进行研究或建模。
-*   **质押奖励计算：** 虽然 `getInflationRate` 提供当前的年利率，`getInflationGovernor` 提供决定该利率及其未来轨迹的基础参数。
+*   **质押奖励计算：** 虽然 `getInflationRate` 提供当前的年利率，但 `getInflationGovernor` 提供决定该利率及其未来轨迹的基础参数。
 *   **理解代币经济学：** 了解计划中的代币供应变化。
 
 ## 请求参数
 
 此方法可以选择性地接受一个包含以下参数的配置对象：
 
-*   **`commitment`**（字符串，可选）：指定查询账本时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，则使用节点的默认承诺（通常为 `finalized`）。
+*   **`commitment`**（字符串，可选）：指定查询分类账时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果未提供，则使用节点的默认承诺（通常是 `finalized`）。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段将是一个包含以下通胀参数的对象（所有参数均为 `f64` 浮点数，表示百分比或术语）：
+JSON-RPC 响应的 `result` 字段将是一个包含以下通胀参数的对象（均为 `f64` 浮点数，表示百分比或术语）：
 
 *   **`initial`**：初始通胀率（例如，0.15 表示 15%）。
 *   **`terminal`**：长期终端通胀率（例如，0.015 表示 1.5%）。
-*   **`taper`**：通胀率从 `initial` 减少到 `terminal` 率的速度。这是通胀率本身的年度百分比下降（例如，0.15 的逐渐减少意味着通胀率每年减少 15%，直到达到终端利率）。
+*   **`taper`**：通胀率从 `initial` 下降到 `terminal` 率的速度。这是通胀率本身的年度百分比下降（例如，0.15 的逐渐减少意味着通胀率每年下降 15%，直到达到终端利率）。
 *   **`foundation`**：分配给 Solana 基金会的新通胀 SOL 的比例（例如，0.05 表示 5%）。
-*   **`foundationTerm`**：`foundation` 分配分布的年限。
+*   **`foundationTerm`**：分配 `foundation` 的年限。
 
 ## 示例
 
@@ -109,8 +109,8 @@ logConfirmedInflationGovernor();
 
 ## 开发者提示
 
-*   **静态参数：** 这些通胀参数是在集群的创世或通过网络升级时设置的，通常不期望在没有正式治理过程和网络更新的情况下频繁更改。
-*   **对质押奖励的影响：** 这些参数共同决定了整体通胀计划，进而影响质押 SOL 的年百分率（APR）。
-*   **基金会分配：** `foundation` 和 `foundationTerm` 参数描述了在特定时期内向 Solana 基金会定向的一部分通胀，以支持生态系统的发展和运营。
+*   **静态参数：** 这些通胀参数在集群的创世时或通过网络升级设置，通常不期望在没有正式治理过程和网络更新的情况下频繁更改。
+*   **对质押奖励的影响：** 这些参数共同决定了整体通胀计划，进而影响质押SOL的年百分比率（APR）。
+*   **基金会分配：** `foundation` 和 `foundationTerm` 参数描述了在特定时期内用于支持生态系统发展和运营的通胀中分配给Solana基金会的特定部分。
 
-本指南概述了如何使用 `getInflationGovernor` RPC 方法来检索和理解管理 Solana 网络通胀的核心参数。
+本指南概述了如何使用 `getInflationGovernor` RPC 方法来检索和理解管理Solana网络通胀的核心参数。

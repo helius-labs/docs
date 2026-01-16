@@ -4,7 +4,7 @@ sidebarTitle: getEpochInfo
 description: 了解 getEpochInfo 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getEpochInfo`](https://www.helius.dev/docs/api-reference/rpc/http/getepochinfo) RPC 方法返回有关当前 epoch 的信息。这对于了解网络的当前状态、网络在当前 epoch 中的进展程度以及下一个 epoch 可能何时开始非常有用。要更好地理解 [epochs、slots 和 blocks](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) 在 Solana 上如何协同工作，请参阅我们的详细文章。
+[`getEpochInfo`](https://www.helius.dev/docs/api-reference/rpc/http/getepochinfo) RPC 方法返回当前 epoch 的信息。这对于了解网络的当前状态、网络在当前 epoch 中的进展程度以及下一个 epoch 可能何时开始非常有用。要更好地理解 Solana 上 [epochs、slots 和 blocks](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) 如何协同工作，请参阅我们的详细文章。
 
 ## 常见用例
 
@@ -18,8 +18,8 @@ description: 了解 getEpochInfo 的使用案例、代码示例、请求参数�
 
 *   **`commitment`** (字符串，可选)：指定查询账本时使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。
     *   `finalized`：节点将查询由集群的绝大多数确认已达到最大锁定的最新区块。
-    *   `confirmed`：节点将查询由集群的绝大多数投票的最新区块。
-    *   `processed`：节点将查询其最新的区块。请注意，该区块可能不完整。
+    *   `confirmed`：节点将查询集群绝大多数已投票的最新区块。
+    *   `processed`：节点将查询其最新区块。请注意，该区块可能不完整。
     *   如果未提供，默认承诺为 `finalized`。
 *   **`minContextSlot`** (数字，可选)：请求可以评估的最小 slot。这可以用于确保响应来自足够新的状态。
 
@@ -27,12 +27,12 @@ description: 了解 getEpochInfo 的使用案例、代码示例、请求参数�
 
 JSON-RPC 响应的 `result` 字段将是一个包含以下字段的对象：
 
-*   **`absoluteSlot`** (u64): 当前的绝对槽号。
-*   **`blockHeight`** (u64): 当前区块高度。
-*   **`epoch`** (u64): 当前纪元号。
-*   **`slotIndex`** (u64): 当前槽相对于当前纪元开始的相对位置。
-*   **`slotsInEpoch`** (u64): 当前纪元中的总槽数。
-*   **`transactionCount`** (u64 | null): 当前纪元中处理的交易总数。如果数据不可用，可以是 `null`。
+*   **`absoluteSlot`** (u64)：当前的绝对 slot 编号。
+*   **`blockHeight`** (u64)：当前的区块高度。
+*   **`epoch`** (u64)：当前的 epoch 编号。
+*   **`slotIndex`** (u64)：相对于当前 epoch 开始的当前 slot。
+*   **`slotsInEpoch`** (u64)：当前 epoch 中的总 slot 数量。
+*   **`transactionCount`** (u64 | null)：当前 epoch 中处理的交易总数。如果数据不可用，可以是 `null`。
 
 ## 示例
 
@@ -109,8 +109,8 @@ getConfirmedEpochInfo();
 
 ## 开发者提示
 
-*   **承诺级别：** 选择 `commitment` 会影响数据的及时性和最终性。`processed` 是最快但最不安全的，而 `finalized` 是最安全但可能稍有延迟。了解更多关于 [承诺级别](https://www.helius.dev/blog/solana-commitment-levels) 的详细信息。
-*   **`transactionCount` 可用性：** 如果节点没有此信息或未针对特定承诺级别进行跟踪，`transactionCount` 字段可能是 `null`。
+*   **承诺级别：** 选择 `commitment` 会影响数据的及时性和最终性。`processed` 是最快但最不安全的，而 `finalized` 是最安全但可能略有滞后。了解更多关于[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)的详细信息。
+*   **`transactionCount` 可用性：** 如果节点没有此信息或未跟踪特定承诺级别，`transactionCount` 字段可能为 `null`。
 *   **纪元长度：** `slotsInEpoch` 的数量可能会有所不同。您可以使用 `getEpochSchedule` 获取有关纪元计划的更多详细信息。
 
-本指南提供了使用 `getEpochInfo` RPC 方法在 Solana 网络上检索当前纪元详细信息的必要信息。
+本指南提供了使用 `getEpochInfo` RPC 方法检索 Solana 网络上当前纪元详细信息的必要信息。

@@ -4,7 +4,7 @@ sidebarTitle: getSlotLeaders
 description: 了解 getSlotLeaders 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getSlotLeaders`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleaders) RPC 方法允许您检索计划在特定范围的槽位中担任领导者的验证者的公钥列表。这对于了解即将到来的区块生产者序列非常有用。
+[`getSlotLeaders`](https://www.helius.dev/docs/api-reference/rpc/http/getslotleaders) RPC 方法允许您检索计划在特定槽范围内成为领导者的验证者的公钥列表。这对于了解即将到来的区块生产者顺序很有用。
 
 ## 常见用例
 
@@ -14,12 +14,12 @@ description: 了解 getSlotLeaders 的使用案例、代码示例、请求参数
 
 ## 请求参数
 
-1.  **`startSlot`** (`u64`)：（必需）要获取领导者计划的第一个槽位（包括在内）。
-2.  **`limit`** (`u64`)：（必需）要检索领导者的连续槽位数量。限制必须在 1 到 5,000 之间。
+1.  **`startSlot`** (`u64`): （必需）要获取领导者计划的第一个槽（包括在内）。
+2.  **`limit`** (`u64`): （必需）要检索领导者的连续槽数。限制必须在 1 到 5,000 之间。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段是一个 base-58 编码字符串的数组。每个字符串都是一个验证者的公钥（身份）。数组中公钥的顺序对应于请求范围内每个槽位的领导者，从 `startSlot` 开始。
+JSON-RPC 响应的 `result` 字段是一个 base-58 编码字符串的数组。每个字符串都是验证者的公钥（身份）。数组中公钥的顺序对应于请求范围内每个槽的领导者，从 `startSlot` 开始。
 
 **示例响应（限制为 3 个槽位）：**
 
@@ -85,10 +85,10 @@ getUpcomingSlotLeaders();
 
 ## 开发者提示
 
-*   **限制：** `limit` 参数指定要返回的连续槽位领导者数量，最多可达 5,000。这意味着您可以在一个纪元内提前查看大量槽位。
-*   **纪元边界：** 领导者计划是为整个纪元确定的，详细信息请参阅我们的 [槽位、区块和纪元](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) 指南。此方法允许您查询该计划的部分内容。如果您的范围跨越了纪元边界，返回的领导者仍将基于 `startSlot` 所在纪元的计划，直到您提供的限制或该纪元已知计划的结束，如果 RPC 节点不为该调用进一步预测。
-*   **未来槽位：** 您可以请求未来槽位的领导者。RPC 节点将根据相关纪元的当前领导者计划返回计划的领导者。
-*   **准确性：** 领导者计划在一个纪元内是固定的，因此返回的领导者通常是准确的，除非有特殊的网络情况或验证者集的变化可能影响后续纪元的计算。
-*   **与 `getLeaderSchedule` 的区别：** 虽然 `getSlotLeaders` 为您提供了一个范围的直接列表，但 `getLeaderSchedule` 提供了整个纪元的完整计划，将验证者身份映射到该纪元内所有分配的槽位。如果您只需要特定有限范围的顺序列表，`getSlotLeaders` 更为直接。
+*   **限制：** `limit` 参数指定要返回的连续槽领导者数量，最多为 5,000。这意味着您可以在一个 epoch 内提前查看大量槽。
+*   **Epoch 边界：** 领导者计划是为整个 epoch 确定的，详细信息请参阅我们的 [Slots, Blocks, and Epochs](https://www.helius.dev/blog/solana-slots-blocks-and-epochs) 指南。此方法允许您查询该计划的部分内容。如果您的范围跨越了 epoch 边界，返回的领导者仍将基于 `startSlot` 所在的 epoch 的计划，直到您提供的限制或该 epoch 已知计划的结束，如果 RPC 节点不为该调用进一步预测。
+*   **未来槽：** 您可以请求未来槽的领导者。RPC 节点将根据相关 epoch 的当前领导者计划返回计划的领导者。
+*   **准确性：** 领导者计划在一个 epoch 内是固定的，因此返回的领导者通常是准确的，除非有特殊的网络情况或验证者集的变化可能影响后续 epoch 的计算。
+*   **与 `getLeaderSchedule` 的区别：** 虽然 `getSlotLeaders` 为您提供了一个范围的直接列表，但 `getLeaderSchedule` 提供了整个 epoch 的完整计划，将验证者身份映射到该 epoch 内所有分配的槽。如果您只需要特定有限范围的顺序列表，`getSlotLeaders` 更直接。
 
-当您需要了解为定义的即将到来的插槽段的区块生产者顺序时，请使用`getSlotLeaders`。
+当您需要了解为定义的即将到来的插槽段的区块生产者顺序时，请使用 `getSlotLeaders`。

@@ -11,7 +11,7 @@ og:description: 获取免费的 RPC 并探索 accountSubscribe RPC 方法。包�
 
 主网和 devnet 上可用的 Websockets URL 如下：
 
-- **主网** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
+- **Mainnet** `wss://mainnet.helius-rpc.com/?api-key=<API_KEY>`
 - **Devnet** `wss://devnet.helius-rpc.com/?api-key=<API_KEY>`
 
 <Note>Websockets 有一个 10 分钟的不活动计时器；强烈建议实施健康检查并每分钟发送 ping 以保持 websocket 连接活跃。</Note>
@@ -33,9 +33,10 @@ og:description: 获取免费的 RPC 并探索 accountSubscribe RPC 方法。包�
         <ParamField body="encoding" type="string">
             账户数据的编码格式。可以是 `base58`, `base64`, `base64+zstd`, 或 `jsonParsed`。
 
+
             - `base58` 是慢的
-            - `jsonParsed` 编码尝试使用特定程序的状态解析器以返回更具可读性和明确的账户状态数据
-            - 如果请求 `jsonParsed` 但找不到解析器，则字段会回退到二进制编码，当数据字段为字符串类型时可检测到。
+            - `jsonParsed` 编码尝试使用特定于程序的状态解析器来返回更具可读性和更明确的账户状态数据
+            - 如果请求了 `jsonParsed` 但找不到解析器，则该字段会回退到二进制编码，当数据字段为字符串类型时可以检测到。
         </ParamField>
 
         <ParamField body="commitment" type="string">

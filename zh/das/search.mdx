@@ -61,13 +61,13 @@ searchAssets({
 可接受的值：<code>fungible</code>、<code>nonFungible</code>、<code>regularNft</code>、<code>compressedNft</code>、<code>all</code>。
 </ParamField>
 
-| tokenType | 您得到的内容 | 典型用例 |
+| tokenType | 你得到的 | 典型用例 |
 |-----------|--------------|------------------|
-| `fungible` | 仅限 SPL 和 Token-22 代币 | 钱包余额、代币门控 |
-| `nonFungible` | 所有 NFT（压缩**和**常规） | 投资组合概览 |
+| `fungible` | 仅限 SPL 和 Token-22 代币 | 钱包余额，代币门控 |
+| `nonFungible` | 所有 NFT（压缩 **和** 常规） | 投资组合概览 |
 | `regularNft` | 传统和 pNFT（未压缩） | 市场列表 |
 | `compressedNft` | 仅限 cNFT | 超低成本大规模铸造 |
-| `all` | 所有内容（代币**和**NFT） | 全面发现 |
+| `all` | 所有内容（代币 **和** NFT） | 全面发现 |
 
 ---
 
@@ -76,7 +76,7 @@ searchAssets({
 Solana 钱包可以拥有数千个资产——高效的分页很重要。
 
 * **Page / Limit** – 经典分页（`page` 从 **1** 开始）。适用于静态视图。
-* **Cursor** – 传递上一个响应中的 `before` 或 `after` 值，以实现快速的无限滚动。
+* **Cursor** – 传递上一个响应中的 `before` 或 `after` 值以实现快速、无限滚动。
 
 <CodeGroup>
 
@@ -97,12 +97,12 @@ Solana 钱包可以拥有数千个资产——高效的分页很重要。
 
 这些标志**添加元数据**；它们从不改变返回的资产。
 
-| 标志 | 效果 |
+| Flag | 效果 |
 |------|--------|
-| `showNativeBalance` | 包含钱包的 SOL 余额 |
+| `showNativeBalance` | 包括钱包的 SOL 余额 |
 | `showCollectionMetadata` | 添加集合级别的 JSON 数据 |
-| `showGrandTotal` | 返回总匹配计数（较慢）|
-| `showInscription` | 附加铭文和 SPL-20 信息（实验性）|
+| `showGrandTotal` | 返回总匹配计数（较慢） |
+| `showInscription` | 附加铭文和 SPL-20 信息（实验性） |
 
 <CodeGroup>
 
