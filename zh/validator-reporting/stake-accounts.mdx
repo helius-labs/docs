@@ -1,0 +1,584 @@
+---
+title: 获取质押账户指标
+description: 检索质押账户列表的质押奖励和MEV奖励
+---
+
+<Note>
+[← 返回验证者报告API](/zh/validator-reporting)
+</Note>
+
+## 端点
+
+```
+POST https://mainnet.helius-rpc.com/validators/stake-accounts/metrics
+```
+
+## 描述
+
+检索质押账户列表的质押奖励（通胀）和MEV奖励。此端点最多接受100个质押账户或投票账户公钥，并返回每个账户在指定时间段内的聚合奖励指标。
+
+您可以选择请求每个纪元的详细信息，以查看每个单独纪元中获得的奖励，除了聚合总数之外。
+
+该端点自动区分：
+- **质押账户**：具有委托信息的委托质押账户
+- **投票账户**：验证者投票账户（通过具有MEV奖励但没有委托信息来识别）
+
+---
+
+## 查询参数
+
+<ParamField query="api-key" type="string" required>
+  您的Helius API密钥用于身份验证
+</ParamField>
+
+---
+
+## 请求体
+
+<ParamField body="stake_accounts" type="array" required>
+  质押账户或投票账户公钥数组（base58编码）
+
+  - 每个请求最多100个账户
+  - 每个公钥必须为32-44个字符
+  - 可以包括质押账户和投票账户
+
+  示例：
+
+  ```json
+  {
+    "stake_accounts": [
+      "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ]
+  }
+  ```
+
+</ParamField>
+
+<ParamField body="period" type="string">
+  指标聚合的时间段
+
+  选项：`7d`, `30d`, `90d`, `180d`, `1y`
+
+  注意：在请求体中使用`period`或`start_epoch`/`end_epoch`，而不是两者
+</ParamField>
+
+<ParamField body="start_epoch" type="integer">
+  起始纪元号（最小值：400）
+
+  用于自定义纪元范围而不是`period`
+</ParamField>
+
+<ParamField body="end_epoch" type="integer">
+  结束纪元号
+
+ 必须与 `start_epoch` 一起使用
+</ParamField>
+
+<ParamField body="group_by_epoch" type="boolean">
+  启用按纪元的奖励细分
+
+ 默认值：`false`
+
+ 当设置为 `true` 时，响应包括每个质押账户的 `epoch_rewards` 数组，包含该期间每个纪元的详细奖励。
+</ParamField>
+
+---
+
+## 请求示例
+
+<CodeGroup>
+
+```bash cURL - 30 Day Period
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stake_accounts": [
+      "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ],
+    "period": "30d"
+  }' | python3 -m json.tool
+```
+
+```bash cURL - Custom Epoch Range
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stake_accounts": [
+      "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ],
+    "start_epoch": 800,
+    "end_epoch": 850
+  }' | python3 -m json.tool
+```
+
+```bash cURL - With Per-Epoch Breakdown
+curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "stake_accounts": [
+      "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ],
+    "period": "30d",
+    "group_by_epoch": true
+  }' | python3 -m json.tool
+```
+
+```javascript JavaScript
+const getStakeAccountMetrics = async (
+  stakeAccounts,
+  apiKey,
+  options = {}
+) => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+  const url = `${baseUrl}/validators/stake-accounts/metrics?api-key=${apiKey}`;
+
+  const body = {
+    stake_accounts: stakeAccounts,
+    ...options // Can include: period, start_epoch, end_epoch, group_by_epoch
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await response.json();
+  return data;
+};
+
+// Usage - Basic aggregated metrics
+const metrics = await getStakeAccountMetrics(
+  [
+    'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+    'Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz'
+  ],
+  'YOUR_API_KEY',
+  { period: '30d' }
+);
+
+console.log('Stake accounts found:', metrics.stake_accounts.length);
+console.log('Vote accounts found:', metrics.vote_accounts.length);
+
+// Process stake account metrics
+metrics.stake_accounts.forEach(account => {
+  console.log(`Account: ${account.stake_account}`);
+  console.log(`Staking rewards: ${account.rewards.staking_rewards_sol} SOL`);
+  console.log(`MEV rewards: ${account.rewards.mev_rewards_sol} SOL`);
+});
+
+// Usage - With per-epoch breakdown
+const detailedMetrics = await getStakeAccountMetrics(
+  ['Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz'],
+  'YOUR_API_KEY',
+  {
+    start_epoch: 800,
+    end_epoch: 850,
+    group_by_epoch: true
+  }
+);
+
+// Access epoch-by-epoch rewards
+detailedMetrics.stake_accounts[0].epoch_rewards?.forEach(epochData => {
+  console.log(`Epoch ${epochData.epoch}: ${epochData.total_rewards_sol} SOL`);
+});
+```
+
+```python Python
+import requests
+
+def get_stake_account_metrics(
+    stake_accounts: list[str],
+    api_key: str,
+    **options
+):
+    """
+    Get stake account metrics.
+
+    Options can include:
+    - period: str (e.g., "30d", "90d")
+    - start_epoch: int
+    - end_epoch: int
+    - group_by_epoch: bool
+    """
+    base_url = "https://mainnet.helius-rpc.com"
+    url = f"{base_url}/validators/stake-accounts/metrics"
+    params = {"api-key": api_key}
+
+    payload = {
+        "stake_accounts": stake_accounts,
+        **options
+    }
+
+    response = requests.post(url, params=params, json=payload)
+    return response.json()
+
+# Usage - Basic aggregated metrics
+metrics = get_stake_account_metrics(
+    [
+        "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+        "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"
+    ],
+    "YOUR_API_KEY",
+    period="30d"
+)
+
+print(f"Stake accounts found: {len(metrics['stake_accounts'])}")
+print(f"Vote accounts found: {len(metrics['vote_accounts'])}")
+
+# Process stake account metrics
+for account in metrics['stake_accounts']:
+    print(f"Account: {account['stake_account']}")
+    print(f"Staking rewards: {account['rewards']['staking_rewards_sol']} SOL")
+    print(f"MEV rewards: {account['rewards']['mev_rewards_sol']} SOL")
+
+# Usage - With per-epoch breakdown
+detailed_metrics = get_stake_account_metrics(
+    ["Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz"],
+    "YOUR_API_KEY",
+    start_epoch=800,
+    end_epoch=850,
+    group_by_epoch=True
+)
+
+# Access epoch-by-epoch rewards
+if detailed_metrics['stake_accounts'][0].get('epoch_rewards'):
+    for epoch_data in detailed_metrics['stake_accounts'][0]['epoch_rewards']:
+        print(f"Epoch {epoch_data['epoch']}: {epoch_data['total_rewards_sol']} SOL")
+```
+
+</CodeGroup>
+
+---
+
+## 响应模式
+
+<ResponseField name="stake_accounts" type="array">
+  委托质押账户的指标
+
+  <Expandable title="stake_accounts 数组项">
+    <ResponseField name="stake_account" type="string">
+      质押账户公钥
+    </ResponseField>
+
+    <ResponseField name="vote_account" type="string">
+      该质押委托的投票账户
+    </ResponseField>
+
+    <ResponseField name="activation_epoch" type="integer">
+      质押激活的纪元
+    </ResponseField>
+
+    <ResponseField name="deactivation_epoch" type="integer | null">
+      质押停用的纪元（如果仍然活跃则为 null）
+    </ResponseField>
+
+    <ResponseField name="rewards" type="object">
+      整个期间的累计奖励
+
+      <Expandable title="rewards 属性">
+        <ResponseField name="staking_rewards_lamports" type="integer">
+          以 lamports 为单位的总质押（通胀）奖励
+        </ResponseField>
+
+        <ResponseField name="staking_rewards_sol" type="number">
+          以 SOL 为单位的总质押（通胀）奖励
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_lamports" type="integer">
+          来自 Jito 提示分配的以 lamports 为单位的总 MEV 奖励
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_sol" type="number">
+          来自 Jito 提示分配的以 SOL 为单位的总 MEV 奖励
+        </ResponseField>
+
+        <ResponseField name="total_rewards_lamports" type="integer">
+          质押和MEV奖励的总和，以lamports为单位
+        </ResponseField>
+
+        <ResponseField name="total_rewards_sol" type="number">
+          质押和MEV奖励的总和，以SOL为单位
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="epochs_active" type="integer">
+      在查询期间，质押活跃的epochs数量
+    </ResponseField>
+
+    <ResponseField name="epoch_rewards" type="array | null">
+      每个epoch的奖励明细（仅在`group_by_epoch=true`时存在）
+
+      <Expandable title="epoch_rewards array items">
+        <ResponseField name="epoch" type="integer">
+          epoch编号
+        </ResponseField>
+
+        <ResponseField name="staking_rewards_lamports" type="integer">
+          此epoch的质押奖励，以lamports为单位
+        </ResponseField>
+
+        <ResponseField name="staking_rewards_sol" type="number">
+          此epoch的质押奖励，以SOL为单位
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_lamports" type="integer">
+          此epoch的MEV奖励，以lamports为单位
+        </ResponseField>
+
+        <ResponseField name="mev_rewards_sol" type="number">
+          此epoch的MEV奖励，以SOL为单位
+        </ResponseField>
+
+        <ResponseField name="total_rewards_lamports" type="integer">
+          此epoch的总奖励，以lamports为单位
+        </ResponseField>
+
+        <ResponseField name="total_rewards_sol" type="number">
+          此epoch的总奖励，以SOL为单位
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="vote_accounts" type="array">
+  直接查询的投票账户公钥的指标（通过具有MEV奖励但没有委托信息来识别）
+
+  <Expandable title="vote_accounts array items">
+    <ResponseField name="vote_account" type="string">
+      投票账户公钥
+    </ResponseField>
+
+    <ResponseField name="mev_rewards_lamports" type="integer">
+      来自Jito小费的MEV奖励总额，以lamports为单位
+    </ResponseField>
+
+    <ResponseField name="mev_rewards_sol" type="number">
+      来自Jito小费的MEV奖励总额，以SOL为单位
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  查询的时间段（例如，"800..850"表示epoch范围）
+</ResponseField>
+
+<ResponseField name="start_epoch" type="integer">
+  数据范围的起始epoch
+</ResponseField>
+
+<ResponseField name="end_epoch" type="integer">
+  数据范围的结束epoch
+</ResponseField>
+
+<ResponseField name="query_timestamp" type="integer">
+  执行查询时的Unix时间戳
+</ResponseField>
+
+---
+
+## 响应示例
+
+<CodeGroup>
+
+```json Basic Response (Aggregated)
+{
+  "stake_accounts": [
+    {
+      "stake_account": "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz",
+      "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "activation_epoch": 650,
+      "deactivation_epoch": null,
+      "rewards": {
+        "staking_rewards_lamports": 2500000000,
+        "staking_rewards_sol": 2.5,
+        "mev_rewards_lamports": 150000000,
+        "mev_rewards_sol": 0.15,
+        "total_rewards_lamports": 2650000000,
+        "total_rewards_sol": 2.65
+      },
+      "epochs_active": 30,
+      "epoch_rewards": null
+    }
+  ],
+  "vote_accounts": [
+    {
+      "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "mev_rewards_lamports": 875000000,
+      "mev_rewards_sol": 0.875
+    }
+  ],
+  "period": "800..830",
+  "start_epoch": 800,
+  "end_epoch": 830,
+  "query_timestamp": 1704330000
+}
+```
+
+```json With Per-Epoch Breakdown
+{
+  "stake_accounts": [
+    {
+      "stake_account": "Bi5Nd9zWuixRAe3PgszKDfckS8H3RoTDtvk5AozDgLkz",
+      "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+      "activation_epoch": 650,
+      "deactivation_epoch": null,
+      "rewards": {
+        "staking_rewards_lamports": 2500000000,
+        "staking_rewards_sol": 2.5,
+        "mev_rewards_lamports": 150000000,
+        "mev_rewards_sol": 0.15,
+        "total_rewards_lamports": 2650000000,
+        "total_rewards_sol": 2.65
+      },
+      "epochs_active": 30,
+      "epoch_rewards": [
+        {
+          "epoch": 800,
+          "staking_rewards_lamports": 83333333,
+          "staking_rewards_sol": 0.083333333,
+          "mev_rewards_lamports": 5000000,
+          "mev_rewards_sol": 0.005,
+          "total_rewards_lamports": 88333333,
+          "total_rewards_sol": 0.088333333
+        },
+        {
+          "epoch": 801,
+          "staking_rewards_lamports": 83333333,
+          "staking_rewards_sol": 0.083333333,
+          "mev_rewards_lamports": 5000000,
+          "mev_rewards_sol": 0.005,
+          "total_rewards_lamports": 88333333,
+          "total_rewards_sol": 0.088333333
+        }
+        // ... more epochs
+      ]
+    }
+  ],
+  "vote_accounts": [],
+  "period": "800..830",
+  "start_epoch": 800,
+  "end_epoch": 830,
+  "query_timestamp": 1704330000
+}
+```
+
+</CodeGroup>
+
+---
+
+## 账户类型检测
+
+API 会自动将账户分类为质押账户和投票账户：
+
+<CardGroup cols={2}>
+  <Card title="质押账户" icon="hand-holding-dollar">
+    具有委托信息的账户被分类为质押账户。这些账户既有质押账户地址，也有它们被委托到的投票账户。
+  </Card>
+  <Card title="投票账户" icon="check-to-slot">
+    直接查询为投票账户的账户（即有 MEV 奖励但没有委托信息）被分类为投票账户。
+  </Card>
+</CardGroup>
+
+---
+
+## 奖励类型
+
+<CardGroup cols={2}>
+  <Card title="质押奖励" icon="coins">
+    **通胀奖励**：根据质押权重和表现分配给验证者和委托者的协议通胀。
+  </Card>
+  <Card title="MEV 奖励" icon="bolt">
+    **Jito 提示**：来自 Jito 提示分配计划的 MEV 奖励，根据验证者配置与委托者共享。
+  </Card>
+</CardGroup>
+
+---
+
+## 错误响应
+
+<CodeGroup>
+
+```json 400 Bad Request - Too Many Accounts
+{
+  "error": "invalid_parameters",
+  "message": "Maximum 100 stake accounts allowed per request"
+}
+```
+
+```json 400 Bad Request - Invalid Pubkey
+{
+  "error": "invalid_parameters",
+  "message": "Invalid stake account pubkey format"
+}
+```
+
+```json 400 Bad Request - Invalid Epoch
+{
+  "error": "invalid_parameters",
+  "message": "Invalid epoch range: start_epoch must be >= 400"
+}
+```
+
+</CodeGroup>
+
+---
+
+## 注意事项
+
+<Note>
+**账户限制**：每个请求最多 100 个账户。对于更大的批次，请拆分为多个请求。
+</Note>
+
+<Note>
+**最小纪元**：此端点的历史数据从 **纪元 400** 开始提供。
+</Note>
+
+<Tip>
+**每纪元细分**：在请求体中设置 `group_by_epoch: true` 以接收详细的每纪元奖励数据。这对于跟踪奖励随时间的变化或创建历史图表很有用。
+</Tip>
+
+<Tip>
+**批处理**：在查询多个账户时，考虑将它们分组为 100 个以内，以在请求限制内最大限度地减少 API 调用。
+</Tip>
+
+<Warning>
+**账户类型**：如果您不确定一个地址是质押账户还是投票账户，可以查询它；API 会在响应中自动正确分类。
+</Warning>
+
+---
+
+## 用例
+
+<CardGroup cols={2}>
+  <Card title="投资组合跟踪" icon="wallet">
+    在单个请求中跟踪多个质押账户的奖励
+  </Card>
+  <Card title="委托人报告" icon="file-invoice-dollar">
+    为您的委托人生成全面的奖励报告
+  </Card>
+  <Card title="性能分析" icon="chart-mixed">
+    比较不同验证者和质押账户的奖励
+  </Card>
+  <Card title="税务报告" icon="receipt">
+    收集历史奖励数据以用于税务文件
+  </Card>
+</CardGroup>
+
+---
+
+## 相关端点
+
+<Card title="收益" icon="money-bill-trend-up" href="/zh/validator-reporting/earnings">
+  获取详细的验证者收益，包括佣金分成
+</Card>
+
+<Card title="APY" icon="percent" href="/zh/validator-reporting/apy">
+  基于验证者性能的APY计算
+</Card>

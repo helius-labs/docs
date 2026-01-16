@@ -4,7 +4,7 @@ sidebarTitle: getTransactionCount
 description: 了解 getTransactionCount 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getTransactionCount`](https://www.helius.dev/docs/api-reference/rpc/http/gettransactioncount) RPC 方法返回自创世以来 Solana 账本在指定承诺级别下处理的当前总交易数。
+[`getTransactionCount`](https://www.helius.dev/docs/api-reference/rpc/http/gettransactioncount) RPC 方法返回自创世以来 Solana 分类账在指定承诺级别下处理的当前交易总数。
 
 ## 常见用例
 
@@ -16,13 +16,13 @@ description: 了解 getTransactionCount 的使用案例、代码示例、请求�
 
 此方法有一个可选参数：
 
-1.  **`options`**（对象，可选）：一个可选的配置对象，可以包括：
-    *   **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果未提供，则使用节点的默认承诺。
-    *   **`minContextSlot`**（u64，可选）：请求可以评估的最小槽位。
+1.  **`options`** (object, optional): 一个可选的配置对象，可以包括：
+    *   **`commitment`** (string, optional): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`, `"confirmed"`, `"processed"`）。如果未提供，则使用节点的默认承诺级别。
+    *   **`minContextSlot`** (u64, optional): 请求可以评估的最小槽位。
 
 ## 响应结构
 
-JSON-RPC 响应中的 `result` 字段是一个单一的 `u64` 数字，表示到由承诺级别确定的槽位为止的账本总交易数。
+JSON-RPC 响应中的 `result` 字段是一个单一的 `u64` 数字，表示到由承诺级别确定的槽位为止的总交易计数。
 
 **示例响应：**
 
@@ -90,9 +90,9 @@ getCurrentTransactionCount();
 
 ## 开发者提示
 
-*   **账本范围计数：** 此计数表示自账本创建以来处理的所有交易，而不仅仅是针对特定账户或区块。
+*   **分类账范围计数：** 此计数表示自分类账创建以来处理的所有交易，而不仅仅是特定账户或区块的交易。
 *   **递增值：** 交易计数是一个单调递增的值。
-*   **承诺级别：** 返回的计数取决于所选的 `commitment` 级别。`processed` 承诺可能会产生更高、更实时的计数，而 `finalized` 则提供防止回滚的保证。
-*   **不是 TPS 指标：** 虽然与网络活动相关，但此单一值在没有比较定义时间段内的计数时，不能直接转换为每秒交易数（TPS）。
+*   **承诺级别：** 返回的计数取决于所选择的 `commitment` 级别。一个 `processed` 承诺可能会产生更高、更接近实时的计数，而 `finalized` 提供了防止回滚的保证。
+*   **不是 TPS 指标：** 虽然与网络活动相关，但这个单一值在没有比较定义时间段内的计数时，不能直接转换为每秒交易数 (TPS)。
 
 本指南解释了如何使用 `getTransactionCount` RPC 方法来检索 Solana 网络上的交易总数。

@@ -4,9 +4,9 @@ sidebarTitle: getFeeForMessage
 description: 了解 getFeeForMessage 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getFeeForMessage`](https://www.helius.dev/docs/api-reference/rpc/http/getfeeformessage) RPC 方法允许您估算网络为处理给定交易消息所收取的费用。这对于在将交易提交到网络之前了解[交易成本](https://www.helius.dev/blog/solana-fees-in-theory-and-practice)非常有用。
+[`getFeeForMessage`](https://www.helius.dev/docs/api-reference/rpc/http/getfeeformessage) RPC 方法允许您估算网络为处理给定交易消息所收取的费用。这对于在提交到网络之前了解[交易成本](https://www.helius.dev/blog/solana-fees-in-theory-and-practice)很有用。
 
-**版本说明：** 此方法在 `solana-core` v1.9 或更新版本中可用。对于旧版本，请考虑使用 `getFees`。
+**版本说明：**此方法在 `solana-core` v1.9 或更新版本中可用。对于旧版本，请考虑使用 `getFees`。
 
 ## 常见用例
 
@@ -16,10 +16,10 @@ description: 了解 getFeeForMessage 的使用案例、代码示例、请求参�
 
 ## 请求参数
 
-1.  **`message`** (字符串，必需)：交易消息，base64 编码。您可以通过编译交易获得此信息。
-2.  **`config`** (对象，可选)：包含以下字段的配置对象：
+1.  **`message`** (字符串，必需)：交易消息，base64 编码。您可以通过编译交易获得此消息。
+2.  **`config`** (对象，可选)：具有以下字段的配置对象：
     *   **`commitment`** (字符串，可选)：指定要使用的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。默认为 `finalized`。
-    *   **`minContextSlot`** (数字，可选)：请求可以被评估的最小槽位。
+    *   **`minContextSlot`** (数字，可选)：请求可以评估的最小槽位。
 
 ## 响应结构
 
@@ -27,7 +27,7 @@ JSON-RPC 响应的 `result` 字段是一个具有以下结构的对象：
 
 *   **`context`** (对象)：
     *   **`slot`** (u64)：评估费用的槽位。
-*   **`value`** (u64 | null)：估计的费用，以 lamports 为单位。如果无法确定费用（例如，消息中使用的 blockhash 过旧或无效），则可能为 `null`。
+*   **`value`** (u64 | null)：以 lamports 为单位的估算费用。如果无法确定费用（例如，消息中使用的 blockhash 过旧或无效），这可能是 `null`。
 
 ## 示例
 
@@ -106,10 +106,10 @@ estimateTransactionFee();
 
 ## 开发者提示
 
-*   **消息构建：** 使用 `getFeeForMessage` 的关键是正确构建和序列化交易 `Message`。这涉及设置费用支付者、指令和最近的区块哈希。
-*   **最近的区块哈希：** 消息必须使用最近的区块哈希构建。如果区块哈希过旧，响应中的 `value` 可能是 `null`。
-*   **费用与优先费用：** 此方法返回基础网络费用。它不包括您可能添加到交易中的任何额外优先费用，以在网络拥堵时增加其快速处理的可能性。使用 `getRecentPrioritizationFees` 来估算[优先费用](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics)。
-*   **Lamports：** 费用以 lamports 返回（1 SOL = 1,000,000,000 lamports）。
-*   **空值：** 费用的 `null` 值可能表示消息存在问题（例如，无效的区块哈希，格式错误的消息）或节点无法在给定的承诺级别或插槽中计算其费用。
+*   **消息构建：**使用 `getFeeForMessage` 的关键是正确构建和序列化交易 `Message`。这涉及设置费用支付者、指令和最近的 blockhash。
+*   **最近的 Blockhash：**消息必须使用最近的 blockhash 构建。如果 blockhash 过旧，响应中的 `value` 可能是 `null`。
+*   **费用与优先费用：**此方法返回基础网络费用。它不包括您可能添加到交易中的任何额外优先费用，以在网络拥堵时增加其快速处理的可能性。使用 `getRecentPrioritizationFees` 估算[优先费用](https://www.helius.dev/blog/priority-fees-understanding-solanas-transaction-fee-mechanics)。
+*   **Lamports：**费用以 lamports 返回（1 SOL = 1,000,000,000 lamports）。
+*   **空值：**费用的 `null` 值可能表示消息存在问题（例如，无效的 blockhash，格式错误的消息）或节点无法在给定的承诺级别或槽位上计算费用。
 
 本指南提供了使用 `getFeeForMessage` RPC 方法来估算 Solana 网络上的交易费用的必要步骤。

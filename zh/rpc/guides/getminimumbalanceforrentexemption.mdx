@@ -4,7 +4,7 @@ sidebarTitle: getMinimumBalanceForRentExemption
 description: 了解 getMinimumBalanceForRentExemption 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getMinimumBalanceForRentExemption`](https://www.helius.dev/docs/api-reference/rpc/http/getminimumbalanceforrentexemption) RPC 方法允许您计算特定数据大小的账户成为免租金所需的最低 lamport 余额。
+[`getMinimumBalanceForRentExemption`](https://www.helius.dev/docs/api-reference/rpc/http/getminimumbalanceforrentexemption) RPC 方法允许您计算特定数据大小的账户成为免租所需的最低 lamport 余额。
 
 在 Solana 中，账户必须保持最低余额以覆盖随时间推移的存储成本，这一概念称为租金。持有相当于两年租金支付余额的账户被视为“免租金”，其余额不会因[租金](https://www.helius.dev/blog/solana-executive-overview)而减少。
 
@@ -17,16 +17,16 @@ description: 了解 getMinimumBalanceForRentExemption 的使用案例、代码�
 
 ## 请求参数
 
-1.  **`dataLength`** (`usize`, 必需): 账户数据的长度（以字节为单位）。这是决定免租金最低限额的主要因素。
-    *   示例：`165`（用于标准 SPL 代币账户）。
+1.  **`dataLength`** (`usize`, 必需): 账户数据的长度，以字节为单位。这是决定免租最低限额的主要因素。
+    *   示例: `165` (用于标准 SPL Token 账户)。
 
 2.  **`commitment`** (`object`, 可选): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺。
-    *   字段：
-        *   `commitment` (字符串): 例如，`"finalized"`, `"confirmed"`, 或 `"processed"`。
+    *   字段:
+        *   `commitment` (字符串): 例如, `"finalized"`, `"confirmed"`, 或 `"processed"`。
 
 ## 响应结构
 
-JSON-RPC 响应的 `result` 字段将是一个 `u64`（无符号 64 位整数），表示具有指定 `dataLength` 的账户所需的最低 lamports 数量，以免租金。
+JSON-RPC 响应的 `result` 字段将是一个 `u64` (无符号 64 位整数)，表示具有指定 `dataLength` 的账户成为免租所需的最低 lamports 数量。
 
 ## 示例
 
@@ -112,9 +112,9 @@ fetchMinimumBalanceForZeroByteAccount();
 
 ## 开发者提示
 
-*   **租金随数据大小而变化：** 账户数据越大，租金豁免的最低限度就越高。
-*   **网络参数：** 租金的基础成本（每字节年 lamports）是一个网络参数，理论上可以通过集群投票更改，尽管这很少见。`getMinimumBalanceForRentExemption` 方法将始终根据集群的状态返回当前值。
-*   **Lamports 与 SOL：** 响应以 lamports 为单位。请记住，1 SOL = 1,000,000,000 lamports。
-*   **对持久性至关重要：** 确保账户免租金对于 Solana 区块链上数据的长期持久性至关重要。
+*   **租金随数据大小变化:** 账户数据越大，免租最低限额就越高。
+*   **网络参数:** 租金的基础成本（每字节年 lamports）是一个网络参数，理论上可以通过集群投票更改，但这很少见。`getMinimumBalanceForRentExemption` 方法将始终根据集群的状态返回当前值。
+*   **Lamports 与 SOL:** 响应以 lamports 为单位。请记住，1 SOL = 1,000,000,000 lamports。
+*   **对持久性至关重要:** 确保账户免租对于 Solana 区块链上数据的长期持久性至关重要。
 
 本指南帮助您理解和使用 `getMinimumBalanceForRentExemption` RPC 方法，以便在您的 Solana 应用程序中有效管理账户租金。

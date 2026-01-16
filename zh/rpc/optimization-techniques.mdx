@@ -116,10 +116,10 @@ instructions.unshift(priorityFeeIx);
 **对于大规模数据查询，使用新的 V2 方法与基于游标的分页：**
 
 <Card title="⚡ 性能提升" icon="rocket" color="#E84125">
-  `getProgramAccountsV2` 和 `getTokenAccountsByOwnerV2` 为处理大型数据集的应用程序提供了显著的性能改进：
+  `getProgramAccountsV2` 和 `getTokenAccountsByOwnerV2` 为处理大型数据集的应用程序提供显著的性能改进：
   
-  - **可配置限制**：每个请求 1-10,000 个账户
-  - **基于游标的分页**：防止大查询时超时
+  - **可配置限制**：每个请求1-10,000个账户
+  - **基于游标的分页**：防止大型查询超时
   - **增量更新**：使用 `changedSinceSlot` 进行实时同步
   - **更好的内存使用**：流式传输数据而不是一次性加载所有数据
 </Card>
@@ -277,16 +277,29 @@ const transactions = await Promise.all(
   signatures.map(sig => connection.getTransaction(sig.signature))
 );
 // ~1s + (200ms * 100 txs) = ~21s
+// Also note: getSignaturesForAddress doesn't include token account transactions
 ```
 
-```typescript ✅ Optimized
-// Use batch transaction fetching
-const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
-const transactions = await connection.getTransactions(
-  signatures.map(s => s.signature),
-  { maxSupportedTransactionVersion: 0 }
-);
-// ~2s total - 90% reduction
+```typescript ✅ Fast (Helius Exclusive)
+// Use getTransactionsForAddress for full history including token accounts
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getTransactionsForAddress',
+    params: [
+      address,
+      {
+        transactionDetails: 'full',
+        limit: 100,
+        filters: { tokenAccounts: 'balanceChanged' }
+      }
+    ]
+  })
+});
+// ~100ms total - includes complete token history in one call
 ```
 
 </CodeGroup>
@@ -544,11 +557,11 @@ async function robustRPCCall<T>(operation: () => Promise<T>): Promise<T> {
 <Warning>
   **避免这些常见错误：**
   - 使用轮询而不是 WebSocket 订阅
-  - 获取完整账户数据而只需要部分数据
-  - 对多个查询不使用批处理操作
+  - 在只需要部分数据时获取完整账户数据
+  - 对多个查询不使用批量操作
   - 忽视速率限制且未实现适当的重试逻辑
-  - 在 `confirmed` 足够时使用 `finalized` 承诺
-  - 不关闭订阅，导致内存泄漏
+  - 在 `finalized` 足够时使用 `confirmed` 承诺
+  - 未关闭订阅，导致内存泄漏
 </Warning>
 
 ## 总结

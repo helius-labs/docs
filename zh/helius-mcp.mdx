@@ -29,7 +29,7 @@ description: 将 AI 工具直接连接到 Helius Solana API 文档，实现智�
 
 ## Helius MCP 的工作原理
 
-Helius MCP 服务器自动生成并托管在 `https://docs.helius.dev/mcp`，为 AI 工具提供访问：
+Helius MCP 服务器是自动生成并托管在 `https://docs.helius.dev/mcp`，为 AI 工具提供访问：
 
 - **完整的 API 文档**：所有 Helius API 方法、参数和示例
 - **搜索功能**：查询我们文档的任何部分以获取特定信息
@@ -72,48 +72,48 @@ Helius MCP 服务器自动生成并托管在 `https://docs.helius.dev/mcp`，为
 选择您的AI工具并按照具体的设置说明进行操作：
 
 <Tabs>
- <Tab title="Cursor">
- 1. 打开Cursor IDE
- 2. 使用上下文菜单（见下文）或手动添加MCP服务器：
- - 打开设置 → MCP服务器
- - 添加服务器URL: `https://docs.helius.dev/mcp`
- 3. 打开代理模式（Ctrl/Cmd + K）
- 4. 询问：“编写一个使用Helius发送交易的Node.js脚本”
- 5. AI将通过MCP搜索我们的文档以生成准确的代码
- </Tab>
- 
- <Tab title="Windsurf">
- 1. 打开Windsurf IDE
- 2. 在设置中配置MCP服务器：
- - 添加服务器URL: `https://docs.helius.dev/mcp`
- 3. 打开AI助手
- 4. 询问：“展示如何使用Helius DAS API获取NFT数据”
- 5. AI将通过MCP参考我们的文档并生成具有正确导入和错误处理的代码
- </Tab>
- 
- <Tab title="Claude Desktop">
- 1. 安装Claude Desktop
- 2. 在您的Claude配置文件中配置MCP服务器
- 3. 添加Helius MCP服务器URL: `https://docs.helius.dev/mcp`
- 4. 打开Claude并询问：“帮助我使用Helius构建一个Solana交易监控器”
- 5. 根据我们的文档获取带有工作代码示例的上下文响应
- </Tab>
- 
- <Tab title="VS Code">
- 1. 为VS Code安装一个MCP扩展
- 2. 配置扩展以连接到：`https://docs.helius.dev/mcp`
- 3. 使用您选择的扩展提供的AI功能
- 4. 询问关于Helius API的问题以获得上下文帮助
- </Tab>
+  <Tab title="Cursor">
+    1. 打开 Cursor IDE
+    2. 使用上下文菜单（见下文）或手动添加 MCP 服务器：
+       - 打开设置 → MCP 服务器
+       - 添加服务器 URL: `https://docs.helius.dev/mcp`
+    3. 打开代理模式 (Ctrl/Cmd + K)
+    4. 询问：“编写一个使用 Helius 发送交易的 Node.js 脚本”
+    5. AI 将通过 MCP 搜索我们的文档以生成准确的代码
+  </Tab>
+  
+  <Tab title="Windsurf">
+    1. 打开 Windsurf IDE
+    2. 在设置中配置 MCP 服务器：
+       - 添加服务器 URL: `https://docs.helius.dev/mcp`
+    3. 打开 AI 助手
+    4. 询问：“展示如何使用 Helius DAS API 获取 NFT 数据”
+    5. AI 将通过 MCP 参考我们的文档并生成具有正确导入和错误处理的代码
+  </Tab>
+  
+  <Tab title="Claude Desktop">
+    1. 安装 Claude Desktop
+    2. 在 Claude 配置文件中配置 MCP 服务器
+    3. 添加 Helius MCP 服务器 URL: `https://docs.helius.dev/mcp`
+    4. 打开 Claude 并询问：“帮助我使用 Helius 构建一个 Solana 交易监控器”
+    5. 获取基于我们文档的上下文响应和有效的代码示例
+  </Tab>
+  
+  <Tab title="VS Code">
+    1. 为 VS Code 安装 MCP 扩展
+    2. 配置扩展以连接到: `https://docs.helius.dev/mcp`
+    3. 使用您选择的扩展提供的 AI 功能
+    4. 询问有关 Helius API 的问题以获得上下文帮助
+  </Tab>
 </Tabs>
 
 ## 上下文菜单集成
 
 为了快速访问，请使用我们文档中任何页面上的上下文菜单：
 
-- **复制 MCP 服务器 URL**：将 `https://docs.helius.dev/mcp` 复制到剪贴板
-- **连接到 Cursor**：自动在 Cursor 中安装 MCP 服务器
-- **连接到 VS Code**：自动在 VS Code 中安装 MCP 服务器
+- **复制 MCP 服务器 URL**: 将 `https://docs.helius.dev/mcp` 复制到剪贴板
+- **连接到 Cursor**: 自动在 Cursor 中安装 MCP 服务器
+- **连接到 VS Code**: 自动在 VS Code 中安装 MCP 服务器
 
 <Note>
 上下文菜单提供了连接到我们 MCP 服务器的最简单方法。请在任何文档页面的右上角查找菜单图标。
@@ -282,28 +282,28 @@ const getNFTPortfolio = async (walletAddress: string) => {
 
 <AccordionGroup>
   <Accordion title="MCP 服务器连接问题">
-    **问题**：AI 工具无法连接到 Helius MCP 服务器
+    **问题**: AI 工具无法连接到 Helius MCP 服务器
     
-    **解决方案**：
-    1. 验证 MCP 服务器 URL 是否正确：`https://docs.helius.dev/mcp`
+    **解决方案**: 
+    1. 验证 MCP 服务器 URL 是否正确: `https://docs.helius.dev/mcp`
     2. 检查您的互联网连接
     3. 重启您的 AI 工具并尝试重新连接
     4. 确保您的 AI 工具支持 MCP（查看工具文档）
   </Accordion>
   
   <Accordion title="仅可用搜索工具">
-    **问题**：仅显示搜索工具，没有 API 端点
+    **问题**: 仅显示搜索工具，没有 API 端点
     
-    **解决方案**：
+    **解决方案**: 
     1. 这是预期的 - 我们的 MCP 服务器提供文档搜索功能
     2. 当 AI 需要特定信息时，通过搜索工具访问 API 端点
     3. 搜索工具提供对我们所有文档和 API 规范的访问
   </Accordion>
   
   <Accordion title="信息过时">
-    **问题**：AI 提供的 API 信息过时
+    **问题**: AI 提供的 API 信息过时
     
-    **解决方案**：
+    **解决方案**: 
     1. MCP 服务器会自动更新我们的文档
     2. 刷新您的 AI 会话或重启工具
     3. 专门询问有关 API 的“最新”信息
@@ -311,22 +311,22 @@ const getNFTPortfolio = async (walletAddress: string) => {
   </Accordion>
   
   <Accordion title="生成的代码无法运行">
-    **问题**：AI 生成的代码有错误或无法运行
+    **问题**: AI 生成的代码有错误或无法运行
     
-    **解决方案**：
-    1. 将错误信息分享给 AI 进行调试
+    **解决方案**:
+    1. 与 AI 分享错误信息以进行调试
     2. 让 AI 搜索特定的错误处理模式
     3. 验证您的 API 密钥和网络连接
     4. 从我们的文档中请求可用的示例
   </Accordion>
   
   <Accordion title="上下文菜单无法使用">
-    **问题**：找不到或无法使用上下文菜单
+    **问题**: 找不到或无法使用上下文菜单
     
-    **解决方案**：
+    **解决方案**:
     1. 在文档页面的右上角寻找菜单图标
     2. 确保您在支持的浏览器中查看文档
-    3. 手动复制 MCP 服务器 URL：`https://docs.helius.dev/mcp`
+    3. 手动复制 MCP 服务器 URL: `https://docs.helius.dev/mcp`
     4. 使用上述连接说明手动配置您的 AI 工具
   </Accordion>
 </AccordionGroup>

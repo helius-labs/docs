@@ -1,0 +1,405 @@
+---
+title: 如何索引Solana数据
+sidebarTitle: 数据索引
+description: 学习如何构建、回填和保持Solana索引的最新状态。
+---
+
+## 概述
+
+Solana区块链将数据存储在一个顺序的、仅追加的分类账中。这对于数据完整性和交易吞吐量非常有利，但代价很大：这使得查询[历史数据](/zh/rpc/historical-data)非常低效且极其缓慢。
+
+复杂操作通常涉及从多个来源过滤、聚合或连接数据。在这些情况下，直接查询Solana对于大多数实际应用来说是不切实际的。
+
+为了解决这个问题，大多数企业构建了Solana历史数据的私有索引。
+
+## 索引Solana数据是什么意思？
+
+索引是从Solana区块链查询数据并将其存储在后端数据库（例如，PostgreSQL，ClickHouse）中的过程，然后可以用来随时满足客户请求，而无需使用[Solana RPC调用](/zh/api-reference/rpc/http-methods)直接查询区块链。
+
+索引器通常做四件事：
+
+1. **回填历史数据：** 使用[存档RPC方法](/zh/rpc/guides/overview#historical-data-archival)查询所有历史数据  
+2. **流式处理新数据：** 处理网络确认的新区块  
+3. **解析和转换数据：** 从确认的区块中提取相关数据（例如，交易、状态变化等）  
+4. **将数据组织到数据库中：** 使用新数据更新索引
+
+### 为什么大多数公司构建Solana索引？
+
+公司构建Solana索引是因为他们的业务依赖于提供快速、实时访问特定用途的区块链数据，而本地RPC不提供这些数据（例如，NFT销售历史）。
+
+公司还利用自定义索引将链下数据（例如，中心化交易所价格，KYC信息等）与链上数据结合起来。
+
+#### 钱包示例
+
+例如，如果一个Solana钱包需要快速返回用户的代币账户和余额，直接使用[`getTokenAccountsByOwner`](/zh/api-reference/rpc/http/gettokenaccountsbyowner)和[`getTokenAccountBalance`](/zh/api-reference/rpc/http/gettokenaccountbalance)查询Solana会太慢，可能导致产品无法使用。相反，钱包通常会维护自己的客户地址、代币和账户余额索引。
+
+#### 交易示例
+
+同样，加密交易公司可能希望记录在特定交易对（例如，[SOL-USDC](https://orb.helius.dev/address/So11111111111111111111111111111111111111112/markets?sort_by=volume24h&sort_type=desc)）或特定[市场](https://orb.helius.dev/markets)上发生的所有交易活动，以便回测他们的交易算法。
+
+直接查询区块链以获取这些数据对于任何实际的交易分析来说都太慢。相反，量化交易员可能会选择为SOL-USDC市场构建索引，并使用实时流产品如[LaserStream](/zh/laserstream)保持其更新以获取最新交易。
+
+#### 过滤示例
+
+想象一下，用户希望在其前端应用程序中按特定条件过滤交易（例如，按代币类型、转账金额、日期或钱包地址）。
+
+如果没有索引器，您的应用程序将需要扫描数百万笔交易，跨越数十万个区块，检查每一笔交易是否符合过滤条件。
+
+这个过程对于现代产品用户体验来说太慢了。
+
+#### 盈亏示例
+
+要计算交易员的盈亏（PnL），您需要：
+
+* 找到在给定时间范围内与其钱包相关的每笔交易
+* 过滤掉交换交易并将其标记为买入或卖出
+* 确定用户在每次交换中支付了多少费用
+* 获取每笔交易时每个代币的历史价格数据
+* 汇总每笔交易的盈亏以计算交易员的总盈亏
+
+实时计算这一切是不切实际的，需要一个更快、更具可扩展性的解决方案。
+
+通过索引，所有这些信息已经被处理并存储在一个可查询的数据库中。现在，计算交易者的盈亏只需一个API调用即可立即完成。
+
+让我们看看三种用于回填Solana索引并保持其更新的方法。
+
+## 第一步：获取历史数据
+
+构建Solana索引的第一步是获取您关心的所有历史数据。
+
+有三种主要方法可以做到这一点：
+
+1. **getTransactionsForAddress**（推荐）
+2. **getSignaturesForAddress** 和 **getTransaction**
+3. **getBlock**
+
+### 方法1：getTransactionsForAddress（推荐）
+
+[`getTransactionsForAddress`](/zh/rpc/gettransactionsforaddress) RPC方法允许您获取区块链数据任意段的完整交易详情。由于其强大的过滤能力，您不会浪费时间检索不需要的数据，并且由于其反向搜索功能，您可以按时间顺序获取交易。
+
+#### 使用此方法的步骤
+
+* 确定您需要数据的时间范围并相应设置过滤器
+* 将`transactionDetails`设置为`full`以获取所有交易详情
+* 配置`tokenAccounts`过滤器以包含相关的代币账户交易（如果需要）
+* 使用`paginationToken`分页浏览结果
+* 在每次迭代中，提取您需要的数据并将其存储在您的数据库中
+
+#### 使用getTransactionsForAddress的好处
+
+使用[gTFA端点](/zh/api-reference/rpc/http/gettransactionsforaddress)的主要优势是速度和简单性。通过插槽和基于时间的过滤器、代币账户支持、反向搜索和分页，您可以从Solana历史中的任何时间获取所需的任何数据，只需一次调用，无需复杂的循环或重试逻辑。与`getSignaturesForAddress`不同，它还可以包括涉及地址拥有的相关代币账户的交易。
+
+### 方法 2：getSignaturesForAddress 和 getTransaction
+
+在 gTFA 发布之前，查询历史数据的标准方法是递归循环使用 [`getSignaturesForAddress`](/zh/rpc/guides/getsignaturesforaddress)（从最新到最旧），然后调用 [`getTransaction`](/zh/rpc/guides/gettransaction) 提取完整的交易详情。
+
+#### 使用此方法的步骤
+
+使用此方法的基本步骤如下：
+
+* 调用 `getSignaturesForAddress`  
+* 存储此调用中最后接收到的交易的签名  
+* 对于下一次调用 `getSignaturesForAddress`，将 `before` 参数设置为此签名  
+* 根据需要重复此循环  
+* 对于通过这种方式检索到的每个交易签名，调用 `getTransaction` 以获取其完整的交易详情  
+* 将相关数据插入到您的数据库中
+
+#### 此方法的缺点
+
+不幸的是，使用此方法您需要：
+
+* 从最新的交易开始并向后处理
+* 为每笔交易进行一次额外的 RPC 调用
+* 构建一个线程安全的队列以处理并发处理
+* 构建重试和退避逻辑以防止数据丢失和被限速
+* 不包括涉及地址拥有的关联代币账户的交易
+
+虽然此方法有效，但它更复杂、灵活性较差，并且消耗更多的[积分](/zh/billing/credits)。要获取包括代币账户在内的完整钱包历史，请改用 `getTransactionsForAddress`。
+
+### 方法 3：使用 getBlock
+
+当目标区块中的高比例交易与您的分析相关时，[`getBlock`](/zh/rpc/guides/getblock) 方法最为有效，例如索引[经常使用的 Solana 程序](/zh/orb/explore-programs)的交易，如 DFlow 的 Aggregator、Pump.fun 程序或 Solana 的 Token 程序。
+
+#### 使用此方法的步骤
+
+使用 `getBlock` 查询历史数据的基本过程包括：
+
+* 决定要查询的时间范围
+* 将此时间范围转换为槽号
+* 顺序获取相应的区块（向前或向后）
+* 对于每个区块，筛选出与您的索引相关的交易
+* 将相关信息存储在您的索引中
+
+对于大多数用例来说，这种方法本质上是浪费的，因为您正在检索区块中的所有交易，而通常只有一小部分与您的分析相关。
+
+仅在您检查频繁使用的程序的交易或地址过滤无法捕获目标数据时使用此方法。
+
+## 步骤2：将Solana数据与您的数据库同步
+
+在获取历史数据后，您需要对其进行转换并高效地存储在数据库中。
+
+**您的存储选择应根据您的具体用例量身定制**——没有一种通用的解决方案。合适的数据库取决于数据集的大小、延迟要求、查询模式和团队专业知识。
+
+### 选项1：SQL数据库
+
+建议将Solana数据存储在像PostgreSQL这样的关系数据库中，适用于大多数用例。SQL灵活、普遍且易于学习。现代关系数据库可以扩展到超过1亿行，同时仍然为您提供ACID合规性、复杂连接和强大的二级索引的好处。
+
+使用**SQLite**进行原型设计、本地开发或当您需要零配置的单文件数据库时。它在您的数据集保持在几GB以下时是理想的选择。
+
+对于需要数据复制、多个客户端并发访问或高级功能（如全文搜索和JSON操作符）的生产应用程序，使用**PostgreSQL**。
+
+对于大多数生产级别的Solana索引器，我们推荐使用PostgreSQL。
+
+#### 实现示例：
+
+作为示例，我们将展示如何在PostgreSQL数据库中存储代币转移。
+
+首先，创建一个表：
+
+```sql
+CREATE TABLE token_transfers (
+    id BIGSERIAL PRIMARY KEY,
+    slot BIGINT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    signature BYTEA NOT NULL UNIQUE,
+    token_mint BYTEA NOT NULL,
+    source_address BYTEA NOT NULL,
+    destination_address BYTEA NOT NULL,
+    amount BIGINT NOT NULL,
+    decimals SMALLINT NOT NULL,
+    program_id BYTEA
+);
+```
+
+然后，在经常查询的列上添加索引：
+
+```sql
+CREATE INDEX idx_source_address ON token_transfers (source_address);
+CREATE INDEX idx_destination_address ON token_transfers (destination_address);
+CREATE INDEX idx_token_mint ON token_transfers (token_mint);
+```
+
+如果只有部分数据经常被查询，您也可以创建部分索引。
+
+以下是如何仅为高价值转移创建索引：
+
+```sql
+CREATE INDEX idx_large_transfers ON token_transfers(amount) WHERE amount > 1000000;
+```
+
+在回填数据时，确保使用批量INSERT和预准备语句以获得最佳写入速度。
+
+### 选项2：列式数据库
+
+列式数据库针对分析查询、聚合和高容量时间序列数据进行了优化。如果您需要索引数十亿笔交易，像ClickHouse或Cassandra这样的列式数据库是您的最佳选择。
+
+当您需要对大型数据集进行实时分析查询时，使用**ClickHouse**——它针对快速读取、聚合和时间序列分析进行了优化。
+
+当您需要极高的写入吞吐量、轻松的水平扩展和高容错性时，使用**Cassandra**。这使其非常适合持续摄取大量Solana数据。
+
+#### 实现示例：
+
+我们将展示如何在ClickHouse数据库中存储代币转移。
+
+为此，创建一个使用[MergeTree表引擎](https://clickhouse.com/docs/engines/table-engines/mergetree-family/mergetree)的表。它专为高摄取率设计，因此非常适合索引。
+
+使用此命令：
+
+```sql
+CREATE TABLE token_transfers (
+    block_time DateTime,
+    slot UInt64,
+    signature FixedString(64),
+    token_mint FixedString(32),
+    source_address FixedString(32),
+    destination_address FixedString(32),
+    amount UInt64,
+    decimals UInt8,
+    program_id FixedString(32),
+    date Date DEFAULT toDate(block_time)
+)
+ENGINE = MergeTree()
+PARTITION BY toYYYYMM(date)
+ORDER BY (token_mint, date)
+SETTINGS index_granularity = 8192;
+```
+
+在此设置中，`(token_mint, date)`被设置为主键和排序键。ClickHouse将根据您的排序键在磁盘上排序数据。这对于查询单个[token mint](/zh/orb/explore-mint-addresses)并按日期范围缩小响应非常理想。
+
+这是一个查询示例：
+
+```sql
+SELECT date, signature, source_address, destination_address, amount
+FROM token_transfers
+WHERE token_mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+AND block_time BETWEEN '2025-01-01' AND '2025-01-31'
+```
+
+交易签名和地址使用 `FixedString(N)` 数据格式存储，该格式精确存储 N 字节。ClickHouse 自动压缩数据，从而降低 10-20 倍的存储成本并提高查询性能。
+
+为了优化查询性能，使用物化视图预计算常见的聚合。
+
+例如，您可以预计算每日的代币转移量，以便在仪表板上的与量相关的图表中使用。
+
+### 选项 3：数据湖
+
+数据湖非常适合存储大量原始和处理过的区块链数据，用于长期归档和分析查询。
+
+一个简单的实现使用 Parquet 数据格式与 Amazon Athena。
+
+**Parquet** 是一种面向列的数据文件格式，旨在实现高效的数据存储和检索。
+
+**Amazon Athena** 是一种交互式查询服务，允许您使用标准 SQL 分析存储在 Amazon S3 中的数据，而无需设置基础设施或将数据加载到单独的数据库中。
+
+<Warning>
+仅当您需要查询大量非结构化数据时才推荐使用数据湖。对于大多数用例，我们建议使用 SQL 数据库（选项 1）。
+</Warning>
+
+#### 实施示例：
+
+我们希望创建一个代币转移的存档并查询它们。
+
+首先，我们需要将它们存储在 S3 中：创建一个名为 `solana_index` 的存储桶，并使用此键结构按时间分区您的代币转移数据：
+
+```
+s3://solana_index/token_transfers/YYYY/MM/DD/part-00000.parquet
+```
+
+每天的转移存储在其相应日期文件夹中的单独 Parquet 文件中。
+
+当您处理来自 Solana 的转移时，将其转换为 Parquet 格式并写入相应的 S3 对象。
+
+稍后，您在 Athena 中[创建一个表](https://docs.aws.amazon.com/athena/latest/ug/step-2-create-a-table.html)并将其连接到存储桶。这使您可以直接在存储桶中的数据上运行如下查询：
+
+```sql
+SELECT block_time, signature, source_address, destination_address, amount
+FROM token_transfers
+WHERE token_mint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' AND block_time BETWEEN TIMESTAMP '2025-01-01 00:00:00' AND TIMESTAMP '2025-01-31 23:59:59';
+```
+
+### 使用索引框架
+
+使用 [**Carbon**](https://github.com/sevenlabs-hq/carbon) 和类似框架，以避免编写样板代码，并在数小时内而非数天内设置索引器。
+
+#### 关键特性：
+
+* 为流行程序（Token 程序、DeFi 协议、Metaplex）预构建的解码器 
+* 可配置的数据源（RPC、LaserStream、增强型 WebSockets） 
+* 内置支持回填和实时流 
+* 输出到多个存储后端（Postgres 开箱即用） 
+* 完全可定制：您可以设置自己的数据源、解码器和数据接收器
+
+## **步骤 3：保持索引最新**
+
+在回填历史数据后，您需要一个实时流解决方案，以使您的索引与新的区块链活动保持同步。否则，您的索引将变得过时。
+
+### 方法 1：LaserStream（推荐）
+
+我们推荐 [LaserStream gRPC](/zh/laserstream/grpc) 作为所有生产索引用例的默认选择。它专为可靠、超低延迟和容错的数据流而设计。
+
+使用 LaserStream 的一些好处包括：
+
+* **历史重播**：如果您的索引器断开连接，LaserStream 会[自动重播](/zh/laserstream/historical-replay)所有错过的交易，从您离开的地方开始 
+* **自动重新连接**：我们的 [LaserStream SDKs](/zh/laserstream/clients)（Rust、Go、JS/TS）无缝处理网络中断 
+* **节点故障转移**：您的 LaserStream 连接同时从多个节点聚合数据，确保最大正常运行时间
+
+结合速度和可靠性，LaserStream 非常适合实时应用，如实时交易流、交易仪表板和即时余额更新。
+
+#### 如何使用 LaserStream 进行索引
+
+使用 [`subscribe`](/zh/api-reference/laserstream/grpc/subscribe) 方法订阅区块链事件。
+
+以下是一些最佳实践：
+
+* **尽可能缩小过滤范围**：仅订阅您实际需要索引的数据，以最小化带宽消耗和所需的处理量。
+* **使用 `confirmed` 承诺级别**：这在延迟和最终性之间取得平衡。`processed` 级别可能过于不可靠，而 `finalized` 增加了约 13 秒的延迟
+* **设置 `failed: false`**，除非您特别需要跟踪失败的交易
+* **排除投票交易** (`vote: false`)，因为它们与索引无关
+
+让我们看一个例子。
+
+使用以下订阅来索引所有新的代币转移：
+
+```ts
+{
+  transactions: {
+    "transfers": {
+      vote: false,
+      failed: false,
+      accountsInclude: [
+        '​​TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+      ]
+    }
+  },
+  commitment: CommitmentLevel.CONFIRMED,
+  accounts: {},
+  slots: {},
+  transactionsStatus: {},
+  blocks: {},
+  blocksMeta: {},
+  entry: {},
+  accountsDataSlice: []
+}
+```
+
+### 方法 2：使用增强型 WebSockets
+
+[增强型 WebSockets](/zh/enhanced-websockets) 由与 LaserStream 相同的基础设施提供支持，是 LaserStream gRPC 的一种具有成本效益的实时流替代方案。
+
+您应该在以下情况下使用增强型 WSS：
+
+* 您的应用程序可以容忍偶尔的数据缺口
+* 实时更新很重要，但不是关键任务
+* 您有现有的基础设施来检测和补充缺失的数据
+* 预算限制显著，您需要最小化流成本
+* 您在承诺使用 LaserStream 之前进行原型设计或测试
+
+然而，在选择增强型 WSS 时需要考虑一些权衡：
+
+* **速度**：增强型 WSS 很快，但仍然比 LaserStream 慢
+* **可靠性**：没有历史重播保证。如果您的 WebSocket 断开连接，您需要手动检测并使用 RPC 方法补充缺口
+* **复杂性**：需要额外的监控基础设施以确保数据完整性
+
+#### 如何使用增强型 WebSockets 进行索引
+
+要更新存储所有代币转移的索引，您可以像这样订阅 [`transactionSubscribe`](/zh/enhanced-websockets/transaction-subscribe)：
+
+```ts
+{
+  jsonrpc: '2.0',
+  id: 1,
+  method: 'transactionSubscribe',
+  params: [
+    {
+      failed: false,
+      accountInclude: [
+        '​​TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+      ]
+    },
+    {
+      commitment: 'confirmed',
+      encoding: 'jsonParsed',
+      transactionDetails: 'full',
+      maxSupportedTransactionVersion: 0
+    }
+  ]
+}
+```
+
+## 开始使用
+
+构建一个强大的 Solana 索引并回填数据需要解决三个核心挑战：
+
+1. 高效获取历史数据
+2. 转换和存储数据以便快速检索
+3. 实时更新索引的 Solana 数据
+
+通过我们新的[最先进的存档系统](https://www.helius.dev/blog/introducing-gettransactionsforaddress)、如 **getTransactionForAddress** 的存档调用，以及行业领先的数据流解决方案如 LaserStream，构建 Solana 索引比以往更简单、更实用。
+
+### 下一步：
+
+* [注册一个免费的 Helius 账户](https://www.helius.dev)以获取 API 访问权限
+* 阅读 [gTFA 文档](/zh/rpc/gettransactionsforaddress)以获取有关回填的信息
+* 探索 [LaserStream 快速入门指南](/zh/laserstream)以进行实时流式传输

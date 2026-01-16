@@ -4,7 +4,7 @@ sidebarTitle: getBlockTime
 description: 了解 getBlockTime 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getBlockTime`](https://www.helius.dev/docs/api-reference/rpc/http/getblocktime) RPC 方法提供指定区块的估计生产时间，该区块由其槽号标识。时间以 Unix 时间戳（自 Unix 纪元以来的秒数）返回。
+[`getBlockTime`](https://www.helius.dev/docs/api-reference/rpc/http/getblocktime) RPC 方法提供指定区块的估计生成时间，通过其槽号识别。时间以 Unix 时间戳返回（自 Unix 纪元以来的秒数）。
 
 当您需要将区块生产与现实世界的时间相关联时，此方法非常有用。
 
@@ -30,14 +30,14 @@ description: 了解 getBlockTime 的使用案例、代码示例、请求参数�
 
 JSON-RPC 响应的 `result` 字段将是：
 
-*   **`timestamp`** (i64): 作为 Unix 时间戳的估计生成时间（自 Unix 纪元以来的秒数）。
+*   **`timestamp`** (i64): 估计生成时间，以 Unix 时间戳表示（自 Unix 纪元以来的秒数）。
 *   **`null`**: 如果指定区块的时间戳不可用（例如，区块非常旧且数据已被修剪，或区块被跳过且没有关联的时间戳）。
 
 ## 示例
 
 ### 1. 获取特定区块的估计时间
 
-此示例获取特定槽的估计生成时间。请记得将 `SLOT_NUMBER_TO_QUERY` 替换为您所针对的网络（例如，Mainnet Beta 或 Devnet）上的实际、最新且已确认的槽。
+此示例获取特定槽的估计生成时间。请记得将 `SLOT_NUMBER_TO_QUERY` 替换为您所针对的网络（例如，Mainnet Beta 或 Devnet）上的实际、最近且已确认的槽。
 
 <CodeGroup>
 
@@ -81,8 +81,8 @@ getSpecificBlockTime(slotToQuery);
 
 ## 开发者提示
 
-*   **时间戳可用性：** 并非所有区块都能提供时间戳，尤其是非常旧的区块或被跳过的槽。在这种情况下，方法返回 `null`。
-*   **估计：** 时间是一个*估计值*。它是从验证者的投票时间戳的权益加权平均值中得出的。虽然通常准确，但它不像区块哈希那样为每个区块提供保证的、加密安全的时间戳。
-*   **节点依赖性：** 可用性和精度可能会因查询的 RPC 节点而略有不同，尤其是对于非常新的（尚未最终确定的）区块。
+*   **时间戳可用性：** 并非所有区块都能提供时间戳，特别是非常旧的区块或被跳过的槽。在这种情况下，方法返回 `null`。
+*   **估计：** 时间是一个*估计值*。它是从验证者的投票时间戳的权益加权平均值得出的。虽然通常准确，但不像区块哈希那样为每个区块提供保证的、加密安全的时间戳。
+*   **节点依赖性：** 可用性和精度可能会因查询的 RPC 节点而略有不同，尤其是对于非常近期（尚未最终确定）的区块。
 
-本指南解释了如何使用`getBlockTime`来检索Solana网络上任何给定区块的估计生产时间戳。
+本指南解释了如何使用 `getBlockTime` 来检索 Solana 网络上任何给定区块的估计生产时间戳。

@@ -7,3 +7,87 @@ og:description: 获取免费的 RPC 并探索 getTransactionsForAddress RPC
   方法。高级交易历史查询，具有过滤、排序和分页功能。包括请求参数、响应示例、代码片段，以及 Solana 主网和 Devnet 的浏览器内测试。
 openapi: /zh/openapi/rpc-http/getTransactionsForAddress.yaml POST /
 ---
+
+## 请求参数
+
+<ParamField body="address" type="string" required>
+  要查询交易历史的账户的Base-58编码公钥
+</ParamField>
+
+<ParamField body="transactionDetails" type="string" default="signatures">
+  返回的交易详细程度：
+  - `signatures`: 基本签名信息（更快）
+  - `full`: 完整的交易数据（消除对getTransaction调用的需求，要求限制≤100）
+</ParamField>
+
+<ParamField body="sortOrder" type="string" default="desc">
+  结果的排序顺序：
+  - `desc`: 最新优先（默认）
+  - `asc`: 最旧优先（按时间顺序，非常适合历史分析）
+</ParamField>
+
+<ParamField body="limit" type="number" default="1000">
+  返回的最大交易数：
+  - 当 `transactionDetails: "signatures"` 时最多1000
+  - 当 `transactionDetails: "full"` 时最多100
+</ParamField>
+
+<ParamField body="paginationToken" type="string">
+  上一个响应的分页令牌（格式：`"slot:position"`）
+</ParamField>
+
+<ParamField body="commitment" type="string" default="finalized">
+  承诺级别：`finalized` 或 `confirmed`。不支持 `processed` 承诺。
+</ParamField>
+
+<ParamField body="filters" type="object">
+  用于缩小结果范围的高级过滤选项。
+</ParamField>
+
+<ParamField body="filters.slot" type="object">
+  使用比较运算符按槽号过滤：`gte`, `gt`, `lte`, `lt`
+  
+  示例：`{ "slot": { "gte": 1000, "lte": 2000 } }`
+</ParamField>
+
+<ParamField body="filters.blockTime" type="object">
+  使用比较运算符按Unix时间戳过滤：`gte`, `gt`, `lte`, `lt`, `eq`
+  
+  示例：`{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
+</ParamField>
+
+<ParamField body="filters.signature" type="object">
+  使用比较运算符按交易签名过滤：`gte`, `gt`, `lte`, `lt`
+  
+  示例：`{ "signature": { "lt": "SIGNATURE_STRING" } }`
+</ParamField>
+
+<ParamField body="filters.status" type="string">
+  按交易成功/失败状态过滤：
+  - `succeeded`: 仅成功的交易
+  - `failed`: 仅失败的交易
+  - `any`: 成功和失败的交易（默认）
+  
+  示例：`{ "status": "succeeded" }`
+</ParamField>
+
+<ParamField body="filters.tokenAccounts" type="string" default="none">
+  过滤相关代币账户的交易：
+  - `none`: 仅返回引用提供的地址的交易（默认）
+  - `balanceChanged`: 返回引用提供的地址或修改由提供的地址拥有的代币账户余额的交易（推荐）
+  - `all`: 返回引用提供的地址或任何由提供的地址拥有的代币账户的交易
+
+  示例: `{ "tokenAccounts": "balanceChanged" }`
+</ParamField>
+
+<ParamField body="encoding" type="string">
+  交易数据的编码格式（仅在 `transactionDetails: "full"` 时适用）。与 `getTransaction` API 相同。选项: `json`, `jsonParsed`, `base64`, `base58`
+</ParamField>
+
+<ParamField body="maxSupportedTransactionVersion" type="number">
+  设置要返回的最大交易版本。如果省略，将仅返回传统交易。设置为 `0` 以包含所有版本的交易。
+</ParamField>
+
+<ParamField body="minContextSlot" type="number">
+  请求可以评估的最小槽位
+</ParamField>

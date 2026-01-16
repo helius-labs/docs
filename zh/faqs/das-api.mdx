@@ -6,10 +6,10 @@ description: 获取关于数字资产标准 API 的最常见问题的答案，�
 ## 使用 DAS API
 
 <Accordion title="我可以获取任何代币的价格数据吗？">
-价格数据可用于24小时交易量排名前1万的代币。检查 `token_info.price_info` 是否存在于 `getAsset` 响应中。
+价格数据可用于24小时交易量排名前10,000的代币。检查 `token_info.price_info` 是否存在于 `getAsset` 响应中。
 </Accordion>
 
-<Accordion title="如何获取钱包的所有 NFT？">
+<Accordion title="如何获取钱包的所有NFT？">
 使用 `getAssetsByOwner` 和钱包地址，如果钱包持有许多资产，请分页。
 </Accordion>
 
@@ -18,15 +18,15 @@ description: 获取关于数字资产标准 API 的最常见问题的答案，�
 </Accordion>
 
 <Accordion title="如何找到代币的最大持有者？">
-使用标准 RPC 方法 `getTokenLargestAccounts` 和您的代币铸造地址。这将返回按余额排序的前 20 名持有者。详情请参阅我们的 [getTokenLargestAccounts 指南](/zh/rpc/guides/gettokenlargestaccounts)。
+使用标准RPC方法 `getTokenLargestAccounts` 和您的代币铸造地址。这将返回按余额排序的前20名持有者。详情请参阅我们的 [getTokenLargestAccounts 指南](/zh/rpc/guides/gettokenlargestaccounts)。
 </Accordion>
 
 <Accordion title="如何找到特定铸造的所有代币持有者？">
-使用 `getProgramAccounts` 通过代币程序和铸造地址进行过滤，或使用 `getTokenAccountsByOwner` 针对特定持有者。对于全面的代币持有者分析，结合使用 `getTokenLargestAccounts`。
+使用 `getProgramAccounts` 通过代币程序和铸造地址进行过滤，或使用 `getTokenAccountsByOwner` 针对特定所有者。对于全面的代币持有者分析，请结合使用 `getTokenLargestAccounts`。
 </Accordion>
 
-<Accordion title="我如何获取代币的市值？">
-将代币的流通供应量乘以其当前价格（来自 `getAsset`）。价格数据可在DAS API响应中用于24小时交易量排名前1万的代币。
+<Accordion title="如何获取代币的市值？">
+将代币的流通供应量乘以其当前价格（来自 `getAsset`）。价格数据可在DAS API响应中用于24小时交易量排名前10,000的代币。
 </Accordion>
 
 <Accordion title="如何获取钱包拥有的所有代币余额变化的更新？">

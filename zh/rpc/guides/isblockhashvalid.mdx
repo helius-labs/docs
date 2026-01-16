@@ -4,11 +4,11 @@ sidebarTitle: isBlockhashValid
 description: 了解 isBlockhashValid 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`isBlockhashValid`](https://www.helius.dev/docs/api-reference/rpc/http/isblockhashvalid) RPC 方法用于检查先前获取的 blockhash 是否仍被网络视为有效。Blockhash 的有效期有限（大约 2 分钟或 150 个区块），之后引用它们的交易将被拒绝。
+[RPC 方法](https://www.helius.dev/docs/api-reference/rpc/http/isblockhashvalid)用于检查先前获取的区块哈希是否仍被网络视为有效。区块哈希的有效期有限（大约 2 分钟或 150 个区块），之后引用它们的交易将被拒绝。
 
 此方法对于在提交交易前保留 blockhash 一段时间的应用程序至关重要，以确保交易不会因 blockhash 过期而失败。
 
-**版本说明：** 此方法在 `solana-core` v1.9 及更新版本中可用。对于运行 `solana-core` v1.8 或更早版本的节点，您应使用 `getFeeCalculatorForBlockhash`，它除了提供费用信息外，还隐含地指示 blockhash 的有效性（如果 blockhash 过旧，将会出错）。
+**版本说明：** 此方法在 v1.9 及更新版本中可用。对于运行 v1.8 或更早版本的节点，您应该使用它，除了费用信息外，还隐含地指示区块哈希的有效性（如果区块哈希过旧，将会出错）。
 
 ## 常见用例
 
@@ -18,132 +18,42 @@ description: 了解 isBlockhashValid 的使用案例、代码示例、请求参�
 
 ## 请求参数
 
-1.  **`blockhash`**（字符串，必需）：要检查的 blockhash，作为 base-58 编码的字符串。
-2.  **`options`**（对象，可选）：一个可选的配置对象，可以包括：
-    *   **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果省略，则使用节点的默认承诺。
-    *   **`minContextSlot`**（u64，可选）：请求可以评估的最小槽位。这确保 RPC 节点不会响应来自比 `minContextSlot` 更旧的槽位的状态。
+1.  **（字符串，必需）：** 要检查的区块哈希，作为 base-58 编码的字符串。
+2.  **（对象，可选）：** 可选的配置对象，可以包括：
+    *   **（字符串，可选）：** 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，）。如果省略，则使用节点的默认承诺。
+    *   **（u64，可选）：** 请求可以评估的最小槽。这确保 RPC 节点不会响应来自比更旧的槽的状态。
 
 ## 响应结构
 
-JSON-RPC 响应中的 `result` 字段是一个包含以下内容的 `RpcResponse` 对象：
+JSON-RPC 响应中的字段是一个对象，包含：
 
-*   **`context`** (对象)：一个包含以下内容的对象：
-    *   **`slot`** (u64)：RPC 节点评估区块哈希有效性的插槽。
-*   **`value`** (布尔值)：如果区块哈希仍然有效，则为 `true`，否则为 `false`。
+*   **（对象）：** 包含：
+    *   **（u64）：** RPC 节点评估区块哈希有效性的槽。
+*   **（布尔值）：** 如果区块哈希仍然有效，否则。
 
 **示例响应（有效的区块哈希）：**
 
-```json
-{
-  "jsonrpc": "2.0",
-  "result": {
-    "context": { "slot": 180000500 },
-    "value": true
-  },
-  "id": 1
-}
-```
+
 
 **示例响应（无效/过期的区块哈希）：**
 
-```json
-{
-  "jsonrpc": "2.0",
-  "result": {
-    "context": { "slot": 180000800 },
-    "value": false
-  },
-  "id": 1
-}
-```
+
 
 ## 代码示例
 
 <CodeGroup>
 
-```bash cURL
-# Check validity of a blockhash (replace <YOUR_BLOCKHASH>):
-curl -X POST -H "Content-Type: application/json" -d \
-  '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "isBlockhashValid",
-    "params": [
-      "<YOUR_BLOCKHASH>"
-    ]
-  }' \
-  <YOUR_RPC_URL>
 
-# Check with commitment and minContextSlot (replace <YOUR_BLOCKHASH>):
-curl -X POST -H "Content-Type: application/json" -d \
-  '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "isBlockhashValid",
-    "params": [
-      "<YOUR_BLOCKHASH>",
-      {
-        "commitment": "confirmed",
-        "minContextSlot": 170000000
-      }
-    ]
-  }' \
-  <YOUR_RPC_URL>
-```
 
-```javascript JavaScript (using @solana/web3.js)
-const { Connection } = require('@solana/web3.js');
 
-async function checkBlockhash(blockhashToCheck) {
-  // Replace with your RPC endpoint
-  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
-
-  try {
-    console.log(`Checking validity of blockhash: ${blockhashToCheck}`);
-    const result = await connection.isBlockhashValid(blockhashToCheck);
-    
-    console.log(`  Blockhash is valid: ${result.value}`);
-    console.log(`  Checked at slot: ${result.context.slot}`);
-
-    // Example with options
-    // const resultWithOptions = await connection.isBlockhashValid(
-    //   blockhashToCheck,
-    //   { commitment: 'confirmed', minContextSlot: result.context.slot - 100 }
-    // );
-    // console.log(`\nWith options - Valid: ${resultWithOptions.value}, Slot: ${resultWithOptions.context.slot}`);
-
-  } catch (error) {
-    console.error(`Error checking blockhash ${blockhashToCheck}:`, error);
-  }
-}
-
-// Example usage: First, get a recent blockhash
-async function getRecentBlockhashAndCheck() {
-  const connection = new Connection('https://mainnet.helius-rpc.com/?api-key=<api-key>');
-  try {
-    const { blockhash } = await connection.getLatestBlockhash();
-    await checkBlockhash(blockhash); 
-    
-    // Example with a known old/invalid blockhash (will likely be false)
-    // This blockhash is just an example and will be invalid.
-    const oldBlockhash = 'J7rBdM6AecPDEZp8aPq5iPSNKVkU5Q76F3oAV4eW5wsW'; 
-    // await checkBlockhash(oldBlockhash);
-
-  } catch (error) {
-    console.error('Error in example execution:', error);
-  }
-}
-
-getRecentBlockhashAndCheck();
-```
 
 </CodeGroup>
 
 ## 开发者提示
 
-*   **区块哈希会过期：** 区块哈希仅在有限时间内有效（大约 150 个插槽，或大约 1-2 分钟）。如果不确定或经过了较长时间，请始终获取新的区块哈希。
-*   **`minContextSlot` 用法：** 使用 `minContextSlot` 以防止查询可能提供过时“有效”响应的陈旧 RPC 节点，而该区块哈希实际上对于集群的其余部分来说太旧了。
-*   **旧节点的替代方案：** 对于运行 Solana 1.9 之前版本的节点，使用 `getFeeCalculatorForBlockhash("<YOUR_BLOCKHASH>")`。如果此方法成功返回，则区块哈希有效。如果出错（通常是因为找不到区块哈希或太旧），则区块哈希无效。
+*   **区块哈希过期：** 区块哈希仅在有限时间内有效（大约150个槽，或大约1-2分钟）。如果不确定或已经过了很长时间，请始终获取新的区块哈希。
+*   **`minContextSlot` 用法：** 使用 `minContextSlot` 来防止查询过时的RPC节点，这些节点可能会给出一个实际上对集群其余部分来说太旧的区块哈希的过时“有效”响应。
+*   **旧节点的替代方案：** 对于运行Solana 1.9之前版本的节点，使用 `getFeeCalculatorForBlockhash("<YOUR_BLOCKHASH>")`。如果此方法成功返回，则区块哈希有效。如果出现错误（通常是因为找不到区块哈希或太旧），则区块哈希无效。
 *   **网络确认：** 即使 `isBlockhashValid` 返回 `true`，交易只有在提交后达到网络上的所需承诺级别时才会最终确定。
 
-本指南提供了在构建 Solana 应用程序时有效使用 `isBlockhashValid` RPC 方法的必要细节。
+本指南提供了在构建Solana应用程序时有效使用 `isBlockhashValid` RPC方法的必要细节。

@@ -10,20 +10,20 @@ description: 了解 requestAirdrop 的使用案例、代码示例、请求参数
 
 ## 常见用例
 
-*   **为测试钱包提供资金：** 获取 SOL 以支付交易费用并在 Devnet 或 Testnet 上部署程序。
-*   **自动化测试：** 脚本可以使用 `requestAirdrop` 确保测试账户在运行测试套件之前有足够的 SOL。
-*   **开发与实验：** 快速获取 SOL 以在开发过程中与链上程序交互。
+*   **资助测试钱包：**获取 SOL 以支付交易费用并在 Devnet 或 Testnet 上部署程序。
+*   **自动化测试：**脚本可以使用 `requestAirdrop` 确保测试账户在运行测试套件之前有足够的 SOL。
+*   **开发与实验：**快速获取 SOL 以在开发过程中与链上程序交互。
 
 ## 请求参数
 
-1.  **`pubkey`**（字符串，必需）：将接收空投 lamports 的账户的公钥，提供为 base-58 编码的字符串。
+1.  **`pubkey`**（字符串，必需）：接收空投 lamports 的账户的公钥，以 base-58 编码字符串提供。
 2.  **`lamports`**（u64，必需）：请求的 lamports 数量。（1 SOL = 1,000,000,000 lamports）。
 3.  **`options`**（对象，可选）：一个可选的配置对象，可以包括：
     *   **`commitment`**（字符串，可选）：指定在确认空投交易时等待的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`，`"processed"`）。如果省略，则使用节点的默认空投承诺。
 
 ## 响应结构
 
-JSON-RPC 响应中的 `result` 字段是一个表示空投交易签名的字符串，base-58 编码。
+JSON-RPC 响应中的 `result` 字段是一个表示空投交易签名的字符串，使用 base-58 编码。
 
 **示例响应：**
 
@@ -35,7 +35,7 @@ JSON-RPC 响应中的 `result` 字段是一个表示空投交易签名的字符�
 }
 ```
 
-此签名随后可以与 `getTransaction` 或 Solana explorer 一起使用，以跟踪空投交易的状态。
+此签名可以与 `getTransaction` 或 Solana 浏览器一起使用，以跟踪空投交易的状态。
 
 ## 代码示例
 
@@ -126,9 +126,9 @@ if (myDevnetWallet === 'REPLACE_WITH_YOUR_DEVNET_WALLET_ADDRESS') {
 
 ## 开发者提示
 
-*   **网络特定:** 此方法仅在启用了水龙头的测试网络（Devnet, Testnet）上有效。在 Mainnet Beta 上将会失败。
-*   **速率限制:** 空投水龙头通常有速率限制以防止滥用。如果在短时间内发出过多请求，可能会收到错误。
-*   **金额限制:** 每次空投或每个时间段内请求的 SOL 可能有数量限制。
-*   **确认:** 在 `requestAirdrop` 返回签名后，交易仍需由网络处理并确认。您可以使用 `confirmTransaction`（来自 `@solana/web3.js`）或轮询 `getSignatureStatuses` 来等待确认。
+*   **网络特定：**此方法仅在启用水龙头的测试网络（Devnet，Testnet）上有效。在 Mainnet Beta 上将失败。
+*   **速率限制：**空投水龙头通常有速率限制以防止滥用。如果在短时间内发出过多请求，您可能会收到错误。
+*   **金额限制：**每次空投或每个时间段内您可以请求的 SOL 数量可能有限制。
+*   **确认：**在 `requestAirdrop` 返回签名后，交易仍需由网络处理和确认。您可以使用 `confirmTransaction`（来自 `@solana/web3.js`）或轮询 `getSignatureStatuses` 以等待确认。
 
 本指南解释了如何使用 `requestAirdrop` 为 Solana 开发网络上的测试账户提供资金。
