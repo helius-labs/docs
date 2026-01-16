@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a problem with the docs
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the docs! Please provide as much detail as possible.
+  - type: input
+    id: page
+    attributes:
+      label: Affected page(s)
+      description: Link or path to the page(s) with the issue
+      placeholder: e.g. /rpc/overview
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the issue and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce (if applicable)
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or recordings
+      description: Add URLs to screenshots or recordings that help illustrate the issue
+      placeholder: |
+        https://example.com/screenshot1.png
+        https://example.com/screenshot2.png
+  - type: checkboxes
+    id: zh
+    attributes:
+      label: Scope
+      options:
+        - label: This issue is about English content only (not `zh/`)
+          required: true
+
