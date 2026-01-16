@@ -79,14 +79,15 @@ The [`getTransactionsForAddress`](/rpc/gettransactionsforaddress) RPC method all
 
 #### Steps to use this method
 
-* Determine the timeframe that you need data from and set the filter accordingly  
-* Set `transactionDetails` to `full` to get all transaction details  
-* Paginate through the results using `paginationToken`  
+* Determine the timeframe that you need data from and set the filter accordingly
+* Set `transactionDetails` to `full` to get all transaction details
+* Configure `tokenAccounts` filter to include associated token account transactions if needed
+* Paginate through the results using `paginationToken`
 * On each iteration, extract the data you need and store it in your database
 
 #### Benefits of using getTransactionsForAddress
 
-The main advantages of using the [gTFA endpoint](/api-reference/rpc/http/gettransactionsforaddress) are speed and simplicity. With slot and time-based filters, reverse search, and pagination, you can get any data you want, from any time in Solana’s history, all with a single call without complex looping or retry logic.
+The main advantages of using the [gTFA endpoint](/api-reference/rpc/http/gettransactionsforaddress) are speed and simplicity. With slot and time-based filters, token account support, reverse search, and pagination, you can get any data you want, from any time in Solana's history, all with a single call without complex looping or retry logic. Unlike `getSignaturesForAddress`, it can also include transactions involving associated token accounts owned by the address.
 
 ### Method 2: getSignaturesForAddress and getTransaction
 
@@ -111,8 +112,9 @@ Unfortunately, to use this method you need to:
 * Make one additional RPC call for each transaction
 * Build a thread-safe queue to handle concurrent processing
 * Build logic for retries and backoffs to prevent missed data and getting rate limited
+* Does not include transactions involving associated token accounts owned by the address
 
-While this method works, it is more complicated, less flexible, and spends a lot more [credits](/billing/credits).
+While this method works, it is more complicated, less flexible, and spends a lot more [credits](/billing/credits). For complete wallet history including token accounts, use `getTransactionsForAddress` instead.
 
 ### Method 3: Use getBlock
 

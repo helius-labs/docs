@@ -265,16 +265,29 @@ const transactions = await Promise.all(
   signatures.map(sig => connection.getTransaction(sig.signature))
 );
 // ~1s + (200ms * 100 txs) = ~21s
+// Also note: getSignaturesForAddress doesn't include token account transactions
 ```
 
-```typescript ✅ Optimized
-// Use batch transaction fetching
-const signatures = await connection.getSignaturesForAddress(address, { limit: 100 });
-const transactions = await connection.getTransactions(
-  signatures.map(s => s.signature),
-  { maxSupportedTransactionVersion: 0 }
-);
-// ~2s total - 90% reduction
+```typescript ✅ Fast (Helius Exclusive)
+// Use getTransactionsForAddress for full history including token accounts
+const response = await fetch(`https://mainnet.helius-rpc.com/?api-key=${API_KEY}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'getTransactionsForAddress',
+    params: [
+      address,
+      {
+        transactionDetails: 'full',
+        limit: 100,
+        filters: { tokenAccounts: 'balanceChanged' }
+      }
+    ]
+  })
+});
+// ~100ms total - includes complete token history in one call
 ```
 </CodeGroup>
 
