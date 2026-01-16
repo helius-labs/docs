@@ -89,90 +89,182 @@ paths:
                 params:
                   type: array
                   description: Parameters for simulating a JITO bundle.
-                  default: [{"encodedTransactions": ["5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"]}]
                   items:
                     type: object
                     description: Bundle simulation configuration object.
                     required:
-                      - encodedTransactions
+                      - params[0]
                     properties:
-                      encodedTransactions:
-                        type: array
-                        description: Array of one or more base64-encoded, serialized transactions for simulation.
-                        items:
-                          type: string
-                          description: Base64-encoded serialized transaction.
-                          example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
-                      simulationBank:
-                        type: string
-                        description: Optional bank to run the simulation against.
-                        example: "Bank12345"
-                      skipSigVerify:
-                        type: boolean
-                        description: Whether to skip signature verification before simulation.
-                        example: false
-                      replaceRecentBlockhash:
-                        type: boolean
-                        description: Whether to replace the simulated transaction's recent blockhash with the latest blockhash.
-                        example: false
-                      accounts:
+                      params[0]:
                         type: object
-                        description: Configuration for account data to return.
+                        description: First configuration object. Contains the encoded transactions for the simulation.
                         properties:
-                          addresses:
+                          encodedTransactions:
                             type: array
-                            description: Array of accounts to return, as base-58 encoded strings.
+                            description: Array of encoded, serialized transactions for simulation. The encoding is determined by the `transactionEncoding` field (base-64 by default).
                             items:
                               type: string
-                              example: "F6Su1HvqZk8ee1WsjZLAa1AGXk4R2TPsovynZ8kgNB6t"
-                          encoding:
+                              description: Encoded serialized transaction.
+                              example: "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                      params[1]:
+                        type: object
+                        description: Second configuration object. Optional.
+                        required:
+                          - preExecutionAccountsConfigs
+                          - postExecutionAccountsConfigs
+                        properties:
+                          preExecutionAccountsConfigs:
+                            type: array
+                            description: |
+                              Specifies which accounts to capture during simulation.
+
+                              This captures the account states *before* the transaction is executed.
+
+                              An array element at an index configures the transaction that is at the same index in the bundle.
+                              
+                              For each transaction in the bundle:
+                                - Pass `null` if you do not want any account state to be returned.
+                                - Or, provide an object describing which accounts to return.
+
+                              The array length must be equal to the number of transactions in the bundle.
+                            items:
+                              type: ["object", "null"]
+                              required:
+                                - addresses
+                              properties:
+                                addresses:
+                                  type: array
+                                  description: List of base-58 encoded account addresses whose state will be captured.
+                                  items:
+                                    type: string
+                                    description: base-58 encoded account address.
+                                    example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                encoding:
+                                  type: string
+                                  description: |
+                                    The encoding in which the captured account data will be returned.
+                                  default: base64
+                                  enum:
+                                    - binary
+                                    - base58
+                                    - base64
+                                    - jsonParsed
+                                    - base64+zstd
+                                  example: base64
+                          postExecutionAccountsConfigs:
+                            type: array
+                            description: |
+                              Specifies which accounts to capture during simulation.
+
+                              This captures the account states *after* the transaction is executed.
+
+                              An array element at an index configures the transaction that is at the same index in the bundle.
+                              
+                              For each transaction in the bundle:
+                                - Pass `null` if you do not want any account state to be returned.
+                                - Or, provide an object describing which accounts to return.
+
+                              The array length must be equal to the number of transactions in the bundle.
+                            items:
+                              type: ["object", "null"]
+                              required:
+                                - addresses
+                              properties:
+                                addresses:
+                                  type: array
+                                  description: List of base-58 encoded account addresses whose state will be captured.
+                                  items:
+                                    type: string
+                                    description: base-58 encoded account address.
+                                    example: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                                encoding:
+                                  type: string
+                                  description: |
+                                    The encoding in which the captured account data will be returned.
+                                  default: base64
+                                  enum:
+                                    - binary
+                                    - base58
+                                    - base64
+                                    - jsonParsed
+                                    - base64+zstd
+                                  example: base64
+                          transactionEncoding:
                             type: string
-                            description: Encoding format for account data.
+                            description: The transaction encoding used in `encodedTransactions`.
                             enum:
-                              - base58
                               - base64
-                              - base64+zstd
-                              - jsonParsed
-                            example: base64
-                      preExecutionAccountsConfigs:
-                        type: array
-                        description: Specifies account state configuration before execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            accountIndex:
-                              type: integer
-                              description: Index of the account in the transaction.
-                              example: 0
-                            addresses:
-                              type: array
-                              description: List of account addresses to monitor before execution.
-                              items:
-                                type: string
-                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      postExecutionAccountsConfigs:
-                        type: array
-                        description: Specifies account state configuration after execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            accountIndex:
-                              type: integer
-                              description: Index of the account in the transaction.
-                              example: 0
-                            addresses:
-                              type: array
-                              description: List of account addresses to monitor after execution.
-                              items:
-                                type: string
-                                example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                              - base58
+                            default: base64
+                          simulationBank:
+                            description: |
+                              Specified which bank to run the simulation against. Can be the tip, a slot, or a commitment level.
+                            oneOf:
+                              - type: string
+                                description: Use the RPC's highest slot's bank, i.e. the working bank.
+                                example: "tip"
+                              - type: object
+                                description: Simulate on the provided slot's bank (may not be available).
+                                properties:
+                                  slot:
+                                    type: integer
+                                    example: 373976835
+                                required:
+                                  - slot
+                              - type: object
+                                description: Define a commitment level to simulate against.
+                                properties:
+                                  commitment:
+                                    type: object
+                                    properties:
+                                      commitment:
+                                        type: string
+                                        enum:
+                                          - processed
+                                          - confirmed
+                                          - finalized
+                                        description: Commitment level to simulate against.
+                                        example: "processed"
+                                    required:
+                                      - commitment
+                                required:
+                                  - commitment
+                          skipSigVerify:
+                            type: boolean
+                            description: Whether to skip signature verification before simulation.
+                            default: false
+                          replaceRecentBlockhash:
+                            type: boolean
+                            description: Whether to replace the simulated transaction's recent blockhash with the latest blockhash.
+                            default: false
             example:
               jsonrpc: "2.0"
               id: "1"
               method: "simulateBundle"
               params:
                 - encodedTransactions:
-                    - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhCv82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7XrKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                  - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhC
+                    v82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7X
+                    rKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                  - "5rqF8aHfs9JyEtKTvND6z8RgBtYxQwZLndS1kzHxV7D3kWm9VoYRzFtsP3qra5bM8rGhC
+                    v82LYo8fZpQoyQmtN1D9vxG2uEsMhV7jB4KdADRgxMXn5kRJzLZPt2LrPSmcUhfEmeQa7X
+                    rKeR9FHdKcXxZ1Hdq68oBr2AaPpTMuL85KDCt"
+                - preExecutionAccountsConfigs:
+                    - addresses:
+                        - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      encoding: base64
+                    - null
+                  postExecutionAccountsConfigs:
+                    - addresses:
+                        - "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+                      encoding: base64
+                    - null
+                  skipSigVerify: true
+                  simulationBank:
+                    commitment:
+                      commitment: processed
+                  transactionEncoding: base64
+                  replaceRecentBlockhash: false
       responses:
         200:
           description: Successfully simulated the bundle.
@@ -202,118 +294,180 @@ paths:
                           apiVersion:
                             type: string
                             description: The API version.
-                            example: "1.16.3"
+                            example: "2.30.10"
                           slot:
                             type: integer
                             description: Slot in which the data was processed.
-                            example: 203841925
-                      err:
-                        type: ["object", "null"]
-                        description: Error if the bundle failed, null if successful.
-                        example: null
-                      logs:
-                        type: ["array", "null"]
-                        description: Array of log messages from transaction execution.
-                        items:
-                          type: string
-                          example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
-                      preExecutionAccounts:
-                        type: ["array", "null"]
-                        description: Account states before bundle execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            lamports:
-                              type: integer
-                              description: Number of lamports assigned to this account.
-                              example: 1500000000
-                            owner:
-                              type: string
-                              description: Base-58 encoded Pubkey of the program this account is assigned to.
-                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                            data:
-                              type: string
-                              description: Data associated with the account.
-                              example: ""
-                            executable:
-                              type: boolean
-                              description: Whether the account contains a program.
-                              example: false
-                            rentEpoch:
-                              type: integer
-                              description: Epoch at which this account will next owe rent.
-                              example: 324
-                      postExecutionAccounts:
-                        type: ["array", "null"]
-                        description: Account states after bundle execution.
-                        items:
-                          type: ["object", "null"]
-                          properties:
-                            lamports:
-                              type: integer
-                              description: Number of lamports assigned to this account.
-                              example: 997000000
-                            owner:
-                              type: string
-                              description: Base-58 encoded Pubkey of the program this account is assigned to.
-                              example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                            data:
-                              type: string
-                              description: Data associated with the account.
-                              example: ""
-                            executable:
-                              type: boolean
-                              description: Whether the account contains a program.
-                              example: false
-                            rentEpoch:
-                              type: integer
-                              description: Epoch at which this account will next owe rent.
-                              example: 324
-                      unitsConsumed:
-                        type: integer
-                        description: Number of compute budget units consumed during processing.
-                        example: 200000
-                      returnData:
-                        type: ["object", "null"]
-                        description: Most recent return data generated by an instruction.
+                            example: 373999891
+                      value:
+                        type: object
+                        description: Details of the simulated bundle result.
                         properties:
-                          programId:
-                            type: string
-                            description: Program that generated the return data.
-                            example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
-                          data:
-                            type: string
-                            description: Return data as base-64 encoded binary data.
-                            example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                          summary:
+                            description: |
+                              Summary of the bundle simulation result.
+
+                              If the simulation succeeded, this is set to `"succeeded"`.
+
+                              If the simulation failed, this is set to an object with a single field `failed` that contains details on that failure.
+                            oneOf:
+                              - type: string
+                                example: succeeded
+                              - type: object
+                                required: [failed]
+                                properties:
+                                  failed:
+                                    type: object
+                                    required: [error]
+                                    properties:
+                                      error:
+                                        description: Value containing details on the error. Structure may vary.
+                                      tx_signature:
+                                        type: string
+                                        description: Signature of the failed transaction in base58. May be `null` if not applicable.
+                          transactionResults:
+                            type: array
+                            description: Array of results for each transaction in the bundle. Can be empty if there was an error.
+                            items:
+                              type: object
+                              properties:
+                                err:
+                                  type: ["object", "null"]
+                                  description: Error if the transaction failed, `null` if successful.
+                                logs:
+                                  type: ["array", "null"]
+                                  description: Array of log messages from transaction execution.
+                                  items:
+                                    type: string
+                                    example: "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
+                                preExecutionAccounts:
+                                  type: ["array", "null"]
+                                  description: Account states before the transaction's execution.
+                                  items:
+                                    type: object
+                                    properties:
+                                      data:
+                                        type: string
+                                        description: Data associated with the account.
+                                      executable:
+                                        type: boolean
+                                        description: Whether the account contains a program.
+                                        example: false
+                                      lamports:
+                                        type: integer
+                                        description: Number of lamports assigned to this account.
+                                        example: 1500000000
+                                      owner:
+                                        type: string
+                                        description: Address of the program that owns this account.
+                                        example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                                      rentEpoch:
+                                        type: integer
+                                        description: Epoch at which this account will next owe rent.
+                                        example: 324
+                                      space:
+                                        type: integer
+                                        description: The data size of the account.
+                                        example: 1024
+                                postExecutionAccounts:
+                                  type: ["array", "null"]
+                                  description: Account states after the transaction's execution.
+                                  items:
+                                    type: object
+                                    properties:
+                                      data:
+                                        type: string
+                                        description: Data associated with the account.
+                                      executable:
+                                        type: boolean
+                                        description: Whether the account contains a program.
+                                        example: false
+                                      lamports:
+                                        type: integer
+                                        description: Number of lamports assigned to this account.
+                                        example: 1500000000
+                                      owner:
+                                        type: string
+                                        description: Address of the program that owns this account.
+                                        example: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
+                                      rentEpoch:
+                                        type: integer
+                                        description: Epoch at which this account will next owe rent.
+                                        example: 324
+                                      space:
+                                        type: integer
+                                        description: The data size of the account.
+                                        example: 1024
+                                unitsConsumed:
+                                  type: integer
+                                  description: Number of compute budget units consumed during processing.
+                                  example: 200000
+                                returnData:
+                                  type: ["object", "null"]
+                                  description: Most recent return data generated by an instruction.
+                                  properties:
+                                    programId:
+                                      type: string
+                                      description: Program that generated the return data.
+                                      example: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                                    data:
+                                      type: string
+                                      description: Return data as base-64 encoded binary data.
+                                      example: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
               example:
                 jsonrpc: "2.0"
                 id: "1"
                 result:
                   context:
-                    apiVersion: "1.16.3"
-                    slot: 203841925
-                  err: null
-                  logs:
-                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R invoke [1]"
-                    - "Program 4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R success"
-                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ invoke [1]"
-                    - "Program Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ success"
-                  preExecutionAccounts:
-                    - lamports: 1500000000
-                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      data: ""
-                      executable: false
-                      rentEpoch: 324
-                  postExecutionAccounts:
-                    - lamports: 997000000
-                      owner: "4Nd1mFvxhG1DQMLUKhMzrZ7yG1UrjC9xXH6kvvZtcg9R"
-                      data: ""
-                      executable: false
-                      rentEpoch: 324
-                  unitsConsumed: 300000
-                  returnData:
-                    programId: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
-                    data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                    apiVersion: "2.30.10"
+                    slot: 373999891
+                  value:
+                    summary: "succeeded"
+                    transactionResults:
+                      - err: null
+                        logs: [
+                          'Program ComputeBudget111111111111111111111111111111 invoke [1]',
+                          'Program ComputeBudget111111111111111111111111111111 success',
+                          'Program ComputeBudget111111111111111111111111111111 invoke [1]',
+                          'Program ComputeBudget111111111111111111111111111111 success',
+                          'Program 11111111111111111111111111111111 invoke [1]',
+                          'Program 11111111111111111111111111111111 success'
+
+                        ]
+                        preExecutionAccounts:
+                          - data:
+                              - ""
+                              - "base64"
+                            executable: true
+                            lamports: 5299606121
+                            owner: "BPFLoader2111111111111111111111111111111111"
+                            rentEpoch: 324
+                            space: 134080
+                        postExecutionAccounts:
+                          - data:
+                              - ""
+                              - "base64"
+                            executable: true
+                            lamports: 5299606121
+                            owner: "BPFLoader2111111111111111111111111111111111"
+                            rentEpoch: 324
+                            space: 134080
+                        returnData:
+                          programId: "Fx9Hp1gLzYj6Ryc4GaVoq2v6t4NxWg3GT1kP7quzZbVQ"
+                          data: "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASjD8="
+                        unitsConsumed: 450
+                      - err: null
+                        logs:
+                          - 'Program ComputeBudget111111111111111111111111111111 invoke [1]'
+                          - 'Program ComputeBudget111111111111111111111111111111 success'
+                          - 'Program ComputeBudget111111111111111111111111111111 invoke [1]'
+                          - 'Program ComputeBudget111111111111111111111111111111 success'
+                          - 'Program 11111111111111111111111111111111 invoke [1]'
+                          - 'Program 11111111111111111111111111111111 success'
+                        postExecutionAccounts: null
+                        preExecutionAccounts: null
+                        returnData: null
+                        unitsConsumed: 450
         400:
           description: Bad Request - Invalid request parameters or malformed request.
           content:

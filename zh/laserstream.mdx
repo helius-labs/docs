@@ -29,15 +29,33 @@ LaserStream 是一项下一代流服务，**专为需要可靠、低延迟 Solan
   </Card>
 </CardGroup>
 
-## 轻松迁移
+## LaserStream 与 Shred Delivery：快速比较
+
+<Tip>
+**简而言之**：LaserStream 提供具有承诺级别保证（已处理、已确认、已完成）的**处理数据**，使其即插即用并可投入生产。对于在任何处理发生之前的**最早可能的原始数据**，请参阅 [Shred Delivery](/zh/shred-delivery)——但您必须实现自定义的去碎片化逻辑。
+</Tip>
+
+| 功能 | LaserStream | Shred Delivery |
+|---------|-------------|----------------|
+| **数据类型** | 具有承诺保证的处理数据 | 原始、未处理的碎片 |
+| **延迟** | 超低延迟处理数据 | **最早可能** - 在任何处理之前 |
+| **处理** | 即插即用 - 数据已处理并可直接使用 | **您必须处理原始数据** - 需要自定义去碎片化逻辑 |
+| **最佳用途** | 生产应用、分析、后端服务 | 高频交易、套利（当毫秒至关重要时） |
+| **设置** | 开发者友好的 SDK，即插即用替换 | 白手套配置（需要测试版访问） |
+
+<Card title="了解 Shred Delivery" icon="bolt" href="/zh/shred-delivery">
+  了解 Shred Delivery 如何通过原始碎片提供最早的链上信号
+</Card>
+
+## 简易迁移
 
 <Note>
-**无缝替换**：LaserStream gRPC 设计为现有 gRPC 设置的无缝替换。只需更改您的端点和 API 令牌，您的应用程序即可立即与 LaserStream 一起工作。
+**即插即用替换**：LaserStream gRPC 设计为您现有 gRPC 设置的无缝即插即用替换。只需更改您的端点和 API 令牌，您的应用程序即可立即与 LaserStream 一起工作。
 </Note>
 
 ### 使用现有的 gRPC 代码
 
-如果您已经在使用 Yellowstone gRPC，迁移到 LaserStream 就像以下步骤一样简单：
+如果您已经使用 Yellowstone gRPC，迁移到 LaserStream 就像这样简单：
 
 ```typescript
 // Before: Using standard Yellowstone gRPC
@@ -55,7 +73,7 @@ const connection = new GeyserConnection(
 
 ### 使用 LaserStream SDK 提升体验
 
-虽然 LaserStream 可以与您现有的代码配合使用，但我们强烈推荐使用我们的 [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) 以获得更强大的功能：
+虽然 LaserStream 可以与您现有的代码一起工作，但我们强烈推荐使用我们的 [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) 以获得增强的功能：
 
 ```typescript
 // Using the dedicated LaserStream SDK
@@ -74,56 +92,44 @@ const config = {
 await subscribe(config, subscriptionRequest, handleData, handleError);
 ```
 
-## 主要功能
+## 关键特性
 
-### 自动重连与数据追赶
+### 自动重连与追赶
 
-[LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) 会自动处理连接中断、网络问题和数据缺失。当重新连接时，SDK 会自动：
+[LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) 自动处理连接丢失、网络问题和数据缺口。当重新连接发生时，SDK 会自动：
 
-- 以最小延迟重新连接
-- 重新传输停机期间丢失的任何数据
-- 无需干预地继续流式传输
-
-### 多协议支持
-
-LaserStream 设计时充分考虑了多协议支持：
-
-| 协议 | 状态 | 最适合 | 特性 | 实现 |
-| --- | --- | --- | --- | --- |
-| **gRPC** | ✅ 可用 | 后端服务、高吞吐量应用 | 性能最高、二进制协议、双向流式传输 | 通过 LaserStream SDK 或 Yellowstone |
-| **WebSocket** | 🔜 即将推出 | 前端应用、浏览器客户端 | 基于 JSON、浏览器广泛支持、对 Web 开发者友好 | 标准 WebSocket 客户端（例如 `ws` 库） |
-
-<Note>
-**WebSocket 支持即将推出！** 目前，LaserStream 仅通过 gRPC 可用。WebSocket 集成正在积极开发中，并将在未来的更新中提供。
-</Note>
+- 以最小的延迟重新连接
+- 重新传输停机期间错过的任何数据
+- 无需干预继续流式传输
 
 ### 高级过滤
 
 LaserStream 支持复杂的过滤选项：
 
-- **账户过滤**：包含、排除或要求特定账户
+- **账户过滤**：包括、排除或要求特定账户
 - **交易类型**：按交易状态、投票交易等进行过滤
-- **确认级别**：从已处理、已确认或已完成中选择
+- **承诺级别**：选择已处理、已确认或已完成
 - **数据内容**：请求特定数据字段或完整数据
 
 ### 极致可扩展性
 
 - **负载均衡**：连接分布在多个节点上
-- **自动扩展**：后端资源根据需求自动扩展
+- **自动扩展**：后端资源根据需求进行扩展
 - **高效路由**：请求自动路由到响应最快的节点
 
 ## 端点与区域
 
-LaserStream 在全球多个区域提供服务，以实现最佳性能。请选择最接近您的应用程序位置的端点：
+LaserStream 在全球多个区域可用，以实现最佳性能。选择最接近您的应用程序位置的端点：
 
 ### 主网端点
 
 | 区域 | 位置 | 端点 |
 |--------|----------|----------|
-| **ewr** | 纽瓦克，新泽西州（靠近纽约） | `https://laserstream-mainnet-ewr.helius-rpc.com` |
+| **ewr** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-mainnet-ewr.helius-rpc.com` |
 | **pitt** | 匹兹堡，美国（中部） | `https://laserstream-mainnet-pitt.helius-rpc.com` |
 | **slc** | 盐湖城，美国（西海岸） | `https://laserstream-mainnet-slc.helius-rpc.com` |
 | **lax** | 洛杉矶，美国（西海岸） | `https://laserstream-mainnet-lax.helius-rpc.com` |
+| **lon** | 伦敦，欧洲 | `https://laserstream-mainnet-lon.helius-rpc.com` |
 | **ams** | 阿姆斯特丹，欧洲 | `https://laserstream-mainnet-ams.helius-rpc.com` |
 | **fra** | 法兰克福，欧洲 | `https://laserstream-mainnet-fra.helius-rpc.com` |
 | **tyo** | 东京，亚洲 | `https://laserstream-mainnet-tyo.helius-rpc.com` |
@@ -133,72 +139,72 @@ LaserStream 在全球多个区域提供服务，以实现最佳性能。请选�
 
 | 网络 | 位置 | 端点 |
 |---------|----------|----------|
-| **开发网** | 纽瓦克，新泽西州（靠近纽约） | `https://laserstream-devnet-ewr.helius-rpc.com` |
+| **开发网** | 纽瓦克，新泽西（靠近纽约） | `https://laserstream-devnet-ewr.helius-rpc.com` |
 
 <Note>
-**选择您的网络与区域**：
-- 对于 **生产应用程序**，请使用最接近您的服务器位置的主网端点。例如，如果您的服务器位于法兰克福，请使用 `https://laserstream-mainnet-fra.helius-rpc.com`。
-- 对于 **开发和测试**，请使用开发网端点：`https://laserstream-devnet-ewr.helius-rpc.com`。
+**选择您的网络和区域**：
+- 对于**生产应用程序**，使用最接近您的服务器位置的主网端点。例如，如果您的服务器在法兰克福，请使用 `https://laserstream-mainnet-fra.helius-rpc.com`。
+- 对于**开发和测试**，使用开发网端点：`https://laserstream-devnet-ewr.helius-rpc.com`。
 </Note>
 
-## 身份验证与可用性
+## 认证与可用性
 
-LaserStream 使用您的 Helius API 密钥进行身份验证。您可以从 [Helius Dashboard](https://dashboard.helius.dev/) 获取您的 API 密钥。您的 API 密钥既是您的身份验证令牌，也可用于访问 LaserStream 的增强功能。
+LaserStream 使用您的 Helius API 密钥进行认证。您可以从 [Helius Dashboard](https://dashboard.helius.dev/) 获取您的 API 密钥。您的 API 密钥既是您的认证令牌，也授予对 LaserStream 增强功能的访问权限。
 
 <Note>
 **计划要求**：
-- **LaserStream 开发网**：适用于开发者（49 美元/月）和企业（499 美元/月）计划。所有开发网使用每 0.1 MB 消耗 3 个积分。
-- **LaserStream 主网**：适用于专业（999 美元/月）计划。所有主网和开发网使用每 0.1 MB 消耗 3 个积分。
-</Note>
+- **LaserStream Devnet**：适用于开发者（每月 49 美元）和企业（每月 499 美元）计划。所有 devnet 使用每 0.1 MB 支付 3 个积分。
+- **LaserStream Mainnet**：适用于专业（每月 999 美元）计划。所有 mainnet 和 devnet 使用每 0.1 MB 支付 3 个积分。
 
 您可以在 [Helius Dashboard](https://dashboard.helius.dev/) 中升级您的计划。
+</Note>
 
-### 需要大规模流媒体服务？LaserStream Plus 附加组件
+### 需要大容量流媒体？LaserStream Plus 附加组件
 
-对于消耗大量实时数据的应用程序，LaserStream Plus 将不可预测的按使用量付费成本转变为可预测的月度费用，同时实现显著的节省。
+对于消耗大量实时数据的应用程序，LaserStream Plus 将不可预测的按使用付费成本转化为可预测的每月费用，并节省大量开支。
 
 <CardGroup cols={2}>
-  <Card title="成本转变" icon="chart-line">
-    **从：** 按使用量付费，每 0.1 MB 消耗 3 个积分  
-    **到：** 固定月费 + 包含的数据配额 + 33% 更便宜的超额费用
+  <Card title="成本转化" icon="chart-line">
+    **从：** 按使用付费，每 0.1 MB 3 个积分  
+    **到：** 固定月费 + 包含的数据配额
   </Card>
-  <Card title="多种层级可选" icon="layer-group">
-    **50TB 至 250TB** 的月度配额  
-    [查看详细定价](/zh/billing/plans-and-rate-limits#laserstream-plus-add-ons)
+  <Card title="多层次可用" icon="layer-group">
+    **5TB 到 100TB+** 每月配额  
+    [查看详细定价](/zh/billing/plans)
   </Card>
 </CardGroup>
 
 **何时考虑使用 LaserStream Plus：**
 - 您的应用程序处理完整的市场数据流（所有 DEX 交易、NFT 销售等）
 - 您正在构建高频交易系统
-- 您需要对数千个钱包进行 24/7 的账户监控
+- 您需要对数千个钱包进行 24/7 账户监控
 
-## 入门指南
+## 入门
 
 <Card title="gRPC" icon="bolt" href="/zh/laserstream/grpc">
   针对后端服务和高吞吐量应用程序优化的高性能流媒体
 </Card>
 
-对于需要补充历史数据或实现容错连接的应用程序：
+对于需要追溯历史数据或实现容错连接的应用程序：
 
-<Card title="历史回放" icon="clock-rotate-left" href="/zh/laserstream/historical-replay">
-  了解如何实现历史回放以确保数据连续性
+<Card title="历史重播" icon="clock-rotate-left" href="/zh/laserstream/historical-replay">
+  了解如何实现历史重播以确保数据连续性
 </Card>
 
 ## 何时使用 LaserStream 与其他 Solana 流媒体选项
 
 | 功能 | LaserStream | 标准 Solana WebSocket | Yellowstone gRPC |
 |---------|-------------|---------------------|------------------|
-| **历史回放** | ✅ 支持最多 3000 个 slot（约 20 分钟） | ❌ 不支持 | ❌ 有限支持 |
+| **历史重播** | ✅ 支持最多 3000 个槽（约 20 分钟） | ❌ 不可用 | ❌ 有限 |
 | **自动重连** | ✅ SDK 内置 | ❌ 手动实现 | ❌ 手动实现 |
-| **多节点故障切换** | ✅ 自动 | ❌ 手动实现 | ❌ 手动实现 |
-| **gRPC 支持** | ✅ 增强版 | ❌ 不支持 | ✅ 标准版 |
-| **Shredstream 支持** | ✅ 支持 | ❌ 不支持 | ❌ 手动实现 |
+| **多节点故障转移** | ✅ 自动 | ❌ 手动实现 | ❌ 手动实现 |
+| **gRPC 支持** | ✅ 增强 | ❌ 不可用 | ✅ 标准 |
+| **Shredstream 启用** | ✅ 是 | ❌ 否 | ❌ 手动 |
 
 ## 下一步
 
-欲了解更多信息，请加入我们的 [Discord](https://discord.com/invite/6GXdee3gBj) 或 [Telegram](https://t.me/helius_help) 讨论。
+欲了解更多信息，请加入我们的[Discord](https://discord.com/invite/6GXdee3gBj)或[Telegram](https://t.me/helius_help)讨论。
 
-## 归属
+## 归因
 
 LaserStream 是 [Richat](https://github.com/lamports-dev/richat) 项目的一个自定义分支。

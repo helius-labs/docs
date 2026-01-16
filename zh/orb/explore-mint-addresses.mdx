@@ -1,0 +1,150 @@
+---
+title: 如何查找Solana代币的铸币地址
+sidebarTitle: 探索铸币地址
+description: 使用Orb查找任何Solana代币的铸币地址，并在您的Solana钱包中查找其关联的代币账户。
+---
+[Orb](https://orb.helius.dev/)是由Helius构建的快速且易于阅读的Solana (SOL) 区块浏览器。
+
+本教程介绍如何查找任何Solana代币的铸币地址以及您钱包中代币的关联代币账户 (ATA)。
+
+## 什么是铸币地址？
+
+铸币地址或代币铸币账户是铸币账户的公钥。这个规范的代币标识符类似于EVM的“合约地址”，尽管这个名称不太准确。
+
+当您在像Orb这样的SOL区块浏览器上查找SPL代币的铸币地址时，您可以找到代币的元数据，包括：
+
+- 总供应量
+- 代币小数位
+- [代币权限](https://www.helius.dev/docs/orb/explore-authorities)
+
+### 代币铸币地址与关联代币地址
+
+您的[钱包地址](https://www.helius.dev/docs/orb/explore-wallets)有一个用于接收代币的公钥，但您钱包中持有的每个代币都由一个“关联代币账户”或ATA拥有，该账户持有每个独特代币的余额。
+
+铸币地址可以被视为代币的“全局”地址，而关联代币账户是代币的本地地址，您的钱包在此持有其余额。
+
+### 什么时候需要铸币地址？
+
+需要代币的铸币地址是常见的情况：
+
+1. **交易**：确认您在DEX上交易的是正确的代币
+2. **分析**：确认您查找的是正确的持有者、市场和流动性数据
+3. **安全**：确认代币的元数据，包括代币权限
+4. **开发**：像`getTokenAccountBalance`这样的RPC方法需要铸币地址
+5. **跟踪**：将特定代币添加到您的投资组合跟踪器或仪表板中
+
+## 如何使用 Orb 查找 Solana 代币的铸造地址
+
+在像 Orb 这样的区块浏览器上查找代币铸造地址的最简单方法是，在搜索栏中搜索代币的名称或代码。
+
+<Frame caption="在 Orb 上探索 Solana 代币">
+
+  ![在 Solana 网络上查找 Tesla Xstock 代币铸造地址 Jp](/images/find-tesla-xstock-token-mint-address-on-the-solana-network.jpg)
+
+</Frame>
+
+<Note>
+  **注意：** 请确保点击名称旁带有“已验证”标记的代币结果，因为可能存在冒充相同名称和符号的重复代币。
+</Note>
+
+从结果中选择您的代币。Orb 将打开该铸造的[token explorer](https://www.helius.dev/docs/orb/explore-tokens)页面。
+
+代币铸造地址位于页面顶部，紧挨着代币的名称、图标和代码。
+
+<Frame caption="Orb 上 Tesla xStock 的 Solana 代币铸造地址">
+
+  ![从 Solana 浏览器复制 TSL Ax 代币铸造地址 Jp](/images/copy-TSLAx-token-mint-address-from-solana-explorer.jpg)
+
+</Frame>
+
+或者，您可以在**元数据**选项卡中找到代币铸造地址。
+
+<Frame caption="Orb 的元数据部分中的 Solana 代币铸造 ID">
+
+  ![如何从区块浏览器的代币元数据部分查找 Solana 代币铸造地址 Jp](/images/how-to-find-the-solana-token-mint-address-from-the-token-metadata-section-on-a-block-explorer.jpg)
+
+</Frame>
+
+Solana 有几个代币程序，包括 SPL（Solana 程序库）和 Token-2022。如果代币使用 Token-2022 标准，您可以在**代币扩展**选项卡中找到铸造地址。
+
+<Frame caption="Orb 上 Token 2022 代币的 Solana 铸造地址">
+
+  ![如何查找 Solana Token 2022 铸造地址 Jp](/images/how-to-find-the-solana-token-2022-mint-address.jpg)
+
+</Frame>
+
+## 如何查找钱包中代币的代币地址 (ATA)
+
+我们知道如何找到代币的铸造地址（即代币的全局地址）。现在，让我们为特定钱包找到本地代币账户（即关联代币账户）。
+
+首先，获取您的钱包地址或SNS域名并将其粘贴到Orb中。
+
+在这个例子中，我们将使用god.sol域名，这是一个流行的memecoin交易者的钱包。
+
+<Frame caption="在Orb中搜索Solana域名">
+
+  ![在Orb区块浏览器中查找Solana名称服务域名](/images/look-up-a-solana-name-service-domain-on-the-orb-block-explorer.jpg)
+
+</Frame>
+
+Orb将加载钱包浏览器页面，显示账户的余额、代币和活动。
+
+接下来，点击**代币**选项卡。此部分显示：
+
+- 钱包中的代币（名称和符号）
+- 每个代币的余额、价格和价值
+- 最近的交易、代币铸造地址和ATA
+
+此表是该钱包的[getTokenAccountsByOwner](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbyowner)的可视化版本。
+
+要找到代币的铸造地址，找到您感兴趣的代币行，然后将鼠标悬停在代币名称旁边的**复制**图标上。
+
+在这里，您可以复制代币的铸造地址。
+
+例如，[\$PUMP铸造地址](https://orb.helius.dev/address/pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn/history?cluster=mainnet-beta)是：`pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn `
+
+<Frame caption="在Orb中查找代币铸造地址和关联代币账户">
+
+  ![在Orb浏览器中查找Solana代币铸造地址和关联代币账户](/images/find-solana-token-mint-address-and-associated-token-account-on-the-orb-explorer.jpg)
+
+</Frame>
+
+要为特定钱包找到\$PUMP代币的关联代币账户（ATA），展开代币的“显示交易”部分并点击“代币账户”按钮以复制ATA。
+
+例如，god.sol钱包地址中\$PUMP代币的关联代币账户是：`8TeLauDKq9sEFYQ2152aRwr23BThjwm8xMPxLVzR5Cvy`
+
+使用钱包的 ATA，您可以：
+
+- 调试为什么特定代币未在您的应用中显示
+- 为该账户调用 [getTokenAccountBalance](https://www.helius.dev/docs/rpc/guides/gettokenaccountbalance) 等 RPC 方法
+- 通过检查正确的 ATA 是否已创建/资助来诊断卡住的转账或空投
+
+## 从交易签名中查找代币铸造地址和 ATA
+
+有时您只有一个[交易签名](https://www.helius.dev/docs/orb/explore-transactions)——例如，来自交换或空投。Orb 使您可以轻松地从任何交易浏览器页面找到相关的铸造和代币账户。
+
+1. 从您的钱包或应用中复制交易签名
+2. 将其粘贴到 Orb 搜索栏并打开交易页面
+3. 点击“余额”选项卡
+4. 转到“代币余额”部分
+5. 在“变动”列中找到代币
+6. 在“代币铸造”列中复制代币铸造地址
+7. 在“代币账户”列中复制所有者钱包中的代币的 ATA
+
+<Frame caption="从 Solana 交易页面查找关联的代币账户和铸造地址">
+
+  ![在 Orb Explorer 上从交易签名中查找 Solana 代币铸造地址和 ATA](/images/find-the-solana-token-mint-address-and-ATA-from-a-transaction-signature-on-the-orb-explorer.jpg)
+
+</Frame>
+
+## 结论
+
+现在您知道如何在 [Orb 区块链浏览器](https://orb.helius.dev) 的代币页面上查找和验证 Solana 代币铸造地址，如何在钱包地址页面上查找代币的关联代币账户，以及如何在交易浏览器页面的余额摘要中查看此信息。
+
+欲了解更多信息，请查看以下区块浏览器教程：
+
+- [如何在 Solana Devnet 上使用 Orb](https://www.helius.dev/docs/orb/explore-devnet)
+- [如何将 Orb 用作钱包浏览器](https://www.helius.dev/docs/orb/explore-wallets)
+- [如何使用 Orb 查找 Solana 程序](https://www.helius.dev/docs/orb/explore-authorities)
+
+使用 Orb 作为您的区块浏览器，并使用 Helius API 作为读取 Solana 数据层的工具，您拥有可靠查找、验证和查询 Solana 铸币地址所需的一切。

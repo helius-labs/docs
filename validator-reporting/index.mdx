@@ -1,0 +1,193 @@
+---
+title: "Validator Reporting API"
+sidebarTitle: "Validator Reporting"
+description: "Private API documentation for Solana validator performance metrics, rewards, earnings, and APY calculations."
+---
+
+## Overview
+
+The Validator Reporting API provides comprehensive metrics and performance data for Solana validators. Query historical rewards, voting activity, earnings breakdowns, APY calculations, and operational performance metrics.
+
+<Note>
+This is a private API available only to select partners.
+</Note>
+
+## Getting Started
+
+### Base URL
+
+```
+https://mainnet.helius-rpc.com/validators
+```
+
+### Authentication
+
+All API requests require an `api-key` query parameter for validation.
+
+### Key Concepts
+
+**Vote Account**: The validator's vote account public key (base58 encoded, 32-44 characters)
+
+Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+
+**Epochs**: Data is available starting from epoch 790
+
+**Time Periods**: Most endpoints support: `24h`, `7d`, `30d`, `90d`, `1y`, or custom epoch ranges
+
+---
+
+## API Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Earnings" icon="money-bill-trend-up" href="/validator-reporting/earnings">
+    Comprehensive earnings with voting, block production, and commission splits
+  </Card>
+  <Card title="APY" icon="percent" href="/validator-reporting/apy">
+    Annual Percentage Yield calculations taking the mean over the specified time period
+  </Card>
+  <Card title="Rewards Forecast" icon="chart-line" href="/validator-reporting/rewards-forecast">
+    Rewards forecasting with multiple models and confidence intervals
+  </Card>
+  <Card title="Performance" icon="gauge-high" href="/validator-reporting/performance">
+    Operational metrics including skip rates and data metrics
+  </Card>
+  <Card title="Stake Account Metrics" icon="hand-holding-dollar" href="/validator-reporting/stake-accounts">
+    Staking and MEV rewards for multiple stake accounts (and vote accounts) in a single request
+  </Card>
+</CardGroup>
+
+---
+
+## Quick Start Examples
+
+<Tabs>
+  <Tab title="Get Earnings">
+    Get 30-day earnings for a validator:
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+
+    JavaScript:
+    ```javascript
+    const voteAccount = 'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk';
+    const apiKey = 'YOUR_API_KEY';
+    const response = await fetch(
+      `https://mainnet.helius-rpc.com/validators/${voteAccount}/earnings?period=30d&api-key=${apiKey}`
+    );
+    const data = await response.json();
+    console.log(`Gross earnings: ${data.earnings.rewards.gross_earnings_sol} SOL`);
+    ```
+  </Tab>
+
+  <Tab title="Get APY">
+    Get 7-day APY for a validator:
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Get Performance">
+    Get 7-day performance metrics:
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/performance?period=7d&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Forecast Rewards">
+    Get 30-day rewards forecast:
+
+    ```bash
+    curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/rewards/forecast?forecast_period=30d&lookback_days=30&api-key=YOUR_API_KEY" | python3 -m json.tool
+    ```
+  </Tab>
+
+  <Tab title="Get Stake Account Metrics">
+    Get rewards for multiple stake accounts:
+
+    ```bash
+    curl -X POST "https://mainnet.helius-rpc.com/validators/stake-accounts/metrics?api-key=YOUR_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "stake_accounts": [
+          "A41vYyeM1VYm4Fu8r3ZUwfPU6A3854HMPr9mi4WS94JX",
+          "A4RPJ26mj3eguuMfSDQpLySbAyJCLEvERG4Je7FU7R6H",
+          "DdCNGDpP7qMgoAy6paFzhhak2EeyCZcgjH7ak5u5v28m"
+        ],
+        "period": "30d"
+      }' | python3 -m json.tool
+    ```
+  </Tab>
+
+</Tabs>
+
+---
+
+## Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200 | Success |
+| 400 | Bad Request - Invalid parameters |
+| 404 | Not Found - Validator not found |
+| 500 | Internal Server Error |
+
+---
+
+## Common Parameters
+
+Many endpoints share these common query parameters:
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
+
+<ParamField query="period" type="string">
+  Time period for data aggregation
+
+  Options: `24h`, `7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 790)
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+</ParamField>
+
+<ParamField query="start_timestamp" type="integer">
+  Unix timestamp for start of range
+</ParamField>
+
+<ParamField query="end_timestamp" type="integer">
+  Unix timestamp for end of range
+</ParamField>
+
+<ParamField query="aggregate_by" type="string">
+  Aggregation method: `timestamp` or `epoch`
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum records to return (default: 1000, max: 10000)
+</ParamField>
+
+---
+
+## Data Availability
+
+<Note>
+Historical data is available starting from **epoch 790**. Queries for earlier epochs will return an error.
+</Note>
+
+The API provides comprehensive data across multiple dimensions:
+
+- **Rewards**: Inflation rewards, block rewards, Jito MEV tips, vote fees
+- **Performance**: Vote participation, block skip rates, and other data metrics
+- **Financial**: Gross/staker earnings, commission splits, APY calculations (both validator and delegator returns)
+- **Forecasting**: Predictive models for future rewards and APY
+
+---
+

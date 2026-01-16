@@ -3,14 +3,3 @@ title: "Get Enhanced Transactions By Address"
 sidebarTitle: "Get Transactions By Address"
 openapi: "/openapi/openapi-definition.yaml GET /v0/addresses/{address}/transactions"
 ---
-
-<Warning>
-**Handling Incomplete Transaction Sets**
-
-Occasionally, history endpoint may return an incomplete set of transactions due to internal timeouts during data retrieval.
-
-To mitigate this issue:
-1. First, call `getSignaturesForAddress` to retrieve a batch of transaction signatures
-2. Next, use the `/v0/transactions` endpoint with the received signatures
-3. If any transactions are missing from the response, you can retry fetching these specific transactions
-</Warning>

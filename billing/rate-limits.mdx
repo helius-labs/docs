@@ -1,0 +1,273 @@
+---
+title: "Helius Rate Limits"
+sidebarTitle: "Rate Limits"
+description: "Complete guide to Helius rate limits across all plans and products."
+---
+
+## What are rate limits?
+Rate limits control how many requests you can make per second. When rate limits are exceeded, you'll receive an HTTP 429 response.
+
+## Standard Rate Limits
+
+Your plan has two standard rate limit groups: one for RPC requests, and one for DAS API requests. Here are the base rate limits for each Helius plan:
+
+<table>
+  <thead align="left">
+    <tr>
+      <th width="200">Plan</th>
+      <th width="260">RPC Rate Limit</th>
+      <th width="260">DAS & Enhanced APIs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Free</strong></td>
+      <td>10 requests/s</td>
+      <td>2 requests/s</td>
+    </tr>
+    <tr>
+      <td><strong>Developer</strong></td>
+      <td>50 requests/s</td>
+      <td>10 requests/s</td>
+    </tr>
+    <tr>
+      <td><strong>Business</strong></td>
+      <td>200 requests/s</td>
+      <td>50 requests/s</td>
+    </tr>
+    <tr>
+      <td><strong>Professional</strong></td>
+      <td>500 requests/s</td>
+      <td>100 requests/s</td>
+    </tr>
+    <tr>
+      <td><strong>Enterprise</strong></td>
+      <td>Custom</td>
+      <td>Custom</td>
+    </tr>
+  </tbody>
+</table>
+
+### Increase Rate Limits
+Teams on Professional plans can purchase an extra 100 RPS for $100/month. 
+
+If you need custom rate limits ahead of launches, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). If you are on Developer or Business tier, please upgrade your plan to increase your rate limits.
+
+## Special Rate Limits
+
+Some endpoints and specialized Helius products have special rate limits due to their computational requirements.
+
+### Sending Transactions
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Endpoint</th>
+        <th width="100">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="100">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Sender</code></td>
+        <td>15/sec</td>
+        <td>15/sec</td>
+        <td>15/sec</td>
+        <td>15/sec</td>
+      </tr>
+      <tr>
+        <td><code>sendTransaction</code></td>
+        <td>1/sec</td>
+        <td>5/sec</td>
+        <td>50/sec</td>
+        <td>100/sec</td>
+      </tr>
+      <tr>
+        <td><code>simulateBundle</code></td>
+        <td>10/sec</td>
+        <td>50/sec</td>
+        <td>200/sec</td>
+        <td>500/sec</td>
+      </tr>
+    </tbody>
+  </table>
+
+If you are on a Professional plan and need to increase your `sendTransaction` rate limits, [contact our sales team](https://form.typeform.com/to/KiacmxpZ). 
+
+Professional plan users can also [request significant rate limit upgrades for Sender](https://form.typeform.com/to/FuvpgSNt) to support high-throughput trading applications.
+
+### Complex RPC Calls
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Endpoint</th>
+        <th width="100">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="100">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>getProgramAccounts</code></td>
+        <td>5/sec</td>
+        <td>25/sec</td>
+        <td>50/sec</td>
+        <td>75/sec</td>
+      </tr>
+    </tbody>
+  </table>
+
+### Historical Data
+When making batch requests for historical data methods, the following limits apply:
+     
+   <table>
+    <thead align="left">
+       <tr>
+         <th style={{width: '300px'}}>Method</th>
+         <th style={{width: '300px'}}>Max Batch Size</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td><code>getTransaction</code></td>
+         <td>100 items per request</td>
+       </tr>
+       <tr>
+         <td><code>getTransactionsForAddress</code></td>
+         <td>No batch requests allowed</td>
+       </tr>
+       <tr>
+         <td>All other historical methods</td>
+         <td>10 items per request</td>
+       </tr>
+     </tbody>
+   </table>
+
+<Warning>
+Exceeding batch limits will result in an error response. For `getTransactionsForAddress`, each address must be queried in a separate request.
+</Warning>
+
+### LaserStream
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Resource</th>
+        <th width="50">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="150">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Networks</td>
+        <td>—</td>
+        <td>Devnet</td>
+        <td>Devnet</td>
+        <td>Devnet, Mainnet</td>
+      </tr>
+      <tr>
+        <td>Max Pubkeys</td>
+        <td>—</td>
+        <td>10M</td>
+        <td>10M</td>
+        <td>10M</td>
+      </tr>
+      <tr>
+        <td>Active Connections</td>
+        <td>—</td>
+        <td>100</td>
+        <td>100</td>
+        <td>100</td>
+      </tr>
+    </tbody>
+  </table>
+
+### WebSockets
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Resource</th>
+        <th width="100">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="100">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Concurrent Connections</td>
+        <td>5</td>
+        <td>150</td>
+        <td>250</td>
+        <td>250</td>
+      </tr>
+      <tr>
+        <td>WebSocket Types</td>
+        <td>Standard</td>
+        <td>Standard</td>
+        <td>Standard, Enhanced</td>
+        <td>Standard, Enhanced</td>
+      </tr>
+    </tbody>
+  </table>
+
+### Webhooks
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Resource</th>
+        <th width="100">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="100">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Max Webhooks</td>
+        <td>5</td>
+        <td>50</td>
+        <td>50</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>Addresses per Webhook</td>
+        <td>100k</td>
+        <td>100k</td>
+        <td>100k</td>
+        <td>100k</td>
+      </tr>
+    </tbody>
+  </table>
+
+### ZK Compression
+  <table>
+    <thead align="left">
+      <tr>
+        <th width="200">Service</th>
+        <th width="100">Free</th>
+        <th width="100">Developer</th>
+        <th width="100">Business</th>
+        <th width="100">Professional</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Photon APIs</td>
+        <td>2/sec</td>
+        <td>10/sec</td>
+        <td>50/sec</td>
+        <td>100/sec</td>
+      </tr>
+      <tr>
+        <td><code>getValidityProof</code></td>
+        <td>1/sec</td>
+        <td>5/sec</td>
+        <td>10/sec</td>
+        <td>20/sec</td>
+      </tr>
+    </tbody>
+  </table>

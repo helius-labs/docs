@@ -1,0 +1,137 @@
+---
+title: "How to Look Up the Mint Address of Solana Tokens"
+sidebarTitle: "Explore Mint Addresses"
+description: "Use Orb to find the mint address for any Solana token, and look up their associated token account in your Solana wallet."
+---
+
+[Orb](https://orb.helius.dev/) is a fast, human-readable Solana (SOL) block explorer built by Helius.
+
+This tutorial covers how to find the mint address of any Solana token and the associated token account (ATA) for tokens in your wallet.
+
+## What is a mint address?
+
+A mint address, or token mint account, is the mint account’s public key. This canonical token identifier is similar to an EVM “contract address” despite being a misnomer.
+
+When you look up an SPL token’s mint address on a SOL block explorer like Orb, you can find the token’s metadata, including:
+
+- Total supply
+- Token decimals
+- [Token authorities](https://www.helius.dev/docs/orb/explore-authorities)
+
+### Token Mint Address vs. Associated Token Address
+
+Your [wallet address](https://www.helius.dev/docs/orb/explore-wallets) has a single public key for receiving tokens, but every token held in your wallet is owned by an “associated token account,” or ATA, that holds each unique token's balance.
+
+A mint address can be thought of as a “global” address for a token, whereas an Associated Token Account is the token’s local address where your wallet holds its balance.
+
+### When do you need a mint address?
+
+Needing a token’s mint address is a common occurrence for:
+
+1. **Trading**: confirm you are trading the correct token on a DEX
+2. **Analysis**: confirm you're looking up the correct holder, markets, and liquidity data
+3. **Security**: confirm the token’s metadata, including token authorities
+4. **Development**: RPC methods like `getTokenAccountBalance` require a mint address
+5. **Tracking**: adding a specific token to your portfolio tracker or dashboard
+
+## How to Find a Solana Token’s Mint Address with Orb
+
+The simplest way to find a token mint address on a block explorer like Orb is to search for the token’s name or ticker symbol in the search bar. 
+
+<Frame caption="Explore Solana tokens on Orb">
+  ![Find Tesla Xstock Token Mint Address On The Solana Network Jp](/images/find-tesla-xstock-token-mint-address-on-the-solana-network.jpg)
+</Frame>
+
+<Note>
+  **Note:** make sure you click the token result with the “Verified” checkmark next to its name, as there may be duplicate tokens that impersonate the same name and symbol.
+</Note>
+
+Select your token from the results. Orb will open the [token explorer](https://www.helius.dev/docs/orb/explore-tokens) page for that mint.
+
+The token mint address is at the top of the page next to the token’s name, icon, and ticker.
+
+<Frame caption="Solana token mint address for Tesla xStock on Orb">
+  ![Copy TSL Ax Token Mint Address From Solana Explorer Jp](/images/copy-TSLAx-token-mint-address-from-solana-explorer.jpg)
+</Frame>
+
+Alternatively, you can find the token mint address in the **Metadata** tab.
+
+<Frame caption="Solana token mint ID in Orb’s metadata section">
+  ![How To Find The Solana Token Mint Address From The Token Metadata Section On A Block Explorer Jp](/images/how-to-find-the-solana-token-mint-address-from-the-token-metadata-section-on-a-block-explorer.jpg)
+</Frame>
+
+Solana has a few token programs including SPL (Solana Program Library) and Token-2022. If the token uses the Token-2022 standard, you can find the mint address in the **Token Extensions** tab.
+
+<Frame caption="Solana mint address for Token 2022 tokens on Orb">
+  ![How To Find The Solana Token 2022 Mint Address Jp](/images/how-to-find-the-solana-token-2022-mint-address.jpg)
+</Frame>
+
+## How to Find the Token Address (ATA) for a Token in Your Wallet
+
+We know how to find the token’s mint address (i.e., the global address for a token). Now, let’s find the local token account for a specific wallet (i.e., the Associated Token Account). 
+
+First, get your wallet address or SNS domain name and paste it into Orb. 
+
+For this example, we’ll use the god.sol domain which is a popular memecoin trader’s wallet.
+
+<Frame caption="Searching for a Solana domain name in Orb">
+  ![Look Up A Solana Name Service Domain On The Orb Block Explorer Jp](/images/look-up-a-solana-name-service-domain-on-the-orb-block-explorer.jpg)
+</Frame>
+
+Orb will load the wallet explorer page showing the account’s balance, tokens, and activity.
+
+Next, click the **Tokens** tab. This section shows:
+
+- The tokens in the wallet (name and symbol)
+- The balances, price, and value of each token
+- Recent transactions, token mint address, and ATA
+
+This table is a visual version of [getTokenAccountsByOwner](https://www.helius.dev/docs/api-reference/rpc/http/gettokenaccountsbyowner) for that wallet.
+
+To find the token’s mint address, find the row of the token you’re interested in, and then hover over the **copy** icon next to the token’s name. 
+
+Here, you can copy the token’s mint address. 
+
+e.g., the  [\$PUMP mint address](https://orb.helius.dev/address/pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn/history?cluster=mainnet-beta) is: `pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn `
+
+<Frame caption="Finding the token mint address and Associated Token Account on Orb">
+  ![Find Solana Token Mint Address And Associated Token Account On The Orb Explorer Jp](/images/find-solana-token-mint-address-and-associated-token-account-on-the-orb-explorer.jpg)
+</Frame>
+
+To find the \$PUMP token’s Associated Token Account (ATA) for a specific wallet, expand the token’s “Show transactions” section and click the “Token account” button to copy the ATA.
+
+For example, the Associated Token Account for the \$PUMP token in the god.sol wallet address is: `8TeLauDKq9sEFYQ2152aRwr23BThjwm8xMPxLVzR5Cvy`
+
+With the wallet’s ATA you can:
+
+- Debug why a particular token isn’t showing in your app
+- Call RPC methods like [getTokenAccountBalance](https://www.helius.dev/docs/rpc/guides/gettokenaccountbalance) for that exact account
+- Diagnose stuck transfers or airdrops by checking the right ATA was created/funded
+
+## Find a Token Mint Address and ATA from a Transaction Signature
+
+Sometimes all you have is a [transaction signature](https://www.helius.dev/docs/orb/explore-transactions) — for example, from a swap or airdrop. Orb makes it easy to find the relevant mint and token accounts from any transaction explorer page.
+
+1. Copy the transaction signature from your wallet or app
+2. Paste it into the Orb search bar and open the transaction page
+3. Click the “Balances” tab
+4. Go to the “Token Balances” section
+5. Find the token in the "Change" column
+6. Copy the token mint address in the "Token Mint" column 
+7. Copy the ATA for the token in the owner's wallet in the "Token Account" column
+
+<Frame caption="Finding the Associated Token Account and mint address from a Solana transaction page">
+  ![Find The Solana Token Mint Address And ATA From A Transaction Signature On The Orb Explorer Jp](/images/find-the-solana-token-mint-address-and-ATA-from-a-transaction-signature-on-the-orb-explorer.jpg)
+</Frame>
+
+## Conclusion
+
+Now you know how to find and verify Solana token mint addresses on [the Orb blockchain explorer](https://orb.helius.dev) from a token page, find Associated Token Accounts for a token on a wallet address page, and see this information from the balance summary on a transaction explorer page.
+
+For more information, check out these additional block explorer tutorials:
+
+- [How to Swap Tokens on Orb](https://www.helius.dev/docs/orb/swap-tokens)
+- [How to Find Top Solana Coins](https://www.helius.dev/docs/orb/explore-markets)
+- [How to Use Orb as a Wallet Explorer](https://www.helius.dev/docs/orb/explore-wallets)
+
+With Orb as your block explorer and Helius APIs as your tools to read Solana’s data layer, you have everything you need to reliably find, verify, and query Solana mint addresses.

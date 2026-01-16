@@ -59,8 +59,8 @@ Helius 提供多层保护以确保您的 API 密钥安全：
   <Tab title="访问控制规则">
     在您的 Helius 仪表板中配置精确的访问控制以限制 API 使用。
 
-    <Frame caption="在仪表板的 Endpoints 部分配置 RPC 访问控制规则。">
-      <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="在仪表板的 Endpoints 部分配置 RPC 访问控制规则。" />
+    <Frame caption="在仪表板的RPC部分配置RPC访问控制规则。">
+      <img src="/images/rpc-access-control-rules.png" alt="在仪表板的RPC部分配置RPC访问控制规则。" />
     </Frame>
 
     ### 可用的规则类型
@@ -69,17 +69,17 @@ Helius 提供多层保护以确保您的 API 密钥安全：
       <Accordion title="允许的域">
         限制对特定域的访问 - 非常适合 Web 应用程序。
 
-        **使用案例：**
+        **用例：**
         - 生产网站 (`yourdapp.com`)
-        - 开发环境 (`localhost:3000`)
         - 预发布环境 (`staging.yourdapp.com`)
+        - 预览部署 (`preview.yourdapp.com`)
 
         **示例配置：**
 
         ```
         yourdapp.com
         www.yourdapp.com
-        localhost:3000
+        staging.yourdapp.com
         ```
 
       </Accordion>
@@ -87,37 +87,43 @@ Helius 提供多层保护以确保您的 API 密钥安全：
       <Accordion title="允许的 IP">
         限制对特定 IP 地址的访问 - 理想用于服务器应用程序。
 
-        **使用案例：**
-        - 具有静态 IP 的后端服务器
-        - CI/CD 管道
-        - 特定开发机器
+        **用例：**
+        - 具有静态IP的后端服务器
+        - CI/CD管道
+        - 云托管服务
 
         **示例配置：**
 
         ```
-        192.168.1.100
         203.0.113.1
         198.51.100.42
+        185.199.108.153
         ```
 
+        <Note>
+        这里只能使用公共IP地址。私有/本地IP（如192.168.x.x或10.x.x.x）将无法使用。
+        </Note>
       </Accordion>
 
       <Accordion title="允许的 CIDR">
         使用 CIDR 表示法限制对 IP 范围的访问 - 非常适合企业网络。
 
-        **使用案例：**
-        - 企业网络
-        - 云提供商 IP 范围
-        - 私有网络
+        **用例：**
+        - 企业公共IP范围
+        - 云提供商IP范围
+        - 数据中心IP块
 
         **示例配置：**
 
         ```
-        192.168.0.0/16
-        10.0.0.0/8
-        172.16.0.0/12
+        203.0.113.0/24
+        198.51.100.0/24
+        185.199.108.0/22
         ```
 
+        <Note>
+        这里只能使用公共IP范围。私有CIDR块（192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12）将无法使用。
+        </Note>
       </Accordion>
     </AccordionGroup>
   </Tab>
@@ -126,20 +132,20 @@ Helius 提供多层保护以确保您的 API 密钥安全：
     使用我们的安全 URL 进行前端应用程序，而不暴露您的 API 密钥。
 
     <Info>
-    **速率限制**：安全 URL 限制为每个 IP 地址每秒 5 个事务 (TPS)，非常适合前端应用程序。
+    **速率限制**：安全URL每个IP地址限制为每秒5个请求（RPS），非常适合前端应用程序。
     </Info>
 
     ### 如何使用安全 URL
 
     <Steps>
-      <Step title="获取您的安全 URL">
-        在 Helius 仪表板的 Endpoints 部分找到您的安全 URL
+      <Step title="获取您的安全URL">
+        在Helius仪表板的RPC部分找到您的安全URL
       </Step>
-      <Step title="替换您的常规 RPC URL">
-        使用安全 URL 替换您的常规 RPC URL 和 API 密钥
+      <Step title="替换您的常规RPC URL">
+        使用安全URL替换您的常规RPC URL和API密钥
       </Step>
-      <Step title="无需 API 密钥">
-        安全 URL 不需要 API 密钥参数
+      <Step title="不需要API密钥">
+        安全URL不需要API密钥参数
       </Step>
     </Steps>
 

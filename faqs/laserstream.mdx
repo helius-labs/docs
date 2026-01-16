@@ -10,15 +10,27 @@ LaserStream spans seven regions, auto-fails over with replay, and is a drop-in r
 </Accordion>
 
 <Accordion title="What are the LaserStream Plus add-ons and how much do they cost?">
-LaserStream Plus add-ons transform your Professional plan's pay-per-use model into predictable monthly costs. Available in five tiers: 50TB (\$2,500), 100TB (\$4,500), 150TB (\$6,500), 200TB (\$8,500), and 250TB (\$10,500) per month. Each tier includes the specified data allowance with no credits consumed, then 2 credits per 0.1 MB for overages—a 33% discount versus the standard rate. [View detailed pricing](/billing/plans-and-rate-limits#laserstream-plus-add-ons).
+LaserStream Plus add-ons transform your Professional plan's pay-per-use model into predictable monthly costs. Available in five tiers: 50TB (\$2,500), 100TB (\$4,500), 150TB (\$6,500), 200TB (\$8,500), and 250TB (\$10,500) per month. Each tier includes the specified data allowance with no credits consumed, then 2 credits per 0.1 MB for overages—a 33% discount versus the standard rate. [View detailed pricing](/billing/plans).
 </Accordion>
 
 <Accordion title="What Solana data streaming product offers the lowest latency data streams?">
-LaserStream offers the lowest latency data streams available. It taps directly into Solana leaders to receive shreds as they're produced, with optimized shredstream capabilities that deliver data before anyone else. Multiple regional endpoints ensure minimal geographic latency.
+For the absolute lowest latency, **Shred Delivery** provides raw, unprocessed shreds directly from the network with the earliest possible access to transaction data. As the top validator by stake, Helius receives shreds before most other network participants.
+
+For production applications requiring processed data with commitment guarantees, **LaserStream** offers the lowest latency among processed streaming solutions. It connects directly to Solana leaders and spans multiple regional endpoints to minimize geographic latency.
+
+[Learn more about Shred Delivery](/shred-delivery)
 </Accordion>
 
 <Accordion title="Does Helius offer a shred streaming product like Jito's ShreadStream?">
-Yes! LaserStream includes optimized shredstream functionality. LaserStream features "Optimized Shredstream: Receive data before anyone else," providing similar capabilities to Jito's ShreadStream but with additional reliability and multi-region support.
+Yes! Helius offers **Shred Delivery**, our premier low-latency shred delivery service that provides the earliest possible access to raw Solana transaction data. Shred Delivery delivers unprocessed shreds directly from the network, offering a significant competitive edge for high-frequency trading and arbitrage strategies.
+
+As the top validator by stake, Helius receives shreds faster than validators with less stake and non-staked RPC nodes, ensuring you get the first look at transactions as they occur on-chain.
+
+**Key differences from LaserStream:**
+- **Shred Delivery**: Raw, unprocessed shreds with the absolute lowest latency. Currently in beta with white glove provisioning. Requires custom deshredding logic.
+- **LaserStream**: Processed data with commitment-level guarantees, historical replay, and developer-friendly SDKs for production applications.
+
+[Learn more about Shred Delivery](/shred-delivery) or [request beta access](https://form.typeform.com/to/aE6sUFRj?typeform-source=t.co).
 </Accordion>
 
 <Accordion title="What are LaserStream's practical filter limits?">
@@ -41,6 +53,26 @@ No, "processed" is already the fastest commitment level available on Solana (~40
 
 <Accordion title="Can I subscribe to multiple data types in one LaserStream request (e.g., accounts and transactions)?">
 Yes, you can subscribe to multiple data types in a single `SubscribeRequest`. Add separate filter configs (such as `accounts` and `transactions`) to receive both account updates and transaction data in one stream.
+</Accordion>
+
+## Order of Messages
+
+<Accordion title="Does LaserStream guarantee the order in which messages are sent?">
+No, LaserStream does not guarantee message ordering. You may receive transactions and account updates out of order, even within the same slot.
+</Accordion>
+
+<Accordion title="Does LaserStream stream accounts in the order that they're written to?">
+No, LaserStream does not stream accounts in the same order that they’re written to. Account updates may arrive in a different sequence than they were written to the ledger.
+</Accordion>
+
+<Accordion title="How do I stream LaserStream transactions in order?">
+You can’t stream transactions in order, but you can reconstruct the order on the client. You can do it like this:
+
+1. Buffer messages on the client side  
+2. Extract the `slot` and `index` fields included in each message  
+3. Sort the transactions based on these fields
+
+The `slot` field indicates which slot a transaction belongs to, and the `index` field indicates its position within that slot. By using both, you can reconstruct the order.
 </Accordion>
 
 ## Troubleshooting LaserStream

@@ -1,0 +1,425 @@
+---
+title: "Get Validator Earnings"
+description: "Comprehensive earnings data including voting, block production, rewards breakdown, and commission splits"
+---
+
+<Note>
+[← Back to Validator Reporting API](/validator-reporting)
+</Note>
+
+## Endpoint
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/earnings
+```
+
+## Description
+
+Retrieve comprehensive earnings data for a validator including voting performance, block production metrics, detailed rewards breakdown by type, and commission splits between validator and stakers.
+
+This endpoint provides a complete financial picture of validator operations over any specified time period.
+
+---
+
+## Path Parameters
+
+<ParamField path="vote_account" type="string" required>
+  The validator's vote account public key (base58 encoded)
+
+  Must match pattern: `^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
+
+<ParamField query="period" type="string" default="30d">
+  Time period for earnings aggregation
+
+  Options: `24h`, `7d`, `30d`, `90d`, `1y`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 790)
+
+  Use this for custom epoch ranges instead of `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+
+  Must be used with `start_epoch`
+</ParamField>
+
+
+---
+
+## Request Examples
+
+<CodeGroup>
+
+```bash cURL - 30 Day Period
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?period=30d&api-key=YOUR_API_KEY" | python3 -m json.tool
+```
+
+```bash cURL - Custom Epoch Range
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/earnings?start_epoch=800&end_epoch=850&api-key=YOUR_API_KEY" | python3 -m json.tool
+```
+
+```javascript JavaScript
+const getValidatorEarnings = async (voteAccount, apiKey, period = '30d') => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+  const url = `${baseUrl}/validators/${voteAccount}/earnings?period=${period}&api-key=${apiKey}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const earnings = await getValidatorEarnings(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  '30d'
+);
+
+console.log('Total earnings:', earnings.earnings.rewards.gross_earnings_sol, 'SOL');
+console.log('Vote participation:', earnings.earnings.voting.vote_participation_rate_pct, '%');
+console.log('Skip rate:', earnings.earnings.block_production.skip_rate_pct, '%');
+```
+
+```python Python
+import requests
+
+def get_validator_earnings(vote_account: str, api_key: str, period: str = "30d"):
+    base_url = "https://mainnet.helius-rpc.com"
+    url = f"{base_url}/validators/{vote_account}/earnings"
+    params = {
+        "period": period,
+        "api-key": api_key
+    }
+
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+earnings = get_validator_earnings(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    "30d"
+)
+
+print(f"Total earnings: {earnings['earnings']['rewards']['gross_earnings_sol']} SOL")
+print(f"Vote participation: {earnings['earnings']['voting']['vote_participation_rate_pct']}%")
+print(f"Skip rate: {earnings['earnings']['block_production']['skip_rate_pct']}%")
+```
+
+</CodeGroup>
+
+---
+
+## Response Schema
+
+<ResponseField name="vote_account" type="string">
+  The validator's vote account address
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  The time period queried
+</ResponseField>
+
+<ResponseField name="start_epoch" type="integer">
+  Starting epoch of the data range
+</ResponseField>
+
+<ResponseField name="end_epoch" type="integer">
+  Ending epoch of the data range
+</ResponseField>
+
+<ResponseField name="total_epochs" type="integer">
+  Total number of epochs covered
+</ResponseField>
+
+<ResponseField name="earnings" type="object">
+  Comprehensive earnings data
+
+  <Expandable title="earnings properties">
+    <ResponseField name="voting" type="object">
+      Voting performance metrics
+
+      <Expandable title="voting properties">
+        <ResponseField name="total_votes" type="integer">
+          Total number of votes cast
+        </ResponseField>
+
+        <ResponseField name="vote_participation_rate_pct" type="number">
+          Vote participation rate as a percentage (0-100)
+        </ResponseField>
+
+        <ResponseField name="total_vote_fees_lamports" type="integer">
+          Total vote fees earned in lamports
+        </ResponseField>
+
+        <ResponseField name="current_epoch_partial" type="boolean">
+          Whether the current epoch (end_epoch) is incomplete and excluded from vote_participation_rate_pct calculation
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="block_production" type="object">
+      Block production performance metrics
+
+      <Expandable title="block_production properties">
+        <ResponseField name="total_leader_slots" type="integer">
+          Total number of leader slots assigned
+        </ResponseField>
+
+        <ResponseField name="blocks_produced" type="integer">
+          Number of blocks successfully produced
+        </ResponseField>
+
+        <ResponseField name="blocks_skipped" type="integer">
+          Number of blocks skipped
+        </ResponseField>
+
+        <ResponseField name="skip_rate_pct" type="number">
+          Block skip rate as a percentage
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="rewards" type="object">
+      Detailed rewards breakdown
+
+      <Expandable title="rewards properties">
+        <ResponseField name="gross_earnings_lamports" type="integer">
+          Total gross earnings in lamports
+        </ResponseField>
+
+        <ResponseField name="gross_earnings_sol" type="number">
+          Total gross earnings in SOL
+        </ResponseField>
+
+        <ResponseField name="vote_fees_lamports" type="integer">
+          Vote fees earned in lamports
+        </ResponseField>
+
+        <ResponseField name="vote_fees_sol" type="number">
+          Vote fees earned in SOL
+        </ResponseField>
+
+        <ResponseField name="inflation_rewards_lamports" type="integer">
+          Inflation rewards in lamports
+        </ResponseField>
+
+        <ResponseField name="block_rewards_lamports" type="integer">
+          Block rewards (priority fees) in lamports
+        </ResponseField>
+
+        <ResponseField name="jito_tips_lamports" type="integer">
+          Jito MEV tips in lamports
+        </ResponseField>
+
+        <ResponseField name="breakdown_pct" type="object">
+          Percentage breakdown of rewards by type
+
+          <Expandable title="breakdown_pct properties">
+            <ResponseField name="inflation" type="number">
+              Percentage from inflation rewards
+            </ResponseField>
+
+            <ResponseField name="block_rewards" type="number">
+              Percentage from block rewards
+            </ResponseField>
+
+            <ResponseField name="jito_tips" type="number">
+              Percentage from Jito tips
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+
+        <ResponseField name="commission" type="object" nullable>
+          Commission information and splits (if available)
+
+          <Expandable title="commission properties">
+            <ResponseField name="rates" type="object">
+              Commission rates by type
+
+              <Expandable title="rates properties">
+                <ResponseField name="staking" type="integer">
+                  Staking commission percentage (0-100)
+                </ResponseField>
+
+                <ResponseField name="jito_mev" type="integer">
+                  Jito MEV commission percentage
+                </ResponseField>
+
+                <ResponseField name="priority_fees" type="integer">
+                  Priority fees commission percentage
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+
+            <ResponseField name="split" type="object">
+              Earnings split between validator and stakers
+
+              <Expandable title="split properties">
+                <ResponseField name="validator" type="object">
+                  Validator's portion of earnings
+
+                  Includes: `inflation_rewards_lamports`, `inflation_rewards_sol`, `jito_tips_lamports`, `jito_tips_sol`, `block_rewards_lamports`, `block_rewards_sol`, `gross_total_lamports`, `gross_total_sol`, `net_total_lamports`, `net_total_sol`
+                </ResponseField>
+
+                <ResponseField name="stakers" type="object">
+                  Stakers' portion of earnings (same structure as validator)
+                </ResponseField>
+              </Expandable>
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Query metadata
+
+  <Expandable title="metadata properties">
+    <ResponseField name="start_timestamp" type="integer">
+      Unix timestamp of data start
+    </ResponseField>
+
+    <ResponseField name="end_timestamp" type="integer">
+      Unix timestamp of data end
+    </ResponseField>
+
+    <ResponseField name="query_timestamp" type="integer">
+      Unix timestamp when query was executed
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## Response Example
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "start_epoch": 650,
+  "end_epoch": 680,
+  "total_epochs": 30,
+  "earnings": {
+    "voting": {
+      "total_votes": 12500,
+      "vote_participation_rate_pct": 99.8,
+      "total_vote_fees_lamports": 125000000
+    },
+    "block_production": {
+      "total_leader_slots": 450,
+      "blocks_produced": 448,
+      "blocks_skipped": 2,
+      "skip_rate_pct": 0.44
+    },
+    "rewards": {
+      "gross_earnings_lamports": 5500000000,
+      "gross_earnings_sol": 5.5,
+      "vote_fees_lamports": 125000000,
+      "vote_fees_sol": 0.125,
+      "inflation_rewards_lamports": 4000000000,
+      "block_rewards_lamports": 500000000,
+      "jito_tips_lamports": 875000000,
+      "breakdown_pct": {
+        "inflation": 72.7,
+        "block_rewards": 9.1,
+        "jito_tips": 15.9
+      },
+      "commission": {
+        "rates": {
+          "staking": 10,
+          "jito_mev": 10,
+          "priority_fees": 10
+        },
+        "split": {
+          "validator": {
+            "inflation_rewards_lamports": 400000000,
+            "inflation_rewards_sol": 0.4,
+            "jito_tips_lamports": 87500000,
+            "jito_tips_sol": 0.0875,
+            "block_rewards_lamports": 50000000,
+            "block_rewards_sol": 0.05,
+            "gross_total_lamports": 537500000,
+            "gross_total_sol": 0.5375,
+            "net_total_lamports": 537500000,
+            "net_total_sol": 0.5375
+          },
+          "stakers": {
+            "inflation_rewards_lamports": 3600000000,
+            "inflation_rewards_sol": 3.6,
+            "jito_tips_lamports": 787500000,
+            "jito_tips_sol": 0.7875,
+            "block_rewards_lamports": 450000000,
+            "block_rewards_sol": 0.45,
+            "gross_total_lamports": 4837500000,
+            "gross_total_sol": 4.8375,
+            "net_total_lamports": 4837500000,
+            "net_total_sol": 4.8375
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "start_timestamp": 1701734400,
+    "end_timestamp": 1704326400,
+    "query_timestamp": 1704330000
+  }
+}
+```
+
+---
+
+## Error Responses
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid epoch range: start_epoch must be >= 790"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## Notes
+
+<Note>
+**Commission Split Availability**: The `commission` object is only available when commission rate data exists for the validator. If null, commission information could not be calculated.
+</Note>
+
+<Tip>
+**Best Practice**: Use the `30d` period for monthly reporting and `7d` for weekly performance reviews. For detailed analysis, use custom epoch ranges with `start_epoch` and `end_epoch`.
+</Tip>
+
+<Warning>
+**Data Availability**: Historical data starts at epoch 790. Queries for earlier epochs will return a 400 error.
+</Warning>

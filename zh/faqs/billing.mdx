@@ -71,34 +71,53 @@ description: 获取有关计费的最常见问题的答案，包括定价计划�
 您可以从 [billing dashboard](https://dashboard.helius.dev/billing) 取消您的订阅。您的服务将持续到当前计费周期结束，然后恢复到免费层限制。
 </Accordion>
 
-## 自动扩展
+## 致谢
 
-<Accordion title="如何启用自动扩展？">
-在[项目设置](https://dashboard.helius.dev/settings)的自动扩展部分启用自动扩展。当您超出计划限制时，这将自动购买额外的积分。详情请参阅我们的[自动扩展指南](https://www.helius.dev/docs/billing/autoscaling)。
+<Accordion title="如果我的积分用完了会怎样？">
+如果您已用完所有积分，则在通过自动扩展或预付积分为您的账户添加更多积分之前，您将无法发起新的 API 请求。否则，请求将导致 429 最大使用量已达到错误。
 </Accordion>
 
-<Accordion title="为什么在我启用自动扩展后仍收到超额费用的发票？">
+<Accordion title="我如何购买更多积分？">
+方法取决于您的付款类型：
+
+- **法币支付**：通过[自动扩展](https://www.helius.dev/docs/billing/autoscaling)购买积分，根据需要自动添加积分，直至达到上限  
+- **加密货币支付**：您需要手动[购买预付积分](https://www.helius.dev/docs/billing/autoscaling#crypto-plans)
+</Accordion>
+
+<Accordion title="什么是自动扩展？">
+自动扩展是一种积分管理系统，当您用完每月分配的积分时，会自动购买额外的积分。这是按需进行的，意味着只有在需要完成请求时才会购买积分。这确保了您的应用程序持续运行而不会中断。自动扩展仅适用于法币用户。如果您使用加密货币支付，则必须购买预付积分。有关详细信息，请参阅我们的[自动扩展指南](https://www.helius.dev/docs/billing/autoscaling)或[购买预付积分指南](https://www.helius.dev/docs/billing/autoscaling#crypto-plans)。
+</Accordion>
+
+<Accordion title="我如何开启自动扩展？">
+在[项目设置](https://dashboard.helius.dev/project-settings)的最底部的“自动扩展”部分启用自动扩展。自动扩展仅适用于法币用户。
+</Accordion>
+
+<Accordion title="为什么我在启用自动扩展时收到超额费用发票？">
 当您超出计划限制时，自动扩展会购买额外的积分，这些积分会在您的发票上显示为超额费用。这是预期的行为——自动扩展通过自动购买所需的积分来防止服务中断。
 </Accordion>
 
-## 超额费用
-
-<Accordion title="如果我超出了信用额度会发生什么？">
-如果您超出了信用额度，您可以启用自动扩展或购买额外的预付积分。了解更多信息，请访问[**额外积分**](https://www.helius.dev/docs/billing/autoscaling)页面。
+<Accordion title="什么是预付积分？">
+与自动扩展不同，预付积分是您在使用前购买的积分。您可以在需要为账户添加积分时手动购买特定数量。这仅适用于加密用户。阅读此[预付积分指南](https://www.helius.dev/docs/billing/autoscaling#crypto-plans)以获取更多详细信息。
 </Accordion>
 
-<Accordion title="即使我没有使用任何 Helius 端点，为什么我的项目仍在消耗积分？">
-检查可能正在进行 API 调用的活动 webhook、自动化脚本或后台进程。查看您的[使用情况仪表板](https://dashboard.helius.dev/usage)以识别积分消耗的来源。
+<Accordion title="我如何购买预付积分？">
+前往Helius [仪表板](https://dashboard.helius.dev/dashboard)。在主页上，点击“购买更多积分”。选择您想购买的数量并进行购买。预付积分仅适用于加密用户。如果您使用法币支付，请设置自动扩展。
 </Accordion>
 
-<Accordion title="当我没有更改任何内容时，为什么我的使用量在增加？">
-您的 API 密钥可能已被泄露，或者某个 webhook 可能在后台运行。要解决此问题：
+## 意外使用
 
-1. 删除当前的 API 密钥并创建一个新的。
-2. 从仪表板检查您的 webhook，并禁用任何不应处于活动状态的 webhook。
-3. 如果问题仍然存在，请联系支持以获得帮助。
+<Accordion title="为什么我的项目在我没有使用任何Helius端点的情况下消耗积分？">
+检查可能正在进行API调用的活动webhooks、自动化脚本或后台进程。查看您的[使用仪表板](https://dashboard.helius.dev/usage)以识别积分消耗的来源。
+</Accordion>
 
-为了帮助防止将来密钥泄露，请考虑按照[本指南](https://www.helius.dev/docs/rpc/protect-your-keys)中描述的设置代理。
+<Accordion title="为什么我的使用量在我没有更改任何内容的情况下增加？">
+您的API密钥可能已被泄露，或者webhook可能在后台运行。要解决此问题：
+
+1. 删除当前的API密钥并创建一个新的。
+2. 从仪表板检查您的webhooks并禁用任何不应处于活动状态的webhooks。
+3. 如果问题仍然存在，请联系支持以获取帮助。
+
+为了帮助防止将来的密钥泄露，请考虑按照[本指南](https://www.helius.dev/docs/rpc/protect-your-keys)中描述的设置代理。
 </Accordion>
 
 ## 退款

@@ -10,37 +10,69 @@ LaserStream 跨越七个区域，具有自动故障转移和重播功能，是 G
 </Accordion>
 
 <Accordion title="LaserStream Plus 附加组件是什么，它们的费用是多少？">
-LaserStream Plus 附加组件将您的专业计划的按使用付费模式转变为可预测的月度费用。提供五个等级：每月 50TB (\$2,500)、100TB (\$4,500)、150TB (\$6,500)、200TB (\$8,500) 和 250TB (\$10,500)。每个等级包括指定的数据配额，无需消耗积分，超出部分每 0.1 MB 收取 2 积分——比标准费率优惠 33%。[查看详细定价](/zh/billing/plans-and-rate-limits#laserstream-plus-add-ons)。
+LaserStream Plus 附加组件将您的专业计划的按使用付费模式转变为可预测的月度费用。提供五个等级：每月 50TB (\$2,500)、100TB (\$4,500)、150TB (\$6,500)、200TB (\$8,500) 和 250TB (\$10,500)。每个等级包括指定的数据配额，不消耗积分，超出部分每 0.1 MB 收取 2 积分——比标准费率优惠 33%。[查看详细定价](/zh/billing/plans)。
 </Accordion>
 
-<Accordion title="哪个 Solana 数据流产品提供最低延迟的数据流？">
-LaserStream 提供可用的最低延迟数据流。它直接连接到 Solana 领导者，以接收生成的分片，具有优化的分片流功能，能够比其他任何人更早传递数据。多个区域端点确保最小的地理延迟。
+<Accordion title="Solana 数据流产品中哪种提供最低延迟的数据流？">
+对于绝对最低延迟，**Shred Delivery** 提供来自网络的原始、未处理的分片，以尽早访问交易数据。作为持有量最大的验证者，Helius 在大多数其他网络参与者之前接收到分片。
+
+对于需要处理数据和承诺保证的生产应用程序，**LaserStream** 在处理过的流解决方案中提供最低延迟。它直接连接到 Solana 领导者，并跨多个区域端点以最小化地理延迟。
+
+[了解更多关于 Shred Delivery](/zh/shred-delivery)
 </Accordion>
 
 <Accordion title="Helius 是否提供类似 Jito 的 ShreadStream 的分片流产品？">
-是的！LaserStream 包含优化的分片流功能。LaserStream 具有“优化的分片流：在其他人之前接收数据”，提供与 Jito 的 ShreadStream 类似的功能，但具有额外的可靠性和多区域支持。
+是的！Helius 提供 **Shred Delivery**，这是我们首屈一指的低延迟分片交付服务，提供尽早访问原始 Solana 交易数据的机会。Shred Delivery 直接从网络传递未处理的分片，为高频交易和套利策略提供显著的竞争优势。
+
+作为持有量最大的验证者，Helius 比持有量较少的验证者和未持有的 RPC 节点更快地接收到分片，确保您能第一时间查看链上发生的交易。
+
+**与 LaserStream 的主要区别：**
+- **Shred Delivery**：原始、未处理的分片，具有绝对最低的延迟。目前处于测试阶段，提供白手套服务。需要自定义的分片解码逻辑。
+- **LaserStream**：具有承诺级别保证的处理数据、历史重播和面向开发者的 SDK，适用于生产应用程序。
+
+[了解更多关于 Shred Delivery](/zh/shred-delivery) 或 [请求测试访问](https://form.typeform.com/to/aE6sUFRj?typeform-source=t.co)。
 </Accordion>
 
-<Accordion title="LaserStream 的实际过滤器限制是什么？">
-每个流最多包含 **1000 万** 个账户，无限的程序过滤器，以及每个项目 **100 个并发连接**。
+<Accordion title="LaserStream 的实际过滤限制是什么？">
+每个流最多 **1000 万** 个账户包含，无限的程序过滤器，以及每个项目 **100 个并发连接**。
 </Accordion>
 
 ## 使用 LaserStream
 
-<Accordion title="LaserStream 是否与 Yellowstone 客户端兼容？">
-是的！LaserStream gRPC 设计为 Yellowstone gRPC 的直接替代品。只需更改您的端点和 API 令牌，现有的 gRPC 代码即可立即与 LaserStream 一起工作。LaserStream 使用开源的 gRPC 协议。
+<Accordion title="LaserStream是否与Yellowstone客户端兼容？">
+是的！LaserStream gRPC被设计为Yellowstone gRPC的直接替代品。只需更改您的端点和API令牌，您现有的gRPC代码即可立即与LaserStream一起工作。LaserStream使用开源的gRPC协议。
 </Accordion>
 
-<Accordion title="我在哪里可以找到 LaserStream 带宽指标？">
-您可以在 Helius 仪表板的 [LaserStream](https://dashboard.helius.dev/laserstream) 页面上找到 LaserStream 带宽指标。
+<Accordion title="我在哪里可以找到LaserStream的带宽指标？">
+您可以在Helius仪表板的[LaserStream](https://dashboard.helius.dev/laserstream)页面上找到LaserStream的带宽指标。
 </Accordion>
 
-<Accordion title="是否可以获取早于处理承诺级别的数据？">
-不，“处理”已经是 Solana 上最快的承诺级别（约 400 毫秒延迟）。它代表由单个验证者处理的数据，尚未经过网络确认。LaserStream 通过直接领导者连接和 shredstream 技术优化了处理级别数据的传递。
+<Accordion title="是否可以获取早于已处理承诺级别的数据？">
+不，“已处理”已经是Solana上最快的承诺级别（约400毫秒延迟）。它代表由单个验证者处理的数据，尚未经过网络确认。LaserStream通过直接领导者连接和shredstream技术优化了已处理级别数据的传输。
 </Accordion>
 
-<Accordion title="我可以在一个 LaserStream 请求中订阅多种数据类型（例如，账户和交易）吗？">
-可以，您可以在单个 `SubscribeRequest` 中订阅多种数据类型。添加单独的过滤器配置（例如 `accounts` 和 `transactions`）以在一个流中接收账户更新和交易数据。
+<Accordion title="我可以在一个LaserStream请求中订阅多种数据类型（例如，账户和交易）吗？">
+可以，您可以在单个`SubscribeRequest`中订阅多种数据类型。添加单独的过滤器配置（例如`accounts`和`transactions`）以在一个流中接收账户更新和交易数据。
+</Accordion>
+
+## 消息顺序
+
+<Accordion title="LaserStream 是否保证消息发送的顺序？">
+不，LaserStream 不保证消息的顺序。您可能会收到乱序的交易和账户更新，即使在同一个槽中也是如此。
+</Accordion>
+
+<Accordion title="LaserStream 是否按账户写入的顺序进行流式传输？">
+不，LaserStream 不按账户写入的顺序进行流式传输。账户更新可能会以不同于写入账本的顺序到达。
+</Accordion>
+
+<Accordion title="如何按顺序流式传输 LaserStream 交易？">
+您无法按顺序流式传输交易，但可以在客户端重建顺序。您可以这样做：
+
+1. 在客户端缓冲消息  
+2. 提取每条消息中包含的`slot`和`index`字段  
+3. 根据这些字段对交易进行排序
+
+`slot`字段指示交易所属的槽，`index`字段指示其在该槽中的位置。通过使用这两个字段，您可以重建顺序。
 </Accordion>
 
 ## LaserStream 故障排除
@@ -68,11 +100,11 @@ helius-laserstream-bandwidth --laserstream-url $LASERSTREAM_URL --api-key $API_K
 </Accordion>
 
 <Accordion title="为什么我的 LaserStream 过滤器没有按预期工作？">
-确认公钥和承诺级别，并检查你的 `AND`/`OR` 逻辑。过滤器的评估方式如[文档](https://www.helius.dev/docs/laserstream/grpc#subscribe-request)中所述。
+确认公钥和承诺级别，并检查您的 `AND`/`OR` 逻辑。过滤器的评估方式如 [文档](https://www.helius.dev/docs/laserstream/grpc#subscribe-request) 中所述。
 </Accordion>
 
 <Accordion title="为什么 LaserStream 每 15 秒发送一个空事件？">
-这些是维持连接健康和防止超时的 ping/心跳事件。它们是 gRPC 协议连接管理的一部分。你可以安全地忽略这些事件，或者在你的应用程序中使用它们来监控连接状态。
+这些是维持连接健康和防止超时的 ping/心跳事件。它们是 gRPC 协议连接管理的一部分。您可以安全地忽略这些事件，或在您的应用程序中使用它们来监控连接状态。
 </Accordion>
 
 ---

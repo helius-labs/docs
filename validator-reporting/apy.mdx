@@ -1,0 +1,502 @@
+---
+title: "Get Validator APY"
+description: "Calculate validator Annual Percentage Yield with both gross APY (total validator earnings) and staker APY (what delegators receive after commissions)"
+---
+
+<Note>
+[← Back to Validator Reporting API](/validator-reporting)
+</Note>
+
+## Endpoint
+
+```
+GET https://mainnet.helius-rpc.com/validators/{vote_account}/apy
+```
+
+## Description
+
+Calculate APY (Annual Percentage Yield) for a validator by averaging per-epoch APY over the specified period.
+
+Returns both **Gross APY** (total validator earnings before commissions) and **Staker APY** (the actual APY that stakers/delegators receive after all commission deductions across inflation, MEV, and priority fees), with detailed breakdowns by reward type and optional forecasting. 
+
+Note that priority fees (i.e., block rewards) are currently attributed to the validator, since SIMD-123 is not live yet and there is no in-protocol way to share with delegators.
+
+### APY Calculation Formula
+
+```
+APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100
+
+where num_epochs_per_year ≈ 182.5
+```
+
+---
+
+## Path Parameters
+
+<ParamField path="vote_account" type="string" required>
+  The validator's vote account public key (base58 encoded)
+
+  Must match pattern: `^[1-9A-HJ-NP-Za-km-z]{32,44}$`
+
+  Example: `he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk`
+</ParamField>
+
+---
+
+## Query Parameters
+
+<ParamField query="api-key" type="string" required>
+  Your Helius API key for authentication
+</ParamField>
+
+<ParamField query="period" type="string" default="30d">
+  Time period for APY calculation
+
+  Options: `7d`, `30d`, `90d`, `1y`, `epoch`
+</ParamField>
+
+<ParamField query="start_epoch" type="integer">
+  Starting epoch number (minimum: 790)
+
+  Use for custom epoch ranges instead of `period`
+</ParamField>
+
+<ParamField query="end_epoch" type="integer">
+  Ending epoch number
+
+  Must be used with `start_epoch`
+</ParamField>
+
+<ParamField query="include_forecast" type="boolean" default="false">
+  Include APY forecast projection based on historical data
+</ParamField>
+
+
+---
+
+## Request Examples
+
+<CodeGroup>
+
+```bash cURL - Basic APY
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d"
+```
+
+```bash cURL - With Forecast
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=30d&include_forecast=true"
+```
+
+```bash cURL - Single Epoch
+curl -s "https://mainnet.helius-rpc.com/validators/he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk/apy?api-key=YOUR_API_KEY&period=epoch&start_epoch=800"
+```
+
+```javascript JavaScript
+const getValidatorAPY = async (voteAccount, apiKey, period = '30d', includeForecast = false) => {
+  const baseUrl = 'https://mainnet.helius-rpc.com';
+
+  const params = new URLSearchParams({
+    'api-key': apiKey,
+    period,
+    ...(includeForecast && { include_forecast: 'true' })
+  });
+
+  const url = `${baseUrl}/validators/${voteAccount}/apy?${params}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  return data;
+};
+
+// Usage
+const apy = await getValidatorAPY(
+  'he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk',
+  'YOUR_API_KEY',
+  '30d',
+  true
+);
+
+console.log('Gross APY:', apy.apy.gross_apy_pct, '%');
+console.log('Staker APY:', apy.apy.staker_apy_pct, '%');
+console.log('Inflation APY:', apy.apy.breakdown.inflation_apy_pct, '%');
+console.log('MEV APY:', apy.apy.breakdown.mev_apy_pct, '%');
+```
+
+```python Python
+import requests
+
+def get_validator_apy(
+    vote_account: str,
+    api_key: str,
+    period: str = "30d",
+    include_forecast: bool = False
+):
+    base_url = "https://mainnet.helius-rpc.com"
+
+
+    params = {
+        "api-key": api_key,
+        "period": period,
+    }
+
+    if include_forecast:
+        params["include_forecast"] = "true"
+
+    url = f"{base_url}/validators/{vote_account}/apy"
+    response = requests.get(url, params=params)
+    return response.json()
+
+# Usage
+apy = get_validator_apy(
+    "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+    "YOUR_API_KEY",
+    "30d",
+    include_forecast=True
+)
+
+print(f"Gross APY: {apy['apy']['gross_apy_pct']}%")
+print(f"Staker APY: {apy['apy']['staker_apy_pct']}%")
+print(f"Inflation APY: {apy['apy']['breakdown']['inflation_apy_pct']}%")
+print(f"MEV APY: {apy['apy']['breakdown']['mev_apy_pct']}%")
+```
+
+</CodeGroup>
+
+---
+
+## Response Schema
+
+<ResponseField name="vote_account" type="string">
+  The validator's vote account address
+</ResponseField>
+
+<ResponseField name="period" type="string">
+  The time period queried
+</ResponseField>
+
+<ResponseField name="apy" type="object">
+  APY data with gross, staker, and breakdown
+
+  <Expandable title="apy properties">
+    <ResponseField name="gross_apy_pct" type="number">
+      Total APY for the validator (all rewards / stake)
+    </ResponseField>
+
+    <ResponseField name="staker_apy_pct" type="number">
+      APY that stakers/delegators receive after all commissions are deducted
+    </ResponseField>
+
+    <ResponseField name="breakdown" type="object">
+      APY breakdown by reward source
+
+      <Expandable title="breakdown properties">
+        <ResponseField name="inflation_apy_pct" type="number">
+          APY from inflation rewards
+        </ResponseField>
+
+        <ResponseField name="mev_apy_pct" type="number">
+          APY from Jito MEV tips
+        </ResponseField>
+
+        <ResponseField name="block_rewards_apy_pct" type="number">
+          APY from block rewards (i.e., priority fees)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="calculation_basis" type="object">
+  Detailed information about how APY was calculated
+
+  <Expandable title="calculation_basis properties">
+    <ResponseField name="total_stake_lamports" type="integer">
+      Total stake used in calculation (in lamports)
+    </ResponseField>
+
+    <ResponseField name="total_earnings_lamports" type="integer">
+      Total earnings used in calculation (in lamports)
+    </ResponseField>
+
+    <ResponseField name="days" type="integer">
+      Number of days covered in the period
+    </ResponseField>
+
+    <ResponseField name="epochs_covered" type="integer">
+      Number of complete epochs used in APY calculation
+    </ResponseField>
+
+    <ResponseField name="epochs_in_range" type="integer">
+      Total number of epochs in the requested range (includes both complete and partial epochs)
+    </ResponseField>
+
+    <ResponseField name="epochs_partial" type="integer">
+      Number of partial epochs excluded from APY calculation
+    </ResponseField>
+
+    <ResponseField name="warning" type="string" nullable>
+      Warning message when partial epochs are excluded from calculation (e.g., "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)")
+    </ResponseField>
+
+    <ResponseField name="start_timestamp" type="integer">
+      Unix timestamp of calculation start
+    </ResponseField>
+
+    <ResponseField name="end_timestamp" type="integer">
+      Unix timestamp of calculation end
+    </ResponseField>
+
+    <ResponseField name="stake_source" type="string">
+      Source of stake data used
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_source" type="string">
+      Source of staking rewards data used
+    </ResponseField>
+
+    <ResponseField name="calculation_method" type="string">
+      APY calculation methodology (e.g., "per_epoch_average" or "multi_epoch_compound")
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="epoch_apy_data" type="array" nullable>
+  Per-epoch APY data (only when querying single epoch or detailed view)
+
+  <Expandable title="array items">
+    <ResponseField name="epoch" type="integer">
+      Epoch number
+    </ResponseField>
+
+    <ResponseField name="stake_lamports" type="integer">
+      Stake amount for this epoch
+    </ResponseField>
+
+    <ResponseField name="staking_rewards_lamports" type="integer">
+      Staking rewards earned
+    </ResponseField>
+
+    <ResponseField name="block_rewards_lamports" type="integer">
+      Block rewards earned
+    </ResponseField>
+
+    <ResponseField name="mev_rewards_lamports" type="integer">
+      MEV rewards earned
+    </ResponseField>
+
+    <ResponseField name="total_rewards_lamports" type="integer">
+      Total rewards for the epoch
+    </ResponseField>
+
+    <ResponseField name="apy_pct" type="number">
+      APY for this specific epoch
+    </ResponseField>
+
+    <ResponseField name="is_partial" type="boolean">
+      Whether this epoch is partial (incomplete staking rewards data)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="forecast" type="object" nullable>
+  APY forecast projection (only if `include_forecast=true`)
+
+  <Expandable title="forecast properties">
+    <ResponseField name="projected_annual_apy_pct" type="number">
+      Projected APY for the next year
+    </ResponseField>
+
+    <ResponseField name="confidence" type="string">
+      Confidence level: `low`, `medium`, or `high`
+    </ResponseField>
+
+    <ResponseField name="based_on_days" type="integer">
+      Number of historical days used for forecast
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## Response Example
+
+```json
+{
+  "vote_account": "he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk",
+  "period": "30d",
+  "apy": {
+    "gross_apy_pct": 8.45,
+    "staker_apy_pct": 7.61,
+    "breakdown": {
+      "inflation_apy_pct": 6.20,
+      "mev_apy_pct": 1.50,
+      "block_rewards_apy_pct": 0.75
+    }
+  },
+  "calculation_basis": {
+    "total_stake_lamports": 50000000000000,
+    "total_earnings_lamports": 1095890410958,
+    "days": 30,
+    "epochs_covered": 14,
+    "epochs_in_range": 15,
+    "epochs_partial": 1,
+    "start_timestamp": 1701734400,
+    "end_timestamp": 1704326400,
+    "stake_source": "on_chain",
+    "staking_rewards_source": "inflation_rewards",
+    "calculation_method": "per_epoch_average",
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
+  },
+  "forecast": {
+    "projected_annual_apy_pct": 8.52,
+    "confidence": "medium",
+    "based_on_days": 30
+  }
+}
+```
+
+---
+
+## Partial Epoch Handling
+
+When calculating APY, the API automatically excludes partial epochs (i.e., epochs with incomplete staking rewards data) to ensure accurate calculations.
+
+<Note>
+**How it works:**
+- `epochs_in_range`: Total epochs in your requested range (e.g., 3 epochs)
+- `epochs_covered`: Complete epochs used for APY calculation (e.g., 2 epochs)
+- `epochs_partial`: Partial epochs excluded (e.g., 1 epoch)
+- `warning`: Explanation when partial epochs are excluded
+
+Partial epochs are still included in `epoch_apy_data` with `is_partial: true` for transparency, but they don't affect the overall APY calculation.
+</Note>
+
+**Example response:**
+```json
+{
+  "period": "epochs 889..892",
+  "calculation_basis": {
+    "epochs_in_range": 3,
+    "epochs_covered": 2,
+    "epochs_partial": 1,
+    "warning": "1 partial epoch excluded from APY calculation (current epoch has incomplete staking rewards)"
+  },
+  "epoch_apy_data": [
+    { "epoch": 890, "is_partial": false, "apy_pct": 8.2 },
+    { "epoch": 891, "is_partial": false, "apy_pct": 8.5 },
+    { "epoch": 892, "is_partial": true, "apy_pct": 0.0 }
+  ]
+}
+```
+
+---
+
+## Understanding Gross vs Staker APY
+
+<CardGroup cols={2}>
+  <Card title="Gross APY" icon="coins">
+    **Total Validator APY**: All rewards divided by stake, before any commission deductions. This represents the full earning potential of the validator.
+  </Card>
+  <Card title="Staker APY" icon="hand-holding-dollar">
+    **After Commission**: APY that stakers/delegators actually receive after all commission fees are deducted across all reward types.
+  </Card>
+</CardGroup>
+
+The difference between Gross and Staker APY reflects the validator's commission structure across different reward types (i.e., inflation, MEV, priority fees).
+
+---
+
+## APY Breakdown Components
+
+| Component | Description |
+|-----------|-------------|
+| **Inflation APY** | Returns from Solana's inflation rewards distributed to validators |
+| **MEV APY** | Returns from Jito MEV tips for optimal block ordering |
+| **Block Rewards APY** | Returns from priority fees paid by transaction senders |
+
+**Total Gross APY** = Inflation APY + MEV APY + Block Rewards APY
+
+---
+
+## Error Responses
+
+<CodeGroup>
+
+```json 400 Bad Request
+{
+  "error": "invalid_parameters",
+  "message": "Invalid period: must be one of 7d, 30d, 90d, 1y, epoch"
+}
+```
+
+```json 404 Validator Not Found
+{
+  "error": "validator_not_found",
+  "message": "No data found for vote account: he1iusunGwqrNtafDtLdhsUQDFvo13z9sUa36PauBtk"
+}
+```
+
+</CodeGroup>
+
+---
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Staker Reporting" icon="file-chart-line">
+    Provide transparent APY reporting to your stakers
+  </Card>
+  <Card title="Performance Tracking" icon="chart-line-up">
+    Monitor APY trends over time to optimize operations
+  </Card>
+  <Card title="Competitive Analysis" icon="scale-balanced">
+    Compare your APY against other validators
+  </Card>
+  <Card title="Revenue Forecasting" icon="crystal-ball">
+    Project future earnings with forecast data
+  </Card>
+</CardGroup>
+
+---
+
+## Best Practices
+
+<Tip>
+**Recommended Period for Reporting**: Use `30d` for monthly staker reports and `90d` for quarterly performance reviews. The 30-day period provides a good balance between recency and stability.
+</Tip>
+
+<Note>
+**Forecast Accuracy**: Forecasts are most reliable when `confidence: "high"`. This typically requires at least 30 days of stable historical data with consistent validator performance.
+</Note>
+
+<Warning>
+**APY Volatility**: APY can vary significantly based on:
+- Solana's inflation schedule
+- MEV opportunities (highly variable)
+- Priority fee activity
+- Validator performance (skip rate, vote participation)
+</Warning>
+
+---
+
+## Calculation Methodology
+
+The API calculates APY using the following approach:
+
+1. Calculate per-epoch returns: `epoch_return = rewards / stake`
+2. Annualize using epochs per year: `APY = ((1 + epoch_return)^num_epochs_per_year - 1) * 100`
+3. Average APY across all epochs in the period
+4. Apply commission deductions to calculate Staker APY (i.e., the APY delegators actually receive)
+
+This methodology provides more accurate APY estimates compared to simple linear extrapolation, especially over shorter time periods.
+
+---
+
+## Related Endpoints
+
+<Card title="Earnings" icon="money-bill-trend-up" href="/validator-reporting/earnings">
+  For detailed earnings breakdowns that contribute to APY calculations
+</Card>
+
+<Card title="Rewards Forecast" icon="chart-line" href="/validator-reporting/rewards-forecast">
+  For advanced forecasting with multiple models and confidence intervals
+</Card>

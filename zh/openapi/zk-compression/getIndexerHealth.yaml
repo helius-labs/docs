@@ -1,166 +1,166 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Solana 压缩索引器监控 API"
-  description: "高级 Solana 索引器健康监控 API，用于状态压缩基础设施。
-
+  title: Solana 压缩索引器监控 API
+  description: |
+    高级 Solana 索引器健康监控 API，用于状态压缩基础设施。
     此监控端点使开发人员能够验证 Solana 压缩索引器服务的运行状态，确保压缩的 NFT 和代币操作可以可靠地处理。
-
-    对于依赖 Solana 状态压缩技术以实现成本效益的数字资产的应用程序至关重要。\n"
+    对于依赖 Solana 状态压缩技术以实现成本效益的数字资产的应用程序至关重要。
   license:
-    name: "Apache-2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
-  version: "0.50.0"
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.50.0
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网 RPC 端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网 RPC 端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网 RPC 端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网 RPC 端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的 Helius API 密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC 协议版本。"
+          type: string
+          description: JSON-RPC 协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
-    summary: "getIndexerHealth"
+    summary: getIndexerHealth
     post:
-      description: "检查 Solana 压缩索引器是否正常运行并与网络同步。这个重要的监控 API 提供了一个简单的健康状态指示器，用于验证压缩索引器服务是否正常运行并跟上 Solana 区块链。如果索引器健康，则返回成功响应；如果出现问题，则返回带有诊断详细信息的错误响应。对于基础设施监控系统、可靠性仪表板以及任何需要确认 Solana 压缩基础设施在对压缩的 NFT 或代币进行操作之前正常运行的服务来说，这都是至关重要的。"
-      operationId: "getIndexerHealth"
+      description: |-
+        检查 Solana 压缩索引器是否正常运行并与网络同步。这个重要的监控 API 提供了一个简单的健康状态指示器，用于验证压缩索引器服务是否正常运行并跟上 Solana 区块链。如果索引器健康，则返回成功响应；如果出现问题，则返回带有诊断详细信息的错误响应。对于基础设施监控系统、可靠性仪表板以及任何需要确认 Solana 压缩基础设施在对压缩的 NFT 或代币进行操作之前正常运行的服务来说，这都是至关重要的。
+      operationId: getIndexerHealth
       security:
         - ApiKeyQuery: []
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               required:
-                - "jsonrpc"
-                - "id"
-                - "method"
+                - jsonrpc
+                - id
+                - method
               properties:
                 jsonrpc:
-                  type: "string"
-                  description: "JSON-RPC 协议的版本。"
+                  type: string
+                  description: JSON-RPC 协议的版本。
                   enum:
-                    - "2.0"
-                  default: "2.0"
+                    - '2.0'
+                  default: '2.0'
                 id:
-                  type: "string"
-                  description: "用于标识请求的 ID。"
+                  type: string
+                  description: 用于标识请求的 ID。
                   default: "1"
                 method:
-                  type: "string"
-                  description: "用于检查 Solana 压缩索引器健康状态的方法名称。"
+                  type: string
+                  description: 用于检查 Solana 压缩索引器健康状态的方法名称。
                   enum:
-                    - "getIndexerHealth"
-                  default: "getIndexerHealth"
+                    - getIndexerHealth
+                  default: getIndexerHealth
         required: true
       responses:
-        "200":
-          description: "Solana 压缩索引器健康并与网络同步"
+        '200':
+          description: 'Solana 压缩索引器健康并与网络同步'
           content:
             application/json:
               schema:
-                type: "string"
-                description: "当 Solana 压缩索引器健康并正常运行时返回 \"ok\""
-                default: "ok"
+                type: string
+                description: 当 Solana 压缩索引器健康并正常运行时返回 "ok"
+                default: ok
                 enum:
-                  - "ok"
-        "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+                  - ok
+        '400':
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32602
                   message: "Invalid params"
                 id: "1"
-        "401":
-          description: "未授权 - API 密钥无效或缺失。"
+        '401':
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32001
                   message: "未授权"
                 id: "1"
-        "429":
-          description: "请求过多 - 超出速率限制。"
+        '429':
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32005
                   message: "请求过多"
                 id: "1"
-        "500":
-          description: "内部服务器错误 - 压缩索引器出现问题。"
+        '500':
+          description: 内部服务器错误 - 压缩索引器出现问题。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32603
                   message: "内部错误"
                 id: "1"
-        "503":
-          description: "服务不可用 - 服务暂时不可用。"
+        '503':
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
                   code: -32002
                   message: "服务不可用"
                 id: "1"
-        "504":
-          description: "网关超时 - 请求超时。"
+        '504':
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:

@@ -1,0 +1,89 @@
+---
+title: "Enhanced Transactions Overview"
+sidebarTitle: "Overview"
+description: "Transform complex Solana blockchain transactions into human-readable data with Helius Enhanced Transactions API. Parse transaction details, fetch history, and understand on-chain activity without manual decoding."
+---
+
+<CardGroup cols={2}>
+  <Card title="Parse Transaction(s)" icon="code" href="/enhanced-transactions/parse-transactions">
+    Parse transactions into human-readable data
+  </Card>
+  <Card title="Transaction History" icon="clock-rotate-left" href="/enhanced-transactions/transaction-history">
+    Get historical transaction data for any address
+  </Card>
+</CardGroup>
+
+<Note>
+**Quick Reference**:
+- `/v0/transactions` - Parse individual or multiple transaction signatures
+- `/v0/addresses/{address}/transactions` - Get transaction history for an address
+- Filter by transaction type using the `type` parameter (e.g., `NFT_SALE`, `SWAP`, `TRANSFER`)
+- View all available type filters in the [API Reference](/api-reference/enhanced-transactions/gettransactionsbyaddress)
+</Note>
+
+## Overview
+
+The Enhanced Transactions API transforms complex Solana transactions into human-readable data.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Human-Readable Data" icon="book-open">
+    Get clear descriptions of transaction activities instead of raw blockchain data
+  </Card>
+  <Card title="Type Filtering" icon="filter">
+    Filter transactions by type: NFT sales, swaps, transfers, and more.
+    [See all types](/api-reference/enhanced-transactions/gettransactionsbyaddress).
+  </Card>
+  <Card title="Pagination Support" icon="arrows-rotate">
+    Efficiently fetch large transaction histories with built-in pagination
+  </Card>
+  <Card title="Detailed Metadata" icon="info">
+    Access timestamps, fees, signatures, and account information
+  </Card>
+</CardGroup>
+
+## What You Get
+
+The Enhanced Transactions API provides:
+
+- **Structured Data**: Transaction details organized in a clean, accessible format
+- **Event Summaries**: High-level summaries of what happened in each transaction
+- **Account Information**: Details about all accounts involved
+- **Transfer Details**: Clear information about SOL and token movements
+- **Timestamps**: When transactions were processed
+- **Fee Information**: Transaction fees and fee payer details
+
+## Use Cases
+
+The Enhanced Transactions API is ideal for:
+
+- **Wallet Applications**: Display transaction history to users
+- **Portfolio Trackers**: Track asset movements across accounts
+- **Analytics Platforms**: Analyze on-chain activity
+- **NFT Marketplaces**: Monitor NFT sales and listings
+- **DeFi Applications**: Track swaps and transfers (for supported protocols)
+
+## Getting Started
+
+<Steps>
+<Step title="Get Your API Key">
+  Sign up at [dashboard.helius.dev](https://dashboard.helius.dev) to get your API key.
+</Step>
+
+<Step title="Choose Your Endpoint">
+  Select either the parse transactions or transaction history endpoint based on your needs.
+</Step>
+
+<Step title="Make Your First Request">
+  Start with a simple request to parse a transaction or fetch transaction history.
+  
+  <Tip>
+  Check out our [Parse Transactions](/enhanced-transactions/parse-transactions) and [Transaction History](/enhanced-transactions/transaction-history) guides for code examples.
+  </Tip>
+</Step>
+</Steps>
+
+## Questions?
+
+For frequently asked questions about Enhanced Transactions including usage, authentication, rate limits, and troubleshooting, visit our comprehensive [Enhanced Transactions FAQ](/faqs/enhanced-transactions). 

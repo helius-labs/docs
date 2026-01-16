@@ -5,8 +5,8 @@ description: 获取关于 Solana RPC 节点、方法、速率限制和故障排�
 
 ## 计费和速率限制
 
-<Accordion title="为什么在我的计划速率限制以下，我的 getProgramAccounts 会被限速？">
-`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数之外，还有额外的速率限制。请考虑过滤参数，或将大型查询分解为较小的块以保持在[限制](/zh/billing/plans-and-rate-limits#high-complexity-calls)内。
+<Accordion title="为什么 getProgramAccounts 在低于我计划的速率限制时会受到速率限制？">
+`getProgramAccounts` 是一个资源密集型方法，除了标准的每秒请求数限制外，还有额外的速率限制。请考虑使用过滤参数，或将大型查询分解为较小的部分以保持在[限制](/zh/billing/rate-limits)内。
 </Accordion>
 
 <Accordion title="我可以为我的 RPC 端点获取特定区域吗？">
@@ -25,8 +25,8 @@ Helius 会自动将请求路由到最佳区域以提高性能。对于特殊的�
 
 ## 使用 RPC
 
-<Accordion title="获取最新 blockhash 的最佳实践是什么？">
-使用 `getLatestBlockhash` 与 `"processed"` 或 `"confirmed"` 承诺级别获取最新的 blockhash。在提交交易之前始终获取新的 blockhash 以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
+<Accordion title="获取最新区块哈希的最佳实践是什么？">
+使用`getLatestBlockhash`和`"confirmed"`承诺级别来获取最新的区块哈希。在提交交易之前，始终获取一个新的区块哈希以确保有效性。详情请参阅我们的[getLatestBlockhash 指南](/zh/rpc/guides/getlatestblockhash)。
 </Accordion>
 
 <Accordion title="什么是 staked connections？">
@@ -35,6 +35,30 @@ Staked connections 将您的交易直接路由到当前和即将到来的区块�
 
 <Accordion title="使用标准RPC调用，我可以访问多长时间的历史数据？">
 标准RPC计划提供对所有历史Solana数据的访问。专用节点仅维护约48小时的历史记录。
+</Accordion>
+
+<Accordion title="如何尽快完成我的交易？">
+使用[Helius Sender](https://www.helius.dev/docs/sending-transactions/sender)。它同时通过Helius的质押连接和Jito Block Engines路由您的交易，以实现最大速度和着陆概率。
+</Accordion>
+
+<Accordion title="如何将我的请求路由到离我最近的服务器？">
+通过共享计划上的标准RPC URL发送的所有RPC请求都会自动路由到最近的服务器。您无需采取任何行动。
+</Accordion>
+
+<Accordion title="你们的RPC服务器位于哪里？">
+我们在全球运营RPC节点，包括：亚洲（东京、新加坡）、北美（匹兹堡、纽瓦克、盐湖城、洛杉矶、温哥华）和欧洲（都柏林、伦敦、阿姆斯特丹、法兰克福）。
+</Accordion>
+
+<Accordion title="RPC速率限制如何运作？">
+您的RPC速率限制适用于所有RPC方法的总和，而不是单独适用于每一个。例如，如果您的RPC速率限制是100，并且您每秒进行50次getAccountInfo请求，那么您只能额外进行50次getTransaction请求。
+</Accordion>
+
+<Accordion title="特殊限制如何影响 RPC 速率限制？">
+由于计算要求，一些方法如 getProgramAccounts 有特殊的速率限制。然而，它们仍然计入总的 RPC 速率限制。详情请阅读我们的[特殊速率限制指南](https://www.helius.dev/docs/billing/rate-limits)。
+</Accordion>
+
+<Accordion title="RPC速率限制和DAS速率限制之间的关系是什么？">
+RPC速率限制和DAS速率限制是相互独立的。例如，如果您的计划有50的RPC速率限制和10的DAS速率限制，这允许您每秒进行50次getBlock和10次getAsset调用。
 </Accordion>
 
 ---
@@ -47,7 +71,7 @@ Staked connections 将您的交易直接路由到当前和即将到来的区块�
     icon="headset"
     href="/zh/support/contact-support"
   >
-    通过Discord、聊天或电子邮件支持从我们的团队获取帮助。
+    通过 Discord、聊天或电子邮件支持从我们的团队获取帮助。
   </Card>
   <Card
     title="状态页面"

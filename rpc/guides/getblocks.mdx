@@ -6,6 +6,12 @@ description: "Learn getBlocks use cases, code examples, request parameters, resp
 
 The [`getBlocks`](https://www.helius.dev/docs/api-reference/rpc/http/getblocks) RPC method allows you to retrieve a list of confirmed block slot numbers between a specified start slot and an optional end [slot](https://www.helius.dev/blog/solana-slots-blocks-and-epochs). This is useful when you need to know which blocks have been confirmed in a particular range without fetching the full content of each block.
 
+<Warning>
+**Avoid Batching for Better Performance**
+
+Batching archival methods significantly increases latency. Batches over 10 requests are not allowed.
+</Warning>
+
 ## Common Use Cases
 
 *   **Identifying Confirmed Blocks in a Range:** Quickly get a list of all block slots that were successfully confirmed between two points in the ledger.

@@ -1,5 +1,6 @@
 ---
 title: Solana 增强型交易 API
+sidebarTitle: 增强的交易API
 description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链交易转换为人类可读的数据。解析交易详情、获取历史记录，并了解链上活动，无需手动解码。
 ---
 
@@ -46,7 +47,7 @@ description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链�
 
     ```javascript
     const parseTransaction = async () => {
-      const url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY";
+      const url = "https://api-mainnet.helius-rpc.com/v0/transactions/?api-key=YOUR_API_KEY";
     
       const response = await fetch(url, {
         method: 'POST',
@@ -73,7 +74,7 @@ description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链�
     import json
     
     def parse_transaction():
-        url = "https://api.helius.xyz/v0/transactions/?api-key=YOUR_API_KEY"
+        url = "https://api-mainnet.helius-rpc.com/v0/transactions/?api-key=YOUR_API_KEY"
         
         payload = {
             "transactions": ["5rfFLBUp5YPr6rC2g1KBBW8LGZBcZ8Lvs7gKAdgrBjmQvFf6EKkgc5cpAQUTwGxDJbNqtLYkjV5vS5zVK4tb6JtP"]
@@ -103,7 +104,7 @@ description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链�
     ```javascript
     const fetchWalletTransactions = async () => {
       const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Replace with target wallet
-      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
       
       const response = await fetch(url);
       const transactions = await response.json();
@@ -121,7 +122,7 @@ description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链�
     
     def fetch_wallet_transactions():
         wallet_address = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"  # Replace with target wallet
-        url = f"https://api.helius.xyz/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
+        url = f"https://api-mainnet.helius-rpc.com/v0/addresses/{wallet_address}/transactions?api-key=YOUR_API_KEY"
         
         response = requests.get(url)
         transactions = response.json()
@@ -157,14 +158,14 @@ description: 通过 Helius 增强型交易 API，将复杂的 Solana 区块链�
 ```javascript
 const fetchAllTransactions = async () => {
   const walletAddress = "2k5AXX4guW9XwRQ1AKCpAuUqgWDpQpwFfpVFh3hnm2Ha"; // Replace with target wallet
-  const baseUrl = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
+  const baseUrl = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY`;
   let url = baseUrl;
   let lastSignature = null;
   let allTransactions = [];
   
   while (true) {
     if (lastSignature) {
-      url = baseUrl + `&before=${lastSignature}`;
+      url = baseUrl + `&before-signature=${lastSignature}`;
     }
     
     const response = await fetch(url);
@@ -201,7 +202,7 @@ const fetchAllTransactions = async () => {
     ```javascript
     const fetchNftSales = async () => {
       const tokenAddress = "GjUG1BATg5V4bdAr1csKys1XK9fmrbntgb1iV7rAkn94"; // NFT mint address
-      const url = `https://api.helius.xyz/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${tokenAddress}/transactions?api-key=YOUR_API_KEY&type=NFT_SALE`;
       
       const response = await fetch(url);
       const nftSales = await response.json();
@@ -215,7 +216,7 @@ const fetchAllTransactions = async () => {
     ```javascript
     const fetchTokenTransfers = async () => {
       const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
-      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=TRANSFER`;
       
       const response = await fetch(url);
       const transfers = await response.json();
@@ -229,7 +230,7 @@ const fetchAllTransactions = async () => {
     ```javascript
     const fetchSwapTransactions = async () => {
       const walletAddress = "M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K"; // Wallet address
-      const url = `https://api.helius.xyz/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
+      const url = `https://api-mainnet.helius-rpc.com/v0/addresses/${walletAddress}/transactions?api-key=YOUR_API_KEY&type=SWAP`;
       
       const response = await fetch(url);
       const swaps = await response.json();

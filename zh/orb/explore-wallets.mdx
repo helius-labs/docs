@@ -1,0 +1,157 @@
+---
+title: 使用 Orb 区块浏览器作为 Solana 钱包追踪器
+sidebarTitle: 探索钱包
+description: 了解如何使用 Orb，一个新的 Solana 区块浏览器，来追踪、分析和检查 Solana 钱包，包括交易、代币、余额、资金等。
+---
+
+Orb 是一个快速且易于阅读的区块链浏览器，可以用作 [Solana 钱包浏览器](https://orb.helius.dev)。使用 Orb，您可以追踪任何钱包地址，查看谁为其提供资金，查找任何 SNS 域名，查看代币账户、余额、NFT、交易历史等。
+
+本教程将介绍如何使用 Orb 作为 Solana 钱包检查器的所有方法。
+
+## 如何探索 Solana 钱包
+
+Solana 钱包浏览器的主要功能是轻松查找代币、余额、收藏品和交易历史。
+
+钱包浏览器也是查找特定历史交易的有价值工具，用于报税、确定资产购买日期、计算盈亏等。
+
+### 钱包追踪器概述
+
+要在 Orb 上找到一个钱包，请在搜索栏中输入钱包地址或去中心化域名。点击结果后，您将进入钱包浏览器页面。
+
+在页面顶部，您将看到钱包的地址和钱包摘要，包括其总价值、SOL 余额，以及以 SOL 和 USD 计价的余额。
+
+<Frame caption="Orb 浏览器上的 Solana 钱包摘要部分">
+
+  ![Solana Wallet Explorer Summary Jp](/images/solana-wallet-explorer-summary.jpg)
+
+</Frame>
+
+### 追踪谁为 Solana 钱包提供资金
+
+在 Orb 上的 Solana 钱包地址旁边，您会找到一个标记为 **Funded by** 的部分。这显示了哪个钱包或标记的交易所账户为该钱包提供了资金，以及日期。
+
+<Frame caption="探索最初为您的Solana钱包提供资金的地址">
+
+  ![Solana Wallet Explorer Wallet Funding History Jp](/images/solana-wallet-explorer-wallet-funding-history.jpg)
+
+</Frame>
+
+要访问资金地址，请点击地址或标记的交易所账户名称。要查看资金交易，请点击“在新窗口中打开”图标。
+
+当您尝试连接可疑活动时，此功能特别有用。例如，如果您注意到某个代币的非正常交易，您可以查看资金的来源。
+
+在某些情况下，您可以识别出一个与多个不同钱包交易单一代币的原始钱包。
+
+### 查找Solana域名
+
+Solana域名通过将钱包的公钥注册为可读的.sol地址，使在Solana上发送和接收资产变得更容易。
+
+您无需在应用中复制/粘贴完整的钱包地址，只需输入.sol域名或AllDomains ID，它将解析为其注册的钱包地址。
+
+在钱包浏览器页面的右上角，您可以找到注册到当前钱包的所有SNS域名。在此示例中，我们使用god.sol，一个知名的Solana memecoin交易者。
+
+<Frame caption="探索注册到您钱包的Solana域名">
+
+  ![Solana Wallet Explorer Sns Domain Names Jp](/images/solana-wallet-explorer-sns-domain-names.jpg)
+
+</Frame>
+
+### 检查您的钱包的代币和余额
+
+Solana上钱包浏览器的主要用例是查看您的钱包持有的代币、数量及其价值。要在Orb上执行此操作，请点击**代币**选项卡。
+
+在这里，您会找到代币名称、图标、铸造地址、余额、价值和价格。展开菜单，您可以看到每个代币的最新交易记录。
+
+<Frame caption="Orb 的 Solana 钱包浏览器登录页面">
+
+  ![Solana Wallet Explorer Token List Balances And Prices Jp](/images/solana-wallet-explorer-token-list-balances-and-prices.jpg)
+
+</Frame>
+
+Orb 的钱包浏览器会自动过滤掉未验证的代币。如果您的钱包中包含大量垃圾代币，这一点尤其有用，因为这些代币可能会人为地抬高您钱包的总价值。要查看未验证的代币，只需取消选择验证选项。
+
+要深入了解如何使用 Orb [探索 Solana 代币](https://www.helius.dev/docs/orb/explore-tokens)，请阅读我们的代币教程。
+
+### 探索您钱包中的 NFT
+
+点击 **NFTs** 标签以查看您钱包中的 NFT，并使用过滤器去除垃圾。
+
+要进一步过滤视图，请启用 Metaplex 验证切换或从下拉菜单中选择一个集合。
+
+<Frame caption="Orb 中的 Solana NFT 过滤选项">
+
+  ![The Orb Solana Nft Explorer Filter List Jp](/images/the-orb-solana-nft-explorer-filter-list.jpg)
+
+</Frame>
+
+要探索 NFT 元数据和历史记录，请点击您的一个 NFT。
+
+<Frame caption="Orb 的 Solana NFT 浏览器页面，Mad Lad #5566">
+
+  ![Explore Solana Nfts On Orb Mad Lad Asset Page Jp](/images/explore-solana-nfts-on-orb-mad-lad-asset-page.jpg)
+
+</Frame>
+
+### 监控钱包质押账户
+
+要查看您的钱包是否有任何质押账户，请点击 **Stake** 标签。
+
+此部分将显示您钱包的总质押、质押状态（例如，活跃、激活中、停用中、不活跃）、您质押的验证者、质押金额和验证者的佣金率。
+
+<Frame caption="探索钱包 4Yjnk…uY7ke 的 Solana 质押账户">
+
+  ![The Orb Solana Wallet Explorer To Find Sol Stake Accounts Jp](/images/the-orb-solana-wallet-explorer-to-find-sol-stake-accounts.jpg)
+
+</Frame>
+
+更多信息，请使用我们的免费 [SOL 收益计算器](https://www.helius.dev/staking/calculator) 和 [比较 SOL 质押提供商](https://www.helius.dev/staking/rewards)。
+
+要与 Helius 质押 SOL，Solana 的首选验证者，请访问 [Orb 质押门户](https://orb.helius.dev/stake)。
+
+### 分析 Solana 钱包历史记录
+
+Orb 的钱包浏览器还包含交易和转账历史记录，因此您可以查看最近的历史记录。要查找特定交易，请应用 Orb 的众多钱包过滤选项之一：
+
+- 转账方向：收入或支出
+- 日期范围：查看特定时期的交易
+- 收件人/发件人：限制结果到特定地址
+- 代币：按特定代币过滤交易
+- 程序：按程序过滤交易
+- 垃圾信息：隐藏垃圾转账和交易
+- 显示最早的优先：反向查找结果
+
+<Frame caption="Orb 浏览器上的钱包转账和交易过滤器列表">
+
+  ![Solana 钱包转账历史过滤器在 Orb 浏览器上 Jp](/images/solana-wallet-transfer-history-filters-on-the-orb-explorer.jpg)
+
+</Frame>
+
+有关使用 Orb [探索 Solana 交易](https://www.helius.dev/docs/orb/explore-transactions)的更多信息，请阅读我们的交易教程。
+
+### 查找 Solana 钱包热图
+
+要查看您的钱包在 Solana 上进行交易的所有日期的日历视图，请点击 **热图**。
+
+类似于 GitHub 贡献图，Orb 的交易热图显示了最近 6 个月的活动，活动较多的日子以亮橙色显示，活动较少的日子以较浅的色调显示。
+
+<Frame caption="Orb Solana 钱包浏览器上的交易热图查看器">
+
+  ![Solana 钱包浏览器交易热图 Jp](/images/solana-wallet-explorer-transaction-heatmap.jpg)
+
+</Frame>
+
+将鼠标悬停在任何一天上以查看总交易量，并点击它以查看该天交易的过滤列表。
+
+<Note>
+  **注意：** 交易热图每个账户最多显示 5,000 笔交易。
+</Note>
+
+## 结论
+
+[Orb](https://orb.helius.dev) 是一个快速、易于阅读的 Solana 钱包浏览器，使查看钱包交易、代币、代币账户、余额、数字收藏品、质押账户等变得简单。
+
+有关使用Orb的更多教程，请查看以下指南：
+
+1. [如何使用Orb作为Solana程序浏览器](https://www.helius.dev/docs/orb/explore-programs)
+2. [如何使用Orb查找Solana铸币地址](https://www.helius.dev/docs/orb/explore-mint-addresses)
+3. [如何使用Orb查找Solana代币权限](https://www.helius.dev/docs/orb/explore-authorities)

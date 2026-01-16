@@ -6,7 +6,7 @@ description: 获取关于 WebSockets 的最常见问题的答案，包括增强�
 ## 计费和速率限制
 
 <Accordion title="WebSocket 事件消耗多少积分？">
-WebSocket 事件不消耗积分。标准 WebSockets 和增强型 WebSockets 都包含在您的计划中，无需额外的积分费用。
+打开一个新的 WebSocket 连接消耗 1 积分。通过标准 WebSocket 传输数据是免费的，无论数据量多少。对于增强型 WebSocket，您的数据消耗是按量计费的，每 0.1 MB 消耗 3 积分。
 </Accordion>
 
 <Accordion title="增强型 WebSockets 比普通 WebSockets 快多少？">
@@ -26,6 +26,20 @@ WebSocket 事件不消耗积分。标准 WebSockets 和增强型 WebSockets 都�
 </Accordion>
 
 ## 使用 WebSockets
+
+<Accordion title="最大活跃 WebSocket 连接数是多少？">
+在免费计划中，您可以同时建立 5 个 WebSocket 连接。在开发者计划中，可以建立 150 个连接。对于商业和专业计划，您可以建立 250 个 WebSocket 连接。
+</Accordion>
+
+<Accordion title="为什么我的客户端没有收到某些 WebSocket 更新？">
+客户端需要跟上来自 WebSocket 服务器的消息接收速率。
+
+客户端错过 WebSocket 更新的常见原因包括：网络带宽不足、客户端处理速度过慢（例如，编程语言过慢）或阻塞主线程的处理逻辑。
+</Accordion>
+
+<Accordion title="我可以使用同一个 WebSocket 连接订阅多个账户吗？">
+是的，您可以使用同一个 WebSocket 连接创建多个订阅到 `accountSubscribe`。
+</Accordion>
 
 <Accordion title="如何使用 WebSockets 订阅完整交易？">
 **对于增强型 WebSockets**，在您的订阅选项中设置 `transactionDetails: "full"`：
@@ -51,7 +65,7 @@ const subscriptionRequest = {
 };
 ```
 
-**对于标准 WebSockets**，根据您的监控需求使用 `logsSubscribe` 或 `signatureSubscribe` 方法。有关每种订阅类型的详细示例，请参阅我们的 [WebSocket 指南](/zh/rpc/websocket)。
+**对于标准 WebSockets**，根据您的监控需求使用 `logsSubscribe` 或 `signatureSubscribe` 方法。请参阅我们的 [WebSocket 指南](/zh/rpc/websocket) 以获取每种订阅类型的详细示例。
 </Accordion>
 
 ---

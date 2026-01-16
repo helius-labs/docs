@@ -6,7 +6,7 @@ description: "Get answers to the most common questions about Solana RPC nodes, m
 ## Billing and Rate Limits
 
 <Accordion title="Why do I get rate limited for getProgramAccounts below my plan's rate limit?">
-`getProgramAccounts` is a resource-intensive method that have an additional rate limiting beyond standard requests per second. Consider filtering parameters, or breaking large queries into smaller chunks to stay within [limits](/billing/plans-and-rate-limits#high-complexity-calls).
+`getProgramAccounts` is a resource-intensive method that have an additional rate limiting beyond standard requests per second. Consider filtering parameters, or breaking large queries into smaller chunks to stay within [limits](/billing/rate-limits).
 </Accordion>
 
 <Accordion title="Can I get a specific region for my RPC endpoint?">
@@ -26,7 +26,7 @@ Check our [status page](https://helius.statuspage.io/) for relevant updates. If 
 ## Using RPCs
 
 <Accordion title="What is the best practice for getting the latest blockhash?">
-Use `getLatestBlockhash` with `"processed"` or `"confirmed"` commitment levels for the most recent blockhash. Always fetch a fresh blockhash before submitting transactions to ensure validity. See our [getLatestBlockhash guide](/rpc/guides/getlatestblockhash) for details.
+Use `getLatestBlockhash` with `"confirmed"` commitment level for the most recent blockhash. Always fetch a fresh blockhash before submitting transactions to ensure validity. See our [getLatestBlockhash guide](/rpc/guides/getlatestblockhash) for details.
 </Accordion>
 
 <Accordion title="What are staked connections?">
@@ -35,6 +35,30 @@ Staked connections route your transactions directly to current and upcoming bloc
 
 <Accordion title="How far back can I access historical data using standard RPC calls?">
 Standard RPC plans provide access to all historical Solana data. Dedicated nodes only maintain ~48 hours of history.
+</Accordion>
+
+<Accordion title="How can I land my transactions as quickly as possible?">
+Use [Helius Sender](https://www.helius.dev/docs/sending-transactions/sender). It simultaneously routes your transactions through Helius’s staked connections and to Jito Block Engines for maximum speed and landing probability.
+</Accordion>
+
+<Accordion title="How do I route my request to your closest server?">
+All RPC requests sent through standard RPC URLs on shared plans are automatically routed to the closest server. There is no action required from you.
+</Accordion>
+
+<Accordion title="Where are your RPC servers located?">
+We operate RPC nodes globally including: Asia (Tokyo, Singapore), North America (Pittsburgh, Newark, Salt Lake City, Los Angeles, Vancouver), and Europe (Dublin, London, Amsterdam, Frankfurt).
+</Accordion>
+
+<Accordion title="How do RPC rate limits work?">
+Your RPC rate limits apply to all RPC methods in total, not to each one separately. For example, if your RPC rate limit is 100 and you’re making 50 getAccountInfo requests per second, you can only make 50 getTransaction requests in addition.
+</Accordion>
+
+<Accordion title="How do the special limits affect RPC rate limits?">
+Some methods like getProgramAccounts have special rate limits due to their computational requirements. However, they still count towards the total RPC rate limit. For details, read our [guide on special rate limits](https://www.helius.dev/docs/billing/rate-limits).
+</Accordion>
+
+<Accordion title="What is the relationship between RPC rate limits and DAS rate limits?">
+RPC rate limits and DAS rate limits are independent of each other. For example, if your plan has a RPC rate limit of 50 and a DAS rate limit of 10, this allows you to make 50 getBlock **and** 10 getAsset calls per second.
 </Accordion>
 
 ---

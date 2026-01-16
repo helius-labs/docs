@@ -6,7 +6,7 @@ description: "Get answers to the most common questions about Digital Asset Stand
 ## Using DAS API
 
 <Accordion title="Can I get price data for any token?">
-Price data is available only for Jupiter-verified tokens. Check whether `token_info.price_info` exists in the `getAsset` response.
+Price data is available for the top 10k tokens by 24h volume. Check whether `token_info.price_info` exists in the `getAsset` response.
 </Accordion>
 
 <Accordion title="How do I get all NFTs for a wallet?">
@@ -26,17 +26,21 @@ Use `getProgramAccounts` filtered by the token program and mint address, or `get
 </Accordion>
 
 <Accordion title="How do I get the market capitalization of a token?">
-Multiply the token's circulating supply by its current price (from `getAsset`). Only Jupiter-verified tokens include price data in DAS API responses.
+Multiply the token's circulating supply by its current price (from `getAsset`). Price data is available for the top 10k tokens by 24h volume in DAS API responses.
 </Accordion>
 
 <Accordion title="How to get updates on balance changes of all tokens owned by a wallet?">
 Subscribe to account changes using WebSockets or LaserStream, filtering for the wallet's token accounts. You can also use webhooks with account monitoring for real-time balance change notifications.
 </Accordion>
 
+<Accordion title="What is the relationship between DAS rate limits and RPC rate limits?">
+DAS rate limits and RPC rate limits are independent of each other. For example, if your plan has a DAS rate limit of 10 and a RPC rate limit of 50, this allows you to make 10 getAsset **and** 50 getBlock calls per second.
+</Accordion>
+
 ## Troubleshooting DAS API
 
 <Accordion title="Why does getAsset sometimes lack price?">
-We only show price data for Jupiter-verified tokens.
+We provide price data for the top 10k tokens by 24h volume. Tokens outside this range will not have price information.
 </Accordion>
 
 <Accordion title="Why does my TOKEN_MINT webhook not return all token mints?">

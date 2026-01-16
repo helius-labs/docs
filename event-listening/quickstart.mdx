@@ -23,7 +23,7 @@ Helius offers two primary methods for event listening:
 <Steps>
   <Step title="Create a Webhook">
     ```bash
-    curl -X POST 'https://api.helius.xyz/v0/webhooks' \
+    curl -X POST 'https://api-mainnet.helius-rpc.com/v0/webhooks' \
       -H 'Content-Type: application/json' \
       -d '{
         "accountAddresses": ["YOUR_ACCOUNT_ADDRESS"],
@@ -62,7 +62,7 @@ Helius offers two primary methods for event listening:
     const WebSocket = require('ws');
 
     // Connect to Helius WebSocket endpoint
-    const ws = new WebSocket('wss://api.helius.xyz/v0/webhook-events?api-key=YOUR_API_KEY');
+    const ws = new WebSocket('wss://mainnet.helius-rpc.com/?api-key=YOUR_API_KEY');
     ```
   </Step>
   <Step title="Set Up Event Handlers">

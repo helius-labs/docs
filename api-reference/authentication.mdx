@@ -154,16 +154,6 @@ Rate limits vary by subscription plan. Monitor your usage in the [Helius Dashboa
 - **Monthly request quota**: Total requests allowed per billing cycle
 - **Burst allowance**: Short-term spikes above your base rate limit
 
-### Rate Limit Headers
-
-Helius includes rate limit information in response headers:
-
-```http
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 95
-X-RateLimit-Reset: 1640995200
-```
-
 ### Handling Rate Limits
 
 <CodeGroup>
@@ -255,8 +245,8 @@ def make_request(url, data):
   <Card title="API Reference" icon="book" href="/api-reference">
     Explore all available endpoints and methods
   </Card>
-  <Card title="Rate Limits & Billing" icon="credit-card" href="/billing/plans-and-rate-limits">
-    Understand pricing and upgrade options
+  <Card title="Rate Limits" icon="credit-card" href="/billing/rate-limits">
+    Understand rate limits and upgrade options
   </Card>
   <Card title="Dashboard" icon="chart-line" href="https://dashboard.helius.dev">
     Monitor your API usage and manage keys

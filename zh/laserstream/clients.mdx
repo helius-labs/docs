@@ -10,13 +10,15 @@ LaserStream 客户端通过槽号持续跟踪您的流媒体位置。如果发�
 
 ## JavaScript/TypeScript 客户端
 
-[JavaScript 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) 使用原生 Rust 绑定实现 1.3GB/s 的吞吐量——比 Yellowstone gRPC JavaScript 客户端快 40 倍以上，后者的最大吞吐量为 30MB/s。
-
 <Warning>
-随着 Solana 的持续扩展，Yellowstone JavaScript 客户端将难以跟上。如果 Solana 提速 3 倍，订阅所有交易或区块的 Yellowstone gRPC 客户端将无法匹配链速度。LaserStream 客户端的性能余量确保您的应用程序能够随网络扩展。
+**我们强烈建议为 JavaScript 应用切换到 LaserStream SDK。** 如果您当前使用 Yellowstone gRPC 客户端，您将会遇到逐渐增加的流延迟和性能瓶颈，这些问题会随着时间的推移而加剧。LaserStream 客户端的性能余量确保您的应用可以随网络扩展，并完全消除这些问题。
 </Warning>
 
-在高带宽订阅中，Yellowstone 客户端会经历随时间累积的渐进延迟。LaserStream 无论数据量如何，始终保持一致的低延迟流媒体。
+[JavaScript 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/javascript) 使用原生 Rust 绑定实现 1.3GB/s 的吞吐量——比 Yellowstone gRPC JavaScript 客户端的最大 30MB/s 快 40 倍以上。
+
+**4倍更快的事件检测**：得益于其基于Rust的架构，LaserStream JavaScript客户端接收和处理事件的速度比Yellowstone客户端快4倍，使您的应用程序在事件检测上具有显著的竞争优势。
+
+在高带宽订阅中，Yellowstone客户端会经历随时间累积的渐进延迟。LaserStream则无论数据量如何，始终保持一致的低延迟流传输。
 
 ### 安装
 
@@ -86,13 +88,13 @@ streamTransactions().catch(console.error);
 | 功能 | LaserStream | Yellowstone |
 |---------|------------|-------------|
 | 自动重播 | ✅ 内置 | ❌ 需要手动实现 |
-| 渐进延迟 | ❌ 无 | ✅ 在高带宽下 |
+| 渐进延迟 | ❌ 无 | ✅ 在高带宽时 |
 | 数据丢失保护 | ✅ 自动 | ❌ 应用程序负责 |
 | 重新连接 | ✅ 无缝 | ❌ 无内置支持 |
 
 ## Rust 客户端
 
-[Rust 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/rust) 提供零拷贝反序列化和原生性能，适用于需要最大控制的应用程序。
+[Rust 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/rust)为需要最大控制的应用程序提供零拷贝反序列化和本地性能。
 
 ### 安装
 
@@ -143,7 +145,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Go 客户端
 
-[Go 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/go) 提供惯用的 Go 接口。
+[Go 客户端](https://github.com/helius-labs/laserstream-sdk/tree/main/go)提供惯用的Go接口。
 
 ### 安装
 
@@ -197,13 +199,13 @@ func main() {
 }
 ```
 
-## 为什么从 Yellowstone 迁移到 LaserStream
+## 为什么从Yellowstone迁移到LaserStream
 
-Yellowstone 客户端面临的关键限制将随着 Solana 的扩展而恶化：
+Yellowstone 客户面临的关键限制将随着 Solana 的扩展而恶化：
 
-1. **性能瓶颈**：Yellowstone JavaScript 客户端的最大吞吐量为 30MB/s——对于高吞吐量应用程序来说不够
+1. **性能瓶颈**：Yellowstone JavaScript 客户端的最大速度为 30MB/s——对于高吞吐量应用程序来说不够
 2. **渐进延迟**：在高带宽订阅中，延迟会随着时间的推移而累积
 3. **手动重播**：您必须实现自己的重新连接和重播逻辑
 4. **数据丢失风险**：没有内置重播，网络中断意味着错过交易
 
-**LaserStream 解决了这些问题**。通过 40 倍的性能提升、自动重播和零数据丢失保证，迁移到 LaserStream 确保您的应用程序在 Solana 发展过程中保持竞争力。
+**LaserStream 解决了这些问题**。凭借 40 倍的性能提升、自动重播和零数据丢失保证，迁移到 LaserStream 确保您的应用程序在 Solana 发展时保持竞争力。

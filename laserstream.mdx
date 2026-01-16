@@ -29,6 +29,24 @@ Unlike standard Solana RPC nodes, LaserStream is specifically designed for strea
   </Card>
 </CardGroup>
 
+## LaserStream vs. Shred Delivery: Quick Comparison
+
+<Tip>
+**TL;DR**: LaserStream delivers **processed data** with commitment-level guarantees (processed, confirmed, finalized), making it turnkey and production-ready. For the **earliest possible raw data** before any processing occurs, see [Shred Delivery](/shred-delivery)—but you must implement custom deshredding logic.
+</Tip>
+
+| Feature | LaserStream | Shred Delivery |
+|---------|-------------|----------------|
+| **Data Type** | Processed data with commitment guarantees | Raw, unprocessed shreds |
+| **Latency** | Ultra-low latency processed data | **Earliest possible** - before any processing |
+| **Processing** | Turnkey - data is processed and ready to use | **You must process raw data** - requires custom deshredding logic |
+| **Best For** | Production applications, analytics, backend services | High-frequency trading, arbitrage (when milliseconds matter) |
+| **Setup** | Developer-friendly SDKs, drop-in replacement | White glove provisioning (beta access required) |
+
+<Card title="Learn About Shred Delivery" icon="bolt" href="/shred-delivery">
+  See how Shred Delivery provides the earliest possible on-chain signal with raw shreds
+</Card>
+
 ## Easy Migration
 
 <Note>
@@ -84,18 +102,6 @@ The [LaserStream SDK](https://github.com/helius-labs/laserstream-sdk) automatica
 - Re-streams any data that was missed during the downtime
 - Continues streaming without intervention
 
-### Multi-Protocol Support
-
-LaserStream is designed with multi-protocol support in mind:
-
-| Protocol | Status | Best For | Features | Implementation |
-| --- | --- | --- | --- | --- |
-| **gRPC** | ✅ Available | Backend services, high-throughput applications | Highest performance, binary protocol, bi-directional streaming | Via LaserStream SDK or Yellowstone |
-| **WebSocket** | 🔜 Coming soon | Frontend applications, browser clients | JSON-based, widely supported in browsers, familiar for web developers | Standard WebSocket clients (e.g., `ws` library) |
-
-<Note>
-**WebSocket support is coming soon!** Currently, LaserStream is available only via gRPC. WebSocket integration is under active development and will be available in a future update.
-</Note>
 
 ### Advanced Filtering
 
@@ -124,6 +130,7 @@ LaserStream is available in multiple regions worldwide for optimal performance. 
 | **pitt** | Pittsburgh, US (Central) | `https://laserstream-mainnet-pitt.helius-rpc.com` |
 | **slc** | Salt Lake City, US (West Coast) | `https://laserstream-mainnet-slc.helius-rpc.com` |
 | **lax** | Los Angeles, US (West Coast) | `https://laserstream-mainnet-lax.helius-rpc.com` |
+| **lon** | London, Europe | `https://laserstream-mainnet-lon.helius-rpc.com` |
 | **ams** | Amsterdam, Europe | `https://laserstream-mainnet-ams.helius-rpc.com` |
 | **fra** | Frankfurt, Europe | `https://laserstream-mainnet-fra.helius-rpc.com` |
 | **tyo** | Tokyo, Asia | `https://laserstream-mainnet-tyo.helius-rpc.com` |
@@ -160,11 +167,11 @@ For applications consuming massive amounts of real-time data, LaserStream Plus t
 <CardGroup cols={2}>
   <Card title="Cost Transformation" icon="chart-line">
     **From:** Pay-per-use at 3 credits per 0.1 MB  
-    **To:** Fixed monthly cost + included data allowance + 33% cheaper overages
+    **To:** Fixed monthly cost + included data allowance
   </Card>
   <Card title="Multiple Tiers Available" icon="layer-group">
-    **50TB to 250TB** monthly allowances  
-    [View detailed pricing](/billing/plans-and-rate-limits#laserstream-plus-add-ons)
+    **5TB to 100TB+** monthly allowances  
+    [View detailed pricing](/billing/plans)
   </Card>
 </CardGroup>
 

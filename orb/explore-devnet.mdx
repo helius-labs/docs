@@ -1,0 +1,151 @@
+---
+title: "How to Use the Orb Solana Devnet Explorer"
+sidebarTitle: "Explore Devnet"
+description: "Learn how to use Orb, a new block explorer for Solana Devnet to analyze blocks, inspect on-chain programs, and debug transactions."
+---
+
+Solana’s Devnet environment is a critical part of the Solana development workflow.
+
+This article covers the basics of using Orb, our new [Solana Devnet block explorer](https://orb.helius.dev), including finding programs, inspecting transactions, and debugging errors. 
+
+## Solana Devnet Explorer
+
+The Orb explorer supports all three Solana clusters:
+
+1. [Mainnet-beta](https://orb.helius.dev/?cluster=mainnet-beta)
+2. [Devnet](https://orb.helius.dev/?cluster=devnet)
+3. [Testnet](https://orb.helius.dev/?cluster=testnet)
+
+To access these clusters, select your cluster in the top-right corner of the UI.
+
+<Frame caption="Changing the Solana cluster to Devnet on Orb">
+  ![The Orb Solana Devnet Explorer Jp](/images/the-orb-solana-devnet-explorer.jpg)
+</Frame>
+
+Alternatively, you can append the cluster's parameter to the end of your URL:
+
+- `?cluster=mainnet-beta`
+- `?cluster=devnet`
+- `?cluster=testnet`
+
+## How to Look Up a Token Mint Address on Solana Devnet
+
+When testing programs on Solana Devnet, you’ll need to [get Devnet SOL](https://www.helius.dev/docs/rpc/devnet-sol) from a Solana Devnet faucet, or by calling the airdrop method from the Solana CLI. You'll also need a [Solana Devnet RPC endpoint](https://www.helius.dev/docs/api-reference/endpoints), which you can get for free in your Helius Dashboard.
+
+Besides Devnet SOL, you may need other tokens, such as [Devnet USDC](https://orb.helius.dev/address/4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU/history?cluster=devnet). To find a Solana token mint address on Devnet, enter the token’s name in the search bar.
+
+<Frame caption="Searching for a Solana Devnet token on Orb">
+  ![Find Solana Devnet Tokens On The Orb Explorer Jp](/images/find-solana-devnet-tokens-on-the-orb-explorer.jpg)
+</Frame>
+
+In case there are duplicates, verify the token address is correct on the issuer’s documentation, for example, Circle’s [USDC token mint address list](https://developers.circle.com/stablecoins/usdc-contract-addresses#testnet) has all their supported networks and clusters.
+
+The Solana Devnet USDC mint address is: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
+
+If you’re testing custom token functionality, you will likely need to mint your own tokens using the [Solana Token Program (Devnet)](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet) or [Token 2022 Program (Devnet)](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet).
+
+## How to Debug Failed Transactions on Solana Devnet
+
+A common use case for Devnet Explorers on Solana is troubleshooting transactions for deployed programs on Devnet before deploying them to Mainnet-beta.
+
+For this example, let’s look at a random [failed transaction](https://orb.helius.dev/tx/CHJMcFR5z2VzAe2P3Enu5TpuvtJjRYqNDp6SDxEU3xruF6hXZbcFn7YaxcCDNbKkvhFD4XzSuE4PHLC4ho4E78c?cluster=devnet&tab=instructions) that involved wrapped SOL.
+
+### Explain with AI
+
+Clicking the “Explain with AI” button, we see a swap using the [Raydium CP Swap Program](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet) program (`DRay…Wpyb`) failed due to an “insufficient funds” error (`0x1`) that happened during the token transfer.
+
+<Frame caption="Using Orb’s AI Explainer to understand a failed transaction on Solana Devnet">
+  ![Ai Explanation Of A Failed Solana Devnet Transaction On The Orb Explorer Jp](/images/ai-explanation-of-a-failed-solana-devnet-transaction-on-the-orb-explorer.jpg)
+</Frame>
+
+### Check Logs
+
+To debug the transaction more, click the **Logs** tab. This view shows a list of programs invoked during the transaction, the instructions they called, the number of compute units they consumed, and their status (i.e., success or failure). 
+
+<Frame caption="Finding failed transaction logs on Orb’s Solana Devnet explorer">
+  ![Debug On Chain Program Errors On The Orb Solana Devnet Explorer Jp](/images/debug-on-chain-program-errors-on-the-orb-solana-devnet-explorer.jpg)
+</Frame>
+
+In this specific example, we see during the Token Program's `TransferChecked` instruction, the program logged an "insufficient funds" error and returned the `0x1` error.
+
+### Inspect the Raw Output
+
+To debug this further, let’s look at the raw output to identify what wallet was at fault, the token they were trying to transfer, and the pre-transaction balances.
+
+<Frame caption="Reading the raw JSON outputs of a Solana Devnet transaction on Orb">
+  ![Solana Devnet Token Transfer Raw Instruction Logs On The Orb Explorer Jp](/images/solana-devnet-token-transfer-raw-instruction-logs-on-the-orb-explorer.jpg)
+</Frame>
+
+Here, we can see `innerInstruction` (index 2, or the 3rd instruction) is of the type `TransferChecked` and it is attempting to send 26,874,347.041642 units of the `DaHE...8R8i` token (Wildlife Conservation Coin) from the `GVBbU...5TUP` token account of the `Bzi4...tuvF` wallet to the `2yXu...qsTP` destination token account.
+
+Scrolling down, we can see the instruction logs confirmed that inner instruction at index 2 logged an insufficient funds error on the Token Program’s `TransferChecked` instruction.
+
+<Frame caption="Finding an “insufficient funds” error logged for Solana’s Token Program on the Orb Devnet explorer">
+  ![Raw Json Parsed Instruction Logs On The Orb Solana Devnet Explorer Jp](/images/raw-json-parsed-instruction-logs-on-the-orb-solana-devnet-explorer.jpg)
+</Frame>
+
+Because we know the `DRay…WpYb` is the [<u>Raydium CP Swap Program</u>](https://orb.helius.dev/address/DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb/anchor-idl?cluster=devnet) program, we can assume that the liquidity pool holding the `DaHE...8R8i` token didn’t have enough to complete the requested swap size.
+
+## How to Find Solana Devnet Program Addresses
+
+Another common use case for Solana Devnet explorers is finding the Program IDs for programs deployed on Devnet for testing purposes.
+
+Just like [exploring programs on Solana Mainnet-beta](https://www.helius.dev/docs/explore-programs), simply change your cluster to Devnet, lookup the program by name, and click the results.
+
+If the program you're looking for has not been tagged, please contact our team.
+
+### **Core Solana Devnet Program IDs**
+
+Here are a few of the most important core Solana programs deployed on Devnet:
+
+| Program Name                                                                                                                           | Solana Program ID                              |
+| -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [System Program](https://orb.helius.dev/address/11111111111111111111111111111111/history?cluster=devnet)                               | `1111111111111111111111111111111`              |
+| [Token Program](https://orb.helius.dev/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA/history?cluster=devnet)                     | `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`  |
+| [Token 2022 Program](https://orb.helius.dev/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb/history?cluster=devnet)                | `TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`  |
+| [Vote Program](https://orb.helius.dev/address/Vote111111111111111111111111111111111111111/history?cluster=devnet)                      | `Vote111111111111111111111111111111111111111`  |
+| [Compute Budget Program](https://orb.helius.dev/address/ComputeBudget111111111111111111111111111111/history?cluster=devnet)            | `ComputeBudget111111111111111111111111111111`  |
+| [Associated Token Account Program](https://orb.helius.dev/address/ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL/history?cluster=devnet) | `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL` |
+| [Address Lookup Table Program](https://orb.helius.dev/address/AddressLookupTab1e1111111111111111111111111/history?cluster=devnet)      | `AddressLookupTab1e1111111111111111111111111`  |
+| [Memo Program](https://orb.helius.dev/address/MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr/history?cluster=devnet)                      | `MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr`  |
+| [Memo Program V1](https://orb.helius.dev/address/Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo/history?cluster=devnet)                   | `Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo`  |
+| [Config Program](https://orb.helius.dev/address/Config1111111111111111111111111111111111111/history?cluster=devnet)                    | `Config111111111111111111111111111111111111`   |
+| [Ed25519 SigVerify Precompile](https://orb.helius.dev/address/Ed25519SigVerify111111111111111111111111111/history?cluster=devnet)      | `Ed25519SigVerify111111111111111111111111111`  |
+| [Secp256k1 SigVerify Precompile](https://orb.helius.dev/address/KeccakSecp256k11111111111111111111111111111/history?cluster=devnet)    | `KeccakSecp256k11111111111111111111111111111`  |
+| [Stake Program](https://orb.helius.dev/address/Stake11111111111111111111111111111111111111/history?cluster=devnet)                     | `Stake11111111111111111111111111111111111111`  |
+| [Stake Pool Program](https://orb.helius.dev/address/SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy/history?cluster=devnet)                | `SPoo1Ku8WFXoNDMHPsrGSTSG1Y47rzgn41SLUNakuHy`  |
+
+### **Solana Devnet App Program IDs**
+
+For testing integrations, developers will also want to test with popular on-chain programs such as Metaplex, Jupiter, Pyth, Wormhole, Pump.fun, and many others.
+
+Here are some of the most popular Solana Devnet program IDs:
+
+| **Program Name**                                                                                                                      | **Solana Program ID**                          |
+| :------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- |
+| [CCTP Message Minter](https://orb.helius.dev/address/CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3/history?cluster=devnet)             | `CCTPiPYPc6AsJuwueEnWgSgucamXDZwBd53dQ11YiKX3` |
+| [Circle CCTP Message Transmitter](https://orb.helius.dev/address/CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd/history?cluster=devnet) | `CCTPmbSD7gX1bxKPAmg77w8oFzNFpaQiQUWD43TKaecd` |
+| [Chainlink OCR2 Oracle Program](https://orb.helius.dev/address/cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ/history?cluster=devnet)    | `cjg3oHmg9uuPsP8D6g29NWvhySJkdYdAo9D25PRbKXJ`  |
+| [Metaplex Program](https://orb.helius.dev/address/p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98/history?cluster=devnet)                 | `p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98`  |
+| [Metaplex Token Metadata Program](https://orb.helius.dev/address/metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s/history?cluster=devnet)  | `metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s`  |
+| [Name Service Program](https://orb.helius.dev/address/namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX/history?cluster=devnet)             | `namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX`  |
+| [NFT Candy Machine Program V2](https://orb.helius.dev/address/cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ/history?cluster=devnet)     | `cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ`  |
+| [Pump.fun AMM](https://orb.helius.dev/address/pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA/history?cluster=devnet)                     | `pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA`  |
+| [Pyth Oracle Program](https://orb.helius.dev/address/gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s/history?cluster=devnet)              | `gSbePebfvPy7tRqimPoVecS2UsBvYv46ynrzWocc92s`  |
+| [State Compression Program](https://orb.helius.dev/address/cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK/history?cluster=devnet)        | `cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK`  |
+| [Wormhole Core Bridge](https://orb.helius.dev/address/HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ/history?cluster=devnet)            | `HDwcJBJXjL9FpJ7UBsYBtaDjsBUhuLCUYoz3zr8SWWaQ` |
+| [Wormhole Token Bridge](https://orb.helius.dev/address/DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe/history?cluster=devnet)           | `DZnkkTmCiFWfYTfT41X3Rd1kDgozqzxWaHqsw6W4x2oe` |
+
+Just like researching Solana programs on Mainnet-beta, Orb's Devnet program viewer provides transaction histories, IDLs, verification details, security information, and authorities.
+
+<Frame caption="The IDL for Wormhole’s Core Bridge program deployed on Solana Devnet in the Orb explorer">
+  ![Solana Devnet Program Idl Explorer On Orb For The Wormhole Core Bridge Contract Jp](/images/solana-devnet-program-idl-explorer-on-orb-for-the-wormhole-core-bridge-contract.jpg)
+</Frame>
+
+## Conclusion
+
+Deploying programs and debugging errors on Solana Devnet is a critical step in the Solana development lifecycle. Orb is a fast, human-readable [Solana Devnet blockchain explorer](https://orb.helius.dev) that makes it easy for developers to understand what is happening on-chain, find issues, and fix them.
+
+For more information about Orb, read our [announcement](https://www.helius.dev/blog/orb-block-explorer) and [user guides](https://www.helius.dev/docs/orb).
+
+For Solana Devnet alternatives, explore new developer tools like [Surfpool](https://www.helius.dev/blog/surfpool).

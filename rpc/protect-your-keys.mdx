@@ -59,8 +59,8 @@ Helius provides multiple layers of protection to secure your API keys:
   <Tab title="Access Control Rules">
     Configure precise access controls in your Helius dashboard to restrict API usage.
 
-    <Frame caption="Configure RPC Access Control Rules in the Endpoints section of your dashboard.">
-      <img src="/images/rpc-access-control-rules-ip-domain-cidr.webp" alt="Configure RPC Access Control Rules in the Endpoints section of your dashboard." />
+    <Frame caption="Configure RPC Access Control Rules in the RPCs section of your dashboard.">
+      <img src="/images/rpc-access-control-rules.png" alt="Configure RPC Access Control Rules in the RPCs section of your dashboard." />
     </Frame>
 
     ### Available Rule Types
@@ -71,14 +71,14 @@ Helius provides multiple layers of protection to secure your API keys:
 
         **Use cases:**
         - Production websites (`yourdapp.com`)
-        - Development environments (`localhost:3000`)
         - Staging environments (`staging.yourdapp.com`)
+        - Preview deployments (`preview.yourdapp.com`)
 
         **Example configuration:**
         ```
         yourdapp.com
         www.yourdapp.com
-        localhost:3000
+        staging.yourdapp.com
         ```
       </Accordion>
 
@@ -88,30 +88,38 @@ Helius provides multiple layers of protection to secure your API keys:
         **Use cases:**
         - Backend servers with static IPs
         - CI/CD pipelines
-        - Specific development machines
+        - Cloud-hosted services
 
         **Example configuration:**
         ```
-        192.168.1.100
         203.0.113.1
         198.51.100.42
+        185.199.108.153
         ```
+
+        <Note>
+        Only public IP addresses work here. Private/local IPs (like 192.168.x.x or 10.x.x.x) won't work.
+        </Note>
       </Accordion>
 
       <Accordion title="Allowed CIDRs">
         Restrict access to IP ranges using CIDR notation - great for enterprise networks.
 
         **Use cases:**
-        - Corporate networks
+        - Corporate public IP ranges
         - Cloud provider IP ranges
-        - Private networks
+        - Data center IP blocks
 
         **Example configuration:**
         ```
-        192.168.0.0/16
-        10.0.0.0/8
-        172.16.0.0/12
+        203.0.113.0/24
+        198.51.100.0/24
+        185.199.108.0/22
         ```
+
+        <Note>
+        Only public IP ranges work here. Private CIDR blocks (192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12) won't work.
+        </Note>
       </Accordion>
     </AccordionGroup>
   </Tab>
@@ -120,14 +128,14 @@ Helius provides multiple layers of protection to secure your API keys:
     Use our secure URL for frontend applications without exposing your API key.
 
     <Info>
-    **Rate Limited**: Secure URLs are limited to 5 transactions per second (TPS) per IP address, making them perfect for frontend applications.
+    **Rate Limited**: Secure URLs are limited to 5 requests per second (RPS) per IP address, making them perfect for frontend applications.
     </Info>
 
     ### How to Use Secure URLs
 
     <Steps>
       <Step title="Get Your Secure URL">
-        Find your secure URL in the Helius dashboard under the Endpoints section
+        Find your secure URL in the Helius dashboard under the RPCs section
       </Step>
       <Step title="Replace Your Regular RPC URL">
         Use the secure URL instead of your regular RPC URL with API key

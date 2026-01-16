@@ -50,35 +50,33 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 </Frame>
 
 <Note>
-专用节点**无法**自行发送 Jito Bundles。要发送 Jito Bundles，您必须使用 Jito API，该 API 负责通过 Jito 的系统打包和发送这些包。
-
-为了简化此过程，我们的 SDK 提供了一种名为 [Send Jito Bundle](https://github.com/helius-labs/helius-sdk/tree/main?tab=readme-ov-file#sendJitoBundle) 的简单方法。
+专用节点**不能**自行发送Jito Bundles。要发送Jito Bundles，您必须使用Jito API，该API负责通过Jito的系统打包和发送Bundles。
 </Note>
 
-### Geyser 插件（推荐）
+### Geyser插件（推荐）
 
-**我们强烈推荐添加 [Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser 插件**，这是专用节点的主要使用场景。它提供高性能的槽、区块、交易和账户更新的 [gRPC 流](/zh/grpc)。
+**我们强烈推荐添加[Yellowstone](https://github.com/helius-labs/yellowstone-grpc) Geyser插件**，这是专用节点的主要用例。它提供高性能的[ gRPC流](/zh/grpc)插槽、区块、交易和账户更新。
 
-<Frame caption="选择 Yellowstone gRPC Geyser 插件（推荐）">
+<Frame caption="选择Yellowstone gRPC Geyser插件（推荐）">
   <img
     src="/images/dedicated-nodes-geyser-plugin.png"
-    alt="选择 Yellowstone gRPC Geyser 插件（推荐）"
+    alt="选择Yellowstone gRPC Geyser插件（推荐）"
   />
 </Frame>
 
 <Note>
-**最佳实践**：专用节点针对 gRPC 流进行了优化。使用您的共享计划进行交易提交、存档查询和复杂的 RPC 操作。
+**最佳实践**：专用节点针对gRPC流进行了优化。使用您的共享计划进行交易提交、存档查询和复杂的RPC操作。
 </Note>
 
 ### 支付选项
 
-您可以通过法币或加密货币（USDC）支付。一旦您的付款完成，您的节点将在 3 小时内部署。
+您可以通过法币或加密货币（USDC）支付。一旦您的付款通过，您的节点将在3小时内部署。
 
 对于账单，法币支付将在下个月的账单中获得折扣，折扣天数为节点配置所需的天数。对于加密货币支付，账单周期从节点交付时开始。
 
 ### 演示
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/KjgUzY_3dsQ?si=r3aKXpc_H6b7hnqE" title="YouTube 视频播放器" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KjgUzY_3dsQ?si=r3aKXpc_H6b7hnqE" title="YouTube视频播放器" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## 入门
 
@@ -86,19 +84,19 @@ description: 完整指南，帮助您设置 Solana 专用节点，支持 gRPC �
 
 ## 连接到您的专用节点
 
-### gRPC 流（主要使用场景）
+### gRPC流（主要用例）
 
-**专用节点通过 Yellowstone Geyser 插件针对 gRPC 流进行了优化。** 这是使用专用节点的主要和推荐方式。
+**专用节点通过Yellowstone Geyser插件优化了gRPC流。** 这是使用专用节点的主要和推荐方式。
 
 <Info>
-**考虑使用 LaserStream 进行 gRPC 流式传输**：LaserStream 提供卓越的性能、可靠性和高级功能，如历史重播，非常适合 gRPC 流式传输。推荐用于 99% 的流式传输用例。[比较 LaserStream 与专用节点](/zh/laserstream/laserstream-vs-dedicated-nodes) 以选择最适合您需求的解决方案。
+**考虑使用LaserStream进行gRPC流**：LaserStream提供卓越的性能、可靠性和高级功能，如gRPC流的历史重播。它被推荐用于99%的流用例。[比较LaserStream与专用节点](/zh/laserstream/laserstream-vs-dedicated-nodes)以选择最适合您需求的解决方案。
 </Info>
 
-### 基本 RPC 和 Websocket（功能有限）
+### 基本的 RPC 和 Websocket（功能有限）
 
-每个专用节点也提供基本的 RPC 功能，但有一定限制。**对于生产应用程序，将专用节点与共享计划结合使用。**
+每个专用节点也提供基本的 RPC 功能，但有一定限制。**对于生产应用程序，请将专用节点与共享计划结合使用。**
 
-这里我们使用 Solana web3.js 调用我们的专用节点上的 [`getSlot`](/zh/api-reference/rpc/http/getslot)：
+这里我们使用 Solana web3.js 通过我们的专用节点调用 [`getSlot`](/zh/api-reference/rpc/http/getslot)：
 
 ```javascript
 // Using @solana/web3.js
@@ -115,7 +113,7 @@ const getSlot = async () => {
 getSlot();
 ```
 
-这是设置原生 websocket 连接以流式传输新插槽的方法：
+这是设置本地 websocket 连接以流式传输新插槽的方法：
 
 ```javascript
 const Websocket = require('ws');
@@ -137,10 +135,10 @@ ws.onmessage = (event) => {
 <Warning>
 **请记住**：上述 RPC 示例仅用于基本功能。专用节点的限制：
 - `sendTransaction` 支持但未优化 - 大多数交易不会成功（使用您的共享计划以确保交易提交的可靠性）
-- 无法进行存档数据查询（使用您的共享计划）  
+- 不支持归档数据查询（使用您的共享计划）
 - `getProgramAccounts` 支持但未优化 - 大量使用可能影响性能或导致节点故障（使用您的共享计划以确保可靠性）
 
-**主要用例**：使用下面的 gRPC 流式传输设置以获得最佳性能。
+**主要用例**：使用下面的 gRPC 流设置以获得最佳性能。
 </Warning>
 
 ### 设置您的 Geyser 插件

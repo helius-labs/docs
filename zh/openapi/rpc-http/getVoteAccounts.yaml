@@ -1,58 +1,59 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "Solana RPC API"
-  version: "1.0.0"
-  description: "全面的Solana验证器监控API，用于跟踪网络参与者、质押活动和区块链生态系统中的共识参与。"
+  title: Solana RPC API
+  version: 1.0.0
+  description: 全面的Solana验证器监控API，用于跟踪网络参与者、质押活动和区块链生态系统中的共识参与。
   license:
-    name: "Apache 2.0"
-    url: "https://www.apache.org/licenses/LICENSE-2.0.html"
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-  - url: "https://mainnet.helius-rpc.com"
-    description: "主网RPC端点"
-  - url: "https://devnet.helius-rpc.com"
-    description: "开发网RPC端点"
+  - url: https://mainnet.helius-rpc.com
+    description: 主网RPC端点
+  - url: https://devnet.helius-rpc.com
+    description: 开发网RPC端点
 components:
   securitySchemes:
     ApiKeyQuery:
-      type: "apiKey"
-      in: "query"
-      name: "api-key"
-      description: "您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。"
+      type: apiKey
+      in: query
+      name: api-key
+      description: 您的Helius API密钥。您可以在[仪表板](https://dashboard.helius.dev/api-keys)中免费获取一个。
   schemas:
     ErrorResponse:
-      type: "object"
+      type: object
       properties:
         jsonrpc:
-          type: "string"
-          description: "JSON-RPC协议版本。"
+          type: string
+          description: JSON-RPC协议版本。
           enum:
             - "2.0"
           example: "2.0"
         error:
-          type: "object"
+          type: object
           properties:
             code:
-              type: "integer"
-              description: "错误代码。"
+              type: integer
+              description: 错误代码。
               example: -32602
             message:
-              type: "string"
-              description: "错误信息。"
+              type: string
+              description: 错误信息。
             data:
-              type: "object"
-              description: "关于错误的附加数据。"
+              type: object
+              description: 关于错误的附加数据。
         id:
-          type: "string"
-          description: "与请求匹配的标识符。"
+          type: string
+          description: 与请求匹配的标识符。
           example: "1"
 paths:
   /:
     post:
       tags:
-        - "RPC"
-      summary: "getVoteAccounts"
-      operationId: "getVoteAccounts"
-      description: "检索有关 Solana 验证者及其参与网络共识的详细信息。这个强大的 API 提供全面的验证者指标，包括身份地址、质押金额、佣金率、投票活动和性能状态。对于质押应用程序、验证者选择工具、网络监控仪表板和去中心化分析至关重要。将验证者分类为当前（活跃参与者）或失职（表现不佳），为委托人提供关键见解，以优化其在 Solana 区块链上的质押策略和奖励。"
+        - RPC
+      summary: getVoteAccounts
+      operationId: getVoteAccounts
+      description: |-
+        检索有关 Solana 验证者及其参与网络共识的详细信息。这个强大的 API 提供全面的验证者指标，包括身份地址、质押金额、佣金率、投票活动和性能状态。对于质押应用程序、验证者选择工具、网络监控仪表板和去中心化分析至关重要。将验证者分类为当前（活跃参与者）或失职（表现不佳），为委托人提供关键见解，以优化其在 Solana 区块链上的质押策略和奖励。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -60,52 +61,52 @@ paths:
         content:
           application/json:
             schema:
-              type: "object"
+              type: object
               properties:
                 jsonrpc:
-                  type: "string"
+                  type: string
                   enum:
                     - "2.0"
-                  description: "JSON-RPC 协议版本。"
+                  description: JSON-RPC 协议版本。
                   example: "2.0"
                   default: "2.0"
                 id:
-                  type: "string"
-                  description: "请求的唯一标识符。"
+                  type: string
+                  description: 请求的唯一标识符。
                   example: "1"
                   default: "1"
                 method:
-                  type: "string"
+                  type: string
                   enum:
                     - "getVoteAccounts"
-                  description: "要调用的 RPC 方法名称。"
+                  description: 要调用的 RPC 方法名称。
                   example: "getVoteAccounts"
                   default: "getVoteAccounts"
                 params:
-                  type: "array"
-                  description: "用于过滤投票账户的可选配置对象。"
+                  type: array
+                  description: 用于过滤投票账户的可选配置对象。
                   items:
-                    type: "object"
+                    type: object
                     properties:
                       commitment:
-                        type: "string"
-                        description: "请求的承诺级别。"
+                        type: string
+                        description: 请求的承诺级别。
                         enum:
-                          - "confirmed"
-                          - "finalized"
-                          - "processed"
-                        example: "finalized"
+                          - confirmed
+                          - finalized
+                          - processed
+                        example: finalized
                       votePubkey:
-                        type: "string"
-                        description: "用于过滤结果的特定验证者投票账户地址（base-58 编码）。"
+                        type: string
+                        description: 用于过滤结果的特定验证者投票账户地址（base-58 编码）。
                         example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
                       keepUnstakedDelinquents:
-                        type: "boolean"
-                        description: "包括落后但没有委托给他们的权益的验证者。"
+                        type: boolean
+                        description: 包括落后但没有委托给他们的权益的验证者。
                         example: true
                       delinquentSlotDistance:
-                        type: "integer"
-                        description: "自定义槽位落后阈值，以标记验证者为失职或表现不佳。"
+                        type: integer
+                        description: 自定义槽位落后阈值，以标记验证者为失职或表现不佳。
                         example: 128
             example:
               jsonrpc: "2.0"
@@ -115,117 +116,117 @@ paths:
                 - votePubkey: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
       responses:
         "200":
-          description: "成功检索到投票账户。"
+          description: 成功检索到投票账户。
           content:
             application/json:
               schema:
-                type: "object"
+                type: object
                 properties:
                   jsonrpc:
-                    type: "string"
+                    type: string
                     enum:
                       - "2.0"
-                    description: "JSON-RPC 协议版本。"
+                    description: JSON-RPC 协议版本。
                     example: "2.0"
                   id:
-                    type: "string"
-                    description: "与请求匹配的标识符。"
+                    type: string
+                    description: 与请求匹配的标识符。
                     example: "1"
                   result:
-                    type: "object"
-                    description: "当前和失职投票账户的列表。"
+                    type: object
+                    description: 当前和失职投票账户的列表。
                     properties:
                       current:
-                        type: "array"
-                        description: "在 Solana 网络共识中正常参与的活跃验证者。"
+                        type: array
+                        description: 在 Solana 网络共识中正常参与的活跃验证者。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             votePubkey:
-                              type: "string"
-                              description: "与此验证者关联的唯一 Solana 投票账户地址。"
+                              type: string
+                              description: 与此验证者关联的唯一 Solana 投票账户地址。
                               example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
                             nodePubkey:
-                              type: "string"
-                              description: "控制投票账户的验证者身份地址。"
+                              type: string
+                              description: 控制投票账户的验证者身份地址。
                               example: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
                             activatedStake:
-                              type: "integer"
-                              description: "以 lamports 为单位委托给此验证者的 SOL 总数，决定其共识权重。"
+                              type: integer
+                              description: 以 lamports 为单位委托给此验证者的 SOL 总数，决定其共识权重。
                               example: 42
                             epochVoteAccount:
-                              type: "boolean"
-                              description: "此验证者是否有资格在当前纪元获得奖励。"
+                              type: boolean
+                              description: 此验证者是否有资格在当前纪元获得奖励。
                               example: true
                             commission:
-                              type: "integer"
-                              description: "从质押奖励中提取的验证者佣金百分比（0-100）。"
+                              type: integer
+                              description: 从质押奖励中提取的验证者佣金百分比（0-100）。
                               example: 0
                             lastVote:
-                              type: "integer"
-                              description: "此验证者最近投票的 Solana 插槽，指示活动。"
+                              type: integer
+                              description: 此验证者最近投票的 Solana 插槽，指示活动。
                               example: 147
                             epochCredits:
-                              type: "array"
-                              description: "最多五个纪元的最新赚取积分历史。"
+                              type: array
+                              description: 最多五个纪元的最新赚取积分历史。
                               items:
-                                type: "array"
-                                description: "积分历史 [epoch, credits, previousCredits]。"
+                                type: array
+                                description: 积分历史 [epoch, credits, previousCredits]。
                                 items:
-                                  type: "integer"
+                                  type: integer
                                 example:
                                   - 1
                                   - 64
                                   - 0
                             rootSlot:
-                              type: "integer"
-                              description: "此投票账户的当前根插槽。"
+                              type: integer
+                              description: 此投票账户的当前根插槽。
                               example: 42
                       delinquent:
-                        type: "array"
-                        description: "在共识参与中落后的表现不佳的验证者。"
+                        type: array
+                        description: 在共识参与中落后的表现不佳的验证者。
                         items:
-                          type: "object"
+                          type: object
                           properties:
                             votePubkey:
-                              type: "string"
-                              description: "投票账户地址。"
+                              type: string
+                              description: 投票账户地址。
                               example: "3ZT31jkAGhUaw8jsy4bTknwBMP8i4Eueh52By4zXcsVw"
                             nodePubkey:
-                              type: "string"
-                              description: "验证者身份。"
+                              type: string
+                              description: 验证者身份。
                               example: "B97CCUW3AEZFGy6uUg6zUdnNYvnVq5VG8PUtb2HayTDD"
                             activatedStake:
-                              type: "integer"
-                              description: "委托给此投票账户的权益（lamports）。"
+                              type: integer
+                              description: 委托给此投票账户的权益（lamports）。
                               example: 0
                             epochVoteAccount:
-                              type: "boolean"
-                              description: "投票账户是否在此纪元中被质押。"
+                              type: boolean
+                              description: 投票账户是否在此纪元中被质押。
                               example: false
                             commission:
-                              type: "integer"
-                              description: "投票账户应得奖励支付的百分比（0-100）。"
+                              type: integer
+                              description: 投票账户应得奖励支付的百分比（0-100）。
                               example: 0
                             lastVote:
-                              type: "integer"
-                              description: "此投票账户最近投票的插槽。"
+                              type: integer
+                              description: 此投票账户最近投票的插槽。
                               example: 147
                             epochCredits:
-                              type: "array"
-                              description: "最多五个纪元的最新获得积分历史。"
+                              type: array
+                              description: 最多五个纪元的最新获得积分历史。
                               items:
-                                type: "array"
-                                description: "积分历史 [纪元, 积分, 先前积分]。"
+                                type: array
+                                description: 积分历史 [纪元, 积分, 先前积分]。
                                 items:
-                                  type: "integer"
+                                  type: integer
                                 example:
                                   - 1
                                   - 64
                                   - 0
                             rootSlot:
-                              type: "integer"
-                              description: "此投票账户的当前根插槽。"
+                              type: integer
+                              description: 此投票账户的当前根插槽。
                               example: 42
               examples:
                 default:
@@ -250,11 +251,11 @@ paths:
                           rootSlot: 42
                       delinquent: []
         "400":
-          description: "错误请求 - 无效的请求参数或格式错误的请求。"
+          description: 错误请求 - 无效的请求参数或格式错误的请求。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -262,11 +263,11 @@ paths:
                   message: "无效的参数"
                 id: "1"
         "401":
-          description: "未授权 - API 密钥无效或缺失。"
+          description: 未授权 - API 密钥无效或缺失。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -274,11 +275,11 @@ paths:
                   message: "未授权"
                 id: "1"
         "429":
-          description: "请求过多 - 超出速率限制。"
+          description: 请求过多 - 超出速率限制。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -286,11 +287,11 @@ paths:
                   message: "请求过多"
                 id: "1"
         "500":
-          description: "内部服务器错误 - 服务器发生错误。"
+          description: 内部服务器错误 - 服务器发生错误。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -298,11 +299,11 @@ paths:
                   message: "内部错误"
                 id: "1"
         "503":
-          description: "服务不可用 - 服务暂时不可用。"
+          description: 服务不可用 - 服务暂时不可用。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
@@ -310,11 +311,11 @@ paths:
                   message: "服务不可用"
                 id: "1"
         "504":
-          description: "网关超时 - 请求超时。"
+          description: 网关超时 - 请求超时。
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 jsonrpc: "2.0"
                 error:
