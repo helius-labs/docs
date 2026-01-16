@@ -216,17 +216,7 @@ description: 比较 LaserStream 和 Dedicated Nodes，以选择最适合您需�
     **简单集成，功能增强**
     
 
-    ```typescript
-    import { subscribe, LaserstreamConfig } from 'helius-laserstream';
-
-    const config: LaserstreamConfig = {
-      apiKey: 'your-api-key',
-      endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com'
-    };
-
-    // Automatic reconnection and historical replay
-    await subscribe(config, subscriptionRequest, handleData, handleError);
-    ```
+{/* 代码占位符_9007f5be0e21f4fa6e3f29eba4d7c464 */}
 
     <Info>
       **主要优势**：内置重连、历史重播和专业错误处理
@@ -237,19 +227,7 @@ description: 比较 LaserStream 和 Dedicated Nodes，以选择最适合您需�
     **需要手动连接管理**
     
 
-    ```typescript
-    import { Client } from '@yellowstone-grpc/client';
-
-    const client = new Client(endpoint, undefined, {
-      'grpc.keepalive_time_ms': 30000,
-      // Custom connection settings...
-    });
-
-    // Manual reconnection logic needed
-    client.on('error', (error) => {
-      // Implement your own reconnection strategy
-    });
-    ```
+{/* 代码占位符_def6389e64ac8e27c1008f337782a9e7 */}
 
     <Warning>
       **需要额外工作**：您需要实现自己的重连逻辑、错误处理和连接管理

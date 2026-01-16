@@ -17,12 +17,12 @@ description: 了解 getSlot 的使用案例、代码示例、请求参数、响�
 
 此方法将一个可选的配置对象作为其第一个参数：
 
-1.  **`options`** (`object`, 可选)：一个可选的配置对象，具有以下字段：
-    *   **`commitment`** (`string`, 可选)：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值为 `finalized`, `confirmed`, 或 `processed`。如果省略，将使用 RPC 节点的默认承诺（通常为 `finalized`）。
-        *   `processed`: 节点将查询其最新的槽。注意，此槽可能尚未被集群确认，并可能被跳过。
-        *   `confirmed`: 节点将查询集群中超级多数投票的最新槽。
-        *   `finalized`: 节点将查询集群超级多数确认已达到最大锁定（不能回滚）的最新槽。
-    *   **`minContextSlot`** (`number`, 可选)：请求可以评估的最小槽。这设置了节点上下文的最小槽。如果节点的状态比此槽旧，可能会返回错误或反映其当前（较旧）状态相对于此最小槽的槽号。
+1.  **`options`** (`object`, 可选): 一个可选的配置对象，包含以下字段：
+    *   **`commitment`** (`string`, 可选): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。支持的值有 `finalized`, `confirmed`, 或 `processed`。如果省略，将使用 RPC 节点的默认承诺（通常是 `finalized`）。
+        *   `processed`: 节点将查询其最近的槽。请注意，该槽可能尚未被集群确认，并可能被跳过。
+        *   `confirmed`: 节点将查询集群中绝大多数已投票的最近槽。
+        *   `finalized`: 节点将查询集群中绝大多数确认已达到最大锁定的最近槽（无法回滚）。
+    *   **`minContextSlot`** (`number`, 可选): 请求可以评估的最小槽。这设置了节点上下文的最小槽。如果节点的状态早于此槽，它可能会返回一个错误或一个反映其当前（较旧）状态相对于此最小值的槽号。
 
 ## 响应结构
 
@@ -42,7 +42,7 @@ JSON-RPC 响应的 `result` 字段是一个单一的 `u64`（无符号 64 位整
 
 ### 1. 获取当前槽（默认承诺）
 
-此示例使用节点的默认承诺级别（通常为 `finalized`）获取当前槽。
+此示例使用节点的默认承诺级别（通常为 `finalized`）获取当前插槽。
 
 <CodeGroup>
 
@@ -77,7 +77,7 @@ getCurrentSlot();
 
 ### 2. 获取具有特定承诺的当前槽
 
-此示例获取已达到 `confirmed` 承诺的当前槽。
+此示例获取已达到 `confirmed` 承诺的当前插槽。
 
 <CodeGroup>
 
@@ -120,8 +120,8 @@ getConfirmedSlot();
 
 ## 开发者提示
 
-*   **承诺很重要：** 返回的槽号在很大程度上取决于指定的 `commitment` 级别。有关详细信息，请参阅 [Solana 承诺级别](https://www.helius.xyz/blog/what-are-solana-commitment-levels)。`processed` 将是节点已知的最高（最新）槽，而 `finalized` 将是整个网络确认的较旧槽。根据您的用例对数据最终性的需求选择合适的承诺级别。
-*   **节点可变性：** 由于网络传播延迟或其自身的处理状态，不同的 RPC 节点可能会为相同的承诺级别返回略有不同的槽号。对于 `processed` 和 `confirmed` 级别尤其如此。
-*   **`minContextSlot`：** 此参数确保处理您请求的节点至少已达到 `minContextSlot`。如果节点落后于此槽，行为可能会有所不同（例如，错误或节点当前的最高槽小于 `minContextSlot`）。它通常用于需要确保查询针对足够最新状态的高级场景中。
+*   **承诺很重要：** 返回的插槽号在很大程度上取决于指定的 `commitment` 级别。有关详细信息，请参阅 [Solana 承诺级别](https://www.helius.xyz/blog/what-are-solana-commitment-levels)。`processed` 将是节点已知的最高（最新）插槽，而 `finalized` 将是整个网络确认的较旧插槽。根据您的用例对数据最终性的需求选择适当的承诺级别。
+*   **节点可变性：** 由于网络传播延迟或其自身的处理状态，不同的 RPC 节点可能会为相同的承诺级别返回略有不同的插槽号。对于 `processed` 和 `confirmed` 级别尤其如此。
+*   **`minContextSlot`：** 此参数确保处理您请求的节点至少已达到 `minContextSlot`。如果节点落后于此插槽，行为可能会有所不同（例如，错误或节点当前的最高插槽小于 `minContextSlot`）。它通常用于需要确保查询针对足够最新状态的高级场景中。
 
-`getSlot` 是与 Solana 区块链交互并了解其当前进展的简单但重要的方法。
+`getSlot` 是与 Solana 区块链交互并了解其当前进展的一个简单但重要的方法。

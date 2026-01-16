@@ -4,15 +4,15 @@ sidebarTitle: getMaxRetransmitSlot
 description: 了解 getMaxRetransmitSlot 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getMaxRetransmitSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getmaxretransmitslot) RPC 方法返回查询的 RPC 节点已处理或从其重传阶段获知的最高槽号。重传阶段是 Solana 区块传播协议的重要部分，称为 [Turbine](https://www.helius.dev/blog/turbine-block-propagation-on-solana)，在此阶段，验证者从其对等节点请求并接收缺失的碎片（区块的一部分）以重建完整区块。
+[`getMaxRetransmitSlot`](https://www.helius.dev/docs/api-reference/rpc/http/getmaxretransmitslot) RPC 方法返回查询的 RPC 节点已处理或从其重传阶段获知的最高槽号。重传阶段是 Solana 区块传播协议的重要组成部分，称为 [Turbine](https://www.helius.dev/blog/turbine-block-propagation-on-solana)，在此阶段，验证者从其对等节点请求并接收缺失的碎片（区块的一部分）以重建完整区块。
 
 此值可以指示节点在区块数据传播和修复方面与网络尖端的同步程度。
 
 ## 常见用例
 
-*   **节点健康/同步检查：** 监控此值以了解节点是否正在积极接收和处理有关最近槽的信息。与集群的实际最高槽相比，显著滞后的 `maxRetransmitSlot` 可能表明该节点存在同步问题。
-*   **网络分析（高级）：** 研究人员或复杂的监控工具可能会使用此指标作为整体网络健康或区块传播速度的几个指标之一。
-*   **调试连接问题：** 如果节点持续报告较低的 `maxRetransmitSlot`，可能表明其对等连接或参与重传协议的能力存在问题。
+* **节点健康/同步检查：** 监控此值以了解节点是否正在积极接收和处理有关最近槽的信息。与集群的实际最高槽相比，显著滞后的 `maxRetransmitSlot` 可能表明该节点存在同步问题。
+* **网络分析（高级）：** 研究人员或复杂的监控工具可能会使用此指标作为整体网络健康或区块传播速度的几个指标之一。
+* **调试连接问题：** 如果节点持续报告低的 `maxRetransmitSlot`，可能表明其对等连接或参与重传协议的能力存在问题。
 
 ## 请求参数
 
@@ -61,8 +61,8 @@ fetchMaxRetransmitSlot();
 
 ## 开发者提示
 
-*   **节点特定值：** 此值是特定于您正在查询的 RPC 节点的。在任何给定时刻，由于网络延迟和它们对重传过程的个体视图，集群中的不同节点可能会有略微不同的值。
-*   **不是绝对最高槽：** 此值表示节点*在重传中看到数据的最高槽*。它可能与集群确认的绝对最高槽不同（可以通过 `getSlot` 方法与 `finalized` 承诺或 `getBlockHeight` 获得）。它更像是数据传播到此特定节点的进度指示器。
-*   **动态值：** 随着网络产生新槽并且数据被重传，这个数字将不断增加。
+* **节点特定值：** 此值特定于您查询的 RPC 节点。由于网络延迟和各自对重传过程的视图不同，集群中的不同节点在任何给定时刻可能会有略微不同的值。
+* **不是绝对最高槽：** 此值表示节点在重传中*看到数据的最高槽*。它可能与集群确认的绝对最高槽不同（可以通过 `getSlot` 方法与 `finalized` 承诺或 `getBlockHeight` 获得）。它更像是数据传播到此特定节点的进度指示器。
+* **动态值：** 随着网络生成新槽并重传数据，此数字将不断增加。
 
-本指南提供了使用 `getMaxRetransmitSlot` RPC 方法的必要步骤，这可以是监控 Solana 节点相对于区块数据传播的同步状态和健康状况的有用工具。
+本指南提供了使用 `getMaxRetransmitSlot` RPC 方法的必要步骤，这可以是监控 Solana 节点与区块数据传播相关的同步状态和健康状况的有用工具。

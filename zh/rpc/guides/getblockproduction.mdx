@@ -4,7 +4,7 @@ sidebarTitle: getBlockProduction
 description: 了解getBlockProduction的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getBlockProduction`](https://www.helius.dev/docs/api-reference/rpc/http/getblockproduction) RPC方法提供了当前纪元或指定槽范围内的区块生产信息。它可以用于检索所有验证者或特定验证者身份的数据。这对于监控验证者性能和理解网络上的区块生产模式非常有价值。
+[`getBlockProduction`](https://www.helius.dev/docs/api-reference/rpc/http/getblockproduction) RPC 方法提供当前纪元或指定插槽范围内的区块生产信息。它可以用于检索所有验证者或特定验证者身份的数据。这对于监控验证者性能和了解网络上的区块生产模式非常有价值。
 
 ## 常见用例
 
@@ -15,37 +15,37 @@ description: 了解getBlockProduction的使用案例、代码示例、请求参�
 
 ## 请求参数
 
-`getBlockProduction`方法接受一个可选的配置对象，包含以下参数：
+`getBlockProduction` 方法接受一个可选的配置对象，包含以下参数：
 
-1.  **`commitment`** (string, optional): 指定用于查询的承诺级别。如果省略，则使用节点的默认承诺。
-2.  **`range`** (object, optional): 定义要查询的槽范围。
-    *   `firstSlot` (u64): 要获取区块生产信息的第一个槽（包含）。
-    *   `lastSlot` (u64, optional): 要获取区块生产信息的最后一个槽（包含）。如果省略，将返回当前纪元到当前槽的区块生产信息。
-3.  **`identity`** (string, optional): 验证者身份的base58编码公钥。如果提供，响应将仅包括此特定验证者的区块生产信息。如果省略，将返回指定范围（或当前纪元）内所有验证者的信息。
+1.  **`commitment`** (字符串，可选)：指定用于查询的承诺级别。如果省略，则使用节点的默认承诺。
+2.  **`range`** (对象，可选)：定义要查询的插槽范围。
+    *   `firstSlot` (u64)：要获取区块生产信息的第一个插槽（包含）。
+    *   `lastSlot` (u64，可选)：要获取区块生产信息的最后一个插槽（包含）。如果省略，将返回当前纪元到当前插槽的区块生产信息。
+3.  **`identity`** (字符串，可选)：验证者身份的 base58 编码公钥。如果提供，响应将仅包含此特定验证者的区块生产信息。如果省略，将返回指定范围（或当前纪元）内所有验证者的信息。
 
-**注意：** 必须提供 `identity` 或 `range.firstSlot` 中的至少一个。如果未提供 `identity`，则需要 `range` 参数。
+**注意：** 必须提供 `identity` 或 `range.firstSlot` 中的至少一个。如果未提供 `identity`，则需要提供 `range` 参数。
 
 ## 响应结构
 
 JSON-RPC 响应的 `result` 字段将是一个包含以下内容的对象：
 
-*   `context` (object):
-    *   `slot` (u64): 获取信息的插槽。
-*   `value` (object):
-    *   `byIdentity` (object): 一个对象，其中键是验证者身份字符串（base58 编码的公钥），值是包含以下内容的对象：
-        *   `leaderSlots` (u64): 在查询范围/纪元中分配给此验证者的领导插槽数量。
-        *   `blocksProduced` (u64): 在查询范围/纪元中此验证者生成的区块数量。
-    *   `range` (object):
-        *   `firstSlot` (u64): 查询范围的第一个插槽。
-        *   `lastSlot` (u64): 查询范围的最后一个插槽。
+*   `context` (对象)：
+    *   `slot` (u64)：检索信息的插槽。
+*   `value` (对象)：
+    *   `byIdentity` (对象)：一个对象，其中键是验证者身份字符串（base58 编码公钥），值是包含以下内容的对象：
+        *   `leaderSlots` (u64)：在查询的范围/纪元内分配给此验证者的领导插槽数量。
+        *   `blocksProduced` (u64)：在查询的范围/纪元内由此验证者生产的区块数量。
+    *   `range` (对象)：
+        *   `firstSlot` (u64)：查询范围的第一个插槽。
+        *   `lastSlot` (u64)：查询范围的最后一个插槽。
 
 ## 开发者提示
 
-*   **理解纪元边界**：当通过 `identity` 查询而没有 `range` 时，返回的数据是当前纪元到节点最新处理的插槽。如果需要特定验证者的*完整*过去纪元数据，您需要确定该纪元的 `firstSlot` 和 `lastSlot`。
-*   **节点数据可用性**：历史区块生产数据的范围可能因 RPC 节点而异。非常旧的插槽范围可能在所有节点上都不可用。
-*   **性能监控**：`getBlockProduction` 是构建与验证者正常运行时间和区块生产成功率相关的仪表板或警报的关键。
-*   **与 `getLeaderSchedule` 结合使用**：为了更深入的分析，您可以将 `getBlockProduction` 数据与 `getLeaderSchedule` 的输出相关联，以查看哪些特定的领导插槽被创建或错过。
-*   **身份与所有验证者**：在没有 `identity` 的情况下查询可能会返回大量数据，特别是如果没有指定 `range` 或指定了一个宽泛的 `range`。请注意响应大小和处理要求。
+* **理解 Epoch 边界**：当通过 `identity` 查询而没有 `range` 时，返回的数据是当前 epoch 到节点处理的最新 slot。如果需要特定验证器的*完整*过去 epoch 数据，则需要确定该 epoch 的 `firstSlot` 和 `lastSlot`。
+* **节点数据可用性**：历史区块生产数据的范围可能因 RPC 节点而异。非常旧的 slot 范围可能在所有节点上都不可用。
+* **性能监控**：`getBlockProduction` 是构建与验证器正常运行时间和区块生产成功率相关的仪表板或警报的关键。
+* **与 `getLeaderSchedule` 结合使用**：为了更深入的分析，可以将 `getBlockProduction` 数据与 `getLeaderSchedule` 的输出相关联，以查看哪些特定的领导者 slot 被创建或错过。
+* **身份与所有验证器**：在没有 `identity` 的情况下查询可能会返回大量数据，尤其是在没有指定 `range` 或指定了较宽的 `range` 时。请注意响应大小和处理要求。
 
 ## 示例
 
@@ -181,4 +181,4 @@ getValidatorBlockProductionForRange(validatorIdentity, firstSlot, lastSlot);
 
 </CodeGroup>
 
-本指南应能让您对如何使用`getBlockProduction` RPC 方法分析 Solana 上的区块生产有一个扎实的理解。
+本指南应为您提供如何使用 `getBlockProduction` RPC 方法分析 Solana 上的区块生产的扎实理解。

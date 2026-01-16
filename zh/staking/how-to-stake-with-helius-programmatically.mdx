@@ -103,12 +103,12 @@ const payer = Keypair.fromSecretKey(/* your secret key */);
 
     
     <Info>
-    SDK 会自动处理租金计算和质押账户创建。`1.5` 参数是您想要质押的 SOL 数量。
+    SDK 自动处理租金计算和权益账户创建。`1.5` 参数是您想要质押的 SOL 数量。
     </Info>
   </Tab>
   
   <Tab title="完整示例">
-    包含错误处理的完整质押实现：
+    带有错误处理的完整质押实现：
 
     ```typescript
     async function stakeSOL(amountInSol: number) {
@@ -160,7 +160,7 @@ const payer = Keypair.fromSecretKey(/* your secret key */);
     创建一个可以签名和发送的完整质押交易。
     
     **参数：**
-    - `owner` (PublicKey): 将拥有质押账户的钱包
+    - `owner` (PublicKey): 将拥有权益账户的钱包
     - `amount` (number): 要质押的 SOL 数量
     
     **返回：**
@@ -252,7 +252,7 @@ const payer = Keypair.fromSecretKey(/* your secret key */);
   </Accordion>
   
   <Accordion title="getWithdrawableAmount(stakeAccount, includeRent?)">
-    检查可以从已停用的质押账户中提取多少 SOL。
+    检查可以从已停用的权益账户中提取多少 SOL。
     
     **参数：**
     - `includeRent` (boolean): 是否包括免租金额

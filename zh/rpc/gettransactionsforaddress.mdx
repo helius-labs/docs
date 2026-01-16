@@ -5,12 +5,12 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 ---
 
 <Tip>
-**Helius 独家功能** - `getTransactionsForAddress` 仅通过 Helius RPC 节点提供，并不是标准 Solana RPC 的一部分。此端点需要 [开发者计划](/zh/billing/plans) 或更高级别，并且每次请求消耗 100 积分。返回 100 个完整交易或 1,000 个签名。
+**Helius 独家功能** - `getTransactionsForAddress` 仅通过 Helius RPC 节点提供，并不是标准 Solana RPC 的一部分。此端点需要 [开发者计划](/zh/billing/plans) 或更高版本，并且每次请求花费 100 积分。返回 100 个完整交易或 1,000 个签名。
 </Tip>
 
 ## 概述
 
-[`getTransactionsForAddress`](/zh/api-reference/rpc/http/gettransactionsforaddress) 提供强大的交易历史查询功能，具有高级过滤、灵活排序和高效分页。
+[`getTransactionsForAddress`](/zh/api-reference/rpc/http/gettransactionsforaddress) 提供强大的交易历史查询，具有高级过滤、灵活排序和高效分页功能。
 
 ### 主要功能
 
@@ -93,10 +93,10 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
   
   <Step title="了解参数">
     此示例展示了关键功能：
-    - **transactionDetails**: 设置为`'full'`以在一次调用中获取完整的交易数据
-    - **sortOrder**: 使用`'asc'`按时间顺序（最旧的优先）或`'desc'`按最新的优先
-    - **filters.blockTime**: 使用`gte`（大于或等于）和`lte`（小于或等于）设置时间范围
-    - **filters.status**: 仅过滤`'succeeded'`或`'failed'`交易
+    - **transactionDetails**: 设置为 `'full'` 以在一次调用中获取完整的交易数据
+    - **sortOrder**: 使用 `'asc'` 以时间顺序（最旧的优先）或 `'desc'` 以最新的优先
+    - **filters.blockTime**: 使用 `gte`（大于或等于）和 `lte`（小于或等于）设置时间范围
+    - **filters.status**: 仅过滤 `'succeeded'` 或 `'failed'` 交易
   </Step>
 </Steps>
 
@@ -109,21 +109,21 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 </ParamField>
 
 <ParamField body="transactionDetails" type="string" default="signatures">
-  返回的交易详细级别：
+  返回的交易详细程度：
   - `signatures`: 基本签名信息（更快）
-  - `full`: 完整的交易数据（消除对getTransaction调用的需求，要求限制≤100）
+  - `full`: 完整的交易数据（消除对 getTransaction 调用的需求，要求限制 ≤ 100）
 </ParamField>
 
 <ParamField body="sortOrder" type="string" default="desc">
   结果的排序顺序：
   - `desc`: 最新的优先（默认）
-  - `asc`: 最旧的优先（按时间顺序，适合历史分析）
+  - `asc`: 最旧的优先（按时间顺序，非常适合历史分析）
 </ParamField>
 
 <ParamField body="limit" type="number" default="1000">
   返回的最大交易数：
-  - 当`transactionDetails: "signatures"`时最多1000
-  - 当`transactionDetails: "full"`时最多100
+  - 当 `transactionDetails: "signatures"` 时最多 1000
+  - 当 `transactionDetails: "full"` 时最多 100
 </ParamField>
 
 <ParamField body="paginationToken" type="string">
@@ -131,7 +131,7 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 </ParamField>
 
 <ParamField body="commitment" type="string" default="finalized">
-  承诺级别：`finalized`, `confirmed`, 或 `processed`
+  承诺级别：`finalized` 或 `confirmed`。不支持 `processed` 承诺。
 </ParamField>
 
 <ParamField body="filters" type="object">
@@ -139,25 +139,25 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 </ParamField>
 
 <ParamField body="filters.slot" type="object">
-  使用比较运算符按槽号进行过滤：`gte`, `gt`, `lte`, `lt`
+  使用比较运算符按槽号过滤：`gte`, `gt`, `lte`, `lt`
   
   示例：`{ "slot": { "gte": 1000, "lte": 2000 } }`
 </ParamField>
 
 <ParamField body="filters.blockTime" type="object">
-  使用比较运算符按Unix时间戳进行过滤：`gte`, `gt`, `lte`, `lt`, `eq`
+  使用比较运算符按Unix时间戳过滤：`gte`, `gt`, `lte`, `lt`, `eq`
   
   示例：`{ "blockTime": { "gte": 1640995200, "lte": 1641081600 } }`
 </ParamField>
 
 <ParamField body="filters.signature" type="object">
-  使用比较运算符按交易签名进行过滤：`gte`, `gt`, `lte`, `lt`
+  使用比较运算符按交易签名过滤：`gte`, `gt`, `lte`, `lt`
   
   示例：`{ "signature": { "lt": "SIGNATURE_STRING" } }`
 </ParamField>
 
 <ParamField body="filters.status" type="string">
-  按交易成功/失败状态进行过滤：
+  按交易成功/失败状态过滤：
   - `succeeded`: 仅成功的交易
   - `failed`: 仅失败的交易
   - `any`: 成功和失败的交易（默认）
@@ -181,7 +181,7 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 
 ## 过滤运算符
 
-使用过滤器时，可以使用比较运算符进行`slot`, `blockTime`或`signature`，以及一个特殊的`status`过滤器。这些运算符的工作方式类似于数据库查询，能够精确控制数据范围。
+使用过滤器时，可以对`slot`, `blockTime`或`signature`使用比较运算符，以及一个特殊的`status`过滤器。这些运算符的工作方式类似于数据库查询，使您能够精确控制数据范围。
 
 ### 比较运算符
 
@@ -191,7 +191,7 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 | `gt` | 大于 | 包含值 > 指定值 | `blockTime: { gt: 1641081600 }` |
 | `lte` | 小于或等于 | 包含值 ≤ 指定值 | `slot: { lte: 2000 }` |
 | `lt` | 小于 | 包含值 < 指定值 | `blockTime: { lt: 1641168000 }` |
-| `eq` | 等于 | 包含值完全等于（仅`blockTime`） | `blockTime: { eq: 1641081600 }` |
+| `eq` | 等于 | 包含值完全等于（仅限`blockTime`） | `blockTime: { eq: 1641081600 }` |
 
 ### 状态过滤器
 
@@ -294,20 +294,20 @@ description: 了解如何使用此 Helius 独有的 RPC 方法，通过高级过
 ### 响应字段
 
 | 字段 | 类型 | 描述 |
-|------|------|------|
-| `signature` | string | 交易签名（base-58 编码）。仅在签名模式下返回。 |
-| `slot` | number | 包含此交易的区块所在的槽。 |
-| `transactionIndex` | number | 交易在其区块内的从零开始的索引。用于交易排序和区块重建。 |
+|-------|------|-------------|
+| `signature` | string | 交易签名（base-58 编码）。仅在签名模式下。 |
+| `slot` | number | 包含此交易的区块的槽位。 |
+| `transactionIndex` | number | 交易在其区块内的零基索引。用于交易排序和区块重建。 |
 | `blockTime` | number \| null | 估计的生产时间，以 Unix 时间戳表示（自纪元以来的秒数）。 |
-| `err` | object \| null | 如果交易失败则返回错误，成功则为 null。仅在签名模式下返回。 |
-| `memo` | string \| null | 与交易相关的备注。仅在签名模式下返回。 |
-| `confirmationStatus` | string | 交易的集群确认状态。仅在签名模式下返回。 |
-| `transaction` | object | 完整交易数据。仅在完整模式下返回。 |
-| `meta` | object | 交易状态元数据。仅在完整模式下返回。 |
-| `paginationToken` | string \| null | 获取下一页的令牌，如果没有更多结果则为 null。 |
+| `err` | object \| null | 如果交易失败则为错误，成功则为 null。仅在签名模式下。 |
+| `memo` | string \| null | 与交易相关的备忘录。仅在签名模式下。 |
+| `confirmationStatus` | string | 交易的集群确认状态。仅在签名模式下。 |
+| `transaction` | object | 完整的交易数据。仅在完整模式下。 |
+| `meta` | object | 交易状态元数据。仅在完整模式下。 |
+| `paginationToken` | string \| null | 用于获取下一页的令牌，如果没有更多结果则为 null。 |
 
 <Note>
-`transactionIndex` 字段是 `getTransactionsForAddress` 独有的。其他类似的端点如 `getSignaturesForAddress`、`getTransaction` 和 `getTransactions` 不包含此字段。
+`transactionIndex` 字段仅限于 `getTransactionsForAddress`。其他类似的端点如 `getSignaturesForAddress`, `getTransaction`, 和 `getTransactions` 不包含此字段。
 </Note>
 
 ---
@@ -344,7 +344,7 @@ const endTime = Math.floor(new Date('2025-02-01').getTime() / 1000);
 }
 ```
 
-分析处理：
+分析流程：
 
 ```javascript
 // Calculate daily transaction volume
@@ -440,18 +440,18 @@ response.result.data.forEach(tx => {
 ```
 
 <Note>
-前几笔交易通常会揭示资金来源，并有助于识别相关地址或资金模式。
+最初的几笔交易通常会揭示资金来源，并有助于识别相关地址或资金模式。
 </Note>
 
 ---
 
 ## 分页
 
-当交易数量超过限制时，使用响应中的`paginationToken`获取下一页。该令牌是一个简单的字符串，格式为`"slot:position"`，告诉API从哪里继续。
+当交易数量超过限制时，使用响应中的 `paginationToken` 来获取下一页。该令牌是一个简单的字符串，格式为 `"slot:position"`，用于告诉API从哪里继续。
 
 ### 如何分页
 
-使用每个响应中的分页令牌获取下一页：
+使用每个响应中的分页令牌来获取下一页：
 
 ```javascript
 // First request
@@ -495,7 +495,7 @@ do {
 
 ### 多个地址
 
-您不能在单个请求中查询多个地址。要获取多个地址的交易，请在相同的时间或槽窗口内查询每个地址，然后合并和排序：
+您不能在单个请求中查询多个地址。要获取多个地址的交易，请在相同的时间或槽窗口中查询每个地址，然后合并和排序：
 
 ```javascript
 const addresses = ['Address1...', 'Address2...', 'Address3...'];
@@ -525,10 +525,10 @@ const allTransactions = results
   .sort((a, b) => b.slot - a.slot);
 ```
 
-对于较大的历史扫描，通过时间或槽窗口迭代（例如，每次1000个槽）并重复此模式。
+对于较大的历史扫描，通过时间或槽窗口进行迭代（例如，每次1000个槽），并重复此模式。
 
 <Note>
-每个地址查询都算作一个单独的API请求（每个地址100个积分）。
+每个地址查询计为一个单独的API请求（每个地址100个积分）。
 </Note>
 
 ---
@@ -537,15 +537,15 @@ const allTransactions = results
 
 ### 性能
 
-为了获得最佳性能，当不需要完整交易数据时，使用`transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽进行过滤以进行更有针对性的查询。
+为了获得最佳性能，当您不需要完整的交易数据时，使用 `transactionDetails: "signatures"`。实现合理的页面大小以获得更好的响应时间，并考虑按时间范围或特定槽进行过滤以进行更有针对性的查询。
 
 ### 过滤
 
-从广泛的过滤器开始，然后逐步缩小范围以找到所需的数据。使用基于时间的过滤器进行分析和报告工作流。您可以结合多个过滤器进行精确查询，以定位特定的交易类型或时间段。
+从广泛的过滤器开始，并逐步缩小范围以找到所需的数据。使用基于时间的过滤器进行分析和报告工作流。您可以结合多个过滤器进行精确查询，以定位特定的交易类型或时间段。
 
 ### 分页
 
-在需要稍后恢复大型查询时存储分页键。监控分页深度以进行性能规划，并在需要按时间顺序重放历史事件的情况下使用升序。
+在需要稍后恢复大型查询时存储分页键。监控分页深度以进行性能规划，并在需要按时间顺序重播历史事件的场景中使用升序。
 
 ### 错误处理
 
@@ -555,11 +555,11 @@ const allTransactions = results
 
 ## 这与getSignaturesForAddress有何不同？
 
-如果您熟悉标准`getSignaturesForAddress`方法，这里是主要区别：
+如果您熟悉标准的 `getSignaturesForAddress` 方法，以下是主要区别：
 
 ### 一次调用获取完整交易
 
-使用`getSignaturesForAddress`，您需要两个步骤：
+使用 `getSignaturesForAddress`，您需要两个步骤：
 
 ```javascript
 // Step 1: Get signatures
@@ -571,7 +571,7 @@ const transactions = await Promise.all(
 );
 ```
 
-使用`getTransactionsForAddress`，只需一次调用：
+使用 `getTransactionsForAddress`，只需一次调用：
 
 ```javascript
 const response = await fetch(heliusRpcUrl, {
@@ -592,20 +592,20 @@ const response = await fetch(heliusRpcUrl, {
 });
 ```
 
-### 额外功能
+### 附加功能
 
 <CardGroup cols={2}>
   <Card title="按时间顺序排序" icon="arrow-up">
-    使用`sortOrder: 'asc'`将交易从最旧排序到最新
+    使用 `sortOrder: 'asc'` 将交易从最早到最新排序
   </Card>
   <Card title="基于时间的过滤" icon="clock">
-    使用`blockTime`过滤器按时间范围过滤
+    使用 `blockTime` 过滤器按时间范围过滤
   </Card>
   <Card title="状态过滤" icon="filter">
-    使用`status`过滤器仅获取成功或失败的交易
+    使用 `status` 过滤器仅获取成功或失败的交易
   </Card>
   <Card title="更简单的分页" icon="list">
-    使用`paginationToken`代替复杂的`before`/`until`签名
+    使用 `paginationToken` 代替令人困惑的 `before`/`until` 签名
   </Card>
 </CardGroup>
 

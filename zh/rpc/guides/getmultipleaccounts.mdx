@@ -4,7 +4,7 @@ sidebarTitle: getMultipleAccounts
 description: 了解 getMultipleAccounts 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getMultipleAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getmultipleaccounts) RPC 方法是一种高效的方式，可以同时获取一组 Solana 账户的信息。与其为每个账户单独发起 `getAccountInfo` 请求，`getMultipleAccounts` 允许您批量处理这些请求，从而减少网络开销并提高应用程序的响应速度。
+[`getMultipleAccounts`](https://www.helius.dev/docs/api-reference/rpc/http/getmultipleaccounts) RPC 方法是一种高效的方式，可以同时获取多个 Solana 账户的信息。与其为每个账户单独发起 `getAccountInfo` 请求，`getMultipleAccounts` 允许您批量处理这些请求，从而减少网络开销并提高应用程序的响应速度。
 
 ## 常见用例
 
@@ -18,28 +18,39 @@ description: 了解 getMultipleAccounts 的使用案例、代码示例、请求�
 1.  **`pubkeys`** (`array` of `string`, 必需):
     *   要查询的账户的 base-58 编码公钥字符串数组。
     *   每个请求最多 100 个公钥。
-    *   示例：`["So11111111111111111111111111111111111111112", "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]`
+    *   示例: `["So11111111111111111111111111111111111111112", "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"]`
 
-2.  **`options`** (`object`, 可选): 包含以下一个或多个字段的配置对象：
-    *   **`commitment`** (`string`): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`, `"confirmed"`, `"processed"`）。
-    *   **`encoding`** (`string`): 账户数据的编码。选项包括：
+2.  **`options`** (`object`, 可选): 包含以下一个或多个字段的配置对象:
+    *   **`commitment`** (`string`): 指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels) (例如, `"finalized"`, `"confirmed"`, `"processed"`)。
+    *   **`encoding`** (`string`): 账户数据的编码。选项包括:
         *   `"base64"` (默认): 标准 base64 编码。
         *   `"base58"`: 较慢，但在某些情况下可能有用。
         *   `"base64+zstd"`: base64 编码的 zstd 压缩数据。
-        *   `"jsonParsed"`: 如果账户由 RPC 节点具有解析器的程序拥有（例如，SPL 代币程序，Stake 程序），`data` 字段将是一个 JSON 对象。这对于结构化数据非常有用。
-    *   **`dataSlice`** (`object`): 允许您仅获取账户数据的特定部分。这对于只需要大账户中的一小部分信息时非常有用。
+        *   `"jsonParsed"`: 如果账户由 RPC 节点有解析器的程序拥有 (例如, SPL Token Program, Stake Program), `data` 字段将是一个 JSON 对象。这对于结构化数据非常有用。
+    *   **`dataSlice`** (`object`): 允许您仅获取账户数据的特定部分。这对于只需要少量信息的大账户非常有用。
         *   `offset` (`usize`): 从账户数据开始的字节偏移量。
         *   `length` (`usize`): 从偏移量开始返回的字节数。
-        *   *注意：`dataSlice` 仅适用于 `base58`, `base64`, 或 `base64+zstd` 编码。*
-    *   **`minContextSlot`** (`u64`): 请求可以在其上进行评估的最小槽位。
+        *   *注意: `dataSlice` 仅适用于 `base58`, `base64`, 或 `base64+zstd` 编码。*
+    *   **`minContextSlot`** (`u64`): 请求可以评估的最小槽位。
 
 ## 响应结构
 
-JSON-RPC 响应对象将包含一个 `result` 字段，其中包括：
+JSON-RPC 响应对象将有一个 `result` 字段，包含：
 
 *   **`context`** (`object`):
     *   `slot` (`u64`): 获取信息的槽位。
     *   `apiVersion` (`string`, 可选): 节点的 API 版本。
+*   **`value`** (`array`):
+    *   一个数组，其中每个元素对应于请求中 `pubkeys` 数组中相同索引的公钥。
+    *   每个元素将是：
+        *   `null`: 如果指定公钥的账户不存在或该账户发生错误。
+        *   一个具有以下字段的 **账户对象**：
+            *   `lamports` (`u64`): 账户拥有的 lamports 数量。
+            *   `owner` (`string`): 拥有该账户的程序的 base-58 编码公钥。
+            *   `data` (`array` 或 `object`): 账户数据。如果 `encoding` 是 `jsonParsed` 并且存在解析器，这将是一个 JSON 对象。否则，通常是一个数组 `["encoded_string", "encoding_format"]`（例如，`["SGVsbG8=", "base64"]`）。
+            *   `executable` (`boolean`): 账户是否包含程序（是否可执行）。
+            *   `rentEpoch` (`u64`): 该账户将在下一个纪元欠租金。
+            *   `space` (`u64`): 账户的数据长度，以字节为单位。
 
 ## 示例
 
@@ -105,7 +116,7 @@ fetchMultipleAccountInfo();
 
 ### 2. 获取解析的代币账户数据
 
-此示例获取两个 SPL 代币账户的数据，并请求 `jsonParsed` 编码以获取结构化数据。
+此示例获取两个 SPL Token 账户的数据，并请求 `jsonParsed` 编码以获取结构化数据。
 
 <CodeGroup>
 
@@ -179,10 +190,10 @@ fetchParsedTokenAccounts();
 
 ## 开发者提示
 
-*   **最多 100 个账户：** 每次调用最多可以请求 100 个账户。
-*   **原子性：** 请求不是原子的，如果一个账户查找失败，其他账户可能仍然成功。检查 `value` 数组中的每个元素是否为 `null`。
-*   **`jsonParsed` 便利性：** 在处理常见账户类型如 SPL 代币账户时，强烈推荐使用 `jsonParsed` 编码，因为它可以避免手动反序列化。
-*   **`dataSlice` 用于大账户：** 对于非常大的账户（例如某些程序状态账户），使用 `dataSlice` 仅获取必要的字节以避免过多的数据传输。
-*   **错误处理：** 准备好处理响应 `value` 数组中的 `null` 条目，表示账户未找到或无法获取。
+*   **最多100个账户：** 每次调用最多可以请求100个账户。
+*   **原子性：** 请求不是原子的，这意味着如果一个账户查询失败，其他的可能仍然成功。检查 `value` 数组中的每个元素以获取 `null`。
+*   **`jsonParsed` 便利性：** 在处理常见账户类型如SPL Token账户时，强烈推荐使用 `jsonParsed` 编码，因为它可以避免手动反序列化。
+*   **大账户的 `dataSlice`：** 对于非常大的账户（例如，一些程序状态账户），使用 `dataSlice` 仅获取必要的字节以避免过多的数据传输。
+*   **错误处理：** 准备处理响应 `value` 数组中的 `null` 条目，指示某个账户未找到或无法获取。
 
-通过利用`getMultipleAccounts`，您可以构建更高性能和可扩展的Solana应用程序。
+通过利用 `getMultipleAccounts`，您可以构建更高效和可扩展的Solana应用程序。

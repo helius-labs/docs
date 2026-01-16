@@ -135,13 +135,13 @@ main().catch(console.error);
 }
 ```
 
-**刚刚发生了什么？** 我们的订阅完美运行！我们请求Laserstream通知我们关于代币账户的更改，它提供了关于账户 `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF` 的更新。
+**刚刚发生了什么？** 我们的订阅完美地工作了！我们请求Laserstream通知我们关于代币账户的更改，它提供了关于账户 `BKMHWYLAX4un3HUbR7a3u9jPmzCiLNa4mSj1RiX11eWF` 的更新。
 
-此账户具有：
-- **2,039,280 lamports**（约0.002 SOL余额 - 这是此代币账户的免租金额）
+该账户有：
+- **2,039,280 lamports**（约0.002 SOL余额 - 这是该代币账户的免租金额）
 - **所有者程序** `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`（这是SPL Token程序）
-- **交易签名** `5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD` 显示导致此账户更改的具体交易
-- **槽位 352366983** 表示此更新在区块链上发生的时间
+- **交易签名** `5C9Hr5nG2j8eQz6inxPmfyjbYdmXddzUDyR1iQgEnjYQ3RNvuP4Zzc8t1enLNy7Rk8KNCtQPEQztENYWxkt9GaVD` 显示了导致该账户更改的具体交易
+- **槽位352366983** 表示此更新在区块链上发生的时间
 - **数据字段** 包含165字节的账户数据，编码为base58
 
 ### 理解使用datasize进行账户过滤
@@ -195,7 +195,7 @@ accounts: {
 
 #### 165 字节从何而来？
 
-这不是魔法 - 它来自 [SPL Token 程序的账户结构](https://github.com/solana-program/token/blob/d05d10807fe8cf157f6e1f024c708274c30c953a/program/src/state.rs#L87)。查看源代码，我们可以看到 `Account` 结构体定义了正好 165 字节：
+这不是魔法 - 它来自于[SPL Token程序的账户结构](https://github.com/solana-program/token/blob/d05d10807fe8cf157f6e1f024c708274c30c953a/program/src/state.rs#L87)。查看源代码，我们可以看到 `Account` 结构体定义了正好165字节：
 
 ```rust
 pub struct Account {
@@ -237,7 +237,7 @@ Base58 data: 2NUx6Xw9QkmgJCyYUP3d8TPsjJhUpSM7hcy9Fi1juGc6g9...
 
 ### 结合过滤器：datasize + memcmp 实现精确定位
 
-现在我们知道铸币地址位于字节0-31，我们可以更加具体。假设我们只想监控USDC代币账户。我们可以将我们的`datasize`过滤器与`memcmp`过滤器结合，以定位确切的铸币地址：
+现在我们知道铸币地址位于字节0-31，我们可以更具体一些。假设我们只想监控USDC代币账户。我们可以将我们的 `datasize` 过滤器与一个 `memcmp` 过滤器结合起来，以定位确切的铸币地址：
 
 ```ts
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
@@ -280,7 +280,7 @@ const request = {
 - **何时** 发生了这种变化？
 - **什么交易** 导致了变化？
 
-原始账户更新包含我们需要解码的二进制数据。由于 Solana 使用 base58 编码地址和签名，我们使用 `bs58.encode()` 函数将二进制 Buffer 对象转换为可读字符串。
+原始账户更新包含我们需要解码的二进制数据。由于Solana使用base58编码地址和签名，我们使用 `bs58.encode()` 函数将二进制缓冲区对象转换为可读字符串。
 
 ```ts [expandable]
 import { subscribe, CommitmentLevel, SubscribeUpdate, LaserstreamConfig } from 'helius-laserstream';
@@ -380,7 +380,7 @@ Transaction: 5v8fy0eJ...
 
 ## 完整过滤参考
 
-除了我们使用的基本 `owner`、`datasize` 和 `memcmp` 过滤器外，账户订阅还支持其他过滤选项以进一步缩小结果范围：
+除了我们使用的基本 `owner`、`datasize` 和 `memcmp` 过滤器之外，账户订阅还支持其他过滤选项，以进一步缩小结果范围：
 
 ### 特定账户过滤
 
@@ -403,10 +403,10 @@ accounts: {
 
 强大的地方在于结合多种过滤类型。这里是思维模型：
 
-1. **广撒网** 使用 `owner` - “给我所有由这个程序管理的账户”
-2. **按结构过滤** 使用 `datasize` - “但仅限于这种特定类型的账户”
-3. **定位特定数据** 使用 `memcmp` - “并且仅限于包含此特定信息的账户”
-4. **监控已知账户** 使用 `account` - “或者只监控我关心的这些确切账户”
+1. 使用 `owner` **广泛搜索** - "给我所有由此程序管理的账户"
+2. 使用 `datasize` **按结构过滤** - "但仅限于这种特定类型的账户"
+3. 使用 `memcmp` **定位特定数据** - "并且仅限于包含此特定信息的账户"
+4. 使用 `account` **监控已知账户** - "或者只关注我关心的这些确切账户"
 
 例如，监控高价值的 USDC 账户：
 

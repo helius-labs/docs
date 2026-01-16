@@ -39,7 +39,7 @@ openapi: /zh/openapi/rpc-http/getTokenAccountsByOwnerV2.yaml POST /
 ## 分页最佳实践
 
 <Warning>
-**重要的分页行为**：分页结束仅在**没有返回代币账户**时指示。由于过滤，API 可能返回少于您限制的账户 - 始终继续分页，直到 `paginationKey` 是 `null`。
+**重要的分页行为**：分页结束仅在**没有返回代币账户**时指示。由于过滤，API 可能返回的账户少于您的限制 - 始终继续分页，直到 `paginationKey` 是 `null`。
 </Warning>
 
 ### 基本组合查询

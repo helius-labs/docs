@@ -21,16 +21,7 @@ Slot 和 block 监控提供了对 Solana 网络共识、区块生成时间和网
     监控不同承诺级别的 slot 进展：
     
 
-    ```typescript
-    const subscribeRequest: SubscribeRequest = {
-      slots: {
-        slotSubscribe: {
-          filterByCommitment: false // Receive all commitment levels
-        }
-      },
-      commitment: CommitmentLevel.CONFIRMED
-    };
-    ```
+{/* 代码占位符_6ac4d6a83eb34f7cce1e7dc6f2624801 */}
 
     
     **Slot 数据包括：**
@@ -50,19 +41,7 @@ Slot 和 block 监控提供了对 Solana 网络共识、区块生成时间和网
     流式传输包含交易和账户更新的完整区块：
     
 
-    ```typescript
-    const subscribeRequest: SubscribeRequest = {
-      blocks: {
-        blockSubscribe: {
-          accountInclude: [], // All accounts
-          includeTransactions: true,
-          includeAccounts: true,
-          includeEntries: false
-        }
-      },
-      commitment: CommitmentLevel.CONFIRMED
-    };
-    ```
+{/* 代码占位符_37c4c4725e20e001df7b8ffc2c85a05e */}
 
     
     **Block 数据包括：**
@@ -82,14 +61,7 @@ Slot 和 block 监控提供了对 Solana 网络共识、区块生成时间和网
     获取不含交易细节的区块元数据：
     
 
-    ```typescript
-    const subscribeRequest: SubscribeRequest = {
-      blocksMeta: {
-        blockMetaSubscribe: {}
-      },
-      commitment: CommitmentLevel.CONFIRMED
-    };
-    ```
+{/* 代码占位符_98adface3bffbbf8b49d8aae728a82f4 */}
 
     
     **元数据包括：**
@@ -111,183 +83,19 @@ Slot 和 block 监控提供了对 Solana 网络共识、区块生成时间和网
 
 跟踪 slot 进展并识别网络问题：
 
-```typescript
-import { StreamManager } from './stream-manager'; // From quickstart guide
-
-async function monitorNetworkHealth() {
-  const streamManager = new StreamManager(
-    "your-grpc-endpoint",
-    "your-api-key",
-    handleNetworkHealth
-  );
-
-  const subscribeRequest: SubscribeRequest = {
-    slots: {
-      slotSubscribe: {
-        filterByCommitment: false // Track all commitment levels
-      }
-    },
-    commitment: CommitmentLevel.PROCESSED
-  };
-
-  await streamManager.connect(subscribeRequest);
-}
-
-let lastSlot = 0;
-let lastTimestamp = Date.now();
-const slotTimes: number[] = [];
-
-function handleNetworkHealth(data: any): void {
-  if (data.slot) {
-    const slot = data.slot;
-    const currentTime = Date.now();
-    
-    console.log(`\n📊 Slot Update:`);
-    console.log(`  Slot: ${slot.slot}`);
-    console.log(`  Parent: ${slot.parentSlot}`);
-    console.log(`  Status: ${slot.status}`);
-    
-    // Calculate slot timing
-    if (lastSlot > 0) {
-      const slotDiff = slot.slot - lastSlot;
-      const timeDiff = currentTime - lastTimestamp;
-      
-      if (slotDiff === 1) {
-        // Normal slot progression
-        const slotTime = timeDiff;
-        slotTimes.push(slotTime);
-        
-        // Keep last 100 slot times for analysis
-        if (slotTimes.length > 100) {
-          slotTimes.shift();
-        }
-        
-        const avgSlotTime = slotTimes.reduce((a, b) => a + b, 0) / slotTimes.length;
-        
-        console.log(`  Slot Time: ${slotTime}ms`);
-        console.log(`  Avg Slot Time: ${avgSlotTime.toFixed(1)}ms`);
-        
-        // Alert on slow slots
-        if (slotTime > 800) {
-          console.log(`  ⚠️  SLOW SLOT: ${slotTime}ms (normal ~400ms)`);
-        }
-      } else if (slotDiff > 1) {
-        console.log(`  ⚠️  SKIPPED ${slotDiff - 1} SLOTS`);
-      }
-    }
-    
-    lastSlot = slot.slot;
-    lastTimestamp = currentTime;
-  }
-}
-```
+{/* 代码占位符_c712a8370fd17f614e38d8489bb7f0c7 */}
 
 ### 示例 2：区块生成监控
 
 跟踪区块生成和交易量：
 
-```typescript
-async function monitorBlockProduction() {
-  const streamManager = new StreamManager(
-    "your-grpc-endpoint",
-    "your-api-key",
-    handleBlockProduction
-  );
-
-  const subscribeRequest: SubscribeRequest = {
-    blocksMeta: {
-      blockMetaSubscribe: {}
-    },
-    commitment: CommitmentLevel.CONFIRMED
-  };
-
-  await streamManager.connect(subscribeRequest);
-}
-
-function handleBlockProduction(data: any): void {
-  if (data.blockMeta) {
-    const blockMeta = data.blockMeta;
-    
-    console.log(`\n🧱 Block Produced:`);
-    console.log(`  Slot: ${blockMeta.slot}`);
-    console.log(`  Block Height: ${blockMeta.blockHeight}`);
-    console.log(`  Block Hash: ${blockMeta.blockhash}`);
-    console.log(`  Parent Hash: ${blockMeta.parentBlockhash}`);
-    console.log(`  Transactions: ${blockMeta.transactionCount}`);
-    console.log(`  Block Time: ${new Date(blockMeta.blockTime * 1000).toISOString()}`);
-    
-    if (blockMeta.rewards?.length > 0) {
-      console.log(`  Rewards:`);
-      blockMeta.rewards.forEach((reward: any) => {
-        console.log(`    ${reward.pubkey}: ${reward.lamports} lamports (${reward.rewardType})`);
-      });
-    }
-    
-    // Alert on high transaction count
-    if (blockMeta.transactionCount > 3000) {
-      console.log(`  🔥 HIGH ACTIVITY: ${blockMeta.transactionCount} transactions`);
-    }
-  }
-}
-```
+{/* 代码占位符_e11da9c5ff3f8520f199b7840cdb8dc7 */}
 
 ### 示例 3：过滤区块监控
 
 监控包含特定程序活动的区块：
 
-```typescript
-async function monitorDEXBlocks() {
-  const streamManager = new StreamManager(
-    "your-grpc-endpoint",
-    "your-api-key",
-    handleDEXBlock
-  );
-
-  const subscribeRequest: SubscribeRequest = {
-    blocks: {
-      blockSubscribe: {
-        accountInclude: [
-          "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM", // Raydium V4
-          "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"   // Jupiter
-        ],
-        includeTransactions: true,
-        includeAccounts: false,
-        includeEntries: false
-      }
-    },
-    commitment: CommitmentLevel.CONFIRMED
-  };
-
-  await streamManager.connect(subscribeRequest);
-}
-
-function handleDEXBlock(data: any): void {
-  if (data.block) {
-    const block = data.block;
-    
-    console.log(`\n🔄 DEX Activity Block:`);
-    console.log(`  Slot: ${block.slot}`);
-    console.log(`  Block Hash: ${block.blockhash}`);
-    console.log(`  Total Transactions: ${block.transactions?.length || 0}`);
-    
-    if (block.transactions) {
-      let dexTxCount = 0;
-      let totalFees = 0;
-      
-      block.transactions.forEach((tx: any) => {
-        if (tx.meta && !tx.meta.err) {
-          dexTxCount++;
-          totalFees += tx.meta.fee || 0;
-        }
-      });
-      
-      console.log(`  DEX Transactions: ${dexTxCount}`);
-      console.log(`  Total Fees: ${(totalFees / 1e9).toFixed(4)} SOL`);
-      console.log(`  Avg Fee: ${(totalFees / dexTxCount / 1e9).toFixed(6)} SOL`);
-    }
-  }
-}
-```
+{/* 代码占位符_3554bc90646ad93c3408e5226df65dc0 */}
 
 ## 数据结构
 
@@ -295,13 +103,7 @@ function handleDEXBlock(data: any): void {
 
 <Accordion title="插槽数据结构">
 
-  ```typescript
-  {
-    slot: number;           // Current slot number
-    parentSlot: number;     // Parent slot number  
-    status: string;         // "processed", "confirmed", "finalized"
-  }
-  ```
+{/* 代码占位符_35387d95e1092ecc1b1cc0762c577b8a */}
 
   
   **插槽进程：** 每个插槽代表约400毫秒的网络时间
@@ -314,21 +116,7 @@ function handleDEXBlock(data: any): void {
 
 <Accordion title="区块元数据结构">
 
-  ```typescript
-  {
-    slot: number;
-    blockHeight: number;
-    blockhash: string;
-    parentBlockhash: string;
-    blockTime: number;      // Unix timestamp
-    transactionCount: number;
-    rewards: Array<{
-      pubkey: string;
-      lamports: number;
-      rewardType: string;   // "fee", "rent", "voting", "staking"
-    }>;
-  }
-  ```
+{/* 代码占位符_1d6cebcebb81f912386486d958c52a95 */}
 
   
   **区块时间：** 估计区块生成的时间
@@ -338,17 +126,7 @@ function handleDEXBlock(data: any): void {
 
 <Accordion title="完整区块结构">
 
-  ```typescript
-  {
-    slot: number;
-    parentSlot: number;
-    blockhash: string;
-    previousBlockhash: string;
-    transactions: Transaction[];  // Full transaction data
-    accounts: AccountUpdate[];    // Account state changes
-    entries: Entry[];            // Block entries (if included)
-  }
-  ```
+{/* 代码占位符_9ec85ce5de7a4a4d6b267957905c899b */}
 
   
   **大小警告：** 完整区块可能包含所有交易和账户，大小可达数MB
@@ -406,15 +184,7 @@ function handleDEXBlock(data: any): void {
     - 验证者性能
     
 
-    ```typescript
-    // Monitor slot timing deviations
-    const targetSlotTime = 400; // ms
-    const tolerance = 200; // ms
-    
-    if (Math.abs(slotTime - targetSlotTime) > tolerance) {
-      console.log(`Network performance issue detected`);
-    }
-    ```
+{/* 代码占位符_8d0bc1e4c84467801aa929e905072f25 */}
 
   </Tab>
   
@@ -427,15 +197,7 @@ function handleDEXBlock(data: any): void {
     - 活动模式
     
 
-    ```typescript
-    // Track daily transaction volumes
-    const dailyStats = {
-      date: new Date().toDateString(),
-      totalTransactions: 0,
-      totalFees: 0,
-      blockCount: 0
-    };
-    ```
+{/* 代码占位符_1a6f72dc928dd861e263ea3cd4280687 */}
 
   </Tab>
   
@@ -448,12 +210,7 @@ function handleDEXBlock(data: any): void {
     - 时间同步
     
 
-    ```typescript
-    // Update application state on finalized slots
-    if (data.slot && data.slot.status === 'finalized') {
-      updateApplicationState(data.slot.slot);
-    }
-    ```
+{/* 代码占位符_c4fbdefa2933de4191c6e412c547e51b */}
 
   </Tab>
 </Tabs>
