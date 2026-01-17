@@ -29,13 +29,13 @@ export const Quickstart = () => {
       
       const data = await response.json()
       if (data.error) {
-        setError(data.error.message || '调用 API 时出错')
+        setError(data.error.message || '调用API时出错')
       } else if (data.result && data.result.items && data.result.items.length > 0) {
         const randomIndex = Math.floor(Math.random() * data.result.items.length)
         const selectedNft = data.result.items[randomIndex]
         setRandomNft(selectedNft)
       } else {
-        setError('此钱包未找到 NFT')
+        setError('此钱包未找到NFT')
       }
     } catch (err) {
       setError(err.message || '获取数据失败')
@@ -48,12 +48,12 @@ export const Quickstart = () => {
     <div className="p-4 border dark:border-zinc-950/80 rounded-xl bg-white dark:bg-zinc-950/80 shadow-sm">      
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm text-zinc-950/70 dark:text-white/70 mb-1">您的 API 密钥</label>
+          <label className="block text-sm text-zinc-950/70 dark:text-white/70 mb-1">您的API密钥</label>
           <input
             type="text"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder="输入您的 API 密钥"
+            placeholder="输入您的API密钥"
             className="w-full p-2 border rounded dark:bg-zinc-900 dark:border-zinc-700"
             required
           />
@@ -65,7 +65,7 @@ export const Quickstart = () => {
             type="text"
             value={ownerAddress}
             onChange={(e) => setOwnerAddress(e.target.value)}
-            placeholder="Solana 钱包地址"
+            placeholder="Solana钱包地址"
             className="w-full p-2 border rounded dark:bg-zinc-900 dark:border-zinc-700"
             required
           />
@@ -80,13 +80,13 @@ export const Quickstart = () => {
               : 'bg-primary hover:bg-primary/80 text-white'
           }`}
         >
-          {loading ? '加载中...' : '获取随机 NFT'}
+          {loading ? '加载中...' : '获取随机NFT'}
         </button>
       </form>
       
       {error && (
         <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded text-red-700 dark:text-red-300">
-          <strong>错误：</strong> {error}
+          <strong>错误:</strong> {error}
         </div>
       )}
       
@@ -94,7 +94,7 @@ export const Quickstart = () => {
         <div className="mt-6">
           <div className="text-center mb-4">
             <h3 className="text-lg font-semibold mb-1 text-zinc-950 dark:text-white">
-              {randomNft.content?.metadata?.name || '未命名的 NFT'}
+              {randomNft.content?.metadata?.name || '未命名的NFT'}
             </h3>
             <div className="flex items-center justify-center gap-2">
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -105,7 +105,7 @@ export const Quickstart = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary/80 transition-colors"
-                title="在 Orb Explorer 上查看"
+                title="在Orb Explorer上查看"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

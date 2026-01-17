@@ -28,12 +28,12 @@ description: 逐步指南，构建稳健的、生产级的 Solana 交易发送�
 </Steps>
 
 <Info>
-  Helius SDK 是开源的。您可以查看我们 [Node.js SDK](https://github.com/helius-labs/helius-sdk) 和 [Rust SDK](https://github.com/helius-labs/helius-rust-sdk) 中 `sendSmartTransaction` 方法的底层代码，以查看此工作流的生产级实现。
+  Helius SDK 是开源的。您可以查看我们 [Node.js SDK](https://github.com/helius-labs/helius-sdk) 和 [Rust SDK](https://github.com/helius-labs/helius-rust-sdk) 中 `sendSmartTransaction` 方法的底层代码，以了解此工作流程的生产级实现。
 </Info>
 
 ### 1. 构建初始交易
 
-首先，收集您想要包含在交易中的所有指令。然后，创建一个 `Transaction` 或 `VersionedTransaction` 对象。您还需要获取一个最近的区块哈希。
+首先，收集您想要包含在交易中的所有指令。然后，创建一个 `Transaction` 或 `VersionedTransaction` 对象。您还需要获取一个最近的 blockhash。
 
 此示例准备了一个版本化交易。在此阶段，您还必须签署它，以便在下一步中进行模拟。
 
@@ -119,7 +119,7 @@ const setCuLimitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
 
 接下来，确定要添加到交易中的最佳优先费用。使用 Helius [优先费用 API](/zh/priority-fee-api) 是根据当前网络状况获取实时估算的最佳方式。
 
-您需要调用 `getPriorityFeeEstimate` RPC 方法。为了通过 Helius 的质押连接获得最高的包含机会，使用 `recommended: true` 选项。
+您需要调用 `getPriorityFeeEstimate` RPC 方法。为了通过 Helius 的质押连接获得最高的包含机会，请使用 `recommended: true` 选项。
 
 ```typescript
 // The transaction needs to be serialized and base58 encoded
@@ -161,7 +161,7 @@ const setPriorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
 现在，组装带有新计算预算指令的最终交易，发送它，并实施一个强大的轮询机制以确认它已被记录。
 
 <Warning>
-  不要依赖 RPC 提供商的默认重试逻辑（`maxRetries` 在 `sendTransaction` 中）。虽然 Helius 的质押连接会将您的交易直接转发给领导者，但它仍可能被丢弃。您必须实现自己的重广播逻辑以确保可靠的确认。
+  不要依赖 RPC 提供者的默认重试逻辑（`maxRetries` 在 `sendTransaction` 中）。虽然 Helius 的质押连接会将您的交易直接转发给领导者，但它仍可能被丢弃。您必须实现自己的重广播逻辑以获得可靠的确认。
 </Warning>
 
 一个常见的模式是定期重新发送相同的交易，直到 blockhash 过期。**只有在您也获取新的 blockhash 时才重新签署交易。** 使用相同的 blockhash 重新签署可能导致重复交易被确认。

@@ -20,7 +20,7 @@ description: 官方 Helius SDK，支持在 Node.js 和 Rust 中进行 Solana 开
 
 ## Node.js SDK
 
-请注意，Node.js SDK 从版本 2.0.0 开始已被重写。这是为了使用`@solana/kit`并移除对版本高于 1.73.2 的`@solana/web3.js`的依赖。对于迁移到最新版本的用户，请参考我们的[迁移指南](https://github.com/helius-labs/helius-sdk/blob/main/MIGRATION.md)。
+请注意，Node.js SDK 从版本 2.0.0 开始已重写。这是为了使用 `@solana/kit` 并移除对高于 1.73.2 版本的 `@solana/web3.js` 的依赖。对于迁移到最新版本的用户，请参考我们的[迁移指南](https://github.com/helius-labs/helius-sdk/blob/main/MIGRATION.md)。
 
 ### 安装
 
@@ -85,20 +85,20 @@ import { createHelius } from "helius-sdk";
 ### 安装
 
 <Steps>
-  <Step title="将依赖项添加到 Cargo.toml">
-    要在项目中开始使用 Helius Rust SDK，请通过[`cargo`](https://doc.rust-lang.org/cargo/)将其添加为依赖项。打开项目的`Cargo.toml`并在`[dependencies]`下添加以下行：
+  <Step title="添加依赖到 Cargo.toml">
+    要在项目中使用 Helius Rust SDK，请通过 [`cargo`](https://doc.rust-lang.org/cargo/) 将其添加为依赖项。打开项目的 `Cargo.toml` 并在 `[dependencies]` 下添加以下行：
 
     ```toml
     helius = "x.y.z"
     ```
 
-    其中`x.y.z`是您所需的版本。
+    其中 `x.y.z` 是您期望的版本。
   </Step>
   <Step title="替代方法：使用 cargo add 命令">
-    或者，使用`cargo add helius`直接通过命令行添加依赖项。这将自动找到与您的项目兼容的最新版本并将其添加到您的`Cargo.toml`。
+    或者，使用 `cargo add helius` 通过命令行直接添加依赖项。这将自动找到与项目兼容的最新版本并将其添加到您的 `Cargo.toml`。
   </Step>
   <Step title="保持 SDK 更新">
-    请记得定期运行`cargo update`以获取 SDK 的最新版本。
+    请记得定期运行 `cargo update` 以获取 SDK 的最新版本。
   </Step>
 </Steps>
 
@@ -187,13 +187,13 @@ async fn main() -> Result<()> {
 
 <Steps>
   <Step title="检查错误文档">
-    如果使用Rust SDK，请参考[`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs)以获取客户端返回的所有可能错误的列表。对于Node.js SDK，请参考[Kit的错误](https://www.solanakit.com/docs/concepts/errors)
+    如果使用 Rust SDK，请参考 [`errors.rs`](https://github.com/helius-labs/helius-rust-sdk/blob/dev/src/error.rs) 以获取 `Helius` 客户端可能返回的所有错误列表。对于 Node.js SDK，请参考 [Kit 的错误](https://www.solanakit.com/docs/concepts/errors)
   </Step>
   <Step title="查看文档">
-    请参考[Helius文档](/)以获得进一步指导
+    请参考 [Helius 文档](/) 以获取更多指导
   </Step>
   <Step title="联系支持">
-    联系Helius支持团队以获得更详细的帮助
+    联系 Helius 支持团队以获取更详细的帮助
   </Step>
 </Steps>
 
