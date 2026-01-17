@@ -24,64 +24,17 @@ LaserStream 客户端通过槽号持续跟踪您的流媒体位置。如果发�
 
 <CodeGroup>
 
-```bash npm
-npm install helius-laserstream
-```
+{/* 代码占位符_3cb843db4601437a3ec9581c6f7774f1 */}
 
-```bash yarn
-yarn add helius-laserstream
-```
+{/* 代码占位符_44bc4dea59b9e6c612d3b33ed0eb8982 */}
 
-```bash pnpm
-pnpm add helius-laserstream
-```
+{/* 代码占位符_6be318c4a1c0d8c235483186d47bf754 */}
 
 </CodeGroup>
 
 ### 快速开始
 
-```typescript [expandable]
-import { subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest } from 'helius-laserstream';
-
-async function streamTransactions() {
-  const config: LaserstreamConfig = {
-    apiKey: 'YOUR_API_KEY',
-    endpoint: 'https://laserstream-mainnet-ewr.helius-rpc.com',
-  };
-
-  const request: SubscribeRequest = {
-    transactions: {
-      client: {
-        accountInclude: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'], // Jupiter Program
-        accountExclude: [],
-        accountRequired: [],
-        vote: false,
-        failed: false
-      }
-    },
-    commitment: CommitmentLevel.CONFIRMED,
-    accounts: {},
-    slots: {},
-    transactionsStatus: {},
-    blocks: {},
-    blocksMeta: {},
-    entry: {},
-    accountsDataSlice: []
-  };
-
-  // The SDK handles reconnection and replay automatically
-  await subscribe(config, request, 
-    async (data) => {
-      console.log('New transaction:', data);
-    }, 
-    async (error) => {
-      console.error('Error:', error);
-    }
-  );
-}
-
-streamTransactions().catch(console.error);
-```
+{/* 代码占位符_5c36e2ea6fd0247cd59159e736c73e40 */}
 
 ### 可靠性比较
 
@@ -98,50 +51,11 @@ streamTransactions().catch(console.error);
 
 ### 安装
 
-```toml
-[dependencies]
-helius-laserstream = "0.1"
-tokio = { version = "1", features = ["full"] }
-```
+{/* 代码占位符_682a2e563898d4dc1980a8581a9483fb */}
 
 ### 快速开始
 
-```rust [expandable]
-use helius_laserstream::{subscribe, CommitmentLevel, LaserstreamConfig, SubscribeRequest};
-use futures::StreamExt;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = LaserstreamConfig {
-        api_key: "YOUR_API_KEY".to_string(),
-        endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com".to_string(),
-    };
-
-    let request = SubscribeRequest {
-        transactions: Some(TransactionsFilter {
-            client: Some(TransactionFilter {
-                account_include: vec!["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4".to_string()],
-                vote: false,
-                failed: false,
-                ..Default::default()
-            }),
-        }),
-        commitment: CommitmentLevel::Confirmed,
-        ..Default::default()
-    };
-
-    let mut stream = subscribe(config, request).await?;
-
-    while let Some(result) = stream.next().await {
-        match result {
-            Ok(data) => println!("New transaction: {:?}", data),
-            Err(e) => eprintln!("Error: {:?}", e),
-        }
-    }
-
-    Ok(())
-}
-```
+{/* 代码占位符_764a970b1a698a5124121ca1f64fc907 */}
 
 ## Go 客户端
 
@@ -149,55 +63,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### 安装
 
-```bash
-go get github.com/helius-labs/laserstream-sdk/go
-```
+{/* 代码占位符_2c5fb8b049bfeae994befb805ed6c32a */}
 
 ### 快速开始
 
-```go [expandable]
-package main
-
-import (
-    "context"
-    "fmt"
-    "log"
-    
-    laserstream "github.com/helius-labs/laserstream-sdk/go"
-)
-
-func main() {
-    config := &laserstream.Config{
-        APIKey:   "YOUR_API_KEY",
-        Endpoint: "https://laserstream-mainnet-ewr.helius-rpc.com",
-    }
-
-    request := &laserstream.SubscribeRequest{
-        Transactions: &laserstream.TransactionsFilter{
-            Client: &laserstream.TransactionFilter{
-                AccountInclude: []string{"JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"},
-                Vote:          false,
-                Failed:        false,
-            },
-        },
-        Commitment: laserstream.CommitmentConfirmed,
-    }
-
-    ctx := context.Background()
-    stream, err := laserstream.Subscribe(ctx, config, request)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    for data := range stream {
-        if data.Error != nil {
-            log.Printf("Error: %v", data.Error)
-            continue
-        }
-        fmt.Printf("New transaction: %+v\n", data)
-    }
-}
-```
+{/* 代码占位符_a9db37b3648f1a2011023cfd3d61d91f */}
 
 ## 为什么从Yellowstone迁移到LaserStream
 

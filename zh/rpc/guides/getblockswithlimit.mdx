@@ -4,7 +4,7 @@ sidebarTitle: getBlocksWithLimit
 description: 了解 getBlocksWithLimit 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getBlocksWithLimit`](https://www.helius.dev/docs/api-reference/rpc/http/getblockswithlimit) RPC 方法允许您检索已确认的区块槽编号列表，从指定的槽开始并返回到给定的限制。这在您需要从分类账的某个点开始的特定数量的后续已确认[区块](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)时非常有用。
+[`getBlocksWithLimit`](https://www.helius.dev/docs/api-reference/rpc/http/getblockswithlimit) RPC 方法允许您检索已确认的区块槽编号列表，从指定的槽开始，返回最多给定的限制。这在您需要从分类账中的某个点开始的特定数量的后续已确认[区块](https://www.helius.dev/blog/solana-slots-blocks-and-epochs)时非常有用。
 
 <Warning>
 **避免批处理以提高性能**
@@ -22,21 +22,21 @@ description: 了解 getBlocksWithLimit 的使用案例、代码示例、请求�
 
 `getBlocksWithLimit` 方法接受以下参数：
 
-1. **`start_slot`** (u64, 必需): 要考虑的第一个槽位（包括在内）。
-2. **`limit`** (u64, 必需): 要返回的最大区块槽位数。查询的槽位总数（从 `start_slot` 到其后的 `limit` 区块）**不得超过500,000个槽位**。
-3. **`commitment`** (string, 可选): 指定查询的承诺级别。如果省略，则使用节点的默认承诺。这作为配置对象中的唯一字段传递，作为最后一个参数。
+1.  **`start_slot`** (u64, 必需): 要考虑的第一个槽（包括）。
+2.  **`limit`** (u64, 必需): 要返回的最大区块槽数量。查询的槽总数（从 `start_slot` 到其后的 `limit` 区块）**不得超过 500,000 个槽**。
+3.  **`commitment`** (字符串, 可选): 指定查询的承诺级别。如果省略，则使用节点的默认承诺。这作为配置对象中的唯一字段传递，作为最后一个参数。
 
 ## 响应结构
 
-JSON-RPC响应的 `result` 字段将是一个u64整数数组。数组中的每个整数表示一个确认的区块槽位号，从 `start_slot` 开始到指定的 `limit`。
+JSON-RPC 响应的 `result` 字段将是一个 u64 整数数组。数组中的每个整数表示一个已确认的区块槽编号，从 `start_slot` 开始到指定的 `limit`。
 
-* 例子：如果 `start_slot` 是5，`limit` 是3，可能的结果是 `[5, 6, 7]`。
+*   示例: 如果 `start_slot` 是 5 且 `limit` 是 3，可能的结果是 `[5, 6, 7]`。
 
 ## 示例
 
 ### 1. 从起始槽位获取有限数量的区块
 
-此示例从槽位 `280000000` 开始获取最多5个确认的区块槽位列表。
+此示例从槽 `280000000` 开始获取最多 5 个已确认的区块槽列表。
 
 <CodeGroup>
 
@@ -76,7 +76,7 @@ getBlocksWithLimitExample(startSlot, limit);
 
 ### 2. 获取具有限制和特定承诺级别的区块
 
-此示例从插槽`290000000`开始获取最多3个区块，使用`confirmed`承诺级别。
+此示例使用 `confirmed` 承诺级别从槽 `290000000` 开始获取最多 3 个区块。
 
 <CodeGroup>
 
@@ -117,9 +117,9 @@ getBlocksWithLimitAndCommitment(commitStartSlot, commitLimit);
 
 ## 开发者提示
 
-*   **范围说明：** `limit`参数决定返回的最大区块*插槽*数量。500,000插槽限制适用于扫描的概念范围（即从`start_slot`到`start_slot + limit - 1`）。确保此概念范围不超过500,000插槽，即使在该范围内找到并返回的实际区块较少。
-*   **节点数据可用性：** 节点可能不会保留所有历史插槽的信息。一个非常旧的`start_slot`可能返回的区块少于指定的`limit`，或返回空数组，这取决于节点的账本保留情况。
-*   **区块确认：** 此方法返回*已确认*的区块。具体的区块集合可能会根据所选的`commitment`级别和查询的节点而略有不同，尤其是对于非常近期的插槽。
-*   **用例特定性：** 当您知道起始点并需要固定数量的后续区块时，`getBlocksWithLimit`是理想的选择。如果您需要已知插槽范围内的所有区块，`getBlocks`可能更合适。
+*   **范围说明：** `limit` 参数决定要返回的最大区块*槽*数量。500,000槽的限制适用于扫描的概念范围（即从 `start_slot` 到 `start_slot + limit - 1`）。确保此概念范围不超过500,000槽，即使在该范围内找到并返回的实际区块较少。
+*   **节点数据可用性：** 节点可能不会保留所有历史槽的信息。一个非常旧的 `start_slot` 可能返回的区块数量少于指定的 `limit`，或者返回一个空数组，这取决于节点的账本保留情况。
+*   **区块确认：** 此方法返回*已确认*的区块。具体的区块集合可能会根据所选的 `commitment` 级别和查询的节点而略有不同，尤其是对于非常近期的槽。
+*   **用例特定性：** 当您知道起始点并需要固定数量的后续区块时，`getBlocksWithLimit` 是理想的选择。如果您需要已知槽范围内的所有区块，`getBlocks` 可能更合适。
 
-本指南清晰概述了如何使用`getBlocksWithLimit` RPC方法在Solana网络上列出特定数量的已确认区块插槽。
+本指南清晰概述了如何使用 `getBlocksWithLimit` RPC 方法在 Solana 网络上列出特定数量的已确认区块槽。

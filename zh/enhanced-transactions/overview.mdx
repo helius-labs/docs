@@ -1,0 +1,89 @@
+---
+title: 增强交易概览
+sidebarTitle: 概览
+description: 使用Helius增强交易API将复杂的Solana区块链交易转换成人类可读的数据。解析交易详情，获取历史记录，并了解链上活动，无需手动解码。
+---
+
+<CardGroup cols={2}>
+  <Card title="解析交易" icon="code" href="/zh/enhanced-transactions/parse-transactions">
+    将交易解析为人类可读的数据
+  </Card>
+  <Card title="交易历史" icon="clock-rotate-left" href="/zh/enhanced-transactions/transaction-history">
+    获取任何地址的历史交易数据
+  </Card>
+</CardGroup>
+
+<Note>
+**快速参考**:
+- `/v0/transactions` - 解析单个或多个交易签名
+- `/v0/addresses/{address}/transactions` - 获取某个地址的交易历史
+- 使用 `type` 参数按交易类型过滤（例如，`NFT_SALE`, `SWAP`, `TRANSFER`）
+- 在 [API参考](/zh/api-reference/enhanced-transactions/gettransactionsbyaddress) 中查看所有可用的类型过滤器
+</Note>
+
+## 概览
+
+增强交易API将复杂的Solana交易转换为人类可读的数据。
+
+## 主要功能
+
+<CardGroup cols={2}>
+  <Card title="人类可读数据" icon="book-open">
+    获取交易活动的清晰描述，而不是原始区块链数据
+  </Card>
+  <Card title="类型过滤" icon="filter">
+    按类型过滤交易：NFT销售、交换、转账等。
+    [查看所有类型](/zh/api-reference/enhanced-transactions/gettransactionsbyaddress)。
+  </Card>
+  <Card title="分页支持" icon="arrows-rotate">
+    通过内置分页高效获取大量交易历史
+  </Card>
+  <Card title="详细元数据" icon="info">
+    访问时间戳、费用、签名和账户信息
+  </Card>
+</CardGroup>
+
+## 您将获得
+
+增强交易API提供：
+
+- **结构化数据**：以清晰、可访问的格式组织的交易详情
+- **事件摘要**：每笔交易发生情况的高级摘要
+- **账户信息**：所有涉及账户的详细信息
+- **转账详情**：关于SOL和代币移动的清晰信息
+- **时间戳**：交易处理的时间
+- **费用信息**：交易费用和费用支付者详情
+
+## 用例
+
+增强交易API非常适合：
+
+- **钱包应用**：向用户显示交易历史
+- **投资组合追踪器**：跟踪账户间的资产移动
+- **分析平台**：分析链上活动
+- **NFT市场**：监控NFT销售和上市
+- **DeFi应用**：跟踪交换和转账（对于支持的协议）
+
+## 入门
+
+<Steps>
+<Step title="获取您的API密钥">
+  在[dashboard.helius.dev](https://dashboard.helius.dev)注册以获取您的API密钥。
+</Step>
+
+<Step title="选择您的端点">
+  根据您的需求选择解析交易或交易历史端点。
+</Step>
+
+<Step title="发起您的第一个请求">
+  从一个简单的请求开始，解析交易或获取交易历史。
+  
+  <Tip>
+  查看我们的[解析交易](/zh/enhanced-transactions/parse-transactions)和[交易历史](/zh/enhanced-transactions/transaction-history)指南以获取代码示例。
+  </Tip>
+</Step>
+</Steps>
+
+## 有问题吗？
+
+有关增强交易的常见问题，包括使用、认证、速率限制和故障排除，请访问我们全面的[增强交易FAQ](/zh/faqs/enhanced-transactions)。

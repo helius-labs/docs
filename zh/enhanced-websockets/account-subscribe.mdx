@@ -10,12 +10,12 @@ Solana的Websockets支持一种方法，允许您订阅一个账户，并在与�
 
 ### **参数**
 
-`string`: 账户公钥，以base58格式发送（必需）。
+`string`：账户公钥，以base58格式发送（必需）。
 
-`object`: 一个可选对象，用于传递附加参数。
+`object`：一个可选对象，用于传递附加参数。
 
-* `encoding`: 指定在AccountNotification中返回的数据格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是**base58**）。
-* `commitment`: 定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是**finalized**）。
+* `encoding`：指定在AccountNotification中返回数据的格式。支持的值：**base58**、**base64**、**base64+zstd**、**jsonParsed**（默认是**base58**）。
+* `commitment`：定义交易的承诺级别。支持的值：**finalized**、**confirmed**、**processed**（默认是**finalized**）。
 
 ## 示例
 
@@ -23,10 +23,10 @@ Solana的Websockets支持一种方法，允许您订阅一个账户，并在与�
 
 <AccordionGroup>
 <Accordion title="代码示例">
-在此示例中，我们正在订阅账户 `SysvarC1ock11111111111111111111111111111111` 的更改。 \
+在此示例中，我们订阅账户 `SysvarC1ock11111111111111111111111111111111` 的变更。 \
 \
 每当此账户的数据或lamports发生变化时，我们将看到更新。\
-对于此特定账户，这种情况会频繁发生，因为 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分。
+由于 `slot` 和 `unixTimestamp` 都是返回账户数据的一部分，因此这种情况会在此特定账户上频繁发生。
 
 ```javascript
 const WebSocket = require('ws');

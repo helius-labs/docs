@@ -15,18 +15,18 @@ description: 了解 getTokenAccountBalance 的使用案例、代码示例、请�
 
 ## 请求参数
 
-1.  **代币账户公钥**（字符串，必需）：要查询的 SPL Token 账户的 base-58 编码公钥。
-2.  **配置对象**（对象，可选）：一个可选对象，可以包含以下字段：
+1.  **Token Account Public Key**（字符串，必需）：要查询的 SPL Token 账户的 base-58 编码公钥。
+2.  **Configuration Object**（对象，可选）：一个可选对象，可以包含以下字段：
     *   **`commitment`**（字符串，可选）：指定查询的[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)。如果省略，则使用 RPC 节点的默认承诺（通常为 `finalized`）。
 
 ## 响应结构
 
-JSON-RPC 响应中的 `result` 字段包含一个对象，该对象具有 `context` 和 `value` 字段。`value` 对象包含余额信息：
+JSON-RPC 响应中的 `result` 字段包含一个带有 `context` 和 `value` 字段的对象。`value` 对象包含余额信息：
 
-*   **`amount`**（字符串）：代币账户的原始余额，作为字符串表示。这是一个整数，代表代币的最小单位（例如，如果代币有 6 位小数，"1000000" 表示 1 个代币）。
+*   **`amount`**（字符串）：代币账户的原始余额，表示为字符串。这是一个整数，代表代币的最小单位（例如，如果代币有 6 位小数，则 "1000000" 表示 1 个代币）。
 *   **`decimals`**（u8）：为此代币类型（由其铸造）定义的小数位数。
 *   **`uiAmount`**（数字 | null）：格式化为浮点数的余额，考虑到 `decimals`。在某些情况下，此字段可能为 `null` 或被弃用，取而代之的是 `uiAmountString`。
-*   **`uiAmountString`**（字符串）：格式化为字符串的余额，考虑到 `decimals`。通常为了避免潜在的浮点不准确性，优先用于显示。
+*   **`uiAmountString`**（字符串）：格式化为字符串的余额，考虑到 `decimals`。这通常是显示的首选，以避免潜在的浮点不准确性。
 
 **示例响应：**
 
@@ -122,7 +122,7 @@ checkTokenBalance(exampleTokenAccount);
 ## 开发者提示
 
 *   **Token Account vs. Mint Account vs. Owner Account:** 确保您提供的是 *SPL Token Account* 的公钥，而不是代币的 *mint address* 或 *owner's wallet address*。您通常可以使用 `getTokenAccountsByOwner` 获取所有者的代币账户。
-*   **Decimals:** 始终使用 `decimals` 字段来正确解释 `amount`。为了避免浮点精度问题，`uiAmountString` 通常比 `uiAmount` 更安全用于显示。
+*   **Decimals:** 始终使用 `decimals` 字段来正确解释 `amount`。为了避免浮点精度问题，显示时通常使用 `uiAmountString` 比 `uiAmount` 更安全。
 *   **Non-Existent Accounts:** 如果提供的公钥不对应于现有的代币账户，行为可能会因 RPC 提供者或库而略有不同，但通常响应中的 `value` 将是 `null` 或会抛出错误。JavaScript 示例中包括对 `balance.value` 的基本检查。
 *   **Commitment Levels:** 使用不同的承诺级别会影响您看到余额变化的速度，尤其是对于非常近期的交易。`finalized` 是最安全的，但延迟最大。
 

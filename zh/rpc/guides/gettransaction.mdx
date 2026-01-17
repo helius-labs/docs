@@ -3,8 +3,7 @@ title: 如何使用 getTransaction
 sidebarTitle: getTransaction
 description: 了解 getTransaction 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
-
-[`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettransaction) RPC 方法允许您通过提供其签名来检索有关已确认交易的详细信息。这包括交易的槽位、区块时间、元数据（如费用、状态和余额变化）以及交易结构本身。
+通过提供交易的签名，[`getTransaction`](https://www.helius.dev/docs/api-reference/rpc/http/gettransaction) RPC方法允许您检索已确认交易的详细信息。这包括交易的槽位、区块时间、元数据（如费用、状态和余额变化）以及交易结构本身。
 
 <Warning>
 **避免批处理以提高性能**
@@ -14,8 +13,8 @@ description: 了解 getTransaction 的使用案例、代码示例、请求参数
 
 ## 常见用例
 
-* **交易验证：** 确认交易已处理并检查其结果（成功或失败）。
-* **交易历史显示：** 向用户展示他们在钱包或浏览器中的过去交易详情。
+* **交易验证：** 确认交易已被处理并检查其结果（成功或失败）。
+* **交易历史显示：** 在钱包或浏览器中向用户显示其过去交易的详细信息。
 * **审计和分析：** 检查交易的具体细节，包括执行的指令、支付的费用和涉及的账户。
 * **调试失败的交易：** 检查元数据中的`logMessages`和`err`字段以了解交易失败的原因。
 * **数据索引：** 从交易中提取特定信息以进行链下存储和分析。
@@ -28,7 +27,7 @@ description: 了解 getTransaction 的使用案例、代码示例、请求参数
  * **`commitment`**（字符串，可选）：指定[承诺级别](https://www.helius.dev/blog/solana-commitment-levels)（例如，`"finalized"`，`"confirmed"`）。如果未提供，则使用节点的默认承诺（通常是`"finalized"`）。
  * **`encoding`**（字符串，可选）：`transaction`数据的编码。常见值：
  * `"json"`：以结构化JSON格式返回交易数据（但指令可能仍然是base64编码）。
- * `"jsonParsed"`：返回交易数据，其中程序特定的指令被解析为人类可读的JSON结构（如果可能）。这通常是分析最有用的编码。
+ * `"jsonParsed"`：返回交易数据，其中程序特定的指令被解析为人类可读的JSON结构。这通常是分析最有用的编码。
  * `"base58"`：将交易数据作为base-58编码的字符串返回。
  * `"base64"`：将交易数据作为base-64编码的字符串返回。
  * 如果Helius未指定，默认为`"json"`，但Solana默认可能不同。最好指定此项。
@@ -38,28 +37,28 @@ description: 了解 getTransaction 的使用案例、代码示例、请求参数
 
 ## 响应结构
 
-如果未找到交易（例如，尚未处理或签名不正确）或未确认到指定的承诺级别，该方法返回`null`。否则，它返回一个包含以下字段的对象：
+如果未找到交易（例如，尚未处理或签名不正确）或未确认到指定的承诺级别，则该方法返回`null`。否则，它返回一个包含以下字段的对象：
 
 * **`slot`** (u64)：交易被包含在区块中的槽号。
-* **`blockTime`** (i64 | null)：生成包含交易的区块时的估计Unix时间戳（自纪元以来的秒数）。如果不可用，可以是`null`。
-* **`meta`** (object | null)：包含有关交易执行的元数据的对象。如果交易在处理前失败或元数据不可用，可以是`null`。
- * **`err`** (object | null)：如果交易失败，则为错误对象，否则为`null`。
- * **`fee`** (u64)：为交易支付的lamports费用。
- * **`preBalances`** (array of u64)：交易处理*之前*涉及账户的lamport余额。
- * **`postBalances`** (array of u64)：交易处理*之后*涉及账户的lamport余额。
+* **`blockTime`** (i64 | null)：包含交易的区块生成时的估计Unix时间戳（自纪元以来的秒数）。如果不可用，可以是`null`。
+* **`meta`** (object | null)：包含交易执行元数据的对象。如果交易在处理前失败或元数据不可用，可以是`null`。
+ * **`err`** (object | null)：如果交易失败则为错误对象，否则为`null`。
+ * **`fee`** (u64)：交易支付的lamports费用。
+ * **`preBalances`** (array of u64)：交易处理*之前*涉及账户的Lamport余额。
+ * **`postBalances`** (array of u64)：交易处理*之后*涉及账户的Lamport余额。
  * **`preTokenBalances`** (array of objects | null)：交易*之前*涉及的代币账户的代币余额。
  * **`postTokenBalances`** (array of objects | null)：交易*之后*涉及的代币账户的代币余额。
  * **`innerInstructions`** (array of objects | null)：作为此交易中CPI（跨程序调用）的一部分执行的指令数组。
  * **`logMessages`** (array of string | null)：由交易指令和任何内部指令发出的日志消息数组。
- * **`loadedAddresses`** (object, optional)：指定为此交易从地址查找表加载的账户。包含`writable`和`readonly`的公钥数组。
+ * **`loadedAddresses`** (object, optional)：指定从地址查找表加载的账户。包含`writable`和`readonly`的公钥数组。
  * **`returnData`** (object, optional)：通过`sol_set_return_data`和`sol_get_return_data`返回的交易数据。包含`programId`（字符串）和`data`（数组：`[string, encoding]`）。
  * **`computeUnitsConsumed`** (u64, optional)：此交易消耗的计算单元数。
 * **`transaction`** (object | array)：交易结构本身。格式取决于`encoding`参数：
- * 如果`encoding`是`"jsonParsed"`或`"json"`：一个对象，包含`message`（包含`accountKeys`，`instructions`，`recentBlockhash`等）和`signatures`（字符串数组）。
- * 如果`encoding`是`"base58"`，`"base64"`：一个数组`[encoded_string, encoding_format_string]`。
-* **`version`** ("legacy" | number | undefined)：交易的版本。对于旧交易，可以是`"legacy"`，对于版本化交易，可以是一个数字（例如，`0`）。如果`maxSupportedTransactionVersion`未设置且交易是版本化的，则为`undefined`。
+ * 如果`encoding`是`"jsonParsed"`或`"json"`：一个包含`message`（包含`accountKeys`、`instructions`、`recentBlockhash`等）和`signatures`（字符串数组）的对象。
+ * 如果`encoding`是`"base58"`、`"base64"`：一个数组`[encoded_string, encoding_format_string]`。
+* **`version`** ("legacy" | number | undefined)：交易的版本。对于旧交易可以是`"legacy"`，对于版本化交易可以是一个数字（例如，`0`）。如果`maxSupportedTransactionVersion`未设置且交易是版本化的，则为`undefined`。
 
-**示例响应（`jsonParsed` 编码）：**
+**示例响应 (`jsonParsed` 编码):**
 
 ```json
 {
@@ -196,10 +195,10 @@ console.log("Please replace 'exampleSignature' with a real transaction signature
 
 ## 开发者提示
 
-* **交易最终性：** 确保您使用适当的 `commitment` 级别进行查询。请求尚未达到指定承诺的交易将导致 `null`。
-* **数据量：** 响应对象可能非常大，特别是对于包含许多指令或详细日志的复杂交易。在处理数据时要注意这一点。
-* **`jsonParsed` 与 `json`：** 虽然 `jsonParsed` 非常方便，但解析支持取决于 RPC 节点对特定程序的能力。如果程序未被识别，即使使用 `jsonParsed`，其指令可能会回退到较少解析的格式。
-* **版本化交易：** 始终在请求选项中设置 `maxSupportedTransactionVersion: 0`，以确保您的应用程序能够处理传统和版本化交易。否则，您可能会错过数据或遇到新交易格式的错误。
-* **RPC 提供商差异：** 虽然核心 API 是标准的，但某些 RPC 提供商可能提供增强的解析或附加字段。例如，Helius 提供丰富的交易解析。
+*   **交易最终性：**确保您使用适当的 `commitment` 级别进行查询。请求尚未达到指定承诺的交易将导致 `null`。
+*   **数据量：**响应对象可能非常大，特别是对于包含许多指令或详细日志的复杂交易。在处理数据时要注意这一点。
+*   **`jsonParsed` vs. `json`:** 虽然 `jsonParsed` 非常方便，但解析支持取决于 RPC 节点对特定程序的能力。如果程序未被识别，即使使用 `jsonParsed`，其指令可能会回退到较少解析的格式。
+*   **版本化交易：**始终在请求选项中设置 `maxSupportedTransactionVersion: 0`，以确保您的应用程序能够处理传统和版本化交易。否则，您可能会错过数据或遇到新交易格式的错误。
+*   **RPC 提供商差异：**虽然核心 API 是标准的，但某些 RPC 提供商可能提供增强的解析或附加字段。例如，Helius 提供丰富的交易解析。
 
 本指南提供了 `getTransaction` RPC 方法的全面概述，使您能够获取和理解详细的 Solana 交易数据。

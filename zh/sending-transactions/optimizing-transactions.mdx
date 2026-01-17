@@ -18,11 +18,11 @@ Staked connections 最适合于延迟对您的业务不关键的用例（例如�
 ## 总结
 Helius 的 staked connections 保证 100% 的交易交付，确认时间最短。为了优化使用 staked connections 的交易着陆率，我们建议以下最佳实践：
 
-- 使用承诺 "confirmed" 来获取 [最新的 blockhash](/zh/rpc/guides/getlatestblockhash)
-- 添加 [优先费用](/zh/sending-transactions/optimizing-transactions#setting-the-right-priority-fee) 并动态计算它们
-- 优化计算单元 (CU) 的使用
-- 将 `maxRetries` 设置为 0 并实施强大的重试逻辑
-- 发送时将 `skipPreflight` 设置为 `true`（可选）
+- 使用承诺 "confirmed" 来获取[最新的区块哈希](/zh/rpc/guides/getlatestblockhash)
+- 添加[优先费用](/zh/sending-transactions/optimizing-transactions#setting-the-right-priority-fee)并动态计算它们
+- 优化计算单元（CU）使用
+- 将`maxRetries`设置为0并实现强大的重试逻辑
+- 发送时将`skipPreflight`设置为`true`（可选）
 
 <Tip>
   想深入了解吗？我们在这篇 [博客文章](https://www.helius.dev/blog/how-to-land-transactions-on-solana) 中涵盖了所有基础知识。
@@ -35,11 +35,11 @@ Helius 的 staked connections 保证 100% 的交易交付，确认时间最短�
 但是，如果您使用 staked connections 并希望优化您的设置以获得尽可能低的延迟，我们建议以下优化（除了应用上述最佳实践）：
 
 - 您的客户端服务器（用于发送交易的机器）应位于美国东部或西欧。
-- 如果您希望与 Helius 交易发送服务器共同定位，请选择 FRA 或 PIT。
+- 如果您希望与Helius交易发送服务器共址，请选择FRA或PIT。
 - 避免从远离验证器网络的地区发送（例如，拉丁美洲、南非）。
-- 预热 Helius 区域缓存以最小化尾部延迟。
-- 每个区域只需要一个预热线程 - 任何更多都没有好处。
-- 每秒使用您用于发送交易的相同端点和 API 密钥发送一个 [`getHealth`](/zh/rpc/guides/gethealth) RPC 调用。
+- 预热Helius区域缓存以最小化尾部延迟。
+- 每个区域只需要一个预热线程——再多也没有任何好处。
+- 每秒使用您用于发送交易的相同端点和API密钥发送一个[`getHealth`](/zh/rpc/guides/gethealth) RPC调用。
 
 <Note>
   这些好处只有经验丰富的交易者才能注意到。对于一般的应用程序开发者，我们建议遵循下面“发送智能交易”部分中的指南。
@@ -75,9 +75,9 @@ Helius 的 [Node.js](/zh/sending-transactions/optimizing-transactions#node-js-sd
 
 ### Node.js SDK
 
-`sendSmartTransaction` 方法在我们的 [Helius Node.js SDK](/zh/sdks) 中可用，适用于 [版本 \>= 1.3.2](https://www.npmjs.com/package/helius-sdk)。要更新到更高版本的 SDK，请运行 `npm update helius-sdk`。
+`sendSmartTransaction`方法在我们的[Helius Node.js SDK](/zh/sdks)中可用，适用于[版本\>= 1.3.2](https://www.npmjs.com/package/helius-sdk)。要更新到更新版本的SDK，请运行`npm update helius-sdk`。
 
-此示例将 SOL 转移到您选择的账户。它使用 `sendSmartTransaction` 发送一个不跳过预检检查的优化交易：
+此示例将SOL转移到您选择的账户。它使用`sendSmartTransaction`发送一个不跳过预检的优化交易：
 
 ```typescript
 import { Helius } from "helius-sdk";
@@ -107,11 +107,11 @@ console.log(`Successful transfer: ${transactionSignature}`);
 
 ### Rust SDK
 
-`send_smart_transaction` 方法在我们的 [Rust SDK](/zh/sdks) 中可用，适用于 [版本 \>= 0.1.5](https://crates.io/crates/helius)。要更新到更高版本的 SDK，请运行 `cargo update helius`。
+`send_smart_transaction`方法在我们的[Rust SDK](/zh/sdks)中可用，适用于[版本\>= 0.1.5](https://crates.io/crates/helius)。要更新到更新版本的SDK，请运行`cargo update helius`。
 
 以下示例将 0.01 SOL 转移到您选择的账户。
 
-它利用 `send_smart_transaction` 发送一个跳过预检检查并在必要时重试两次的优化交易：
+它利用`send_smart_transaction`发送一个跳过预检并在必要时重试两次的优化交易：
 
 ```rust
 use helius::types::*;
@@ -172,7 +172,7 @@ Node.js SDK 和 Rust SDK 都是开源的，因此可以随时查看发送智能�
 
 首先，准备和构建初始交易。这包括创建一个包含一组指令的新交易，添加最近的区块哈希，并指定费用支付者。
 
-对于版本化交易，创建一个 `TransactionMessage` 并在存在查找表时进行编译。
+对于版本化交易，创建一个`TransactionMessage`并在存在查找表时进行编译。
 
 然后，创建一个新的版本化交易并对其进行签名——这是模拟交易时所必需的，因为交易必须签名。
 
@@ -245,9 +245,9 @@ instructions.push(computeUnitIx);
 
 这相对简单。
 
-首先，为了序列化交易，Transaction和VersionedTransaction类型都有一个`.serialize()`方法。然后使用[bs58包](https://www.npmjs.com/package/bs58)来编码交易。
+首先，为了序列化交易，Transaction和VersionedTransaction类型都有一个`.serialize()`方法。然后使用[bs58包](https://www.npmjs.com/package/bs58)对交易进行编码。
 
-您的代码应类似于`bs58.encode(txt.serialize());`
+你的代码应类似于`bs58.encode(txt.serialize());`
 
 ### 设置正确的优先费用
 
@@ -300,17 +300,17 @@ instructions.push(computeBudgetIx);
 
 [`sendTransaction` RPC方法](/zh/api-reference/rpc/http/sendtransaction)有一个`maxRetries`参数，可以设置以覆盖RPC的默认重试逻辑，给予开发者更多的重试过程控制。
 
-一个常见的模式是通过[`getLatestBlockhash`](/zh/rpc/guides/getlatestblockhash)获取当前的区块哈希，存储`lastValidBlockHeight`，并在区块哈希过期前重试交易。
+通过[`getLatestBlockhash`](/zh/rpc/guides/getlatestblockhash)获取当前区块哈希，存储`lastValidBlockHeight`，并在区块哈希过期前重试交易是一个常见模式。
 
 关键是只有在区块哈希不再有效时才重新签署交易，否则网络可能会接受两个交易。
 
 一旦交易发送，重要的是轮询其确认状态，以查看网络是否已处理并确认交易，然后再重试。使用[`getSignatureStatuses` RPC方法](/zh/rpc/guides/getsignaturestatuses)检查交易列表的确认状态。
 
-@solana/web3.js SDK在其`Connection`类上也有一个`getSignatureStatuses`方法，用于获取多个签名的当前状态。
+@solana/web3.js SDK在其`Connection`类上也有一个`getSignatureStatuses`方法来获取多个签名的当前状态。
 
 ### sendSmartTransaction如何处理轮询和重新广播
 
-`sendSmartTransaction`方法有一个60秒的超时时间。由于一个区块哈希在150个槽内有效，并假设完美的400毫秒槽，我们可以合理地假设交易的区块哈希将在一分钟后失效。
+`sendSmartTransaction`方法的超时时间为60秒。由于区块哈希在150个槽内有效，并假设完美的400毫秒槽，我们可以合理地假设交易的区块哈希将在一分钟后失效。
 
 该方法发送交易并使用此超时时间轮询其签名：
 
@@ -342,7 +342,7 @@ try {
 
 `txtSig` 被设置为刚刚发送的交易的签名。
 
-然后，该方法使用 `pollTransactionConfirmation()` 方法轮询交易的确认状态。此方法每五秒检查一次交易状态，最多三次。
+然后，该方法使用 `pollTransactionConfirmation()` 方法轮询交易的确认状态。此方法每五秒检查一次交易状态，最多检查三次。
 
 如果在此期间交易未被确认，则返回错误：
 

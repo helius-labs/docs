@@ -57,11 +57,12 @@ paths:
 
         - 双向排序（升序/降序时间顺序）
         - 通过槽位、时间、签名和交易状态进行高级过滤
+        - 支持代币账户（包括关联代币账户的交易）
         - 使用基于槽位的键进行高效的键集分页
         - 可选择返回完整的交易详情或仅返回签名
         - 支持时间范围查询和状态过滤
 
-        非常适合构建全面的钱包历史记录、分析仪表板、审计跟踪以及任何需要详细交易分析和精确数据检索控制的应用程序。
+        非常适合构建全面的钱包历史、分析仪表板、审计跟踪，以及任何需要详细交易分析并精确控制数据检索的应用程序。
       security:
         - ApiKeyQuery: []
       requestBody:
@@ -125,11 +126,10 @@ paths:
                           example: desc
                         commitment:
                           type: string
-                          description: 请求的承诺级别。
+                          description: 请求的承诺级别。不支持`processed`承诺。
                           enum:
                             - confirmed
                             - finalized
-                            - processed
                           default: finalized
                           example: finalized
                         minContextSlot:
@@ -241,6 +241,15 @@ paths:
                                 - any
                               default: any
                               example: succeeded
+                            tokenAccounts:
+                              type: string
+                              description: 过滤相关代币账户的交易。控制是否包括涉及地址拥有的代币账户的交易。
+                              enum:
+                                - none
+                                - balanceChanged
+                                - all
+                              default: none
+                              example: balanceChanged
                           additionalProperties: false
                   items: false
                   default:

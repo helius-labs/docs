@@ -246,10 +246,10 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 ## 路由选项
 
 <CardGroup cols={2}>
-  <Card title="默认双重路由" icon="arrows-split-up-and-left">
-    同时将交易发送到 Solana 验证者和 Jito 基础设施，以最大化包含概率。需要至少 0.0002 SOL 的小费。
+  <Card title="默认双路由" icon="arrows-split-up-and-left">
+    同时将交易发送到 Solana 验证器和 Jito 基础设施，以最大化包含概率。需要最低 0.0002 SOL 小费。
   </Card>
-  <Card title="仅 SWQOS 替代方案" icon="dollar-sign">
+  <Card title="仅限 SWQOS 的替代方案" icon="dollar-sign">
     对于成本优化的交易，在任何端点 URL 中添加 `?swqos_only=true`。仅通过 SWQOS 基础设施路由，最低小费要求为 0.000005 SOL。
   </Card>
 </CardGroup>
@@ -262,7 +262,7 @@ Helius Sender 是一种专门用于超低延迟交易提交的服务。它通过
 
 ### 1. 跳过预检（强制）
 
-`skipPreflight` 参数**必须**设置为 `true`。Sender针对优先考虑速度而非交易验证的交易者进行了优化。
+必须将 `skipPreflight` 参数设置为 `true`。发送器针对优先考虑速度而非交易验证的交易者进行了优化。
 
 ```typescript
 {
@@ -297,7 +297,7 @@ wyvPkWjVZz1M8fHQnMMCDTQDbkManefNNhweYk5WkcF
 
 </Accordion>
 
-- **优先费用**：通过 `ComputeBudgetProgram.setComputeUnitPrice` 计算单元定价，以在验证者队列中优先处理您的交易
+- **优先费用**：通过 `ComputeBudgetProgram.setComputeUnitPrice` 计算单元定价，以在验证器队列中优先处理您的交易
 
 #### 为什么两者都需要
 
@@ -413,7 +413,7 @@ setInterval(() => {
 
 ## 使用
 
-Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以获得最佳性能。**所有事务必须包括小费和优先费用，并跳过预检检查。**
+发送器端点使用与标准 RPC 端点相同的 `sendTransaction` 方法，但对最佳性能有特定要求。**所有交易必须包括小费和优先费用，并跳过预检检查。**
 
 ### 基本请求格式
 
@@ -434,8 +434,12 @@ Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以�
 ```
 
 <Warning>
-上述内容必须包含一个 SOL 转账指令，最低小费到指定的小费账户和一个计算单元价格指令。没有这两个要求，您的事务将被拒绝。
+上述 `BASE64_ENCODED_TRANSACTION` 必须包含一个最低小费的 SOL 转账指令到指定的小费账户和一个计算单元价格指令。没有这两个要求，您的交易将被拒绝。
 </Warning>
+
+<Card title="API 参考" icon="code" href="/zh/api-reference/sender/sendtransaction">
+  查看完整的发送器 API 参考，包括请求/响应模式和参数。
+</Card>
 
 ### 简单代码示例
 
@@ -690,7 +694,7 @@ Sender 端点使用与标准 RPC 端点相同的方法，但有特定要求以�
 
 ### 动态优化的高级示例
 
-高级示例通过动态 Jito 提示（第 75 百分位）、自动计算单元计算、动态优先级费用和重试逻辑改进了简单版本。
+高级示例在简单版本的基础上进行了改进，具有动态 Jito 小费（第 75 百分位）、自动计算单元计算、动态优先费用和重试逻辑。
 
 <Tabs>
   <Tab title="@solana/web3.js">
@@ -1275,34 +1279,34 @@ export { sendWithSender };
 ## 最佳实践
 
 ### 端点选择
-- **前端应用程序**：使用`https://sender.helius-rpc.com/fast`以避免 CORS 预检失败。此端点会自动路由到最近的位置以获得最佳性能。
-- **后端应用程序**：选择最接近您的基础设施的区域 HTTP [端点](#endpoints)以获得最佳性能
+- **前端应用程序**：使用 `https://sender.helius-rpc.com/fast` 以避免 CORS 预检失败。此端点会自动路由到最近的位置以获得最佳性能。
+- **后端应用程序**：选择最接近您基础设施的区域 HTTP [端点](#endpoints) 以获得最佳性能
 
 ### 连接预热
-- 在空闲时间超过 1 分钟时使用`/ping`端点
+- 在空闲时间超过 1 分钟时使用 `/ping` 端点
 - 实施定期 ping 调用（每 30-60 秒）以保持连接预热
 - 在高频交易会话开始前预热连接
 
 ### 交易设置
 - 使用 `skipPreflight: true` 和 `maxRetries: 0`
-- 实现你自己的重试逻辑
+- 实施您自己的重试逻辑
 - 向指定账户包含至少 0.0002 SOL 的小费
 - 使用 `'confirmed'` 承诺获取区块哈希
 - 设置适当的计算单元限制
 
 ## 速率限制和扩展
 
-- **默认速率限制**：每秒15笔交易
-- **无积分消耗**：发送方交易不消耗计划中的API积分
-- **专业计划升级**：专业计划用户可以请求显著的速率限制增加，以支持高吞吐量交易应用
+- **默认速率限制**：每秒 15 笔交易
+- **无信用使用**：发送者交易不消耗您计划中的 API 信用
+- **专业计划升级**：专业计划用户可以请求显著的速率限制增加以支持高吞吐量交易应用程序
 
 ### 使用 API 密钥认证的自定义 TPS
 
 <Info>
-本节仅在您获得了更高的 TPS 限制并从 Helius 团队收到 API 密钥时相关。标准用户可以跳过本节。
+如果您已获得增加的 TPS 限制并从 Helius 团队收到 API 密钥，则此部分仅相关。标准用户可以跳过此部分。
 </Info>
 
-如果您已获得更高的 TPS 限制批准，您将收到一个专用的 Sender API 密钥。要使用它，请将 API 密钥作为查询参数附加到您的端点 URL：
+如果您已获得更高的 TPS 限制批准，您将收到一个专用的 API 密钥用于 Sender。要使用它，请将 API 密钥作为查询参数附加到您的端点 URL：
 
 <Tabs>
   <Tab title="前端/浏览器应用程序">
@@ -1348,18 +1352,18 @@ const response = await fetch(SENDER_ENDPOINT, {
 ```
 
 <Note>
-还没有自定义 TPS 限制？如果您的应用程序需要超过 15 TPS，请[在此请求更高的限制](https://form.typeform.com/to/FuvpgSNt)。
+还没有自定义TPS限制？如果您的应用程序需要超过15 TPS，请[在此请求更高的限制](https://form.typeform.com/to/FuvpgSNt)。
 </Note>
 
 ## 支持和扩展
 
 对于需要更高吞吐量的生产部署：
 
-<Card title="请求更高的 TPS 限制" icon="rocket" href="https://form.typeform.com/to/FuvpgSNt">
-需要超过 15 TPS？请填写我们的请求表格。专业计划用户可以获得高频交易应用程序的显著速率限制升级。
+<Card title="请求更高的TPS限制" icon="rocket" href="https://form.typeform.com/to/FuvpgSNt">
+需要超过15 TPS？请填写我们的请求表格。专业计划用户可以获得高频交易应用程序的显著速率限制升级。
 </Card>
 
 其他支持选项：
 
-* 通过 [Helius Dashboard](https://dashboard.helius.dev) 联系支持
-* 加入我们的 [Discord 社区](https://discord.com/invite/6GXdee3gBj) 以获得实时帮助
+* 通过[Helius仪表板](https://dashboard.helius.dev)联系支持
+* 加入我们的[Discord社区](https://discord.com/invite/6GXdee3gBj)以获得实时帮助

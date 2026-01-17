@@ -4,7 +4,7 @@ sidebarTitle: getFirstAvailableBlock
 description: 了解 getFirstAvailableBlock 的使用案例、代码示例、请求参数、响应结构和提示。
 ---
 
-[`getFirstAvailableBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getfirstavailableblock) RPC 方法返回尚未被查询节点从账本中清除的最低（最旧）确认区块的槽号。这对于了解特定节点当前存储的历史数据范围非常有用。
+[`getFirstAvailableBlock`](https://www.helius.dev/docs/api-reference/rpc/http/getfirstavailableblock) RPC 方法返回查询节点尚未从账本中清除的最低（最旧）确认区块的槽号。这对于了解特定节点当前存储的历史数据范围非常有用。
 
 ## 常见用例
 
@@ -57,8 +57,8 @@ logFirstAvailableBlock();
 
 ## 开发者提示
 
-*   **节点特定：** 不同 RPC 节点之间，第一个可用区块可能会有显著差异。节点可以配置以不同的速率修剪账本数据，因此一个节点可能比另一个节点有更深的历史记录。
-*   **非固定：** 由于旧槽最终会被从账本中清除以节省空间，`getFirstAvailableBlock` 返回的值会随着时间的推移而增加。
-*   **确认区块：** 此方法指的是确认区块。已处理但尚未确认或最终确定的区块不在考虑范围内。
+*   **节点特定:** 不同 RPC 节点之间，第一个可用区块可能会有显著差异。节点可以配置以不同的速率修剪账本数据，因此一个节点可能比另一个节点有更深的历史记录。
+*   **非固定:** 由于旧槽最终会从账本中清除以节省空间，`getFirstAvailableBlock` 返回的值会随着时间的推移而增加。
+*   **确认区块:** 此方法指的是确认区块。已处理但尚未确认或最终确定的区块不在考虑范围内。
 
-本指南解释了如何使用`getFirstAvailableBlock` RPC 方法来识别 Solana 节点上最早可用的区块槽。
+本指南解释了如何使用 `getFirstAvailableBlock` RPC 方法来识别 Solana 节点上最旧的可用区块槽。
